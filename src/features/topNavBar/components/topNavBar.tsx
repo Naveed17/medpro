@@ -371,7 +371,7 @@ function TopNavBar({ ...props }) {
                                     <Icon path="ic-toggle" />
                                 </IconButton>
                             ) :
-                            (!router.pathname.includes("/statistics") && <IconButton
+                            (!["/statistics", "/admin/doctors/[uuid]", "/admin/staff/[uuid]"].includes(router.pathname) && <IconButton
                                 disabled={lock}
                                 color="primary"
                                 edge="start"

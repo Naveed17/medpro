@@ -128,7 +128,7 @@ function SideBarMenu({children}: LayoutProps) {
                                         margin: "0.5rem 0",
                                         cursor: 'pointer'
                                     }}
-                                    className={router.pathname === item.href ? "active" : ""}>
+                                    className={router.pathname.includes(item.href) ? "active" : ""}>
                                     <Badge
                                         anchorOrigin={{
                                             vertical: "bottom",

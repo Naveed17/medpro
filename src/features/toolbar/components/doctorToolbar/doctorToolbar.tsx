@@ -1,5 +1,4 @@
 import { Button, FormControl, Stack, TextField, Typography } from "@mui/material";
-import _ from "lodash";
 import Autocomplete from "@mui/material/Autocomplete";
 
 function DoctorToolbar({ ...props }) {

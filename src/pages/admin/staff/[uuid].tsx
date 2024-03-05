@@ -1,42 +1,77 @@
-import { GetStaticProps, GetStaticPaths } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState, memo, useRef } from "react";
-import { SubHeader } from "@features/subHeader";
-import { useTranslation } from "next-i18next";
+import {GetStaticProps, GetStaticPaths} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useState, useEffect} from "react";
+import {SubHeader} from "@features/subHeader";
+import {useTranslation} from "next-i18next";
 import {
-    Autocomplete,
     Avatar,
     ListItemIcon,
-    Box, Button, Card, CardContent, FormControl, Grid, IconButton, List, ListItem, Stack, TextField, Typography, ListItemText, Link,
-
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Grid,
+    IconButton,
+    List,
+    ListItem,
+    Stack,
+    Typography,
+    ListItemText,
+    Link
 } from "@mui/material";
-import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineOppositeContent, timelineOppositeContentClasses, TimelineDot } from '@mui/lab';
-import { Label } from "@features/label"
-import { useRouter } from "next/router";
-import { DashLayout } from "@features/base";
+import {
+    Timeline,
+    TimelineItem,
+    TimelineSeparator,
+    TimelineConnector,
+    TimelineContent,
+    TimelineOppositeContent,
+    timelineOppositeContentClasses,
+    TimelineDot
+} from '@mui/lab';
+import {Label} from "@features/label"
+import {useRouter} from "next/router";
+import {DashLayout} from "@features/base";
 import dynamic from "next/dynamic";
-import { LoadingScreen } from "@features/loadingScreen";
-import { ConditionalWrapper } from "@lib/hooks";
+import {LoadingScreen} from "@features/loadingScreen";
+import {ConditionalWrapper} from "@lib/hooks";
 import Zoom from "react-medium-image-zoom";
 import IconUrl from "@themes/urlIcon";
-import { ChartsOption, ChartStyled } from "@features/charts";
-import { merge } from 'lodash';
+import {ChartsOption, ChartStyled} from "@features/charts";
+import {merge} from 'lodash';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { Dialog } from "@features/dialog";
-const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
+import {Dialog} from "@features/dialog";
+import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
+import {toggleSideBar} from "@features/menu";
+import {useAppDispatch} from "@lib/redux/hooks";
+
+const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
+
 function StaffDetails() {
     const router = useRouter();
-    const { t, ready } = useTranslation("staff", { keyPrefix: "config" });
+    const dispatch = useAppDispatch();
+
+    const {t, ready, i18n} = useTranslation("staff", {keyPrefix: "config"});
+
     const [openPersonalInfo, setOpenPersonalInfo] = useState(false);
     const [openEmploymentDetails, setOpenEmploymentDetails] = useState(false);
     const [openScheduledShifts, setOpenScheduledShifts] = useState<boolean>(false);
     const [openAssignment, setOpenAssignment] = useState<boolean>(false)
+
+    const error = false;
+
     const handleCloseEmploymentDetails = () => setOpenEmploymentDetails(false);
     const handleClosePersonalInfo = () => setOpenPersonalInfo(false);
     const handleCloseScheduledShifts = () => setOpenScheduledShifts(false);
-    const handleCloseAssignment = () => setOpenAssignment(false)
-    const error = false
+    const handleCloseAssignment = () => setOpenAssignment(false);
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["doctors"]);
+        dispatch(toggleSideBar(true));
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready || error) {
         return <LoadingScreen
             button
@@ -47,59 +82,20 @@ function StaffDetails() {
         />
     }
 
-
-
     return (
         <>
             <SubHeader>
                 <Stack
-                    direction={{ xs: 'column', md: 'row' }}
+                    direction={{xs: 'column', md: 'row'}}
                     justifyContent="space-between"
                     width={1}
-                    alignItems={{ xs: 'flex-start', md: 'center' }}>
+                    alignItems={{xs: 'flex-start', md: 'center'}}>
                     <Typography variant="subtitle1" fontWeight={600} color="text.primary">
                         {t("sub-header.profile_title")}
                     </Typography>
-                    <Stack width={{ xs: 1, sm: 'auto' }} direction={{ xs: 'column', sm: 'row' }} mb={{ xs: 1, md: 0 }} alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
-
-                        <TextField
-                            type={"email"}
-                            sx={{ minWidth: 200 }}
-                            className={'search-input'}
-                            fullWidth
-                            placeholder={t("sub-header.invite-placeholder")}
-                        />
-
-
-                        <Autocomplete
-                            size={"small"}
-                            sx={{ width: { xs: 1, sm: 'auto' } }}
-                            id={""}
-                            autoHighlight
-                            filterSelectedOptions
-                            limitTags={3}
-                            noOptionsText={t("sub-header.no-department-placeholder")}
-                            options={[]}
-                            renderInput={(params) => (
-                                <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
-                                    <TextField color={"info"}
-
-                                        {...params}
-                                        sx={{ paddingLeft: 0, minWidth: 140 }}
-                                        placeholder={t("sub-header.department-placeholder")}
-                                        variant="outlined"
-                                    />
-                                </FormControl>)}
-                        />
-
-                        <Button
-                            sx={{ alignSelf: { xs: 'center', sm: 'stretch' } }}
-                            onClick={() => setOpenAssignment(true)}
-                            variant="contained"
-                            color="primary">
-                            {t("sub-header.invite")}
-                        </Button>
-                    </Stack>
+                    <Button variant={"text"} onClick={() => router.back()} startIcon={<ArrowBackIosRoundedIcon/>}>
+                        {t("back_staff")}
+                    </Button>
                 </Stack>
             </SubHeader>
 
@@ -107,7 +103,7 @@ function StaffDetails() {
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={4}>
                         <Stack spacing={2}>
-                            <Card sx={{ overflow: 'visible' }}>
+                            <Card sx={{overflow: 'visible'}}>
                                 <CardContent>
 
                                     <ConditionalWrapper
@@ -115,7 +111,7 @@ function StaffDetails() {
                                         wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                         <Stack alignItems='center' spacing={1.5}>
                                             <Avatar
-                                                {...(true && { className: "zoom" })}
+                                                {...(true && {className: "zoom"})}
                                                 src={"/static/icons/men-avatar.svg"}
                                                 sx={{
                                                     "& .injected-svg": {
@@ -126,7 +122,7 @@ function StaffDetails() {
                                                     borderRadius: 2
 
                                                 }}>
-                                                <IconUrl width={75} height={75} path="men-avatar" />
+                                                <IconUrl width={75} height={75} path="men-avatar"/>
                                             </Avatar>
                                             <Stack alignItems="center">
                                                 <Typography variant="subtitle2" fontWeight={700} color='primary'>
@@ -139,41 +135,47 @@ function StaffDetails() {
                                         </Stack>
                                     </ConditionalWrapper>
                                     <Stack mt={2.5}>
-                                        <Stack width={1} mb={1} direction='row' alignItems='center' justifyContent='space-between'>
+                                        <Stack width={1} mb={1} direction='row' alignItems='center'
+                                               justifyContent='space-between'>
                                             <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                                 {t("personal_info")}
                                             </Typography>
-                                            <IconButton onClick={() => setOpenPersonalInfo(true)} size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
-                                                <IconUrl width={20} height={20} path="ic-edit-pen" />
+                                            <IconButton onClick={() => setOpenPersonalInfo(true)} size="small"
+                                                        sx={{border: 1, borderColor: "divider", borderRadius: 1}}>
+                                                <IconUrl width={20} height={20} path="ic-edit-pen"/>
                                             </IconButton>
                                         </Stack>
                                         <List disablePadding>
-                                            <ListItem disablePadding sx={{ py: .7 }}>
-                                                <Typography width={140} minWidth={140} variant="body2" color='text.secondary'>
+                                            <ListItem disablePadding sx={{py: .7}}>
+                                                <Typography width={140} minWidth={140} variant="body2"
+                                                            color='text.secondary'>
                                                     {t("full_name")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
                                                     Mme Salma Rezgu
                                                 </Typography>
                                             </ListItem>
-                                            <ListItem disablePadding sx={{ py: .7 }}>
-                                                <Typography width={140} minWidth={140} variant="body2" color='text.secondary'>
+                                            <ListItem disablePadding sx={{py: .7}}>
+                                                <Typography width={140} minWidth={140} variant="body2"
+                                                            color='text.secondary'>
                                                     {t("cin")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
                                                     02165102
                                                 </Typography>
                                             </ListItem>
-                                            <ListItem disablePadding sx={{ py: .7 }}>
-                                                <Typography width={140} minWidth={140} variant="body2" color='text.secondary'>
+                                            <ListItem disablePadding sx={{py: .7}}>
+                                                <Typography width={140} minWidth={140} variant="body2"
+                                                            color='text.secondary'>
                                                     {t("birthdate")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
                                                     29 juin 1972
                                                 </Typography>
                                             </ListItem>
-                                            <ListItem disablePadding sx={{ py: .7, alignItems: 'flex-start' }}>
-                                                <Typography width={140} minWidth={140} variant="body2" color='text.secondary'>
+                                            <ListItem disablePadding sx={{py: .7, alignItems: 'flex-start'}}>
+                                                <Typography width={140} minWidth={140} variant="body2"
+                                                            color='text.secondary'>
                                                     {t("mobile")}
                                                 </Typography>
                                                 <Stack spacing={1.25}>
@@ -207,16 +209,18 @@ function StaffDetails() {
                                                     </Stack>
                                                 </Stack>
                                             </ListItem>
-                                            <ListItem disablePadding sx={{ py: .7 }}>
-                                                <Typography width={140} minWidth={140} variant="body2" color='text.secondary'>
+                                            <ListItem disablePadding sx={{py: .7}}>
+                                                <Typography width={140} minWidth={140} variant="body2"
+                                                            color='text.secondary'>
                                                     {t("email")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
                                                     almerezgui@med.com
                                                 </Typography>
                                             </ListItem>
-                                            <ListItem disablePadding sx={{ py: .7 }}>
-                                                <Typography width={140} minWidth={140} variant="body2" color='text.secondary'>
+                                            <ListItem disablePadding sx={{py: .7}}>
+                                                <Typography width={140} minWidth={140} variant="body2"
+                                                            color='text.secondary'>
                                                     {t("address")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
@@ -229,25 +233,29 @@ function StaffDetails() {
                             </Card>
                             <Card>
                                 <CardContent>
-                                    <Stack width={1} mb={1} direction='row' alignItems='center' justifyContent='space-between'>
+                                    <Stack width={1} mb={1} direction='row' alignItems='center'
+                                           justifyContent='space-between'>
                                         <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                             {t("employment_details")}
                                         </Typography>
-                                        <IconButton onClick={() => setOpenEmploymentDetails(true)} size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
-                                            <IconUrl width={20} height={20} path="ic-edit-pen" />
+                                        <IconButton onClick={() => setOpenEmploymentDetails(true)} size="small"
+                                                    sx={{border: 1, borderColor: "divider", borderRadius: 1}}>
+                                            <IconUrl width={20} height={20} path="ic-edit-pen"/>
                                         </IconButton>
                                     </Stack>
                                     <List disablePadding>
-                                        <ListItem disablePadding sx={{ py: .7 }}>
-                                            <Typography width={140} minWidth={140} variant="body2" color='text.secondary'>
+                                        <ListItem disablePadding sx={{py: .7}}>
+                                            <Typography width={140} minWidth={140} variant="body2"
+                                                        color='text.secondary'>
                                                 {t("start_date")}
                                             </Typography>
                                             <Typography fontWeight={500}>
                                                 12/06/2023
                                             </Typography>
                                         </ListItem>
-                                        <ListItem disablePadding sx={{ py: .7 }}>
-                                            <Typography width={140} minWidth={140} variant="body2" color='text.secondary'>
+                                        <ListItem disablePadding sx={{py: .7}}>
+                                            <Typography width={140} minWidth={140} variant="body2"
+                                                        color='text.secondary'>
                                                 {t("end_date")}
                                             </Typography>
                                             <Typography fontWeight={500}>
@@ -260,12 +268,13 @@ function StaffDetails() {
                                             {t("role")}
                                         </Typography>
                                         <Stack spacing={2} alignItems='flex-start'>
-                                            <Button variant="contained" color="info" sx={{ fontWeight: 600 }}>
+                                            <Button variant="contained" color="info" sx={{fontWeight: 600}}>
                                                 Secretary
                                             </Button>
-                                            <Typography variant="subtitle1" fontWeight={600}>{t("reset_pass")}</Typography>
+                                            <Typography variant="subtitle1"
+                                                        fontWeight={600}>{t("reset_pass")}</Typography>
                                             <Button variant="google"
-                                                sx={{ border: 'none', bgcolor: theme => theme.palette.grey["A500"] }}
+                                                    sx={{border: 'none', bgcolor: theme => theme.palette.grey["A500"]}}
                                             >
                                                 {t("reset_pass")}
                                             </Button>
@@ -281,16 +290,16 @@ function StaffDetails() {
                                 <CardContent>
                                     <Stack spacing={1} alignItems='flex-start'>
                                         <Typography variant="subtitle1" fontWeight={600}>{t("department")}</Typography>
-                                        <Button variant="contained" color="info" sx={{ fontWeight: 600 }}>
+                                        <Button variant="contained" color="info" sx={{fontWeight: 600}}>
                                             Gynecology
                                         </Button>
                                     </Stack>
                                     <Stack mt={3} spacing={1} alignItems='flex-start'>
                                         <Typography variant="subtitle1" fontWeight={600}>{t("work_for")}</Typography>
                                         <List disablePadding>
-                                            {Array.from({ length: 2 }).map((_, idx) =>
+                                            {Array.from({length: 2}).map((_, idx) =>
 
-                                                <ListItem key={idx} sx={{ px: 0, py: .5 }}
+                                                <ListItem key={idx} sx={{px: 0, py: .5}}
                                                 >
                                                     <ListItemIcon>
                                                         <Avatar
@@ -301,7 +310,7 @@ function StaffDetails() {
                                                                 borderRadius: 2
 
                                                             }}>
-                                                            <IconUrl width={45} height={45} path="men-avatar" />
+                                                            <IconUrl width={45} height={45} path="men-avatar"/>
                                                         </Avatar>
                                                     </ListItemIcon>
                                                     <Stack spacing={.2}>
@@ -322,12 +331,14 @@ function StaffDetails() {
                             </Card>
                             <Card>
                                 <CardContent>
-                                    <Stack width={1} mb={1} direction='row' alignItems='center' justifyContent='space-between'>
+                                    <Stack width={1} mb={1} direction='row' alignItems='center'
+                                           justifyContent='space-between'>
                                         <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                             {t("scheduled_shifts")}
                                         </Typography>
-                                        <IconButton onClick={() => setOpenScheduledShifts(true)} size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
-                                            <IconUrl width={20} height={20} path="ic-edit-pen" />
+                                        <IconButton onClick={() => setOpenScheduledShifts(true)} size="small"
+                                                    sx={{border: 1, borderColor: "divider", borderRadius: 1}}>
+                                            <IconUrl width={20} height={20} path="ic-edit-pen"/>
                                         </IconButton>
                                     </Stack>
 
@@ -336,10 +347,18 @@ function StaffDetails() {
                                             ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, idx) =>
                                                 <ListItem disablePadding key={idx}
 
-                                                    sx={{ py: .5 }}
+                                                          sx={{py: .5}}
                                                 >
-                                                    <ListItemText sx={{ m: 0, span: { fontWeight: 600 } }} primary={day} />
-                                                    <Label variant="filled" sx={{ fontSize: 14, fontWeight: 600, bgcolor: (theme: any) => theme.palette.background.default, borderRadius: 1, px: 1.5, py: 1, height: 37 }}>
+                                                    <ListItemText sx={{m: 0, span: {fontWeight: 600}}} primary={day}/>
+                                                    <Label variant="filled" sx={{
+                                                        fontSize: 14,
+                                                        fontWeight: 600,
+                                                        bgcolor: (theme: any) => theme.palette.background.default,
+                                                        borderRadius: 1,
+                                                        px: 1.5,
+                                                        py: 1,
+                                                        height: 37
+                                                    }}>
                                                         10:00 AM - 01:00 PM
                                                     </Label>
                                                 </ListItem>
@@ -360,10 +379,15 @@ function StaffDetails() {
                                         <Typography variant="subtitle1" fontWeight={600}>
                                             {t("working_hours")}
                                         </Typography>
-                                        <Button disableRipple sx={{ justifyContent: 'space-between', bgcolor: theme => theme.palette.info.main, fontWeight: 600, color: 'primary.main' }} variant="contained-white" startIcon={
-                                            <ChevronLeftIcon />
+                                        <Button disableRipple sx={{
+                                            justifyContent: 'space-between',
+                                            bgcolor: theme => theme.palette.info.main,
+                                            fontWeight: 600,
+                                            color: 'primary.main'
+                                        }} variant="contained-white" startIcon={
+                                            <ChevronLeftIcon/>
 
-                                        } endIcon={<ChevronRightIcon />}>
+                                        } endIcon={<ChevronRightIcon/>}>
                                             12 - 18 Feb 2024
                                         </Button>
                                         <ChartStyled>
@@ -376,12 +400,12 @@ function StaffDetails() {
                                                             name: 'PRODUCT A',
                                                             data: [44, 55, 41, 67, 22, 43, 16]
                                                         }, {
-                                                            name: 'PRODUCT B',
-                                                            data: [13, 23, 20, 8, 13, 27, 14]
-                                                        }, {
-                                                            name: 'PRODUCT C',
-                                                            data: [11, 17, 15, 15, 21, 14, 12]
-                                                        }
+                                                        name: 'PRODUCT B',
+                                                        data: [13, 23, 20, 8, 13, 27, 14]
+                                                    }, {
+                                                        name: 'PRODUCT C',
+                                                        data: [11, 17, 15, 15, 21, 14, 12]
+                                                    }
                                                     ]
                                                 }
                                                 options={merge(ChartsOption(), {
@@ -435,12 +459,13 @@ function StaffDetails() {
                                         }}
                                     >
                                         <TimelineItem>
-                                            <TimelineOppositeContent sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
+                                            <TimelineOppositeContent
+                                                sx={{fontWeight: 600, pl: 0, pr: .5, textAlign: 'left'}}>
                                                 09:30
                                             </TimelineOppositeContent>
                                             <TimelineSeparator>
-                                                <TimelineDot variant="outlined" color="success" />
-                                                <TimelineConnector />
+                                                <TimelineDot variant="outlined" color="success"/>
+                                                <TimelineConnector/>
                                             </TimelineSeparator>
                                             <TimelineContent>
                                                 <Typography variant="body2" color="textSecondary">
@@ -453,12 +478,13 @@ function StaffDetails() {
                                             </TimelineContent>
                                         </TimelineItem>
                                         <TimelineItem>
-                                            <TimelineOppositeContent sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
+                                            <TimelineOppositeContent
+                                                sx={{fontWeight: 600, pl: 0, pr: .5, textAlign: 'left'}}>
                                                 09:30
                                             </TimelineOppositeContent>
                                             <TimelineSeparator>
-                                                <TimelineDot variant="outlined" color="secondary" />
-                                                <TimelineConnector />
+                                                <TimelineDot variant="outlined" color="secondary"/>
+                                                <TimelineConnector/>
                                             </TimelineSeparator>
                                             <TimelineContent>
                                                 <Stack spacing={1}>
@@ -469,10 +495,10 @@ function StaffDetails() {
                                                 <List disablePadding>
 
 
-                                                    <ListItem sx={{ px: 0, py: .5 }}
+                                                    <ListItem sx={{px: 0, py: .5}}
                                                     >
-                                                        <ListItemIcon sx={{ minWidth: 40 }}>
-                                                            <IconUrl width={30} height={30} path="pdf" />
+                                                        <ListItemIcon sx={{minWidth: 40}}>
+                                                            <IconUrl width={30} height={30} path="pdf"/>
                                                         </ListItemIcon>
                                                         <Stack spacing={.1}>
                                                             <Typography variant="body2" fontWeight={500}>
@@ -484,10 +510,10 @@ function StaffDetails() {
                                                         </Stack>
                                                     </ListItem>
 
-                                                    <ListItem sx={{ px: 0, py: .5 }}
+                                                    <ListItem sx={{px: 0, py: .5}}
                                                     >
-                                                        <ListItemIcon sx={{ minWidth: 40 }}>
-                                                            <IconUrl width={30} height={30} path="ic-doc-file" />
+                                                        <ListItemIcon sx={{minWidth: 40}}>
+                                                            <IconUrl width={30} height={30} path="ic-doc-file"/>
                                                         </ListItemIcon>
                                                         <Stack spacing={.1}>
                                                             <Typography variant="body2" fontWeight={500}>
@@ -503,12 +529,13 @@ function StaffDetails() {
                                             </TimelineContent>
                                         </TimelineItem>
                                         <TimelineItem>
-                                            <TimelineOppositeContent sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
+                                            <TimelineOppositeContent
+                                                sx={{fontWeight: 600, pl: 0, pr: .5, textAlign: 'left'}}>
                                                 14:30
                                             </TimelineOppositeContent>
                                             <TimelineSeparator>
-                                                <TimelineDot variant="outlined" color="error" />
-                                                <TimelineConnector />
+                                                <TimelineDot variant="outlined" color="error"/>
+                                                <TimelineConnector/>
                                             </TimelineSeparator>
                                             <TimelineContent>
                                                 <Typography variant="body2" fontWeight={600} fontSize={13}>
@@ -521,11 +548,12 @@ function StaffDetails() {
                                             </TimelineContent>
                                         </TimelineItem>
                                         <TimelineItem>
-                                            <TimelineOppositeContent sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
+                                            <TimelineOppositeContent
+                                                sx={{fontWeight: 600, pl: 0, pr: .5, textAlign: 'left'}}>
                                                 21:30
                                             </TimelineOppositeContent>
                                             <TimelineSeparator>
-                                                <TimelineDot variant="outlined" color="error" />
+                                                <TimelineDot variant="outlined" color="error"/>
                                             </TimelineSeparator>
                                             <TimelineContent>
                                                 <Typography variant="body2" fontWeight={600} fontSize={13}>
@@ -542,12 +570,12 @@ function StaffDetails() {
                         </Stack>
                     </Grid>
                 </Grid>
-            </Box >
+            </Box>
             <Dialog
                 title={t("personal_info")}
                 action="personal-info"
                 open={openPersonalInfo}
-                data={{ t, handleClose: handleClosePersonalInfo }}
+                data={{t, handleClose: handleClosePersonalInfo}}
                 dialogClose={handleClosePersonalInfo}
                 onClose={handleClosePersonalInfo}
             />
@@ -556,12 +584,12 @@ function StaffDetails() {
                 action="employment-details"
                 size="sm"
                 open={openEmploymentDetails}
-                data={{ t, handleClose: handleCloseEmploymentDetails }}
+                data={{t, handleClose: handleCloseEmploymentDetails}}
                 dialogClose={handleCloseEmploymentDetails}
                 onClose={handleCloseEmploymentDetails}
                 actionDialog={
                     <>
-                        <Button onClick={handleCloseEmploymentDetails} sx={{ mr: 'auto' }} variant="text-black">
+                        <Button onClick={handleCloseEmploymentDetails} sx={{mr: 'auto'}} variant="text-black">
                             {t("dialog.cancel")}
                         </Button>
                         <Button variant="contained">
@@ -575,12 +603,12 @@ function StaffDetails() {
                 action="scheduled-shifts"
                 size="sm"
                 open={openScheduledShifts}
-                data={{ t, handleClose: handleCloseScheduledShifts }}
+                data={{t, handleClose: handleCloseScheduledShifts}}
                 dialogClose={handleCloseScheduledShifts}
                 onClose={handleCloseScheduledShifts}
                 actionDialog={
                     <>
-                        <Button onClick={handleCloseScheduledShifts} sx={{ mr: 'auto' }} variant="text-black">
+                        <Button onClick={handleCloseScheduledShifts} sx={{mr: 'auto'}} variant="text-black">
                             {t("dialog.cancel")}
                         </Button>
                         <Button variant="contained">
@@ -594,12 +622,12 @@ function StaffDetails() {
                 action="assignment"
                 size="sm"
                 open={openAssignment}
-                data={{ t, handleClose: handleCloseAssignment }}
+                data={{t, handleClose: handleCloseAssignment}}
                 dialogClose={handleCloseAssignment}
                 onClose={handleCloseAssignment}
                 actionDialog={
                     <>
-                        <Button onClick={handleCloseAssignment} sx={{ mr: 'auto' }} variant="text-black">
+                        <Button onClick={handleCloseAssignment} sx={{mr: 'auto'}} variant="text-black">
                             {t("dialog.cancel")}
                         </Button>
                         <Button variant="contained">
@@ -618,7 +646,7 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
         fallback: "blocking", //indicates the type of fallback
     };
 };
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'staff']))

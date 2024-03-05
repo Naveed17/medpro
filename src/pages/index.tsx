@@ -54,7 +54,7 @@ function Home() {
 
     const handleSelectUserRoot = (root: string) => {
         console.log("root", root);
-        update({default_medical_entity: selectedMedicalEntity?.uuid, root}).then(() => router.push(`/${root}`));
+        update({default_medical_entity: selectedMedicalEntity?.uuid, root});
         setAnchorEl(null);
     };
 
@@ -190,7 +190,7 @@ function Home() {
                                         {medical_entities?.map(medical_entity_data =>
                                             <Stack spacing={1} key={medical_entity_data.uuid}>
                                                 <a key={medical_entity_data.uuid}
-                                                   onClick={(event) => medical_entity_data.isOwner && ["doctor_office", "group_practice", "medical_center"].includes(medical_entity_data?.type?.slug as string) ? handleClick(event, medical_entity_data) : update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
+                                                   onClick={(event) => medical_entity_data.isOwner && ["doctor_office", "group_practice", "medical_center"].includes(medical_entity_data?.type?.slug as string) ? handleClick(event, medical_entity_data) : update({default_medical_entity: medical_entity_data.uuid})}
                                                    className={styles.card}>
                                                     <Box component="img" width={50} height={50}
                                                          src="/static/icons/Med-logo_.svg"/>

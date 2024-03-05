@@ -142,7 +142,7 @@ function ModifyUser() {
         const featuresInit: any = {};
         features?.map((feature: any) => {
             Object.assign(featuresInit, {
-                [feature.slug]: feature?.hasProfile ? (feature.slug === "agenda" ? agendas : cashboxes).map(featureEntity => ({
+                [feature.slug]: feature?.hasProfile ? (["agenda", "consultation"].includes(feature.slug) ? agendas : cashboxes).map(featureEntity => ({
                     ...feature,
                     featureEntity: {
                         ...featureEntity,

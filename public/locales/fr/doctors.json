@@ -35,6 +35,7 @@
       "func": "Fonction",
       "password": "Mot de passe"
     },
+    "back_doctors": "Retour à la page médecins",
     "send_msg": "Envoyer un message",
     "profil_status": "Statut du profil",
     "personal_info": "Personnel information",

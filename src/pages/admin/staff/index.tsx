@@ -1,10 +1,10 @@
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {AdminLayout} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
 import {StaffToolbar} from "@features/toolbar";
-import {Box, Dialog} from "@mui/material";
+import {Box, Dialog, LinearProgress} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {Otable, resetUser} from "@features/table";
 import {useRouter} from "next/router";
@@ -15,6 +15,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {NewUserDialog} from "@features/dialog";
 import {setStepperIndex, stepperSelector} from "@features/stepper";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {sideBarSelector, toggleSideBar} from "@features/menu";
 
 const headCells = [
     {
@@ -88,8 +89,9 @@ function Staff() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
-    const {t, ready} = useTranslation("staff", {keyPrefix: "config"});
+    const {t, ready, i18n} = useTranslation("staff", {keyPrefix: "config"});
     const {currentStep} = useAppSelector(stepperSelector);
+    const {opened: openSideBar} = useAppSelector(sideBarSelector);
 
     const [newUserDialog, setNewUserDialog] = useState<boolean>(false)
 
@@ -116,6 +118,26 @@ function Staff() {
         }
     }
 
+    const handleTableEvent = (action: string, data: any) => {
+        console.log(action, data);
+        switch (action) {
+            case "EDIT_DOCTOR":
+
+                break;
+            case "DELETE_DOCTOR":
+
+                break;
+        }
+    }
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["staff"]);
+        if (!openSideBar) {
+            dispatch(toggleSideBar(false));
+        }
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     const users = ((httpUsersResponse as HttpResponse)?.data?.filter((user: UserModel) => !user.isProfessional) ?? []) as UserModel[];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -133,8 +155,12 @@ function Staff() {
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
+                    <LinearProgress sx={{
+                        visibility: !httpUsersResponse ? "visible" : "hidden"
+                    }} color="warning"/>
                     <Otable
                         headers={headCells}
+                        handleEvent={handleTableEvent}
                         rows={users}
                         from={"staff"}
                         {...{t}}
