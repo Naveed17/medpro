@@ -26,8 +26,13 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
-import {checkNotification, increaseNumberInString, useMedicalEntitySuffix} from "@lib/hooks";
-import {isAppleDevise} from "@lib/hooks/isAppleDevise";
+import {
+    checkNotification,
+    increaseNumberInString,
+    useMedicalEntitySuffix,
+    isAppleDevise,
+    isSupported
+} from "@lib/hooks";
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -71,7 +76,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const isSupported = () => 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
+
     const permission = !isAppleDevise() && isSupported() ? checkNotification() : false; // Check notification permission
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
     // Get current root feature

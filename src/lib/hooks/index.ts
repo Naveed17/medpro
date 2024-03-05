@@ -34,6 +34,8 @@ export * from "./a11yProps";
 export * from "./mergeArrayByKey";
 export * from "./useStopwatch";
 export * from "./prepareContextMenu";
+export * from "./isSupported";
+export * from "./isAppleDevise";
 export * from "./highlightedDays";
 export * from "./groupPermissionsByFeature";
 export * from "./getPermissionsCount";
