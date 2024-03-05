@@ -3,7 +3,7 @@ import { AdminLayout } from "@features/base";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { SubHeader } from "@features/subHeader";
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { useTranslation } from "next-i18next";
 import { LoadingScreen } from "@features/loadingScreen";
@@ -12,6 +12,8 @@ import { DoctorToolbar } from "@features/toolbar";
 import { useRequestQuery } from "@lib/axios";
 import { useRouter } from "next/router";
 import { useMedicalEntitySuffix } from "@lib/hooks";
+import { MobileContainer } from "@themes/mobileContainer";
+import { DoctorsMobileCard, NoDataCard } from "@features/card";
 
 const headCells = [
     {
@@ -107,14 +109,32 @@ function Doctors() {
                 <DoctorToolbar {...{ t, title: "sub-header.list_title" }} />
             </SubHeader>
             <Box className="container">
-                <DesktopContainer>
-                    <Otable
-                        headers={headCells}
-                        rows={users}
-                        from={"doctors"}
-                        {...{ t }}
-                    />
-                </DesktopContainer>
+                {users.length > 0 ?
+                    <>
+                        <DesktopContainer>
+                            <Otable
+                                headers={headCells}
+                                rows={users}
+                                from={"doctors"}
+                                {...{ t }}
+                            />
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={2}>
+                                {users.map((item) => (
+                                    <React.Fragment key={item.uuid}>
+                                        <DoctorsMobileCard {...{ t, row: item, edit: (prop: any) => console.log(prop) }} />
+                                    </React.Fragment>
+                                ))}
+
+                            </Stack>
+                        </MobileContainer>
+                    </>
+                    : <NoDataCard ns={"doctors"} t={t} data={{
+                        mainIcon: "ic-user3",
+                        title: "no-data.title",
+                        description: "no-data.description",
+                    }} />}
             </Box>
         </>
     )
