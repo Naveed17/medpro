@@ -611,6 +611,7 @@ function DocumentDetailDialog({...props}) {
                     <Doc {...{
                         data,
                         setData,
+                        componentRef,
                         header, setHeader,
                         date,
                         onReSize, setOnResize,

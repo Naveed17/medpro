@@ -14,7 +14,7 @@ import {useRouter} from "next/router";
 function Page({...props}) {
 
     const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue,
-        state,
+        state,componentRef,
         urlMedicalProfessionalSuffix,docs,setDocs} = props
     const {Canvas} = useQRCode();
 
@@ -148,6 +148,7 @@ function Page({...props}) {
                             backgroundSize: "100% 100%"
                         })
                     }}
+                    {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[id] = element})}
                     className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
                     {/*Header*/}
                     {
