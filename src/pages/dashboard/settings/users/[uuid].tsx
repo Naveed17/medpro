@@ -855,7 +855,6 @@ function ModifyUser() {
                                             <LoadingButton
                                                 {...{loading}}
                                                 loadingPosition={"start"}
-                                                disabled={getPermissionsCount(values.roles[selectedFeature] ?? []) === 0}
                                                 type="submit"
                                                 sx={{minWidth: 130}}
                                                 variant="contained"

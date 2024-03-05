@@ -1,5 +1,5 @@
 import {GetStaticProps} from "next";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 //components
 import {NoDataCard, timerSelector, WaitingRoomMobileCard} from "@features/card";
 // next-i18next
@@ -72,6 +72,7 @@ import {Label} from "@features/label";
 import {partition} from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
+import {AbilityContext} from "@features/casl/can";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -81,6 +82,7 @@ function WaitingRoom() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
+    const ability = useContext(AbilityContext);
 
     const {t, ready, i18n} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {config: agenda} = useAppSelector(agendaSelector);
@@ -413,9 +415,7 @@ function WaitingRoom() {
         });
     }
 
-    const columns
-        :
-        any[] = [
+    const columns: any[] = [
         {
             id: '1',
             name: 'today-rdv',
@@ -439,17 +439,19 @@ function WaitingRoom() {
             name: 'waiting-room',
             url: '#',
             icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
-            action: <CustomIconButton
-                onClick={() => {
-                    setWithoutDateTime(true);
-                    setQuickAddAppointment(true);
-                    setTimeout(() => setQuickAddAppointmentTab(3));
-                }}
-                variant="filled"
-                color={"primary"}
-                size={"small"}>
-                <AgendaAddViewIcon/>
-            </CustomIconButton>
+            ...(ability.can('manage', 'waiting-room', 'waiting-room__waiting-room__appointment-create') && {
+                action: <CustomIconButton
+                    onClick={() => {
+                        setWithoutDateTime(true);
+                        setQuickAddAppointment(true);
+                        setTimeout(() => setQuickAddAppointmentTab(3));
+                    }}
+                    variant="filled"
+                    color={"primary"}
+                    size={"small"}>
+                    <AgendaAddViewIcon/>
+                </CustomIconButton>
+            })
         },
         {
             id: '4,8',
@@ -871,7 +873,7 @@ function WaitingRoom() {
                                 {t(`sort.${option.value}`)}
                             </MenuItem>
                         ))}
-                        <Stack mt={1} px={1} direction={"row"} alignItems={"center"} spacing={1}
+                        {/*<Stack mt={1} px={1} direction={"row"} alignItems={"center"} spacing={1}
                                justifyContent={"center"}>
                             <ToggleButton
                                 size={"small"}
@@ -898,7 +900,7 @@ function WaitingRoom() {
                                           path={"ic-linear-sort-asscending"}/>
                                 {orderSort === "descending" && <Typography ml={1}>{t("sort.decreasing")}</Typography>}
                             </ToggleButton>
-                        </Stack>
+                        </Stack>*/}
                     </Menu>
                 </Box>
             </Box>

@@ -131,7 +131,7 @@ function RoomToolbar({...props}) {
                 <WaitingRoom/>
             </DrawerBottom>
 
-            <Stack direction={"row"} alignItems={"center"} mb={.5}>
+            <Stack direction={"row"} alignItems={"center"} mb={.5} spacing={1}>
                 {(is_next && isWindowMax) &&
                     <LoadingButton
                         disableRipple
@@ -223,7 +223,6 @@ function RoomToolbar({...props}) {
                              path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>
                 </ToggleButtonStyled>
             </Stack>
-
         </Stack>
     )
 }
