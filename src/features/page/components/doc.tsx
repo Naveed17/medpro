@@ -5,7 +5,7 @@ import {DefaultCountry, tinymcePlugins, tinymceToolbarNotes} from "@lib/constant
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PageStyled from "@features/page/components/overrides/pageStyled";
-import {Box} from "@mui/material";
+import {Box, Stack, TextField, Typography} from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import {Editor} from "@tinymce/tinymce-react";
 
@@ -15,8 +15,19 @@ function Doc({...props}) {
     const [title, setTitle] = useState("Titre");
     const [loading, setLoading] = useState(true);
     const [value, setValue] = useState("");
-
-    const {data, setData, state, date, header, setHeader, onReSize, setOnResize} = props
+    const {
+        data,
+        setData,
+        state,
+        date,
+        header,
+        setHeader,
+        onReSize,
+        setOnResize,
+        urlMedicalProfessionalSuffix,
+        docs,
+        setDocs
+    } = props
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -111,7 +122,6 @@ function Doc({...props}) {
         }
         data.content.content = elx
         setData({...data})
-
     }
 
     useEffect(() => {
@@ -122,27 +132,30 @@ function Doc({...props}) {
                 data.content.content = state.content;
                 setData({...data})
             }
-            //data.content.content = "x";
+            data.age.content = state.age
             setData({...data})
             data.patient.content = state.patient;
             if (data.cin)
                 data.cin.content = state.cin;
+
         }
         setLoading(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state])
 
     useEffect(() => {
-        if (title) {
+        if (title && title !== "Titre") {
             data.title.content = title;
             setData({...data})
         }
+            if(state && state.title)
+                data.title.content = state.title
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [title])
 
     useEffect(() => {
         if (onReSize) {
-            splitContent(state && state.content ? state.content : data.content.content)
+            splitContent(state && state.content ? state.content : data.content.content ? data.content.content : "change me...")
             setOnResize(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -163,7 +176,7 @@ function Doc({...props}) {
 
                 container.style.visibility = "visible"
                 pages.map((_, index) => {
-                    if (data.content.width) {
+                    if (data.content.width && isNumber(data.content.width)) {
                         const el = resizable[index] as HTMLElement;
                         el.style.width = `${data.content.width}px`;
                     }
@@ -176,17 +189,23 @@ function Doc({...props}) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pages])
 
+    const isNumber = (str: string) => {
+        return /^\d+$/.test(str);
+    }
+
     const splitContent = (content: string) => {
         const contentDiv = document.getElementById("contentDiv")
+
         if (contentDiv) {
-            const _width = data.content.width ? `${data.content.width}px` : "90%";
+            const _width = data.content.width && isNumber(data.content.width) ? `${data.content.width}px` : "90%";
+
             contentDiv.innerHTML = content;
             contentDiv.style.width = _width;
 
             if (data.content.pages) {
                 let _rest = contentDiv.clientHeight
                 let nbPage = 0
-                while (_rest > 0) {
+                while (_rest > 10) {
                     const _h = data.content.pages.find((page: { id: number }) => page.id === nbPage)
                     _rest -= _h ? _h.height : data.content.maxHeight
                     nbPage++
@@ -212,7 +231,10 @@ function Doc({...props}) {
                         value, setValue,
                         date,
                         header,
-                        setHeader
+                        setHeader,
+                        state,
+                        urlMedicalProfessionalSuffix,
+                        docs, setDocs
                     }}/>
                 ))
             }
@@ -228,14 +250,23 @@ function Doc({...props}) {
                     onClose={() => {
                         setValue("")
                     }}>
-                {data[value] && <Editor
+                {data[value] ? value === "patient" || value === "date" ? <Stack spacing={1} p={2}>
+                    <Typography fontSize={12}>Prefix</Typography>
+                    <TextField
+                    value={data[value].prefix}
+                    onChange={(event) => {
+                        data[value].prefix = event.target.value
+                        setData({...data})
+                    }}
+                />
+                </Stack>:<Editor
                     value={data[value].content}
                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                     onEditorChange={(event) => {
                         data[value].content = event
                         setData({...data})
                     }}
-                    init={editorInit}/>}
+                    init={editorInit}/>: null}
 
                 {value.includes("other") && <Editor
                     value={data["other"][value.replace("other", "")].content}

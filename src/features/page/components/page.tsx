@@ -8,18 +8,24 @@ import {DocHeader} from "@features/files";
 import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
 import {useQRCode} from 'next-qrcode';
 import {UploadFile} from "@features/uploadFile";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
 
 function Page({...props}) {
 
-    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue} = props
+    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue,
+        state,
+        urlMedicalProfessionalSuffix,docs,setDocs} = props
     const {Canvas} = useQRCode();
 
     const theme = useTheme();
-
+    const router = useRouter();
     const [selectedElement, setSelectedElement] = useState("")
     const [blockDrag, setBlockDrag] = useState(false)
     const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const {trigger: triggerUpload} = useRequestQueryMutation("/documents/upload");
 
     const getMarginTop = () => {
         let _margin = 0;
@@ -37,6 +43,36 @@ function Page({...props}) {
             setLoading(false)
         }, 2000)
     }, [])
+
+    const getFile = (uuid:string) =>{
+        const _file = docs?.find((doc:{uuid:string}) => doc.uuid === uuid)
+       return _file ? _file.file.url : "/static/icons/Med-logo.png";
+    }
+
+    const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
+            let fr = new FileReader();
+            fr.onload = function () {
+
+                const form = new FormData();
+                form.append("files[0]", acceptedFiles[0]);
+                triggerUpload({
+                    method: "POST",
+                    url: `${urlMedicalProfessionalSuffix}/documents/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: (res) => {
+                        data.other[index].content = res.data.data[0]
+                        setDocs((prev:any) => [...prev,{uuid:res.data.data[0],file: {url: fr.result}}])
+                        setData({...data})
+                    },
+                });
+            }
+            fr.readAsDataURL(acceptedFiles[0]);
+
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [data]
+    );
 
     useEffect(() => {
         if (selectedElement !== "") {
@@ -99,23 +135,6 @@ function Page({...props}) {
                 })
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                //console.log(ev.target?.result as string)
-                console.log(data.other[index])
-                data.other[index].content = ev.target?.result
-                setData({...data})
-                /*data.background.content.url = (ev.target?.result as string)
-                data.background.show = true;
-                setData({...data})*/
-            }
-            //console.log(acceptedFiles[0])
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        []
-    );
 
     // @ts-ignore
     return (
@@ -281,12 +300,19 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={"ic-delete"}/>
                             </div>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("date")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "date" ? theme.palette.success.main : theme.palette.info.main}}
                                  onClick={() => {
                                      setSelectedElement(selectedElement !== "date" ? "date" : "")
                                  }}>
-                                <Icon path={selectedElement !== "date" ? "ic-edit-patient" : "ic-check"}/>
+                                <Icon path={selectedElement !== "date" ? "text-selection" : "ic-check"} width={20} height={20}/>
                             </div>
                         </div>
                     </Resizable>}
@@ -330,12 +356,19 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={"ic-delete"}/>
                             </div>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("patient")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "patient" ? theme.palette.success.main : theme.palette.info.main}}
                                  onClick={() => {
                                      setSelectedElement(selectedElement !== "patient" ? "patient" : "")
                                  }}>
-                                <Icon path={selectedElement !== "patient" ? "ic-edit-patient" : "ic-check"}/>
+                                <Icon path={selectedElement !== "patient" ? "text-selection" : "ic-check" } width={20} height={20}/>
                             </div>
                         </div>
                     </Resizable>}
@@ -390,8 +423,58 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
 
+                    {/*Age*/}
+                    {data.age?.show && id == 0 && <Resizable
+                        defaultSize={{
+                            width: `${data.age?.width ? data.age?.width + "px" : 300}`,
+                            height: "fit-content",
+                        }}
+                        className={`${selectedElement === "age" ? "selected" : "notSelected"} age`}
+                        style={{
+                            transform: `translate(${data.age?.x}px, ${data.age?.y}px)`,
+                            width: `${data.age?.width ? data.age?.width + "px" : "fit-content"}`,
+                            height: `fit-content`
+                        }}
+                        bounds={"parent"}
+                        enable={{
+                            right: selectedElement === "age",
+                        }}
+                        onResizeStart={() => {
+                            setBlockDrag(true)
+                        }}
+                        onResizeStop={(e, direction, ref, d) => {
+                            data.age.width = document.getElementById(`age${id}`)?.clientWidth
+                            data.age.maxHeight += d.height
+                            setData({...data})
+                            setBlockDrag(false)
+                        }}>
+
+                        <div id={`age${id}`} onClick={(ev) => {
+                            ev.stopPropagation()
+                            setSelectedElement("age")
+                        }}>
+                            {data.age?.prefix} {data.age?.content}
+                        </div>
+                        <div className={"menuTop"}>
+                            <div className={"btnMenu"}
+                                 onClick={() => {
+                                     data.age.show = false;
+                                     setData({...data})
+                                 }}>
+                                <Icon path={"ic-delete"}/>
+                            </div>
+                            <div className={"btnMenu"}
+                                 style={{backgroundColor: selectedElement === "age" ? theme.palette.success.main : theme.palette.info.main}}
+                                 onClick={() => {
+                                     setSelectedElement(selectedElement !== "age" ? "age" : "")
+                                 }}>
+                                <Icon path={selectedElement !== "age" ? "ic-edit-patient" : "ic-check"}/>
+                            </div>
+                        </div>
+                    </Resizable>}
+
                     {
-                        data.other && data.other.map((other: any, index: number) => (
+                        data.other && id == 0  && data.other.map((other: any, index: number) => (
 
                             <Resizable
                                 key={index}
@@ -433,7 +516,7 @@ function Page({...props}) {
                                                                     setSelectedElement(`other${index}`)
                                                                 }}>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={other.content} style={{width: other.width, height: other.height}}
+                                    <img src={getFile(other.content)} style={{width: other.width, height: other.height}}
                                          alt={"logo"}/>
                                 </div>}
                                 {other.type === "qrcode" && <div id={`other${index}`}
@@ -485,7 +568,7 @@ function Page({...props}) {
                                         <div className={"btnMenu"}>
                                             <UploadFile
                                                 accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
-                                                style={{height:30}}
+                                                style={{height: 30}}
                                                 onDrop={(ev: File[]) => handleDrop(ev, index)}
                                                 singleFile={false}/>
                                         </div>}
@@ -556,13 +639,13 @@ function Page({...props}) {
                             style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
                             dangerouslySetInnerHTML={{__html: data.content.content}}/>
                         <div className={"menuTop"} style={{top: 0}}>
-                            <div className={"btnMenu"}>
+                            {state &&<div className={"btnMenu"}>
                                 <div onClick={() => {
                                     setValue("content")
                                 }}>
                                     <Icon path={"focus"} width={20} height={20}/>
                                 </div>
-                            </div>
+                            </div>}
                             <div className={"btnMenu"}
                                  style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
                                 <div onClick={() => {
@@ -578,7 +661,7 @@ function Page({...props}) {
                     </Resizable>
 
                     {/*footer*/}
-                    {data.footer.show && <Resizable
+                    {data.footer.show && id===0 && <Resizable
                         defaultSize={{
                             width: `${data.footer.width ? data.footer.width + "px" : 300}`,
                             height: `${data.footer.height ? data.footer.height + "px" : "fit-content"}`,
@@ -599,7 +682,7 @@ function Page({...props}) {
                             setBlockDrag(true)
                         }}
                         onResizeStop={(e, direction, ref, d) => {
-                            data.footer.width = document.getElementById(`footer${id}`)?.clientWidth
+                            data.footer.width = document.getElementById(`footer`)?.clientWidth
                             data.footer.maxHeight += d.height
                             setData({...data})
                             setBlockDrag(false)

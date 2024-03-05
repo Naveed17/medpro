@@ -87,6 +87,7 @@ function FcmLayout({...props}) {
     const [messages, updateMessages] = useState<any[]>([]);
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
+    const [isOffline, setIsOffline] = useState(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -313,12 +314,13 @@ function FcmLayout({...props}) {
     useEffect(() => {
         if (typeof window !== "undefined") {
             window.addEventListener("online", () => {
-                // when we're back online
+                setIsOffline(false)
                 closeSnackbar(noConnection);
                 setNoConnection(undefined);
             });
 
             window.addEventListener("offline", () => {
+                setIsOffline(true)
                 setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
                     key: "offline",
                     variant: 'error',
@@ -344,9 +346,12 @@ function FcmLayout({...props}) {
         };
         // In case of any error, close the event source
         // So that it attempts to connect again
-        eventSource.onerror = () => {
+        eventSource.onerror = (error) => {
             eventSource.close();
-            setTimeout(connectToStream, 1);
+            const errorData = (error as any)?.data && JSON.parse((error as any)?.data);
+            if (![404, 500, 502, 503, 504].includes(errorData?.status)) {
+                setTimeout(connectToStream, 1);
+            }
         };
 
         return eventSource;
@@ -365,10 +370,8 @@ function FcmLayout({...props}) {
     const client = useAbly();
 
     useConnectionStateListener((stateChange) => {
-        console.log("current", stateChange.current);  // the new connection state
-        //console.log("error", stateChange.reason);  // the new connection state
-        if (["closing", "closed"].includes(stateChange.current))
-            client.connect()
+        if (["closing", "closed","disconnected"].includes(stateChange.current))
+            !isOffline && client.connect()
     });
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {

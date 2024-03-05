@@ -379,73 +379,73 @@ function ConsultationInProgress() {
         setCards([..._cards])
     };
 
-    const showDoc = (card: any) => {
-        let type = "";
-        if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-            type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
-        setInfo("document_detail");
-        if (card.documentType === "medical-certificate") {
-            setState({
-                uuid: card.uuid,
-                certifUuid: card.certificate[0].uuid,
-                content: card.certificate[0].content,
-                doctor: card.name,
-                patient: `${type} ${
-                    patient?.firstName
-                } ${patient?.lastName}`,
-                birthdate: patient?.birthdate,
-                cin: patient?.idCard,
-                tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
-                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                days: card.days,
-                description: card.description,
-                title: card.title,
-                createdAt: card.createdAt,
-                detectedType: card.type,
-                name: "certif",
-                type: "write_certif",
-                documentHeader: card.certificate[0].documentHeader,
-                mutate: mutateDoc,
-                mutateDetails: mutatePatient
-            });
-        } else {
-            let info = card;
-            let uuidDoc = "";
-            switch (card.documentType) {
-                case "prescription":
-                    info = card.prescription[0].prescription_has_drugs;
-                    uuidDoc = card.prescription[0].uuid;
-                    break;
-                case "requested-analysis":
-                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
-                    uuidDoc = card.requested_Analyses[0].uuid;
-                    break;
-                case "requested-medical-imaging":
-                    info = card.medical_imaging[0]["medical-imaging"];
-                    uuidDoc = card.medical_imaging[0].uuid;
-                    break;
+    const showDoc = (card:any,print?:boolean) => {
+
+            let type = "";
+            if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+            setInfo("document_detail");
+            if (card && card?.documentType === "medical-certificate") {
+                setState({
+                    uuid: card.uuid,
+                    certifUuid: card.certificate[0].uuid,
+                    content: card.certificate[0].content,
+                    doctor: card.name,
+                    patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+                    birthdate: patient?.birthdate,
+                    cin: patient?.idCard,
+                    tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
+                    age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                    days: card.days,
+                    description: card.description,
+                    title: card.title,
+                    createdAt: card.createdAt,
+                    detectedType: card.type,
+                    name: "certif",
+                    type: "write_certif",
+                    documentHeader: card.certificate[0].documentHeader,
+                    mutate: mutateDoc,
+                    mutateDetails: mutatePatient
+                });
+            } else {
+                let info = card;
+                let uuidDoc = "";
+                switch (card?.documentType) {
+                    case "prescription":
+                        info = card.prescription[0].prescription_has_drugs;
+                        uuidDoc = card.prescription[0].uuid;
+                        break;
+                    case "requested-analysis":
+                        info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
+                        uuidDoc = card.requested_Analyses[0].uuid;
+                        break;
+                    case "requested-medical-imaging":
+                        info = card.medical_imaging[0]["medical-imaging"];
+                        uuidDoc = card.medical_imaging[0].uuid;
+                        break;
+                }
+                setState({
+                    uuid: card.uuid,
+                    uri: card.uri,
+                    name: card.title,
+                    type: card.documentType,
+                    createdAt: card.createdAt,
+                    description: card.description,
+                    info: info,
+                    detectedType: card.type,
+                    age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                    uuidDoc: uuidDoc,
+                    patient: `${type} ${
+                        patient?.firstName
+                    } ${patient?.lastName}`,
+                    cin: patient?.idCard ? patient?.idCard : "",
+                    mutate: mutateDoc,
+                    mutateDetails: mutatePatient,
+                    print
+                });
             }
-            setState({
-                uuid: card.uuid,
-                uri: card.uri,
-                name: card.title,
-                type: card.documentType,
-                createdAt: card.createdAt,
-                description: card.description,
-                info: info,
-                detectedType: card.type,
-                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                uuidDoc: uuidDoc,
-                patient: `${type} ${
-                    patient?.firstName
-                } ${patient?.lastName}`,
-                cin: patient?.idCard ? patient?.idCard : "",
-                mutate: mutateDoc,
-                mutateDetails: mutatePatient
-            });
-        }
-        setOpenDialogSave(false);
-        setTimeout(() => setOpenDialog(true));
+            setOpenDialogSave(false);
+            setTimeout(() => setOpenDialog(true));
 
     }
 

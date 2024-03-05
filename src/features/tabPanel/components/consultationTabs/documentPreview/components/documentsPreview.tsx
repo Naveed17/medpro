@@ -20,25 +20,6 @@ function DocumentsPreview({...props}) {
 
     return (
         <Stack spacing={1} mt={pxToRem(5)}>
-            {documents && documents.map((doc: any) => (
-                <Slide direction="down" mountOnEnter unmountOnExit
-                       in={showDocument}
-                       key={doc.uuid}>
-                    <Card onClick={() => {
-                        showDoc(doc)
-                    }} style={{borderColor: theme.palette.success.main}}>
-                        <Stack direction={"row"} alignItems={"center"} spacing={1}
-                               justifyContent={"space-between"} padding={1}>
-                            <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                                <IconUrl width={20} height={20} path={iconDocument(doc.documentType)}/>
-                                <Typography
-                                    style={{fontSize: "0.6875rem", cursor: "pointer"}}>{t(doc.title)}</Typography>
-                            </Stack>
-                            <IconUrl width={15} height={15} path={'ic-print'}/>
-                        </Stack>
-                    </Card>
-                </Slide>
-            ))}
             {documents && allDocs.map((doc: any) => (
                 <Slide direction="down" mountOnEnter unmountOnExit
                        in={showDocument}
@@ -57,6 +38,25 @@ function DocumentsPreview({...props}) {
                                     }}>{t(`consultationIP.${doc.txt}`)}</Typography>
                             </Stack>
                             <AddRoundedIcon color={"primary"}/>
+                        </Stack>
+                    </Card>
+                </Slide>
+            ))}
+            {documents && documents.map((doc: any) => (
+                <Slide direction="down" mountOnEnter unmountOnExit
+                       in={showDocument}
+                       key={doc.uuid}>
+                    <Card onClick={() => {
+                        showDoc(doc,true)
+                    }} style={{borderColor: theme.palette.success.main}}>
+                        <Stack direction={"row"} alignItems={"center"} spacing={1}
+                               justifyContent={"space-between"} padding={1}>
+                            <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                <IconUrl width={20} height={20} path={iconDocument(doc.documentType)}/>
+                                <Typography
+                                    style={{fontSize: "0.6875rem", cursor: "pointer"}}>{t(doc.title)}</Typography>
+                            </Stack>
+                            <IconUrl width={15} height={15} path={'ic-print'}/>
                         </Stack>
                     </Card>
                 </Slide>

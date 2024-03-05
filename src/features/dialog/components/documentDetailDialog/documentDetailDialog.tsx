@@ -92,6 +92,7 @@ function DocumentDetailDialog({...props}) {
     const previewDocRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
     const [docs, setDocs] = useState([]);
+    const [urls, setUrls] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
     const [error, setError] = useState(false);
     const [docPageOffset] = useState(1);
@@ -229,6 +230,7 @@ function DocumentDetailDialog({...props}) {
             })
             setOnResize(true)
             setHeader(selected.header.header)
+            setUrls(selected.documentsUrl)
             setOpenAlert(false);
             setTimeout(() => {
                 setLoading(false)
@@ -500,7 +502,7 @@ function DocumentDetailDialog({...props}) {
     useEffect(() => {
         if (state?.print && previewDocRef.current) {
             setIsPrinting(true);
-            setTimeout(() => handlePrint());
+            setTimeout(() => handlePrint(),1000);
         }
     }, [state?.print, previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -508,6 +510,7 @@ function DocumentDetailDialog({...props}) {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
+
             if (docInfo.length === 0) {
                 setLoading(false)
             } else {
@@ -531,6 +534,7 @@ function DocumentDetailDialog({...props}) {
                             }
                         })
                         setHeader(_template.header.header)
+                        setUrls(_template.documentsUrl)
                     }
                 } else {
                     const templates: any[] = [];
@@ -555,6 +559,7 @@ function DocumentDetailDialog({...props}) {
                             }
                         })
                         setHeader(templates[0].header.header)
+                        setUrls(templates[0].documentsUrl)
                     } else {
                         const defaultdoc = docInfo.find((di: {
                             isDefault: any;
@@ -573,6 +578,7 @@ function DocumentDetailDialog({...props}) {
                                 }
                             })
                             setHeader(defaultdoc.header.header)
+                            setUrls(defaultdoc.documentsUrl)
                         } else {
                             setSelectedTemplate(docInfo[0].uuid)
                             setData({
@@ -587,6 +593,7 @@ function DocumentDetailDialog({...props}) {
                                 }
                             })
                             setHeader(docInfo[0].header.header)
+                            setUrls(docInfo[0].documentsUrl)
                         }
                     }
                 }
@@ -607,6 +614,9 @@ function DocumentDetailDialog({...props}) {
                         header, setHeader,
                         date,
                         onReSize, setOnResize,
+                        urlMedicalProfessionalSuffix,
+                        docs: urls,
+                        setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
                             info: [{
