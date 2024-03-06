@@ -268,7 +268,7 @@ export const CalendarContextMenu = tuple(
         icon: <Icon color={"white"} width={20} height={20} path="ic_waiting_room"/>,
         action: "onWaitingRoom",
         feature: "waiting-room",
-        permission: "*"
+        permission: "waiting-room__waiting-room__show"
     },
     {
         title: "patient_no_show",
@@ -282,7 +282,7 @@ export const CalendarContextMenu = tuple(
         icon: <Icon color={"white"} width={20} height={20} path="ic_waiting_room"/>,
         action: "onLeaveWaitingRoom",
         feature: "waiting-room",
-        permission: "*"
+        permission: "waiting-room__waiting-room__show"
     },
     {
         title: "see_patient_form",
