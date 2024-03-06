@@ -266,6 +266,14 @@ const rowsActionsData = [
             )
         ),
     },
+    {
+        action: "department",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/departmentRow").then(
+                (mod) => mod
+            )
+        ),
+    },
 
 ];
 

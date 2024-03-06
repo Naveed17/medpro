@@ -14,7 +14,12 @@
       "department": "Département",
       "department-head": "chef de service",
       "status": "Statut",
-      "date": "Date"
+      "date": "Date",
+      "active": "Actif"
+    },
+    "no-data": {
+      "title": "Aucun service trouvé",
+      "description": "Veuillez ajouter les services"
     }
   }
 }
