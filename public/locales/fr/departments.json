@@ -14,7 +14,24 @@
       "department": "Département",
       "department-head": "chef de service",
       "status": "Statut",
+      "active": "Active",
+      "inactive": "Inactive",
       "date": "Date"
+    }
+  },
+  "dialogs": {
+    "department-dialog": {
+      "alert": {
+        "success": "Département ajouté avec succès"
+      },
+      "title": "Ajouter un département",
+      "name": "Nom",
+      "name-placeholder": "Nom du département",
+      "user": "Chef de service",
+      "user-placeholder": "Sélectionner un médecin",
+      "status": "Statut du département",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
     }
   }
 }

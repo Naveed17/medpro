@@ -3,6 +3,11 @@ import TableRow from "@mui/material/TableRow";
 
 const TableRowStyled = styled(TableRow)<any>(
     ({theme, styleprops, ...rest}) => ({
+        ".btn-edit": {
+            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: 8,
+            padding: theme.spacing(1),
+        },
         "& .MuiTableCell-root": {
             cursor: "pointer",
             div: {

@@ -31,7 +31,7 @@ import {
     increaseNumberInString,
     useMedicalEntitySuffix,
     isAppleDevise,
-    isSupported
+    isSupported, groupPermissionsByFeature
 } from "@lib/hooks";
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
@@ -230,7 +230,11 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaPermissionsModel[];
             const defaultAgenda = agendasData.reduce((agendas: AgendaPermissionsModel, agendaPermission: AgendaPermissionsModel) => ({...(agendas ?? {}), ...(agendaPermission.agenda?.isDefault ? agendaPermission : {})}), {});
             if (defaultAgenda?.permissions) {
-                dispatch(setPermissions({"agenda": defaultAgenda?.permissions.map(permission => permission?.slug)}));
+                const groupedPermissions = groupPermissionsByFeature(defaultAgenda?.permissions);
+                dispatch(setPermissions({
+                    "agenda": groupedPermissions[0]?.children.map((permission: PermissionModel) => permission?.slug),
+                    "consultation": groupedPermissions[1]?.children.map((permission: PermissionModel) => permission?.slug)
+                }));
             }
             if (defaultAgenda?.agenda) {
                 const agenda = defaultAgenda?.agenda;

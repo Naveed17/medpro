@@ -1,14 +1,21 @@
-import React, {ReactElement} from "react";
-import {AdminLayout} from "@features/base";
+import React, {ReactElement, useEffect, useState} from "react";
+import {AdminLayout, configSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
-import {Box} from "@mui/material";
+import {Box, Drawer} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Otable} from "@features/table";
 import {DepartmentToolbar} from "@features/toolbar";
+import {useRequestQuery} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useRouter} from "next/router";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {MotifTypeDialog} from "@features/motifTypeDialog";
+import {useAppSelector} from "@lib/redux/hooks";
+import AddDepartmentDialog from "../../../features/dialog/components/addDepartmentDialog/addDepartmentDialog";
 
 const headCells = [
     {
@@ -62,7 +69,25 @@ const headCells = [
 ];
 
 function Departments() {
-    const {t, ready} = useTranslation("departments", {keyPrefix: "config"});
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {t, ready, i18n} = useTranslation("departments", {keyPrefix: "config"});
+    const {direction} = useAppSelector(configSelector);
+
+    const [openAddDrawer, setOpenAddDrawer] = useState(false);
+
+    const {data: httpDepartmentsResponse} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/admin/departments/${router.locale}`,
+    }, ReactQueryNoValidateConfig);
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["departments"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    const departments = (httpDepartmentsResponse as HttpResponse)?.data ?? [];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -75,17 +100,22 @@ function Departments() {
                         py: {md: 0, xs: 2},
                     },
                 }}>
-                <DepartmentToolbar {...{t}}/>
+                <DepartmentToolbar {...{t}} handleAddStaff={() => setOpenAddDrawer(true)}/>
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
                     <Otable
                         headers={headCells}
-                        rows={[]}
-                        from={"doctors"}
+                        rows={departments}
+                        from={"department"}
                         {...{t}}
                     />
                 </DesktopContainer>
+
+                <Drawer anchor={"right"} open={openAddDrawer} dir={direction} onClose={() => setOpenAddDrawer(false)}>
+                    <AddDepartmentDialog
+                        closeDraw={() => setOpenAddDrawer(false)}/>
+                </Drawer>
             </Box>
         </>
     )

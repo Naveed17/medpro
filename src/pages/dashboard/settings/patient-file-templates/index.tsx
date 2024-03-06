@@ -227,7 +227,6 @@ function PatientFileTemplates() {
                                 <FileTemplateMobileCard
                                     data={row}
                                     edit={handleEdit}
-                                    handleConfig={null}
                                     handleChange={handleChange}
                                 />
                             </React.Fragment>
