@@ -82,6 +82,10 @@
         "firstName": "Le prénom est obligatoire",
         "email": "Veuillez entrer une adresse email valide"
       }
+    },
+    "no-data": {
+      "title": "Aucun personnel trouvé",
+      "description": "Aucun personnel trouvé"
     }
   }
 }

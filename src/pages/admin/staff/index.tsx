@@ -1,21 +1,26 @@
-import React, {ReactElement, useEffect, useState} from "react";
-import {AdminLayout} from "@features/base";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {SubHeader} from "@features/subHeader";
-import {StaffToolbar} from "@features/toolbar";
-import {Box, Dialog, LinearProgress} from "@mui/material";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {Otable, resetUser} from "@features/table";
-import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useTranslation} from "next-i18next";
-import {useRequestQuery} from "@lib/axios";
-import {LoadingScreen} from "@features/loadingScreen";
-import {NewUserDialog} from "@features/dialog";
-import {setStepperIndex, stepperSelector} from "@features/stepper";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {sideBarSelector, toggleSideBar} from "@features/menu";
+import React, { ReactElement, useEffect, useState } from "react";
+import { AdminLayout } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { SubHeader } from "@features/subHeader";
+import { StaffToolbar } from "@features/toolbar";
+import { Box, Button, Dialog, LinearProgress, Stack } from "@mui/material";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { Otable, resetUser } from "@features/table";
+import { useRouter } from "next/router";
+import { useMedicalEntitySuffix } from "@lib/hooks";
+import { useTranslation } from "next-i18next";
+import { useRequestQuery } from "@lib/axios";
+import { LoadingScreen } from "@features/loadingScreen";
+import { NewUserDialog } from "@features/dialog";
+import { setStepperIndex, stepperSelector } from "@features/stepper";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { sideBarSelector, toggleSideBar } from "@features/menu";
+import { MobileContainer } from "@themes/mobileContainer";
+import { NoDataCard, StaffMobileCard } from "@features/card";
+import { DrawerBottom } from "@features/drawerBottom";
+import IconUrl from "@themes/urlIcon";
+import { Staff as StaffFilter } from '@features/leftActionBar'
 
 const headCells = [
     {
@@ -86,19 +91,19 @@ const headCells = [
 
 function Staff() {
     const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
-    const {t, ready, i18n} = useTranslation("staff", {keyPrefix: "config"});
-    const {currentStep} = useAppSelector(stepperSelector);
-    const {opened: openSideBar} = useAppSelector(sideBarSelector);
-
+    const { t, ready, i18n } = useTranslation("staff", { keyPrefix: "config" });
+    const { currentStep } = useAppSelector(stepperSelector);
+    const { opened: openSideBar } = useAppSelector(sideBarSelector);
+    const [filter, setFilter] = useState(false)
     const [newUserDialog, setNewUserDialog] = useState<boolean>(false)
 
-    const {data: httpUsersResponse} = useRequestQuery({
+    const { data: httpUsersResponse } = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
-    }, {refetchOnWindowFocus: false});
+    }, { refetchOnWindowFocus: false });
 
     const handleAddStaff = () => {
         dispatch(resetUser());
@@ -140,32 +145,71 @@ function Staff() {
 
     const users = ((httpUsersResponse as HttpResponse)?.data?.filter((user: UserModel) => !user.isProfessional) ?? []) as UserModel[];
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <>
             <SubHeader
                 sx={{
                     ".MuiToolbar-root": {
-                        flexDirection: {xs: "column", md: "row"},
-                        py: {md: 0, xs: 2},
+                        flexDirection: { xs: "column", md: "row" },
+                        py: { md: 0, xs: 2 },
                     },
                 }}>
-                <StaffToolbar {...{t, handleAddStaff}}/>
+                <StaffToolbar {...{ t, handleAddStaff }} />
             </SubHeader>
             <Box className="container">
-                <DesktopContainer>
-                    <LinearProgress sx={{
-                        visibility: !httpUsersResponse ? "visible" : "hidden"
-                    }} color="warning"/>
-                    <Otable
-                        headers={headCells}
-                        handleEvent={handleTableEvent}
-                        rows={users}
-                        from={"staff"}
-                        {...{t}}
-                    />
-                </DesktopContainer>
+                {users.length > 0 ?
+                    <>
+                        <DesktopContainer>
+                            <LinearProgress sx={{
+                                visibility: !httpUsersResponse ? "visible" : "hidden"
+                            }} color="warning" />
+                            <Otable
+                                headers={headCells}
+                                handleEvent={handleTableEvent}
+                                rows={users}
+                                from={"staff"}
+                                {...{ t }}
+                            />
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={2}>
+                                {users.map((item) => (
+                                    <StaffMobileCard key={item.uuid} {...{ row: item, t }} handleEvent={handleTableEvent} />
+                                ))}
+                            </Stack>
+                        </MobileContainer>
+                    </>
+                    :
+                    <NoDataCard ns={"staff"} t={t} data={{
+                        mainIcon: "ic-user3",
+                        title: "no-data.title",
+                        description: "no-data.description",
+                    }} />
+                }
+                <MobileContainer>
+                    <Button
+                        startIcon={<IconUrl path="ic-filter" />}
+                        variant="filter"
+                        onClick={() => setFilter(true)}
+                        sx={{
+                            position: "fixed",
+                            bottom: 50,
+                            transform: "translateX(-50%)",
+                            left: "50%",
+                            zIndex: 999,
+
+                        }}>
+                        {t("filter.title")} (0)
+                    </Button>
+                </MobileContainer>
+                <DrawerBottom
+                    handleClose={() => setFilter(false)}
+                    open={filter}
+                    title={t("filter.title")}>
+                    <StaffFilter />
+                </DrawerBottom>
                 <Dialog
                     maxWidth="md"
                     PaperProps={{
@@ -177,17 +221,17 @@ function Staff() {
                     open={newUserDialog}
                     onClose={handleCloseNewUserDialog}>
                     <NewUserDialog
-                        {...{t}}
+                        {...{ t }}
                         type={"assignment"}
                         onNextPreviStep={handleNextPreviStep}
-                        onClose={handleCloseNewUserDialog}/>
+                        onClose={handleCloseNewUserDialog} />
                 </Dialog>
             </Box>
         </>
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'staff', 'settings']))

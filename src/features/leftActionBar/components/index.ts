@@ -13,3 +13,4 @@ export * from "./filterOverview";
 export * from "./inventory";
 export * from "./document";
 export * from './doctors'
+export * from './staff'
