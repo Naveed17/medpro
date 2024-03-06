@@ -53,7 +53,6 @@ function Home() {
     };
 
     const handleSelectUserRoot = (root: string) => {
-        console.log("root", root);
         update({default_medical_entity: selectedMedicalEntity?.uuid, root});
         setAnchorEl(null);
     };
