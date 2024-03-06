@@ -23,7 +23,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
-import {agendaSelector, AppointmentStatus} from "@features/calendar";
+import {AppointmentStatus} from "@features/calendar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
@@ -89,7 +89,6 @@ function BoardItem({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
-    const {mode} = useAppSelector(agendaSelector);
 
     const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
@@ -182,10 +181,6 @@ function BoardItem({...props}) {
                                         variant={"contained"}
                                         size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
                                     <Typography
-                                        {...(mode !== "normal" && {
-                                            className: "blur-text",
-                                            sx: {overflow: "hidden", lineHeight: 1}
-                                        })}
                                         {...(quote.content.status === 3 && {pl: 1})}
                                         variant='body2' fontWeight={600}>
                                         {quote.content.patient.firstName} {quote.content.patient.lastName}
