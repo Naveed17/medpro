@@ -140,7 +140,7 @@ function Departments() {
         i18n.reloadResources(i18n.resolvedLanguage, ["departments"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const departments = (httpDepartmentsResponse as HttpResponse)?.data ?? [];
+    const departments = ((httpDepartmentsResponse as HttpResponse)?.data ?? []) as DepartmentModel[];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -160,34 +160,32 @@ function Departments() {
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
-                    <DesktopContainer>
-                        <Otable
-                            {...{t}}
-                            prefix={"config"}
-                            headers={headCells}
-                            handleEvent={handleTableEvent}
-                            rows={departments}
-                            from={"department"}
-                        />
-                    </DesktopContainer>
-                    <MobileContainer>
-                        <Stack spacing={2}>
-                            {[1, 2].map((row, idx) => (
-                                <DepartmentMobileCard key={idx} {...{t, row}} />
-                            ))}
-
-                        </Stack>
-                    </MobileContainer>
-
-                    {(!isDepartmentsLoading && departments.length === 0) && <NoDataCard
+                    <Otable
                         {...{t}}
-                        ns={"departments"}
-                        data={{
-                            mainIcon: "ic-deparment",
-                            title: "no-data.title",
-                            description: "no-data.description",
-                        }}/>}
+                        prefix={"config"}
+                        headers={headCells}
+                        handleEvent={handleTableEvent}
+                        rows={departments}
+                        from={"department"}
+                    />
                 </DesktopContainer>
+                <MobileContainer>
+                    <Stack spacing={2}>
+                        {departments.map((row, idx) => (
+                            <DepartmentMobileCard key={idx} {...{t, row}} handleEvent={handleTableEvent}/>
+                        ))}
+                    </Stack>
+                </MobileContainer>
+
+                {(!isDepartmentsLoading && departments.length === 0) && <NoDataCard
+                    {...{t}}
+                    ns={"departments"}
+                    data={{
+                        mainIcon: "ic-deparment",
+                        title: "no-data.title",
+                        description: "no-data.description",
+                    }}/>}
+
 
                 <Drawer anchor={"right"} open={openAddDrawer} dir={direction} onClose={() => setOpenAddDrawer(false)}>
                     <AddDepartmentDialog
