@@ -2,8 +2,6 @@ import React, {Fragment} from "react";
 import {setSelectedRows, tableActionSelector, TableRowStyled} from "@features/table";
 import TableCell from "@mui/material/TableCell";
 import {
-    Avatar,
-    Badge,
     Box, Checkbox,
     IconButton,
     Skeleton,
@@ -14,16 +12,13 @@ import IconUrl from "@themes/urlIcon";
 import Can from "@features/casl/can";
 import {Label} from "@features/label";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ConditionalWrapper} from "@lib/hooks";
-import Zoom from "react-medium-image-zoom";
 import {useRouter} from "next/router";
-import moment from "moment-timezone";
 
 function DoctorRow({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {row, isItemSelected, t, handleEvent, selected, handleClick} = props;
-    const router = useRouter();
+
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
 
     const handleCheckItem = (isItemSelected: boolean, row: PatientModel) => {
@@ -93,7 +88,7 @@ function DoctorRow({...props}) {
                     className="label"
                     variant="ghost"
                     color={row?.status === 1 ? "success" : "error"}>
-                    {t(`table.${row?.status === 1 ? "active" : "inactive"}`)}
+                    {t(`config.table.${row?.status === 1 ? "active" : "inactive"}`)}
                 </Label>
             </TableCell>
             <TableCell align="center">

@@ -3,19 +3,35 @@ import {AdminLayout, configSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
-import {Box, Drawer} from "@mui/material";
+import {
+    Box,
+    Button,
+    Checkbox,
+    DialogActions,
+    DialogContent,
+    Drawer,
+    FormControlLabel,
+    Stack, Theme,
+    Typography
+} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Otable} from "@features/table";
 import {DepartmentToolbar} from "@features/toolbar";
-import {useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {MotifTypeDialog} from "@features/motifTypeDialog";
 import {useAppSelector} from "@lib/redux/hooks";
 import AddDepartmentDialog from "../../../features/dialog/components/addDepartmentDialog/addDepartmentDialog";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import {LoadingButton} from "@mui/lab";
+import CloseIcon from "@mui/icons-material/Close";
+import IconUrl from "@themes/urlIcon";
+import {useSnackbar} from "notistack";
 
 const headCells = [
     {
@@ -71,16 +87,49 @@ const headCells = [
 function Departments() {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {enqueueSnackbar} = useSnackbar();
 
-    const {t, ready, i18n} = useTranslation("departments", {keyPrefix: "config"});
+    const {t, ready, i18n} = useTranslation("departments");
     const {direction} = useAppSelector(configSelector);
 
     const [openAddDrawer, setOpenAddDrawer] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState(false);
+    const [loadingReq, setLoadingReq] = useState(false);
+    const [selectedDepartment, setSelectedDepartment] = useState<DepartmentModel | null>(null);
 
-    const {data: httpDepartmentsResponse} = useRequestQuery({
+    const {data: httpDepartmentsResponse, mutate: mutateDepartments} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/admin/departments/${router.locale}`,
     }, ReactQueryNoValidateConfig);
+
+    const {trigger: deleteDepartmentTrigger} = useRequestQueryMutation("/department/delete");
+
+    const handleDeleteDepartment = () => {
+        setLoadingReq(true)
+        deleteDepartmentTrigger({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/admin/departments/${selectedDepartment?.uuid}/${router.locale}`,
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("dialogs.delete-department-dialog.alert.success"), {variant: "success"})
+                mutateDepartments();
+                setDeleteDialog(false);
+            },
+            onSettled: () => setLoadingReq(false)
+        });
+    }
+
+    const handleTableEvent = (action: string, data: any) => {
+        setSelectedDepartment(data);
+        switch (action) {
+            case "EDIT_DEPARTMENT":
+                setOpenAddDrawer(true);
+                break;
+            case "DELETE_DEPARTMENT":
+                setDeleteDialog(true);
+                break;
+        }
+    }
 
     useEffect(() => {
         //reload locize resources from cdn servers
@@ -100,22 +149,77 @@ function Departments() {
                         py: {md: 0, xs: 2},
                     },
                 }}>
-                <DepartmentToolbar {...{t}} handleAddStaff={() => setOpenAddDrawer(true)}/>
+                <DepartmentToolbar {...{t}} handleAddStaff={() => {
+                    setSelectedDepartment(null);
+                    setOpenAddDrawer(true);
+                }}/>
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
                     <Otable
+                        {...{t}}
+                        prefix={"config"}
                         headers={headCells}
+                        handleEvent={handleTableEvent}
                         rows={departments}
                         from={"department"}
-                        {...{t}}
                     />
                 </DesktopContainer>
 
                 <Drawer anchor={"right"} open={openAddDrawer} dir={direction} onClose={() => setOpenAddDrawer(false)}>
                     <AddDepartmentDialog
+                        data={selectedDepartment}
                         closeDraw={() => setOpenAddDrawer(false)}/>
                 </Drawer>
+
+                <Dialog
+                    PaperProps={{
+                        sx: {
+                            width: "100%"
+                        }
+                    }}
+                    maxWidth="sm"
+                    open={deleteDialog}>
+                    <DialogTitle
+                        sx={{
+                            bgcolor: (theme: Theme) => theme.palette.error.main,
+                            px: 1,
+                            py: 2,
+
+                        }}>
+                        {t(`dialogs.delete-department-dialog.title`)}
+                    </DialogTitle>
+                    <DialogContent sx={{textAlign: "center"}} style={{paddingTop: 20}}>
+                        <Stack spacing={2}>
+                            <Typography
+                                variant="subtitle1">{t("dialogs.delete-department-dialog.sub-title")}</Typography>
+                            <Typography>
+                                {t(`dialogs.delete-department-dialog.description`)}
+                            </Typography>
+                        </Stack>
+
+                    </DialogContent>
+                    <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                        <Stack direction="row" spacing={1}>
+                            <Button
+                                variant={"text-black"}
+                                onClick={() => {
+                                    setDeleteDialog(false);
+                                }}
+                                startIcon={<CloseIcon/>}>
+                                {t("dialogs.cancel")}
+                            </Button>
+                            <LoadingButton
+                                variant="contained"
+                                loading={loadingReq}
+                                color="error"
+                                onClick={handleDeleteDepartment}
+                                startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
+                                {t("dialogs.delete-department-dialog.delete")}
+                            </LoadingButton>
+                        </Stack>
+                    </DialogActions>
+                </Dialog>
             </Box>
         </>
     )

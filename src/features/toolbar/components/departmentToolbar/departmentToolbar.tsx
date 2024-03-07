@@ -13,7 +13,7 @@ function DepartmentToolbar({...props}) {
             width={1}
             alignItems="center">
             <Typography variant="subtitle2" color="text.primary">
-                {t("sub-header.title")}
+                {t("config.sub-header.title")}
             </Typography>
 
             <CustomIconButton

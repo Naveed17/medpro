@@ -17,6 +17,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConditionalWrapper} from "@lib/hooks";
 import Zoom from "react-medium-image-zoom";
 import {useRouter} from "next/router";
+import _ from "lodash";
 
 function DoctorRow({...props}) {
     const theme = useTheme();
@@ -107,7 +108,7 @@ function DoctorRow({...props}) {
                             fontSize={13}
                             fontWeight={700}
                             color="text.primary">
-                            {row?.department ?? "--"}
+                            {_.map(row?.department, 'name').join(', ') ?? "--"}
                         </Typography>
                     </>
                 ) : (

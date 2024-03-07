@@ -22,7 +22,8 @@
   "dialogs": {
     "department-dialog": {
       "alert": {
-        "success": "Département ajouté avec succès"
+        "add-success": "Département ajouté avec succès",
+        "update-success": "Département modifié avec succès"
       },
       "title": "Ajouter un département",
       "name": "Nom",
@@ -30,8 +31,17 @@
       "user": "Chef de service",
       "user-placeholder": "Sélectionner un médecin",
       "status": "Statut du département",
-      "cancel": "Annuler",
       "save": "Enregistrer"
-    }
+    },
+    "delete-department-dialog": {
+      "alert": {
+        "success": "Département supprimé avec succès"
+      },
+      "title": "Supprimer département",
+      "sub-title": "Voulez-vous vraiment supprimer ce département?",
+      "description": "Vous perdez à jamais l'historique concernant ce département",
+      "delete": "Supprimer"
+    },
+    "cancel": "Annuler"
   }
 }

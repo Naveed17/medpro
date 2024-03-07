@@ -439,7 +439,7 @@ function DocumentDetailDialog({...props}) {
             ;
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
-                method: "DELETE",
+                method: " DELETE",
                 url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}`}/documents/${state?.uuid}/${router.locale}`
             }, {
                 onSuccess: () => {

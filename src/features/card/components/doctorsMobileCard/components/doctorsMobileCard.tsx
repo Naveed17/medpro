@@ -1,14 +1,17 @@
 import React from 'react'
 import CardStyled from './overrides/cardStyle'
-import { Avatar, Badge, Box, CardContent, IconButton, Skeleton, Stack, Typography, useTheme } from '@mui/material'
-import { ConditionalWrapper } from '@lib/hooks';
+import {Avatar, Badge, CardContent, IconButton, Skeleton, Stack, Typography, useTheme} from '@mui/material'
+import {ConditionalWrapper} from '@lib/hooks';
 import Zoom from "react-medium-image-zoom";
 import IconUrl from '@themes/urlIcon';
 import Can from "@features/casl/can";
-import { Label } from '@features/label';
-function DoctorsMobileCard({ ...props }) {
-    const { row, t, edit } = props;
-    const theme = useTheme()
+import {Label} from '@features/label';
+import _ from "lodash";
+
+function DoctorsMobileCard({...props}) {
+    const {row, t, edit} = props;
+    const theme = useTheme();
+
     return (
         <CardStyled>
             <CardContent>
@@ -19,13 +22,13 @@ function DoctorsMobileCard({ ...props }) {
                                 <Badge
                                     onClick={(event: any) => event.stopPropagation()}
                                     overlap="circular"
-                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                                    anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}>
                                     <ConditionalWrapper
                                         condition={row.hasPhoto}
                                         wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                         <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                             <Avatar
-                                                {...(row.hasPhoto && { className: "zoom" })}
+                                                {...(row.hasPhoto && {className: "zoom"})}
                                                 src={"/static/icons/men-avatar.svg"}
                                                 sx={{
                                                     "& .injected-svg": {
@@ -35,7 +38,7 @@ function DoctorsMobileCard({ ...props }) {
                                                     height: 36,
                                                     borderRadius: 1
                                                 }}>
-                                                <IconUrl width={"36"} height={"36"} path="men-avatar" />
+                                                <IconUrl width={"36"} height={"36"} path="men-avatar"/>
                                             </Avatar>
                                             <Typography variant="body1" fontWeight={700} color="primary">
                                                 {row.FirstName} {row.lastName}
@@ -53,7 +56,7 @@ function DoctorsMobileCard({ ...props }) {
                             </>
                         ) : (
                             <Stack>
-                                <Skeleton variant="text" width={100} />
+                                <Skeleton variant="text" width={100}/>
                             </Stack>
                         )}
 
@@ -64,7 +67,7 @@ function DoctorsMobileCard({ ...props }) {
                                         size="small"
                                         color="primary"
                                         className="btn-edit">
-                                        <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient" />
+                                        <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                     </IconButton>
                                 </Can>
                                 <Can I={"manage"} a={"settings"} field={"settings__users__delete"}>
@@ -73,7 +76,8 @@ function DoctorsMobileCard({ ...props }) {
                                         size="small"
                                         onClick={() => edit(row)}
                                     >
-                                        <IconUrl color={theme.palette.text.secondary} width={20} height={20} path="ic-trash" />
+                                        <IconUrl color={theme.palette.text.secondary} width={20} height={20}
+                                                 path="ic-trash"/>
                                     </IconButton>
                                 </Can>
                             </Stack>
@@ -84,15 +88,16 @@ function DoctorsMobileCard({ ...props }) {
                                 ml="auto"
                                 alignItems="center"
                                 justifyContent="flex-end">
-                                <Skeleton variant="text" width={25} height={40} />
-                                <Skeleton variant="text" width={25} height={40} />
+                                <Skeleton variant="text" width={25} height={40}/>
+                                <Skeleton variant="text" width={25} height={40}/>
                             </Stack>
                         )}
 
                     </Stack>
                     <Stack className='row'>
                         <Stack direction='row' alignItems='center' spacing={2}>
-                            <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.department")} :</Typography>
+                            <Typography variant='body2' color="textSecondary"
+                                        fontWeight={500}>{t("table.department")} :</Typography>
                             {row ? (
                                 <>
                                     <Typography
@@ -101,15 +106,16 @@ function DoctorsMobileCard({ ...props }) {
                                         fontSize={13}
                                         fontWeight={700}
                                         color="text.primary">
-                                        {row?.department ?? "--"}
+                                        {_.map(row?.department, 'name').join(', ') ?? "--"}
                                     </Typography>
                                 </>
                             ) : (
-                                <Skeleton variant="text" width={100} />
+                                <Skeleton variant="text" width={100}/>
                             )}
                         </Stack>
                         <Stack direction='row' alignItems='center' spacing={2}>
-                            <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.speciality")} :</Typography>
+                            <Typography variant='body2' color="textSecondary"
+                                        fontWeight={500}>{t("table.speciality")} :</Typography>
                             {row ? (
                                 <>
                                     <Typography
@@ -123,12 +129,13 @@ function DoctorsMobileCard({ ...props }) {
                                 </>
                             ) : (
                                 <Stack alignItems="center">
-                                    <Skeleton variant="text" width={100} />
+                                    <Skeleton variant="text" width={100}/>
                                 </Stack>
                             )}
                         </Stack>
                         <Stack direction='row' alignItems='center' spacing={2}>
-                            <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.contact")} :</Typography>
+                            <Typography variant='body2' color="textSecondary"
+                                        fontWeight={500}>{t("table.contact")} :</Typography>
                             <Typography
                                 textAlign={"center"}
                                 variant="body1"
@@ -140,7 +147,8 @@ function DoctorsMobileCard({ ...props }) {
                         </Stack>
                     </Stack>
                     <Stack direction='row' alignItems='center' spacing={2}>
-                        <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.join-date")} :</Typography>
+                        <Typography variant='body2' color="textSecondary"
+                                    fontWeight={500}>{t("table.join-date")} :</Typography>
                         <Typography
                             textAlign={"center"}
                             variant="body1"

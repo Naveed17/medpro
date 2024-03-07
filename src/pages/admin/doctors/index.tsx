@@ -11,7 +11,7 @@ import {Otable} from "@features/table";
 import {DoctorToolbar} from "@features/toolbar";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
 import {sideBarSelector, toggleSideBar} from "@features/menu";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {MobileContainer} from "@themes/mobileContainer";
@@ -19,6 +19,7 @@ import {DoctorsMobileCard, NoDataCard} from "@features/card";
 import {DrawerBottom} from "@features/drawerBottom";
 import IconUrl from "@themes/urlIcon";
 import {Doctors as DoctorsFilter} from '@features/leftActionBar'
+import moment from "moment-timezone";
 
 const headCells = [
     {
@@ -97,10 +98,17 @@ function Doctors() {
 
     const [filter, setFilter] = useState(false)
 
+    const page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+
     const {data: httpUsersResponse} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
-    }, {refetchOnWindowFocus: false});
+        url: `${urlMedicalEntitySuffix}/admin/users/${router.locale}`
+    }, {
+        refetchOnWindowFocus: false,
+        variables: {
+            query: `?page=${page}&limit=10&professionals=true`
+        }
+    });
 
     const handleTableEvent = (action: string, data: any) => {
         console.log(action, data);
@@ -114,7 +122,7 @@ function Doctors() {
         }
     }
 
-    const users = ((httpUsersResponse as HttpResponse)?.data?.filter((user: UserModel) => user.isProfessional) ?? []) as UserModel[];
+    const users = ((httpUsersResponse as HttpResponse)?.data?.list ?? []) as UserModel[];
 
     useEffect(() => {
         //reload locize resources from cdn servers
@@ -163,7 +171,6 @@ function Doctors() {
                                         }} />
                                     </React.Fragment>
                                 ))}
-
                             </Stack>
                         </MobileContainer>
                     </>

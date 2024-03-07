@@ -100,10 +100,17 @@ function Staff() {
     const [filter, setFilter] = useState(false)
     const [newUserDialog, setNewUserDialog] = useState<boolean>(false)
 
+    const page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+
     const { data: httpUsersResponse } = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
-    }, { refetchOnWindowFocus: false });
+        url: `${urlMedicalEntitySuffix}/admin/users/${router.locale}`
+    }, {
+        refetchOnWindowFocus: false,
+        variables: {
+            query: `?page=${page}&limit=10`
+        }
+    });
 
     const handleAddStaff = () => {
         dispatch(resetUser());
@@ -143,7 +150,7 @@ function Staff() {
         }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const users = ((httpUsersResponse as HttpResponse)?.data?.filter((user: UserModel) => !user.isProfessional) ?? []) as UserModel[];
+    const users = ((httpUsersResponse as HttpResponse)?.data?.list ?? []) as UserModel[];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 

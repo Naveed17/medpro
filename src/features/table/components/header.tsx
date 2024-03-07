@@ -17,6 +17,7 @@ function OHead({...props}) {
         onRequestSort,
         data,
         t,
+        prefix = null,
         numSelected,
         hideHeaderOnMobile,
         rowCount,
@@ -72,7 +73,7 @@ function OHead({...props}) {
                                                 ? "center !important"
                                                 : "flex-start",
                                     }}>
-                                    {headCell.label !== "empty" && capitalize(t(`table.${headCell.label}`))}
+                                    {headCell.label !== "empty" && capitalize(t(`${prefix ? `${prefix}.` : ""}table.${headCell.label}`))}
                                     {orderBy === headCell.id ? (
                                         <Box component="span" sx={visuallyHidden}>
                                             {order === "desc"

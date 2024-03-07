@@ -24,6 +24,7 @@ import {useSnackbar} from "notistack";
 
 function AddDepartmentDialog({...props}) {
     const router = useRouter();
+    const {data} = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -53,9 +54,9 @@ function AddDepartmentDialog({...props}) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: "",
-            user: null,
-            status: true
+            name: data ? data.name : "",
+            user: data ? data.headOfService : null,
+            status: data ? data.status === 1 : true
         },
         validationSchema,
         onSubmit: async (values) => {
@@ -64,14 +65,15 @@ function AddDepartmentDialog({...props}) {
             form.append("medicalEntityHasUser", (values.user as any)?.uuid);
             form.append("status", values.status ? "1" : "0");
             addDepartmentTrigger({
-                method: "POST",
-                url: `${urlMedicalEntitySuffix}/admin/departments/${router.locale}`,
+                method: data ? "PUT" : "POST",
+                url: `${urlMedicalEntitySuffix}/admin/departments/${data ? `${data.uuid}/` : ""}${router.locale}`,
                 data: form
             }, {
                 onSuccess: () => {
-                    enqueueSnackbar(t("dialogs.department-dialog.alert.success"), {variant: "success"})
+                    enqueueSnackbar(t(`dialogs.department-dialog.alert.${data ? "update-success" : "add-success"}`), {variant: "success"})
                     invalidateQueries([`${urlMedicalEntitySuffix}/admin/departments/${router.locale}`]);
                     setLoading(false);
+                    props.closeDraw();
                 },
                 onError: () => setLoading(false)
             });
@@ -151,12 +153,12 @@ function AddDepartmentDialog({...props}) {
                             onOpen={() => setOpenAutoCompleteUser(true)}
                             onClose={() => setOpenAutoCompleteUser(false)}
                             onChange={(e, user) => setFieldValue("user", user)}
-                            getOptionLabel={(option: any) => option?.uuid ? `${option?.FirstName} ${option?.lastName}` : ""}
+                            getOptionLabel={(option: any) => option?.uuid ? `${option?.firstName} ${option?.lastName}` : ""}
                             isOptionEqualToValue={(option: any, value) => option?.uuid === value?.uuid}
                             options={users}
                             renderOption={(props, option) => (
                                 <ListItem {...props}>
-                                    <ListItemText primary={`${option?.FirstName} ${option?.lastName}`}/>
+                                    <ListItemText primary={`${option?.firstName} ${option?.lastName}`}/>
                                 </ListItem>
                             )}
                             renderInput={params =>
