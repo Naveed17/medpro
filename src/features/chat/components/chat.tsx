@@ -39,6 +39,7 @@ import {useSession} from "next-auth/react";
 import useUsers from "@lib/hooks/rest/useUsers";
 import {agendaSelector} from "@features/calendar";
 import PresenceMessage = Types.PresenceMessage;
+import {chatSelector} from "@features/chat/selectors";
 
 interface IPatient {
     uuid: string,
@@ -78,6 +79,7 @@ const Chat = ({...props}) => {
 
     const {t} = useTranslation("common", {keyPrefix: "chat"});
     const {direction} = useAppSelector(configSelector);
+    const {message:msg} = useAppSelector(chatSelector);
 
     const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
 
@@ -239,6 +241,10 @@ const Chat = ({...props}) => {
             selectedDiscussion && getMessages(selectedDiscussion);
         }, 1000)
     }, [messagesRefresh]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(()=>{
+        setMessage(msg)
+    },[msg])
 
     return (
         <ChatStyled>
