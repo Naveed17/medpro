@@ -121,6 +121,7 @@ function DocumentDetailDialog({...props}) {
     const [previewDoc, setPreviewDoc] = useState<any>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [onReSize, setOnResize] = useState(true)
+    const [pdfUrl, setPdfUrl] = useState('');
 
     const {direction} = useAppSelector(configSelector);
 
@@ -378,8 +379,11 @@ function DocumentDetailDialog({...props}) {
                     });*/
 
                     const data = document.getElementById('page0');
-                   /* let doc = new jsPDF();
-                    doc*/
+                    console.log(data)
+                    convertToPdf(data?.innerHTML)
+
+                    /* let doc = new jsPDF();
+                     doc*/
 
                     /*const file = await generatePdfFromHtml(componentRef, "blob");
                     const fileURL = window.URL.createObjectURL((file as Blob));
@@ -502,6 +506,24 @@ function DocumentDetailDialog({...props}) {
             onSettled: () => setLoadingReq(false)
         });
     }
+
+    const convertToPdf = async (htmlContent) => {
+        const response = await fetch('/api/convertToPdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ htmlContent }),
+        });
+        if (response.ok) {
+            const pdfBlob = await response.blob();
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            setPdfUrl(pdfUrl);
+        } else {
+            console.error('Failed to convert HTML to PDF');
+        }
+    };
+
 
     useEffect(() => {
         setIsImg(state?.detectedType?.split('/')[0] === 'image')
@@ -700,6 +722,11 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
+                        {pdfUrl && (
+                            <a href={pdfUrl} download="converted.pdf">
+                                Download PDF
+                            </a>
+                        )}
                         {!multimedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
