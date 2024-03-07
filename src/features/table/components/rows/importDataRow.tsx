@@ -144,6 +144,18 @@ function ImportDataRow({...props}) {
                 </TableCell>
                 <TableCell align={"center"}>
                     {row ? (
+                        <Typography fontSize={13} variant={"body2"}>
+                            {t(row?.type === 1 ? "export-data" : "import-data")}
+                        </Typography>
+                    ) : (
+                        <Stack>
+                            <Skeleton variant="text" width={100}/>
+                            <Skeleton variant="text" width={100}/>
+                        </Stack>
+                    )}
+                </TableCell>
+                <TableCell align={"center"}>
+                    {row ? (
                         <Label variant={"ghost"} color={colors[row.status]}>
                             {t('tabs.' + status[row.status])}
                         </Label>

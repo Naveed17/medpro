@@ -21,7 +21,7 @@ import "moment/locale/fr";
 import AppThemeProvider from "@themes/index";
 import KeycloakSession from "@lib/keycloak/keycloakSession";
 import AuthGuard from "@lib/keycloak/authGuard";
-import {FcmLayout} from "@features/base";
+import {MainLayout} from "@features/base";
 import {useRouter} from "next/router";
 import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
 import {buildProvidersTree} from "@lib/routes/buildProvidersTree";
@@ -83,9 +83,9 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                 wrapper={(children: any) =>
                     <AuthGuard>
                         <AblyClient>
-                            <FcmLayout {...pageProps}>
+                            <MainLayout {...pageProps}>
                                 {children}
-                            </FcmLayout>
+                            </MainLayout>
                         </AblyClient>
                     </AuthGuard>}>
                 {getLayout(<Component key={pageKey} {...pageProps} />)}
@@ -96,4 +96,4 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
 
 App.displayName = "Med Link";
 
-export default appWithTranslation(App, emptyInitialI18NextConfig);
+export default appWithTranslation(App, nextI18NextConfig);

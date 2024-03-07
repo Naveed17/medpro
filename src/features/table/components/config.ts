@@ -103,6 +103,18 @@ const rowsActionsData = [
         ),
     },
     {
+        action: "doctors",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/doctorRow").then((mod) => mod)
+        ),
+    },
+    {
+        action: "staff",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/staffRow").then((mod) => mod)
+        ),
+    },
+    {
         action: "instructions",
         component: dynamic((): any =>
             import("@features/table/components/rows/instructionRow").then(
@@ -233,6 +245,30 @@ const rowsActionsData = [
         action: "actfees-collapse",
         component: dynamic((): any =>
             import("@features/table/components/rows/actsFeesCollapseRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+     {
+        action: "rest-pass",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/restPassRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "billing-history",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/billingHishtoryRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "department",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/departmentRow").then(
                 (mod) => mod
             )
         ),

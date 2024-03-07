@@ -22,30 +22,61 @@
     "drugs": "Médicaments",
     "analysis": "Analyse",
     "medical_imaging": "Imagerie médicale",
+    "billing": "Billing",
     "insurance_agreement": "Assurance & Convention"
   },
   "profile": {
+    "upload-logo": "Télécharger le logo",
     "specialities": "Spécialités",
+    "organization": "Organisation name",
+    "organization-placeholder": "Saisir le nom de l'organisation",
     "sms-rappel": "SMS de rappel",
     "sms-rappel-send": "Activer le rappel par SMS",
     "qualification": "Qualification professionnelle",
     "assurence": "Assurance maladie",
     "regMode": "Modes de règlement",
     "langues": "Langues parlées",
+    "region": "Ville",
+    "region-error": "La ville du pays est obligatoire",
+    "country": "Pays",
+    "country-placeholder": "pays",
+    "region-placeholder": "Ville",
+    "zip": "Code postal",
+    "address": "Adresse",
+    "address-placeholder": "Entrez l'adresse",
+    "address-group": "Adresse du patient",
     "actes": "Actes principaux",
     "actesSec": "Actes Secondaries",
+    "contact-info": "Contact Information",
+    "contact-number": "Téléphone Mobile",
+    "email": "Email Address",
+    "email-placeholder": "Saisir l'adresse e-mail",
+    "organization-locale": "Lieu de l'organisation",
     "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 28 916 800",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "listQ": "liste des qualifications professionnelles",
-    "title": "Titre",
+    "title": "Profile",
     "alertQ": "Parce que la confidentialité de vos informations est importante, nous n'afficherons pas vos documents dans votre profil public.Les données qu'ils contiennent seront extraites et converties en texte.",
     "drop": "Cliquez ou déposez les fichiers",
     "noInsurance": "Aucune assurance sélectionnée",
     "noPaymentMean": "Aucun moyen de paiement sélectionné",
     "noQualification": "Aucune qualification sélectionnée",
     "noLanguage": "Aucune langue sélectionnée",
-    "noActes": "Aucun acte sélectionné"
+    "noActes": "Aucun acte sélectionné",
+    "contact_info": "Informations sur les contacts",
+    "full_name": "Nom et prénom",
+    "cin": "CIN",
+    "birthdate": "Date de naissance",
+    "mobile": "Mobile",
+    "org_location": "Localisation de l'organisation",
+    "time_and_agenda_title": "Réglages de l'heure et du calendrier",
+    "time_zone": "Fuseau horaire",
+    "time_format": "Format de l'heure",
+    "week_start": "Début de la semaine",
+    "lang": "Langue",
+    "password": "Mot de passe",
+    "change_password": "Modifier le mot de passe"
   },
   "dialogs": {
     "search_lang": "Commencez à taper pour rechercher les langues",
@@ -452,8 +483,12 @@
           "sub-title": "Liste des congés et absences proches",
           "description": "Titre du congé",
           "type-placeholder": "Saisir le titre du congé",
+          "end-after-start-time": "L'heure de fin doit être antérieure à l'heure de début",
+          "datetime-required": "La date est obligatoire",
           "startDate": "Date début",
+          "startDate-placeholder": "Selectionner la Date début",
           "endDate": "Date fin",
+          "endDate-placeholder": "Sélectionner la date de fin",
           "vacation": {
             "yearly": "Congé annuel",
             "sick": "Congé de maladie",
@@ -493,6 +528,7 @@
     "path_new": "Paramètres > Utilisateurs > Ajouter",
     "path_update": "Paramètres > Utilisateurs > Modifier",
     "user": "Utilisateur",
+    "contact": "Contact Information",
     "pro": "C'est un professionnel ?",
     "mail": "Adresse mail",
     "feature": "Fonctionnalité",
@@ -529,8 +565,23 @@
     "confirm_password": "confirmer le mot de passe",
     "profile": "Profil",
     "add_new_feature_profile": "Ajouter un nouveau profil de fonctionnalité",
+    "time-settings": "Paramètres de l'heure et du calendrier",
     "config": {
       "add": "Ajouter",
+      "users": "Utilisateurs",
+      "add_user": "Ajouter un utilisateur",
+      "department": "Departement",
+      "department-placeholder": "Tapez le nom du departement",
+      "no-department-placeholder": "Aucun département trouvé",
+      "assigned-to": "Affecté à",
+      "assigned-to-placeholder": "Tapez le nom du médecin",
+      "no-assigned-to-placeholder": "Aucun médecin n'a été trouvé",
+      "auto-password": "Génération automatique du mot de passe",
+      "un-assign": "Désassigner",
+      "select-all": "Sélectionner tout",
+      "personal-info": "Paramètres de l'utilisateur",
+      "manual-password": "Laissez-moi créer le mot de passe",
+      "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
       "features": {
         "appointment": "Rendez-vous",
         "patient": "Patient",
@@ -548,7 +599,8 @@
         "medical-imaging": "Imagerie médicale",
         "holidays": "Congé et absence",
         "users": "Utilisateur",
-        "data": "Importation"
+        "data": "Importation",
+        "insurance_agreement": "Insurance/Agreements"
       },
       "newCash": "Créer caisse",
       "name-cashBox": "Nom du caisse",
@@ -575,6 +627,7 @@
       "roles": "Rôles",
       "role_name": "Nom du rôle",
       "cancel": "Annuler",
+      "return": "Retour à la page utilisateur",
       "save": "Enregistrer",
       "settings": "Paramètres",
       "cashbox": "Caisse",
@@ -584,15 +637,18 @@
         "delete-profile-desc": "Voulez-vous supprimer le profil ?",
         "delete-user-desc": "Voulez-vous supprimer le utilisateur ?",
         "ntc": "Nom est trop court",
+        "info": "Informations",
         "delete": "Supprimer",
         "cancel": "Annuler",
         "back": "Retour",
         "add_user": "Ajouter un utilisateur",
         "user": "Utilisateur",
         "role_permissions": "Rôle & Autorisations",
+        "role_assignments": "Rôle & affectation",
         "end": "Fin",
-        "family_name": "Nom de famille",
+        "user_name": "Nom d'utilisateur",
         "first_name": "Prénom",
+        "last_name": "Nom",
         "phone": "Téléphone Mobile",
         "email": "Adresse mail",
         "password": "Mot de passe",
@@ -617,6 +673,10 @@
           "title": "Ajouter votre premier profil",
           "description": "Gérez votre accès et créez votre premier profil",
           "button-text": "Ajouter un profil"
+        },
+        "permissions": {
+          "title": "Veuillez sélectionner les fonctionnalités et les autorisations",
+          "description": "Gérez votre accès et créez votre premier profil"
         }
       },
       "table": {
@@ -640,7 +700,7 @@
       },
       "alert": {
         "add_user_success": "Ajouter un utilisateur avec succès",
-        "went_wrong": "Quelque chose n'a pas fonctionné"
+        "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment "
       }
     },
     "dialog": {
@@ -657,7 +717,7 @@
     "alert": {
       "success": "l'utilisateur a été ajouté avec succès",
       "updated-role": "Le profil a été mis à jour avec succès",
-      "went_wrong": "Quelque chose n'a pas fonctionné",
+      "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment",
       "update": "l'utilisateur a été mis à jour avec succès"
     }
   },
@@ -784,6 +844,9 @@
       "empty": ""
     },
     "add": "Importer",
+    "export": "Exporter les données",
+    "export-data": "Exportation",
+    "import-data": "Importation",
     "path": "Paramètres > Importation de données",
     "path-import": "Paramètres > Importation de données > Nouveau",
     "title": "Données",
@@ -800,7 +863,8 @@
     "load-file": "Charger le fichier",
     "load-data": "importer les données",
     "alert": {
-      "delete-import": "L'importation de données a été réinitialisée avec succès."
+      "delete-import": "L'importation de données a été réinitialisée avec succès.",
+      "export": "La demande exportation de données a été effectué avec succès."
     },
     "dialogs": {
       "duplication-dialog": {
@@ -851,6 +915,7 @@
     "table": {
       "name": "Nom",
       "source": "Source de l'export",
+      "type": "Type",
       "status": "statut",
       "action": "Action",
       "reset": "Réinitialiser"
@@ -1086,6 +1151,31 @@
       "change": "Le changement de format de page",
       "reset": "entraînera la suppression des configurations existantes",
       "doc": "document"
+    }
+  },
+  "billing": {
+    "config": {
+      "users": "Utilisateurs",
+      "add_user": "Ajouter un utilisateur",
+      "plan_details": "Détails du plan",
+      "upgrade": "Mise à niveau",
+      "plan": "Plan",
+      "medical_group_practice": "Cabinet médical de groupe",
+      "doctors": "Médecins",
+      "doctors_users": "Médecins utilisateurs",
+      "of": "de",
+      "next_payment": "Paiement suivant",
+      "staff": "Personnel",
+      "staff_users": "Utilisateurs personnels",
+      "table": {
+        "table_heading": "Historique de la facturation",
+        "date": "Date",
+        "invoice_no": "N° de la facture",
+        "description": "Description",
+        "amount": "Montant",
+        "status": "Statut",
+        "paid": "Payé"
+      }
     }
   }
 }

@@ -111,7 +111,7 @@ function DefaultViewMenu() {
                 onClick={handleClickListItem}
                 value="dayGridMonth"
                 sx={{
-                    width: 35, height: 35, padding: 0,
+                    width: 34, height: 34, padding: 0,
                     background: theme.palette.grey['A500'],
                     "& .MuiSvgIcon-root": {
                         width: 20
@@ -245,8 +245,7 @@ function DefaultViewMenu() {
                 </List>
             </Menu>
         </div>
-    )
-        ;
+    );
 }
 
 export default DefaultViewMenu;

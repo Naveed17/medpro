@@ -29,15 +29,14 @@ import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/Antece
 import IconUrl from "@themes/urlIcon";
 
 import {LoadingScreen} from "@features/loadingScreen";
-import {DatePicker,LocalizationProvider} from "@mui/x-date-pickers";
+import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import moment from "moment";
 
 function LifeStyleDialog({...props}) {
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
     const action = props.data.action;
-    const allAntecedents = props.data.antecedents;
+    const allAntecedents = props.data?.antecedents ?? [];
     const initalData = Array.from(new Array(20));
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
@@ -247,7 +246,8 @@ function LifeStyleDialog({...props}) {
                                                                             {!list.hideStart &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
-                                                                                        <TextField size={"small"} {...props} />}
+                                                                                        <TextField
+                                                                                            size={"small"} {...props} />}
                                                                                     label={t('start')}
                                                                                     inputFormat={"dd-MM-yyyy"}
                                                                                     value={data.start || ""}
@@ -262,7 +262,8 @@ function LifeStyleDialog({...props}) {
                                                                             {!list.hideEnd &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
-                                                                                        <TextField size={"small"} {...props} />}
+                                                                                        <TextField
+                                                                                            size={"small"} {...props} />}
                                                                                     label={t('end')}
                                                                                     inputFormat={"dd-MM-yyyy"}
                                                                                     value={data.end || ""}

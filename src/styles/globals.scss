@@ -464,7 +464,7 @@ fieldset {
         color: #00234B
       }
 
-      ;
+    ;
 
       svg {
         path {
@@ -505,7 +505,7 @@ fieldset {
   width: 100% !important;
 }
 
-.react-draggable>div>div {
+.react-draggable > div > div {
   opacity: 1 !important;
 }
 
@@ -578,14 +578,26 @@ fieldset {
   border-radius: 6px;
 }
 
-.image-clignote  {
+.image-clignote {
   animation-duration: .8s;
   animation-name: clignoter;
   animation-iteration-count: infinite;
   transition: none;
 }
+
 @keyframes clignoter {
-  0%   { opacity:1; }
-  40%   {opacity:0; }
-  100% { opacity:1; }
+  0% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.blur-text {
+  color: transparent;
+  text-shadow: 0 0 14px #a0a2a2;
 }

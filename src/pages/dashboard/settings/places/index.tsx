@@ -176,9 +176,14 @@ function Lieux() {
         setCords([...actives]);
     }, [rows])
 
-    const {t, ready} = useTranslation("settings", {
+    const {t, ready, i18n} = useTranslation("settings", {
         keyPrefix: "lieux.config",
     });
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -252,7 +257,7 @@ function Lieux() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', "patient", 'settings']))
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
     }
 })
 export default Lieux;

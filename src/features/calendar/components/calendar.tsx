@@ -538,7 +538,8 @@ function Calendar({...props}) {
                                     [...(eventsData ?? []), ...data?.events], []) : events).find(event =>
                                     event.id === eventMenu) as EventModal, roles)).map((context: ContextMenuModel) => (
                                 <Can key={uniqueId()}
-                                     I={"manage"} a={context.feature as any} field={context.permission}>
+                                     I={"manage"}
+                                     a={context.feature as any} {...(context.permission !== "*" && {field: context.permission})}>
                                     <IconButton
                                         onClick={() => {
                                             const appointment = events.find(event => event.id === eventMenu) as EventModal;

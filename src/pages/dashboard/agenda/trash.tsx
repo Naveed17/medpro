@@ -63,7 +63,7 @@ function Trash() {
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {t} = useTranslation(['agenda', 'common']);
+    const {t, i18n} = useTranslation(['agenda', 'common']);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {direction} = useAppSelector(configSelector);
 
@@ -127,6 +127,11 @@ function Trash() {
             setLoading(false);
         }
     }, [httpTrashAppointment])
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (<>
         <SubHeader

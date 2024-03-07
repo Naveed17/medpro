@@ -11,7 +11,7 @@ import {
     CardHeader,
     Checkbox,
     FormControlLabel,
-    Grid,
+    Grid, Menu, MenuItem,
     Stack,
     TextField,
     Typography
@@ -34,11 +34,28 @@ function Home() {
     const theme = useTheme();
     const dispatch = useAppDispatch();
 
-    const [loading, setLoading] = useState(true);
+    const {t, ready} = useTranslation(['common', 'menu']);
 
+    const [loading, setLoading] = useState(true);
+    const [selectedMedicalEntity, setSelectedMedicalEntity] = useState<MedicalEntityModel | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+    const open = Boolean(anchorEl);
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
-    const {t, ready} = useTranslation(['common', 'menu']);
+    const handleClick = (event: React.MouseEvent<HTMLElement>, medicalEntity: MedicalEntityModel) => {
+        setSelectedMedicalEntity(medicalEntity);
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleSelectUserRoot = (root: string) => {
+        update({default_medical_entity: selectedMedicalEntity?.uuid, root});
+        setAnchorEl(null);
+    };
 
     const logOutSession = async () => {
         // Log out from keycloak session
@@ -61,13 +78,16 @@ function Home() {
 
     if (!ready || loading) return (<LoadingScreen/>);
 
-    const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
+    const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) =>
+        [...(entites ?? []), {...data?.medical_entity, isOwner: data.is_owner}], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
-    const hasSelectedEntity = session?.data?.medical_entity?.has_selected_entity ?? false;
+    const medicalEntity = session?.data?.medical_entity;
+    const hasSelectedEntity = medicalEntity?.has_selected_entity ?? false;
     const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     return ((!hasMultiMedicalEntities || hasSelectedEntity) ?
-            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`}/>
+            <Redirect
+                to={medicalEntity?.root === "admin" ? "/admin" : (features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`)}/>
             :
             <Box className={styles.container} dir={dir}>
                 <main className={styles.main}>
@@ -167,25 +187,70 @@ function Home() {
                                 <CardContent>
                                     <Stack spacing={2}>
                                         {medical_entities?.map(medical_entity_data =>
-                                            <a key={medical_entity_data.uuid}
-                                               onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
-                                               className={styles.card}>
-                                                <Box component="img" width={50} height={50}
-                                                     src="/static/icons/Med-logo_.svg"/>
-                                                <p
-                                                    style={{
-                                                        fontSize: 16,
-                                                        fontWeight: 600,
-                                                        color: "#3F4254"
-                                                    }}>{medical_entity_data?.name}</p>
-                                                <ChevronRightIcon sx={{ml: 'auto', color: "text.secondary"}}/>
-                                            </a>)}
+                                            <Stack spacing={1} key={medical_entity_data.uuid}>
+                                                <a key={medical_entity_data.uuid}
+                                                   onClick={(event) => medical_entity_data.isOwner && ["doctor_office", "group_practice", "medical_center"].includes(medical_entity_data?.type?.slug as string) ? handleClick(event, medical_entity_data) : update({default_medical_entity: medical_entity_data.uuid})}
+                                                   className={styles.card}>
+                                                    <Box component="img" width={50} height={50}
+                                                         src="/static/icons/Med-logo_.svg"/>
+                                                    <p
+                                                        style={{
+                                                            fontSize: 16,
+                                                            fontWeight: 600,
+                                                            color: "#3F4254"
+                                                        }}>{medical_entity_data?.name}</p>
+                                                    <ChevronRightIcon sx={{ml: 'auto', color: "text.secondary"}}/>
+                                                </a>
+                                            </Stack>)}
                                         <Typography variant="body2" textAlign='center'>
                                             {t("login.sign_in_desc_1")}
                                             <br/>
                                             {t("login.sign_in_desc_2")}
                                         </Typography>
                                     </Stack>
+                                    <Menu
+                                        anchorEl={anchorEl}
+                                        id="account-menu"
+                                        open={open}
+                                        onClose={handleClose}
+                                        onClick={handleClose}
+                                        slotProps={{
+                                            paper: {
+                                                elevation: 0,
+                                                sx: {
+                                                    overflow: 'visible',
+                                                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                                                    mt: 1.5,
+                                                    '& .MuiAvatar-root': {
+                                                        width: 32,
+                                                        height: 32,
+                                                        ml: -0.5,
+                                                        mr: 1,
+                                                    },
+                                                    '&::before': {
+                                                        content: '""',
+                                                        display: 'block',
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        right: 14,
+                                                        width: 10,
+                                                        height: 10,
+                                                        bgcolor: 'background.paper',
+                                                        transform: 'translateY(-50%) rotate(45deg)',
+                                                        zIndex: 0,
+                                                    },
+                                                },
+                                            }
+                                        }}
+                                        transformOrigin={{horizontal: 'right', vertical: 'top'}}
+                                        anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
+                                        <MenuItem onClick={() => handleSelectUserRoot("admin")}>
+                                            {t("admin-access")}
+                                        </MenuItem>
+                                        <MenuItem onClick={() => handleSelectUserRoot("dashboard")}>
+                                            {t("user-access")}
+                                        </MenuItem>
+                                    </Menu>
                                 </CardContent>
                             </Card>
                         </>

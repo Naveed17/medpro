@@ -163,7 +163,7 @@ function Patients() {
     const {insurances} = useInsurances();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {t, ready, i18n} = useTranslation("patient", {keyPrefix: "config"});
     const {tableState: {patientId, rowsSelected}} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer, config: agendaConfig} = useAppSelector(agendaSelector);
@@ -592,6 +592,8 @@ function Patients() {
     useEffect(() => {
         //remove query params on load from url
         isMobile && router.replace(router.pathname, undefined, {shallow: true});
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const patientData = (httpPatientsResponse as HttpResponse)?.data ?? []
@@ -1042,11 +1044,8 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             fallback: false,
             ...(await serverSideTranslations(locale as string, [
                 "patient",
-                "agenda",
-                "consultation",
                 "menu",
-                "common",
-                'payment'
+                "common"
             ])),
         },
     }

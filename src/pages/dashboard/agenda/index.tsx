@@ -24,6 +24,7 @@ import {useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
+
 const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
 import {DateSelectArg, DatesSetArg, EventChangeArg} from "@fullcalendar/core";
@@ -61,7 +62,7 @@ import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
 import {
     appointmentGroupByDate,
-    appointmentPrepareEvent,
+    appointmentPrepareEvent, mergeArrayByKey,
     prepareSearchKeys, useInvalidateQueries,
     useMedicalEntitySuffix,
     useMutateOnGoing
@@ -103,7 +104,7 @@ function Agenda() {
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
+    const {t, ready, i18n} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -260,12 +261,8 @@ function Agenda() {
                 eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
             });
         } else {
-            const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []))
-            const mergedMap = new Map();
-            filteredEvents.forEach((item) => mergedMap.set(item.id, {...item}));
-            events.current.forEach((item) => mergedMap.set(item.id, {...mergedMap.get(item.id), ...item}));
-            const mergedArray = Array.from(mergedMap.values());
-
+            const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []));
+            const mergedArray = mergeArrayByKey(filteredEvents, events.current, "id");
             eventsUpdated.push(...mergedArray.map(event => ({
                 ...event,
                 filtered: localFilter.length > 0 && !appointments?.find(appointment => appointment.uuid === event.id)
@@ -318,6 +315,11 @@ function Agenda() {
             localMaxSlot
         }
     }
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common', 'patient']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (lastUpdateNotification) {
@@ -1058,7 +1060,7 @@ function Agenda() {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <div>
+        <>
             <SubHeader
                 sx={{
                     "& .MuiToolbar-root": {
@@ -1339,7 +1341,7 @@ function Agenda() {
                         <LoadingButton
                             loading={loadingRequest}
                             onClick={() => handleAddAbsence()}
-                            disabled={absenceData.title.length === 0}
+                            disabled={absenceData.title.length === 0 || absenceData.hasError}
                             variant="contained"
                             color={"primary"}>
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
@@ -1655,7 +1657,7 @@ function Agenda() {
                     <AgendaFilter/>
                 </DrawerBottom>
             </Box>
-        </div>
+        </>
     )
 }
 
@@ -1671,7 +1673,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
         props: {
             dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient']))
         }
     }
 }

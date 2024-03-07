@@ -1,6 +1,26 @@
 const settingsData = {
     title: "parameters",
-    data: [
+    admin: [
+        {
+            name: "profile",
+            icon: "setting/ic-patient",
+            href: '/admin/settings/profile',
+            disable: false
+        },
+         {
+            name: "users",
+            icon: "setting/ic-users",
+            href: '/admin/settings/users',
+            disable: false
+        },
+         {
+            name: "billing",
+            icon: "setting/ic-banknote",
+            href: '/admin/settings/billing',
+            disable: false
+        }
+    ],
+    dashboard: [
         {
             name: "profile",
             icon: "setting/ic-patient",

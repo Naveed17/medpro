@@ -1,0 +1,20 @@
+{
+  "config": {
+    "sub-header": {
+      "title": "List of departments"
+    },
+    "filter": {
+      "title": "Filter",
+      "departments": "Department",
+      "search": "Search",
+      "search-input": "Department name"
+    },
+    "table": {
+      "empty": "",
+      "department": "Department",
+      "department-head": "chef de service",
+      "status": "Status",
+      "date": "Date"
+    }
+  }
+}

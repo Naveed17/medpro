@@ -3,7 +3,7 @@ import BorderLinearProgress from './overrides/borderLinearProgress';
 
 function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
     return (
-        <Card sx={{display: 'flex', alignItems: 'center', border: "none"}}>
+        <Card sx={{display: 'flex', alignItems: 'center', border: "none", overflow: "visible"}}>
             <CardContent sx={{p: 0, marginBottom: "-1.4rem"}}>
                 <Typography sx={{fontSize: 12, mr: 1, fontWeight: "bold"}}
                             variant={"caption"}>{"Importation de données"}</Typography>

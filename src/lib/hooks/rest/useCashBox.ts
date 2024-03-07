@@ -7,15 +7,15 @@ import {setSelectedBoxes} from "@features/leftActionBar";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {setPermissions} from "@features/casl";
 
-function useCashBox() {
+function useCashBox(enable: boolean = true) {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {data: httpBoxesResponse} = useRequestQuery({
+    const {data: httpBoxesResponse} = useRequestQuery(enable ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`
-    }, ReactQueryNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     useEffect(() => {
         if (httpBoxesResponse) {

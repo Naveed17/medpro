@@ -1,5 +1,5 @@
 import React from "react";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 // Material ui
 import {
     Typography,
@@ -14,58 +14,59 @@ import {
 
 // config data
 import settingsData from "./settingsConfig";
-import { SettingBarStyled } from "@features/leftActionBar";
-import { useTranslation } from "next-i18next";
+import {SettingBarStyled} from "@features/leftActionBar";
+import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
-import { LoadingScreen } from "@features/loadingScreen";
+import {LoadingScreen} from "@features/loadingScreen";
 import Can from "@features/casl/can";
-import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function Settings() {
-    const { data: session } = useSession();
+    const {data: session} = useSession();
     const router = useRouter();
 
-    const { t, ready } = useTranslation("settings");
+    const {t, ready} = useTranslation("settings");
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const locations = medical_entity?.location ?? null;
+    const hasAdminAccess = router.pathname.includes("/admin");
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"} />);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <SettingBarStyled>
-            <Box sx={{ width: "100%", bgcolor: "background.paper", height: '100vh' }}>
+            <Box sx={{width: "100%", bgcolor: "background.paper", height: '100vh'}}>
                 <Typography variant="h6" className="heading" mb={2}>
                     {t('menu.' + settingsData.title)}
                 </Typography>
                 <nav aria-label="main mailbox folders">
                     <List>
-                        {settingsData.data.map((item: any) => (
+                        {settingsData[hasAdminAccess ? "admin" : "dashboard"].map((item: any) => (
                             <Can key={item.name} I={"read"} a={"settings"}
-                                field={`settings__${item.href.split('/')[3]}__show` as any}>
+                                 field={`settings__${item.href.split('/')[3]}__show` as any}>
                                 <ListItem
                                     {...(item.fill !== "default" && {
                                         sx: {
                                             "& .MuiListItemIcon-root svg path": {
-                                                fill: (theme: any) => theme.palette.primary.main
+                                                fill: (theme) => theme.palette.primary.main
                                             }
                                         }
                                     })
                                     }
                                     key={item.name}
-                                    {...(item.disable && { sx: { display: "none" } })}
-                                    className={router.pathname === item.href ? 'active' : ''}
+                                    {...(item.disable && {sx: {display: "none"}})}
+                                    className={router.pathname.includes(item.href) ? 'active' : ''}
                                     disablePadding>
                                     <ListItemButton
                                         onClick={() => router.push(`${item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`)}
                                         disabled={item.disable}
                                         disableRipple>
                                         <ListItemIcon>
-                                            <IconUrl width={20} height={20} path={item.icon} />
+                                            <IconUrl width={20} height={20} path={item.icon}/>
                                         </ListItemIcon>
-                                        <ListItemText primary={t('menu.' + item.name)} />
+                                        <ListItemText primary={t('menu.' + item.name)}/>
                                     </ListItemButton>
                                 </ListItem>
                             </Can>

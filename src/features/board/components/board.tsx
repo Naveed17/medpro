@@ -9,10 +9,12 @@ import {
 import React, {useCallback, useEffect, useState} from "react";
 import styled from '@emotion/styled';
 import {BoardList} from "@features/board";
-import {Card, CardHeader, Grid, Typography} from "@mui/material";
+import {Badge, Card, CardHeader, Grid, IconButton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
+import IconUrl from "@themes/urlIcon";
+import {CustomSwitch} from "@features/buttons";
 
 const ParentContainer = styled.div`
     margin-top: -1rem;
@@ -45,7 +47,7 @@ const Title = styled.h4`
 `;
 
 function Board({...props}) {
-    const {columns, data, handleEvent, handleDragEvent} = props;
+    const {columns, data, isUnpaidFilter, handleEvent, handleDragEvent, handleSortData, handleUnpaidFilter} = props;
     const {opened} = useAppSelector(sideBarSelector);
 
     const {t} = useTranslation('waitingRoom', {keyPrefix: 'config.tabs'});
@@ -201,22 +203,58 @@ function Board({...props}) {
                                                     <Card>
                                                         <CardHeader
                                                             avatar={columns[index].icon}
-                                                            {...(columns[index].action && {action: columns[index].action})}
                                                             sx={{
                                                                 minHeight: 60,
                                                                 ".MuiCardHeader-action": {alignSelf: 'center'}
                                                             }}
-                                                            title={<Typography
-                                                                color={"text.primary"} fontWeight={700}
-                                                                fontSize={14}
-                                                                sx={{
-                                                                    whiteSpace: "nowrap",
-                                                                    overflow: "hidden",
-                                                                    textOverflow: "ellipsis",
-                                                                    width: columns[index].action && opened ? 140 : "auto",
-                                                                }}>
-                                                                {t(key)} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
-                                                            </Typography>}
+                                                            title={
+                                                                <Stack direction={"row"} alignItems={"center"}
+                                                                       spacing={1}>
+                                                                    <Typography
+                                                                        color={"text.primary"} fontWeight={700}
+                                                                        fontSize={14}
+                                                                        sx={{
+                                                                            whiteSpace: "nowrap",
+                                                                            overflow: "hidden",
+                                                                            textOverflow: "ellipsis",
+                                                                            width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : "auto",
+                                                                        }}>
+                                                                        {t(key)}
+                                                                    </Typography>
+
+                                                                    <Badge
+                                                                        sx={{pl: 1}}
+                                                                        invisible={!(boardData[key].length > 0 && index < 3)}
+                                                                        badgeContent={boardData[key].length}
+                                                                        color="info"/>
+                                                                </Stack>
+                                                            }
+                                                            action={<Stack direction={"row"} alignItems={"center"}
+                                                                           spacing={1}>
+                                                                {columns[index].id === "3" &&
+                                                                    <IconButton
+                                                                        size={"small"}
+                                                                        onClick={event => handleSortData(event)}>
+                                                                        <IconUrl width={20} height={20}
+                                                                                 path={"sort"}/>
+                                                                    </IconButton>}
+
+                                                                {columns[index].id === "5" &&
+                                                                    <Stack direction={"row"} alignItems={"center"}
+                                                                           justifyContent={"flex-end"}
+                                                                           sx={{height: 28}}>
+                                                                        <CustomSwitch
+                                                                            className="custom-switch"
+                                                                            name="active"
+                                                                            onChange={handleUnpaidFilter}
+                                                                            checked={isUnpaidFilter}
+                                                                        />
+                                                                        <Typography variant={"body2"}
+                                                                                    fontSize={12}>{t("payed")}</Typography>
+                                                                    </Stack>
+                                                                }
+                                                                {!!columns[index].action && columns[index].action}
+                                                            </Stack>}
                                                         />
                                                     </Card>
                                                 </Title>

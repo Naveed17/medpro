@@ -3,6 +3,8 @@
   "lang": "Langue",
   "main-menu": {
     "agenda": "Agenda",
+    "doctors": "Doctors",
+    "staff": "Staff",
     "waiting-room": "Salle d'attente",
     "patient": "Patients",
     "message": "Message",

@@ -42,7 +42,7 @@ function Analysis() {
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "analysis.config"});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "analysis.config"});
     const {direction} = useAppSelector(configSelector);
     const [loading, setLoading] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
@@ -168,6 +168,11 @@ function Analysis() {
         }
     }, [analysisResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     const analysis = ((analysisResponse as HttpResponse)?.data?.list ?? []) as AnalysisModel[];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -278,8 +283,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

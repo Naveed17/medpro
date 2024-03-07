@@ -52,7 +52,7 @@ function Profile() {
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
-    const {t, ready} = useTranslation("settings");
+    const {t, ready, i18n} = useTranslation("settings");
     const {direction} = useAppSelector(configSelector);
     const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -103,6 +103,12 @@ function Profile() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, medicalProfessionalData, user]);// eslint-disable-line react-hooks/exhaustive-deps
+
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const [dialogContent, setDialogContent] = useState("");
 
@@ -710,8 +716,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

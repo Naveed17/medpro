@@ -16,6 +16,9 @@ import MenuIcon from "@themes/overrides/icons/MenuIcon";
 import PaymentIcon from '@themes/overrides/icons/PaymentIcon'
 import ConsultationPausedIcon from "@themes/overrides/icons/consultationPausedIcon";
 import DocsIcon from "@themes/overrides/icons/docsIcon";
+import StaffIcon from "@themes/overrides/icons/staffIcon";
+import DoctorsIcon from "@themes/overrides/icons/doctorsIcon";
+import DepartmentIcon from "@themes/overrides/icons/departmentIcon";
 
 interface IconProps {
     path: string;
@@ -78,6 +81,15 @@ export default function Icon({path, className, ...props}: IconProps) {
             break;
         case 'ic-docs':
             selectedIcon = <DocsIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            break;
+        case 'ic-doctors':
+            selectedIcon = <DoctorsIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            break;
+        case 'ic-staff':
+            selectedIcon = <StaffIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            break;
+        case 'ic-departments':
+            selectedIcon = <DepartmentIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
             break;
     }
     return selectedIcon;

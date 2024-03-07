@@ -6,8 +6,8 @@ interface ButtonProps extends IconButtonProps {
 
 const ButtonSyled = styled(IconButton)<ButtonProps>(({theme}) => ({
     backgroundColor: theme.palette.grey["A500"],
-    width: 37,
-    height: 37,
+    width: 34,
+    height: 34,
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: theme.shape.borderRadius,
     padding: theme.spacing(1.2),

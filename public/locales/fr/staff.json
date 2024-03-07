@@ -1,0 +1,91 @@
+{
+  "config": {
+    "sub-header": {
+      "title": "Liste des personnels",
+      "profile_title": "Profil du personnel",
+      "invite": "Invité",
+      "invite-placeholder": "Inviter par Email",
+      "department-placeholder": "Department",
+      "no-department-placeholder": "Aucun département trouvé"
+    },
+    "filter": {
+      "title": "Filtre",
+      "staff": "Personnel",
+      "search": "Nom & prénom/Tél/N° fiche",
+      "birthdate": "Date de naissance",
+      "gender": "Genre",
+      "male": "Homme",
+      "female": "Femme",
+      "name": "Recherche",
+      "phone": "Numéro de téléphone"
+    },
+    "table": {
+      "empty": "",
+      "name": "Nom",
+      "department": "Département",
+      "speciality": "Spécialisation",
+      "contact": "Contact",
+      "email": "Email",
+      "status": "Statut",
+      "join-date": "Date d'entrée en service",
+      "active": "Active",
+      "function": "Fonction",
+      "inactive": "Inactive"
+    },
+    "back_staff": "Retour à la page personnel",
+    "personal_info": "Personnel information",
+    "full_name": "Nom et prénom",
+    "cin": "CIN",
+    "birthdate": "Date de naissance",
+    "mobile": "Mobile",
+    "email": "Email",
+    "address": "Adresse",
+    "employment_details": "Informations sur l'emploi",
+    "start_date": "Date de début",
+    "end_date": "Date de fin",
+    "role": "Rôle",
+    "reset_pass": "Réinitialiser le mot de passe",
+    "department": "Département",
+    "work_for": "Travailler pour",
+    "scheduled_shifts": "Postes programmés",
+    "recent_activities": "Activités récentes",
+    "activities": "Activités",
+    "working_hours": "Temps de travail",
+    "user_information": "Informations sur l'utilisateur",
+    "dialog": {
+      "family_name": "Nom de famille",
+      "first_name": "Prénom",
+      "idNumberPlaceholder": "Tapez votre ID",
+      "idNumber": "ID Number",
+      "birthday": "Date de naissance",
+      "email": "Adresse mail",
+      "password": "Mot de passe",
+      "confirm_password": "confirmer le mot de passe",
+      "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
+      "auto-password": "Génération automatique du mot de passe",
+      "manual-password": "Laissez-moi créer le mot de passe",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "phone": "Numéro de téléphone",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "assignment": "Affectation",
+      "assigned-to": "Assignation à un nouveau médecin",
+      "assigned-to-placeholder": "Sélectionner un ou plusieurs médecins",
+      "no-assigned-to-placeholder": "Aucun médecin n'a été trouvé",
+      "assigned-to-heading": "Médecins désignés",
+      "un-assign": "Désaffecter",
+      "validation": {
+        "familyName": "Le nom de famille est obligatoire",
+        "idNumber": "Le numéro d'identification est obligatoire",
+        "birthday": "La date de naissance est obligatoire",
+        "firstName": "Le prénom est obligatoire",
+        "email": "Veuillez entrer une adresse email valide"
+      }
+    },
+    "no-data": {
+      "title": "Aucun personnel trouvé",
+      "description": "Aucun personnel trouvé"
+    }
+  }
+}

@@ -20,7 +20,6 @@ const initialState: StepperProps = {
         acts: []
     }
 };
-
 export const StepperReducer = createReducer(initialState, (builder) => {
     builder.addCase(setStepperIndex, (state, action) => {
         state.currentStep = action.payload;

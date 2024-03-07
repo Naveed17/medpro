@@ -112,7 +112,7 @@ function ActFees() {
     const {medical_professional} = useMedicalProfessionalSuffix();
     const dispatch = useAppDispatch();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-    const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "actfees"});
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const [mainActes, setMainActes] = useState<any>([]);
@@ -186,6 +186,11 @@ function ActFees() {
             }
         }
     }, [acts]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['settings']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleCreate = () => {
         setCreate(true);
@@ -743,7 +748,6 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
             "settings",
         ])),
     },

@@ -63,3 +63,8 @@ export * from './featurePermissionsCard';
 export * from './actMobileCard'
 export * from './insuranceMobileCard'
 export * from './appointHistoryContainer';
+export * from './statsProgreesCard';
+export * from './doctorsMobileCard'
+export * from './statsProgreesCard';
+export * from './staffMobileCard';
+export * from './departmentMobileCard'

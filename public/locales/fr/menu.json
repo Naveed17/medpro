@@ -3,6 +3,9 @@
   "lang": "Langue",
   "main-menu": {
     "agenda": "Agenda",
+    "doctors": "Médecins",
+    "staff": "Personnel",
+    "departments": "Services",
     "waiting-room": "Salle d'attente",
     "patient": "Patients",
     "message": "Message",
@@ -16,7 +19,8 @@
     "logout": "Se déconnecter",
     "cashbox": "Caisse",
     "inventory": "Inventaire",
-    "consultation": "Consultation"
+    "consultation": "Consultation",
+    "features": "Nouvelles fonctionnalités"
   },
   "doctor-dropdown": {
     "news": "Fil d'actualité",

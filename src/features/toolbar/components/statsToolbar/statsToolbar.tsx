@@ -1,20 +1,37 @@
-import {Stack, Typography} from "@mui/material";
-import {useTranslation} from "next-i18next";
+import { a11yProps } from "@lib/hooks";
+import { Stack, Tab, Tabs, Typography } from "@mui/material";
+import { useTranslation } from "next-i18next";
+const tabsData = ["tab_all", "tab_rdv", "tab_patients", "tab_working_time"]
+function StatsToolbar({ ...props }) {
+    const { value, handleChange } = props;
 
-function StatsToolbar() {
-
-    const {t} = useTranslation("stats");
+    const { t } = useTranslation("stats", { keyPrefix: "sub-header" });
 
     return (
-        <Stack
-            direction="row"
-            justifyContent="space-between"
-            width={1}
-            alignItems="center">
-            <Typography variant="subtitle2" color="text.primary">
-                {t("sub-header.title")}
-            </Typography>
-        </Stack>
+        <Tabs
+            value={value}
+            onChange={handleChange}
+            variant="scrollable"
+            aria-label="basic tabs example"
+            sx={{ mt: 1.5 }}
+        >
+            {tabsData.map((title: string, index: number) => (
+                <Tab
+                    key={`tabHeader-${index}`}
+                    disableRipple
+                    sx={{
+                        "&.MuiTab-root": { color: 'text.secondary' },
+                        '&.Mui-selected': {
+                            "&.Mui-selected": { color: 'primary.main' }
+                        }
+                    }}
+                    label={t(`tabs.${title}`)}
+
+                    {...a11yProps(index)}
+
+                />)
+            )}
+        </Tabs>
     )
 }
 

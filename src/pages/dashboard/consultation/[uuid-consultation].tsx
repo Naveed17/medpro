@@ -138,7 +138,7 @@ function ConsultationInProgress() {
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
 
-    const {t} = useTranslation("consultation");
+    const {t, i18n} = useTranslation("consultation");
     //***** SELECTORS ****//
     const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
@@ -1100,7 +1100,7 @@ function ConsultationInProgress() {
     }
 
     const showCheckedDoc = (name: string) => {
-        showDoc(documents.filter((doc: MedicalDocuments) => doc.documentType === name)[0]);
+        showDoc(documents.filter((doc: MedicalDocuments) => doc?.documentType === name)[0]);
     }
 
     const changeCoveredBy = (insuranceGenerated: boolean) => {
@@ -1271,6 +1271,11 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["consultation"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -2240,10 +2245,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             ...(await serverSideTranslations(locale as string, [
                 "consultation",
                 "menu",
-                "common",
-                "agenda",
-                "payment",
-                "patient",
+                "common"
             ])),
         },
     };

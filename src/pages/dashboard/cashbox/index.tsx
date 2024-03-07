@@ -44,145 +44,13 @@ import {ActionMenu} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
 import {TabPanel} from "@features/tabPanel";
 import moment from "moment-timezone";
-import {agendaSelector} from "@features/calendar";
+import {agendaSelector, setNavigatorMode} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {ImageHandler} from "@features/image";
 import {LoadingScreen} from "@features/loadingScreen";
 import Can, {AbilityContext} from "@features/casl/can";
+import {ToggleButtonStyled} from "@features/toolbar";
 
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
-}
-
-const headCells: readonly HeadCell[] = [
-    {
-        id: "empty",
-        numeric: false,
-        disablePadding: true,
-        label: "empty",
-        sortable: false,
-        align: "left",
-    },
-    {
-        id: "date",
-        numeric: false,
-        disablePadding: true,
-        label: "date",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "name",
-        numeric: true,
-        disablePadding: false,
-        label: "name",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "insurance",
-        numeric: true,
-        disablePadding: false,
-        label: "insurance",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "method",
-        numeric: true,
-        disablePadding: false,
-        label: "method",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "advance",
-        numeric: true,
-        disablePadding: false,
-        label: "advance",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "flow",
-        numeric: true,
-        disablePadding: false,
-        label: "flow",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "amount",
-        numeric: true,
-        disablePadding: false,
-        label: "amount",
-        sortable: true,
-        align: "center",
-    },
-];
-const consultationCells: readonly HeadCell[] = [
-    {
-        id: "date",
-        numeric: false,
-        disablePadding: true,
-        label: "date",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "name",
-        numeric: true,
-        disablePadding: false,
-        label: "name",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "insurance",
-        numeric: false,
-        disablePadding: false,
-        label: "insurance",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "status",
-        numeric: false,
-        disablePadding: false,
-        label: "status",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "total",
-        numeric: true,
-        disablePadding: false,
-        label: "total",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "amount",
-        numeric: true,
-        disablePadding: false,
-        label: "amount",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "rest",
-        numeric: true,
-        disablePadding: false,
-        label: "rest",
-        sortable: true,
-        align: "center",
-    },
-];
 const noCardData = {
     mainIcon: "ic-unpaid",
     title: "no-data.title",
@@ -205,9 +73,9 @@ function Cashbox() {
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready} = useTranslation(["payment", "common"]);
+    const {t, ready, i18n} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
+    const {config: agenda, mode} = useAppSelector(agendaSelector);
 
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false);
@@ -297,6 +165,130 @@ function Cashbox() {
         },
     ];
     const isAddAppointment = false;
+    const headCells: readonly any[] = [
+        {
+            id: "empty",
+            numeric: false,
+            disablePadding: true,
+            label: "empty",
+            sortable: false,
+            align: "left",
+        },
+        {
+            id: "date",
+            numeric: false,
+            disablePadding: true,
+            label: "date",
+            sortable: true,
+            align: "left",
+        },
+        ...(mode === "normal" ? [{
+            id: "name",
+            numeric: true,
+            disablePadding: false,
+            label: "name",
+            sortable: true,
+            align: "left",
+        }] : []),
+        {
+            id: "insurance",
+            numeric: true,
+            disablePadding: false,
+            label: "insurance",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "method",
+            numeric: true,
+            disablePadding: false,
+            label: "method",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "advance",
+            numeric: true,
+            disablePadding: false,
+            label: "advance",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "flow",
+            numeric: true,
+            disablePadding: false,
+            label: "flow",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "amount",
+            numeric: true,
+            disablePadding: false,
+            label: "amount",
+            sortable: true,
+            align: "center",
+        },
+    ];
+    const consultationCells: readonly any[] = [
+        {
+            id: "date",
+            numeric: false,
+            disablePadding: true,
+            label: "date",
+            sortable: true,
+            align: "left",
+        },
+        ...(mode === "normal" ? [{
+            id: "name",
+            numeric: true,
+            disablePadding: false,
+            label: "name",
+            sortable: true,
+            align: "left",
+        }] : []),
+        {
+            id: "insurance",
+            numeric: false,
+            disablePadding: false,
+            label: "insurance",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "status",
+            numeric: false,
+            disablePadding: false,
+            label: "status",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "total",
+            numeric: true,
+            disablePadding: false,
+            label: "total",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "amount",
+            numeric: true,
+            disablePadding: false,
+            label: "amount",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "rest",
+            numeric: true,
+            disablePadding: false,
+            label: "rest",
+            sortable: true,
+            align: "center",
+        },
+    ];
 
     const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', 'agenda__appointment__show') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? "transactions" : ""));
     const filterQuery: string = generateFilter({filterCB});
@@ -485,6 +477,12 @@ function Cashbox() {
         }
 
     }, [cashboxes])
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -519,6 +517,18 @@ function Cashbox() {
                             />
                         ))}
                     </Tabs>
+                    <ToggleButtonStyled
+                        id="toggle-button"
+                        value="toggle"
+                        onClick={() => dispatch(setNavigatorMode(mode === "normal" ? "discreet" : "normal"))}
+                        className={"toggle-button"}
+                        sx={{
+                            ...(mode !== "normal" && {border: "none"}),
+                            background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
+                        }}>
+                        <IconUrl width={19} height={19}
+                                 path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>
+                    </ToggleButtonStyled>
                 </Stack>
             </SubHeader>
             {loading && (
@@ -538,6 +548,7 @@ function Cashbox() {
                             <CardContent sx={{px: isMobile ? 1.75 : 2}}>
                                 <Stack
                                     direction="row"
+                                    {...(mode !== "normal" && {className: "blur-text"})}
                                     alignItems="center"
                                     spacing={{xs: 1, md: 2}}>
                                     <ImageHandler
@@ -583,6 +594,7 @@ function Cashbox() {
                                     {...{
                                         rows: apps,
                                         t,
+                                        hideName: mode !== "normal",
                                         insurances,
                                         pmList,
                                         mutateTransactions,
@@ -649,6 +661,7 @@ function Cashbox() {
                                             {...{
                                                 rows,
                                                 t,
+                                                hideName: mode !== "normal",
                                                 insurances,
                                                 pmList,
                                                 mutateTransactions,
@@ -804,9 +817,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
             fallback: false,
             ...(await serverSideTranslations(context.locale as string, [
                 "common",
-                "menu",
-                "consultation",
-                "patient",
                 "payment",
             ])),
         },

@@ -53,10 +53,6 @@
         "unit": "Application"
       },
       {
-        "form": "Poudre pour inhalation buccale",
-        "unit": "Application"
-      },
-      {
         "form": "Créme rectale",
         "unit": "Application"
       },
@@ -175,6 +171,57 @@
     ]
   },
   {
+    "unit": "Inhalation",
+    "multiple": true,
+    "forms": [
+      {
+        "form": "Comprimé pour inhalation",
+        "unit": "Inhalation"
+      },
+      {
+        "form": "Suspension pour inhalation",
+        "unit": "Inhalation"
+      },
+      {
+        "form": "Liquide volatil pour inhalation",
+        "unit": "Inhalation"
+      },
+      {
+        "form": "Poudre pour inhalation buccale",
+        "unit": "Inhalation"
+      },
+      {
+        "form": "Liquide pour inhalation",
+        "unit": "Inhalation"
+      }
+    ]
+  },
+  {
+    "unit": "Comprimé dispersible",
+    "forms": [
+      {
+        "form": "Comprimé dispersible",
+        "unit": "Comprimé dispersible"
+      },
+      {
+        "form": "Comprimé sécable dispersible",
+        "unit": "Comprimé dispersible"
+      },
+      {
+        "form": "Comprimé orodispersible",
+        "unit": "Comprimé dispersible"
+      },
+      {
+        "form": "Comprimé dispersible sécable",
+        "unit": "Comprimé dispersible"
+      },
+      {
+        "form": "Comprimé orodispersible sécable",
+        "unit": "Comprimé dispersible"
+      }
+    ]
+  },
+  {
     "unit": "Comprimé",
     "forms": [
       {
@@ -210,15 +257,7 @@
         "unit": "Comprimé"
       },
       {
-        "form": "Comprime dispersible",
-        "unit": "Comprimé"
-      },
-      {
         "form": "Comprime enrobé",
-        "unit": "Comprimé"
-      },
-      {
-        "form": "Comprimé orodispersible",
         "unit": "Comprimé"
       },
       {
@@ -227,10 +266,6 @@
       },
       {
         "form": "Comprime gastro-resistant",
-        "unit": "Comprimé"
-      },
-      {
-        "form": "Comprimé sécable dispersible",
         "unit": "Comprimé"
       },
       {
@@ -294,27 +329,11 @@
         "unit": "Comprimé"
       },
       {
-        "form": "Comprimé pour inhalation",
-        "unit": "Comprimé"
-      },
-      {
         "form": "Comprimé Sécable à Libration Modifieé",
         "unit": "Comprimé"
       },
       {
-        "form": "Comprimé dispersible sécable",
-        "unit": "Comprimé"
-      },
-      {
-        "form": "Comprimé dispersible  sécable",
-        "unit": "Comprimé"
-      },
-      {
         "form": "Comprimé Effervecent Sécable",
-        "unit": "Comprimé"
-      },
-      {
-        "form": "Comprimé orodispersible sécable",
         "unit": "Comprimé"
       }
     ]
@@ -676,10 +695,6 @@
       {
         "form": "Aérosol",
         "unit": "Bouffée"
-      },
-      {
-        "form": "Suspension pour inhalation",
-        "unit": "Bouffée"
       }
     ]
   },
@@ -775,14 +790,6 @@
     "forms": [
       {
         "form": "Suspension pour administration intravesicale",
-        "unit": "flacon"
-      },
-      {
-        "form": "Liquide volatil pour inhalation",
-        "unit": "flacon"
-      },
-      {
-        "form": "Liquide pour inhalation",
         "unit": "flacon"
       }
     ]

@@ -48,7 +48,7 @@ function Motif() {
 
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
 
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -239,6 +239,11 @@ function Motif() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [httpConsultReasonResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -363,8 +368,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });
