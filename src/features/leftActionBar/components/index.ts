@@ -14,3 +14,4 @@ export * from "./inventory";
 export * from "./document";
 export * from './doctors'
 export * from './staff'
+export * from './department'

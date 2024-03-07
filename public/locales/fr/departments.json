@@ -17,6 +17,10 @@
       "active": "Active",
       "inactive": "Inactive",
       "date": "Date"
+    },
+    "no-data": {
+      "title": "Aucun département trouvé",
+      "description": "Veuillez ajouter des départements"
     }
   },
   "dialogs": {

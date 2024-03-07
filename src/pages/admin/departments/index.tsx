@@ -25,13 +25,15 @@ import {useRouter} from "next/router";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {MotifTypeDialog} from "@features/motifTypeDialog";
 import {useAppSelector} from "@lib/redux/hooks";
-import AddDepartmentDialog from "../../../features/dialog/components/addDepartmentDialog/addDepartmentDialog";
+import {AddDepartmentDialog} from "@features/dialog";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import {LoadingButton} from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
+import {MobileContainer} from "@themes/mobileContainer";
+import {DepartmentMobileCard, NoDataCard} from "@features/card";
 
 const headCells = [
     {
@@ -47,7 +49,7 @@ const headCells = [
         numeric: false,
         disablePadding: false,
         label: "department",
-        align: "center",
+        align: "left",
         sortable: true,
     },
     {
@@ -96,8 +98,13 @@ function Departments() {
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [loadingReq, setLoadingReq] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState<DepartmentModel | null>(null);
+    const [filter, setFilter] = useState(false);
 
-    const {data: httpDepartmentsResponse, mutate: mutateDepartments} = useRequestQuery({
+    const {
+        data: httpDepartmentsResponse,
+        mutate: mutateDepartments,
+        isLoading: isDepartmentsLoading
+    } = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/admin/departments/${router.locale}`,
     }, ReactQueryNoValidateConfig);
@@ -156,14 +163,33 @@ function Departments() {
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
-                    <Otable
+                    <DesktopContainer>
+                        <Otable
+                            {...{t}}
+                            prefix={"config"}
+                            headers={headCells}
+                            handleEvent={handleTableEvent}
+                            rows={departments}
+                            from={"department"}
+                        />
+                    </DesktopContainer>
+                    <MobileContainer>
+                        <Stack spacing={2}>
+                            {[1, 2].map((row, idx) => (
+                                <DepartmentMobileCard key={idx} {...{t, row}} />
+                            ))}
+
+                        </Stack>
+                    </MobileContainer>
+
+                    {(!isDepartmentsLoading && departments.length === 0) && <NoDataCard
                         {...{t}}
-                        prefix={"config"}
-                        headers={headCells}
-                        handleEvent={handleTableEvent}
-                        rows={departments}
-                        from={"department"}
-                    />
+                        ns={"departments"}
+                        data={{
+                            mainIcon: "ic-deparment",
+                            title: "no-data.title",
+                            description: "no-data.description",
+                        }}/>}
                 </DesktopContainer>
 
                 <Drawer anchor={"right"} open={openAddDrawer} dir={direction} onClose={() => setOpenAddDrawer(false)}>
@@ -221,6 +247,22 @@ function Departments() {
                     </DialogActions>
                 </Dialog>
             </Box>
+            <MobileContainer>
+                <Button
+                    startIcon={<IconUrl path="ic-filter"/>}
+                    variant="filter"
+                    onClick={() => setFilter(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 50,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
+
+                    }}>
+                    {t("filter.title")} (0)
+                </Button>
+            </MobileContainer>
         </>
     )
 }
