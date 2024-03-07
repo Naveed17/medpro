@@ -175,9 +175,6 @@ function Page({...props}) {
 
     useEffect(() => {
         if (data.background.show && data.background.content !== '') {
-            if (data.background.content.thumbnails)
-                setBackgroundImg(data.background.content.url)
-            else
                 fetch(data.background.content.url).then(response => {
                     response.blob().then(blob => {
                         setBackgroundImg(URL.createObjectURL(blob));
@@ -190,7 +187,7 @@ function Page({...props}) {
     return (
         <PageStyled>
             <div className={"dropzone"} id="inner-dropzone">
-                <div
+                <div id={`page${id}`}
                     style={{
                         ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
                             backgroundImage: `url(${backgroundImg})`,

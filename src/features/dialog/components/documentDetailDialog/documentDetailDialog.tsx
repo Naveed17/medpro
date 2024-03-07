@@ -55,6 +55,8 @@ import {FacebookCircularProgress} from "@features/progressUI";
 import {LoadingScreen} from "@features/loadingScreen";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Doc} from "@features/page";
+import html2canvas from "html2canvas";
+import * as jsPDF from "jspdf";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -371,14 +373,21 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "download":
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    const file = await generatePdfFromHtml(componentRef, "blob");
+                   /* html2canvas(document.body).then(function(canvas) {
+                        document.body.appendChild(canvas);
+                    });*/
+
+                    const data = document.getElementById('page0');
+                   /* let doc = new jsPDF();
+                    doc*/
+
+                    /*const file = await generatePdfFromHtml(componentRef, "blob");
                     const fileURL = window.URL.createObjectURL((file as Blob));
                     let alink = document.createElement('a');
                     alink.href = fileURL;
                     alink.download =
                         `${state?.type} ${state?.patient}`
-
-                    alink.click();
+                    alink.click();*/
                 } else {
                     downloadF();
                 }

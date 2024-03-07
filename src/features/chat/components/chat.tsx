@@ -244,7 +244,6 @@ const Chat = ({...props}) => {
 
     useEffect(()=>{
         setMessage(msg)
-        console.log(msg)
     },[msg])
 
     return (
