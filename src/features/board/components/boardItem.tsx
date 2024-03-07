@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
-import {CustomIconButton} from "@features/buttons";
 import {useAppSelector} from "@lib/redux/hooks";
 import {timerSelector} from "@features/card";
 import moment from "moment-timezone";
@@ -90,9 +89,10 @@ function BoardItem({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
+
     const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
-    const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote.content.dayDate} ${quote.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
+    const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote?.content.dayDate} ${quote?.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -197,9 +197,10 @@ function BoardItem({...props}) {
                                            spacing={.5}>
                                         {quote.content.startTime !== "00:00" &&
                                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                                                <IconUrl path={'ic-time'} width={16}
-                                                         height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
+                                                <IconUrl path={'ic-time'} width={14}
+                                                         height={14} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
                                                 <Typography
+                                                    component={"div"}
                                                     variant="body2"
                                                     fontWeight={700}
                                                     color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
@@ -207,7 +208,15 @@ function BoardItem({...props}) {
                                                         moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
                                                         quote.content.status !== 3 ?
                                                             quote.content.startTime :
-                                                            `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
+                                                            <Stack direction={"row"} spacing={.5}
+                                                                   alignItems={"center"}>
+                                                                <span
+                                                                    style={{marginLeft: 1}}>{quote.content.startTime}</span>
+                                                                <IconUrl path={'ic-duration'} width={14}
+                                                                         height={14} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
+                                                                {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
+                                                            </Stack>
+                                                    }
                                                 </Typography>
                                             </Stack>
                                         }
@@ -216,7 +225,7 @@ function BoardItem({...props}) {
                                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                                                 {quote.content?.estimatedStartTime &&
                                                     <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                                                        <IconUrl path={'ic-attendre'} width={15}
+                                                        <IconUrl path={'ic-estimated-time'} width={15}
                                                                  height={15} color={theme.palette.expire.main}/>
                                                         <Typography
                                                             variant="body2"
@@ -349,17 +358,24 @@ function BoardItem({...props}) {
                                         <Tooltip
                                             title={commonTranslation("config.start", {ns: "waitingRoom"})}>
                                             <span>
-                                                 <CustomIconButton
-                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                         action: "START_CONSULTATION",
-                                                         row: quote.content,
-                                                         event
-                                                     })}
-                                                     variant="filled"
-                                                     color={"warning"}
-                                                     size={"small"}>
-                                                <PlayCircleIcon fontSize={"small"}/>
-                                            </CustomIconButton>
+                                                <IconButton
+                                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                        action: "START_CONSULTATION",
+                                                        row: quote.content,
+                                                        event
+                                                    })}
+                                                    size={"small"}
+                                                    sx={{
+                                                        p: .85,
+                                                        border: `1px solid ${theme.palette.divider}`,
+                                                        borderRadius: 1,
+                                                        ...(is_next && {
+                                                            background: theme.palette.primary.main,
+                                                            border: "none"
+                                                        }),
+                                                    }}>
+                                                    <IconUrl path={"ic-play-audio-black"}/>
+                                                </IconButton>
                                             </span>
                                         </Tooltip>}
                                 </>}
@@ -404,8 +420,7 @@ function BoardItem({...props}) {
                 </CardContent>
             </Card>
         </Container>
-    )
-        ;
+    );
 }
 
-export default React.memo<any>(BoardItem);
+export default React.memo(BoardItem);
