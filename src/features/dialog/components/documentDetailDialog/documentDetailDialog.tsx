@@ -502,7 +502,7 @@ function DocumentDetailDialog({...props}) {
     useEffect(() => {
         if (state?.print && previewDocRef.current) {
             setIsPrinting(true);
-            setTimeout(() => handlePrint());
+            setTimeout(() => handlePrint(),1000);
         }
     }, [state?.print, previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
 

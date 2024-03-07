@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {
     Autocomplete,
     Box,
@@ -70,6 +70,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
     const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
     const [isStarted, setIsStarted] = useState(false);
     const [loadChanges, setLoadChanges] = useState(false);
+    const [typing, setTyping] = useState("");
 
     const modelContent = useRef(app_data?.notes ? app_data?.notes.value : "");
     const oldNote = useRef(app_data?.notes ? app_data?.notes.value : "");
@@ -185,11 +186,15 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
             }, {
                 onSuccess: () => {
                     setLoadChanges(false)
-                }
+                    setTyping("saved")
+                },
+                onError: () => setTyping("error")
+
             }
         )
     }
-    const debouncedOnChange = debounce(saveChanges, 1000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const debouncedOnChange = useCallback(debounce(saveChanges, 1000), []);
 
 
     useEffect(() => {
@@ -329,7 +334,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                 fullOb, setFullOb,
                                 loadChanges, setLoadChanges,
                                 modelContent,
-                                loading
+                                loading, typing, setTyping
                             }}/>
                         </Can>
                         <Can I={"manage"} a={"consultation"}

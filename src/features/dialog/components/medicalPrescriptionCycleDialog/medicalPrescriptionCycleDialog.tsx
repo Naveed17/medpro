@@ -733,7 +733,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     : `${data.forms[0].form}${hasMultiValues ? `_${data.unit}` : ""}` : ""
                                                         );
                                                     }}
-                                                    placeholder={t("unit", {ns: "consultation"})}
                                                     noOptionsText={t("no_unit")}
                                                     options={MedicalFormUnit}
                                                     getOptionLabel={(option) => {
@@ -774,7 +773,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 ...drugs.slice(idx + 1)]);
                                                         }
                                                     }}
-                                                    placeholder={t("dosage-model", {ns: "consultation"})}
                                                     noOptionsText={t("no_unit-dosage-model")}
                                                     options={item?.dosageModels ?? []}
                                                     getOptionLabel={(option) => {

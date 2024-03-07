@@ -10,14 +10,14 @@ import type {
 import {BoardItem, grid} from "@features/board";
 
 const DropZone = styled.div`
-  /* stop the list collapsing when empty */
-  min-height: 250px;
+    /* stop the list collapsing when empty */
+    min-height: 250px;
 
-  /*
-    not relying on the items for a margin-bottom
-    as it will collapse when the list is empty
-  */
-  padding-bottom: 8px;
+    /*
+      not relying on the items for a margin-bottom
+      as it will collapse when the list is empty
+    */
+    padding-bottom: 8px;
 `;
 
 /* stylelint-disable block-no-empty */
@@ -33,13 +33,15 @@ const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
                 dragSnapshot: DraggableStateSnapshot,
             ) => (
                 <BoardItem
-                    {...{index}}
+                    {...{
+                        index,
+                        quote,
+                        isDragging: dragSnapshot.isDragging,
+                        isGroupedOver: Boolean(dragSnapshot.combineTargetFor),
+                        provided: dragProvided,
+                        handleEvent: props.handleEvent
+                    }}
                     key={quote.id}
-                    quote={quote}
-                    isDragging={dragSnapshot.isDragging}
-                    isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
-                    provided={dragProvided}
-                    handleEvent={props.handleEvent}
                 />
             )}
         </Draggable>
@@ -78,21 +80,21 @@ export default function BoardList({...props}) {
     } = props;
 
     const Wrapper = styled.div`
-      display: flex;
-      flex-direction: column;
-      opacity: ${({isDropDisabled}: { isDropDisabled: Boolean }) => (isDropDisabled ? 0.5 : 'inherit')};
-    
-      border: ${grid}px;
-      padding-bottom: 0;
-      transition: background-color 0.2s ease, opacity 0.1s ease;
-      user-select: none;
-      width: 100%;
+        display: flex;
+        flex-direction: column;
+        opacity: ${({isDropDisabled}: { isDropDisabled: Boolean }) => (isDropDisabled ? 0.5 : 'inherit')};
+
+        border: ${grid}px;
+        padding-bottom: 0;
+        transition: background-color 0.2s ease, opacity 0.1s ease;
+        user-select: none;
+        width: 100%;
     `;
 
     const ScrollContainer = styled.div`
-      overflow-x: hidden;
-      overflow-y: auto;
-      max-height: ${typeof window !== "undefined" && window.innerHeight > 800 ? '75vh' : '67vh'};
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: ${typeof window !== "undefined" && window.innerHeight > 800 ? '75vh' : '67vh'};
     `;
 
     return (
@@ -104,12 +106,13 @@ export default function BoardList({...props}) {
             isCombineEnabled={isCombineEnabled}
             renderClone={useClone && ((provided, snapshot, descriptor) => (
                 <BoardItem
-                    handleEvent
-                    quote={quotes[descriptor.source.index]}
-                    provided={provided}
-                    isDragging={snapshot.isDragging}
-                    isClone
-                />
+                    {...{
+                        handleEvent,
+                        quote: quotes[descriptor.source.index],
+                        provided,
+                        isDragging: snapshot.isDragging,
+                        isClone: true
+                    }}></BoardItem>
             ))}>
             {(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
                 <Wrapper

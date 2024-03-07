@@ -502,7 +502,6 @@ export default function OphtPreview({...props}) {
                                                 <Autocomplete
                                                     disablePortal
                                                     value={av.od[od]}
-                                                    placeholder={"-"}
                                                     id="combo-box-demo"
                                                     size={"small"}
                                                     freeSolo={true}
@@ -530,7 +529,6 @@ export default function OphtPreview({...props}) {
                                                 <Autocomplete
                                                     disablePortal
                                                     value={av.og[og]}
-                                                    placeholder={"-"}
                                                     id="combo-box-demo"
                                                     size={"small"}
                                                     freeSolo={true}

@@ -5,7 +5,7 @@ import {DefaultCountry, tinymcePlugins, tinymceToolbarNotes} from "@lib/constant
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PageStyled from "@features/page/components/overrides/pageStyled";
-import {Box} from "@mui/material";
+import {Box, Stack, TextField, Typography} from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import {Editor} from "@tinymce/tinymce-react";
 
@@ -122,7 +122,6 @@ function Doc({...props}) {
         }
         data.content.content = elx
         setData({...data})
-
     }
 
     useEffect(() => {
@@ -133,7 +132,7 @@ function Doc({...props}) {
                 data.content.content = state.content;
                 setData({...data})
             }
-            //data.content.content = "x";
+            data.age.content = state.age
             setData({...data})
             data.patient.content = state.patient;
             if (data.cin)
@@ -233,6 +232,7 @@ function Doc({...props}) {
                         date,
                         header,
                         setHeader,
+                        state,
                         urlMedicalProfessionalSuffix,
                         docs, setDocs
                     }}/>
@@ -250,14 +250,23 @@ function Doc({...props}) {
                     onClose={() => {
                         setValue("")
                     }}>
-                {data[value] && <Editor
+                {data[value] ? value === "patient" || value === "date" ? <Stack spacing={1} p={2}>
+                    <Typography fontSize={12}>Prefix</Typography>
+                    <TextField
+                    value={data[value].prefix}
+                    onChange={(event) => {
+                        data[value].prefix = event.target.value
+                        setData({...data})
+                    }}
+                />
+                </Stack>:<Editor
                     value={data[value].content}
                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                     onEditorChange={(event) => {
                         data[value].content = event
                         setData({...data})
                     }}
-                    init={editorInit}/>}
+                    init={editorInit}/>: null}
 
                 {value.includes("other") && <Editor
                     value={data["other"][value.replace("other", "")].content}
