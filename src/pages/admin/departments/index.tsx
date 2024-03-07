@@ -6,11 +6,9 @@ import {SubHeader} from "@features/subHeader";
 import {
     Box,
     Button,
-    Checkbox,
     DialogActions,
     DialogContent,
     Drawer,
-    FormControlLabel,
     Stack, Theme,
     Typography
 } from "@mui/material";
@@ -22,8 +20,7 @@ import {DepartmentToolbar} from "@features/toolbar";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
-import {MotifTypeDialog} from "@features/motifTypeDialog";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {AddDepartmentDialog} from "@features/dialog";
 import Dialog from "@mui/material/Dialog";

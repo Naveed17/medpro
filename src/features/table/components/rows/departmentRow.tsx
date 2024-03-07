@@ -1,4 +1,3 @@
-import React, {Fragment} from "react";
 import {setSelectedRows, tableActionSelector, TableRowStyled} from "@features/table";
 import TableCell from "@mui/material/TableCell";
 import {
@@ -9,12 +8,10 @@ import {
     Typography, useTheme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import Can from "@features/casl/can";
 import {Label} from "@features/label";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRouter} from "next/router";
 
-function DoctorRow({...props}) {
+function DepartmentRow({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {row, isItemSelected, t, handleEvent, selected, handleClick} = props;
@@ -104,36 +101,33 @@ function DoctorRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        <Can I={"manage"} a={"settings"} field={"settings__users__update"}>
-                            <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEvent("EDIT_DEPARTMENT", row)
-                                }}
-                                color="primary"
-                                className="btn-edit">
-                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
-                            </IconButton>
-                        </Can>
-                        <Can I={"manage"} a={"settings"} field={"settings__users__delete"}>
-                            <IconButton
-                                className={"delete-icon"}
-                                size="small"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEvent("DELETE_DEPARTMENT", row)
-                                }}
-                                sx={{
-                                    ml: {md: 1},
-                                    '& .react-svg svg': {
-                                        width: 20,
-                                        height: 20
-                                    }
-                                }}>
-                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
-                            </IconButton>
-                        </Can>
+                        <IconButton
+                            size="small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleEvent("EDIT_DEPARTMENT", row)
+                            }}
+                            color="primary"
+                            className="btn-edit">
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
+                        </IconButton>
+
+                        <IconButton
+                            className={"delete-icon"}
+                            size="small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleEvent("DELETE_DEPARTMENT", row)
+                            }}
+                            sx={{
+                                ml: {md: 1},
+                                '& .react-svg svg': {
+                                    width: 20,
+                                    height: 20
+                                }
+                            }}>
+                            <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                        </IconButton>
                     </Box>
                 ) : (
                     <Stack
@@ -150,4 +144,4 @@ function DoctorRow({...props}) {
     )
 }
 
-export default DoctorRow
+export default DepartmentRow
