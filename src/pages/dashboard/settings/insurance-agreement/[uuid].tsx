@@ -16,6 +16,7 @@ import {SubFooter} from "@features/subFooter";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
+import {Add} from "@mui/icons-material";
 
 const Toolbar = (props: any) => {
     const {t, search, handleSearch} = props
@@ -176,6 +177,13 @@ function Actes() {
                 <RootStyled>
                     <p style={{margin: 0}}>{t("path.update")}</p>
                 </RootStyled>
+                <Button
+                    onClick={() => {}}
+                    startIcon={<Add/>}
+                    variant="contained"
+                >
+                    {t("add")}
+                </Button>
             </SubHeader>
 
             <Box className="container">
@@ -209,7 +217,6 @@ function Actes() {
                         <Button startIcon={<IconUrl path="ic-check"/>} variant="contained">
                             {t("save")}
                         </Button>
-
                     </SubFooter>
                 </Box>
             </Box>

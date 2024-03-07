@@ -17,7 +17,7 @@ function ActRowInsurance({...props}) {
     const theme = useTheme();
     const [fees, setFees] = useState(_act ? _act.fees : row.fees);
     const [patient_part, setPatient_part] = useState(_act ? _act.patient_part : row.fees);
-    const [reimbursement, setReimbursement] = useState(_act ? _act.refund : "0");
+    const [refund, setRefund] = useState(_act ? _act.refund : "0");
     const [selected, setSelected] = useState(false);
     const [apci, setApci] = useState<string[]>(_act && _act.apci ? _act.apci?.split(',') : []);
     const handleSelect = (event: SelectChangeEvent<typeof apci>) => {
@@ -28,10 +28,7 @@ function ActRowInsurance({...props}) {
             row.apci = value.join(",")
         }
         handleChange(row)
-        setApci(
-            // On autofill we get a stringified value.
-            typeof value === 'string' ? value.split(',') : value,
-        );
+        setApci(typeof value === 'string' ? value.split(',') : value);
     };
 
     return (
@@ -52,10 +49,10 @@ function ActRowInsurance({...props}) {
                     onChange={(e) => {
                         if (!isNaN(Number(e.target.value))) {
                             setFees(e.target.value);
-                            setReimbursement("0");
+                            setRefund("0");
                             setPatient_part(e.target.value);
                             row.fees = Number(e.target.value);
-                            row.reimbursement = 0;
+                            row.refund = 0;
                             row.patient_part = Number(e.target.value);
                             handleChange(row)
                         }
@@ -65,14 +62,14 @@ function ActRowInsurance({...props}) {
             <TableCell align={"center"}>
                 {selected ? <InputBaseStyled
                     placeholder={"--"}
-                    value={reimbursement}
+                    value={refund}
                     onChange={(e) => {
                         if (!isNaN(Number(e.target.value))) {
-                            setReimbursement(e.target.value);
-                            row.reimbursement = Number(e.target.value);
+                            setRefund(e.target.value);
+                            row.refund = Number(e.target.value);
                             handleChange(row)
                         }
-                    }}/> : <Typography>{reimbursement}</Typography>}
+                    }}/> : <Typography>{refund}</Typography>}
             </TableCell>
             <TableCell align={"center"}>
                 {selected ? <InputBaseStyled
@@ -137,7 +134,7 @@ function ActRowInsurance({...props}) {
                             variant={"contained"}>{t('save')}</Button>
                     <Button size={"small"} color={"error"} onClick={() => setSelected(false)}>{t('cancel')}</Button>
                 </> : <>
-                    <IconButton disableRipple size="small" onClick={(e) => setSelected(true)}>
+                    <IconButton disableRipple size="small" onClick={() => setSelected(true)}>
                         <IconUrl path="ic-edit" color={theme.palette.text.secondary}/>
                     </IconButton>
 
@@ -146,8 +143,6 @@ function ActRowInsurance({...props}) {
                         <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
                     </IconButton>
                 </>}
-
-
             </TableCell>
         </TableRowStyled>
     );
