@@ -374,24 +374,13 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "download":
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                   /* html2canvas(document.body).then(function(canvas) {
-                        document.body.appendChild(canvas);
-                    });*/
-
-                    const data = document.getElementById('page0');
-                    console.log(data)
-                    convertToPdf(data?.innerHTML)
-
-                    /* let doc = new jsPDF();
-                     doc*/
-
-                    /*const file = await generatePdfFromHtml(componentRef, "blob");
+                    const file = await generatePdfFromHtml(componentRef, "blob");
                     const fileURL = window.URL.createObjectURL((file as Blob));
                     let alink = document.createElement('a');
                     alink.href = fileURL;
                     alink.download =
                         `${state?.type} ${state?.patient}`
-                    alink.click();*/
+                    alink.click();
                 } else {
                     downloadF();
                 }
@@ -507,7 +496,7 @@ function DocumentDetailDialog({...props}) {
         });
     }
 
-    const convertToPdf = async (htmlContent) => {
+   /* const convertToPdf = async (htmlContent) => {
         const response = await fetch('/api/convertToPdf', {
             method: 'POST',
             headers: {
@@ -524,7 +513,7 @@ function DocumentDetailDialog({...props}) {
         }
     };
 
-
+*/
     useEffect(() => {
         setIsImg(state?.detectedType?.split('/')[0] === 'image')
         setFile(state?.uri)
