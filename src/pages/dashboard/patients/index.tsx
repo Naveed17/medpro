@@ -88,7 +88,6 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import _ from "lodash";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -526,7 +525,7 @@ function Patients() {
     const handleDeletePatient = () => {
         setLoadingRequest(true);
         const params = new FormData();
-        params.append("type", _.map(deletePatientOptions, "key").join(","));
+        params.append("type", deletePatientOptions.reduce((options, option) => [...(options ?? []), ...(option.selected && option.key !== "delete-all" ? [option.key] : [])], []).join(","));
         medicalEntityHasUser && triggerDeletePatient({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient?.uuid}/${router.locale}`,
