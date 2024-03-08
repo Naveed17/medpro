@@ -43,7 +43,6 @@ function DoctorDetails() {
         setContextMenu(null);
     }
 
-
     const popoverActions = [
         {
             title: "demoData",
@@ -66,7 +65,6 @@ function DoctorDetails() {
             } : null,
     );
 
-
     const handleClose = () => {
         setOpen(false);
     }
@@ -77,6 +75,8 @@ function DoctorDetails() {
         dispatch(toggleSideBar(true));
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+    const user = (httpUsersResponse as HttpResponse)?.data as UserDataResponse;
+    console.log("user", user)
     if (!ready || error) {
         return <LoadingScreen
             button
