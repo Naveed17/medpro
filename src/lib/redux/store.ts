@@ -29,6 +29,7 @@ import {minMaxWindowToggleReducer} from '@features/buttons';
 import {StepperReducer} from "@features/stepper";
 import {persistReducer} from 'redux-persist';
 import {CaslReducer} from "@features/casl";
+import {ChatReducer} from "@features/chat/reducer";
 
 const createNoopStorage = () => {
     return {
@@ -71,6 +72,7 @@ const rootReducer = combineReducers({
     timer: timerReducer,
     leftActionBar: leftActionBarReducer,
     dashLayout: DashLayoutReducer,
+    chat: ChatReducer,
     appLock: AppLockReducer,
     patientDetail: dialogPatientDetailReducer,
     duplicate: DuplicatedReducer,

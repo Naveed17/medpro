@@ -71,9 +71,9 @@ const PageStyled = styled(Box)(({theme}) => ({
                 zoom: 1
             },
             "& .notSelected": {
-                border: 0
+                borderColor: "white"
             },
-            "& .selected":{border:0},
+            "& .selected":{borderColor:"white"},
             "& .menuTop": {
                 visibility: "hidden"
             },

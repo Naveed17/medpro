@@ -51,6 +51,8 @@ import {useAbly, useChannel, useConnectionStateListener, usePresence} from "ably
 import IconUrl from "@themes/urlIcon";
 import {Chat} from "@features/chat";
 import {caslSelector} from "@features/casl";
+import {chatSelector} from "@features/chat/selectors";
+import {setOpenChat} from "@features/chat/actions";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -74,6 +76,7 @@ function MainLayout({...props}) {
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const {openChat} = useAppSelector(chatSelector);
     const permissions = useAppSelector(caslSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
@@ -83,7 +86,6 @@ function MainLayout({...props}) {
     const [translationCommon] = useState(props._nextI18Next?.initialI18nStore.fr.common);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
-    const [open, setOpen] = React.useState(false);
     const [messages, updateMessages] = useState<any[]>([]);
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
@@ -395,7 +397,7 @@ function MainLayout({...props}) {
 
             <Drawer
                 anchor={"right"}
-                open={open}
+                open={openChat}
                 dir={direction}
                 PaperProps={{
                     sx: {
@@ -403,7 +405,7 @@ function MainLayout({...props}) {
                     },
 
                 }}
-                onClose={() => setOpen(false)}>
+                onClose={() => dispatch(setOpenChat(false))}>
                 <Chat {...{
                     channel,
 
@@ -564,7 +566,7 @@ function MainLayout({...props}) {
                 <Fab color="info"
                      style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
                      onClick={() => {
-                         setOpen(true)
+                         dispatch(setOpenChat(true))
                      }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
                         <IconUrl path={"chat"} width={30} height={30}/>

@@ -19,6 +19,7 @@ function Doc({...props}) {
         data,
         setData,
         state,
+        componentRef,
         date,
         header,
         setHeader,
@@ -224,6 +225,7 @@ function Doc({...props}) {
                 pages.map((page, index) => (
                     <Page key={index} {...{
                         data,
+                        componentRef,
                         setData,
                         id: index,
                         onReSize,
