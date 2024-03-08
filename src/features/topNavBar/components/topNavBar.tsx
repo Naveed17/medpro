@@ -523,6 +523,7 @@ function TopNavBar({...props}) {
                                 <Badge
                                     badgeContent={notificationsCount}
                                     className="custom-badge"
+                                    {...(router.pathname.includes("/admin") && {sx: {ml: 1.4}})}
                                     color="warning"
                                     {...(item.action && {
                                         onClick: (event: React.MouseEvent<HTMLButtonElement>) =>

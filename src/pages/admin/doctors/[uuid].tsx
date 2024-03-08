@@ -13,11 +13,15 @@ import {Dialog} from "@features/dialog";
 import {ActionMenu, toggleSideBar} from "@features/menu";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch} from "@lib/redux/hooks";
+import {useRequestQuery} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function DoctorDetails() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
     const {t, ready, i18n} = useTranslation("doctors", {keyPrefix: "config"});
 
     const [open, setOpen] = useState<boolean>(false)
@@ -25,11 +29,20 @@ function DoctorDetails() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
+
+    const userUuid = router.query["uuid"];
+
+    const {data: httpUsersResponse} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/admin/users/${userUuid}/${router.locale}`
+    }, {
+        refetchOnWindowFocus: false
+    });
+
     const handleCloseMenu = () => {
         setContextMenu(null);
     }
 
-    const userUuid = router.query["uuid"];
 
     const popoverActions = [
         {
