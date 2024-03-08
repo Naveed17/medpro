@@ -1,5 +1,5 @@
 // next-i18next.config.js
-const LocizeBackend = require('i18next-locize-backend/cjs')
+const HttpBackend = require('i18next-http-backend').default
 const ChainedBackend = require('i18next-chained-backend').default
 const LocalStorageBackend = require('i18next-localstorage-backend').default
 
@@ -13,10 +13,10 @@ module.exports = {
     },
     backend: {
         backendOptions: [{
-            expirationTime: 60 * 60 * 1000 // 1 hour
+            expirationTime: 60 * 60 * 1000, // 1 hour
         }, {
-            projectId: '5f545f61-16a5-4006-80cd-c072b823269c', version: 'latest'
-        }], backends: isBrowser ? [LocalStorageBackend, LocizeBackend] : [],
+            loadPath: 'https://s3-develop-public.med.ovh/locales/{{lng}}/{{ns}}.json'
+        }], backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
     },
     serializeConfig: false,
     partialBundledLanguages: isBrowser && true,
