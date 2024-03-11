@@ -22,7 +22,7 @@ function DoctorDetails() {
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {t, ready, i18n} = useTranslation("doctors", {keyPrefix: "config"});
+    const {t, ready, i18n} = useTranslation(["doctors", "common"]);
 
     const [open, setOpen] = useState<boolean>(false)
     const [contextMenu, setContextMenu] = useState<{
@@ -71,7 +71,7 @@ function DoctorDetails() {
 
     useEffect(() => {
         //reload resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ["doctors"]);
+        i18n.reloadResources(i18n.resolvedLanguage, ["doctors", "common"]);
         dispatch(toggleSideBar(true));
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -110,7 +110,7 @@ function DoctorDetails() {
             </SubHeader>
 
             <Box className="container">
-                <DoctorAboutTab {...{t, theme, handleOpenMeun, handleOpenRestPass: () => setOpen(true)}} />
+                <DoctorAboutTab {...{t, theme, user, handleOpenMeun, handleOpenRestPass: () => setOpen(true)}} />
             </Box>
             <Dialog
                 action="rest-password"

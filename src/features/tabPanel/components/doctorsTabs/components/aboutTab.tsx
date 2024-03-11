@@ -17,20 +17,49 @@ import {
 import IconUrl from '@themes/urlIcon'
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Zoom from "react-medium-image-zoom";
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 
 function AboutTab({...props}) {
-    const {t, theme, handleOpenRestPass, handleOpenMeun} = props
+    const {t, user, theme, handleOpenRestPass, handleOpenMeun} = props;
+    const [slots, setSlots] = useState<any>({
+        MON: [],
+        TUE: [],
+        WED: [],
+        THU: [],
+        FRI: [],
+        SAT: [],
+        SUN: []
+    });
+
+    useEffect(() => {
+        if (user?.slots) {
+            const slots: any = {
+                MON: [],
+                TUE: [],
+                WED: [],
+                THU: [],
+                FRI: [],
+                SAT: [],
+                SUN: []
+            };
+            const hours = (Object.values(user.slots)[0] as any)?.slots;
+            Object.keys(hours).forEach((ohours: any, index: number) => {
+                slots[ohours] = hours[ohours];
+            });
+            setSlots(slots);
+        }
+    }, [user?.slots]);
+
     return (
         <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
                 <Stack spacing={2}>
-                    <Card>
+                    <Card sx={{overflow: 'visible'}}>
                         <CardContent>
-                            <Stack alignItems={"center"} spacing={2} mb={2}>
-                                <ConditionalWrapper
-                                    condition={false}
-                                    wrapper={(children: any) => <Zoom>{children}</Zoom>}>
+                            <ConditionalWrapper
+                                condition={false}
+                                wrapper={(children: any) => <Zoom>{children}</Zoom>}>
+                                <Stack alignItems='center' spacing={1.5}>
                                     <Avatar
                                         className={"zoom"}
                                         src={"/static/icons/men-avatar.svg"}
@@ -45,35 +74,27 @@ function AboutTab({...props}) {
                                         }}>
                                         <IconUrl width={75} height={75} path="men-avatar"/>
                                     </Avatar>
-
-                                </ConditionalWrapper>
-                                <Stack spacing={.5}>
-                                    <Typography variant="subtitle2" fontWeight={700} color="primary">
-                                        Dr Ghassen BOULAHIA
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        Gynécologue Obstétricien
-                                    </Typography>
+                                    <Stack spacing={.5} alignItems={"center"}>
+                                        <Typography variant="subtitle2" fontWeight={700} color="primary">
+                                            Dr {user?.firstName} {user?.lastName}
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            {user?.specialities.map((specialitie: any) => specialitie.speciality.name).join(",")}
+                                        </Typography>
+                                    </Stack>
                                 </Stack>
-                            </Stack>
-                            <Typography gutterBottom variant="subtitle1" fontWeight={600}>
+                            </ConditionalWrapper>
+
+                            <Typography mt={1} gutterBottom variant="subtitle1" fontWeight={600}>
                                 {t("personal_info")}
                             </Typography>
                             <List disablePadding>
                                 <ListItem disablePadding sx={{py: .5}}>
                                     <Typography width={140} variant="body2" color='text.secondary'>
-                                        {t("full_name")}
-                                    </Typography>
-                                    <Typography fontWeight={500}>
-                                        Dr Ghassen BOULAHIA
-                                    </Typography>
-                                </ListItem>
-                                <ListItem disablePadding sx={{py: .5}}>
-                                    <Typography width={140} variant="body2" color='text.secondary'>
                                         {t("cin")}
                                     </Typography>
                                     <Typography fontWeight={500}>
-                                        02165102
+                                        {user?.cin ?? "-"}
                                     </Typography>
                                 </ListItem>
                                 <ListItem disablePadding sx={{py: .5}}>
@@ -81,7 +102,7 @@ function AboutTab({...props}) {
                                         {t("birthdate")}
                                     </Typography>
                                     <Typography fontWeight={500}>
-                                        29 juin 1972
+                                        {user?.birthDate ?? "-"}
                                     </Typography>
                                 </ListItem>
                                 <ListItem disablePadding sx={{py: .5, alignItems: 'flex-start'}}>
@@ -89,34 +110,22 @@ function AboutTab({...props}) {
                                         {t("mobile")}
                                     </Typography>
                                     <Stack spacing={1.25}>
-                                        <Stack direction='row' alignItems='center' spacing={1}>
-                                            <Avatar
-                                                sx={{
-                                                    width: 27,
-                                                    height: 18,
-                                                    borderRadius: 0
-                                                }}
-                                                alt={"flags"}
-                                                src={`https://flagcdn.com/tn.svg`}
-                                            />
-                                            <Typography fontWeight={500}>
-                                                +216 22 469 495
-                                            </Typography>
-                                        </Stack>
-                                        <Stack direction='row' alignItems='center' spacing={1}>
-                                            <Avatar
-                                                sx={{
-                                                    width: 27,
-                                                    height: 18,
-                                                    borderRadius: 0
-                                                }}
-                                                alt={"flags"}
-                                                src={`https://flagcdn.com/tn.svg`}
-                                            />
-                                            <Typography fontWeight={500}>
-                                                +216 22 469 495
-                                            </Typography>
-                                        </Stack>
+                                        {user?.contacts?.map((contact: ContactModel, index: number) =>
+                                            <Stack key={index} direction='row' alignItems='center'
+                                                   spacing={1}>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 27,
+                                                        height: 18,
+                                                        borderRadius: 0
+                                                    }}
+                                                    alt={"flags"}
+                                                    src={`https://flagcdn.com/tn.svg`}
+                                                />
+                                                <Typography fontWeight={500}>
+                                                    {contact.code} {contact.value}
+                                                </Typography>
+                                            </Stack>) ?? "-"}
                                     </Stack>
                                 </ListItem>
                                 <ListItem disablePadding sx={{py: .5}}>
@@ -124,7 +133,7 @@ function AboutTab({...props}) {
                                         {t("email")}
                                     </Typography>
                                     <Typography fontWeight={500}>
-                                        ghassen.boulahia@med.com
+                                        {user?.email ?? "-"}
                                     </Typography>
                                 </ListItem>
                             </List>
@@ -134,26 +143,28 @@ function AboutTab({...props}) {
                         <CardContent>
                             <Stack spacing={1} alignItems='flex-start'>
                                 <Typography variant='subtitle2' fontWeight={600}>
-                                    {t("role")}
+                                    {t("department")}
                                 </Typography>
-                                <Button variant="google" sx={{bgcolor: theme.palette.info.main, border: 'none'}}>
-                                    {t("doctor")}
-                                </Button>
+                                {user?.department.map((department: DepartmentModel, index: number) =>
+                                    <Button key={index} variant="google"
+                                            sx={{bgcolor: theme.palette.info.main, border: 'none'}}>
+                                        {department.name}
+                                    </Button>)}
                                 <Typography variant='subtitle1' fontWeight={600}>
                                     {t("assigned_staff")}
                                 </Typography>
                                 <List disablePadding sx={{width: 1}}>
-                                    <ListItem sx={{px: 1, mb: .5, border: 1, borderColor: 'divider', borderRadius: 1.6}}
-                                              secondaryAction={
-                                                  <IconButton
-                                                      disableRipple
-                                                      size="small"
-                                                      onClick={handleOpenMeun}
-                                                  >
-                                                      <MoreVertIcon fontSize='small'/>
-                                                  </IconButton>
-                                              }
-                                    >
+                                    {user?.assigned.map((assign: any, index: number) => <ListItem
+                                        key={index}
+                                        sx={{px: 1, mb: .5, border: 1, borderColor: 'divider', borderRadius: 1.6}}
+                                        secondaryAction={
+                                            <IconButton
+                                                disableRipple
+                                                size="small"
+                                                onClick={handleOpenMeun}>
+                                                <MoreVertIcon fontSize='small'/>
+                                            </IconButton>
+                                        }>
                                         <ListItemIcon>
                                             <Avatar
                                                 src={"/static/icons/men-avatar.svg"}
@@ -174,7 +185,8 @@ function AboutTab({...props}) {
                                                 Secretaire
                                             </Typography>
                                         </Stack>
-                                    </ListItem>
+                                    </ListItem>)}
+                                    {user?.assigned?.length === 0 && "-"}
                                 </List>
                                 <Typography variant='subtitle1' fontWeight={600}>
                                     {t("rest_pass")}
@@ -203,48 +215,24 @@ function AboutTab({...props}) {
                             <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                 {t("pro_qualifications")}
                             </Typography>
-                            <Typography>
-                                {t("specialist_in")} Gynécologie-obstétrique
-                            </Typography>
-                            <Typography>
-                                Ancien praticien des hôpitaux de Paris Diplômé des universités françaises en :
-                            </Typography>
                             <List disablePadding sx={{mb: 2}}>
-                                <ListItem disablePadding>
-                                    <ListItemText sx={{m: .2}}
-                                                  primary="* Infertilité et Assistance médicale à la procréation"/>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemText sx={{m: 0.2}} primary="* Échographie obstétricale et gynécologique"/>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemText sx={{m: 0.2}} primary="* Chirurgie Vaginale"/>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemText sx={{m: 0.2}} primary="* Traitement du Polapsus Urogénital"/>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemText sx={{m: 0.2}} primary="* Hystéroscopie opératoire"/>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemText sx={{m: 0.2}} primary="* Colposcopie"/>
-                                </ListItem>
-                                <ListItem disablePadding>
-                                    <ListItemText sx={{m: 0.2}} primary="* Maladies du Sein"/>
-                                </ListItem>
+                                {user?.qualification?.map((qualification: QualificationModel, index: number) =>
+                                    <ListItem
+                                        key={index}
+                                        disablePadding>
+                                        <ListItemText sx={{m: .2}}
+                                                      primary="* Infertilité et Assistance médicale à la procréation"/>
+                                    </ListItem>)}
+                                {user?.qualification?.length === 0 && "-"}
                             </List>
                             <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                 {t("spoken_lang")}
                             </Typography>
                             <List disablePadding>
-                                {
-                                    ["Français", "Anglais"].map((lang, idx) =>
-                                        <ListItem disablePadding key={idx}>
-                                            <ListItemText sx={{m: .1}} primary={lang}/>
-                                        </ListItem>
-                                    )
-
-                                }
+                                {user?.languages.map((lang: LanguageModel, idx: number) =>
+                                    <ListItem disablePadding key={idx}>
+                                        <ListItemText sx={{m: .1}} primary={lang.name}/>
+                                    </ListItem>)}
                             </List>
                         </CardContent>
                     </Card>
@@ -254,15 +242,10 @@ function AboutTab({...props}) {
                                 {t("acts_&_care")}
                             </Typography>
                             <Stack mt={1} direction='row' flexWrap="wrap" alignItems='center' sx={{gap: 1}}>
-                                {
-                                    ["Hystéroscopie thérapeutique", "Suivi de grossesse", "Hystérectomie", "Traitement des prolapsus du plancher pelvien", "Stérilité du couple", "Echographie 3D", "FIV (Fécondation in vitro)", "Plastie de la vulve et du périnée", "Frottis cervico-vaginal"].map((act, idx) =>
-                                        <Label key={idx} variant="filled" sx={{bgcolor: theme.palette.grey["B905"]}}>
-                                            {act}
-                                        </Label>
-                                    )
-                                }
-
-
+                                {user?.acts.map((act: ActModel, idx: number) =>
+                                    <Label key={idx} variant="filled" sx={{bgcolor: theme.palette.grey["B905"]}}>
+                                        {act.act.name}
+                                    </Label>)}
                             </Stack>
                         </CardContent>
                     </Card>
@@ -276,33 +259,27 @@ function AboutTab({...props}) {
                                 {t("scheduled_shifts")}
                             </Typography>
                             <List>
-                                {
-                                    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, idx) =>
-                                        <ListItem disablePadding key={idx}
-
-                                                  sx={{py: .5}}
-                                        >
-                                            <ListItemText sx={{m: 0, span: {fontWeight: 600}}} primary={day}/>
-                                            <Label variant="filled" sx={{
-                                                fontSize: 14,
-                                                fontWeight: 600,
-                                                bgcolor: theme.palette.background.default,
-                                                borderRadius: 1,
-                                                px: 1.5,
-                                                py: 1,
-                                                height: 37
-                                            }}>
-                                                10:00 AM - 01:00 PM
-                                            </Label>
-                                        </ListItem>
-                                    )
-                                }
-
-
+                                {Object.keys(slots).map((day: any, index) =>
+                                    <ListItem disablePadding key={index}
+                                              sx={{py: .5}}>
+                                        <ListItemText sx={{m: 0, span: {fontWeight: 600}}}
+                                                      primary={t(`days.${day}`, {ns: "common"})}/>
+                                        <Label variant="filled" sx={{
+                                            fontSize: 14,
+                                            fontWeight: 600,
+                                            bgcolor: theme.palette.background.default,
+                                            borderRadius: 1,
+                                            px: 1.5,
+                                            py: 1,
+                                            height: 37
+                                        }}>
+                                            {slots[day].map((slot: any) => `${slot.start_time} - ${slot.end_time}`)}
+                                        </Label>
+                                    </ListItem>)}
                             </List>
                         </CardContent>
                     </Card>
-                    <Card>
+                    {/*<Card>
                         <CardContent>
                             <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                 {t("price_list")}
@@ -335,7 +312,7 @@ function AboutTab({...props}) {
 
                             </List>
                         </CardContent>
-                    </Card>
+                    </Card>*/}
                 </Stack>
             </Grid>
         </Grid>

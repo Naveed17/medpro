@@ -175,9 +175,7 @@ function PatientRow({...props}) {
                                             <Stack direction='row' alignItems='center'>
                                                 <IconUrl path="ic-folder" width={16} height={16}
                                                          color={theme.palette.text.secondary}/>
-                                                <Tooltip
-                                                    title={row.fiche_id}
-                                                >
+                                                <Tooltip title={row.fiche_id}>
                                                     <Typography
                                                         variant="body2"
                                                         className={"ellipsis"}

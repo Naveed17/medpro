@@ -105,26 +105,7 @@ function StaffRow({...props}) {
                             fontSize={13}
                             fontWeight={700}
                             color="text.primary">
-                            {row?.department ?? "--"}
-                        </Typography>
-                    </>
-                ) : (
-                    <Stack alignItems="center">
-                        <Skeleton variant="text" width={100}/>
-                        <Skeleton variant="text" width={100}/>
-                    </Stack>
-                )}
-            </TableCell>
-            <TableCell align="center">
-                {row ? (
-                    <>
-                        <Typography
-                            textAlign={"center"}
-                            variant="body1"
-                            fontSize={13}
-                            fontWeight={700}
-                            color="text.primary">
-                            {row?.function ?? "--"}
+                            {row?.department?.name ?? "--"}
                         </Typography>
                     </>
                 ) : (

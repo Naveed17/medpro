@@ -53,7 +53,7 @@ function StaffDetails() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    
+
     const {t, ready, i18n} = useTranslation("staff", {keyPrefix: "config"});
 
     const [openPersonalInfo, setOpenPersonalInfo] = useState(false);
@@ -115,13 +115,12 @@ function StaffDetails() {
                         <Stack spacing={2}>
                             <Card sx={{overflow: 'visible'}}>
                                 <CardContent>
-
                                     <ConditionalWrapper
                                         condition={false}
                                         wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                         <Stack alignItems='center' spacing={1.5}>
                                             <Avatar
-                                                {...(true && {className: "zoom"})}
+                                                {...(({className: "zoom"}))}
                                                 src={"/static/icons/men-avatar.svg"}
                                                 sx={{
                                                     "& .injected-svg": {

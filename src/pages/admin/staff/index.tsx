@@ -48,14 +48,6 @@ const headCells = [
         sortable: true,
     },
     {
-        id: "function",
-        numeric: false,
-        disablePadding: false,
-        label: "function",
-        align: "center",
-        sortable: true,
-    },
-    {
         id: "contact",
         numeric: false,
         disablePadding: false,

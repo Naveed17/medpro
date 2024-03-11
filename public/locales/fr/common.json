@@ -152,6 +152,15 @@
   "delete_blocked_day": "Supprimer la journée bloquée",
   "add_leave": "Ajouter un congé",
   "to": "Du",
+  "days": {
+    "MON": "Lundi",
+    "TUE": "Mardi",
+    "WED": "Mercredi",
+    "THU": "Jeudi",
+    "FRI": "Vendredi",
+    "SUN": "Dimanche",
+    "SAT": "Samedi"
+  },
   "permission": {
     "title": "Permission d'accéder",
     "description": "Vous n'avez pas la permission d'accéder à cette ressource",
