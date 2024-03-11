@@ -47,7 +47,7 @@ const ChatStyled = styled("div")(({theme}) => ({
             margin: theme.spacing(3,0,0, 0),
             display: 'flex',
             flexDirection: 'column',
-            height: 'calc(100vh - 245px)',
+            height: 'calc(100vh - 215px)',
             overflow: 'auto',
             ".MuiListItem-root": {
                 ".time": {
