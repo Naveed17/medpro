@@ -4,23 +4,29 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {MutableRefObject, ReactElement, useCallback, useEffect, useRef, useState} from "react";
 import {useRouter} from "next/router";
 import {
-    Alert, Backdrop,
+    Alert,
+    Backdrop,
     Box,
     Button,
-    Container, DialogActions,
+    Container,
+    DialogActions,
     Drawer,
-    LinearProgress, Paper, SpeedDial, SpeedDialAction,
+    LinearProgress,
+    Paper,
+    SpeedDial,
+    SpeedDialAction,
     Stack,
     Typography,
     useMediaQuery,
-    useTheme, Zoom
+    useTheme,
+    Zoom
 } from "@mui/material";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestQueryMutation, useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -31,9 +37,11 @@ import {DateSelectArg, DatesSetArg, EventChangeArg} from "@fullcalendar/core";
 import {EventDef} from "@fullcalendar/core/internal";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
-    agendaSelector, Calendar,
+    agendaSelector,
+    Calendar,
     DayOfWeek,
-    openDrawer, setAbsences,
+    openDrawer,
+    setAbsences,
     setCurrentDate,
     setGroupedByDayAppointments,
     setSelectedEvent,
@@ -43,14 +51,23 @@ import {
     appointmentSelector,
     EventType,
     Instruction,
-    Patient, resetAppointment, resetSubmitAppointment,
-    setAppointmentDate, setAppointmentPatient,
-    setAppointmentRecurringDates, setAppointmentSubmit,
+    Patient,
+    resetAppointment,
+    resetSubmitAppointment,
+    setAppointmentDate,
+    setAppointmentPatient,
+    setAppointmentRecurringDates,
+    setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
 import {
+    AppointmentDetail,
+    Dialog,
+    dialogMoveSelector,
+    PatientDetail,
+    preConsultationSelector,
     QuickAddAppointment,
-    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector, AppointmentDetail
+    setMoveDateTime
 } from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
@@ -72,24 +89,26 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, MobileContainer as smallScreen} from "@lib/constants";
 import IconUrl from "@themes/urlIcon";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {MobileContainer as smallScreen} from "@lib/constants";
 import {useSendNotification} from "@lib/hooks/rest";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {setDialog} from "@features/topNavBar";
-import {resetAbsenceData, setAbsenceData, AbsenceDrawer, absenceDrawerSelector} from "@features/drawer";
+import {AbsenceDrawer, absenceDrawerSelector, resetAbsenceData, setAbsenceData} from "@features/drawer";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import LeaveIcon from "@themes/overrides/icons/leaveIcon";
+import {setOpenChat} from "@features/chat/actions";
+import ChatIcon from "@themes/overrides/icons/chatIcon";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, key: 'add-quick'},
     {icon: <AddOutlinedIcon/>, key: 'add-complete'},
-    {icon: <LeaveIcon/>, key: 'add_leave'}
+    {icon: <LeaveIcon/>, key: 'add_leave'},
+    {icon: <ChatIcon/>, key: 'add_chat'},
 ];
 
 function Agenda() {
@@ -1043,6 +1062,9 @@ function Agenda() {
         switch (action.key) {
             case "add_leave" :
                 dispatch(openDrawer({type: "absence", open: true}));
+                break;
+            case "add_chat" :
+                dispatch(setOpenChat(true))
                 break;
             case "add-quick" :
                 handleAddAppointment("add-quick");

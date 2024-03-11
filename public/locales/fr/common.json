@@ -151,6 +151,7 @@
   "add_blocked_day": "Ajouter un jour bloqué",
   "delete_blocked_day": "Supprimer la journée bloquée",
   "add_leave": "Ajouter un congé",
+  "add_chat": "Chat",
   "to": "Du",
   "days": {
     "MON": "Lundi",

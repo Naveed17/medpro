@@ -12,7 +12,7 @@ import {
     Paper,
     PaperProps,
     Stack,
-    Typography,
+    Typography, useMediaQuery,
     useTheme
 } from "@mui/material";
 import axios from "axios";
@@ -52,7 +52,7 @@ import IconUrl from "@themes/urlIcon";
 import {Chat} from "@features/chat";
 import {caslSelector} from "@features/casl";
 import {chatSelector} from "@features/chat/selectors";
-import {setOpenChat} from "@features/chat/actions";
+import {setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -102,6 +102,7 @@ function MainLayout({...props}) {
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
     const slugFeature = router.pathname.split('/')[2];
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const ability = buildAbilityFor(features ?? [], permissions);
 
@@ -404,7 +405,10 @@ function MainLayout({...props}) {
                     },
 
                 }}
-                onClose={() => dispatch(setOpenChat(false))}>
+                onClose={() => {
+                    dispatch(setOpenChat(false))
+                    dispatch(setGlobalMsg(""))
+                }}>
                 <Chat {...{
                     channel,
                     messages,
@@ -559,15 +563,15 @@ function MainLayout({...props}) {
                         <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
                     </Stack>
                 </Stack>}
-                <Fab color="info"
-                     style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
-                     onClick={() => {
-                         dispatch(setOpenChat(true))
-                     }}>
+                {!isMobile && <Fab color="info"
+                      style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                      onClick={() => {
+                          dispatch(setOpenChat(true))
+                      }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
                         <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
-                </Fab>
+                </Fab>}
             </Stack>
 
         </AbilityContext.Provider>
