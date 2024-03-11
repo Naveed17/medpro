@@ -125,7 +125,7 @@ function Doctors() {
     const users = ((httpUsersResponse as HttpResponse)?.data?.list ?? []) as UserModel[];
 
     useEffect(() => {
-        //reload locize resources from cdn servers
+        //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["doctors"]);
         if (!openSideBar) {
             dispatch(toggleSideBar(false));

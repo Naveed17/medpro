@@ -77,7 +77,7 @@ function StaffDetails() {
     const handleCloseAssignment = () => setOpenAssignment(false);
 
     useEffect(() => {
-        //reload locize resources from cdn servers
+        //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["doctors"]);
         dispatch(toggleSideBar(true));
     }, []) // eslint-disable-line react-hooks/exhaustive-deps

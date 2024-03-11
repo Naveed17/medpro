@@ -525,7 +525,7 @@ function Patients() {
     const handleDeletePatient = () => {
         setLoadingRequest(true);
         const params = new FormData();
-        params.append("type", deletePatientOptions.reduce((options, option) => [...(options ?? []), ...(option.selected && option.key !== "delete-all" ? [option.key] : [])], []).join(","));
+        params.append("type", deletePatientOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
         medicalEntityHasUser && triggerDeletePatient({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient?.uuid}/${router.locale}`,
@@ -613,7 +613,7 @@ function Patients() {
     useEffect(() => {
         //remove query params on load from url
         isMobile && router.replace(router.pathname, undefined, {shallow: true});
-        //reload locize resources from cdn servers
+        //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 

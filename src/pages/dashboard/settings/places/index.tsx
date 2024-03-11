@@ -181,7 +181,7 @@ function Lieux() {
     });
 
     useEffect(() => {
-        //reload locize resources from cdn servers
+        //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -231,7 +231,7 @@ function Documents() {
     }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        //reload locize resources from cdn servers
+        //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["docs", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
