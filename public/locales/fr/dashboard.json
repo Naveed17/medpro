@@ -1,0 +1,12 @@
+{
+    "sub-header": {
+        "title": "Aperçu du centre médical"
+    },
+    "appointments": "Rendez-vous",
+    "total_patients": "Total des patients",
+    "new-patients": "Nouveaux patients",
+    "avg_wait_time": "Temps d'attente moyen des patients",
+    "min": "min",
+    "rdv-request": "Demandes de rendez-vous",
+    "recent_activities": "Activités récentes"
+}

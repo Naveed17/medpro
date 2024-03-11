@@ -65,4 +65,5 @@ export * from './statsProgreesCard';
 export * from './doctorsMobileCard'
 export * from './statsProgreesCard';
 export * from './staffMobileCard';
-export * from './departmentMobileCard'
+export * from './departmentMobileCard';
+export * from './rdvRequestCard'

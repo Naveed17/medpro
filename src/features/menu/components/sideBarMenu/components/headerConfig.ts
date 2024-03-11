@@ -32,6 +32,13 @@ export const siteHeader = {
     ],
     sidebarItems: [
         {
+            icon: "ic-dashboard",
+            name: "dashboard",
+            href: '/dashboard',
+            badge: 0,
+            enabled: true
+        },
+         {
             icon: "ic-agenda",
             name: "agenda",
             href: '/dashboard/agenda',
