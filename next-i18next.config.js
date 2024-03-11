@@ -14,11 +14,9 @@ module.exports = {
     backend: {
         backendOptions: [{
             expirationTime: 60 * 60 * 1000, // 1 hour
-        },
-/*            {
-            loadPath: 'https://s3-develop-public.med.ovh/locales/{{lng}}/{{ns}}.json'
-        }*/
-        ], backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
+        }, {
+            loadPath: 'https://cdn.med.tn/locales/{{lng}}/{{ns}}.json'
+        }], backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
     },
     serializeConfig: false,
     partialBundledLanguages: isBrowser && true,

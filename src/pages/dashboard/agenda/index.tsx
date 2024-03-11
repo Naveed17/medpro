@@ -7,10 +7,10 @@ import {
     Alert,
     Backdrop,
     Box,
-    Button,
+    Button, Card, Checkbox,
     Container,
     DialogActions,
-    Drawer,
+    Drawer, FormControlLabel, Grid,
     LinearProgress,
     Paper,
     SpeedDial,
@@ -192,6 +192,16 @@ function Agenda() {
     ]);
     const [event, setEvent] = useState<EventDef | null>();
     const [openFabAdd, setOpenFabAdd] = useState(false);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>([
+        {
+            key: "delete-appointment-data",
+            selected: false
+        },
+        {
+            key: "delete-transaction",
+            selected: false
+        }
+    ]);
 
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
     const calendarRef = useRef<FullCalendar | null>(null);
@@ -850,11 +860,13 @@ function Agenda() {
 
     const deleteAppointment = (appointmentUUid: string) => {
         setLoading(true);
-        const form = new FormData();
-        form.append("status", "9");
+        const params = new FormData();
+        params.append("status", "9");
+        params.append("type", deleteAppointmentOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
+
         updateAppointmentStatus({
             method: "PATCH",
-            data: form,
+            data: params,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
         }, {
             onSuccess: () => {
@@ -1484,6 +1496,44 @@ function Agenda() {
                                             variant="subtitle1">{t(`dialogs.${actionDialog}-dialog.sub-title`)} </Typography>
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>{t(`dialogs.${actionDialog}-dialog.description`)}</Typography>
+
+                                <Grid container spacing={1}>
+                                    {deleteAppointmentOptions.map((option: any, index: number) =>
+                                        <Grid key={option.key} item md={6} xs={12}>
+                                            <Card
+                                                sx={{
+                                                    padding: 1,
+                                                    ml: 2,
+                                                    borderRadius: 1.4,
+                                                    "& .MuiTypography-root": {
+                                                        fontSize: 14, fontWeight: "bold"
+                                                    },
+                                                    "& .MuiFormControlLabel-root": {
+                                                        ml: 1,
+                                                        width: "100%"
+                                                    }
+                                                }}>
+                                                <FormControlLabel
+                                                    label={t(`dialogs.delete-dialog.${option.key}`)}
+                                                    checked={option.selected}
+                                                    control={
+                                                        <Checkbox
+                                                            onChange={(event) => {
+                                                                setDeleteAppointmentOptions([
+                                                                    ...deleteAppointmentOptions.slice(0, index),
+                                                                    {
+                                                                        ...deleteAppointmentOptions[index],
+                                                                        selected: event.target.checked
+                                                                    },
+                                                                    ...deleteAppointmentOptions.slice(index + 1)
+                                                                ])
+                                                            }}
+                                                        />
+                                                    }
+                                                />
+                                            </Card>
+                                        </Grid>)}
+                                </Grid>
                             </Box>)
                     }}
                     open={cancelDialog}
@@ -1503,7 +1553,7 @@ function Agenda() {
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                    path="icdelete"></IconUrl>}>
+                                                    path="ic-trash"></IconUrl>}>
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
                         </>
