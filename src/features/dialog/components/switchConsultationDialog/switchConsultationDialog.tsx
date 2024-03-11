@@ -63,7 +63,7 @@ function SwitchConsultationDialog({...props}) {
                 sx={{textAlign: "center"}}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description`).split(',')[1]}</Typography>
 
             <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '80%'}}>
-                <Stack direction={isMobile ? "column" : "row"}  alignItems={"center"} spacing={1.2}>
+                <Stack direction={isMobile ? "column" : "row"} alignItems={"center"} spacing={1.2}>
                     <Avatar sx={{width: 40, height: 40, bgcolor: 'primary.main'}}/>
                     <Stack>
                         <Stack direction={"row"} alignItems={"center"} spacing={.5}>
@@ -95,7 +95,7 @@ function SwitchConsultationDialog({...props}) {
                     variant="outlined"
                     color="info"
                     onClick={() => setOpenPaymentDialog(true)}>
-                    <Typography>{t("pay", {ns: "consultation"})}</Typography>
+                    <Typography>{t("pay")}</Typography>
                     {event?.extendedProps.restAmount > 0 &&
                         <>
                             <Typography component='span'
@@ -119,7 +119,7 @@ function SwitchConsultationDialog({...props}) {
                     onChange={event => {
                         setInstruction(event.target.value.slice(0, 255));
                     }}
-                    placeholder={t("type_instruction_for_the_secretary", {ns: "consultation"})}
+                    placeholder={t("type_instruction_for_the_secretary")}
                     rows={4}
                     InputProps={{
                         endAdornment: (
@@ -145,7 +145,7 @@ function SwitchConsultationDialog({...props}) {
                                })
                            }>
                         <Checkbox checked={checkedNext}/>
-                        <Typography>{t("plan_a_meeting", {ns: "consultation"})}</Typography>
+                        <Typography>{t("plan_a_meeting")}</Typography>
                     </Stack>
                     {checkedNext && (
                         <>

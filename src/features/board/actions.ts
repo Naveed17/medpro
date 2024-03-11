@@ -1,3 +1,5 @@
 import {createAction} from "@reduxjs/toolkit";
 
-export const setSort = createAction<string>('board/sort');
+export const setSortTime = createAction<string>('board/setSortTime');
+export const setIsUnpaid = createAction<boolean>('board/setIsUnpaid');
+export const setOrderSort = createAction<string>('board/setOrderSort');
