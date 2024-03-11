@@ -53,7 +53,7 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {Board} from "@features/board";
+import {Board, boardSelector, setSort} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -99,6 +99,7 @@ function WaitingRoom() {
         type
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {filter: sortedItem} = useAppSelector(boardSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -131,7 +132,6 @@ function WaitingRoom() {
         {key: "arrivalTime", value: "arrival-time", checked: true},
         {key: "estimatedStartTime", value: "smart-list", checked: true}
     ]);
-    const [selectedSortIndex, setSelectedSortIndex] = useState("start-time");
     const [orderSort, setOrderSort] = useState("asscending");
     const [isUnpaidFilter, setIsUnpaidFilter] = useState(false);
 
@@ -339,7 +339,7 @@ function WaitingRoom() {
     };
 
     const handleSortSelect = (value: string) => {
-        setSelectedSortIndex(value);
+        dispatch(setSort(value));
         setAnchorEl(null);
     };
     const handleOrderSelect = (value: string) => {
@@ -510,7 +510,7 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            const sortKey = menuOptions.find(option => option.value === selectedSortIndex)?.key;
+            const sortKey = menuOptions.find(option => option.value === sortedItem)?.key;
             let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => {
                 const d1 = orderSort === "asscending" ? a : b;
                 const d2 = orderSort === "asscending" ? b : a;
@@ -528,7 +528,7 @@ function WaitingRoom() {
             }
             setWaitingRoomsGroup(groupedData);
         }
-    }, [httpWaitingRoomsResponse, is_next, selectedSortIndex, orderSort, isUnpaidFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpWaitingRoomsResponse, is_next, sortedItem, orderSort, isUnpaidFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
@@ -867,7 +867,7 @@ function WaitingRoom() {
                                         }
                                     }}
                                     style={{
-                                        visibility: option.value === selectedSortIndex ? 'visible' : 'hidden',
+                                        visibility: option.value === sortedItem ? 'visible' : 'hidden',
                                     }}
                                 />
                                 {t(`sort.${option.value}`)}
