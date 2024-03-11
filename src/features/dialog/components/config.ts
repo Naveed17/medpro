@@ -448,6 +448,14 @@ const dialogData = [
                 "@features/dialog/components/restPasswordDialog/components/restPasswordDialog"
                 ).then((mod) => mod)
         ),
+    },
+    {
+        action: "add-act",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/addAct/addActDialog"
+                ).then((mod) => mod)
+        ),
     }
 ];
 

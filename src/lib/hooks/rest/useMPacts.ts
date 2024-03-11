@@ -14,10 +14,10 @@ function useMPActs({...props}) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
-    const {data: httpActsResponse, mutate:mutateActs,error,isLoading} = useRequestQuery({
+    const {data: httpActsResponse, mutate:mutateActs,error,isLoading} = useRequestQuery(medical_professional ?{
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
-    }, {
+    } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medical_professional && { variables: { query: !isMobile && !noPagination ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true" } })
     });

@@ -51,30 +51,6 @@ const stepperData = [
     },
 ];
 
-const Toolbar = (props: any) => {
-    const {t, search, handleSearch} = props
-    return (
-        <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 0}} borderBottom={1} borderColor={"divider"}
-               pb={1} mb={2} alignItems={{xs: 'flex-start', sm: 'center'}} justifyContent="space-between">
-            <Typography fontWeight={500}>
-                {t("title")}
-            </Typography>
-            <TextField
-                value={search}
-                onChange={handleSearch}
-                sx={{width: {xs: 1, sm: 'auto'}}}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <IconUrl path="ic-search"/>
-                        </InputAdornment>
-                    ),
-                }}
-                placeholder={t("search")}/>
-        </Stack>
-    )
-}
-
 function InsuranceAndAgreement() {
     const CardData = {
         mainIcon: "convention",
@@ -184,8 +160,10 @@ function InsuranceAndAgreement() {
                 break;
             case "ON_ROUTE":
                 event.preventDefault();
-                router.push(`${router.pathname}/${data.uuid}`, undefined, {locale: router.locale})
-
+                router.push({
+                    pathname: `${router.pathname}/${data.uuid}`,
+                    query: { name: data.insurance.uuid }
+                });
         }
     }
     const handleCloseMenu = () => {
@@ -350,7 +328,7 @@ function InsuranceAndAgreement() {
                                 <Button
                                     onClick={() => {
                                         const form = new FormData();
-                                        form.append("insurance", agreement.insurance.uuid)
+                                        form.append("insurance", agreement.insurance.uuid ? agreement.insurance.uuid : "")
                                         form.append("name", agreement.label)
                                         form.append("mutual", agreement.name ? agreement.name : "")
                                         form.append("start_date", agreement.startDate ? moment(agreement.startDate).format("DD/MM/YYYY") : moment().format("DD/MM/YYYY"))

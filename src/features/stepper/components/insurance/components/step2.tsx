@@ -72,7 +72,7 @@ function Step2({...props}) {
         let _agreement = JSON.parse(JSON.stringify(agreement));
         let _index = _agreement.acts.findIndex((act: any) => act.uuid === row.uuid)
         _agreement.acts[_index].fees = row.fees
-        _agreement.acts[_index].refund = row.reimbursement
+        _agreement.acts[_index].refund = row.refund
         _agreement.acts[_index].patient_part = row.contribution
         _agreement.acts[_index].apcis = row.apci
         dispatch(SetAgreement(_agreement))
@@ -93,7 +93,7 @@ function Step2({...props}) {
             _agreement.acts = [..._agreement.acts, {
                 uuid: row,
                 fees: _act.fees,
-                refund: _act.reimbursement,
+                refund: _act.refund,
                 patient_part: _act.contribution,
                 apcis: ""
             }]

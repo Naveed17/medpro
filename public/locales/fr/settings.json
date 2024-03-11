@@ -987,6 +987,7 @@
           "insurance": "Assurance",
           "agreement": "Convention",
           "select_insurance": "Sélectionner l’assurance",
+          "name": "Nom de la convention",
           "description": "Libellé",
           "placeholer_description": "Tapez le libellé",
           "start_date": "Date de début",

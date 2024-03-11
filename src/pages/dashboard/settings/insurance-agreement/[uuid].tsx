@@ -3,7 +3,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState,} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
-import {Box, Button, InputAdornment, Paper, Stack, TextField, Typography} from "@mui/material";
+import {Box, Button, DialogTitle, InputAdornment, Paper, Stack, TextField, Typography} from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {DashLayout, dashLayoutSelector} from "@features/base";
@@ -17,6 +17,15 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Add} from "@mui/icons-material";
+import {Theme} from "@mui/material/styles";
+import {SetAgreement, setStepperIndex} from "@features/stepper";
+import moment from "moment";
+import {Dialog as MedDialog} from "@features/dialog";
+import {direction} from "html2canvas/dist/types/css/property-descriptors/direction";
+import useApci from "@lib/hooks/rest/useApci";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 
 const Toolbar = (props: any) => {
     const {t, search, handleSearch} = props
@@ -50,10 +59,12 @@ const Toolbar = (props: any) => {
 function Actes() {
     const router = useRouter();
     const {t} = useTranslation("settings", {keyPrefix: 'insurance.config'});
-
+    const {apcis} = useApci(router.query.name as string);
     const [search, setSearch] = React.useState("");
     const [mainActes, setMainActes] = useState<any>([]);
+    const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
+    const [newAct, setNewAct] = useState(null);
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -119,6 +130,7 @@ function Actes() {
             }
             return item;
         })
+        console.log(updated)
         setMainActes(updated);
     }
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,25 +154,6 @@ function Actes() {
                 },
                 onError: () => setLoading(false)
             });
-        else {
-            const row = props.data;
-            const form = new FormData();
-            form.append("fees",row.fees)
-            form.append("refund",row.reimbursement)
-            form.append("patient_part",row.patient_part)
-            form.append("apcis",row.apci)
-            trigger({
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${props.data.uuid}/${router.locale}`,
-                data:form
-            }, {
-                onSuccess: () => {
-                    mutate()
-                    setLoading(false);
-                },
-                onError: () => setLoading(false)
-            });
-        }
     }
 
     useEffect(() => {
@@ -178,7 +171,7 @@ function Actes() {
                     <p style={{margin: 0}}>{t("path.update")}</p>
                 </RootStyled>
                 <Button
-                    onClick={() => {}}
+                    onClick={() => {setOpen(true)}}
                     startIcon={<Add/>}
                     variant="contained"
                 >
@@ -193,7 +186,7 @@ function Actes() {
                         toolbar={<Toolbar {...{t, search, handleSearch}} />}
                         rows={mainActes}
                         from={"act-row-insurance"}
-                        {...{t, loading, handleChange, handleEvent}}
+                        {...{t, loading, handleChange, handleEvent,apcis,mutate,setLoading,trigger,urlMedicalEntitySuffix,medicalEntityHasUser,router}}
                         total={httpActs?.data.currentPage}
                         totalPages={httpActs?.data.totalPages}
                         pagination
@@ -220,6 +213,49 @@ function Actes() {
                     </SubFooter>
                 </Box>
             </Box>
+
+            <MedDialog
+                action={"add-act"}
+                open={open}
+                data={{t,newAct, setNewAct,apcis}}
+                dialogClose={() => {
+                    setOpen(false)
+                }}
+                onClose={() => {
+                    setOpen(false)
+                }}
+                headerDialog={
+                    <DialogTitle
+                        sx={{
+                            backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                            position: "relative",
+                        }}
+                        id="scroll-dialog-title">
+                        {t("dialog.addAct")}
+                    </DialogTitle>
+                }
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => {
+                                setOpen(false)
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialogs.merge-dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={()=>{}}
+                            startIcon={<ArchiveRoundedIcon/>}>
+                            {t("dialogs.merge-dialog.confirm")}
+                        </LoadingButton>
+                    </>
+                }
+            />
         </>
     );
 }

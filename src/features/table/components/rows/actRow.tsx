@@ -5,8 +5,8 @@ import InputBaseStyled from "../overrides/inputBaseStyled";
 import React, {useState} from "react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {stepperSelector} from "@features/stepper";
+import useApci from "@lib/hooks/rest/useApci";
 
-const apcis = ["0001", "0002", "0003", "0004", "0005", "0006", "0007"];
 
 function ActRow({...props}) {
     const {row, handleChange, t, isItemSelected, handleEvent, handleClick, selected, loading} = props;
@@ -15,8 +15,11 @@ function ActRow({...props}) {
 
     const [fees, setFees] = useState(_act ? _act.fees : row.fees);
     const [contribution, setContribution] = useState(_act ? _act.patient_part : row.fees);
-    const [reimbursement, setReimbursement] = useState(_act ? _act.refund : "0");
+    const [refund, setRefund] = useState(_act ? _act.refund : "0");
     const [apci, setApci] = useState<string[]>(_act && _act.apci ? _act.apci?.split(',') :[]);
+
+    const {apcis} = useApci(agreement.insurance.uuid)
+
     const handleSelect = (event: SelectChangeEvent<typeof apci>) => {
         const {
             target: {value},
@@ -68,10 +71,10 @@ function ActRow({...props}) {
                     onChange={(e) => {
                         if (!isNaN(Number(e.target.value))) {
                             setFees(e.target.value);
-                            setReimbursement("0");
+                            setRefund("0");
                             setContribution(e.target.value);
                             row.fees = Number(e.target.value);
-                            row.reimbursement = 0;
+                            row.refund = 0;
                             row.contribution = Number(e.target.value);
                             handleChange(row)
                         }
@@ -81,14 +84,14 @@ function ActRow({...props}) {
             <TableCell align={"center"}>
                 {isItemSelected ? <InputBaseStyled
                     placeholder={"--"}
-                    value={reimbursement}
+                    value={refund}
                     onChange={(e) => {
                         if (!isNaN(Number(e.target.value))) {
-                            setReimbursement(e.target.value);
-                            row.reimbursement = Number(e.target.value);
+                            setRefund(e.target.value);
+                            row.refund = Number(e.target.value);
                             handleChange(row)
                         }
-                    }}/> : <Typography>{reimbursement}</Typography>}
+                    }}/> : <Typography>{refund}</Typography>}
             </TableCell>
             <TableCell align={"center"}>
                 {isItemSelected ? <InputBaseStyled
@@ -135,12 +138,9 @@ function ActRow({...props}) {
                     }}
 
                 >
-                    {apcis.map((name) => (
-                        <MenuItem
-                            key={name}
-                            value={name}
-                        >
-                            {name}
+                    {apcis.map((apci:any) => (
+                        <MenuItem key={apci.uuid} value={apci.uuid}>
+                            {apci.code}
                         </MenuItem>
                     ))}
                 </Select>

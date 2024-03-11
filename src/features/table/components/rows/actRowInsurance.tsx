@@ -7,29 +7,51 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {stepperSelector} from "@features/stepper";
 import IconUrl from "@themes/urlIcon";
 
-const apcis = ["0001", "0002", "0003", "0004", "0005", "0006", "0007"];
-
 function ActRowInsurance({...props}) {
-    const {row, handleChange, t, handleEvent, loading} = props;
+    const {row, handleChange, t, handleEvent, loading, data} = props;
+    const {apcis,mutate,setLoading,trigger,urlMedicalEntitySuffix,medicalEntityHasUser,router} = data
     const {agreement} = useAppSelector(stepperSelector);
     const _act = agreement.acts.find((act: any) => act.uuid === row.uuid)
 
     const theme = useTheme();
-    const [fees, setFees] = useState(_act ? _act.fees : row.fees);
-    const [patient_part, setPatient_part] = useState(_act ? _act.patient_part : row.fees);
-    const [refund, setRefund] = useState(_act ? _act.refund : "0");
+    const [fees, setFees] = useState(row.fees);
+    const [patient_part, setPatient_part] = useState(row.patient_part);
+    const [refund, setRefund] = useState(row.refund);
     const [selected, setSelected] = useState(false);
     const [apci, setApci] = useState<string[]>(_act && _act.apci ? _act.apci?.split(',') : []);
     const handleSelect = (event: SelectChangeEvent<typeof apci>) => {
         const {
             target: {value},
         } = event;
-        if (typeof value !== "string") {
-            row.apci = value.join(",")
-        }
+        row.apci = (value as string[]).join(",")
         handleChange(row)
         setApci(typeof value === 'string' ? value.split(',') : value);
     };
+    const getCode = (uuids: string[]) => {
+        let codes: string[] = [];
+        uuids.map(uuid => codes.push(apcis.find((apci: { uuid: string }) => apci.uuid === uuid).code))
+        return codes;
+    }
+
+    const editRow = () => {
+        const form = new FormData();
+        form.append("fees",row.fees)
+        form.append("refund",row.refund ? row.refund : 0)
+        form.append("patient_part",row.patient_part)
+        form.append("apcis",row.apci)
+        trigger({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${row.uuid}/${router.locale}`,
+            data:form
+        }, {
+            onSuccess: () => {
+                mutate()
+                setLoading(false);
+                setSelected(false)
+            },
+            onError: () => setLoading(false)
+        });
+    }
 
     return (
         <TableRowStyled
@@ -85,7 +107,7 @@ function ActRowInsurance({...props}) {
                 /> : <Typography>{patient_part ? patient_part : "-"}</Typography>}
             </TableCell>
             <TableCell align={"center"}>
-                <Select
+                {selected ? <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
                     multiple
@@ -112,25 +134,24 @@ function ActRowInsurance({...props}) {
                                 </Typography>
                             );
                         }
-                        return selected ? selected.join(", ") : "";
-                    }}
-
-                >
-                    {apcis.map((name) => (
+                        return selected ? getCode(selected).join(", ") : "";
+                    }}>
+                    {apcis?.map((apci: { uuid: string, code: string }) => (
                         <MenuItem
-                            key={name}
-                            value={name}
+                            key={apci.uuid}
+                            value={apci.uuid}
                         >
-                            {name}
+                            {apci.code}
                         </MenuItem>
                     ))}
-                </Select>
+                </Select> : apci.map((item:any) => (<Typography key={item.uuid}>{item.code}</Typography>))}
+
             </TableCell>
             <TableCell align={"center"}>
                 {selected ? <>
                     <Button size={"small"}
                             color={"info"}
-                            onClick={(e) => handleEvent({event: e, data: row, action: "EDIT"})}
+                            onClick={(e) => editRow()}
                             variant={"contained"}>{t('save')}</Button>
                     <Button size={"small"} color={"error"} onClick={() => setSelected(false)}>{t('cancel')}</Button>
                 </> : <>

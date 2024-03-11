@@ -13,6 +13,7 @@ function Step1({...props}) {
     const {agreement} = useAppSelector(stepperSelector);
     const dispatch = useAppDispatch();
 
+    console.log(insurances)
     return (
         <Stack component={motion.div}
                key="step1"
