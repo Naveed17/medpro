@@ -58,10 +58,6 @@ import {
     setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
-import {
-    QuickAddAppointment,
-    setMoveDateTime
-} from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter, leftActionBarSelector, resetFilter} from "@features/leftActionBar";
