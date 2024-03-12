@@ -18,7 +18,7 @@ import {
     Zoom,
     Fab,
     Checkbox,
-    FormControlLabel, MenuItem, LinearProgress
+    FormControlLabel, MenuItem, LinearProgress, Card, Grid
 } from "@mui/material";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -186,6 +186,24 @@ function Patients() {
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+    const [deletePatientOptions, setDeletePatientOptions] = useState<any[]>([
+        {
+            key: "delete-all",
+            selected: false
+        },
+        {
+            key: "delete-appointment",
+            selected: false
+        },
+        {
+            key: "delete-appointment-data",
+            selected: false
+        },
+        {
+            key: "delete-transaction",
+            selected: false
+        }
+    ]);
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
@@ -506,9 +524,12 @@ function Patients() {
 
     const handleDeletePatient = () => {
         setLoadingRequest(true);
+        const params = new FormData();
+        params.append("type", deletePatientOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
         medicalEntityHasUser && triggerDeletePatient({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient?.uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient?.uuid}/${router.locale}`,
+            data: params
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);
@@ -592,7 +613,7 @@ function Patients() {
     useEffect(() => {
         //remove query params on load from url
         isMobile && router.replace(router.pathname, undefined, {shallow: true});
-        //reload locize resources from cdn servers
+        //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -791,13 +812,59 @@ function Patients() {
                 contrastText={theme.palette.error.contrastText}
                 {...(!loadingRequest && {dialogClose: () => setDeleteDialog(false)})}
                 sx={{direction: direction}}
+                size={"md"}
                 action={() => {
                     return (
-                        <Box sx={{minHeight: 150}}>
+                        <Box>
                             <Typography sx={{textAlign: "center"}}
                                         variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`)} </Typography>
                             <Typography sx={{textAlign: "center"}}
                                         margin={2}>{t(`dialogs.delete-dialog.description`)}</Typography>
+
+                            <Grid container spacing={1}>
+                                {deletePatientOptions.map((option: any, index: number) =>
+                                    <Grid key={option.key} item md={6} xs={12}>
+                                        <Card
+                                            sx={{
+                                                padding: 1,
+                                                ml: 2,
+                                                borderRadius: 1.4,
+                                                "& .MuiTypography-root": {
+                                                    fontSize: 14, fontWeight: "bold"
+                                                },
+                                                "& .MuiFormControlLabel-root": {
+                                                    ml: 1,
+                                                    width: "100%"
+                                                }
+                                            }}>
+                                            <FormControlLabel
+                                                label={t(`dialogs.delete-dialog.${option.key}`)}
+                                                checked={option.selected}
+                                                control={
+                                                    <Checkbox
+                                                        onChange={(event) => {
+                                                            if (index === 0 && event.target.checked) {
+                                                                setDeletePatientOptions(deletePatientOptions.map(option => ({
+                                                                    ...option,
+                                                                    selected: true
+                                                                })));
+                                                            } else {
+                                                                setDeletePatientOptions([
+                                                                    ...deletePatientOptions.slice(0, index),
+                                                                    {
+                                                                        ...deletePatientOptions[index],
+                                                                        selected: event.target.checked
+                                                                    },
+                                                                    ...deletePatientOptions.slice(index + 1)
+                                                                ])
+                                                            }
+                                                        }}
+                                                    />
+                                                }
+                                            />
+                                        </Card>
+                                    </Grid>)}
+                            </Grid>
                         </Box>)
                 }}
                 open={deleteDialog}
@@ -807,8 +874,7 @@ function Patients() {
                         <Button
                             variant="text-primary"
                             onClick={() => setDeleteDialog(false)}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t(`dialogs.delete-dialog.cancel`)}
                         </Button>
                         <LoadingButton
@@ -817,8 +883,7 @@ function Patients() {
                             variant="contained"
                             onClick={handleDeletePatient}
                             color={"error"}
-                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
-                        >
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="ic-trash"></Icon>}>
                             {t(`dialogs.delete-dialog.confirm`)}
                         </LoadingButton>
                     </>

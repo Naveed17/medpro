@@ -16,7 +16,7 @@ import {
     LinearProgress, Menu,
     MenuItem,
     Paper, Radio,
-    Stack, ToggleButton,
+    Stack,
     Typography,
     useMediaQuery
 } from "@mui/material";
@@ -53,7 +53,7 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {Board} from "@features/board";
+import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -99,6 +99,7 @@ function WaitingRoom() {
         type
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {filter: boardFilterData} = useAppSelector(boardSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -131,9 +132,6 @@ function WaitingRoom() {
         {key: "arrivalTime", value: "arrival-time", checked: true},
         {key: "estimatedStartTime", value: "smart-list", checked: true}
     ]);
-    const [selectedSortIndex, setSelectedSortIndex] = useState("start-time");
-    const [orderSort, setOrderSort] = useState("asscending");
-    const [isUnpaidFilter, setIsUnpaidFilter] = useState(false);
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
@@ -335,15 +333,15 @@ function WaitingRoom() {
     };
 
     const handleUnpaidFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setIsUnpaidFilter(event.target.checked);
+        dispatch(setIsUnpaid(event.target.checked));
     };
 
     const handleSortSelect = (value: string) => {
-        setSelectedSortIndex(value);
+        dispatch(setSortTime(value));
         setAnchorEl(null);
     };
     const handleOrderSelect = (value: string) => {
-        setOrderSort(value);
+        dispatch(setOrderSort(value));
         setAnchorEl(null);
     };
 
@@ -510,10 +508,10 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            const sortKey = menuOptions.find(option => option.value === selectedSortIndex)?.key;
+            const sortKey = menuOptions.find(option => option.value === boardFilterData.sort)?.key;
             let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => {
-                const d1 = orderSort === "asscending" ? a : b;
-                const d2 = orderSort === "asscending" ? b : a;
+                const d1 = boardFilterData.order === "asscending" ? a : b;
+                const d2 = boardFilterData.order === "asscending" ? b : a;
                 return moment(`${d1.dayDate} ${d1[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf()
             }).group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
@@ -523,12 +521,12 @@ function WaitingRoom() {
             } else if (sortKey === "startTime") {
                 groupedData[3].reverse().sort((a: any) => a.startTime === "00:00" ? 1 : -1);
             }
-            if (isUnpaidFilter && groupedData[5]) {
+            if (boardFilterData.unpaid && groupedData[5]) {
                 groupedData[5] = groupedData[5].filter((data: any) => data.restAmount > 0);
             }
             setWaitingRoomsGroup(groupedData);
         }
-    }, [httpWaitingRoomsResponse, is_next, selectedSortIndex, orderSort, isUnpaidFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpWaitingRoomsResponse, is_next, boardFilterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
@@ -568,7 +566,8 @@ function WaitingRoom() {
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
-                                {...{columns, isUnpaidFilter, handleDragEvent, handleSortData, handleUnpaidFilter}}
+                                {...{columns, handleDragEvent, handleSortData, handleUnpaidFilter}}
+                                isUnpaidFilter={boardFilterData.unpaid}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
                         </TabPanel>
@@ -867,7 +866,7 @@ function WaitingRoom() {
                                         }
                                     }}
                                     style={{
-                                        visibility: option.value === selectedSortIndex ? 'visible' : 'hidden',
+                                        visibility: option.value === boardFilterData.sort ? 'visible' : 'hidden',
                                     }}
                                 />
                                 {t(`sort.${option.value}`)}

@@ -34,7 +34,7 @@ import {useRouter} from "next/router";
 import {DashLayout} from "@features/base";
 import dynamic from "next/dynamic";
 import {LoadingScreen} from "@features/loadingScreen";
-import {ConditionalWrapper} from "@lib/hooks";
+import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
 import Zoom from "react-medium-image-zoom";
 import IconUrl from "@themes/urlIcon";
 import {ChartsOption, ChartStyled} from "@features/charts";
@@ -45,12 +45,14 @@ import {Dialog} from "@features/dialog";
 import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
 import {toggleSideBar} from "@features/menu";
 import {useAppDispatch} from "@lib/redux/hooks";
+import {useRequestQuery} from "@lib/axios";
 
 const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 
 function StaffDetails() {
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready, i18n} = useTranslation("staff", {keyPrefix: "config"});
 
@@ -60,6 +62,14 @@ function StaffDetails() {
     const [openAssignment, setOpenAssignment] = useState<boolean>(false)
 
     const error = false;
+    const userUuid = router.query["uuid"];
+
+    const {data: httpUsersResponse} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/admin/users/${userUuid}/${router.locale}`
+    }, {
+        refetchOnWindowFocus: false
+    });
 
     const handleCloseEmploymentDetails = () => setOpenEmploymentDetails(false);
     const handleClosePersonalInfo = () => setOpenPersonalInfo(false);
@@ -67,7 +77,7 @@ function StaffDetails() {
     const handleCloseAssignment = () => setOpenAssignment(false);
 
     useEffect(() => {
-        //reload locize resources from cdn servers
+        //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["doctors"]);
         dispatch(toggleSideBar(true));
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -105,13 +115,12 @@ function StaffDetails() {
                         <Stack spacing={2}>
                             <Card sx={{overflow: 'visible'}}>
                                 <CardContent>
-
                                     <ConditionalWrapper
                                         condition={false}
                                         wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                         <Stack alignItems='center' spacing={1.5}>
                                             <Avatar
-                                                {...(true && {className: "zoom"})}
+                                                {...(({className: "zoom"}))}
                                                 src={"/static/icons/men-avatar.svg"}
                                                 sx={{
                                                     "& .injected-svg": {

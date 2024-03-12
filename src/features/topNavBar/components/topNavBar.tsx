@@ -371,7 +371,7 @@ function TopNavBar({...props}) {
                                     <Icon path="ic-toggle"/>
                                 </IconButton>
                             ) :
-                            (!["/statistics", "/admin/doctors/[uuid]", "/admin/staff/[uuid]"].includes(router.pathname) &&
+                            (!["/dashboard/statistics", "/admin/doctors/[uuid]", "/admin/staff/[uuid]"].includes(router.pathname) &&
                                 <IconButton
                                     disabled={lock}
                                     color="primary"
@@ -523,6 +523,7 @@ function TopNavBar({...props}) {
                                 <Badge
                                     badgeContent={notificationsCount}
                                     className="custom-badge"
+                                    {...(router.pathname.includes("/admin") && {sx: {ml: 1.4}})}
                                     color="warning"
                                     {...(item.action && {
                                         onClick: (event: React.MouseEvent<HTMLButtonElement>) =>

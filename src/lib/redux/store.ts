@@ -29,7 +29,8 @@ import {minMaxWindowToggleReducer} from '@features/buttons';
 import {StepperReducer} from "@features/stepper";
 import {persistReducer} from 'redux-persist';
 import {CaslReducer} from "@features/casl";
-import {ChatReducer} from "@features/chat/reducer";
+import {ChatReducer} from "@features/chat";
+import {BoardReducer} from "@features/board";
 
 const createNoopStorage = () => {
     return {
@@ -85,7 +86,8 @@ const rootReducer = combineReducers({
     openingHours: dialogOpeningHoursReducer,
     absence: absenceDrawerReducer,
     minMaxWindow: minMaxWindowToggleReducer,
-    stepper: StepperReducer
+    stepper: StepperReducer,
+    board: BoardReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

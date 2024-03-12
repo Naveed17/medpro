@@ -226,7 +226,7 @@ function BoardItem({...props}) {
                                             </Stack>
                                         }
 
-                                        {![4, 5].includes(quote.content.status) &&
+                                        {![1, 4, 5].includes(quote.content.status) &&
                                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                                                 {quote.content?.estimatedStartTime &&
                                                     <Stack direction={"row"} spacing={.5} alignItems={"center"}>

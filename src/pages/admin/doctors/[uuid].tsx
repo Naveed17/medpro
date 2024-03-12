@@ -13,23 +13,35 @@ import {Dialog} from "@features/dialog";
 import {ActionMenu, toggleSideBar} from "@features/menu";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch} from "@lib/redux/hooks";
+import {useRequestQuery} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function DoctorDetails() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {t, ready, i18n} = useTranslation("doctors", {keyPrefix: "config"});
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {t, ready, i18n} = useTranslation(["doctors", "common"]);
 
     const [open, setOpen] = useState<boolean>(false)
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
+
+    const userUuid = router.query["uuid"];
+
+    const {data: httpUsersResponse} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/admin/users/${userUuid}/${router.locale}`
+    }, {
+        refetchOnWindowFocus: false
+    });
+
     const handleCloseMenu = () => {
         setContextMenu(null);
     }
-
-    const userUuid = router.query["uuid"];
 
     const popoverActions = [
         {
@@ -53,17 +65,18 @@ function DoctorDetails() {
             } : null,
     );
 
-
     const handleClose = () => {
         setOpen(false);
     }
 
     useEffect(() => {
-        //reload locize resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ["doctors"]);
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["doctors", "common"]);
         dispatch(toggleSideBar(true));
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+    const user = (httpUsersResponse as HttpResponse)?.data as UserDataResponse;
+    console.log("user", user)
     if (!ready || error) {
         return <LoadingScreen
             button
@@ -97,7 +110,7 @@ function DoctorDetails() {
             </SubHeader>
 
             <Box className="container">
-                <DoctorAboutTab {...{t, theme, handleOpenMeun, handleOpenRestPass: () => setOpen(true)}} />
+                <DoctorAboutTab {...{t, theme, user, handleOpenMeun, handleOpenRestPass: () => setOpen(true)}} />
             </Box>
             <Dialog
                 action="rest-password"
