@@ -676,7 +676,6 @@ function Page({...props}) {
                             setBlockDrag(false)
                             setOnResize(true);
                         }}>
-Aaaa
                         <div
                             id={`content${id}`}
                             style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
