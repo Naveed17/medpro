@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Avatar,
     Card,
@@ -18,27 +18,29 @@ import {
     TextField,
     Tooltip,
     Typography,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
 import ChatStyled from "@features/chat/components/overrides/chatStyled";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 import IconUrl from '@themes/urlIcon';
 import moment from "moment/moment";
-import { Types } from "ably";
-import { debounce } from "lodash";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
-import { useMedicalEntitySuffix } from "@lib/hooks";
-import { Editor } from "@tinymce/tinymce-react";
-import { tinymcePlugins } from "@lib/constants";
-import { useAppSelector } from "@lib/redux/hooks";
-import { PatientDetail } from "@features/dialog";
-import { configSelector } from "@features/base";
-import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
+import {Types} from "ably";
+import {debounce} from "lodash";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {Editor} from "@tinymce/tinymce-react";
+import {tinymcePlugins} from "@lib/constants";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {PatientDetail} from "@features/dialog";
+import {configSelector} from "@features/base";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 import useUsers from "@lib/hooks/rest/useUsers";
-import { agendaSelector } from "@features/calendar";
-import CloseIcon from "@mui/icons-material/Close";
+import {agendaSelector} from "@features/calendar";
+import {chatSelector} from "@features/chat/selectors";
+import {setOpenChat} from "@features/chat/actions";
 import PresenceMessage = Types.PresenceMessage;
 
 interface IPatient {
@@ -57,31 +59,34 @@ interface IDiscussion {
     lastMessage: string
 }
 
-const Chat = ({ ...props }) => {
+const Chat = ({...props}) => {
 
     const {
         channel,
-        onClose,
         medicalEntityHasUser,
         presenceData,
         setHasMessage
     } = props;
 
-    const { users } = useUsers();
+    const {users} = useUsers();
 
-    const { data: session } = useSession();
+    const {data: session} = useSession();
     const theme = useTheme();
     const router = useRouter();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { messagesRefresh } = useAppSelector(agendaSelector);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {messagesRefresh} = useAppSelector(agendaSelector);
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
 
-    const { t } = useTranslation("common", { keyPrefix: "chat" });
-    const { direction } = useAppSelector(configSelector);
+    const {t} = useTranslation("common", {keyPrefix: "chat"});
+    const dispatch = useAppDispatch()
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const { trigger: triggerSearchPatient } = useRequestQueryMutation("/patients/search");
+    const {direction} = useAppSelector(configSelector);
+    const {message: msg} = useAppSelector(chatSelector);
+
+    const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
 
     const [message, setMessage] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -93,13 +98,14 @@ const Chat = ({ ...props }) => {
     const [selectedDiscussion, setSelectedDiscussion] = useState("");
     const [showUsers, setShowUsers] = useState(false);
     const [messages, setMessages] = useState([]);
+    const [firstLoad, setFirstLoad] = useState(true);
 
-    const { trigger: createDiscussion } = useRequestQueryMutation("/chat/new");
-    const { trigger: getDiscussion } = useRequestQueryMutation("/chat/messages");
+    const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
+    const {trigger: getDiscussion} = useRequestQueryMutation("/chat/messages");
 
     const refList = document.getElementById("chat-list")
 
-    const { data: httpDiscussionsList, mutate } = useRequestQuery({
+    const {data: httpDiscussionsList, mutate} = useRequestQuery({
         method: "GET",
         url: `/-/chat/api/discussion/${medicalEntityHasUser}`
     })
@@ -166,8 +172,11 @@ const Chat = ({ ...props }) => {
             url: `/-/chat/api/discussion`
         }, {
             onSuccess: (res) => {
-                setSelectedDiscussion(res.data)
-                mutate()
+                mutate().then(r => {
+                    setSelectedDiscussion(res.data)
+                    getMessages(res.data)
+                })
+
             }
         })
 
@@ -185,7 +194,7 @@ const Chat = ({ ...props }) => {
     }
 
     const getDiscMember = (disc: IDiscussion) => {
-        return disc.members.filter(m => m.uuid !== medicalEntityHasUser)[0]
+        return disc?.members.filter(m => m.uuid !== medicalEntityHasUser)[0]
     }
 
     const send = () => {
@@ -229,8 +238,11 @@ const Chat = ({ ...props }) => {
             const msgs = httpDiscussionsList.sort((a: IDiscussion, b: IDiscussion) => b.lastMessageTimestamp - a.lastMessageTimestamp)
             setDiscussions(msgs)
             if (msgs.length > 0) {
-                setSelectedDiscussion(msgs[0].id)
-                getMessages(msgs[0].id)
+                if (firstLoad) {
+                    setSelectedDiscussion(msgs[0].id)
+                    getMessages(msgs[0].id)
+                    setFirstLoad(false)
+                }
             } else setShowUsers(true)
         }
     }, [httpDiscussionsList]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -242,36 +254,35 @@ const Chat = ({ ...props }) => {
         }, 1000)
     }, [messagesRefresh]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        setMessage(msg)
+    }, [msg])
+
     return (
         <ChatStyled>
             <Grid container>
-                <Grid item xs={12} md={4}>
+                {!isMobile && <Grid item xs={12} md={4}>
                     <Paper className='user-wrapper' component={Stack} spacing={2}>
                         <Stack direction={"row"} spacing={1} justifyContent={"space-between"} alignItems={"center"}>
                             <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                <IconUrl path={"chat"} width={20} height={20} />
+                                <IconUrl path={"chat"} width={20} height={20}/>
                                 <Typography fontWeight={"bold"}>Chat</Typography>
                             </Stack>
-                            <Stack direction='row' alignItems='center' spacing={1}>
+                            <Stack direction={"row"}>
                                 <Tooltip title={"nouveau message"}>
                                     <IconButton onClick={() => setShowUsers((prev) => !prev)}>
-                                        <IconUrl path={"ic-edit"} />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title={"close"}>
-                                    <IconButton size='small' onClick={onClose}>
-                                        <CloseIcon fontSize='small' />
+                                        <IconUrl width={20} height={20} path={"ic-edit-patient"}/>
                                     </IconButton>
                                 </Tooltip>
                             </Stack>
                         </Stack>
 
                         <Stack>
-                            <Collapse in={showUsers} style={{ margin: 0 }}>
+                            <Collapse in={showUsers} style={{margin: 0}}>
                                 {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser && !hasMessages(user.uuid)).map((user: UserModel) => (
                                     <Stack
                                         className={`user-item`}
-                                        sx={{ cursor: 'pointer' }}
+                                        sx={{cursor: 'pointer'}}
                                         spacing={.5} key={user.uuid}
                                         onClick={() => {
                                             addDiscussion(user)
@@ -279,23 +290,23 @@ const Chat = ({ ...props }) => {
                                         }}>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             <Typography fontWeight={500}
-                                                variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
+                                                        variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
                                             <div style={{
                                                 width: 5,
                                                 height: 5,
                                                 background: `${presenceData.find((data: PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data: PresenceMessage) => data.clientId === user.uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
                                                 borderRadius: 10
-                                            }} />
+                                            }}/>
                                         </Stack>
                                     </Stack>
                                 ))}
                             </Collapse>
                         </Stack>
 
-                        <div style={{ borderBottom: "1px solid #DDD" }}></div>
+                        <div style={{borderBottom: "1px solid #DDD"}}></div>
                         {discussions && discussions.map((disc) => (
                             <Stack
-                                sx={{ cursor: 'pointer' }}
+                                sx={{cursor: 'pointer'}}
                                 spacing={.5} key={disc.id}
                                 className={`user-item ${disc.id === selectedDiscussion ? "selected" : ""}`}
                                 onClick={() => {
@@ -304,39 +315,90 @@ const Chat = ({ ...props }) => {
                                 }}>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                     <Typography fontWeight={500}
-                                        variant='body2'>{getDiscMember(disc).name}</Typography>
+                                                variant='body2'>{getDiscMember(disc).name}</Typography>
                                     <div style={{
                                         width: 5,
                                         height: 5,
                                         borderRadius: 10,
                                         background: `${presenceData.find((data: PresenceMessage) => data.clientId === getDiscMember(disc).uuid) && presenceData.find((data: PresenceMessage) => data.clientId === getDiscMember(disc).uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
-                                    }} />
+                                    }}/>
                                 </Stack>
 
                                 <Typography variant='caption' fontSize={9}
-                                    color="text.secondary">{disc.lastMessage.replace(/<[^>]+>/g, '').replace(/\&nbsp;/g, '')}</Typography>
+                                            color="text.secondary">{disc.lastMessage.replace(/<[^>]+>/g, '').replace(/\&nbsp;/g, '')}</Typography>
                                 <Typography variant='caption' fontSize={9}
-                                    color="text.secondary">{disc.lastMessageTimestamp ? moment.duration(moment().diff(new Date(disc.lastMessageTimestamp))).humanize() : "New"}</Typography>
+                                            color="text.secondary">{disc.lastMessageTimestamp ? moment.duration(moment().diff(new Date(disc.lastMessageTimestamp))).humanize() : "New"}</Typography>
                             </Stack>
                         ))}
                     </Paper>
-                </Grid>
+                </Grid>}
                 <Grid item xs={12} md={8}>
+                    {isMobile && <Stack className='user-wrapper' style={{
+                        position: "absolute",
+                        zIndex:999,
+                        padding: "5px 20px",
+                        width: "100%"
+                    }}><Stack direction={"row"}
+
+                            spacing={1}
+                            justifyContent={"space-between"}
+                            alignItems={"center"}>
+                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            <IconUrl path={"chat"} width={20} height={20}/>
+                            <Typography fontWeight={"bold"}>Chat</Typography>
+                        </Stack>
+                        <Stack direction={"row"}>
+                            <Tooltip title={"nouveau message"}>
+                                <IconButton onClick={() => setShowUsers((prev) => !prev)}>
+                                    <IconUrl width={20} height={20} path={"ic-edit-patient"}/>
+                                </IconButton>
+                            </Tooltip>
+                            <IconButton onClick={() => dispatch(setOpenChat(false))}>
+                                <IconUrl width={20} height={20} path={"menu/ic-close-menu"}/>
+                            </IconButton>
+                        </Stack>
+                    </Stack>
+                        <Stack>
+                            <Collapse in={showUsers} style={{margin: 0,background:"white"}}>
+                                {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser && !hasMessages(user.uuid)).map((user: UserModel) => (
+                                    <Stack
+                                        className={`user-item`}
+                                        sx={{cursor: 'pointer'}}
+                                        spacing={.5} key={user.uuid}
+                                        onClick={() => {
+                                            addDiscussion(user)
+                                            setShowUsers(false)
+                                        }}>
+                                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                            <Typography fontWeight={500}
+                                                        variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
+                                            <div style={{
+                                                width: 5,
+                                                height: 5,
+                                                background: `${presenceData.find((data: PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data: PresenceMessage) => data.clientId === user.uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
+                                                borderRadius: 10
+                                            }}/>
+                                        </Stack>
+                                    </Stack>
+                                ))}
+                            </Collapse>
+                        </Stack>
+                    </Stack>}
                     <Paper className='chat-wrapper'>
                         {selectedDiscussion ?
                             <>
-                                <Stack alignItems="center">
+                                {/*<Stack alignItems="center">
                                     <Fab variant="extended" onClick={scrollToTop} className='prev-msgs'
-                                        size="small">{t('prev_msgs')}</Fab>
-                                </Stack>
+                                         size="small">{t('prev_msgs')}</Fab>
+                                </Stack>*/}
                                 <List id={"chat-list"} className='chat-list'>
                                     {messages.map((message: Message, index: number) => (
                                         <ListItem key={index} alignItems="flex-start"
-                                            className={message?.from !== medicalEntityHasUser ? "left" : "right"}>
+                                                  className={message?.from !== medicalEntityHasUser ? "left" : "right"}>
                                             {
                                                 message.from !== medicalEntityHasUser && <ListItemAvatar>
                                                     <Avatar
-                                                        sx={{ bgcolor: theme.palette.primary.main }}>{getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).name.charAt(0)}</Avatar>
+                                                        sx={{bgcolor: theme.palette.primary.main}}>{getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).name.charAt(0)}</Avatar>
                                                 </ListItemAvatar>
                                             }
 
@@ -350,10 +412,10 @@ const Chat = ({ ...props }) => {
                                                 </Typography>
                                                 <Stack spacing={1}>
                                                     <Typography
-                                                        sx={{ display: 'inline', wordWrap: "break-word" }}
+                                                        sx={{display: 'inline', wordWrap: "break-word"}}
                                                         component="span"
                                                         color="text.primary">
-                                                        <div dangerouslySetInnerHTML={{ __html: message.data }}></div>
+                                                        <div dangerouslySetInnerHTML={{__html: message.data}}></div>
 
                                                     </Typography>
                                                     {/*{message?.from === medicalEntityHasUser ?
@@ -392,7 +454,7 @@ const Chat = ({ ...props }) => {
                                             toolbar: false,
                                             plugins: tinymcePlugins,
                                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                        }} />
+                                        }}/>
 
                                     <Stack direction={"row"} spacing={1} justifyContent={"flex-end"}>
                                         <Fab
@@ -401,8 +463,8 @@ const Chat = ({ ...props }) => {
                                             disableRipple
                                             variant='extended'
                                             className='send-msg'
-                                            style={{ backgroundColor: theme.palette.primary.main, }}>
-                                            <IconUrl path="tag" width={16} height={16} />
+                                            style={{backgroundColor: theme.palette.primary.main,}}>
+                                            <IconUrl path="tag" width={16} height={16}/>
                                             <span>{t("tag")}</span>
                                         </Fab>
                                         <Fab
@@ -411,7 +473,7 @@ const Chat = ({ ...props }) => {
                                             size={"small"}
                                             disableRipple
                                             variant='extended' className='send-msg'>
-                                            <IconUrl path="ic-send-up" />
+                                            <IconUrl path="ic-send-up"/>
                                             <span>{t("send")}</span>
                                         </Fab>
 
@@ -420,15 +482,15 @@ const Chat = ({ ...props }) => {
                                 </Stack>
                             </> : <div className='no-chat'>
                                 <Stack>
-                                    <div style={{ justifyContent: "center", display: "flex" }}>
-                                        <IconUrl path={"ic-no-msg"} />
+                                    <div style={{justifyContent: "center", display: "flex"}}>
+                                        <IconUrl path={"ic-no-msg"}/>
                                     </div>
                                     <Typography fontSize={18} textAlign={"center"}
-                                        fontWeight={"bold"}>{t('noDes')}</Typography>
+                                                fontWeight={"bold"}>{t('noDes')}</Typography>
                                     <Typography fontSize={12} textAlign={"center"}
-                                        color={theme.palette.grey["400"]}>{t('chooseUser1')}</Typography>
+                                                color={theme.palette.grey["400"]}>{t('chooseUser1')}</Typography>
                                     <Typography fontSize={12} textAlign={"center"}
-                                        color={theme.palette.grey["400"]}>{t('chooseUser2')}</Typography>
+                                                color={theme.palette.grey["400"]}>{t('chooseUser2')}</Typography>
                                 </Stack>
                             </div>
                         }
@@ -453,33 +515,33 @@ const Chat = ({ ...props }) => {
             </Drawer>
 
             <Dialog onClose={() => setOpen(false)} open={open}>
-                <DialogContent style={{ paddingTop: 20 }}>
+                <DialogContent style={{paddingTop: 20}}>
                     <Stack spacing={1}>
                         <Typography fontSize={11}
-                            color={"grey"}>{t('search')}</Typography>
+                                    color={"grey"}>{t('search')}</Typography>
                         <TextField placeholder={t('patientName')} onChange={(ev) => {
                             debouncedOnChange(ev.target.value)
-                        }} />
+                        }}/>
                         {patients.map(patient => (
                             <Card key={patient.uuid}>
                                 <CardContent>
-                                    <Stack style={{ cursor: "pointer" }} onClick={() => {
+                                    <Stack style={{cursor: "pointer"}} onClick={() => {
                                         setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`)
                                         setOpen(false)
                                     }}>
                                         <Typography color={"primary"}
-                                            fontWeight={"bold"}>
+                                                    fontWeight={"bold"}>
                                             {patient.firstName} {patient.lastName}
                                         </Typography>
                                         <Stack direction='row' alignItems='center' spacing={1}>
                                             <IconUrl path="ic-phone" width={16} height={16}
-                                                color={theme.palette.text.secondary} />
+                                                     color={theme.palette.text.secondary}/>
                                             <Typography fontSize={12}
-                                                color={theme.palette.text.secondary}>{patient.contact}</Typography>
+                                                        color={theme.palette.text.secondary}>{patient.contact}</Typography>
                                             <IconUrl path="ic-folder" width={16} height={16}
-                                                color={theme.palette.text.secondary} />
+                                                     color={theme.palette.text.secondary}/>
                                             <Typography fontSize={12}
-                                                color={theme.palette.text.secondary}>{patient.fiche_id}</Typography>
+                                                        color={theme.palette.text.secondary}>{patient.fiche_id}</Typography>
                                         </Stack>
                                     </Stack>
                                 </CardContent>

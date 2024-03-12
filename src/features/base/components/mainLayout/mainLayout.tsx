@@ -12,7 +12,7 @@ import {
     Paper,
     PaperProps,
     Stack,
-    Typography,
+    Typography, useMediaQuery,
     useTheme
 } from "@mui/material";
 import axios from "axios";
@@ -49,8 +49,10 @@ import { buildAbilityFor } from "@lib/rbac/casl/ability";
 import { AbilityContext } from "@features/casl/can";
 import { useAbly, useChannel, useConnectionStateListener, usePresence } from "ably/react";
 import IconUrl from "@themes/urlIcon";
-import { Chat } from "@features/chat";
-import { caslSelector } from "@features/casl";
+import {Chat} from "@features/chat";
+import {caslSelector} from "@features/casl";
+import {chatSelector} from "@features/chat/selectors";
+import {setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -70,10 +72,11 @@ function MainLayout({ ...props }) {
     const { trigger: invalidateQueries } = useInvalidateQueries();
     const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
-    const { appointmentTypes } = useAppSelector(dashLayoutSelector);
-    const { config: agendaConfig } = useAppSelector(agendaSelector);
-    const { importData } = useAppSelector(tableActionSelector);
-    const { direction } = useAppSelector(configSelector);
+    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {importData} = useAppSelector(tableActionSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {openChat} = useAppSelector(chatSelector);
     const permissions = useAppSelector(caslSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
@@ -83,7 +86,6 @@ function MainLayout({ ...props }) {
     const [translationCommon] = useState(props._nextI18Next?.initialI18nStore.fr.common);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
-    const [open, setOpen] = React.useState(false);
     const [messages, updateMessages] = useState<any[]>([]);
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
@@ -99,6 +101,7 @@ function MainLayout({ ...props }) {
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const slugFeature = router.pathname.split('/')[2];
 
     const ability = buildAbilityFor(features ?? [], permissions);
@@ -395,7 +398,7 @@ function MainLayout({ ...props }) {
 
             <Drawer
                 anchor={"right"}
-                open={open}
+                open={openChat}
                 dir={direction}
                 PaperProps={{
                     sx: {
@@ -403,7 +406,10 @@ function MainLayout({ ...props }) {
                     },
 
                 }}
-                onClose={() => setOpen(false)}>
+                onClose={() => {
+                    dispatch(setOpenChat(false))
+                    dispatch(setGlobalMsg(""))
+                }}>
                 <Chat {...{
                     channel,
 
@@ -561,15 +567,15 @@ function MainLayout({ ...props }) {
                         <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
                     </Stack>
                 </Stack>}
-                <Fab color="info"
-                    style={{ boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px" }}
-                    onClick={() => {
-                        setOpen(true)
-                    }}>
+                {!isMobile && <Fab color="info"
+                      style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                      onClick={() => {
+                          dispatch(setOpenChat(true))
+                      }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
                         <IconUrl path={"chat"} width={30} height={30} />
                     </Badge>
-                </Fab>
+                </Fab>}
             </Stack>
 
         </AbilityContext.Provider>

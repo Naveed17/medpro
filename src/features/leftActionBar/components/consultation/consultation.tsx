@@ -46,6 +46,7 @@ import {useSession} from "next-auth/react";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
+import {setMessage, setOpenChat} from "@features/chat/actions";
 
 function Consultation() {
     const dispatch = useAppDispatch();
@@ -251,7 +252,7 @@ function Consultation() {
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
                                         fontWeight: 500,
-                                        width: 150
+                                        width: 100
                                     }}>
                                     {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
                                 </Typography>
@@ -301,16 +302,23 @@ function Consultation() {
 
                     </Box>
 
-                    <Box
-                        onClick={() => {
-                            dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
-                        }}>
+                    <Stack direction={"row"} spacing={1} sx={{position: "absolute", top: 20, right: 10}}>
                         <IconButton
                             size={"small"}
-                            sx={{position: "absolute", top: 20, right: 10}}>
+                            onClick={() => {
+                                dispatch(setOpenChat(true))
+                                dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                            }}>
+                            <Icon path={"ic-tag-patient"}/>
+                        </IconButton>
+
+                        <IconButton
+                            size={"small"}
+                            onClick={() => {dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));}}
+                            >
                             <Icon path={"ic-edit-patient"}/>
                         </IconButton>
-                    </Box>
+                    </Stack>
                 </Stack>
                 {isBeta && patient &&
                     <Stack direction={"row"} p={1} spacing={1} onClick={() => {
