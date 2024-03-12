@@ -923,6 +923,7 @@
         "root": "Settings > Insurances & agreements",
         "update": "Settings > Insurances & agreements > Actes"
       },
+      "act": "Act",
       "add": "Add",
       "table": {
         "name": "Insurances",

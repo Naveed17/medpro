@@ -162,7 +162,7 @@ function InsuranceAndAgreement() {
                 event.preventDefault();
                 router.push({
                     pathname: `${router.pathname}/${data.uuid}`,
-                    query: { name: data.insurance.uuid }
+                    ...(data.insurance && {query: {name: data.insurance.uuid}})
                 });
         }
     }

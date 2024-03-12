@@ -3,7 +3,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState,} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
-import {Box, Button, DialogTitle, InputAdornment, Paper, Stack, TextField, Typography} from "@mui/material";
+import {Box, Button, DialogTitle, Paper, Stack, Typography} from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {DashLayout, dashLayoutSelector} from "@features/base";
@@ -18,14 +18,10 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Add} from "@mui/icons-material";
 import {Theme} from "@mui/material/styles";
-import {SetAgreement, setStepperIndex} from "@features/stepper";
-import moment from "moment";
 import {Dialog as MedDialog} from "@features/dialog";
-import {direction} from "html2canvas/dist/types/css/property-descriptors/direction";
 import useApci from "@lib/hooks/rest/useApci";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
-import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 
 const Toolbar = (props: any) => {
     const {t, search, handleSearch} = props
@@ -33,14 +29,14 @@ const Toolbar = (props: any) => {
         <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 0}} borderBottom={1} borderColor={"divider"}
                pb={1} mb={2} alignItems={{xs: 'flex-start', sm: 'center'}} justifyContent="space-between">
             <Stack>
-                <Typography variant="body2" fontWeight={500}>
+                {/*<Typography variant="body2" fontWeight={500}>
                     {t("table.name")} {"CNAM"}
-                </Typography>
+                </Typography>*/}
                 <Typography fontWeight={600}>
                     {t("table.act")}
                 </Typography>
             </Stack>
-            <TextField
+            {/* <TextField
                 value={search}
                 onChange={handleSearch}
                 sx={{width: {xs: 1, sm: 'auto'}}}
@@ -51,7 +47,7 @@ const Toolbar = (props: any) => {
                         </InputAdornment>
                     ),
                 }}
-                placeholder={t("search")}/>
+                placeholder={t("search")}/>*/}
         </Stack>
     )
 }
@@ -64,7 +60,7 @@ function Actes() {
     const [mainActes, setMainActes] = useState<any>([]);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const [newAct, setNewAct] = useState(null);
+    const [newAct, setNewAct] = useState<any>(null);
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -130,7 +126,6 @@ function Actes() {
             }
             return item;
         })
-        console.log(updated)
         setMainActes(updated);
     }
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,6 +159,32 @@ function Actes() {
         }
     }, [httpActs]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const save = () => {
+        if (newAct) {
+            const method = newAct.uuid ? "PUT" : "POST"
+            const url = newAct.uuid ? `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${newAct.uuid}/${router.locale}` : `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${router.locale}`;
+
+            const form = new FormData();
+            form.append("fees", newAct.fees)
+            form.append("refund", newAct.refund ? newAct.refund : 0)
+            form.append("patient_part", newAct.patient_part)
+            form.append("apcis", newAct.apci)
+            trigger({
+                method,
+                url,
+                data: form
+            }, {
+                onSuccess: () => {
+                    mutate()
+                    setLoading(false);
+                    setNewAct(null);
+                    setOpen(false)
+                },
+                onError: () => setLoading(false)
+            });
+        }
+    }
+
     return (
         <>
             <SubHeader>
@@ -171,7 +192,9 @@ function Actes() {
                     <p style={{margin: 0}}>{t("path.update")}</p>
                 </RootStyled>
                 <Button
-                    onClick={() => {setOpen(true)}}
+                    onClick={() => {
+                        setOpen(true)
+                    }}
                     startIcon={<Add/>}
                     variant="contained"
                 >
@@ -186,7 +209,19 @@ function Actes() {
                         toolbar={<Toolbar {...{t, search, handleSearch}} />}
                         rows={mainActes}
                         from={"act-row-insurance"}
-                        {...{t, loading, handleChange, handleEvent,apcis,mutate,setLoading,trigger,urlMedicalEntitySuffix,medicalEntityHasUser,router}}
+                        {...{
+                            t,
+                            loading,
+                            handleChange,
+                            handleEvent,
+                            apcis,
+                            mutate,
+                            setLoading,
+                            trigger,
+                            urlMedicalEntitySuffix,
+                            medicalEntityHasUser,
+                            router
+                        }}
                         total={httpActs?.data.currentPage}
                         totalPages={httpActs?.data.totalPages}
                         pagination
@@ -217,7 +252,7 @@ function Actes() {
             <MedDialog
                 action={"add-act"}
                 open={open}
-                data={{t,newAct, setNewAct,apcis}}
+                data={{t, newAct, setNewAct, apcis, mainActes}}
                 dialogClose={() => {
                     setOpen(false)
                 }}
@@ -231,7 +266,7 @@ function Actes() {
                             position: "relative",
                         }}
                         id="scroll-dialog-title">
-                        {t("dialog.addAct")}
+                        {t("act")}
                     </DialogTitle>
                 }
                 actionDialog={
@@ -242,16 +277,15 @@ function Actes() {
                                 setOpen(false)
                             }}
                             startIcon={<CloseIcon/>}>
-                            {t("dialogs.merge-dialog.cancel")}
+                            {t("cancel")}
                         </Button>
                         <LoadingButton
                             {...{loading}}
                             loadingPosition="start"
+                            disabled={!newAct}
                             variant="contained"
-                            color={"error"}
-                            onClick={()=>{}}
-                            startIcon={<ArchiveRoundedIcon/>}>
-                            {t("dialogs.merge-dialog.confirm")}
+                            onClick={save}>
+                            {t("save")}
                         </LoadingButton>
                     </>
                 }

@@ -107,7 +107,7 @@ function ActRow({...props}) {
                 /> : <Typography>{contribution ? contribution : "-"}</Typography>}
             </TableCell>
             <TableCell align={"center"}>
-                <Select
+                {apcis.length > 0 ? <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
                     multiple
@@ -134,16 +134,16 @@ function ActRow({...props}) {
                                 </Typography>
                             );
                         }
-                        return selected ? selected.join(", "): "";
+                        return selected ? selected.join(", ") : "";
                     }}
 
                 >
-                    {apcis.map((apci:any) => (
+                    {apcis.map((apci: any) => (
                         <MenuItem key={apci.uuid} value={apci.uuid}>
                             {apci.code}
                         </MenuItem>
                     ))}
-                </Select>
+                </Select>: <Typography>-</Typography>}
             </TableCell>
         </TableRowStyled>
     );

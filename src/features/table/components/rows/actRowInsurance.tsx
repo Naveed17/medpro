@@ -12,7 +12,6 @@ function ActRowInsurance({...props}) {
     const {apcis,mutate,setLoading,trigger,urlMedicalEntitySuffix,medicalEntityHasUser,router} = data
     const {agreement} = useAppSelector(stepperSelector);
     const _act = agreement.acts.find((act: any) => act.uuid === row.uuid)
-
     const theme = useTheme();
     const [fees, setFees] = useState(row.fees);
     const [patient_part, setPatient_part] = useState(row.patient_part);
@@ -91,7 +90,7 @@ function ActRowInsurance({...props}) {
                             row.refund = Number(e.target.value);
                             handleChange(row)
                         }
-                    }}/> : <Typography>{refund}</Typography>}
+                    }}/> : <Typography>{row.refund}</Typography>}
             </TableCell>
             <TableCell align={"center"}>
                 {selected ? <InputBaseStyled
@@ -151,7 +150,7 @@ function ActRowInsurance({...props}) {
                 {selected ? <>
                     <Button size={"small"}
                             color={"info"}
-                            onClick={(e) => editRow()}
+                            onClick={() => editRow()}
                             variant={"contained"}>{t('save')}</Button>
                     <Button size={"small"} color={"error"} onClick={() => setSelected(false)}>{t('cancel')}</Button>
                 </> : <>

@@ -931,6 +931,7 @@
         "root": "Paramètres > Assurance & Convention",
         "update": "Paramètres > Assurance & Convention > Actes"
       },
+      "act": "Acte",
       "add": "Ajouter",
       "table": {
         "name": "Assurance",
