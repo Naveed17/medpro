@@ -8,5 +8,12 @@
     "avg_wait_time": "Temps d'attente moyen des patients",
     "min": "min",
     "rdv-request": "Demandes de rendez-vous",
-    "recent_activities": "Activités récentes"
+    "recent_activities": "Activités récentes",
+    "file_no": "Fiche N°",
+    "assigned_doctor": "Médecin désigné",
+    "type": "Type",
+    "reason": "Motif",
+    "last_visit": "Dernière visite",
+    "documents": "Documents",
+    "add_doc": "Ajouter des documents"
 }

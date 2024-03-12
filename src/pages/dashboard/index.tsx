@@ -5,22 +5,18 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { SubHeader } from "@features/subHeader";
 import { useTranslation } from "next-i18next";
 import { LoadingScreen } from "@features/loadingScreen";
-import { Box, Card, CardContent, Grid, Link, List, ListItem, ListItemIcon, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Button, Card, CardContent, Divider, Grid, Link, List, ListItem, ListItemIcon, Paper, Stack, Typography, useTheme } from "@mui/material";
 import { CustomIconButton } from "@features/buttons";
 import IconAdd from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import { RdvRequestCard } from "@features/card";
-import {
-    Timeline,
-    TimelineItem,
-    TimelineSeparator,
-    TimelineConnector,
-    TimelineContent,
-    TimelineOppositeContent,
-    timelineOppositeContentClasses,
-    TimelineDot
-} from '@mui/lab';
+import { TimeLine } from "@features/timeline";
+import { ConditionalWrapper } from "@lib/hooks";
+import Zoom from "react-medium-image-zoom";
+import { ImageHandler } from "@features/image";
+import { AgendaTimeLine } from "@features/agendaTimeline";
 function Dashboard() {
+    const theme = useTheme()
     const { t, ready } = useTranslation("dashboard");
     if (!ready) return <LoadingScreen button text={"loading-error"} />;
     return (
@@ -115,7 +111,137 @@ function Dashboard() {
                                             </Stack>
                                         </Stack>
                                     </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card
+                                sx={{
+                                    borderRadius: "12px",
+                                    border: "none",
+                                    boxShadow: (theme) => theme.shadows[5]
+                                }}
+                            >
+                                <CardContent>
 
+                                    <Typography mb={2} gutterBottom variant="subtitle1" fontWeight={600}>
+                                        {t("appointments")}
+                                    </Typography>
+                                    <Grid container spacing={1}>
+                                        <Grid item md={5} xs={12}>
+                                            <AgendaTimeLine />
+                                        </Grid>
+                                        <Grid item md={7} xs={12}>
+                                            <Paper sx={{ p: 1.5, border: 'none', bgcolor: theme => theme.palette.background.default }}>
+                                                <Stack spacing={2}>
+                                                    <Stack direction='row' alignItems='flex-start' justifyContent='space-between'>
+                                                        <ConditionalWrapper
+                                                            condition={false}
+                                                            wrapper={(children: any) => <Zoom>{children}</Zoom>}>
+                                                            <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                                                <Avatar
+                                                                    src={"/static/icons/men-avatar.svg"}
+                                                                    sx={{
+                                                                        width: 35,
+                                                                        height: 35,
+                                                                        borderRadius: 1
+                                                                    }}>
+                                                                    <IconUrl width={"35"} height={"35"} path="men-avatar" />
+                                                                </Avatar>
+                                                                <Stack>
+                                                                    <Typography fontWeight={600} color="primary">
+                                                                        Patient name
+                                                                    </Typography>
+                                                                    <Stack direction='row' alignItems='center' spacing={1}>
+                                                                        <IconUrl path={"ic-folder"} color={theme.palette.text.secondary} width={16} height={16} />
+                                                                        <Typography variant="body2" color={'text.secondary'}>
+                                                                            {t("file_no")} {" "} 15/9
+                                                                        </Typography>
+                                                                    </Stack>
+                                                                </Stack>
+                                                            </Stack>
+                                                        </ConditionalWrapper>
+                                                        <Stack direction='row' alignItems='center' spacing={.5}>
+                                                            <IconUrl path="ic-agenda-jour" width={14} height={14} />
+                                                            <Typography fontWeight={500} variant="body2">
+                                                                10/12/2022
+                                                            </Typography>
+                                                            <IconUrl path="ic-time" width={14} height={14} />
+                                                            <Typography fontWeight={500} variant="body2">
+                                                                10:00
+                                                            </Typography>
+                                                        </Stack>
+                                                    </Stack>
+                                                    <List disablePadding>
+                                                        <ListItem sx={{ px: 0 }}>
+                                                            <ListItemIcon sx={{ minWidth: 146 }}>
+                                                                <Typography variant="body2" color="text.secondary">{t("assigned_doctor")}</Typography>
+                                                            </ListItemIcon>
+                                                            <Typography fontWeight={500}>
+                                                                Dr Ghassen BOULAHIA
+                                                            </Typography>
+                                                        </ListItem>
+                                                        <ListItem sx={{ px: 0 }}>
+                                                            <ListItemIcon sx={{ minWidth: 146 }}>
+                                                                <Typography variant="body2" color="text.secondary">{t("type")}</Typography>
+                                                            </ListItemIcon>
+                                                            <Typography fontWeight={500}>
+                                                                Consultation
+                                                            </Typography>
+                                                        </ListItem>
+                                                        <ListItem sx={{ px: 0 }}>
+                                                            <ListItemIcon sx={{ minWidth: 146 }}>
+                                                                <Typography variant="body2" color="text.secondary">{t("reason")}</Typography>
+                                                            </ListItemIcon>
+                                                            <Typography fontWeight={500}>
+                                                                Apnée de sommeil
+                                                            </Typography>
+                                                        </ListItem>
+                                                        <Divider sx={{ my: 1 }} />
+                                                        <ListItem sx={{ px: 0 }}>
+                                                            <ListItemIcon sx={{ minWidth: 146 }}>
+                                                                <Typography variant="body2" color="text.secondary">{t("last_visit")}</Typography>
+                                                            </ListItemIcon>
+                                                            <Typography fontWeight={500}>
+                                                                08-12-2023
+                                                            </Typography>
+                                                        </ListItem>
+                                                        <ListItem sx={{ px: 0, alignItems: 'flex-start' }}>
+                                                            <ListItemIcon sx={{ minWidth: 146 }}>
+                                                                <Typography variant="body2" color="text.secondary">{t("documents")}</Typography>
+                                                            </ListItemIcon>
+                                                            <Stack spacing={1}>
+                                                                {Array.from({ length: 2 }).map((_, idx) => (
+                                                                    <Card
+                                                                        key={idx}
+                                                                        sx={{
+                                                                            borderRadius: "12px",
+                                                                            border: "none",
+                                                                            boxShadow: (theme) => theme.shadows[5]
+                                                                        }}>
+                                                                        <CardContent sx={{ px: "8px !important", py: "4px !important" }}>
+                                                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                                                <ImageHandler
+                                                                                    width={17} height={23}
+                                                                                    alt={"image/png"}
+                                                                                    src={"/static/img/doc-1.png"}
+                                                                                />
+                                                                                <Typography variant="body2" fontWeight={500}>
+                                                                                    Complete morphology.pdf
+                                                                                </Typography>
+                                                                            </Stack>
+                                                                        </CardContent>
+                                                                    </Card>
+                                                                ))}
+
+                                                            </Stack>
+                                                        </ListItem>
+                                                    </List>
+                                                    <Button variant="contained">
+                                                        {t("add_doc")}
+                                                    </Button>
+                                                </Stack>
+                                            </Paper>
+                                        </Grid>
+                                    </Grid>
                                 </CardContent>
                             </Card>
                         </Stack>
@@ -131,7 +257,7 @@ function Dashboard() {
                             >
                                 <CardContent sx={{ p: 2 }}>
 
-                                    <Typography gutterBottom variant="subtitle1" fontWeight={600}>
+                                    <Typography mb={2} gutterBottom variant="subtitle1" fontWeight={600}>
                                         {t("rdv-request")}
                                     </Typography>
                                     <Stack spacing={2}>
@@ -158,122 +284,79 @@ function Dashboard() {
                                     <Typography variant="body2" color="text.secondary">
                                         890,344 {t("activities")}
                                     </Typography>
-                                    <Timeline
-
-                                        sx={{
-                                            p: 0,
-                                            [`& .${timelineOppositeContentClasses.root}`]: {
-                                                flex: 0.2,
-                                            },
-                                        }}
-                                    >
-                                        <TimelineItem>
-                                            <TimelineOppositeContent
-                                                sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
-                                                09:30
-                                            </TimelineOppositeContent>
-                                            <TimelineSeparator>
-                                                <TimelineDot variant="outlined" color="success" />
-                                                <TimelineConnector />
-                                            </TimelineSeparator>
-                                            <TimelineContent>
-                                                <Typography variant="body2" color="textSecondary">
+                                    <TimeLine data={
+                                        [
+                                            {
+                                                time: "09:30",
+                                                children: <Typography variant="body2" color="textSecondary">
                                                     <Link underline="none">
                                                         Dr.Henry Markhay
                                                     </Link>
                                                     {" "} Completed the Patient visit with {" "}
                                                     <Link underline="none">Walid Tanazefti</Link>
-                                                </Typography>
-                                            </TimelineContent>
-                                        </TimelineItem>
-                                        <TimelineItem>
-                                            <TimelineOppositeContent
-                                                sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
-                                                09:30
-                                            </TimelineOppositeContent>
-                                            <TimelineSeparator>
-                                                <TimelineDot variant="outlined" color="secondary" />
-                                                <TimelineConnector />
-                                            </TimelineSeparator>
-                                            <TimelineContent>
-                                                <Stack spacing={1}>
-                                                    <Typography variant="body2" color="textSecondary">
-                                                        Bernardo James Uploaded 2 new documents to Mohamed belagha file
-                                                    </Typography>
-                                                </Stack>
-                                                <List disablePadding>
+                                                </Typography>,
+                                                color: 'success'
 
-
-                                                    <ListItem sx={{ px: 0, py: .5 }}
-                                                    >
-                                                        <ListItemIcon sx={{ minWidth: 40 }}>
-                                                            <IconUrl width={30} height={30} path="pdf" />
-                                                        </ListItemIcon>
-                                                        <Stack spacing={.1}>
-                                                            <Typography variant="body2" fontWeight={500}>
-                                                                Airplus Guideline
-                                                            </Typography>
-                                                            <Typography variant='caption' color='textSecondary'>
-                                                                12 mb
+                                            },
+                                            {
+                                                time: "10:00",
+                                                children:
+                                                    <>
+                                                        <Stack spacing={1}>
+                                                            <Typography variant="body2" color="textSecondary">
+                                                                Bernardo James Uploaded 2 new documents to Mohamed belagha file
                                                             </Typography>
                                                         </Stack>
-                                                    </ListItem>
+                                                        <List disablePadding>
+                                                            <ListItem sx={{ px: 0, py: .5 }}
+                                                            >
+                                                                <ListItemIcon sx={{ minWidth: 40 }}>
+                                                                    <IconUrl width={30} height={30} path="pdf" />
+                                                                </ListItemIcon>
+                                                                <Stack spacing={.1}>
+                                                                    <Typography variant="body2" fontWeight={500}>
+                                                                        Airplus Guideline
+                                                                    </Typography>
+                                                                    <Typography variant='caption' color='textSecondary'>
+                                                                        12 mb
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </ListItem>
 
-                                                    <ListItem sx={{ px: 0, py: .5 }}
-                                                    >
-                                                        <ListItemIcon sx={{ minWidth: 40 }}>
-                                                            <IconUrl width={30} height={30} path="ic-doc-file" />
-                                                        </ListItemIcon>
-                                                        <Stack spacing={.1}>
-                                                            <Typography variant="body2" fontWeight={500}>
-                                                                FureStibe requirements
-                                                            </Typography>
-                                                            <Typography variant='caption' color='textSecondary'>
-                                                                8 kb
-                                                            </Typography>
-                                                        </Stack>
-                                                    </ListItem>
+                                                            <ListItem sx={{ px: 0, py: .5 }}
+                                                            >
+                                                                <ListItemIcon sx={{ minWidth: 40 }}>
+                                                                    <IconUrl width={30} height={30} path="ic-doc-file" />
+                                                                </ListItemIcon>
+                                                                <Stack spacing={.1}>
+                                                                    <Typography variant="body2" fontWeight={500}>
+                                                                        FureStibe requirements
+                                                                    </Typography>
+                                                                    <Typography variant='caption' color='textSecondary'>
+                                                                        8 kb
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </ListItem>
 
-                                                </List>
-                                            </TimelineContent>
-                                        </TimelineItem>
-                                        <TimelineItem>
-                                            <TimelineOppositeContent
-                                                sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
-                                                14:30
-                                            </TimelineOppositeContent>
-                                            <TimelineSeparator>
-                                                <TimelineDot variant="outlined" color="error" />
-                                                <TimelineConnector />
-                                            </TimelineSeparator>
-                                            <TimelineContent>
-                                                <Typography variant="body2" fontWeight={600} fontSize={13}>
+                                                        </List>
+                                                    </>
+                                                ,
+                                                color: 'primary'
+                                            },
+                                            {
+                                                time: "10:15",
+                                                children: <Typography variant="body2" fontWeight={600} fontSize={13}>
                                                     Make deposit
                                                     <Link underline="none" color="success.main">
                                                         {" "} USD 700 {" "}
                                                     </Link>
                                                     to ESL
-                                                </Typography>
-                                            </TimelineContent>
-                                        </TimelineItem>
-                                        <TimelineItem>
-                                            <TimelineOppositeContent
-                                                sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
-                                                21:30
-                                            </TimelineOppositeContent>
-                                            <TimelineSeparator>
-                                                <TimelineDot variant="outlined" color="error" />
-                                            </TimelineSeparator>
-                                            <TimelineContent>
-                                                <Typography variant="body2" fontWeight={600} fontSize={13}>
-                                                    New order placed {" "}
-                                                    <Link underline="none" color="success.main">
-                                                        #XF-2356
-                                                    </Link>
-                                                </Typography>
-                                            </TimelineContent>
-                                        </TimelineItem>
-                                    </Timeline>
+                                                </Typography>,
+                                                color: 'error'
+                                            }
+                                        ]
+
+                                    } />
                                 </CardContent>
                             </Card>
                         </Stack>
