@@ -16,7 +16,7 @@ import {
     Skeleton,
     Stack,
     Tooltip,
-    Typography,
+    Typography, useMediaQuery,
     useTheme,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -59,6 +59,7 @@ function Consultation() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances: allInsurances} = useInsurances();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient, loading: loadingG} = useAppSelector(consultationSelector);
@@ -297,6 +298,16 @@ function Consultation() {
                                         {patient?.email}
                                     </Typography>
                                 )}
+
+                                {isMobile && <IconButton style={{
+                                    backgroundColor: theme.palette.background.default,
+                                    borderRadius: 8
+                                }} onClick={() => {
+                                    dispatch(setOpenChat(true))
+                                    dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                                }}>
+                                    <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
+                                </IconButton>}
                             </Box>
                         )}
 
@@ -309,7 +320,7 @@ function Consultation() {
                                 dispatch(setOpenChat(true))
                                 dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
                             }}>
-                            <Icon path={"ic-tag-patient"}/>
+                            <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                         </IconButton>
 
                         <IconButton

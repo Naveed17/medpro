@@ -309,7 +309,7 @@ function AppointmentDetail({...props}) {
                                                         dispatch(setOpenChat(true))
                                                         dispatch(setMessage(`<span class="tag" id="${appointment?.extendedProps.patient?.uuid}">${appointment?.extendedProps.patient?.firstName} ${appointment?.extendedProps.patient?.lastName} </span><span class="afterTag">, </span>`))
                                                     }}>
-                                            <IconUrl path="ic-tag-patient"/>
+                                            <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                                         </IconButton>
                                     </Stack>
                                 }
