@@ -170,7 +170,7 @@ function Actes() {
             form.append("patient_part", newAct.patient_part)
             form.append("apcis", newAct.apci)
             if (method === "POST")
-                form.append("act", newAct.act.uuid)
+                form.append("act", newAct.md_act)
 
             trigger({
                 method,

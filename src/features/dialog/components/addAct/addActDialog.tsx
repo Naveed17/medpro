@@ -52,6 +52,7 @@ function AddActDialog({...props}) {
                                     setNewAct(exist)
                                 else {
                                     setNewAct({
+                                        md_act:newValue.uuid,
                                         act: newValue.act,
                                         fees: newValue.fees,
                                         apci: [],
