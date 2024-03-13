@@ -23,6 +23,7 @@ import {useRequestQueryMutation} from '@lib/axios';
 import {useRouter} from 'next/router';
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
+import _ from "lodash";
 
 function NewUserDialog({...props}) {
     const {profiles, onNextPreviStep, onClose, type = "authorization"} = props
@@ -31,7 +32,7 @@ function NewUserDialog({...props}) {
     const {data: session} = useSession();
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {cashboxes} = useCashBox();
+    const {cashboxes} = useCashBox(type === "authorization");
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
 
@@ -58,9 +59,8 @@ function NewUserDialog({...props}) {
     const features = (userSession as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
-    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("users/profile/add");
 
-    const initFormData = () => {
+    const initRoleData = () => {
         const featuresInit: any = {};
         features?.map((feature: any) => {
             Object.assign(featuresInit, {
@@ -101,37 +101,43 @@ function NewUserDialog({...props}) {
         }))));
         form.append('password', values.password);
 
-        const features: any = {};
-        Object.entries(values.roles).forEach((role: any) => {
-            const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
-                const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
-                    [...(permissions ?? []),
-                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
-                return [
-                    ...(features ?? []),
-                    ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
-            }, []).length > 0;
-
-            if (hasFeaturePermissions) {
-                features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
+        if (type === "authorization") {
+            const features: any = {};
+            Object.entries(values.roles).forEach((role: any) => {
+                const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
                     const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                         [...(permissions ?? []),
                             ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
-
-                    const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (permissions.length ?? 0) > 0) : (permissions.length ?? 0) > 0;
                     return [
                         ...(features ?? []),
-                        ...(hasPermissions ? [{
-                            object: feature?.featureEntity?.uuid,
-                            featureProfile: feature?.profile,
-                            permissions: permissions.map((permission: PermissionModel) => permission.uuid)
-                        }] : [])
-                    ];
-                }, [])
-            }
-        });
-        console.log("roles", values.roles)
-        form.append("features", JSON.stringify(features));
+                        ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
+                }, []).length > 0;
+
+                if (hasFeaturePermissions) {
+                    features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
+                        const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                            [...(permissions ?? []),
+                                ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+
+                        const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (permissions.length ?? 0) > 0) : (permissions.length ?? 0) > 0;
+                        return [
+                            ...(features ?? []),
+                            ...(hasPermissions ? [{
+                                object: feature?.featureEntity?.uuid,
+                                featureProfile: feature?.profile,
+                                permissions: permissions.map((permission: PermissionModel) => permission.uuid)
+                            }] : [])
+                        ];
+                    }, [])
+                }
+            });
+            form.append("features", JSON.stringify(features));
+        } else {
+            values.department.length > 0 && form.append('department', _.map(values.department, "uuid").join(","));
+            form.append('type', values.selectedRole);
+            form.append('assigned', _.map(values.assigned_doctors, "uuid").join(","));
+        }
+
         triggerUserAdd({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
@@ -207,8 +213,13 @@ function NewUserDialog({...props}) {
                     }), {})
                 )
             } : {
-                department: Yup.string(),
-                assigned_doctors: Yup.array().of(Yup.string())
+                selectedRole: Yup.string().required(),
+                department: Yup.array().of(Yup.object().shape({
+                    uuid: Yup.string()
+                })),
+                assigned_doctors: Yup.array().of(Yup.object().shape({
+                    uuid: Yup.string()
+                })).min(1).required().required()
             })
         })
     ];
@@ -225,10 +236,11 @@ function NewUserDialog({...props}) {
                 }
             ],
             email: '',
+            selectedRole: 'secretary',
             generatePassword: false,
             resetPassword: true,
-            roles: initFormData(),
-            department: "",
+            ...(type === "authorization" && {roles: initRoleData()}),
+            department: [],
             assigned_doctors: [],
             password: '',
             confirm_password: ''
@@ -246,7 +258,8 @@ function NewUserDialog({...props}) {
         },
         validationSchema: validationSchema[currentStep]
     });
-    const {handleSubmit, values} = formik
+
+    const {handleSubmit, values, errors} = formik
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -283,10 +296,7 @@ function NewUserDialog({...props}) {
                                         setFeatureCollapse
                                     }} />
                                     :
-                                    <AssignmentStep {...{
-                                        formik,
-                                        t
-                                    }} />
+                                    <AssignmentStep {...{formik, t}} />
                             )
                         }
                         {currentStep === 2 &&

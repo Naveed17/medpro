@@ -83,8 +83,7 @@ function StaffRow({ ...props }) {
                         med12345*
                     </Typography>
                     <IconButton size="small"
-                        onClick={() => copyContent()}
-                    >
+                        onClick={() => copyContent()}>
                         <IconUrl width={20} height={20} path="ic-copy" />
                     </IconButton>
                 </Stack>

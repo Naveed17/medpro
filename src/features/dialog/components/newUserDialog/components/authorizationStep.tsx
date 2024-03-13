@@ -37,7 +37,7 @@ function AuthorizationStep({...props}) {
     const router = useRouter()
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const {trigger: featurePermissionsTrigger} = useRequestQueryMutation("/feature/permissions/all");
-
+    console.log("values", values.roles);
     const HandleFeatureCollapse = (slug: string, roles: any) => {
         if (openCollapseFeature !== slug) {
             setLoadingReq(true);
@@ -127,7 +127,15 @@ function AuthorizationStep({...props}) {
                                                 sx={{paddingTop: 2}}
                                                 control={<CustomSwitch
                                                     checked={featurePermission?.featureEntity?.checked ?? false}/>}
-                                                onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
+                                                onChange={(event: any) => {
+                                                    setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked);
+                                                    if (!event.target.checked) {
+                                                        setFieldValue(`roles[${role[0]}][${index}].permissions[0].children`, featurePermission?.permissions[0].children.map((permission: PermissionModel) => ({
+                                                            ...permission,
+                                                            checked: false
+                                                        })))
+                                                    }
+                                                }}
                                                 label={featurePermission?.featureEntity?.name}/>}
                                         <Box mt={2} className="permissions-wrapper">
                                             <TreeCheckbox

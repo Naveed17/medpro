@@ -14,9 +14,9 @@ module.exports = {
     backend: {
         backendOptions: [{
             expirationTime: 60 * 60 * 1000, // 1 hour
-        }, {
+        }, ...(!isDev ? [{
             loadPath: 'https://cdn.med.tn/locales/{{lng}}/{{ns}}.json'
-        }], backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
+        }] : [])], backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
     },
     serializeConfig: false,
     partialBundledLanguages: isBrowser && true,

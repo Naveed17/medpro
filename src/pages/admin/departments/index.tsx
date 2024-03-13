@@ -22,7 +22,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
-import {AddDepartmentDialog} from "@features/dialog";
+import {AddDepartmentDialog, Dialog as CustomDialog} from "@features/dialog";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import {LoadingButton} from "@mui/lab";
@@ -186,12 +186,22 @@ function Departments() {
                         description: "no-data.description",
                     }}/>}
 
-
-                <Drawer anchor={"right"} open={openAddDrawer} dir={direction} onClose={() => setOpenAddDrawer(false)}>
-                    <AddDepartmentDialog
-                        data={selectedDepartment}
-                        closeDraw={() => setOpenAddDrawer(false)}/>
-                </Drawer>
+                <CustomDialog
+                    action={"department"}
+                    {...{
+                        t,
+                        direction
+                    }}
+                    open={openAddDrawer}
+                    data={{
+                        data: selectedDepartment,
+                        closeDraw: () => setOpenAddDrawer(false)
+                    }}
+                    size={"sm"}
+                    fullWidth
+                    title={t("dialogs.department-dialog.title")}
+                    dialogClose={() => setOpenAddDrawer(false)}
+                />
 
                 <Dialog
                     PaperProps={{
@@ -212,16 +222,16 @@ function Departments() {
                     </DialogTitle>
                     <DialogContent sx={{textAlign: "center"}} style={{paddingTop: 20}}>
                         <Stack spacing={2}>
-                            <Typography
-                                variant="subtitle1">{t("dialogs.delete-department-dialog.sub-title")}</Typography>
-                            <Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        fontWeight={"bold"}>{t("dialogs.delete-department-dialog.sub-title")}</Typography>
+                            <Typography fontSize={13} variant={"caption"}>
                                 {t(`dialogs.delete-department-dialog.description`)}
                             </Typography>
                         </Stack>
 
                     </DialogContent>
                     <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
-                        <Stack direction="row" spacing={1}>
+                        <Stack direction="row" spacing={1} justifyContent={"space-between"} width={"100%"}>
                             <Button
                                 variant={"text-black"}
                                 onClick={() => {

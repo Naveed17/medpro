@@ -3,7 +3,7 @@ import PaperStyled from "./overrides/PaperStyled";
 import {
     Autocomplete,
     Button,
-    CircularProgress,
+    CircularProgress, DialogActions,
     ListItem,
     ListItemText,
     Stack,
@@ -21,10 +21,11 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {CustomSwitch} from "@features/buttons";
 import {useSnackbar} from "notistack";
+import _ from "lodash";
 
 function AddDepartmentDialog({...props}) {
     const router = useRouter();
-    const {data} = props;
+    const {data} = props.data;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -35,6 +36,10 @@ function AddDepartmentDialog({...props}) {
     const [users, setUsers] = useState([]);
     const [loadingReqUser, setLoadingReqUser] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [openAutoCompleteAssignedUser, setOpenAutoCompleteAssignedUser] = useState(false);
+    const [loadingReqAssignedUser, setLoadingReqAssignedUser] = useState(false);
+    const [selectedAssignedUser, setSelectedAssignedUser] = useState<any>([]);
+    const [assignedUser, setAssignedUser] = useState<UserModel[]>([]);
 
     const {trigger: getUsersTrigger} = useRequestQueryMutation("/department/users/get");
     const {trigger: addDepartmentTrigger} = useRequestQueryMutation("/department/add");
@@ -56,6 +61,7 @@ function AddDepartmentDialog({...props}) {
         initialValues: {
             name: data ? data.name : "",
             user: data ? data.headOfService : null,
+            staff: data ? data.assigned : [],
             status: data ? data.status === 1 : true
         },
         validationSchema,
@@ -64,6 +70,7 @@ function AddDepartmentDialog({...props}) {
             form.append("name", values.name);
             form.append("medicalEntityHasUser", (values.user as any)?.uuid);
             form.append("status", values.status ? "1" : "0");
+            form.append("assigned", _.map(values.staff, "uuid").join(","));
             addDepartmentTrigger({
                 method: data ? "PUT" : "POST",
                 url: `${urlMedicalEntitySuffix}/admin/departments/${data ? `${data.uuid}/` : ""}${router.locale}`,
@@ -73,7 +80,7 @@ function AddDepartmentDialog({...props}) {
                     enqueueSnackbar(t(`dialogs.department-dialog.alert.${data ? "update-success" : "add-success"}`), {variant: "success"})
                     invalidateQueries([`${urlMedicalEntitySuffix}/admin/departments/${router.locale}`]);
                     setLoading(false);
-                    props.closeDraw();
+                    props.data.closeDraw();
                 },
                 onError: () => setLoading(false)
             });
@@ -98,6 +105,25 @@ function AddDepartmentDialog({...props}) {
             });
         })();
     }, [openAutoCompleteUser]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Setting the logic for the asynchronous function on page reload
+    useEffect(() => {
+        if (!openAutoCompleteAssignedUser) {
+            return undefined;
+        }
+
+        (async () => {
+            setLoadingReqAssignedUser(true);
+            getUsersTrigger({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/admin/users/${router.locale}`
+            }, {
+                onSuccess: (result) => {
+                    setAssignedUser((result?.data as HttpResponse)?.data ?? []);
+                    setLoadingReqAssignedUser(false);
+                }
+            });
+        })();
+    }, [openAutoCompleteAssignedUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const {
         values,
@@ -115,13 +141,9 @@ function AddDepartmentDialog({...props}) {
                 noValidate
                 className="root"
                 onSubmit={handleSubmit}>
-                <Typography variant="h6" gutterBottom>
-                    {t("dialogs.department-dialog.title")}
-                </Typography>
-
                 <Grid container spacing={1}>
                     <Grid item md={12} xs={12}>
-                        <Typography variant="body2" color="text.secondary" mt={3} mb={1}>
+                        <Typography variant="body2" color="text.secondary" mb={1}>
                             {t("dialogs.department-dialog.name")}
                         </Typography>
                         <FormControl fullWidth size="small">
@@ -156,6 +178,7 @@ function AddDepartmentDialog({...props}) {
                             getOptionLabel={(option: any) => option?.uuid ? `${option?.firstName} ${option?.lastName}` : ""}
                             isOptionEqualToValue={(option: any, value) => option?.uuid === value?.uuid}
                             options={users}
+                            noOptionsText={t("dialogs.department-dialog.no_users")}
                             renderOption={(props, option) => (
                                 <ListItem {...props}>
                                     <ListItemText primary={`${option?.firstName} ${option?.lastName}`}/>
@@ -199,22 +222,86 @@ function AddDepartmentDialog({...props}) {
                         </Stack>
 
                     </Grid>
+
+                    <Typography fontWeight={600} fontSize={18}>
+                        {t("dialogs.department-dialog.add-staff")}
+                    </Typography>
+
+                    <Grid item md={12} xs={12} mb={2}>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            gutterBottom>
+                            {t("dialogs.department-dialog.assignedUser")}
+                        </Typography>
+                        <Autocomplete
+                            size={"small"}
+                            value={values.staff}
+                            multiple
+                            disableClearable
+                            sx={{
+                                maxHeight: 35,
+                                "& .MuiSelect-select": {
+                                    background: "white",
+                                }
+                            }}
+                            id="profile-select"
+                            open={openAutoCompleteAssignedUser}
+                            onOpen={() => setOpenAutoCompleteAssignedUser(true)}
+                            onClose={() => setOpenAutoCompleteAssignedUser(false)}
+                            onChange={(e, staff) => setFieldValue("staff", staff)}
+                            getOptionLabel={(option: any) => option?.userName ?? ""}
+                            filterOptions={(options, {inputValue}) => options.filter(item => item.firstName?.includes(inputValue) || item.lastName?.includes(inputValue))}
+                            isOptionEqualToValue={(option: any, value) => option?.uuid === value?.uuid}
+                            options={assignedUser}
+                            noOptionsText={t("dialogs.department-dialog.no_assignedUser")}
+                            renderOption={(props, option) => (
+                                <ListItem {...props}>
+                                    <ListItemText primary={`${option?.firstName} ${option?.lastName}`}/>
+                                </ListItem>
+                            )}
+                            renderInput={params =>
+                                <TextField
+                                    {...params}
+                                    color={"info"}
+                                    sx={{paddingLeft: 0}}
+                                    placeholder={t("dialogs.department-dialog.assignedUser-placeholder")}
+                                    helperText={(touched.user && errors.user) as any}
+                                    error={Boolean(touched.user && errors.user)}
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        endAdornment: (
+                                            <React.Fragment>
+                                                {loadingReqAssignedUser ?
+                                                    <CircularProgress color="inherit" size={20}/> : null}
+                                                {params.InputProps.endAdornment}
+                                            </React.Fragment>
+                                        ),
+                                    }}
+                                    variant="outlined"
+                                    fullWidth/>}
+                        />
+                    </Grid>
                 </Grid>
-                <Stack
-                    className="bottom-section"
-                    justifyContent="flex-end"
-                    spacing={2}
-                    direction={"row"}>
-                    <Button onClick={props.closeDraw}>
-                        {t("dialogs.department-dialog.cancel")}
-                    </Button>
-                    <LoadingButton
-                        {...{loading}}
-                        disabled={values.name?.length === 0 || Object.keys(errors).length > 0}
-                        type="submit" variant="contained" color="primary">
-                        {t("dialogs.department-dialog.save")}
-                    </LoadingButton>
-                </Stack>
+                <DialogActions>
+                    <Stack
+                        width={"100%"}
+                        justifyContent="space-between"
+                        spacing={2}
+                        direction={"row"}>
+                        <Button
+                            variant={"text-black"}
+                            onClick={props.data.closeDraw}>
+                            {t("dialogs.cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            disabled={values.name?.length === 0 || Object.keys(errors).length > 0}
+                            type="submit" variant="contained" color="primary">
+                            {t("dialogs.department-dialog.save")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
             </PaperStyled>
         </FormikProvider>
     )
