@@ -424,10 +424,11 @@ function TemplatesConfig() {
                                                     }}>
                                                     <IconButton
                                                         size="small"
+                                                        className="btn-edit"
                                                         onClick={() => {
                                                             edit(res);
                                                         }}>
-                                                        <IconUrl color={theme.palette.primary.main}
+                                                        <IconUrl color={theme.palette.text.secondary}
                                                                  path="ic-edit-patient"/>
                                                     </IconButton>
                                                 </Stack>
@@ -580,7 +581,7 @@ function TemplatesConfig() {
                                                                 setTimeout(() => setOpen(true));
                                                             }}>
                                                             <IconUrl width={20} height={20}
-                                                                     color={theme.palette.primary.main}
+                                                                     color={theme.palette.text.secondary}
                                                                      path="ic-open-eye"/>
                                                         </IconButton>
                                                         <Can I={"manage"} a={"settings"}
@@ -590,7 +591,7 @@ function TemplatesConfig() {
                                                                 onClick={() => {
                                                                     handleEditDoc(res);
                                                                 }}>
-                                                                <IconUrl color={theme.palette.primary.main}
+                                                                <IconUrl color={theme.palette.text.secondary}
                                                                          path="ic-edit-patient"/>
                                                             </IconButton>
                                                         </Can>
@@ -607,7 +608,7 @@ function TemplatesConfig() {
                                                                 onClick={() => {
                                                                     removeDoc(res);
                                                                 }}>
-                                                                <IconUrl color={theme.palette.error.main}
+                                                                <IconUrl color={theme.palette.text.secondary}
                                                                          path="ic-trash"/>
                                                             </IconButton>
                                                         </Can>
@@ -909,7 +910,7 @@ function TemplatesConfig() {
                                                                     setTimeout(() => setOpen(true));
                                                                 }}>
                                                                 <IconUrl width={20} height={20}
-                                                                         color={theme.palette.primary.main}
+                                                                         color={theme.palette.text.secondary}
                                                                          path="ic-open-eye"/>
                                                             </IconButton>
 
@@ -940,7 +941,7 @@ function TemplatesConfig() {
                                                                         setInfo(getPrescriptionUI());
                                                                         setOpenDialog(true);
                                                                     }}>
-                                                                    <IconUrl color={theme.palette.primary.main}
+                                                                    <IconUrl color={theme.palette.text.secondary}
                                                                              path="ic-edit-patient"/>
                                                                 </IconButton>
                                                             </Can>
@@ -957,7 +958,7 @@ function TemplatesConfig() {
                                                                     onClick={() => {
                                                                         removePrescription(card.uuid);
                                                                     }}>
-                                                                    <IconUrl color={theme.palette.error.main}
+                                                                    <IconUrl color={theme.palette.text.secondary}
                                                                              path="ic-trash"/>
                                                                 </IconButton>
                                                             </Can>
@@ -1088,7 +1089,8 @@ function TemplatesConfig() {
                                                             setAction("showAnalyses");
                                                         }}>
                                                         <IconUrl width={20} height={20}
-                                                                 color={theme.palette.primary.main} path="ic-open-eye"/>
+                                                                 color={theme.palette.text.secondary}
+                                                                 path="ic-open-eye"/>
                                                     </IconButton>
                                                     <Can I={"manage"} a={"settings"}
                                                          field={"settings__templates__analyses__update"}>
@@ -1106,7 +1108,7 @@ function TemplatesConfig() {
                                                                 setInfo("balance_sheet_request");
                                                                 setOpenDialog(true);
                                                             }}>
-                                                            <IconUrl color={theme.palette.primary.main}
+                                                            <IconUrl color={theme.palette.text.secondary}
                                                                      path="ic-edit-patient"/>
                                                         </IconButton>
                                                     </Can>
@@ -1123,7 +1125,8 @@ function TemplatesConfig() {
                                                             onClick={() => {
                                                                 removeAnalyses(card.uuid);
                                                             }}>
-                                                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                                                            <IconUrl color={theme.palette.text.secondary}
+                                                                     path="ic-trash"/>
                                                         </IconButton>
                                                     </Can>
                                                 </Stack>

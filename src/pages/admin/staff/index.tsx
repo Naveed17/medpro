@@ -290,7 +290,7 @@ function Staff() {
                             </Typography>
                         </Stack>
                     </DialogContent>
-                    <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 1}}>
                         <Stack direction="row" justifyContent={"space-between"} width={"100%"}>
                             <Button
                                 variant={"text-black"}

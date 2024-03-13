@@ -238,6 +238,7 @@ function ActFeesRow({...props}) {
                             {edit === row.uuid ? (
                                 <IconButton
                                     size="small"
+                                    className="btn-edit"
                                     disabled={fees?.length === 0}
                                     color={"primary"}
                                     sx={{mr: {md: 1}}}
@@ -247,7 +248,8 @@ function ActFeesRow({...props}) {
                                             setEdit("");
                                         }, 1000);
                                     }}>
-                                    {!isMobile && <IconUrl path="setting/edit"/>}
+                                    {!isMobile &&
+                                        <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>}
 
                                     <Typography fontSize={11} ml={1}>
                                         {t("save")}
@@ -256,11 +258,12 @@ function ActFeesRow({...props}) {
                             ) : (
                                 <IconButton
                                     size="small"
+                                    className="btn-edit"
                                     sx={{mr: {md: 1}}}
                                     onClick={() => {
                                         setEdit(row.uuid);
                                     }}>
-                                    <IconUrl path="setting/edit"/>
+                                    <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                 </IconButton>
                             )}
                             {!row.hasData && <IconButton
@@ -268,8 +271,14 @@ function ActFeesRow({...props}) {
                                     data.handleSelected(row);
                                 }}
                                 size="small"
-                                sx={{mr: {md: 1}}}>
-                                <IconUrl path="setting/icdelete"/>
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
                             </IconButton>}
                             {/*<Button
                         onClick={(e)=> handleEvent({row,event:e,action:'OPEN-AGREEMENT-DIALOG'})}

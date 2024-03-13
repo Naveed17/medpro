@@ -4,7 +4,7 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
-import {Box, Button, Container, IconButton, Stack, useTheme} from "@mui/material";
+import {Box, Button, Container, DialogActions, IconButton, Stack, useTheme} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useTranslation} from "next-i18next";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
@@ -217,14 +217,15 @@ function Trash() {
                 color={theme.palette.error.main}
                 contrastText={theme.palette.error.contrastText}
                 dialogClose={() => setDeleteDialog(false)}
+                size={"sm"}
                 sx={{
-                    direction: direction
+                    direction
                 }}
                 action={() => {
                     return (
-                        <Box sx={{minHeight: 150}}>
+                        <Box sx={{minHeight: 100}}>
                             <Typography sx={{textAlign: "center"}}
-                                        variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`)} </Typography>
+                                        fontWeight={"bold"}>{t(`dialogs.delete-dialog.sub-title`)} </Typography>
                             <Typography sx={{textAlign: "center"}}
                                         margin={2}>{t(`dialogs.delete-dialog.description`)}</Typography>
                         </Box>)
@@ -232,12 +233,11 @@ function Trash() {
                 open={deleteDialog}
                 title={t(`dialogs.delete-dialog.title`)}
                 actionDialog={
-                    <>
+                    <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
                         <Button
                             variant="text-primary"
                             onClick={() => setDeleteDialog(false)}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t(`dialogs.delete-dialog.cancel`)}
                         </Button>
                         <LoadingButton
@@ -246,11 +246,10 @@ function Trash() {
                             variant="contained"
                             color={"error"}
                             onClick={() => handleDeleteTrashAppointment(event?.id as string)}
-                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
-                        >
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="ic-trash"></Icon>}>
                             {t(`dialogs.delete-dialog.confirm`)}
                         </LoadingButton>
-                    </>
+                    </Stack>
                 }
             />
         </Box>
