@@ -14,8 +14,8 @@ import Zoom from "react-medium-image-zoom";
 import {useSnackbar} from "notistack";
 
 function StaffRow({...props}) {
-    const {row, t} = props;
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const {row} = props;
+    const {enqueueSnackbar} = useSnackbar();
     const copyContent = async () => {
         try {
             await navigator.clipboard.writeText("med12345*");
