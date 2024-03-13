@@ -18,7 +18,7 @@ import {useRouter} from "next/router";
 function StaffRow({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {row, isItemSelected, t, handleEvent, selected, handleClick} = props;
+    const {row, isItemSelected, handleEvent, selected, handleClick} = props;
     const router = useRouter()
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
 

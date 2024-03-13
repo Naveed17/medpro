@@ -106,7 +106,7 @@ function StaffDetails() {
                 SUN: []
             };
             const hours = (Object.values(user.slots)[0] as any)?.slots;
-            Object.keys(hours).forEach((ohours: any, index: number) => {
+            Object.keys(hours).forEach((ohours: any) => {
                 slots[ohours] = hours[ohours];
             });
             setSlots(slots);

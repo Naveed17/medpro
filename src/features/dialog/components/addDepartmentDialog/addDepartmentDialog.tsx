@@ -38,7 +38,6 @@ function AddDepartmentDialog({...props}) {
     const [loading, setLoading] = useState(false);
     const [openAutoCompleteAssignedUser, setOpenAutoCompleteAssignedUser] = useState(false);
     const [loadingReqAssignedUser, setLoadingReqAssignedUser] = useState(false);
-    const [selectedAssignedUser, setSelectedAssignedUser] = useState<any>([]);
     const [assignedUser, setAssignedUser] = useState<UserModel[]>([]);
 
     const {trigger: getUsersTrigger} = useRequestQueryMutation("/department/users/get");

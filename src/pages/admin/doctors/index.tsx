@@ -7,11 +7,11 @@ import {Box, LinearProgress, Stack, Button} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
-import {Otable, resetUser} from "@features/table";
+import {Otable} from "@features/table";
 import {DoctorToolbar} from "@features/toolbar";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {sideBarSelector, toggleSideBar} from "@features/menu";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {MobileContainer} from "@themes/mobileContainer";
@@ -19,7 +19,6 @@ import {DoctorsMobileCard, NoDataCard} from "@features/card";
 import {DrawerBottom} from "@features/drawerBottom";
 import IconUrl from "@themes/urlIcon";
 import {Doctors as DoctorsFilter} from '@features/leftActionBar'
-import moment from "moment-timezone";
 import {Dialog as CustomDialog} from "@features/dialog";
 
 const headCells = [

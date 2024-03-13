@@ -3,20 +3,14 @@ import DialogStyled from './overrides/dialogStyle';
 import {
     Badge,
     Box,
-    Button,
     Collapse,
     FormControlLabel,
     List,
     ListItem,
     Paper,
-    Radio,
-    RadioGroup,
     Stack,
-    TextField,
     Typography
 } from '@mui/material';
-import IconUrl from '@themes/urlIcon';
-import {Add} from '@mui/icons-material';
 import {useRouter} from 'next/router';
 import {groupPermissionsByFeature, useMedicalEntitySuffix} from '@lib/hooks';
 import {useRequestQueryMutation} from '@lib/axios';
@@ -26,18 +20,17 @@ import {TreeCheckbox} from '@features/treeViewCheckbox';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {FacebookCircularProgress} from '@features/progressUI';
-import {startCase} from "lodash";
 
 function AuthorizationStep({...props}) {
-    const {t, formik, profiles, openFeatureCollapse, setFeatureCollapse} = props;
-    const {getFieldProps, touched, errors, values, setFieldValue} = formik;
+    const {t, formik} = props;
+    const {values, setFieldValue} = formik;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {t: menuTranslation} = useTranslation("menu");
     const [loadingReq, setLoadingReq] = useState(false);
     const router = useRouter()
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const {trigger: featurePermissionsTrigger} = useRequestQueryMutation("/feature/permissions/all");
-    console.log("values", values.roles);
+
     const HandleFeatureCollapse = (slug: string, roles: any) => {
         if (openCollapseFeature !== slug) {
             setLoadingReq(true);

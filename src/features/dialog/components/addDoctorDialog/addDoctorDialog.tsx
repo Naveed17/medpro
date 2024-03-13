@@ -83,7 +83,6 @@ function AddDoctorDialog({...props}) {
     const {
         values,
         errors,
-        touched,
         handleSubmit,
         getFieldProps,
         setFieldValue

@@ -172,7 +172,7 @@ const Chat = ({...props}) => {
             url: `/-/chat/api/discussion`
         }, {
             onSuccess: (res) => {
-                mutate().then(r => {
+                mutate().then(() => {
                     setSelectedDiscussion(res.data)
                     getMessages(res.data)
                 })

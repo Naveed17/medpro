@@ -8,7 +8,6 @@ import {
     Button,
     DialogActions,
     DialogContent,
-    Drawer,
     Stack, Theme,
     Typography
 } from "@mui/material";
@@ -22,7 +21,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
-import {AddDepartmentDialog, Dialog as CustomDialog} from "@features/dialog";
+import {Dialog as CustomDialog} from "@features/dialog";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import {LoadingButton} from "@mui/lab";

@@ -22,7 +22,7 @@ function AssignmentStep({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
 
-    const [profiles, setProfiles] = useState([
+    const [profiles] = useState([
         {
             key: "secretary"
         }, {
@@ -33,7 +33,6 @@ function AssignmentStep({...props}) {
     ]);
     const [openAutoCompleteDepartment, setOpenAutoCompleteDepartment] = useState(false);
     const [loadingReqDepartment, setLoadingReqDepartment] = useState(false);
-    const [selectedDepartment, setSelectedDepartment] = useState<any>([]);
     const [departments, setDepartments] = useState<DepartmentModel[]>([]);
     const [openAutoCompleteDoctors, setOpenAutoCompleteDoctors] = useState(false);
     const [loadingReqDoctors, setLoadingReqDoctors] = useState(false);
@@ -237,7 +236,7 @@ function AssignmentStep({...props}) {
                     </Stack>
                     <Button
                         onClick={() => {
-                            setFieldValue("assigned_doctors", values.assigned_doctors.filter((item: any) => doctor.uuid !== doctor.uuid));
+                            setFieldValue("assigned_doctors", values.assigned_doctors.filter((item: any) => item.uuid !== doctor.uuid));
                         }}
                         variant="contained"
                         color="info">
