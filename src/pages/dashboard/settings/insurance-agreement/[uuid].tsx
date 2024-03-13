@@ -169,6 +169,9 @@ function Actes() {
             form.append("refund", newAct.refund ? newAct.refund : 0)
             form.append("patient_part", newAct.patient_part)
             form.append("apcis", newAct.apci)
+            if (method === "POST")
+                form.append("act", newAct.act.uuid)
+
             trigger({
                 method,
                 url,
