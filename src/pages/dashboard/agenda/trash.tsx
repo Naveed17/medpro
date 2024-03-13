@@ -4,7 +4,7 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
-import {Box, Button, Container, DialogActions, IconButton, Stack, useTheme} from "@mui/material";
+import {Box, Button, Container, IconButton, Stack, useTheme} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useTranslation} from "next-i18next";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
