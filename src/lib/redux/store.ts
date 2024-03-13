@@ -30,6 +30,7 @@ import {StepperReducer} from "@features/stepper";
 import storageSession from 'redux-persist/lib/storage/session'
 import {persistReducer} from 'redux-persist';
 import {CaslReducer} from "@features/casl";
+import {ChatReducer} from "@features/chat/reducer";
 
 const persistConfig = {
     key: 'root',
@@ -56,6 +57,7 @@ const rootReducer = combineReducers({
     timer: timerReducer,
     leftActionBar: leftActionBarReducer,
     dashLayout: DashLayoutReducer,
+    chat: ChatReducer,
     appLock: AppLockReducer,
     patientDetail: dialogPatientDetailReducer,
     duplicate: DuplicatedReducer,

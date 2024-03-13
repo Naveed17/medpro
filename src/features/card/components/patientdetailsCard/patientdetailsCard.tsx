@@ -30,7 +30,6 @@ import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
-import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
@@ -41,6 +40,7 @@ import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog} from "@features/dialog";
+import {setMessage, setOpenChat} from "@features/chat/actions";
 
 function PatientDetailsCard({...props}) {
     const {
@@ -223,7 +223,7 @@ function PatientDetailsCard({...props}) {
                           spacing={1.2}
                           direction="row"
                           justifyContent="space-between">
-                        <Grid item md={9}>
+                        <Grid item md={12}>
                             <Stack direction={"row"} spacing={1.2}>
                                 {loading ? (
                                     <Skeleton
@@ -295,26 +295,37 @@ function PatientDetailsCard({...props}) {
                                                 }}
                                                 {...getFieldProps("name")}
                                             />
-                                            {isBeta && rest > 0 &&
-                                                <div onClick={() => {
-                                                    setOpenPaymentDialog(true)
-                                                }}>
-                                                    <Label variant='filled' sx={{
-                                                        color: theme.palette.error.main,
-                                                        background: theme.palette.error.lighter
+                                            <Stack spacing={1} direction={"row"} alignItems={"center"}>
+                                                {isBeta && rest > 0 &&
+                                                    <div onClick={() => {
+                                                        setOpenPaymentDialog(true)
                                                     }}>
-                                                        {!isMobile && <span
-                                                            style={{fontSize: 11}}>{commonTranslation('credit')}</span>}
-                                                        <span style={{
-                                                            fontSize: 14,
-                                                            marginLeft: 5,
-                                                            marginRight: 5,
-                                                            fontWeight: "bold"
-                                                        }}>{rest}</span>
-                                                        <span>{devise}</span>
-                                                    </Label>
-                                                </div>
-                                            }
+                                                        <Label variant='filled' sx={{
+                                                            color: theme.palette.error.main,
+                                                            background: theme.palette.error.lighter
+                                                        }}>
+                                                            {!isMobile && <span
+                                                                style={{fontSize: 11}}>{commonTranslation('credit')}</span>}
+                                                            <span style={{
+                                                                fontSize: 14,
+                                                                marginLeft: 5,
+                                                                marginRight: 5,
+                                                                fontWeight: "bold"
+                                                            }}>{rest}</span>
+                                                            <span>{devise}</span>
+                                                        </Label>
+                                                    </div>
+                                                }
+                                                <IconButton style={{
+                                                    backgroundColor: theme.palette.background.default,
+                                                    borderRadius: 8
+                                                }} onClick={() => {
+                                                    dispatch(setOpenChat(true))
+                                                    dispatch(setMessage(`<span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`))
+                                                }}>
+                                                    <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
+                                                </IconButton>
+                                            </Stack>
                                         </Stack>
                                     )}
 
@@ -424,8 +435,7 @@ function PatientDetailsCard({...props}) {
                                     ))}
 
                                     {loading ?
-                                        <Skeleton variant="text" width={150}/>
-                                        :
+                                        <Skeleton variant="text" width={150}/> :
                                         <Stack ml={"-1px"} direction={"row"} alignItems="center">
                                             <Typography
                                                 variant="body2"
@@ -441,13 +451,8 @@ function PatientDetailsCard({...props}) {
                                                             startAdornment={
                                                                 <Stack mr={.5} direction={"row"} alignItems={"center"}
                                                                        justifyContent={"center"}>
-                                                                    <FolderRoundedIcon
-                                                                        sx={{
-                                                                            color: "gray",
-                                                                            width: 16,
-                                                                            height: 16,
-                                                                            mr: 1
-                                                                        }}/>
+                                                                    <IconUrl path="ic-folder" width={16} height={16}
+                                                                             color={theme.palette.text.secondary}/>
                                                                     <Typography variant={"body2"} sx={{width: 50}}>Fiche
                                                                         N°</Typography>
                                                                 </Stack>}
@@ -537,11 +542,43 @@ function PatientDetailsCard({...props}) {
                                                 )}
                                             </Typography>
                                         </Stack>}
+                                    {!roles.includes('ROLE_SECRETARY') && (
+                                        <Box>
+                                            {loading ? (
+                                                <Skeleton
+                                                    variant="rectangular"
+                                                    sx={{
+                                                        ml: {md: "auto", xs: 0},
+                                                        maxWidth: {md: 193, xs: "100%"},
+                                                        minHeight: {md: 60, xs: 40},
+                                                        width: 153,
+                                                        borderRadius: "4px",
+                                                    }}
+                                                />
+                                            ) : (
+                                                <LoadingButton
+                                                    loading={requestLoading}
+                                                    onClick={startConsultationFormPatient}
+                                                    disabled={isActive}
+                                                    variant="contained"
+                                                    sx={{
+                                                        ml: {md: "auto", xs: 0},
+                                                        maxWidth: {md: 193, xs: "100%"},
+                                                    }}
+                                                    color="warning"
+                                                    startIcon={<PlayCircleIcon/>}>
+                                                    <Typography
+                                                        component='strong' variant={"body2"}
+                                                        fontSize={13}>{t("start-consultation")}</Typography>
+                                                </LoadingButton>
+                                            )}
+                                        </Box>
+                                    )}
                                 </Box>
                             </Stack>
                         </Grid>
-                        <Grid item md={3}>
-                            {/*                        <div>
+                        {/* <Grid item md={3}>
+                                                  <div>
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
@@ -556,41 +593,9 @@ function PatientDetailsCard({...props}) {
                                     </Typography>
                                 </Stack>
                             )}
-                        </div>*/}
-                            {!roles.includes('ROLE_SECRETARY') && (
-                                <Box>
-                                    {loading ? (
-                                        <Skeleton
-                                            variant="rectangular"
-                                            sx={{
-                                                ml: {md: "auto", xs: 0},
-                                                maxWidth: {md: 193, xs: "100%"},
-                                                minHeight: {md: 60, xs: 40},
-                                                width: 153,
-                                                borderRadius: "4px",
-                                            }}
-                                        />
-                                    ) : (
-                                        <LoadingButton
-                                            loading={requestLoading}
-                                            onClick={startConsultationFormPatient}
-                                            disabled={isActive}
-                                            variant="contained"
-                                            sx={{
-                                                ml: {md: "auto", xs: 0},
-                                                maxWidth: {md: 193, xs: "100%"},
-                                                minHeight: {md: 60, xs: 40}
-                                            }}
-                                            color="warning"
-                                            startIcon={<PlayCircleIcon/>}>
-                                            <Typography
-                                                component='strong' variant={"body2"}
-                                                fontSize={13}>{t("start-consultation")}</Typography>
-                                        </LoadingButton>
-                                    )}
-                                </Box>
-                            )}
-                        </Grid>
+                        </div>
+
+                        </Grid>*/}
                     </Grid>
                 </Form>
             </FormikProvider>

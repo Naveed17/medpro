@@ -301,9 +301,13 @@ function CertifDialog({...props}) {
             onSuccess: (result) => {
                 const data = result.data.data
                 if (data) {
-                    let res: { key: string, value: string,description:string }[] = [];
+                    let res: { key: string, value: string, description: string }[] = [];
                     Object.keys(data).filter(key => data[key] !== "").forEach(key => {
-                        res.push({key:data[key].label, value: (Object.values(data[key].data)[0] as string), description:data[key].description})
+                        res.push({
+                            key: data[key].label,
+                            value: (Object.values(data[key].data)[0] as string),
+                            description: data[key].description
+                        })
                     })
                     setTraking(res)
                 }
@@ -418,7 +422,7 @@ function CertifDialog({...props}) {
     }, [httpDocumentHeader])
 
     useEffect(() => {
-        setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 280) : 280);
+        setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 480) : 280);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -426,14 +430,14 @@ function CertifDialog({...props}) {
     return (
         <CertifDialogStyled>
             <Grid container sx={{height: "100%"}}>
-                <Grid item xs={12} md={9}>
+                <Grid item xs={12} md={fullScreen ? 12 : 9}>
                     <List sx={{
                         width: '100%',
                         bgColor: 'background.paper',
                         paddingRight: 2
                     }}>
                         <Stack spacing={1}>
-                            <Stack direction={"row"} spacing={2} sx={{width: "100%"}}>
+                            {!fullScreen && <Stack direction={"row"} spacing={2} sx={{width: "100%"}}>
                                 <Stack sx={{width: "100%"}}>
                                     <Typography style={{color: "gray"}}
                                                 fontSize={12}>{t('consultationIP.title')}</Typography>
@@ -478,10 +482,10 @@ function CertifDialog({...props}) {
                                             value={template.uuid}>{template.title}</MenuItem>)}
                                     </Select>
                                 </Stack>
-                            </Stack>
+                            </Stack>}
 
-                            <Typography style={{color: "gray"}} fontSize={12} mt={1}
-                                        mb={1}>{t('consultationIP.contenu')}</Typography>
+                            {!fullScreen && <Typography style={{color: "gray"}} fontSize={12} mt={1}
+                                                        mb={1}>{t('consultationIP.contenu')}</Typography>}
 
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
                                 <Stack direction={"row"} alignItems={"center"} spacing={1} style={{flexWrap: "wrap"}}>
@@ -489,7 +493,7 @@ function CertifDialog({...props}) {
                                         <Tooltip key={cb.name} title={t(`consultationIP.${cb.title}_placeholder`)}>
                                             <Button color={"info"}
                                                     variant="outlined"
-                                                    style={{marginBottom:5}}
+                                                    style={{marginBottom: 5}}
                                                     onClick={() => {
                                                         addVal(cb.name)
                                                     }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}
@@ -497,7 +501,7 @@ function CertifDialog({...props}) {
                                         </Tooltip>))}
                                     <Button color={expanded ? "primary" : "info"}
                                             variant="outlined"
-                                            style={{marginBottom:5}}
+                                            style={{marginBottom: 5}}
                                             onClick={() => showTrakingData()}
                                             size={"small"}>
                                         {t(`consultationIP.tracking_data`)}
@@ -506,7 +510,7 @@ function CertifDialog({...props}) {
 
                                     {hasAntecedents && <Button color={expandedAntecedent ? "primary" : "info"}
                                                                variant="outlined"
-                                                               style={{marginBottom:5}}
+                                                               style={{marginBottom: 5}}
                                                                onClick={() => showAntecedentData()}
                                                                size={"small"}>
                                         {t(`consultationIP.antecedent`)}
@@ -516,7 +520,7 @@ function CertifDialog({...props}) {
 
                                     {hasMotif && <Button color={expandedMotif ? "primary" : "info"}
                                                          variant="outlined"
-                                                         style={{marginBottom:5}}
+                                                         style={{marginBottom: 5}}
                                                          onClick={() => showMotifData()} size={"small"}>
                                         {t(`consultationIP.consultation_reason`)}
                                         {expandedMotif ? <KeyboardArrowUpRoundedIcon/> :
@@ -525,7 +529,7 @@ function CertifDialog({...props}) {
 
                                     <Button color={expandedActs ? "primary" : "info"}
                                             variant="outlined"
-                                            style={{marginBottom:5}}
+                                            style={{marginBottom: 5}}
                                             onClick={() => showActsData()} size={"small"}>
                                         {t(`consultationIP.acts`)}
                                         {expandedActs ? <KeyboardArrowUpRoundedIcon/> :
@@ -567,7 +571,8 @@ function CertifDialog({...props}) {
                                                 size={"small"}> <AddIcon/> {item}
                                         </Button>
                                     ))}
-                                    {antecedents.length === 0 && <Typography className={'empty'}>{t('noData')}</Typography>}
+                                    {antecedents.length === 0 &&
+                                        <Typography className={'empty'}>{t('noData')}</Typography>}
                                 </div>
                             </Collapse>
                             <Collapse in={expandedMotif} timeout="auto" unmountOnExit>
@@ -623,7 +628,7 @@ function CertifDialog({...props}) {
                         </Stack>
                     </List>
                 </Grid>
-                <Grid item xs={12} md={3} style={{borderLeft: `1px solid ${theme.palette.grey[200]}`}}>
+                {!fullScreen && <Grid item xs={12} md={3} style={{borderLeft: `1px solid ${theme.palette.grey[200]}`}}>
                     <Stack>
                         {editModel ?
                             <Stack direction={"row"} spacing={1} justifyContent={"end"}>
@@ -708,7 +713,7 @@ function CertifDialog({...props}) {
                         startIcon={<AddRoundedIcon/>}>
                         {t("consultationIP.new_file")}
                     </Button>
-                </Grid>
+                </Grid>}
             </Grid>
 
 

@@ -13,9 +13,11 @@ import {useRouter} from "next/router";
 
 function Page({...props}) {
 
-    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue,
-        state,
-        urlMedicalProfessionalSuffix,docs,setDocs} = props
+    const {
+        data, setData, id = 0, setOnResize, date, header, setHeader, setValue,
+        state, componentRef,
+        urlMedicalProfessionalSuffix, docs, setDocs
+    } = props
     const {Canvas} = useQRCode();
 
     const theme = useTheme();
@@ -44,9 +46,9 @@ function Page({...props}) {
         }, 2000)
     }, [])
 
-    const getFile = (uuid:string) =>{
-        const _file = docs?.find((doc:{uuid:string}) => doc.uuid === uuid)
-       return _file ? _file.file.url : "/static/icons/Med-logo.png";
+    const getFile = (uuid: string) => {
+        const _file = docs?.find((doc: { uuid: string }) => doc.uuid === uuid)
+        return _file ? _file.file.url : "/static/icons/Med-logo.png";
     }
 
     const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
@@ -62,7 +64,7 @@ function Page({...props}) {
                 }, {
                     onSuccess: (res) => {
                         data.other[index].content = res.data.data[0]
-                        setDocs((prev:any) => [...prev,{uuid:res.data.data[0],file: {url: fr.result}}])
+                        setDocs((prev: any) => [...prev, {uuid: res.data.data[0], file: {url: fr.result}}])
                         setData({...data})
                     },
                 });
@@ -73,6 +75,14 @@ function Page({...props}) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [data]
     );
+
+    const getPosition = (index: number, pos: string) => {
+        const page = data.content.pages?.find((page: { id: number }) => page.id == index)
+        if (page)
+            return page[pos]
+        else
+            return data.content[pos]
+    }
 
     useEffect(() => {
         if (selectedElement !== "") {
@@ -96,25 +106,65 @@ function Page({...props}) {
                         ]
                     })
             } else {
-                interact(`.${selectedElement}`)
-                    .draggable({
-                        listeners: {
-                            move(event) {
-                                if (!blockDrag) {
-                                    data[selectedElement].x += event.dx
-                                    data[selectedElement].y += event.dy
-                                    setData({...data})
-                                }
-                            },
-                        },
-                        modifiers: [
-                            interact.modifiers.restrictRect({
-                                restriction: 'parent'
-                            })
-                        ]
-                    })
-            }
+                if (selectedElement.includes("content"))
+                    interact(`.${selectedElement}`)
+                        .draggable({
+                            listeners: {
+                                move(event) {
+                                    const index = parseInt(selectedElement.replace("content", ""))
+                                    if (!blockDrag) {
+                                        const _height = document.getElementById(selectedElement)?.clientHeight;
 
+                                        if (data.content.pages) {
+                                            const page = data.content.pages.find((page: {
+                                                id: number
+                                            }) => page.id == index)
+                                            if (page) {
+                                                page.x += event.dx
+                                                page.y += event.dy
+                                            } else {
+                                                data.content.pages.push({
+                                                    id: index,
+                                                    x: data.content.x + event.dx,
+                                                    y: data.content.y + event.dy,
+                                                    height: _height
+                                                })
+                                            }
+                                        } else data.content.pages = [{
+                                            id: index,
+                                            x: data.content.x + event.dx,
+                                            y: data.content.y + event.dy,
+                                            height: _height
+                                        }]
+                                        setData({...data})
+                                    }
+                                },
+                            },
+                            modifiers: [
+                                interact.modifiers.restrictRect({
+                                    restriction: 'parent'
+                                })
+                            ]
+                        })
+                else
+                    interact(`.${selectedElement}`)
+                        .draggable({
+                            listeners: {
+                                move(event) {
+                                    if (!blockDrag) {
+                                        data[selectedElement].x += event.dx
+                                        data[selectedElement].y += event.dy
+                                        setData({...data})
+                                    }
+                                },
+                            },
+                            modifiers: [
+                                interact.modifiers.restrictRect({
+                                    restriction: 'parent'
+                                })
+                            ]
+                        })
+            }
         }
 
         const footer = document.getElementById('footer')
@@ -125,14 +175,11 @@ function Page({...props}) {
 
     useEffect(() => {
         if (data.background.show && data.background.content !== '') {
-            if (data.background.content.thumbnails)
-                setBackgroundImg(data.background.content.url)
-            else
-                fetch(data.background.content.url).then(response => {
-                    response.blob().then(blob => {
-                        setBackgroundImg(URL.createObjectURL(blob));
-                    })
+            fetch(data.background.content.url).then(response => {
+                response.blob().then(blob => {
+                    setBackgroundImg(URL.createObjectURL(blob));
                 })
+            }).catch(() => setBackgroundImg(data.background.content.url))
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -140,15 +187,16 @@ function Page({...props}) {
     return (
         <PageStyled>
             <div className={"dropzone"} id="inner-dropzone">
-                <div
-                    style={{
-                        ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
-                            backgroundImage: `url(${backgroundImg})`,
-                            backgroundRepeat: "no-repeat",
-                            backgroundSize: "100% 100%"
-                        })
-                    }}
-                    className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
+                <div id={`page${id}`}
+                     style={{
+                         ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
+                             backgroundImage: `url(${backgroundImg})`,
+                             backgroundRepeat: "no-repeat",
+                             backgroundSize: "100% 100%"
+                         })
+                     }}
+                     {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[id] = element})}
+                     className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
                     {/*Header*/}
                     {
                         data.header.show && id == 0 && <Resizable
@@ -184,14 +232,12 @@ function Page({...props}) {
                             </div>
 
                             <div className={"menuTop"}>
-
                                 <div className={"btnMenu"} onClick={() => {
                                     data.header.show = false;
                                     setData({...data})
                                 }}>
                                     <Icon path={"ic-delete"}/>
                                 </div>
-
                                 <div className={"btnMenu"}
                                      style={{backgroundColor: selectedElement === "header" ? theme.palette.success.main : theme.palette.info.main}}
                                      onClick={() => {
@@ -199,8 +245,6 @@ function Page({...props}) {
                                      }}>
                                     <Icon path={selectedElement !== "header" ? "ic-edit-patient" : "ic-check"}/>
                                 </div>
-
-
                             </div>
                         </Resizable>}
 
@@ -312,7 +356,8 @@ function Page({...props}) {
                                  onClick={() => {
                                      setSelectedElement(selectedElement !== "date" ? "date" : "")
                                  }}>
-                                <Icon path={selectedElement !== "date" ? "text-selection" : "ic-check"} width={20} height={20}/>
+                                <Icon path={selectedElement !== "date" ? "text-selection" : "ic-check"} width={20}
+                                      height={20}/>
                             </div>
                         </div>
                     </Resizable>}
@@ -368,7 +413,8 @@ function Page({...props}) {
                                  onClick={() => {
                                      setSelectedElement(selectedElement !== "patient" ? "patient" : "")
                                  }}>
-                                <Icon path={selectedElement !== "patient" ? "text-selection" : "ic-check" } width={20} height={20}/>
+                                <Icon path={selectedElement !== "patient" ? "text-selection" : "ic-check"} width={20}
+                                      height={20}/>
                             </div>
                         </div>
                     </Resizable>}
@@ -474,8 +520,7 @@ function Page({...props}) {
                     </Resizable>}
 
                     {
-                        data.other && id == 0  && data.other.map((other: any, index: number) => (
-
+                        data.other && id == 0 && data.other.map((other: any, index: number) => (
                             <Resizable
                                 key={index}
                                 defaultSize={{
@@ -589,18 +634,18 @@ function Page({...props}) {
 
                     {/*Content*/}
                     <Resizable
-                        className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable content${id}`}
+                        className={`${selectedElement === `content${id}` ? "selected" : "notSelected"} content resizable content${id}`}
                         style={{
                             paddingLeft: 15, paddingRight: 15,
-                            transform: `translate(${id === 0 ? data.content.x : 0}px, ${id === 0 ? data.content.y : 50}px)`,
+                            transform: `translate(${getPosition(id, "x")}px, ${getPosition(id, "y")}px)`,
                             width: `${data.content.width ? data.content.width + "px" : "90%"}`,
                             height: `${data.content.maxHeight}px`
                         }}
                         bounds={"parent"}
                         enable={{
-                            right: selectedElement === "content" && id === 0,
-                            bottom: selectedElement === "content",
-                            bottomRight: selectedElement === "content" && id === 0
+                            right: selectedElement === `content${id}` && id === 0,
+                            bottom: selectedElement === `content${id}`,
+                            bottomRight: selectedElement === `content${id}` && id === 0
                         }}
                         defaultSize={{
                             width: `${data.content.width ? data.content.width + "px" : "90%"}`,
@@ -618,8 +663,6 @@ function Page({...props}) {
                             if (data.content.pages) {
                                 const page = data.content.pages.find((page: { id: number }) => page.id == id)
                                 if (page) {
-                                    page.x = data.content.x
-                                    page.y = data.content.y
                                     page.height = _height
                                 } else data.content.pages.push({
                                     id,
@@ -633,13 +676,12 @@ function Page({...props}) {
                             setBlockDrag(false)
                             setOnResize(true);
                         }}>
-
                         <div
                             id={`content${id}`}
                             style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
                             dangerouslySetInnerHTML={{__html: data.content.content}}/>
                         <div className={"menuTop"} style={{top: 0}}>
-                            {state &&<div className={"btnMenu"}>
+                            {state && <div className={"btnMenu"}>
                                 <div onClick={() => {
                                     setValue("content")
                                 }}>
@@ -647,12 +689,12 @@ function Page({...props}) {
                                 </div>
                             </div>}
                             <div className={"btnMenu"}
-                                 style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
+                                 style={{background: selectedElement === `content${id}` ? theme.palette.success.main : theme.palette.info.main}}>
                                 <div onClick={() => {
-                                    setSelectedElement(selectedElement !== "content" ? "content" : "")
-                                    selectedElement === "content" && interact(".content").draggable(false);
+                                    setSelectedElement(selectedElement !== `content${id}` ? `content${id}` : "")
+                                    selectedElement === `content${id}` && interact(`.content${id}`).draggable(false);
                                 }}>
-                                    {selectedElement === "content" ?
+                                    {selectedElement === `content${id}` ?
                                         <Icon path={"ic-check"}/> :
                                         <Icon path={"text-selection"} width={20} height={20}/>}
                                 </div>
@@ -661,7 +703,7 @@ function Page({...props}) {
                     </Resizable>
 
                     {/*footer*/}
-                    {data.footer.show && id===0 && <Resizable
+                    {data.footer.show && id === 0 && <Resizable
                         defaultSize={{
                             width: `${data.footer.width ? data.footer.width + "px" : 300}`,
                             height: `${data.footer.height ? data.footer.height + "px" : "fit-content"}`,

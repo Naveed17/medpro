@@ -43,6 +43,7 @@ import {useProfilePhoto} from "@lib/hooks/rest";
 import {Label} from "@features/label";
 import {DefaultCountry, MobileContainer} from "@lib/constants";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
+import {setMessage, setOpenChat} from "@features/chat/actions";
 
 function AppointmentDetail({...props}) {
     const {
@@ -298,10 +299,20 @@ function AppointmentDetail({...props}) {
                                     </Stack>
                                 </Stack>
                                 {(canManageActions && OnEditDetail && !appointment?.extendedProps.patient?.isArchived) &&
-                                    <IconButton className={"edit-button"} size="small"
-                                                onClick={() => OnEditDetail(appointment)}>
-                                        <IconUrl path="ic-duotone"/>
-                                    </IconButton>}
+                                    <Stack>
+                                        <IconButton className={"edit-button"} size="small"
+                                                    onClick={() => OnEditDetail(appointment)}>
+                                            <IconUrl path="ic-edit-patient"/>
+                                        </IconButton>
+                                        <IconButton className={"edit-button"} size="small"
+                                                    onClick={() => {
+                                                        dispatch(setOpenChat(true))
+                                                        dispatch(setMessage(`<span class="tag" id="${appointment?.extendedProps.patient?.uuid}">${appointment?.extendedProps.patient?.firstName} ${appointment?.extendedProps.patient?.lastName} </span><span class="afterTag">, </span>`))
+                                                    }}>
+                                            <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
+                                        </IconButton>
+                                    </Stack>
+                                }
                             </Stack>
 
                             {(!roles.includes("ROLE_SECRETARY") && canManageActions && (OnConsultationView || OnConsultation)) && (

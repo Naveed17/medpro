@@ -55,6 +55,8 @@ import {FacebookCircularProgress} from "@features/progressUI";
 import {LoadingScreen} from "@features/loadingScreen";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Doc} from "@features/page";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -119,6 +121,7 @@ function DocumentDetailDialog({...props}) {
     const [previewDoc, setPreviewDoc] = useState<any>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [onReSize, setOnResize] = useState(true)
+    const [pdfUrl, setPdfUrl] = useState('');
 
     const {direction} = useAppSelector(configSelector);
 
@@ -370,14 +373,21 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
+                /*const element = document.getElementById('page0');
+                element && html2canvas(element).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF();
+                    const width = pdf.internal.pageSize.getWidth();
+                    const height = pdf.internal.pageSize.getHeight();
+                    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+                    pdf.save('capture.pdf');
+                });*/
                 if (generatedDocs.some(doc => doc == state?.type)) {
                     const file = await generatePdfFromHtml(componentRef, "blob");
                     const fileURL = window.URL.createObjectURL((file as Blob));
                     let alink = document.createElement('a');
                     alink.href = fileURL;
-                    alink.download =
-                        `${state?.type} ${state?.patient}`
-
+                    alink.download = `${state?.type} ${state?.patient}`
                     alink.click();
                 } else {
                     downloadF();
@@ -494,6 +504,24 @@ function DocumentDetailDialog({...props}) {
         });
     }
 
+    /* const convertToPdf = async (htmlContent) => {
+         const response = await fetch('/api/convertToPdf', {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+             },
+             body: JSON.stringify({ htmlContent }),
+         });
+         if (response.ok) {
+             const pdfBlob = await response.blob();
+             const pdfUrl = URL.createObjectURL(pdfBlob);
+             setPdfUrl(pdfUrl);
+         } else {
+             console.error('Failed to convert HTML to PDF');
+         }
+     };
+
+ */
     useEffect(() => {
         setIsImg(state?.detectedType?.split('/')[0] === 'image')
         setFile(state?.uri)
@@ -502,7 +530,7 @@ function DocumentDetailDialog({...props}) {
     useEffect(() => {
         if (state?.print && previewDocRef.current) {
             setIsPrinting(true);
-            setTimeout(() => handlePrint(),1000);
+            setTimeout(() => handlePrint(), 1000);
         }
     }, [state?.print, previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -611,6 +639,7 @@ function DocumentDetailDialog({...props}) {
                     <Doc {...{
                         data,
                         setData,
+                        componentRef,
                         header, setHeader,
                         date,
                         onReSize, setOnResize,
@@ -690,6 +719,11 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
+                        {pdfUrl && (
+                            <a href={pdfUrl} download="converted.pdf">
+                                Download PDF
+                            </a>
+                        )}
                         {!multimedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
