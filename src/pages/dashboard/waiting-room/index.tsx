@@ -1004,18 +1004,22 @@ function WaitingRoom() {
                 title={t("pre_consultation_dialog_title")}
                 {...(!loadingRequest && {dialogClose: () => setOpenPreConsultationDialog(false)})}
                 actionDialog={
-                    <DialogActions>
-                        <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                    <Stack direction={"row"}
+                           justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant={"text-black"}
+                            onClick={() => setOpenPreConsultationDialog(false)}
+                            startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "common"})}
                         </Button>
                         <Button
                             disabled={loadingRequest}
                             variant="contained"
                             onClick={() => submitPreConsultationData()}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("save", {ns: "common"})}
                         </Button>
-                    </DialogActions>
+                    </Stack>
                 }
             />
 
@@ -1038,8 +1042,9 @@ function WaitingRoom() {
                     })
                 })}
                 actionDialog={
-                    <DialogActions>
+                    <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
                         <Button
+                            variant={"text-black"}
                             onClick={() => {
                                 setOpenUploadDialog({...openUploadDialog, dialog: false});
                             }}
@@ -1057,7 +1062,7 @@ function WaitingRoom() {
                             startIcon={<SaveRoundedIcon/>}>
                             {t("save", {ns: "common"})}
                         </LoadingButton>
-                    </DialogActions>
+                    </Stack>
                 }
             />
         </>
