@@ -15,7 +15,7 @@ module.exports = {
         backendOptions: [{
             expirationTime: 60 * 60 * 1000, // 1 hour
         }, ...(!isDev ? [{
-            loadPath: 'https://cdn.med.tn/locales/{{lng}}/{{ns}}.json'
+            loadPath: `${process.env.NEXT_PUBLIC_CDN_API}/{{lng}}/{{ns}}.json`
         }] : [])], backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
     },
     serializeConfig: false,

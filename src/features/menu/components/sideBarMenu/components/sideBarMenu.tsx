@@ -178,7 +178,7 @@ function SideBarMenu({children}: LayoutProps) {
                 ))}
             </List>
             <List className="list-bottom">
-                <Can I={"read"} a={"statistics"}>
+                {!hasAdminAccess && <Can I={"read"} a={"statistics"}>
                     <ListItem
                         onClick={() => handleRouting(`/${hasAdminAccess ? "admin" : "dashboard"}/statistics`)}
                         disableRipple
@@ -195,7 +195,7 @@ function SideBarMenu({children}: LayoutProps) {
                             <ListItemText primary={t("main-menu.statistics")}/>
                         </Hidden>
                     </ListItem>
-                </Can>
+                </Can>}
                 <Can I={"read"} a={"settings"}>
                     <ListItem
                         onClick={handleSettingRoute}
