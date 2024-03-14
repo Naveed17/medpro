@@ -389,9 +389,9 @@ function Profile() {
                                     <Can I={"manage"} a={"settings"} field={"settings__profile__insurance__edit"}>
                                         <IconButton
                                             size="small"
-                                            color="primary"
+                                            className="btn-edit"
                                             onClick={() => dialogOpen("assurance")}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                         </IconButton>
                                     </Can>
                                 </Stack>
@@ -496,9 +496,9 @@ function Profile() {
                                     <Can I={"manage"} a={"settings"} field={"settings__profile__payment_means__edit"}>
                                         <IconButton
                                             size="small"
-                                            color="primary"
+                                            className="btn-edit"
                                             onClick={() => dialogOpen("mode")}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                         </IconButton>
                                     </Can>
                                 </Stack>
@@ -552,9 +552,9 @@ function Profile() {
                                     <Can I={"manage"} a={"settings"} field={"settings__profile__languages__edit"}>
                                         <IconButton
                                             size="small"
-                                            color="primary"
+                                            className="btn-edit"
                                             onClick={() => dialogOpen("langues")}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                         </IconButton>
                                     </Can>
                                 </Stack>
@@ -622,9 +622,9 @@ function Profile() {
                                     <Can I={"manage"} a={"settings"} field={"settings__actfees__show"}>
                                         <IconButton
                                             size="small"
-                                            color="primary"
+                                            className="btn-edit"
                                             onClick={() => router.push("/dashboard/settings/actfees")}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                         </IconButton>
                                     </Can>
                                 </Stack>

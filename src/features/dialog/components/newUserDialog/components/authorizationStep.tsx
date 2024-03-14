@@ -3,20 +3,14 @@ import DialogStyled from './overrides/dialogStyle';
 import {
     Badge,
     Box,
-    Button,
     Collapse,
     FormControlLabel,
     List,
     ListItem,
     Paper,
-    Radio,
-    RadioGroup,
     Stack,
-    TextField,
     Typography
 } from '@mui/material';
-import IconUrl from '@themes/urlIcon';
-import {Add} from '@mui/icons-material';
 import {useRouter} from 'next/router';
 import {groupPermissionsByFeature, useMedicalEntitySuffix} from '@lib/hooks';
 import {useRequestQueryMutation} from '@lib/axios';
@@ -26,11 +20,10 @@ import {TreeCheckbox} from '@features/treeViewCheckbox';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {FacebookCircularProgress} from '@features/progressUI';
-import {startCase} from "lodash";
 
 function AuthorizationStep({...props}) {
-    const {t, formik, profiles, openFeatureCollapse, setFeatureCollapse} = props;
-    const {getFieldProps, touched, errors, values, setFieldValue} = formik;
+    const {t, formik} = props;
+    const {values, setFieldValue} = formik;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {t: menuTranslation} = useTranslation("menu");
     const [loadingReq, setLoadingReq] = useState(false);
@@ -127,7 +120,15 @@ function AuthorizationStep({...props}) {
                                                 sx={{paddingTop: 2}}
                                                 control={<CustomSwitch
                                                     checked={featurePermission?.featureEntity?.checked ?? false}/>}
-                                                onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
+                                                onChange={(event: any) => {
+                                                    setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked);
+                                                    if (!event.target.checked) {
+                                                        setFieldValue(`roles[${role[0]}][${index}].permissions[0].children`, featurePermission?.permissions[0].children.map((permission: PermissionModel) => ({
+                                                            ...permission,
+                                                            checked: false
+                                                        })))
+                                                    }
+                                                }}
                                                 label={featurePermission?.featureEntity?.name}/>}
                                         <Box mt={2} className="permissions-wrapper">
                                             <TreeCheckbox

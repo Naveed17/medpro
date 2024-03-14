@@ -47,9 +47,10 @@ function Analysis({...props}) {
                         <Can I={"manage"} a={"settings"} field={"settings__analysis__update"}>
                             <IconButton
                                 size="small"
+                                className="btn-edit"
                                 sx={{mr: {md: 1}}}
                                 onClick={() => editMotif(row, "edit")}>
-                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                             </IconButton>
                         </Can>
                         <Can I={"manage"} a={"settings"} field={"settings__analysis__delete"}>
@@ -63,7 +64,7 @@ function Analysis({...props}) {
                                     }
                                 }}
                                 onClick={() => editMotif(row, "delete")}>
-                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
                             </IconButton>
                         </Can>
                     </Stack>

@@ -234,41 +234,50 @@ function ActFeesRow({...props}) {
                 <TableCell align="right">
                     {row ? (
                         <Stack direction='row' spacing={1} alignItems="center" justifyContent='flex-end'>
-                            {edit === row.uuid  ? (
-                            <IconButton
-                                size="small"
-                                disabled={fees?.length === 0}
-                                color={"primary"}
-                                sx={{mr: {md: 1}}}
-                                onClick={() => {
-                                    editMotif(row, fees, name, code, contribution);
-                                    setTimeout(() => {
-                                        setEdit("");
-                                    }, 1000);
-                                }}>
-                                {!isMobile && <IconUrl path="setting/edit"/>}
+                            {edit === row.uuid ? (
+                                <IconButton
+                                    size="small"
+                                    className="btn-edit"
+                                    disabled={fees?.length === 0}
+                                    color={"primary"}
+                                    sx={{mr: {md: 1}}}
+                                    onClick={() => {
+                                        editMotif(row, fees, name, code, contribution);
+                                        setTimeout(() => {
+                                            setEdit("");
+                                        }, 1000);
+                                    }}>
+                                    {!isMobile &&
+                                        <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>}
 
-                                <Typography fontSize={11} ml={1}>
-                                    {t("save")}
-                                </Typography>
-                            </IconButton>
-                        ) : !row.hasData && (
-                            <IconButton
-                                size="small"
-                                sx={{mr: {md: 1}}}
-                                onClick={() => {
-                                    setEdit(row.uuid);
-                                }}>
-                                <IconUrl path="setting/edit"/>
-                            </IconButton>
-                        )}
+                                    <Typography fontSize={11} ml={1}>
+                                        {t("save")}
+                                    </Typography>
+                                </IconButton>
+                            ) : !row.hasData && (
+                                <IconButton
+                                    size="small"
+                                    className="btn-edit"
+                                    sx={{mr: {md: 1}}}
+                                    onClick={() => {
+                                        setEdit(row.uuid);
+                                    }}>
+                                    <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
+                                </IconButton>
+                            )}
                             {!row.hasData && <IconButton
                                 onClick={() => {
                                     data.handleSelected(row);
                                 }}
                                 size="small"
-                                sx={{mr: {md: 1}}}>
-                                <IconUrl path="setting/icdelete"/>
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
                             </IconButton>}
                             {/*<Button
                         onClick={(e)=> handleEvent({row,event:e,action:'OPEN-AGREEMENT-DIALOG'})}

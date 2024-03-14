@@ -24,7 +24,8 @@ function DoctorDetails() {
 
     const {t, ready, i18n} = useTranslation(["doctors", "common"]);
 
-    const [open, setOpen] = useState<boolean>(false)
+    const [open, setOpen] = useState<boolean>(false);
+    const [popoverData, setPopoverData] = useState<any>(null);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -45,25 +46,34 @@ function DoctorDetails() {
 
     const popoverActions = [
         {
-            title: "demoData",
-            icon: <IconUrl color={"white"} path="/ic-voir"/>,
-            action: "onDemoAction",
+            title: "unassigned",
+            icon: <IconUrl color={"white"} path="ic-trash"/>,
+            action: "onUnassignedStaff",
         },
 
     ];
     const error = false;
 
     const OnMenuActions = (action: string) => {
+        switch (action) {
+            case "onUnassignedStaff": {
+                console.log("onUnassignedStaff", popoverData);
+                break;
+            }
+        }
         handleCloseMenu();
     }
 
-    const handleOpenMeun = (event: any) => setContextMenu(
-        contextMenu === null
-            ? {
-                mouseX: event.clientX + 2,
-                mouseY: event.clientY - 6,
-            } : null,
-    );
+    const handleOpenMeun = (event: any, data: any) => {
+        setPopoverData(data);
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                } : null,
+        );
+    }
 
     const handleClose = () => {
         setOpen(false);
@@ -75,7 +85,7 @@ function DoctorDetails() {
         dispatch(toggleSideBar(true));
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const user = (httpUsersResponse as HttpResponse)?.data as UserDataResponse;
+    const user = (httpUsersResponse as HttpResponse)?.data as UserModel;
     console.log("user", user)
     if (!ready || error) {
         return <LoadingScreen

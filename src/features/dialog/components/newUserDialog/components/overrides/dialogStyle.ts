@@ -107,7 +107,7 @@ const DialogStyled = styled(Stack)(({theme}) => ({
     },
     ".role-input-group": {
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
         gap: theme.spacing(2),
     },
     "& .role-input-container": {

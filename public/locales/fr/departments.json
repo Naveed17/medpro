@@ -30,9 +30,14 @@
         "update-success": "Département modifié avec succès"
       },
       "title": "Ajouter un département",
-      "name": "Nom",
+      "name": "Nom du département",
+      "add-staff": "Ajouter du personnel",
+      "assignedUser": "Personnels",
+      "no_assignedUser": "Aucun personnel n'a été trouvé",
+      "assignedUser-placeholder": "Sélectionnez un ou plusieurs médecins / membres du personnel",
       "name-placeholder": "Nom du département",
       "user": "Chef de service",
+      "no_users": "Aucun médecin n'a été trouvé",
       "user-placeholder": "Sélectionner un médecin",
       "status": "Statut du département",
       "save": "Enregistrer"

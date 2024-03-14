@@ -1,4 +1,3 @@
-import React, {Fragment} from "react";
 import {setSelectedRows, tableActionSelector, TableRowStyled} from "@features/table";
 import TableCell from "@mui/material/TableCell";
 import {
@@ -11,7 +10,6 @@ import {
     Typography, useTheme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import Can from "@features/casl/can";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConditionalWrapper} from "@lib/hooks";
 import Zoom from "react-medium-image-zoom";
@@ -20,7 +18,7 @@ import {useRouter} from "next/router";
 function StaffRow({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {row, isItemSelected, t, handleEvent, selected, handleClick} = props;
+    const {row, isItemSelected, handleEvent, selected, handleClick} = props;
     const router = useRouter()
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
 
@@ -82,7 +80,7 @@ function StaffRow({...props}) {
                                         <IconUrl width={"36"} height={"36"} path="men-avatar"/>
                                     </Avatar>
                                     <Typography variant="body1" fontWeight={700} color="primary">
-                                        {row.FirstName} {row.lastName}
+                                        {row.firstName} {row.lastName}
                                     </Typography>
                                 </Stack>
                             </ConditionalWrapper>
@@ -152,36 +150,33 @@ function StaffRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        <Can I={"manage"} a={"settings"} field={"settings__users__update"}>
-                            <IconButton
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEvent("EDIT_DOCTOR", row)
-                                }}
-                                size="small"
-                                color="primary"
-                                className="btn-edit">
-                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
-                            </IconButton>
-                        </Can>
-                        <Can I={"manage"} a={"settings"} field={"settings__users__delete"}>
-                            <IconButton
-                                className={"delete-icon"}
-                                size="small"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEvent("DELETE_DOCTOR", row)
-                                }}
-                                sx={{
-                                    ml: {md: 1},
-                                    '& .react-svg svg': {
-                                        width: 20,
-                                        height: 20
-                                    }
-                                }}>
-                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
-                            </IconButton>
-                        </Can>
+                        <IconButton
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleEvent("EDIT_STAFF", row);
+                            }}
+                            size="small"
+                            color="primary"
+                            className="btn-edit">
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
+                        </IconButton>
+
+                        <IconButton
+                            className={"delete-icon"}
+                            size="small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleEvent("DELETE_STAFF", row);
+                            }}
+                            sx={{
+                                ml: {md: 1},
+                                '& .react-svg svg': {
+                                    width: 20,
+                                    height: 20
+                                }
+                            }}>
+                            <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                        </IconButton>
                     </Box>
                 ) : (
                     <Stack

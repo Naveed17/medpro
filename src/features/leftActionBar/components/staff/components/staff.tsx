@@ -13,7 +13,7 @@ import {setSelectedRows} from "@features/table";
 function Staff() {
     const dispatch = useAppDispatch();
 
-    const {t, ready} = useTranslation("staff", {keyPrefix: "config"});
+    const {t, ready} = useTranslation("staff");
 
 
     const handleFilterChange = (data: any) => {

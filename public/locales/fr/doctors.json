@@ -39,6 +39,9 @@
   "send_msg": "Envoyer un message",
   "profil_status": "Statut du profil",
   "personal_info": "Personnel information",
+  "popover-action": {
+    "unassigned": "Désassigner"
+  },
   "full_name": "Nom et prénom",
   "cin": "CIN",
   "birthdate": "Date de naissance",
@@ -68,23 +71,39 @@
   "role": "Rôle",
   "doctor": "Médecin",
   "unassign": "Désaffecter",
-  "dialog": {
-    "title": "Réinitialiser le mot de passe utilisateur",
-    "step-1": "Réinitialiser le mot de passe",
-    "step-2": "Envoi du mot de passe",
-    "step-3": "Fin",
-    "auto-password": "Générer automatiquement un mot de passe",
-    "manual-password": "Je vais créer le mot de passe",
-    "confirm_password": "Confirmer le mot de passe",
-    "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
-    "cancel": "Annuler",
-    "reset": "Réinitialisation",
-    "doPassSentToEmail": "Envoyer le mot de passe par courriel",
-    "email_the_pass": "Envoyer le nouveau mot de passe aux destinataires suivants",
-    "send_email_close": "Envoyer un courriel et fermer",
-    "finish": "Terminer",
-    "success_title": "Réinitialisation du mot de passe réussie",
-    "success_desc": "La réinitialisation du mot de passe de [Nom d'utilisateur/Email] est terminée ! Nous avons informé l'utilisateur par courrier électronique. Veuillez l'informer qu'il doit vérifier sa boîte de réception. Si nécessaire, suggérez-lui de vérifier les spams.Nous vous remercions pour votre action rapide ! 🌟"
+  "dialogs": {
+    "doctor-dialog": {
+      "title": "Inviter un médecin",
+      "firstName": "Nom du médecin",
+      "firstName-placeholder": "Tapez le nom du  médecin",
+      "lastName": "Prénom du médecin",
+      "lastName-placeholder": "Tapez le prénom du médecin",
+      "email": "E-mail du médecin",
+      "email-placeholder": "Saisissez l'adresse e-mail du médecin",
+      "department": "Nom du département",
+      "department-placeholder": "Sélectionner le département du médecin",
+      "no-department": "Aucun département trouvé",
+      "save": "Enregistrer"
+    },
+    "reset-dialog": {
+      "title": "Réinitialiser le mot de passe utilisateur",
+      "step-1": "Réinitialiser le mot de passe",
+      "step-2": "Envoi du mot de passe",
+      "step-3": "Fin",
+      "auto-password": "Générer automatiquement un mot de passe",
+      "manual-password": "Je vais créer le mot de passe",
+      "confirm_password": "Confirmer le mot de passe",
+      "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
+      "cancel": "Annuler",
+      "reset": "Réinitialisation",
+      "doPassSentToEmail": "Envoyer le mot de passe par courriel",
+      "email_the_pass": "Envoyer le nouveau mot de passe aux destinataires suivants",
+      "send_email_close": "Envoyer un courriel et fermer",
+      "finish": "Terminer",
+      "success_title": "Réinitialisation du mot de passe réussie",
+      "success_desc": "La réinitialisation du mot de passe de [Nom d'utilisateur/Email] est terminée ! Nous avons informé l'utilisateur par courrier électronique. Veuillez l'informer qu'il doit vérifier sa boîte de réception. Si nécessaire, suggérez-lui de vérifier les spams.Nous vous remercions pour votre action rapide ! 🌟"
+    },
+    "cancel": "Annuler"
   },
   "validation": {
     "family_name_required": "Nom de famille obligatoire",

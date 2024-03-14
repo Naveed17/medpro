@@ -1,26 +1,34 @@
 import {Label} from '@features/label';
-import {ConditionalWrapper} from '@lib/hooks';
+import {ConditionalWrapper, useMedicalEntitySuffix} from '@lib/hooks';
 import {
-    Grid,
-    Stack,
+    Autocomplete,
+    Avatar,
+    Button,
     Card,
     CardContent,
-    Typography,
+    CircularProgress,
+    Grid,
+    IconButton,
     List,
     ListItem,
-    Avatar,
-    ListItemText,
-    Button,
     ListItemIcon,
-    IconButton
+    ListItemText,
+    Stack,
+    TextField,
+    Typography
 } from '@mui/material'
 import IconUrl from '@themes/urlIcon'
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Zoom from "react-medium-image-zoom";
 import React, {useEffect, useState} from 'react'
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
 
 function AboutTab({...props}) {
     const {t, user, theme, handleOpenRestPass, handleOpenMeun} = props;
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
     const [slots, setSlots] = useState<any>({
         MON: [],
         TUE: [],
@@ -30,6 +38,12 @@ function AboutTab({...props}) {
         SAT: [],
         SUN: []
     });
+    const [openAutoCompleteStaff, setOpenAutoCompleteStaff] = useState(false);
+    const [loadingReqStaff, setLoadingReqStaff] = useState(false);
+    const [selectedStaff, setSelectedStaff] = useState<any>([]);
+    const [staff, setStaff] = useState<UserModel[]>([]);
+
+    const {trigger: getStaffTrigger} = useRequestQueryMutation("/admin/doctors/staff");
 
     useEffect(() => {
         if (user?.slots) {
@@ -43,12 +57,32 @@ function AboutTab({...props}) {
                 SUN: []
             };
             const hours = (Object.values(user.slots)[0] as any)?.slots;
-            Object.keys(hours).forEach((ohours: any, index: number) => {
+            Object.keys(hours).forEach((ohours: any) => {
                 slots[ohours] = hours[ohours];
             });
             setSlots(slots);
         }
     }, [user?.slots]);
+
+    // Setting the logic for the asynchronous function on page reload
+    useEffect(() => {
+        if (!openAutoCompleteStaff) {
+            return undefined;
+        }
+
+        (async () => {
+            setLoadingReqStaff(true);
+            getStaffTrigger({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/admin/users/${router.locale}`
+            }, {
+                onSuccess: (result) => {
+                    setStaff((result?.data as HttpResponse)?.data);
+                    setLoadingReqStaff(false);
+                }
+            });
+        })();
+    }, [openAutoCompleteStaff]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Grid container spacing={2}>
@@ -141,7 +175,7 @@ function AboutTab({...props}) {
                     </Card>
                     <Card>
                         <CardContent>
-                            <Stack spacing={1} alignItems='flex-start'>
+                            <Stack spacing={1} alignItems='flex-start' mb={1}>
                                 <Typography variant='subtitle2' fontWeight={600}>
                                     {t("department")}
                                 </Typography>
@@ -153,15 +187,59 @@ function AboutTab({...props}) {
                                 <Typography variant='subtitle1' fontWeight={600}>
                                     {t("assigned_staff")}
                                 </Typography>
+                                <Autocomplete
+                                    size={"small"}
+                                    value={selectedStaff}
+                                    multiple
+                                    disableClearable
+                                    sx={{
+                                        width: "100%",
+                                        "& .MuiSelect-select": {
+                                            background: "white",
+                                        }
+                                    }}
+                                    id="profile-select"
+                                    open={openAutoCompleteStaff}
+                                    onOpen={() => setOpenAutoCompleteStaff(true)}
+                                    onClose={() => setOpenAutoCompleteStaff(false)}
+                                    onChange={(e, staff) => setSelectedStaff(staff)}
+                                    getOptionLabel={(option: any) => option?.userName ?? ""}
+                                    filterOptions={(options, {inputValue}) => options.filter(item => item.firstName?.includes(inputValue) || item.lastName?.includes(inputValue))}
+                                    isOptionEqualToValue={(option: any, value) => option?.uuid === value?.uuid}
+                                    options={staff}
+                                    renderOption={(props, option) => (
+                                        <ListItem {...props}>
+                                            <ListItemText primary={`${option?.firstName} ${option?.lastName}`}/>
+                                        </ListItem>
+                                    )}
+                                    renderInput={params =>
+                                        <TextField
+                                            {...params}
+                                            color={"info"}
+                                            sx={{paddingLeft: 0}}
+                                            placeholder={t("assigned_staff_placeholder")}
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                endAdornment: (
+                                                    <React.Fragment>
+                                                        {loadingReqStaff ?
+                                                            <CircularProgress color="inherit" size={20}/> : null}
+                                                        {params.InputProps.endAdornment}
+                                                    </React.Fragment>
+                                                ),
+                                            }}
+                                            variant="outlined"
+                                            fullWidth/>}
+                                />
                                 <List disablePadding sx={{width: 1}}>
-                                    {user?.assigned.map((assign: any, index: number) => <ListItem
+                                    {selectedStaff.map((assign: any, index: number) => <ListItem
                                         key={index}
-                                        sx={{px: 1, mb: .5, border: 1, borderColor: 'divider', borderRadius: 1.6}}
+                                        sx={{px: 1, mb: 1, border: 1, borderColor: 'divider', borderRadius: 1.6}}
                                         secondaryAction={
                                             <IconButton
                                                 disableRipple
                                                 size="small"
-                                                onClick={handleOpenMeun}>
+                                                onClick={(event) => handleOpenMeun(event, assign)}>
                                                 <MoreVertIcon fontSize='small'/>
                                             </IconButton>
                                         }>
@@ -179,15 +257,17 @@ function AboutTab({...props}) {
                                         </ListItemIcon>
                                         <Stack spacing={.2}>
                                             <Typography fontSize={13} fontWeight={600} color='primary'>
-                                                Mme Salme Rezgui
+                                                {assign.firstName} {assign.lastName}
                                             </Typography>
                                             <Typography variant='body2' fontWeight={600}>
                                                 Secretaire
                                             </Typography>
                                         </Stack>
                                     </ListItem>)}
-                                    {user?.assigned?.length === 0 && "-"}
+                                    {selectedStaff.length === 0 && "-"}
                                 </List>
+                            </Stack>
+                            <Stack spacing={1} alignItems='flex-start'>
                                 <Typography variant='subtitle1' fontWeight={600}>
                                     {t("rest_pass")}
                                 </Typography>
