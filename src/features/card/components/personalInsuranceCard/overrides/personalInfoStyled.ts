@@ -2,6 +2,11 @@ import {Box} from '@mui/material';
 import {styled} from '@mui/material/styles';
 
 const PersonalInfoStyled = styled(Box)(({theme}) => ({
+    "& .btn-edit": {
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: 8,
+        padding: theme.spacing(.8),
+    },
     "& .MuiSelect-select": {
         padding: "0 2rem 0 1rem"
     },

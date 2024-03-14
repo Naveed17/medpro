@@ -86,9 +86,9 @@ function MotifRow({ ...props }) {
                         <Can I={"manage"} a={"settings"} field={"settings__motif__update"}>
                             <IconButton
                                 size="small"
-
+                                className="btn-edit"
                                 onClick={() => editMotif(row, "edit")}>
-                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient" />
+                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                             </IconButton>
                         </Can>
                         <Can I={"manage"} a={"settings"} field={"settings__motif__delete"}>
@@ -101,7 +101,7 @@ function MotifRow({ ...props }) {
                                     }
                                 }}
                                 onClick={() => editMotif(row, "delete")}>
-                                <IconUrl color={theme.palette.error.main} path="ic-trash" />
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
                             </IconButton>
                         </Can>
                     </Stack>

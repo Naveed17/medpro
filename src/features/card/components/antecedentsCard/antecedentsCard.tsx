@@ -258,6 +258,7 @@ function AntecedentsCard({...props}) {
                     actionDialog={
                         <DialogActions>
                             <Button
+                                variant={"text-black"}
                                 onClick={() => {
                                     setOpenDialog(false);
                                     setInfo("");
@@ -268,8 +269,7 @@ function AntecedentsCard({...props}) {
                             </Button>
                             <Button
                                 variant="contained"
-                                onClick={handleCloseDialog}
-                                startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                onClick={handleCloseDialog}>
                                 {t("register")}
                             </Button>
                         </DialogActions>
