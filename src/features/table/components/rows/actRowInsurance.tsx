@@ -9,7 +9,7 @@ import IconUrl from "@themes/urlIcon";
 
 function ActRowInsurance({...props}) {
     const {row, handleChange, t, handleEvent, loading, data} = props;
-    const {apcis,mutate,setLoading,trigger,urlMedicalEntitySuffix,medicalEntityHasUser,router} = data
+    const {apcis, mutate, setLoading, trigger, urlMedicalEntitySuffix, medicalEntityHasUser, router} = data
     const {agreement} = useAppSelector(stepperSelector);
     const _act = agreement.acts.find((act: any) => act.uuid === row.uuid)
     const theme = useTheme();
@@ -17,7 +17,7 @@ function ActRowInsurance({...props}) {
     const [patient_part, setPatient_part] = useState(row.patient_part);
     const [refund, setRefund] = useState(row.refund);
     const [selected, setSelected] = useState(false);
-    const [apci, setApci] = useState<string[]>(_act && _act.apci ? _act.apci?.split(',') : []);
+    const [apci, setApci] = useState<string[]>(typeof row.apci === 'string' ? row.apci.split(',') : row.apci.map((item:any) => item.uuid));
     const handleSelect = (event: SelectChangeEvent<typeof apci>) => {
         const {
             target: {value},
@@ -34,14 +34,14 @@ function ActRowInsurance({...props}) {
 
     const editRow = () => {
         const form = new FormData();
-        form.append("fees",row.fees)
-        form.append("refund",row.refund ? row.refund : 0)
-        form.append("patient_part",row.patient_part)
-        form.append("apcis",row.apci)
+        form.append("fees", row.fees)
+        form.append("refund", row.refund ? row.refund : 0)
+        form.append("patient_part", row.patient_part)
+        form.append("apcis", row.apci)
         trigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${row.uuid}/${router.locale}`,
-            data:form
+            data: form
         }, {
             onSuccess: () => {
                 mutate()
@@ -143,7 +143,7 @@ function ActRowInsurance({...props}) {
                             {apci.code}
                         </MenuItem>
                     ))}
-                </Select> : apci.map((item:any) => (<Typography key={item.uuid}>{item.code}</Typography>))}
+                </Select> : <Typography>{getCode(apci).join(',')}</Typography>}
 
             </TableCell>
             <TableCell align={"center"}>
@@ -155,7 +155,7 @@ function ActRowInsurance({...props}) {
                     <Button size={"small"} color={"error"} onClick={() => setSelected(false)}>{t('cancel')}</Button>
                 </> : <>
                     <IconButton disableRipple size="small" onClick={() => setSelected(true)}>
-                        <IconUrl path="ic-edit" color={theme.palette.text.secondary}/>
+                        <IconUrl path="ic-edit-patient" color={theme.palette.text.secondary}/>
                     </IconButton>
 
                     <IconButton disableRipple size="small"

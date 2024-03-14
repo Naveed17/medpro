@@ -112,7 +112,9 @@ function AddActDialog({...props}) {
                     />
                 </Stack>
             </Stack>
-            {apcis.length > 0 && <Stack direction={"row"} spacing={1}>
+            {apcis.length > 0 && <Stack spacing={1}>
+                <Typography color={theme.palette.text.secondary} fontSize={12}>{t('table.apci')}</Typography>
+
                 <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
