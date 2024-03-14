@@ -30,7 +30,6 @@ import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
-import DeleteIcon from '@mui/icons-material/Delete';
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
