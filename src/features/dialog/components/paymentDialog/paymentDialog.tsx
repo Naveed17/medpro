@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState,} from "react";
+import React, { useEffect, useRef, useState, } from "react";
 import {
     Avatar,
     Button,
@@ -17,16 +17,16 @@ import {
     Typography, useMediaQuery,
     useTheme,
 } from "@mui/material";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
-import {DefaultCountry, TransactionType} from "@lib/constants";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
-import {useAppSelector} from "@lib/redux/hooks";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useRouter} from "next/router";
+import { DefaultCountry, TransactionType } from "@lib/constants";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { useAppSelector } from "@lib/redux/hooks";
+import { cashBoxSelector } from "@features/leftActionBar/components/cashbox";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useInvalidateQueries, useMedicalEntitySuffix } from "@lib/hooks";
+import { useRouter } from "next/router";
 import PaymentCard from "@features/dialog/components/paymentDialog/paymentCard";
 import PaymentDialogStyled from "./overrides/paymentDialogStyle";
 import ConsultationCard from "@features/dialog/components/paymentDialog/consultationCard";
@@ -35,27 +35,27 @@ import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import moment from "moment/moment";
-import {Box} from "@mui/system";
-import {LottiePlayer} from "@features/card/components/successCard/successCard";
-import {useCashBox} from "@lib/hooks/rest";
+import { Box } from "@mui/system";
+import { LottiePlayer } from "@features/card/components/successCard/successCard";
+import { useCashBox } from "@lib/hooks/rest";
 import Can from "@features/casl/can";
-import {agendaSelector} from "@features/calendar";
+import { agendaSelector } from "@features/calendar";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
 );
 
-function PaymentDialog({...props}) {
-    const {data} = props;
-    const {patient, setOpenPaymentDialog, mutatePatient = null} = data;
+function PaymentDialog({ ...props }) {
+    const { data } = props;
+    const { patient, setOpenPaymentDialog, mutatePatient = null } = data;
 
     const theme = useTheme<Theme>();
-    const {data: session} = useSession();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { data: session } = useSession();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const router = useRouter();
-    const {cashboxes} = useCashBox();
+    const { cashboxes } = useCashBox();
     const apps = useRef<any[]>([])
-    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const { trigger: invalidateQueries } = useInvalidateQueries();
 
     const [payments, setPayments] = useState<any>([]);
     const [appointments, setAppointments] = useState<any[]>([]);
@@ -67,23 +67,23 @@ function PaymentDialog({...props}) {
     const [loading, setLoading] = useState(true);
     const [allApps, setAllApps] = useState<any[]>([]);
 
-    const {t, ready} = useTranslation("payment");
-    const {paymentTypesList, selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
+    const { t, ready } = useTranslation("payment");
+    const { paymentTypesList, selectedBoxes } = useAppSelector(cashBoxSelector);
+    const { config: agenda } = useAppSelector(agendaSelector);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const open = Boolean(anchorEl);
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
 
-    const {data: httpPatientTransactions, mutate} = useRequestQuery(cashboxes.length > 0 ? {
+    const { data: httpPatientTransactions, mutate } = useRequestQuery(cashboxes.length > 0 ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/transactions/${router.locale}`
     } : null);
 
-    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
+    const { trigger: triggerAppointmentEdit } = useRequestQueryMutation("appointment/edit");
 
     const generateTransactionData = (_amount: number) => {
         let transaction_data: any[] = [];
@@ -146,7 +146,7 @@ function PaymentDialog({...props}) {
             amount += pay.amount
             payment_means.push({
                 uuid: paymentTypesList.find((p: { slug: boolean; }) => p.slug === pay.selected).uuid,
-                amount: pay.amount, ...(pay.data && {data: pay.data})
+                amount: pay.amount, ...(pay.data && { data: pay.data })
             })
         })
 
@@ -203,8 +203,8 @@ function PaymentDialog({...props}) {
         let pay = props === 'check' ? {
             selected: props,
             amount: amount > 0 ? amount : 0,
-            data: {carrier: `${patient.firstName} ${patient.lastName}`, bank: '', nb: '', date: moment()}
-        } : {selected: props, amount: amount > 0 ? amount : 0};
+            data: { carrier: `${patient.firstName} ${patient.lastName}`, bank: '', nb: '', date: moment() }
+        } : { selected: props, amount: amount > 0 ? amount : 0 };
         let _payments = [...payments, pay]
         setPayments(_payments)
         handleClose();
@@ -242,25 +242,25 @@ function PaymentDialog({...props}) {
             apps.current = _apps
             if (loading)
                 setAllApps(_apps)
-            setPayments([{selected: 'cash', amount: total}])
+            setPayments([{ selected: 'cash', amount: total }])
             setTimeout(() => {
                 setLoading(false)
             }, 1000)
         }
     }, [httpPatientTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return <LoadingScreen button text={"loading-error"}/>;
+    if (!ready) return <LoadingScreen button text={"loading-error"} />;
 
     return (
         <PaymentDialogStyled>
-            <Grid container spacing={{xs: 2, md: 6}}>
+            <Grid container spacing={{ xs: 2, md: 6 }}>
                 <Grid item xs={12} sm={6}>
                     <Stack spacing={1}>
                         <Stack direction={"row"} justifyContent={"space-between"}>
                             <Stack spacing={2} direction="row" alignItems="center">
                                 <Avatar
-                                    sx={{width: 42, height: 42}}
-                                    src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
+                                    sx={{ width: 42, height: 42 }}
+                                    src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`} />
                                 <Stack>
                                     <Stack direction="row" spacing={0.5} alignItems="center">
                                         <Typography fontWeight={700}>
@@ -270,7 +270,7 @@ function PaymentDialog({...props}) {
 
                                     {patient.contact?.length && (
                                         <Stack direction="row" spacing={0.5} alignItems="center">
-                                            <IconUrl path="ic-tel" color={theme.palette.text.primary}/>
+                                            <IconUrl path="ic-tel" color={theme.palette.text.primary} />
                                             <Typography variant="body2" alignItems="center">
                                                 {patient.contact[0].value ? patient.contact[0].value : patient.contact[0]}
                                             </Typography>
@@ -282,17 +282,17 @@ function PaymentDialog({...props}) {
                         {loading && <Card>
                             <CardContent>
                                 <Stack direction={"row"} alignItems={"center"} flex={3} pb={1}
-                                       borderBottom={`1px solid ${theme.palette.grey[200]}`}>
+                                    borderBottom={`1px solid ${theme.palette.grey[200]}`}>
                                     <Stack direction={"row"} alignItems={"center"} flex={1}>
                                         <Checkbox checked={appointments.filter((app: {
                                             checked: boolean
                                         }) => app.checked).length === appointments.length}
-                                                  onChange={(e) => {
-                                                      appointments.map((app: {
-                                                          checked: boolean
-                                                      }) => app.checked = e.target.checked)
-                                                      setAppointments([...appointments])
-                                                  }}/>
+                                            onChange={(e) => {
+                                                appointments.map((app: {
+                                                    checked: boolean
+                                                }) => app.checked = e.target.checked)
+                                                setAppointments([...appointments])
+                                            }} />
                                         <Typography fontSize={12}>{t('dialog.date')}</Typography>
                                     </Stack>
 
@@ -301,7 +301,7 @@ function PaymentDialog({...props}) {
                                 </Stack>
                                 {Array.from(['', '', '']).map((_, index) => (
                                     <Stack key={`${index}-load`} direction={"row"} alignItems={"center"} flex={3} pb={1}
-                                           borderBottom={`1px solid ${theme.palette.grey[200]}`}>
+                                        borderBottom={`1px solid ${theme.palette.grey[200]}`}>
                                         <Stack direction={"row"} alignItems={"center"} flex={1}>
                                             <Stack spacing={0} sx={{
                                                 ".react-svg": {
@@ -315,24 +315,24 @@ function PaymentDialog({...props}) {
                                                 },
                                             }}>
                                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                                    <Icon path="ic-agenda"/>
-                                                    <Skeleton width={80}/>
+                                                    <Icon path="ic-agenda" />
+                                                    <Skeleton width={80} />
                                                 </Stack>
 
                                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                                    <Icon path="ic-time"/>
-                                                    <Skeleton width={80}/>
+                                                    <Icon path="ic-time" />
+                                                    <Skeleton width={80} />
                                                 </Stack>
                                             </Stack>
                                         </Stack>
-                                        <Skeleton height={25} width={50} style={{flex: 1, marginRight: 20}}/>
-                                        <Skeleton height={25} width={30} style={{flex: 1}}/>
+                                        <Skeleton height={25} width={50} style={{ flex: 1, marginRight: 20 }} />
+                                        <Skeleton height={25} width={30} style={{ flex: 1 }} />
                                     </Stack>))}
                                 <Stack direction={"row"} pl={2} pr={2} mt={2} borderRadius={1}
-                                       justifyContent={"space-between"}
-                                       style={{backgroundColor: "#F0FAFF"}}>
-                                    <Skeleton height={25} width={70}/>
-                                    <Skeleton height={25} width={90}/>
+                                    justifyContent={"space-between"}
+                                    style={{ backgroundColor: "#F0FAFF" }}>
+                                    <Skeleton height={25} width={70} />
+                                    <Skeleton height={25} width={90} />
                                 </Stack>
                             </CardContent>
                         </Card>}
@@ -350,7 +350,7 @@ function PaymentDialog({...props}) {
                                     theme,
                                     loading,
                                     devise
-                                }}/>
+                                }} />
                             </> : !loading && !isMobile && <Stack spacing={1} style={{
                                 width: "100%", height: "50vh",
                                 display: 'flex',
@@ -361,10 +361,10 @@ function PaymentDialog({...props}) {
                                     autoplay
                                     keepLastFrame
                                     src="/static/lotties/check-mark-success.json"
-                                    style={{height: "133px", width: "133px"}}
+                                    style={{ height: "133px", width: "133px" }}
                                 />
                                 <Typography fontWeight={"bold"}
-                                            color={'#1B2746'}>{t('dialog.no_transaction')}</Typography>
+                                    color={'#1B2746'}>{t('dialog.no_transaction')}</Typography>
                                 <Typography fontSize={13} color={'#1B2746'}>{t('dialog.add_now')}</Typography>
                             </Stack>
                         }
@@ -372,22 +372,22 @@ function PaymentDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <Stack spacing={1}>
-                        <Stack direction={{xs: "column", sm: "row"}}
-                               alignItems="center"
-                               justifyContent="space-between"
-                               spacing={{xs: 2, sm: 0}}>
+                        <Stack direction={{ xs: "column", sm: "row" }}
+                            alignItems="center"
+                            justifyContent="space-between"
+                            spacing={{ xs: 2, sm: 0 }}>
                             <Typography fontWeight={600} mb={1}>
                                 {t("payment")}
                             </Typography>
                             <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__create"}>
-                                <Button startIcon={<AddIcon/>}
-                                        endIcon={<UnfoldMoreRoundedIcon/>}
-                                        id="basic-button"
-                                        variant="contained"
-                                        aria-controls={open ? "basic-menu" : undefined}
-                                        aria-haspopup="true"
-                                        aria-expanded={open ? "true" : undefined}
-                                        onClick={handleClick}>
+                                <Button startIcon={<AddIcon />}
+                                    endIcon={<UnfoldMoreRoundedIcon />}
+                                    id="basic-button"
+                                    variant="contained"
+                                    aria-controls={open ? "basic-menu" : undefined}
+                                    aria-haspopup="true"
+                                    aria-expanded={open ? "true" : undefined}
+                                    onClick={handleClick}>
                                     {t("add_payment")}
                                 </Button>
                             </Can>
@@ -419,7 +419,7 @@ function PaymentDialog({...props}) {
                                         <Stack direction="row" alignItems="center" spacing={1}>
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img
-                                                style={{width: 16}}
+                                                style={{ width: 16 }}
                                                 src={payment?.logoUrl?.url}
                                                 alt={"payment means"}
                                             />
@@ -430,7 +430,7 @@ function PaymentDialog({...props}) {
                             </Menu>
                         </Stack>
 
-                        <div id={"trList"} style={{maxHeight: '60vh', overflowX: "auto"}}>
+                        <div id={"trList"} style={{ maxHeight: '60vh', overflowX: "auto" }}>
                             <Stack spacing={1}>
                                 {
                                     patientTransactions && patientTransactions.length > 0 &&
@@ -438,22 +438,22 @@ function PaymentDialog({...props}) {
                                         <CardContent>
                                             <Stack spacing={1}>
                                                 <Typography fontSize={14}
-                                                            fontWeight={"bold"}>{t('dialog.avance')}</Typography>
+                                                    fontWeight={"bold"}>{t('dialog.avance')}</Typography>
                                                 {patientTransactions.map((transaction: any, index) => (
-                                                    <Card key={index} style={{padding: 10}}>
+                                                    <Card key={index} style={{ padding: 10 }}>
                                                         <Stack direction={"row"} justifyContent={"space-between"}>
                                                             <Stack>
                                                                 <Stack direction={"row"} spacing={2}>
                                                                     {
                                                                         transaction.payment_means.map((tr: any) => (
                                                                             <Stack direction={"row"} key={tr.slug}
-                                                                                   spacing={1}>
+                                                                                spacing={1}>
                                                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                                                <img style={{width: 15}}
-                                                                                     src={paymentTypesList.find((pm: {
-                                                                                         slug: string;
-                                                                                     }) => pm.slug == tr.paymentMeans.slug).logoUrl.url}
-                                                                                     alt={"payment means icon"}/>
+                                                                                <img style={{ width: 15 }}
+                                                                                    src={paymentTypesList.find((pm: {
+                                                                                        slug: string;
+                                                                                    }) => pm.slug == tr.paymentMeans.slug).logoUrl.url}
+                                                                                    alt={"payment means icon"} />
                                                                                 <Typography
                                                                                     fontSize={12}>{tr.data?.nb || tr.paymentMeans.name}</Typography>
                                                                             </Stack>
@@ -461,23 +461,23 @@ function PaymentDialog({...props}) {
                                                                     }
                                                                 </Stack>
                                                                 <Stack direction="row"
-                                                                       alignItems="center"
-                                                                       spacing={0.5}>
+                                                                    alignItems="center"
+                                                                    spacing={0.5}>
                                                                     <IconUrl path={"ic-agenda"}
-                                                                             width={12}
-                                                                             height={12}
-                                                                             color={theme.palette.text.secondary}/>
+                                                                        width={12}
+                                                                        height={12}
+                                                                        color={theme.palette.text.secondary} />
                                                                     <Typography variant="body2" fontSize={11}
-                                                                                color={theme.palette.text.secondary}>
+                                                                        color={theme.palette.text.secondary}>
                                                                         {moment(transaction.date_transaction, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
                                                                     </Typography>
                                                                 </Stack>
                                                             </Stack>
                                                             <Button size={"small"}
-                                                                    variant={"contained"}
-                                                                    disabled={getTotalApps() === 0}
-                                                                    onClick={() => payWithAvance(transaction)}
-                                                                    startIcon={<IconUrl path={"ic-argent"}/>}>
+                                                                variant={"contained"}
+                                                                disabled={getTotalApps() === 0}
+                                                                onClick={() => payWithAvance(transaction)}
+                                                                startIcon={<IconUrl path={"ic-argent"} />}>
                                                                 {t('dialog.use')} {transaction.rest_amount} {devise}
                                                             </Button>
                                                         </Stack>
@@ -523,9 +523,9 @@ function PaymentDialog({...props}) {
                                                                 <Stack direction="row" alignItems="center" spacing={1}>
                                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                                                     <img
-                                                                        style={{width: 16}}
+                                                                        style={{ width: 16 }}
                                                                         src={'/static/icons/ic-wallet-money.svg'}
-                                                                        alt={"payment means"}/>
+                                                                        alt={"payment means"} />
                                                                 </Stack>
                                                             );
                                                         }}>
@@ -563,14 +563,14 @@ function PaymentDialog({...props}) {
                                         addTransactions,
                                         name: `${patient.firstName} ${patient.lastName}`,
                                         wallet
-                                    }}/>
+                                    }} />
                                 ))}
                             </Stack>
                         </div>
                     </Stack>
                 </Grid>
             </Grid>
-            <Box style={{height: 70}}/>
+            <Box style={{ height: 70 }} />
             <Stack direction={"row"} style={{
                 position: 'absolute',
                 bottom: 2,
@@ -582,8 +582,8 @@ function PaymentDialog({...props}) {
                 <Button variant={"text-black"} onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
                 {!(getTotalPayments() == 0) ?
                     <Button
-                        startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}
-                        endIcon={<AddIcon/>}
+                        startIcon={<IconUrl path={'ic-argent'} color={'white'} />}
+                        endIcon={<AddIcon />}
                         disabled={loading}
                         variant={"contained"}
                         color={getTotalApps() === 0 ? 'success' : 'primary'}
@@ -591,11 +591,11 @@ function PaymentDialog({...props}) {
                         {getTotalApps() === 0 ? t('dialog.addavance') : t('dialog.pay')} {getTotalPayments()} {devise}
                     </Button>
                     :
-                    <Button startIcon={<IconUrl path={'ic-argent'}/>}
-                            onClick={() => setOpenPaymentDialog(false)}
-                            color={"info"}
-                            variant="outlined"
-                            disabled={loading}>{t('dialog.later')}</Button>}
+                    <Button startIcon={<IconUrl path={'ic-argent'} />}
+                        onClick={() => setOpenPaymentDialog(false)}
+                        color={"info"}
+                        variant="outlined"
+                        disabled={loading}>{t('dialog.later')}</Button>}
             </Stack>
         </PaymentDialogStyled>
     );
