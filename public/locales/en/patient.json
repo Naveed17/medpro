@@ -406,6 +406,8 @@
     "agreement": "Insurance / Agreement",
     "select": "Select insurance / agreement",
     "member": "Membership number",
+    "insuranceBook": "Insurance book",
+    "book_placeholder": "Enter insurance book number",
     "member_placeholder": "Enter the membership number",
     "cashbox": "Box",
     "cashbox_placeholder": "Select checkout",

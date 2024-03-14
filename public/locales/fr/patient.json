@@ -408,7 +408,9 @@
   "insurance": {
     "agreement": "Assurance / Convention",
     "select": "Sélectionner l'assurance / convention",
-    "member": "N° d'adhérent",
+    "member": "Identifiant unique",
+    "insuranceBook": "Carnet",
+    "book_placeholder": "Numéro carnet",
     "member_placeholder": "Tapez le numéro d'adhérent",
     "cashbox": "Caisse",
     "cashbox_placeholder": "Sélectionner la caisse",

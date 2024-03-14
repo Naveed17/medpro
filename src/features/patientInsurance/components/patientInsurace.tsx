@@ -8,7 +8,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import CardInsurance from "@features/patientInsurance/components/cardInsurance";
 
 const PatientInsurance = ({...props}) => {
-    const {patientInsurances, t} = props;
+    const {patientInsurances, t,patient} = props;
 
     const noAppData = {
         mainIcon: "ic-assurance",
@@ -40,7 +40,7 @@ const PatientInsurance = ({...props}) => {
 
             <Collapse in={addNew}>
                 <Box className={"insurance-box"}>
-                    <AddInsurance {...{t, setAddNew}}/>
+                    <AddInsurance {...{t, setAddNew,patient}}/>
                 </Box>
             </Collapse>
 
@@ -50,7 +50,7 @@ const PatientInsurance = ({...props}) => {
                         <CardInsurance {...{pi, setSelectedInsurance}}/>
                     </Collapse>
                     <Collapse in={selectedInsurance === pi.insurance.uuid}>
-                        <AddInsurance {...{t, pi, setAddNew}}/>
+                        <AddInsurance {...{t, pi, setAddNew,patient}}/>
                     </Collapse>
                 </Box>
             ))}

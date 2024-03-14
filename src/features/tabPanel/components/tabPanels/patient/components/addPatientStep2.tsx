@@ -638,7 +638,7 @@ function AddPatientStep2({...props}) {
                     </Collapse>
                     <Divider/>
 
-                    <PatientInsurance {...{patientInsurances:values.insurance, t}}/>
+                    <PatientInsurance {...{patientInsurances:values.insurance, t,patient:selectedPatient}}/>
 
                     <Stack my={2} sx={{cursor: 'pointer'}} onClick={() => {
                         const newCollapse = [...collapse];
