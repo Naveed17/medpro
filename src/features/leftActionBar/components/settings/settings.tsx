@@ -18,7 +18,6 @@ import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {LoadingScreen} from "@features/loadingScreen";
-import Can from "@features/casl/can";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 
