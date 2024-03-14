@@ -6,7 +6,11 @@ function Step3({ ...props }) {
     const { t } = props;
 
     return (
-        <Stack>
+        <Stack sx={{
+            h6: {
+                textAlign: 'center'
+            }
+        }}>
             <SuccessCard
                 data={{
                     title: t("dialog.success_title"),
