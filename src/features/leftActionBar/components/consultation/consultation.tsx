@@ -86,14 +86,12 @@ function Consultation() {
 
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
-    const editPatientInfo = () => {
+    const editPatientInfo = (val:string) => {
         const params = new FormData();
         if (patient && medicalEntityHasUser) {
             const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`;
-
             params.append('attribute', 'note');
-            params.append('value', note);
-
+            params.append('value', val);
             triggerPatientUpdate({
                 method: "PATCH",
                 url,
