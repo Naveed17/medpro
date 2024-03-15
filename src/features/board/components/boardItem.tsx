@@ -373,11 +373,7 @@ function BoardItem({...props}) {
                                                     sx={{
                                                         p: .85,
                                                         border: `1px solid ${theme.palette.divider}`,
-                                                        borderRadius: 1,
-                                                        ...(is_next && {
-                                                            background: theme.palette.primary.main,
-                                                            border: "none"
-                                                        }),
+                                                        borderRadius: 1
                                                     }}>
                                                     <IconUrl path={"ic-play-audio-black"}/>
                                                 </IconButton>
