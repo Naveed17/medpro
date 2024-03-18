@@ -106,7 +106,6 @@ function CertifDialog({ ...props }) {
         { name: '{birthdate}', title: 'birthdate', show: data.state.brithdate },
         { name: '{cin}', title: 'cin', show: data.state.cin }
     ];
-
     const { trigger: triggerModelsCreate } = useRequestQueryMutation("/certif-models/create");
     const { trigger: triggerModelsUpdate } = useRequestQueryMutation("/certif-models/update");
     const { trigger: triggerModelParent } = useRequestQueryMutation("consultation/certif-models/parent");
