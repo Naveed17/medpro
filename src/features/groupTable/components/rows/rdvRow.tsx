@@ -153,6 +153,9 @@ function RDVRow({...props}) {
                 const slugConsultation = `/dashboard/consultation/${appointmentData?.uuid}`;
                 router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => closePatientDialog && closePatientDialog());
                 break;
+            case "onPreConsultation":
+                handlePreConsultationDialog(appointmentData);
+                break;
             case "onPay":
                 setOpenPaymentDialog(true);
                 break;
@@ -177,7 +180,7 @@ function RDVRow({...props}) {
         if (inner) {
             setAppointmentData(inner);
             setPopoverActions(CalendarContextMenu.filter(dataFilter =>
-                !["onReschedule", "onMove", "onPatientDetail", "onWaitingRoom", "onPreConsultation"].includes(dataFilter.action) &&
+                !["onReschedule", "onMove", "onPatientDetail", "onWaitingRoom"].includes(dataFilter.action) &&
                 !prepareContextMenu(dataFilter.action, {
                     ...inner,
                     status: AppointmentStatus[inner?.status]
@@ -321,18 +324,21 @@ function RDVRow({...props}) {
                         title={t("pre_consultation_dialog_title")}
                         {...(!loadingReq && {dialogClose: () => setOpenPreConsultationDialog(false)})}
                         actionDialog={
-                            <DialogActions>
-                                <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                            <Stack direction={"row"}
+                                   justifyContent={"space-between"} width={"100%"}>
+                                <Button
+                                    variant={"text-black"}
+                                    onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
                                     {t("cancel")}
                                 </Button>
                                 <Button
                                     disabled={loadingReq}
                                     variant="contained"
                                     onClick={() => submitPreConsultationData()}
-                                    startIcon={<IconUrl path="ic-edit"/>}>
+                                    startIcon={<IconUrl path="iconfinder_save"/>}>
                                     {t("register")}
                                 </Button>
-                            </DialogActions>
+                            </Stack>
                         }
                     />
 
