@@ -13,7 +13,7 @@ import {setSelectedRows} from "@features/table";
 function Doctors() {
     const dispatch = useAppDispatch();
 
-    const {t, ready} = useTranslation("doctors", {keyPrefix: "config"});
+    const {t, ready} = useTranslation("doctors");
 
 
     const handleFilterChange = (data: any) => {

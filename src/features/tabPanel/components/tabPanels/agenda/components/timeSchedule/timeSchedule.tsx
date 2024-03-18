@@ -46,7 +46,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function TimeSchedule({...props}) {
-    const {onNext, onBack, select} = props;
+    const {onNext, onBack, select, withoutDateTime} = props;
     const dispatch = useAppDispatch();
     const router = useRouter();
     const theme = useTheme();
@@ -271,7 +271,8 @@ function TimeSchedule({...props}) {
                             </Stack>}/>
                         {openTime || recurringDates.length === 0 ? <ExpandLess/> : <ExpandMore/>}
                     </ListItemButton>
-                    <Collapse in={openTime || recurringDates.length === 0} timeout="auto" unmountOnExit>
+                    <Collapse in={openTime || (recurringDates.length === 0 && !withoutDateTime)} timeout="auto"
+                              unmountOnExit>
                         {children}
                     </Collapse>
                 </List>}>
@@ -281,7 +282,7 @@ function TimeSchedule({...props}) {
                     </Typography>}
 
                     <Grid container spacing={1}>
-                        <Grid item md={6} xs={12}>
+                        {!withoutDateTime && <Grid item md={6} xs={12}>
                             <Typography variant="body1" color="text.primary" mt={3} mb={1}>
                                 {t("stepper-1.duration.title")}
                             </Typography>
@@ -307,8 +308,8 @@ function TimeSchedule({...props}) {
                                     ))}
                                 </Select>
                             </FormControl>
-                        </Grid>
-                        <Grid item md={6} xs={12}>
+                        </Grid>}
+                        <Grid item md={!withoutDateTime ? 6 : 12} xs={12}>
                             <Typography variant="body1" color="text.primary" mt={3} mb={1}>
                                 {t("stepper-1.reason-consultation")}
                             </Typography>
@@ -393,7 +394,7 @@ function TimeSchedule({...props}) {
                         </Grid>
                     </Grid>
 
-                    {(recurringDates.length === 0 || moreDate) &&
+                    {((recurringDates.length === 0 || moreDate) && !withoutDateTime) &&
                         <>
                             <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
                                 {t("stepper-1.date-message")}
@@ -500,7 +501,7 @@ function TimeSchedule({...props}) {
                         </>
                     }
 
-                    {(timeAvailable || recurringDates.length > 0) &&
+                    {((timeAvailable || recurringDates.length > 0) && !withoutDateTime) &&
                         <AnimatePresence>
                             <motion.div
                                 initial={{opacity: 0}}
@@ -547,7 +548,6 @@ function TimeSchedule({...props}) {
                                 <div ref={bottomRef}/>
                             </motion.div>
                         </AnimatePresence>
-
                     }
                 </Box>
             </ConditionalWrapper>

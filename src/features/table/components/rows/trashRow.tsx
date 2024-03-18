@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Stack, Tooltip} from "@mui/material";
+import {Typography, Box, Stack, Tooltip, useTheme} from "@mui/material";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
 import moment from "moment-timezone";
@@ -11,16 +11,15 @@ import {setCurrentDate, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
-import {useSession} from "next-auth/react";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
+import IconUrl from "@themes/urlIcon";
 
 function TrashRow({...props}) {
     const {row, handleEvent, data, refHeader, t} = props;
     const {spinner} = data;
 
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
+    const theme = useTheme();
 
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
 
@@ -172,7 +171,8 @@ function TrashRow({...props}) {
                                     variant="text"
                                     color="primary"
                                     size="small">
-                                    <SettingsBackupRestoreOutlinedIcon/> {!sideBarOpened &&
+                                    <SettingsBackupRestoreOutlinedIcon
+                                        htmlColor={theme.palette.text.secondary}/> {!sideBarOpened &&
                                     <span style={{marginLeft: "5px"}}>{t("restore")}</span>}
                                 </LoadingButton>
                             </Tooltip>
@@ -184,7 +184,7 @@ function TrashRow({...props}) {
                                     variant="text"
                                     color="primary"
                                     size="small">
-                                    <DeleteOutlineIcon/> {!sideBarOpened &&
+                                    <IconUrl color={theme.palette.text.secondary} path="ic-trash"/> {!sideBarOpened &&
                                     <span style={{marginLeft: "5px"}}>{t("delete")}</span>}
                                 </LoadingButton>
                             </Tooltip>

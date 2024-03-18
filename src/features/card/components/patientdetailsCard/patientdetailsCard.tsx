@@ -233,7 +233,16 @@ function PatientDetailsCard({...props}) {
                                         sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
                                     />
                                 ) : (
-                                    <label htmlFor="contained-button-file" style={{cursor: "pointer", height: 100}}>
+
+                                    <label htmlFor="contained-button-file"
+                                           style={{
+                                               position: "relative",
+                                               zIndex: 1,
+                                               cursor: "pointer",
+                                               display: 'inline-flex',
+                                               width: 118,
+                                               height: 118,
+                                           }}>
                                         <InputStyled
                                             id="contained-button-file"
                                             onChange={(e) => handleDrop(e.target.files as FileList)}
@@ -241,22 +250,28 @@ function PatientDetailsCard({...props}) {
                                         />
                                         <Avatar
                                             src={values.picture.url}
-                                            sx={{
-                                                width: 100, height: 100, "& svg": {
-                                                    padding: 1.5
-                                                }
-                                            }}
-                                        >
-                                            <IconUrl path="ic-user-profile"/>
+                                            sx={{width: 118, height: 118}}>
+                                            <IconUrl path="ic-image"/>
                                         </Avatar>
                                         <IconButton
-                                            onClick={() => {
-                                                document.getElementById('contained-button-file')?.click()
-                                            }}
+                                            color="primary"
                                             type="button"
-                                            className={"import-avatar"}
-                                        >
-                                            <IconUrl path="ic-return-photo"/>
+                                            sx={{
+                                                position: "absolute",
+                                                bottom: 6,
+                                                padding: .5,
+                                                right: 6,
+                                                zIndex: 1,
+                                                pointerEvents: "none",
+                                                bgcolor: "#fff !important",
+
+                                            }}
+                                            style={{
+                                                minWidth: 32,
+                                                minHeight: 32,
+                                            }}>
+                                            <IconUrl path="ic-camera-add" width={18}
+                                                     height={18}/>
                                         </IconButton>
                                     </label>
                                 )}
@@ -270,231 +285,209 @@ function PatientDetailsCard({...props}) {
                                             direction={"row"}
                                             alignItems={"center"}
                                             justifyContent="space-between">
-                                            <InputBase
-                                                readOnly
-                                                {...(patient?.nationality?.code && {
-                                                    startAdornment: <Tooltip title={patient.nationality.nationality}>
-                                                        <Avatar
-                                                            sx={{
-                                                                width: 18,
-                                                                height: 18,
-                                                                mr: .5,
-                                                                ml: -.2,
-                                                                borderRadius: 4
-                                                            }}
-                                                            alt={"flag"}
-                                                            src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
-                                                    </Tooltip>
-                                                })}
-                                                inputProps={{
-                                                    style: {
-                                                        background: "white",
-                                                        fontSize: pxToRem(14),
-                                                        fontWeight: "bold"
-                                                    },
-                                                }}
-                                                {...getFieldProps("name")}
-                                            />
-                                            <Stack spacing={1} direction={"row"} alignItems={"center"}>
-                                                {isBeta && rest > 0 &&
-                                                    <div onClick={() => {
-                                                        setOpenPaymentDialog(true)
-                                                    }}>
-                                                        <Label variant='filled' sx={{
-                                                            color: theme.palette.error.main,
-                                                            background: theme.palette.error.lighter
-                                                        }}>
-                                                            {!isMobile && <span
-                                                                style={{fontSize: 11}}>{commonTranslation('credit')}</span>}
-                                                            <span style={{
-                                                                fontSize: 14,
-                                                                marginLeft: 5,
-                                                                marginRight: 5,
-                                                                fontWeight: "bold"
-                                                            }}>{rest}</span>
-                                                            <span>{devise}</span>
-                                                        </Label>
-                                                    </div>
-                                                }
-                                                <IconButton style={{
-                                                    backgroundColor: theme.palette.background.default,
-                                                    borderRadius: 8
-                                                }} onClick={() => {
-                                                    dispatch(setOpenChat(true))
-                                                    dispatch(setMessage(`<span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`))
-                                                }}>
-                                                    <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
-                                                </IconButton>
-                                            </Stack>
-                                        </Stack>
-                                    )}
-
-                                    <Stack direction={isMobile ? "column" : "row"}>
-                                        {loading ? (
-                                            <Skeleton variant="text" width={150}/>
-                                        ) : (
-                                            <>
-                                                {patient?.birthdate && <Stack
-                                                    className={"date-birth"}
-                                                    direction={isMobile ? "column" : "row"} alignItems="center">
-                                                    <Stack direction={"row"} alignItems="center">
-                                                        <IconUrl width={"13"} height={"14"} path="ic-anniverssaire"/>
-                                                        <Box
-                                                            sx={{
-                                                                input: {
-                                                                    color: theme.palette.text.secondary,
-                                                                },
-                                                            }}>
-                                                            <MaskedInput
-                                                                readOnly
-                                                                style={{
-                                                                    border: "none",
-                                                                    outline: "none",
-                                                                    width: 75,
+                                            <Stack>
+                                                <InputBase
+                                                    readOnly
+                                                    {...(patient?.nationality?.code && {
+                                                        startAdornment: <Tooltip
+                                                            title={patient.nationality.nationality}>
+                                                            <Avatar
+                                                                sx={{
+                                                                    width: 18,
+                                                                    height: 18,
+                                                                    mr: .5,
+                                                                    ml: -.2,
+                                                                    borderRadius: 4
                                                                 }}
-                                                                mask={[
-                                                                    /\d/,
-                                                                    /\d/,
-                                                                    "-",
-                                                                    /\d/,
-                                                                    /\d/,
-                                                                    "-",
-                                                                    /\d/,
-                                                                    /\d/,
-                                                                    /\d/,
-                                                                    /\d/,
-                                                                ]}
-                                                                placeholderChar={"\u2000"}
-                                                                {...getFieldProps("birthdate")}
-                                                                showMask
-                                                            />
-                                                        </Box>
-                                                    </Stack>
+                                                                alt={"flag"}
+                                                                src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
+                                                        </Tooltip>
+                                                    })}
+                                                    inputProps={{
+                                                        style: {
+                                                            background: "white",
+                                                            fontSize: pxToRem(14),
+                                                            fontWeight: "bold"
+                                                        },
+                                                    }}
+                                                    {...getFieldProps("name")}
+                                                />
 
-                                                    {patient?.birthdate &&
-                                                        <Typography
-                                                            variant="body2"
-                                                            color="text.secondary"
-                                                            component="span">
-                                                            -{" "}
-                                                            ({" "}{getBirthdayFormat(patient, t)}{" "})
-                                                        </Typography>}
-                                                </Stack>
-                                                }
-                                            </>
-                                        )}
-
-                                        {((patient?.email || patient?.email && patient?.birthdate) && !isMobile) &&
-                                            <Typography color={"gray"} variant={"body2"} ml={1}
-                                                        mt={.3}> / </Typography>}
-
-                                        {loading ?
-                                            <Skeleton {...(!isMobile && {sx: {ml: 1}})} variant="text" width={150}/>
-                                            :
-                                            <Stack direction={"row"} alignItems="center">
-                                                <Typography
-                                                    variant="body2"
-                                                    component="span"
-                                                    color={"gray"}
-                                                    className="email-link">
+                                                <Stack direction={isMobile ? "column" : "row"}>
                                                     {loading ? (
-                                                        <Skeleton variant="text" width={100}/>
-                                                    ) : patient?.email && (
+                                                        <Skeleton variant="text" width={150}/>
+                                                    ) : (
                                                         <>
-                                                            <IconUrl path="ic-message-contour"/>
-                                                            <Typography {...(!patient?.email && {color: "primary"})}
-                                                                        variant={"body2"}>{patient?.email}</Typography>
+                                                            {patient?.birthdate && <Stack
+                                                                className={"date-birth"}
+                                                                direction={isMobile ? "column" : "row"}
+                                                                alignItems="center">
+                                                                <Stack direction={"row"} alignItems="center">
+                                                                    <IconUrl width={"13"} height={"14"}
+                                                                             path="ic-anniverssaire"/>
+                                                                    <Box
+                                                                        sx={{
+                                                                            input: {
+                                                                                color: theme.palette.text.secondary,
+                                                                            },
+                                                                        }}>
+                                                                        <MaskedInput
+                                                                            readOnly
+                                                                            style={{
+                                                                                border: "none",
+                                                                                outline: "none",
+                                                                                width: 75,
+                                                                            }}
+                                                                            mask={[
+                                                                                /\d/,
+                                                                                /\d/,
+                                                                                "-",
+                                                                                /\d/,
+                                                                                /\d/,
+                                                                                "-",
+                                                                                /\d/,
+                                                                                /\d/,
+                                                                                /\d/,
+                                                                                /\d/,
+                                                                            ]}
+                                                                            placeholderChar={"\u2000"}
+                                                                            {...getFieldProps("birthdate")}
+                                                                            showMask
+                                                                        />
+                                                                    </Box>
+                                                                </Stack>
+
+                                                                {patient?.birthdate &&
+                                                                    <Typography
+                                                                        variant="body2"
+                                                                        color="text.secondary"
+                                                                        component="span">
+                                                                        -{" "}
+                                                                        ({" "}{getBirthdayFormat(patient, t)}{" "})
+                                                                    </Typography>}
+                                                            </Stack>
+                                                            }
                                                         </>
                                                     )}
-                                                </Typography>
-                                            </Stack>}
-                                    </Stack>
 
-                                    {(patient?.familyDoctor && !isMobile) && (loading ? (
-                                        <Skeleton variant="text" width={150}/>
-                                    ) : (
-                                        patient?.familyDoctor &&
-                                        <Tooltip title={t("family_doctor")}>
-                                            <InputBase
-                                                readOnly
-                                                startAdornment={
-                                                    <Stack direction={"row"}>
-                                                        <IconUrl width={15} height={15} color={"gray"}
-                                                                 path="ic-docotor"/>
-                                                        <Typography sx={{width: 150, color: "gray"}}
-                                                                    variant={"body2"}>{t("family_doctor")}{":"}</Typography>
-                                                    </Stack>}
-                                                inputProps={{
-                                                    style: {
-                                                        color: "gray",
-                                                        fontSize: pxToRem(12)
-                                                    },
-                                                }}
-                                                value={patient.familyDoctor}/>
-                                        </Tooltip>
-                                    ))}
+                                                    {((patient?.email || patient?.email && patient?.birthdate) && !isMobile) &&
+                                                        <Typography color={"gray"} variant={"body2"} ml={1}
+                                                                    mt={.3}> / </Typography>}
 
-                                    {loading ?
-                                        <Skeleton variant="text" width={150}/> :
-                                        <Stack ml={"-1px"} direction={"row"} alignItems="center">
-                                            <Typography
-                                                variant="body2"
-                                                component="span"
-                                                color={"gray"}>
-                                                {loading ? (
-                                                    <Skeleton variant="text" width={100}/>
+                                                    {loading ?
+                                                        <Skeleton {...(!isMobile && {sx: {ml: 1}})} variant="text"
+                                                                  width={150}/>
+                                                        :
+                                                        <Stack direction={"row"} alignItems="center">
+                                                            <Typography
+                                                                variant="body2"
+                                                                component="span"
+                                                                color={"gray"}
+                                                                className="email-link">
+                                                                {loading ? (
+                                                                    <Skeleton variant="text" width={100}/>
+                                                                ) : patient?.email && (
+                                                                    <>
+                                                                        <IconUrl path="ic-message-contour"/>
+                                                                        <Typography {...(!patient?.email && {color: "primary"})}
+                                                                                    variant={"body2"}>{patient?.email}</Typography>
+                                                                    </>
+                                                                )}
+                                                            </Typography>
+                                                        </Stack>}
+                                                </Stack>
+
+                                                {(patient?.familyDoctor && !isMobile) && (loading ? (
+                                                    <Skeleton variant="text" width={150}/>
                                                 ) : (
-                                                    <Stack alignItems={"center"}>
+                                                    patient?.familyDoctor &&
+                                                    <Tooltip title={t("family_doctor")}>
                                                         <InputBase
-                                                            {...{ref}}
-                                                            className={"input-base-custom"}
+                                                            readOnly
                                                             startAdornment={
-                                                                <Stack mr={.5} direction={"row"} alignItems={"center"}
-                                                                       justifyContent={"center"}>
-                                                                    <IconUrl path="ic-folder" width={16} height={16}
-                                                                             color={theme.palette.text.secondary}/>
-                                                                    <Typography variant={"body2"} sx={{width: 50}}>Fiche
-                                                                        N°</Typography>
+                                                                <Stack direction={"row"}>
+                                                                    <IconUrl width={15} height={15} color={"gray"}
+                                                                             path="ic-docotor"/>
+                                                                    <Typography sx={{width: 150, color: "gray"}}
+                                                                                variant={"body2"}>{t("family_doctor")}{":"}</Typography>
                                                                 </Stack>}
-                                                            readOnly={!editable}
-                                                            endAdornment={
-                                                                <Stack direction={"row"} spacing={1.2}>
-                                                                    {editable ?
-                                                                        (isMobile ?
-                                                                            <>
-                                                                                <IconButton
-                                                                                    onClick={() => {
-                                                                                        setEditable(false);
-                                                                                        uploadPatientDetail();
-                                                                                    }}
-                                                                                    size='small'>
-                                                                                    <SaveAsIcon fontSize={"small"}
-                                                                                                color={"primary"}/>
-                                                                                </IconButton>
-                                                                                <IconButton
-                                                                                    sx={{p: 0}}
-                                                                                    size='small'
-                                                                                    color={"error"}
-                                                                                    onClick={() => setEditable(false)}
-                                                                                >
-                                                                                    <CloseIcon fontSize={"small"}/>
-                                                                                </IconButton>
-                                                                            </>
-                                                                            :
-                                                                            <>
-                                                                                <LoadingButton
-                                                                                    loading={requestLoading}
-                                                                                    onClick={() => {
-                                                                                        setEditable(false);
-                                                                                        uploadPatientDetail();
-                                                                                    }}
-                                                                                    className='btn-add'
-                                                                                    sx={{margin: 'auto'}}
-                                                                                    size='small'
-                                                                                    startIcon={<SaveAsIcon/>}>
-                                                                                    {t('register')}
-                                                                                </LoadingButton>
-                                                                                {/*<Button
+                                                            inputProps={{
+                                                                style: {
+                                                                    color: "gray",
+                                                                    fontSize: pxToRem(12)
+                                                                },
+                                                            }}
+                                                            value={patient.familyDoctor}/>
+                                                    </Tooltip>
+                                                ))}
+
+                                                {loading ?
+                                                    <Skeleton variant="text" width={150}/> :
+                                                    <Stack ml={"-1px"} direction={"row"} alignItems="center">
+                                                        <Typography
+                                                            variant="body2"
+                                                            component="span"
+                                                            color={"gray"}>
+                                                            {loading ? (
+                                                                <Skeleton variant="text" width={100}/>
+                                                            ) : (
+                                                                <Stack alignItems={"center"}>
+                                                                    <InputBase
+                                                                        {...{ref}}
+                                                                        className={"input-base-custom"}
+                                                                        startAdornment={
+                                                                            <Stack mr={.5} spacing={.5}
+                                                                                   direction={"row"}
+                                                                                   alignItems={"center"}
+                                                                                   justifyContent={"center"}>
+                                                                                <IconUrl path="ic-folder" width={16}
+                                                                                         height={16}
+                                                                                         color={theme.palette.text.secondary}/>
+                                                                                <Typography variant={"body2"}
+                                                                                            sx={{width: 50}}>Fiche
+                                                                                    N°</Typography>
+                                                                            </Stack>}
+                                                                        readOnly={!editable}
+                                                                        endAdornment={
+                                                                            <Stack direction={"row"} spacing={1.2}>
+                                                                                {editable ?
+                                                                                    (isMobile ?
+                                                                                        <>
+                                                                                            <IconButton
+                                                                                                onClick={() => {
+                                                                                                    setEditable(false);
+                                                                                                    uploadPatientDetail();
+                                                                                                }}
+                                                                                                size='small'>
+                                                                                                <SaveAsIcon
+                                                                                                    fontSize={"small"}
+                                                                                                    color={"primary"}/>
+                                                                                            </IconButton>
+                                                                                            <IconButton
+                                                                                                sx={{p: 0}}
+                                                                                                size='small'
+                                                                                                color={"error"}
+                                                                                                onClick={() => setEditable(false)}>
+                                                                                                <CloseIcon
+                                                                                                    fontSize={"small"}/>
+                                                                                            </IconButton>
+                                                                                        </>
+                                                                                        :
+                                                                                        <>
+                                                                                            <LoadingButton
+                                                                                                loading={requestLoading}
+                                                                                                onClick={() => {
+                                                                                                    setEditable(false);
+                                                                                                    uploadPatientDetail();
+                                                                                                }}
+                                                                                                className='btn-add'
+                                                                                                sx={{margin: 'auto'}}
+                                                                                                size='small'
+                                                                                                startIcon={
+                                                                                                    <SaveAsIcon/>}>
+                                                                                                {t('register')}
+                                                                                            </LoadingButton>
+                                                                                            {/*<Button
                                                                                     size='small'
                                                                                     color={"error"}
                                                                                     onClick={() => setEditable(false)}
@@ -502,77 +495,121 @@ function PatientDetailsCard({...props}) {
                                                                                 >
                                                                                     {t(`cancel`)}
                                                                                 </Button>*/}
-                                                                            </>)
-                                                                        :
-                                                                        (isMobile ?
-                                                                            <IconButton
-                                                                                onClick={() => handleUpdateFicheID()}>
-                                                                                <IconUrl
-                                                                                    color={theme.palette.primary.main}
-                                                                                    path='ic-duotone'/>
-                                                                            </IconButton>
-                                                                            :
-                                                                            <Button size="small"
-                                                                                    color={"primary"}
-                                                                                    onClick={() => handleUpdateFicheID()}
-                                                                                    startIcon={<IconUrl
-                                                                                        color={theme.palette.primary.main}
-                                                                                        path='ic-duotone'/>
-                                                                                    }
-                                                                                    sx={{
-                                                                                        "& .react-svg": {
-                                                                                            margin: 0,
-                                                                                        }
-                                                                                    }}>
-                                                                                {t('edit')}
-                                                                            </Button>)}
-                                                                </Stack>}
-                                                            inputProps={{
-                                                                style: {
-                                                                    textOverflow: "ellipsis",
-                                                                    color: "gray",
-                                                                    fontSize: pxToRem(12),
-                                                                    width: values.fiche_id.length > 0 ? `80px` : "40px"
-                                                                },
-                                                            }}
-                                                            placeholder={"-"}
-                                                            {...getFieldProps("fiche_id")}/>
+                                                                                        </>)
+                                                                                    :
+                                                                                    (isMobile ?
+                                                                                        <IconButton
+                                                                                            onClick={() => handleUpdateFicheID()}>
+                                                                                            <IconUrl
+                                                                                                color={theme.palette.primary.main}
+                                                                                                path={"setting/edit"}/>
+                                                                                        </IconButton>
+                                                                                        :
+                                                                                        <Button size="small"
+                                                                                                color={"primary"}
+                                                                                                onClick={() => handleUpdateFicheID()}
+                                                                                                startIcon={<IconUrl
+                                                                                                    color={theme.palette.primary.main}
+                                                                                                    path='setting/edit'/>
+                                                                                                }
+                                                                                                sx={{
+                                                                                                    "& .react-svg": {
+                                                                                                        margin: 0,
+                                                                                                    }
+                                                                                                }}>
+                                                                                            {t('edit')}
+                                                                                        </Button>)}
+                                                                            </Stack>}
+                                                                        inputProps={{
+                                                                            style: {
+                                                                                textOverflow: "ellipsis",
+                                                                                color: "gray",
+                                                                                fontSize: pxToRem(12),
+                                                                                width: values.fiche_id.length > 0 ? `80px` : "40px"
+                                                                            },
+                                                                        }}
+                                                                        placeholder={"-"}
+                                                                        {...getFieldProps("fiche_id")}/>
 
-                                                    </Stack>
+                                                                </Stack>
+                                                            )}
+                                                        </Typography>
+                                                    </Stack>}
+                                            </Stack>
+
+                                            <Stack spacing={1}>
+                                                <Stack spacing={2} direction={"row"} alignItems={"center"}
+                                                       justifyContent={"flex-end"}>
+                                                    {isBeta && rest > 0 &&
+                                                        <div onClick={() => {
+                                                            setOpenPaymentDialog(true)
+                                                        }}>
+                                                            <Label variant='filled' sx={{
+                                                                color: theme.palette.error.main,
+                                                                background: theme.palette.error.lighter
+                                                            }}>
+                                                                {!isMobile && <span
+                                                                    style={{fontSize: 11}}>{commonTranslation('credit')}</span>}
+                                                                <span style={{
+                                                                    fontSize: 14,
+                                                                    marginLeft: 5,
+                                                                    marginRight: 5,
+                                                                    fontWeight: "bold"
+                                                                }}>{rest}</span>
+                                                                <span>{devise}</span>
+                                                            </Label>
+                                                        </div>
+                                                    }
+                                                    <IconButton
+                                                        sx={{
+                                                            backgroundColor: theme.palette.background.default,
+                                                            borderRadius: 8
+                                                        }}
+                                                        onClick={() => {
+                                                            dispatch(setOpenChat(true))
+                                                            dispatch(setMessage(`<span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`))
+                                                        }}>
+                                                        <IconUrl
+                                                            path={"chat"}
+                                                            color={theme.palette.text.secondary}
+                                                            width={20} height={20}/>
+                                                    </IconButton>
+                                                </Stack>
+
+                                                {!roles.includes('ROLE_SECRETARY') && (
+                                                    <Box>
+                                                        {loading ? (
+                                                            <Skeleton
+                                                                variant="rectangular"
+                                                                sx={{
+                                                                    ml: {md: "auto", xs: 0},
+                                                                    maxWidth: {md: 193, xs: "100%"},
+                                                                    minHeight: {md: 60, xs: 40},
+                                                                    width: 153,
+                                                                    borderRadius: "4px",
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <LoadingButton
+                                                                loading={requestLoading}
+                                                                onClick={startConsultationFormPatient}
+                                                                disabled={isActive}
+                                                                variant="contained"
+                                                                sx={{
+                                                                    ml: {md: "auto", xs: 0},
+                                                                    maxWidth: {md: 193, xs: "100%"},
+                                                                }}
+                                                                color="warning"
+                                                                startIcon={<PlayCircleIcon/>}>
+                                                                <Typography
+                                                                    component='strong' variant={"body2"}
+                                                                    fontSize={13}>{t("start-consultation")}</Typography>
+                                                            </LoadingButton>
+                                                        )}
+                                                    </Box>
                                                 )}
-                                            </Typography>
-                                        </Stack>}
-                                    {!roles.includes('ROLE_SECRETARY') && (
-                                        <Box>
-                                            {loading ? (
-                                                <Skeleton
-                                                    variant="rectangular"
-                                                    sx={{
-                                                        ml: {md: "auto", xs: 0},
-                                                        maxWidth: {md: 193, xs: "100%"},
-                                                        minHeight: {md: 60, xs: 40},
-                                                        width: 153,
-                                                        borderRadius: "4px",
-                                                    }}
-                                                />
-                                            ) : (
-                                                <LoadingButton
-                                                    loading={requestLoading}
-                                                    onClick={startConsultationFormPatient}
-                                                    disabled={isActive}
-                                                    variant="contained"
-                                                    sx={{
-                                                        ml: {md: "auto", xs: 0},
-                                                        maxWidth: {md: 193, xs: "100%"},
-                                                    }}
-                                                    color="warning"
-                                                    startIcon={<PlayCircleIcon/>}>
-                                                    <Typography
-                                                        component='strong' variant={"body2"}
-                                                        fontSize={13}>{t("start-consultation")}</Typography>
-                                                </LoadingButton>
-                                            )}
-                                        </Box>
+                                            </Stack>
+                                        </Stack>
                                     )}
                                 </Box>
                             </Stack>

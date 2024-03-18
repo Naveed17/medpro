@@ -226,7 +226,7 @@ function BoardItem({...props}) {
                                             </Stack>
                                         }
 
-                                        {![4, 5].includes(quote.content.status) &&
+                                        {![1, 4, 5].includes(quote.content.status) &&
                                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                                                 {quote.content?.estimatedStartTime &&
                                                     <Stack direction={"row"} spacing={.5} alignItems={"center"}>
@@ -373,11 +373,7 @@ function BoardItem({...props}) {
                                                     sx={{
                                                         p: .85,
                                                         border: `1px solid ${theme.palette.divider}`,
-                                                        borderRadius: 1,
-                                                        ...(is_next && {
-                                                            background: theme.palette.primary.main,
-                                                            border: "none"
-                                                        }),
+                                                        borderRadius: 1
                                                     }}>
                                                     <IconUrl path={"ic-play-audio-black"}/>
                                                 </IconButton>

@@ -568,6 +568,9 @@
     "config": {
       "add": "Ajouter",
       "users": "Utilisateurs",
+      "nurse": "Infirmière",
+      "secretary": "Secrétaire",
+      "accountant": "Comptable",
       "add_user": "Ajouter un utilisateur",
       "department": "Departement",
       "department-placeholder": "Tapez le nom du departement",

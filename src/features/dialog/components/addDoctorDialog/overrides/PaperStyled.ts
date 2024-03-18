@@ -31,8 +31,7 @@ const PaperStyled = styled(Form)(({theme}) => ({
         padding: theme.spacing(1),
         marginTop: "auto",
         marginLeft: theme.spacing(-2),
-        marginRight: theme.spacing(-2),
-        borderTop: `1px solid ${theme.palette.primary.main}`,
+        marginRight: theme.spacing(-2)
     },
 }));
 

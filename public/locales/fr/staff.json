@@ -1,58 +1,63 @@
 {
-  "config": {
-    "sub-header": {
-      "title": "Liste des personnels",
-      "profile_title": "Profil du personnel",
-      "invite": "Invité",
-      "invite-placeholder": "Inviter par Email",
-      "department-placeholder": "Department",
-      "no-department-placeholder": "Aucun département trouvé"
-    },
-    "filter": {
-      "title": "Filtre",
-      "staff": "Personnel",
-      "search": "Nom & prénom/Tél/N° fiche",
-      "birthdate": "Date de naissance",
-      "gender": "Genre",
-      "male": "Homme",
-      "female": "Femme",
-      "name": "Recherche",
-      "phone": "Numéro de téléphone"
-    },
-    "table": {
-      "empty": "",
-      "name": "Nom",
-      "department": "Département",
-      "speciality": "Spécialisation",
-      "contact": "Contact",
-      "email": "Email",
-      "status": "Statut",
-      "join-date": "Date d'entrée en service",
-      "active": "Active",
-      "function": "Fonction",
-      "inactive": "Inactive"
-    },
-    "back_staff": "Retour à la page personnel",
-    "personal_info": "Personnel information",
-    "full_name": "Nom et prénom",
-    "cin": "CIN",
+  "sub-header": {
+    "title": "Liste des personnels",
+    "profile_title": "Profil du personnel",
+    "invite": "Invité",
+    "invite-placeholder": "Inviter par Email",
+    "department-placeholder": "Department",
+    "no-department-placeholder": "Aucun département trouvé"
+  },
+  "filter": {
+    "title": "Filtre",
+    "staff": "Personnel",
+    "search": "Nom & prénom/Tél/N° fiche",
     "birthdate": "Date de naissance",
-    "mobile": "Mobile",
-    "email": "Email",
-    "address": "Adresse",
-    "employment_details": "Informations sur l'emploi",
-    "start_date": "Date de début",
-    "end_date": "Date de fin",
-    "role": "Rôle",
-    "reset_pass": "Réinitialiser le mot de passe",
+    "gender": "Genre",
+    "male": "Homme",
+    "female": "Femme",
+    "name": "Recherche",
+    "phone": "Numéro de téléphone"
+  },
+  "table": {
+    "empty": "",
+    "name": "Nom",
     "department": "Département",
-    "work_for": "Travailler pour",
-    "scheduled_shifts": "Postes programmés",
-    "recent_activities": "Activités récentes",
-    "activities": "Activités",
-    "working_hours": "Temps de travail",
-    "user_information": "Informations sur l'utilisateur",
-    "dialog": {
+    "speciality": "Spécialisation",
+    "contact": "Contact",
+    "email": "Email",
+    "status": "Statut",
+    "join-date": "Date d'entrée en service",
+    "active": "Active",
+    "function": "Fonction",
+    "inactive": "Inactive"
+  },
+  "back_staff": "Retour à la page personnel",
+  "personal_info": "Personnel information",
+  "full_name": "Nom et prénom",
+  "cin": "CIN",
+  "birthdate": "Date de naissance",
+  "mobile": "Mobile",
+  "email": "Email",
+  "address": "Adresse",
+  "employment_details": "Informations sur l'emploi",
+  "start_date": "Date de début",
+  "end_date": "Date de fin",
+  "role": "Rôle",
+  "reset_pass": "Réinitialiser le mot de passe",
+  "department": "Département",
+  "work_for": "Travailler pour",
+  "scheduled_shifts": "Postes programmés",
+  "recent_activities": "Activités récentes",
+  "activities": "Activités",
+  "working_hours": "Temps de travail",
+  "user_information": "Informations sur l'utilisateur",
+  "dialogs": {
+    "delete-dialog": {
+      "title": "Supprimer Personnel",
+      "sub-title": "Êtes-vous sûr de vouloir supprimer les données du personnel sélectionné ?",
+      "description": "Cette action supprimera définitivement les données du personnel sélectionné. Veuillez procéder avec prudence, car cette action ne peut être annulée."
+    },
+    "add-dialog": {
       "family_name": "Nom de famille",
       "first_name": "Prénom",
       "idNumberPlaceholder": "Tapez votre ID",
@@ -83,9 +88,16 @@
         "email": "Veuillez entrer une adresse email valide"
       }
     },
-    "no-data": {
-      "title": "Aucun personnel trouvé",
-      "description": "Aucun personnel trouvé"
+    "cancel": "Annuler",
+    "delete": "Supprimer"
+  },
+  "alerts": {
+    "delete-staff": {
+      "success": "Le personnel a été supprimé avec succèss"
     }
+  },
+  "no-data": {
+    "title": "Aucun personnel trouvé",
+    "description": "Aucun personnel trouvé"
   }
 }

@@ -1,18 +1,33 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
-    setSort
+    setSortTime,
+    setIsUnpaid,
+    setOrderSort
 } from './actions';
 
 export type BoardProps = {
-    filter: string;
+    filter: {
+        sort: string;
+        order: string;
+        unpaid: boolean;
+    }
 };
 
 const initialState: BoardProps = {
-    filter: 'start-time'
+    filter: {
+        sort: 'start-time',
+        order: "asscending",
+        unpaid: false
+    }
+
 };
 
 export const BoardReducer = createReducer(initialState, builder => {
-    builder.addCase(setSort, (state, action) => {
-        state.filter = action.payload;
+    builder.addCase(setSortTime, (state, action) => {
+        state.filter.sort = action.payload;
+    }).addCase(setIsUnpaid, (state, action) => {
+        state.filter.unpaid = action.payload;
+    }).addCase(setOrderSort, (state, action) => {
+        state.filter.order = action.payload;
     });
 });

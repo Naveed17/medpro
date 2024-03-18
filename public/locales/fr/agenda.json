@@ -300,6 +300,8 @@
       "title": "Supprimer RDV",
       "sub-title": "Voulez-vous vraiment supprimer le RDV?",
       "description": "Vous perderez à jamais l'historique et les documents concernant ce patient",
+      "delete-appointment-data": "Données historiques",
+      "delete-transaction": "Données de transaction",
       "cancel": "Annuler",
       "confirm": "Supprimer"
     },

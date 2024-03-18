@@ -11,15 +11,13 @@ module.exports = {
     i18n: {
         locales: ["fr", "en", "ar"], defaultLocale: "fr"
     },
-/*    backend: {
+    backend: {
         backendOptions: [{
             expirationTime: 60 * 60 * 1000, // 1 hour
-        },
-/!*            {
-            loadPath: 'https://s3-develop-public.med.ovh/locales/{{lng}}/{{ns}}.json'
-        }*!/
-        ], backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
-    },*/
+        }, ...(!isDev ? [{
+            loadPath: `${process.env.NEXT_PUBLIC_CDN_API}/{{lng}}/{{ns}}.json`
+        }] : [])], backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
+    },
     serializeConfig: false,
     partialBundledLanguages: isBrowser && true,
     react: { // used only for the lazy reload

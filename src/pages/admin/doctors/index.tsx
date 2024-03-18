@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect, useState} from "react";
-import {AdminLayout} from "@features/base";
+import {AdminLayout, configSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
@@ -11,7 +11,7 @@ import {Otable} from "@features/table";
 import {DoctorToolbar} from "@features/toolbar";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {sideBarSelector, toggleSideBar} from "@features/menu";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {MobileContainer} from "@themes/mobileContainer";
@@ -19,7 +19,7 @@ import {DoctorsMobileCard, NoDataCard} from "@features/card";
 import {DrawerBottom} from "@features/drawerBottom";
 import IconUrl from "@themes/urlIcon";
 import {Doctors as DoctorsFilter} from '@features/leftActionBar'
-import moment from "moment-timezone";
+import {Dialog as CustomDialog} from "@features/dialog";
 
 const headCells = [
     {
@@ -93,10 +93,12 @@ function Doctors() {
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {t, ready, i18n} = useTranslation("doctors", {keyPrefix: "config"});
+    const {t, ready, i18n} = useTranslation("doctors");
     const {opened: openSideBar} = useAppSelector(sideBarSelector);
+    const {direction} = useAppSelector(configSelector);
 
-    const [filter, setFilter] = useState(false)
+    const [filter, setFilter] = useState(false);
+    const [openAddDoctorDialog, setOpenAddDoctorDialog] = useState(false);
 
     const page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
 
@@ -114,12 +116,16 @@ function Doctors() {
         console.log(action, data);
         switch (action) {
             case "EDIT_DOCTOR":
-
+                router.push(`${router.pathname}/${data.uuid}`, `${router.pathname}/${data.uuid}`, {locale: router.locale});
                 break;
             case "DELETE_DOCTOR":
 
                 break;
         }
+    }
+
+    const handleAddDoctor = () => {
+        setOpenAddDoctorDialog(true);
     }
 
     const users = ((httpUsersResponse as HttpResponse)?.data?.list ?? []) as UserModel[];
@@ -143,7 +149,7 @@ function Doctors() {
                         py: {md: 0, xs: 2},
                     },
                 }}>
-                <DoctorToolbar {...{t, title: "sub-header.list_title"}} />
+                <DoctorToolbar {...{t, title: "sub-header.list_title", handleAddDoctor}} />
             </SubHeader>
             <Box className="container">
                 <LinearProgress sx={{
@@ -196,6 +202,22 @@ function Doctors() {
                     {t("filter.title")} (0)
                 </Button>
             </MobileContainer>
+
+            <CustomDialog
+                action={"doctor"}
+                {...{
+                    t,
+                    direction
+                }}
+                open={openAddDoctorDialog}
+                data={{
+                    closeDraw: () => setOpenAddDoctorDialog(false)
+                }}
+                size={"sm"}
+                fullWidth
+                title={t("dialogs.doctor-dialog.title")}
+                dialogClose={() => setOpenAddDoctorDialog(false)}
+            />
             <DrawerBottom
                 handleClose={() => setFilter(false)}
                 open={filter}

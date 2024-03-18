@@ -17,7 +17,7 @@ import {
     Stack,
     Typography,
     ListItemText,
-    Link
+    Link, useTheme
 } from "@mui/material";
 import {
     Timeline,
@@ -51,15 +51,25 @@ const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 
 function StaffDetails() {
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    
-    const {t, ready, i18n} = useTranslation("staff", {keyPrefix: "config"});
+
+    const {t, ready, i18n} = useTranslation("staff");
 
     const [openPersonalInfo, setOpenPersonalInfo] = useState(false);
     const [openEmploymentDetails, setOpenEmploymentDetails] = useState(false);
     const [openScheduledShifts, setOpenScheduledShifts] = useState<boolean>(false);
     const [openAssignment, setOpenAssignment] = useState<boolean>(false)
+    const [slots, setSlots] = useState<any>({
+        MON: [],
+        TUE: [],
+        WED: [],
+        THU: [],
+        FRI: [],
+        SAT: [],
+        SUN: []
+    });
 
     const error = false;
     const userUuid = router.query["uuid"];
@@ -76,12 +86,34 @@ function StaffDetails() {
     const handleCloseScheduledShifts = () => setOpenScheduledShifts(false);
     const handleCloseAssignment = () => setOpenAssignment(false);
 
+    const user = (httpUsersResponse as HttpResponse)?.data as UserModel;
+
     useEffect(() => {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["doctors"]);
         dispatch(toggleSideBar(true));
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (user?.slots) {
+            const slots: any = {
+                MON: [],
+                TUE: [],
+                WED: [],
+                THU: [],
+                FRI: [],
+                SAT: [],
+                SUN: []
+            };
+            const hours = (Object.values(user.slots)[0] as any)?.slots;
+            Object.keys(hours).forEach((ohours: any) => {
+                slots[ohours] = hours[ohours];
+            });
+            setSlots(slots);
+        }
+    }, [user?.slots]);
+
+    console.log("user", user)
     if (!ready || error) {
         return <LoadingScreen
             button
@@ -115,13 +147,12 @@ function StaffDetails() {
                         <Stack spacing={2}>
                             <Card sx={{overflow: 'visible'}}>
                                 <CardContent>
-
                                     <ConditionalWrapper
                                         condition={false}
                                         wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                         <Stack alignItems='center' spacing={1.5}>
                                             <Avatar
-                                                {...(true && {className: "zoom"})}
+                                                {...(({className: "zoom"}))}
                                                 src={"/static/icons/men-avatar.svg"}
                                                 sx={{
                                                     "& .injected-svg": {
@@ -136,7 +167,7 @@ function StaffDetails() {
                                             </Avatar>
                                             <Stack alignItems="center">
                                                 <Typography variant="subtitle2" fontWeight={700} color='primary'>
-                                                    Mme Salme Rezgui
+                                                    {user?.firstName} {user?.lastName}
                                                 </Typography>
                                                 <Typography variant="body2">
                                                     Secretaire
@@ -162,7 +193,7 @@ function StaffDetails() {
                                                     {t("full_name")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
-                                                    Mme Salma Rezgu
+                                                    {user?.firstName} {user?.lastName}
                                                 </Typography>
                                             </ListItem>
                                             <ListItem disablePadding sx={{py: .7}}>
@@ -171,7 +202,7 @@ function StaffDetails() {
                                                     {t("cin")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
-                                                    02165102
+                                                    {user?.cin ?? "-"}
                                                 </Typography>
                                             </ListItem>
                                             <ListItem disablePadding sx={{py: .7}}>
@@ -180,7 +211,7 @@ function StaffDetails() {
                                                     {t("birthdate")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
-                                                    29 juin 1972
+                                                    {user?.birthDate ?? "-"}
                                                 </Typography>
                                             </ListItem>
                                             <ListItem disablePadding sx={{py: .7, alignItems: 'flex-start'}}>
@@ -189,33 +220,23 @@ function StaffDetails() {
                                                     {t("mobile")}
                                                 </Typography>
                                                 <Stack spacing={1.25}>
-                                                    <Stack direction='row' alignItems='center' spacing={1}>
-                                                        <Avatar
-                                                            sx={{
-                                                                width: 27,
-                                                                height: 18,
-                                                                borderRadius: 0
-                                                            }}
-                                                            alt={"flags"}
-                                                            src={`https://flagcdn.com/tn.svg`}
-                                                        />
-                                                        <Typography fontWeight={500}>
-                                                            +216 22 469 495
-                                                        </Typography>
-                                                    </Stack>
-                                                    <Stack direction='row' alignItems='center' spacing={1}>
-                                                        <Avatar
-                                                            sx={{
-                                                                width: 27,
-                                                                height: 18,
-                                                                borderRadius: 0
-                                                            }}
-                                                            alt={"flags"}
-                                                            src={`https://flagcdn.com/tn.svg`}
-                                                        />
-                                                        <Typography fontWeight={500}>
-                                                            +216 22 469 495
-                                                        </Typography>
+                                                    <Stack spacing={1.25}>
+                                                        {user?.contacts?.map((contact: ContactModel, index: number) =>
+                                                            <Stack key={index} direction='row' alignItems='center'
+                                                                   spacing={1}>
+                                                                <Avatar
+                                                                    sx={{
+                                                                        width: 27,
+                                                                        height: 18,
+                                                                        borderRadius: 0
+                                                                    }}
+                                                                    alt={"flags"}
+                                                                    src={`https://flagcdn.com/tn.svg`}
+                                                                />
+                                                                <Typography fontWeight={500}>
+                                                                    {contact.code} {contact.value}
+                                                                </Typography>
+                                                            </Stack>) ?? "-"}
                                                     </Stack>
                                                 </Stack>
                                             </ListItem>
@@ -225,7 +246,7 @@ function StaffDetails() {
                                                     {t("email")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
-                                                    almerezgui@med.com
+                                                    {user?.email ?? "-"}
                                                 </Typography>
                                             </ListItem>
                                             <ListItem disablePadding sx={{py: .7}}>
@@ -234,7 +255,7 @@ function StaffDetails() {
                                                     {t("address")}
                                                 </Typography>
                                                 <Typography fontWeight={500}>
-                                                    10 Avenue Habib Bourguiba,Tunis 1000 , Tunisia
+                                                    {user?.address ?? "-"}
                                                 </Typography>
                                             </ListItem>
                                         </List>
@@ -300,9 +321,11 @@ function StaffDetails() {
                                 <CardContent>
                                     <Stack spacing={1} alignItems='flex-start'>
                                         <Typography variant="subtitle1" fontWeight={600}>{t("department")}</Typography>
-                                        <Button variant="contained" color="info" sx={{fontWeight: 600}}>
-                                            Gynecology
-                                        </Button>
+                                        {user?.department?.map((department: DepartmentModel, index: number) =>
+                                            <Button key={index} variant="contained" color="info">
+                                                {department.name}
+                                            </Button>)}
+                                        {user?.department?.length === 0 && "-"}
                                     </Stack>
                                     <Stack mt={3} spacing={1} alignItems='flex-start'>
                                         <Typography variant="subtitle1" fontWeight={600}>{t("work_for")}</Typography>
@@ -353,29 +376,23 @@ function StaffDetails() {
                                     </Stack>
 
                                     <List>
-                                        {
-                                            ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, idx) =>
-                                                <ListItem disablePadding key={idx}
-
-                                                          sx={{py: .5}}
-                                                >
-                                                    <ListItemText sx={{m: 0, span: {fontWeight: 600}}} primary={day}/>
-                                                    <Label variant="filled" sx={{
-                                                        fontSize: 14,
-                                                        fontWeight: 600,
-                                                        bgcolor: (theme: any) => theme.palette.background.default,
-                                                        borderRadius: 1,
-                                                        px: 1.5,
-                                                        py: 1,
-                                                        height: 37
-                                                    }}>
-                                                        10:00 AM - 01:00 PM
-                                                    </Label>
-                                                </ListItem>
-                                            )
-                                        }
-
-
+                                        {Object.keys(slots).map((day: any, index) =>
+                                            <ListItem disablePadding key={index}
+                                                      sx={{py: .5}}>
+                                                <ListItemText sx={{m: 0, span: {fontWeight: 600}}}
+                                                              primary={t(`days.${day}`, {ns: "common"})}/>
+                                                <Label variant="filled" sx={{
+                                                    fontSize: 14,
+                                                    fontWeight: 600,
+                                                    bgcolor: theme.palette.background.default,
+                                                    borderRadius: 1,
+                                                    px: 1.5,
+                                                    py: 1,
+                                                    height: 37
+                                                }}>
+                                                    {slots[day].map((slot: any) => `${slot.start_time} - ${slot.end_time}`)}
+                                                </Label>
+                                            </ListItem>)}
                                     </List>
                                 </CardContent>
                             </Card>

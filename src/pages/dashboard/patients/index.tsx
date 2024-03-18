@@ -417,9 +417,7 @@ function Patients() {
     };
 
     const onConsultationView = (event: EventDef) => {
-        const slugConsultation = `/dashboard/consultation/${
-            event?.publicId ? event?.publicId : (event as any)?.id
-        }`;
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     };
 

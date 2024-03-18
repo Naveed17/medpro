@@ -113,7 +113,7 @@ function Users() {
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [deleteActionDialog, setDeleteActionDialog] = useState("user");
     const [loading, setLoading] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<any>("");
+    const [selectedUser, setSelectedUser] = useState<any>(null);
     const [selectedProfile, setSelectedProfile] = useState<any>("");
     const [open, setOpen] = useState(false);
     const [contextMenu, setContextMenu] = useState<{
