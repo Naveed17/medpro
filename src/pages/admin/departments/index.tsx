@@ -7,7 +7,7 @@ import {
     Box,
     Button,
     DialogActions,
-    DialogContent,
+    DialogContent, LinearProgress,
     Stack, Theme,
     Typography
 } from "@mui/material";
@@ -157,6 +157,11 @@ function Departments() {
                     setOpenAddDrawer(true);
                 }}/>
             </SubHeader>
+
+            <LinearProgress
+                sx={{visibility: !httpDepartmentsResponse ? "visible" : "hidden"}}
+                color="warning"/>
+
             <Box className="container">
                 <DesktopContainer>
                     <Otable

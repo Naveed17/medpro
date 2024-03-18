@@ -193,13 +193,15 @@ function Staff() {
                 }}>
                 <StaffToolbar {...{t, handleAddStaff}} />
             </SubHeader>
+
+            <LinearProgress
+                sx={{visibility: !httpStaffResponse ? "visible" : "hidden"}}
+                color="warning"/>
+
             <Box className="container">
                 {users.length > 0 ?
                     <>
                         <DesktopContainer>
-                            <LinearProgress sx={{
-                                visibility: !httpStaffResponse ? "visible" : "hidden"
-                            }} color="warning"/>
                             <Otable
                                 headers={headCells}
                                 handleEvent={handleTableEvent}

@@ -151,10 +151,12 @@ function Doctors() {
                 }}>
                 <DoctorToolbar {...{t, title: "sub-header.list_title", handleAddDoctor}} />
             </SubHeader>
+
+            <LinearProgress
+                sx={{visibility: !httpUsersResponse ? "visible" : "hidden"}}
+                color="warning"/>
+
             <Box className="container">
-                <LinearProgress sx={{
-                    visibility: !httpUsersResponse ? "visible" : "hidden"
-                }} color="warning"/>
                 {users.length > 0 ?
                     <>
                         <DesktopContainer>
