@@ -538,8 +538,9 @@ function PatientDetailsCard({...props}) {
                                             </Stack>
 
                                             <Stack spacing={1}>
-                                                <Stack spacing={2} direction={"row"} alignItems={"center"}
-                                                       justifyContent={"flex-end"}>
+                                                <Stack spacing={2} direction={isMobile ? "column" : "row"}
+                                                       alignItems={"center"}
+                                                       justifyContent={isMobile ? "center" : "flex-end"}>
                                                     {isBeta && rest > 0 &&
                                                         <div onClick={() => {
                                                             setOpenPaymentDialog(true)
@@ -577,7 +578,7 @@ function PatientDetailsCard({...props}) {
                                                 </Stack>
 
                                                 {!roles.includes('ROLE_SECRETARY') && (
-                                                    <Box>
+                                                    <>
                                                         {loading ? (
                                                             <Skeleton
                                                                 variant="rectangular"
@@ -590,23 +591,32 @@ function PatientDetailsCard({...props}) {
                                                                 }}
                                                             />
                                                         ) : (
-                                                            <LoadingButton
-                                                                loading={requestLoading}
-                                                                onClick={startConsultationFormPatient}
-                                                                disabled={isActive}
-                                                                variant="contained"
-                                                                sx={{
-                                                                    ml: {md: "auto", xs: 0},
-                                                                    maxWidth: {md: 193, xs: "100%"},
-                                                                }}
-                                                                color="warning"
-                                                                startIcon={<PlayCircleIcon/>}>
-                                                                <Typography
-                                                                    component='strong' variant={"body2"}
-                                                                    fontSize={13}>{t("start-consultation")}</Typography>
-                                                            </LoadingButton>
+                                                            !isMobile ? <LoadingButton
+                                                                    loading={requestLoading}
+                                                                    onClick={startConsultationFormPatient}
+                                                                    disabled={isActive}
+                                                                    variant="contained"
+                                                                    sx={{
+                                                                        ml: {md: "auto", xs: 0},
+                                                                        maxWidth: {md: 193, xs: "100%"},
+                                                                    }}
+                                                                    color="warning"
+                                                                    startIcon={<PlayCircleIcon/>}>
+                                                                    <Typography
+                                                                        component='strong' variant={"body2"}
+                                                                        fontSize={13}>{t("start-consultation")}</Typography>
+                                                                </LoadingButton>
+                                                                :
+                                                                <IconButton
+                                                                    disabled={isActive}
+                                                                    sx={{
+                                                                        borderRadius: 8
+                                                                    }}
+                                                                    onClick={startConsultationFormPatient}>
+                                                                    <PlayCircleIcon/>
+                                                                </IconButton>
                                                         )}
-                                                    </Box>
+                                                    </>
                                                 )}
                                             </Stack>
                                         </Stack>
