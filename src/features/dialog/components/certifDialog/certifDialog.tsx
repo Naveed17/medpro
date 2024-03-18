@@ -422,7 +422,7 @@ function CertifDialog({ ...props }) {
     }, [httpDocumentHeader])
 
     useEffect(() => {
-        setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 280) : 280);
+        setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 480) : 280);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"} />);
@@ -430,14 +430,14 @@ function CertifDialog({ ...props }) {
     return (
         <CertifDialogStyled>
             <Grid container sx={{ height: "100%" }}>
-                <Grid item xs={12} md={9}>
+                <Grid item xs={12} md={fullScreen ? 12 : 9}>
                     <List sx={{
                         width: '100%',
                         bgcolor: theme => theme.palette.background.paper,
                         paddingRight: { xs: 0, sm: 2 }
                     }}>
                         <Stack spacing={1}>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: "100%" }}>
+                            {!fullScreen && <Stack direction={"row"} spacing={2} sx={{ width: "100%" }}>
                                 <Stack sx={{ width: "100%" }}>
                                     <Typography style={{ color: "gray" }}
                                         fontSize={12}>{t('consultationIP.title')}</Typography>
@@ -482,10 +482,10 @@ function CertifDialog({ ...props }) {
                                             value={template.uuid}>{template.title}</MenuItem>)}
                                     </Select>
                                 </Stack>
-                            </Stack>
+                            </Stack>}
 
-                            <Typography style={{ color: "gray" }} fontSize={12} mt={1}
-                                mb={1}>{t('consultationIP.contenu')}</Typography>
+                            {!fullScreen && <Typography style={{ color: "gray" }} fontSize={12} mt={1}
+                                mb={1}>{t('consultationIP.contenu')}</Typography>}
 
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
                                 <Stack direction={"row"} alignItems={"center"} spacing={1} style={{ flexWrap: "wrap" }}>
@@ -630,7 +630,7 @@ function CertifDialog({ ...props }) {
                         </Stack>
                     </List>
                 </Grid>
-                <Grid item xs={12} md={3} style={{ borderLeft: `1px solid ${theme.palette.grey[200]}` }}>
+                {!fullScreen && <Grid item xs={12} md={3} style={{ borderLeft: `1px solid ${theme.palette.grey[200]}` }}>
                     <Stack>
                         {editModel ?
                             <Stack direction={"row"} spacing={1} justifyContent={"end"}>
@@ -715,7 +715,7 @@ function CertifDialog({ ...props }) {
                         startIcon={<AddRoundedIcon />}>
                         {t("consultationIP.new_file")}
                     </Button>
-                </Grid>
+                </Grid>}
             </Grid>
 
 

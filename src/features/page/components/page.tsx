@@ -175,11 +175,11 @@ function Page({...props}) {
 
     useEffect(() => {
         if (data.background.show && data.background.content !== '') {
-                fetch(data.background.content.url).then(response => {
-                    response.blob().then(blob => {
-                        setBackgroundImg(URL.createObjectURL(blob));
-                    })
+            fetch(data.background.content.url).then(response => {
+                response.blob().then(blob => {
+                    setBackgroundImg(URL.createObjectURL(blob));
                 })
+            }).catch(() => setBackgroundImg(data.background.content.url))
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -188,15 +188,15 @@ function Page({...props}) {
         <PageStyled>
             <div className={"dropzone"} id="inner-dropzone">
                 <div id={`page${id}`}
-                    style={{
-                        ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
-                            backgroundImage: `url(${backgroundImg})`,
-                            backgroundRepeat: "no-repeat",
-                            backgroundSize: "100% 100%"
-                        })
-                    }}
-                    {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[id] = element})}
-                    className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
+                     style={{
+                         ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
+                             backgroundImage: `url(${backgroundImg})`,
+                             backgroundRepeat: "no-repeat",
+                             backgroundSize: "100% 100%"
+                         })
+                     }}
+                     {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[id] = element})}
+                     className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
                     {/*Header*/}
                     {
                         data.header.show && id == 0 && <Resizable
@@ -676,7 +676,6 @@ function Page({...props}) {
                             setBlockDrag(false)
                             setOnResize(true);
                         }}>
-
                         <div
                             id={`content${id}`}
                             style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}

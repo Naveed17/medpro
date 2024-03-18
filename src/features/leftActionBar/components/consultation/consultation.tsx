@@ -16,7 +16,7 @@ import {
     Skeleton,
     Stack,
     Tooltip,
-    Typography,
+    Typography, useMediaQuery,
     useTheme,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -46,6 +46,7 @@ import {useSession} from "next-auth/react";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
+import {setMessage, setOpenChat} from "@features/chat/actions";
 
 function Consultation() {
     const dispatch = useAppDispatch();
@@ -58,6 +59,7 @@ function Consultation() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances: allInsurances} = useInsurances();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient, loading: loadingG} = useAppSelector(consultationSelector);
@@ -84,14 +86,12 @@ function Consultation() {
 
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
-    const editPatientInfo = () => {
+    const editPatientInfo = (val:string) => {
         const params = new FormData();
         if (patient && medicalEntityHasUser) {
             const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`;
-
             params.append('attribute', 'note');
-            params.append('value', note);
-
+            params.append('value', val);
             triggerPatientUpdate({
                 method: "PATCH",
                 url,
@@ -251,7 +251,7 @@ function Consultation() {
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
                                         fontWeight: 500,
-                                        width: 150
+                                        width: 100
                                     }}>
                                     {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
                                 </Typography>
@@ -296,21 +296,38 @@ function Consultation() {
                                         {patient?.email}
                                     </Typography>
                                 )}
+
+                                {isMobile && <IconButton style={{
+                                    backgroundColor: theme.palette.background.default,
+                                    borderRadius: 8
+                                }} onClick={() => {
+                                    dispatch(setOpenChat(true))
+                                    dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                                }}>
+                                    <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
+                                </IconButton>}
                             </Box>
                         )}
 
                     </Box>
 
-                    <Box
-                        onClick={() => {
-                            dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
-                        }}>
+                    <Stack direction={"row"} spacing={1} sx={{position: "absolute", top: 20, right: 10}}>
                         <IconButton
                             size={"small"}
-                            sx={{position: "absolute", top: 20, right: 10}}>
+                            onClick={() => {
+                                dispatch(setOpenChat(true))
+                                dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                            }}>
+                            <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
+                        </IconButton>
+
+                        <IconButton
+                            size={"small"}
+                            onClick={() => {dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));}}
+                            >
                             <Icon path={"ic-edit-patient"}/>
                         </IconButton>
-                    </Box>
+                    </Stack>
                 </Stack>
                 {isBeta && patient &&
                     <Stack direction={"row"} p={1} spacing={1} onClick={() => {
