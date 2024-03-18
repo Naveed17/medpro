@@ -94,7 +94,6 @@ function Departments() {
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [loadingReq, setLoadingReq] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState<DepartmentModel | null>(null);
-    const [filter, setFilter] = useState(false);
 
     const {
         data: httpDepartmentsResponse,
@@ -260,7 +259,6 @@ function Departments() {
                 <Button
                     startIcon={<IconUrl path="ic-filter"/>}
                     variant="filter"
-                    onClick={() => setFilter(true)}
                     sx={{
                         position: "fixed",
                         bottom: 50,
