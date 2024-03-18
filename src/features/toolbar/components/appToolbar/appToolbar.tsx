@@ -32,6 +32,7 @@ import {useSession} from "next-auth/react";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import Can from "@features/casl/can";
+import {setMessage, setOpenChat} from "@features/chat/actions";
 
 function AppToolbar({...props}) {
 
@@ -226,6 +227,14 @@ function AppToolbar({...props}) {
                         mb={1}
                         justifyContent="flex-end"
                         sx={{width: {xs: "30%", md: "30%"}}}>
+                        <IconButton
+                            size={"small"}
+                            onClick={() => {
+                                dispatch(setOpenChat(true))
+                                dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                            }}>
+                            <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
+                        </IconButton>
                         <Button
                             sx={{minWidth: 35}}
                             size={"medium"}
