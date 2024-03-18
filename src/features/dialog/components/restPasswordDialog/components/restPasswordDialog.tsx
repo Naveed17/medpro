@@ -122,7 +122,7 @@ function RestPasswordDialog({ ...props }) {
                     }
                     <FormikProvider value={formik}>
                         <Stack component={Form} spacing={2} autoComplete="off" noValidate onSubmit={handleSubmit}>
-                            <TabPanel value={currentStep} index={0} paddding={.3}>
+                            <TabPanel value={currentStep} index={0} padding={.3}>
                                 <Step1 {...{ formik, t, theme, handleChange }} />
                             </TabPanel>
                             <TabPanel value={currentStep} index={1} padding={.3}>

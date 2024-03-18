@@ -45,14 +45,6 @@ const headCells = [
         sortable: true,
     },
     {
-        id: "fonction",
-        numeric: false,
-        disablePadding: false,
-        label: "fonction",
-        align: "center",
-        sortable: true,
-    },
-    {
         id: "role",
         numeric: false,
         disablePadding: false,
@@ -199,7 +191,7 @@ function Users() {
                             <Stack spacing={1}>
                                 {users.map((user) => (
                                     <React.Fragment key={user.uuid}>
-                                        <UserMobileCard data={user} t={t} />
+                                        <UserMobileCard data={user} {...{ currentUser, edit: (prop: any) => onDelete(prop) }} t={t} />
                                     </React.Fragment>
                                 ))}
                             </Stack>

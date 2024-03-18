@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import CardStyled from "./overrides/cardStyle";
 import {
     Card,
@@ -17,23 +17,23 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
-import {Label} from "@features/label";
+import { Label } from "@features/label";
 import CollapseStyled from "./overrides/collapseStyle";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
+import { useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { ConditionalWrapper, useMedicalEntitySuffix } from "@lib/hooks";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {ImageHandler} from "@features/image";
+import { ImageHandler } from "@features/image";
 
-export default function NewCashboxMobileCard({...props}) {
-    const {row, devise, pmList, t, handleEvent} = props;
+export default function NewCashboxMobileCard({ ...props }) {
+    const { row, devise, pmList, t, handleEvent } = props;
     const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const [collapse, setCollapse] = useState<any>(null);
     const theme = useTheme();
     const [transaction_data, setTransaction_data] = useState<any[]>([]);
     const [transaction_loading, setTransaction_loading] = useState<boolean>(false);
-    const {trigger} = useRequestQueryMutation("/payment/cashbox");
+    const { trigger } = useRequestQueryMutation("/payment/cashbox");
     const selectedRow = (props: string) => {
         setTransaction_data([]);
         setTransaction_loading(true);
@@ -79,7 +79,7 @@ export default function NewCashboxMobileCard({...props}) {
                                     </Typography>
                                 </Stack>
                                 <Stack direction="row" alignItems="center" spacing={0.5}>
-                                    <IconUrl path="ic-time" width={12} height={12}/>
+                                    <IconUrl path="ic-time" width={12} height={12} />
                                     <Typography variant="body2">
                                         {moment(row.date_transaction).format("HH:mm")}
                                     </Typography>
@@ -105,7 +105,7 @@ export default function NewCashboxMobileCard({...props}) {
                                     condition={!row.patient?.isArchived}
                                     wrapper={(children: any) => (
                                         <Link
-                                            sx={{cursor: "pointer", fontSize: 14}}
+                                            sx={{ cursor: "pointer", fontSize: 14 }}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 handleEvent({
@@ -126,15 +126,15 @@ export default function NewCashboxMobileCard({...props}) {
 
                             {row.payment_means &&
                                 row.payment_means.map((mean: any) => (
-                                    <Stack key={`${mean.uuid}-mobile`} direction="row" alignItems="center"
-                                           spacing={0.5}>
+                                    <Stack style={{ marginLeft: 4 }} key={`${mean.uuid}-mobile`} direction="row" alignItems="center"
+                                        spacing={0.5}>
                                         <Tooltip
                                             key={mean.uuid + "mobile"}
                                             title={`${mean.amount} ${devise}`}
                                         >
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img
-                                                style={{width: 15}}
+                                                style={{ width: 15 }}
                                                 key={mean.slug}
                                                 src={
                                                     pmList.find(
@@ -168,11 +168,10 @@ export default function NewCashboxMobileCard({...props}) {
                                     <Stack width={1} key={item.uuid + "pmeans"} spacing={2}>
                                         <Stack direction="row" alignItems="flex-start" spacing={1}>
                                             <ImageHandler
-                                                src={`/static/icons/${
-                                                    item?.paymentMeans?.slug === "cash"
-                                                        ? "ic-cash-light-blue"
-                                                        : "ic-cheque-light-blue"
-                                                }.svg`}
+                                                src={`/static/icons/${item?.paymentMeans?.slug === "cash"
+                                                    ? "ic-cash-light-blue"
+                                                    : "ic-cheque-light-blue"
+                                                    }.svg`}
                                                 alt={"payment_icon"}
                                                 width={40}
                                                 height={40}
@@ -247,11 +246,11 @@ export default function NewCashboxMobileCard({...props}) {
                                                 </ListItem>
                                             </List>
                                         )}
-                                        {row?.payment_means?.length - 1 !== idx && <Divider/>}
+                                        {row?.payment_means?.length - 1 !== idx && <Divider />}
                                     </Stack>
                                 ))}
                         </Stack>
-                        {collapse && transaction_loading && <LinearProgress/>}
+                        {collapse && transaction_loading && <LinearProgress />}
                         {transaction_data.length > 0 &&
                             transaction_data.map((transaction: any) => (
                                 <Card
@@ -260,9 +259,9 @@ export default function NewCashboxMobileCard({...props}) {
                                 >
                                     <CardContent>
                                         <Stack
-                                            direction={{xs: "column", sm: "row"}}
-                                            spacing={{xs: 0.5, sm: 0}}
-                                            justifyContent={{xs: "flex-start", sm: "space-between"}}
+                                            direction={{ xs: "column", sm: "row" }}
+                                            spacing={{ xs: 0.5, sm: 0 }}
+                                            justifyContent={{ xs: "flex-start", sm: "space-between" }}
                                         >
                                             <Stack
                                                 spacing={1}
@@ -286,7 +285,7 @@ export default function NewCashboxMobileCard({...props}) {
                                                     <Typography variant="body2">
                                                         {transaction?.payment_date}
                                                     </Typography>
-                                                    <IconUrl path="ic-time" width={12} height={12}/>
+                                                    <IconUrl path="ic-time" width={12} height={12} />
                                                     <Typography variant="body2">
                                                         {transaction?.payment_time}
                                                     </Typography>
@@ -310,7 +309,7 @@ export default function NewCashboxMobileCard({...props}) {
                                                     variant="filled"
                                                     color={
                                                         transaction?.amount ===
-                                                        transaction?.amount?.restAmount
+                                                            transaction?.amount?.restAmount
                                                             ? "error"
                                                             : "success"
                                                     }
