@@ -217,13 +217,13 @@ function RDVRow({...props}) {
 
     const submitPreConsultationData = () => {
         setLoadingReq(true);
+        const form = new FormData();
+        form.append('modal_uuid', model);
+        form.append('modal_data', localStorage.getItem(`Modeldata${appointmentData?.uuid}`) as string);
         handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentData?.uuid}/data/${router.locale}`,
-            data: {
-                "modal_uuid": model,
-                "modal_data": localStorage.getItem(`Modeldata${appointmentData?.uuid}`) as string
-            }
+            data: form
         }, {
             onSuccess: () => {
                 setLoadingReq(false);

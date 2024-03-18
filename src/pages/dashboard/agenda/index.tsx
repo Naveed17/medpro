@@ -1577,8 +1577,11 @@ function Agenda() {
                     title={t("pre_consultation_dialog_title", {ns: "common"})}
                     {...(!loading && {dialogClose: () => setOpenPreConsultationDialog(false)})}
                     actionDialog={
-                        <DialogActions>
-                            <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
+                            <Button
+                                variant={"text-black"}
+                                onClick={() => setOpenPreConsultationDialog(false)}
+                                startIcon={<CloseIcon/>}>
                                 {t("cancel", {ns: "common"})}
                             </Button>
                             <LoadingButton
@@ -1586,10 +1589,10 @@ function Agenda() {
                                 loadingPosition="start"
                                 variant="contained"
                                 onClick={() => submitPreConsultationData()}
-                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                                startIcon={<IconUrl path="iconfinder_save"/>}>
                                 {t("save", {ns: "common"})}
                             </LoadingButton>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
 
