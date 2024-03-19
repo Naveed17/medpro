@@ -1,6 +1,6 @@
-import React from "react";
+import React, {useState} from "react";
 import {Label} from "@features/label";
-import {Box, Collapse, Drawer, Stack, Typography,} from "@mui/material";
+import {Box, Collapse, Drawer, IconButton, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {useRequestQuery} from "@lib/axios";
@@ -17,6 +17,9 @@ import moment from "moment/moment";
 import {WidgetCharts} from "@features/tabPanel";
 import PediatricianCharts
     from "@features/tabPanel/components/consultationTabs/pediatricianChart/components/pediatricianCharts";
+import Pediatrician18Charts
+    from "@features/tabPanel/components/consultationTabs/pediatrician18Chart/components/pediatrician18Charts";
+import IconUrl from "@themes/urlIcon";
 
 function HistoryTab({...props}) {
 
@@ -56,6 +59,8 @@ function HistoryTab({...props}) {
     const latest_appointment = histories ? histories['latest_appointment'] : []
     const nextAppointment = histories ? histories['nextAppointment'] : []
     const photos = histories ? histories['photo'] : []
+
+    const [selectedKey,setSelectedKey] = useState('')
 
     sheet && Object.keys(sheet).forEach(key => {
         keys.push(key);
@@ -141,31 +146,45 @@ function HistoryTab({...props}) {
                                 className={"header"}>{date}</Typography></td>))}
                         </tr>
                         </thead>
-                        <tbody>
                         {keys.map((key: string) => (
-                            <tr key={key}>
-                                <td style={{minWidth: 120}}><Typography
-                                    className={"keys col"}
-                                    style={{width: "100%", whiteSpace: "nowrap"}}>{sheet[key]['label']}</Typography>
-                                </td>
-                                {dates.map((date: string) => (<td key={date}><Typography
-                                    className={"data col"}>{sheet[key]['data'][date] ? sheet[key]['data'][date] + sheet[key]['description'] : '-'}</Typography>
-                                </td>))}
-                            </tr>
+                            <tbody key={key}>
+                                <tr>
+                                    <td style={{minWidth: 120}}><Typography
+                                        className={"keys col"}
+                                        style={{width: "100%", whiteSpace: "nowrap",display: "flex", gap: 5,paddingBottom:8}}>
+                                        <div onClick={()=> setSelectedKey(selectedKey === key ? "" : key)}>
+                                            <IconUrl path={"status-up"}/>
+                                        </div>
+                                        {sheet[key]['label']}
+                                    </Typography>
+                                    </td>
+                                    {dates.map((date: string) => (<td key={date}><Typography
+                                        className={"data col"}>{sheet[key]['data'][date] ? sheet[key]['data'][date] + sheet[key]['description'] : '-'}</Typography>
+                                    </td>))}
+                                </tr>
+                                <tr>
+                                    <Collapse in={selectedKey === key}>
+                                        {selectedKey === key && <WidgetCharts {...{sheet, selectedKey}}/>}
+                                    </Collapse>
+                                </tr>
+
+                            </tbody>
                         ))}
-                        </tbody>
                     </HistoryStyled>}
             </div>
-            {/****** Sheet History ******/}
-
-            <WidgetCharts {...{sheet, mini}}/>
 
             {/****** Pediatrican charts ******/}
 
             {
-                patient?.birthdate && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") < 5 &&
+                patient?.birthdate && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") < 4 &&
                 <PediatricianCharts {...{sheet, birthdate: patient?.birthdate,modelData,date, t}}/>
             }
+
+            {
+                patient?.birthdate  && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") > 5 && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") <= 18 && sheet &&  (Object.keys(sheet).includes("poids") || Object.keys(sheet).includes("taille")) &&
+                <Pediatrician18Charts {...{sheet, birthdate: patient?.birthdate,gender:patient?.gender,modelData,date, t}}/>
+            }
+
             {/****** Latest appointment ******/}
             {latest_appointment && latest_appointment.length > 0 &&
                 <Stack id={'records'} spacing={2} mb={2} alignItems="flex-start">
