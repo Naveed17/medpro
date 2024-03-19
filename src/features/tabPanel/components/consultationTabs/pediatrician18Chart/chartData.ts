@@ -1,5 +1,6 @@
 export const sizeGirl = [
-    {name:"-2o",data:
+    {
+        name: "-2o", data:
             [
                 {
                     "x": 1,
@@ -75,7 +76,8 @@ export const sizeGirl = [
                 }
             ]
     },
-    {name:"-1o",data:
+    {
+        name: "-1o", data:
             [
                 {
                     "x": 1,
@@ -149,8 +151,10 @@ export const sizeGirl = [
                     "x": 18,
                     "y": 157.3
                 }
-            ]},
-    {name:"+1o",data:
+            ]
+    },
+    {
+        name: "+1o", data:
             [
                 {
                     "x": 1,
@@ -224,8 +228,10 @@ export const sizeGirl = [
                     "x": 18,
                     "y": 168.9
                 }
-            ]},
-    {name:"+2o",data:
+            ]
+    },
+    {
+        name: "+2o", data:
             [
                 {
                     "x": 1,
@@ -299,10 +305,12 @@ export const sizeGirl = [
                     "x": 18,
                     "y": 174.5
                 }
-            ]},
+            ]
+    },
 ]
 export const weightGirl = [
-    {name:"3%",data:
+    {
+        name: "3%", data:
             [
                 {
                     "x": 1,
@@ -378,7 +386,8 @@ export const weightGirl = [
                 }
             ]
     },
-    {name:"25%",data:
+    {
+        name: "25%", data:
             [
                 {
                     "x": 1,
@@ -454,7 +463,8 @@ export const weightGirl = [
                 }
             ]
     },
-    {name:"75%",data:
+    {
+        name: "75%", data:
             [
                 {
                     "x": 1,
@@ -530,7 +540,8 @@ export const weightGirl = [
                 }
             ]
     },
-    {name:"97%",data:
+    {
+        name: "97%", data:
             [
                 {
                     "x": 1,
@@ -607,9 +618,9 @@ export const weightGirl = [
             ]
     },
 ]
-
 export const sizeBoy = [
-    {name:"-2o",data:
+    {
+        name: "-2o", data:
             [
                 {
                     "x": 1,
@@ -685,7 +696,8 @@ export const sizeBoy = [
                 }
             ]
     },
-    {name:"-1o",data:
+    {
+        name: "-1o", data:
             [
                 {
                     "x": 1,
@@ -761,7 +773,8 @@ export const sizeBoy = [
                 }
             ]
     },
-    {name:"+1o",data:
+    {
+        name: "+1o", data:
             [
                 {
                     "x": 1,
@@ -837,7 +850,8 @@ export const sizeBoy = [
                 }
             ]
     },
-    {name:"+2o",data:
+    {
+        name: "+2o", data:
             [
                 {
                     "x": 1,
@@ -915,7 +929,8 @@ export const sizeBoy = [
     },
 ]
 export const weightBoy = [
-    {name:"3%",data:
+    {
+        name: "3%", data:
             [
                 {
                     "x": 1,
@@ -991,7 +1006,8 @@ export const weightBoy = [
                 }
             ]
     },
-    {name:"25%",data:
+    {
+        name: "25%", data:
             [
                 {
                     "x": 1,
@@ -1067,7 +1083,8 @@ export const weightBoy = [
                 }
             ]
     },
-    {name:"75%",data:
+    {
+        name: "75%", data:
             [
                 {
                     "x": 1,
@@ -1143,7 +1160,8 @@ export const weightBoy = [
                 }
             ]
     },
-    {name:"97%",data:
+    {
+        name: "97%", data:
             [
                 {
                     "x": 1,
