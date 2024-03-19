@@ -100,7 +100,7 @@ const CardSection = ({...props}) => {
                                                 className="d-inline-block mr-1"
                                             />
                                             <Typography variant={"caption"}>
-                                                 {data.birthdate} - {" "}
+                                                {data.birthdate} - {" "}
                                                 {data.birthdate && moment().diff(moment(data.birthdate, "DD-MM-YYYY"), "years") + " ans"}
                                             </Typography>
                                         </Stack>
@@ -145,7 +145,7 @@ const CardSection = ({...props}) => {
 
                         <Box
                             className="border-left-sec"
-                           >
+                        >
                             <Stack alignItems='flex-start'>
                                 {loading ? (
                                     <Skeleton variant="text" width={140}/>
@@ -185,8 +185,8 @@ const CardSection = ({...props}) => {
                                                 handleEvent("APPOINTMENT_MOVE", appointment);
                                             }}
                                             size="small"
-                                             sx={{mt:-0.2}}
-                                            >
+                                            sx={{mt: -0.2}}
+                                        >
                                             <IconUrl path="ic-historique" width={14} height={14}/>
                                         </IconButton>
 

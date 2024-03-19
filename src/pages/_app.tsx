@@ -31,6 +31,7 @@ import {CloseSnackbarAction} from "@features/popup";
 import StoreProvider from "@lib/redux/storeProvider";
 
 import dynamic from "next/dynamic";
+
 const AblyClient = dynamic(
     () => import("@lib/ably/ablyClient"),
     {
@@ -45,13 +46,6 @@ interface MyAppProps extends AppProps {
 
 type NextPageWithLayout = NextPage & {
     getLayout?: (page: ReactElement) => ReactNode;
-};
-
-const emptyInitialI18NextConfig: UserConfig = {
-    i18n: {
-        defaultLocale: nextI18NextConfig.i18n.defaultLocale,
-        locales: nextI18NextConfig.i18n.locales,
-    },
 };
 
 function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
