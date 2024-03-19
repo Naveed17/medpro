@@ -327,10 +327,11 @@ function Patients() {
     const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/patient/appointment/update");
     const {trigger: triggerDeletePatient} = useRequestQueryMutation("/patient/delete");
     const {trigger: triggerCheckDuplication} = useRequestQueryMutation("/patient/duplication/check");
+
     const searchParams = (new URL(location.href)).searchParams;
     let page = parseInt(searchParams.get("page") || "1");
     let isNext = parseInt(searchParams.get("previousPage") ?? "1") < page;
-    console.log("isNext", isNext);
+
     const {
         data: httpPatientsResponse,
         fetchNextPage,
@@ -346,7 +347,7 @@ function Patients() {
             ...ReactQueryNoValidateConfig,
             ...(medicalEntityHasUser && {variables: {query: `?limit=10&withPagination=true${router.query.params ?? localFilter}`}})
         });
-    console.log("httpPatientsResponse", httpPatientsResponse);
+
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerCheckDuplication({
@@ -577,7 +578,7 @@ function Patients() {
         }
     }
     const currentPageParams = httpPatientsResponse?.pageParams.findIndex(pageIndex => pageIndex === page) ?? 0;
-    const currentPage = httpPatientsResponse?.pages[currentPageParams]?.data.data as PaginationModel ?? null;
+    const currentPage = httpPatientsResponse?.pages[currentPageParams === -1 ? 0 : currentPageParams]?.data.data as PaginationModel ?? null;
 
     useLeavePageConfirm((path: string) => {
         if (!path.includes("/dashboard/patient")) {
@@ -613,7 +614,6 @@ function Patients() {
 
     useEffect(() => {
         if (!isMobile && (new URL(location.href)).searchParams.get("previousPage")) {
-            console.log("pageParam", page)
             if (isNext) {
                 fetchNextPage({pageParam: page});
             } else {

@@ -2,6 +2,8 @@ import {useInfiniteQuery} from "@tanstack/react-query";
 import {GetRequest} from "@lib/axios/config";
 import {instanceAxios} from "@lib/axios/index";
 import {useSession} from "next-auth/react";
+import {useMediaQuery} from "@mui/material";
+import {MobileContainer as MobileWidth} from "@lib/constants";
 
 export const ReactQueryNoValidateConfig = {
     refetchOnMount: false,
@@ -14,6 +16,7 @@ function useRequestInfiniteQuery<Data = unknown, Error = unknown>(request: GetRe
     ...config
 }: any = {}) {
     const {data: session, update} = useSession();
+    const isMobile = useMediaQuery(`(max-width:${MobileWidth}px)`);
     const {jti} = session?.user as any;
     const queryKey: string[] = [...(request?.url ? [request.url] : []), ...(variables?.query ? [variables.query] : [])];
 
@@ -28,10 +31,10 @@ function useRequestInfiniteQuery<Data = unknown, Error = unknown>(request: GetRe
         hasNextPage
     } = useInfiniteQuery(
         queryKey,
-        ({signal, pageParam: page = 0}) =>
+        ({signal, pageParam = (isMobile ? 0 : 1)}) =>
             ((request?.url?.length ?? 0) > 0 && queryKey.length > 0) ? instanceAxios.request<Data>({
                 ...request,
-                params: {page: page + 1},
+                params: {page: isMobile ? pageParam + 1 : pageParam},
                 ...(variables?.query && {url: `${request?.url}${variables.query}`}),
                 ...(!request?.url?.includes("/api/public") && {
                     headers: {
