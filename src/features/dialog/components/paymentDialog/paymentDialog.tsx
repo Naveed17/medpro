@@ -280,7 +280,7 @@ function PaymentDialog({...props}) {
                                     )}
                                 </Stack>
                             </Stack>
-                            <Label
+                            {patient.fiche_id && <Label
                                 variant="filled"
                                 color="info"
                                 sx={{color: (theme) => theme.palette.text.primary, borderRadius: 1, padding: 2}}>
@@ -291,10 +291,9 @@ function PaymentDialog({...props}) {
                                     fontSize={12}
                                     ml={1}
                                     fontWeight={500}>
-                                    Fiche N°15/9
+                                    Fiche N°{patient.fiche_id}
                                 </Typography>
-                                {devise}
-                            </Label>
+                            </Label>}
                         </Stack>
                         {loading && <Card>
                             <CardContent>
@@ -382,7 +381,7 @@ function PaymentDialog({...props}) {
                                 />
                                 <Typography fontWeight={"bold"}
                                             color={'#1B2746'}>{t('dialog.no_transaction')}</Typography>
-                                <Typography fontSize={13} color={'#1B2746'}>{t('dialog.add_now')}</Typography>
+                                <Typography fontSize={13} color={'#1B2746'} textAlign={"center"}>{t('dialog.add_now')}</Typography>
                             </Stack>
                         }
                     </Stack>

@@ -291,7 +291,7 @@ function PersonalInsuranceCard({...props}) {
                                 pb: 0
                             })
                         }}>
-                        <PatientInsurance {...{patientInsurances, t,patient}}/>
+                        <PatientInsurance {...{patientInsurances,mutatePatientInsurances,patient}}/>
                     </Paper>
                 </PersonalInfoStyled>
                 <Dialog

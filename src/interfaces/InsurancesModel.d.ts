@@ -6,4 +6,6 @@ interface InsurancesModel {
     insurance_social?: InsuranceSocialModel;
     expand: boolean;
     online: boolean;
+    start_date?:string;
+    end_date?:string;
 }

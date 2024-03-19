@@ -1,5 +1,17 @@
-import React, {useRef, useState} from 'react';
-import {Box, Button, Card, CardContent, Collapse, Grid, Stack, TextField, Typography} from "@mui/material";
+import React, {useEffect, useRef, useState} from 'react';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Collapse,
+    Grid,
+    MenuItem,
+    Select, SelectChangeEvent,
+    Stack,
+    TextField,
+    Typography
+} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import IconUrl from "@themes/urlIcon";
 import {useContactType, useInsurances} from "@lib/hooks/rest";
@@ -40,7 +52,7 @@ const GroupItems = styled('ul')({
 });
 
 const AddInsurance = ({...props}) => {
-    const {t, pi, setAddNew, patient, requestAction = "POST"} = props;
+    const {t, pi, setAddNew, patient, requestAction = "POST",mutatePatientInsurances} = props;
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -101,7 +113,6 @@ const AddInsurance = ({...props}) => {
         )
     });
 
-
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -140,8 +151,11 @@ const AddInsurance = ({...props}) => {
     const router = useRouter();
     const {t: commonTranslation} = useTranslation("common");
 
-
     const [selectedInsurance, setSelectedInsurance] = useState<InsuranceModel | null>(pi ? pi.insurance : null);
+    const [boxes, setBoxes] = useState<InsuranceBoxModel[]>([]);
+    const [selectedBox, setSelectedBox] = useState<InsuranceBoxModel | null>(null);
+    const [apcisList, setApcisList] = useState<ApciModel[]>([]);
+    const [apcis, setApcis] = useState<string[]>([]);
 
     const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
         ...Insured,
@@ -156,22 +170,23 @@ const AddInsurance = ({...props}) => {
     const {trigger} = useRequestQueryMutation("/insurance/agreements");
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
-    const options = ["", "A", "B"]
-
     const handleUpdatePatient = () => {
         const params = new FormData();
         params.append('insurance', JSON.stringify(prepareInsurancesData({
             insurances: [values.insurance],
+            box: selectedBox ? selectedBox.uuid : "",
+            apcis,
             contact: contacts?.length > 0 && contacts[0].uuid
-        })));
+        })[0]));
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: requestAction,
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurance.insurance_key}/` : ""}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${pi.uuid}/` : ""}${router.locale}`,
             data: params
         }, {
             onSuccess: () => {
                 setAddNew(false)
+                mutatePatientInsurances && mutatePatientInsurances();
             }
         })
     }
@@ -180,9 +195,38 @@ const AddInsurance = ({...props}) => {
         return dialCountries.find(country => country.phone === code)
     }
 
+    const getApci = (insurance: string) => {
+        trigger({
+            method: "GET",
+            url: `/api/private/apcis/${insurance}/${router.locale}`,
+        }, {
+            onSuccess: (res) => {
+                setApcisList(res.data.data)
+            }
+        })
+    }
 
-    const { values, errors, touched, getFieldProps, setFieldValue} = formik;
+    const handleSelect = (event: SelectChangeEvent<typeof apcis>) => {
+        const {target: {value}} = event;
+        setApcis(typeof value === 'string' ? value.split(',') : value);
+    };
 
+    const getCode = (uuids: string[]) => {
+        let codes: string[] = [];
+        uuids.map(uuid => codes.push(apcisList?.find((apci: { uuid: string }) => apci.uuid === uuid)?.code as string))
+        return codes;
+    }
+
+    const {values, errors, touched, getFieldProps, setFieldValue} = formik;
+
+    useEffect(() => {
+        if (selectedInsurance)
+            getApci(selectedInsurance.uuid)
+        else {
+            setApcisList([])
+            setApcis([])
+        }
+    }, [selectedInsurance]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Stack spacing={1}>
@@ -230,6 +274,7 @@ const AddInsurance = ({...props}) => {
                                         const el = insurances.find(insc => insc.uuid === res[0].insurance.uuid)
                                         if (el) {
                                             setSelectedInsurance(el)
+                                            setBoxes(el.boxes)
                                             setFieldValue(`insurance.insurance_uuid`, el.uuid);
 
                                         }
@@ -293,9 +338,13 @@ const AddInsurance = ({...props}) => {
                         isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
                         onChange={(event, newValue) => {
                             setSelectedInsurance(newValue)
-                            if (newValue)
+                            if (newValue) {
                                 setFieldValue(`insurance.insurance_uuid`, newValue.uuid);
-                            console.log(newValue)
+                                setBoxes(newValue.boxes)
+                            } else {
+                                setBoxes([])
+                                setSelectedBox(null)
+                            }
                         }}
                         renderInput={(params) => (
                             <TextField {...params} placeholder={t('insurance.select')} variant="outlined"/>
@@ -303,7 +352,7 @@ const AddInsurance = ({...props}) => {
                     />}
                 </Stack>
 
-                <Stack spacing={1} style={{width: "100%"}}>
+                {boxes.length > 0 && <Stack spacing={1} style={{width: "100%"}}>
                     <Typography
                         className="label"
                         variant="body2"
@@ -311,17 +360,18 @@ const AddInsurance = ({...props}) => {
                         {t("insurance.cashbox")}
                     </Typography>
                     <Autocomplete
-                        options={options}
-                        getOptionLabel={(option) => option}
-                        //value={selectedInsurance}
+                        options={boxes}
+                        getOptionLabel={(option) => option.slug}
+                        isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
+                        value={selectedBox}
                         popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
                         size={"small"}
-                        //onChange={(event, newValue) => setSelectedInsurance(newValue)}
+                        onChange={(event, newValue) => setSelectedBox(newValue)}
                         renderInput={(params) => (
                             <TextField {...params} placeholder={t('insurance.cashbox_placeholder')} variant="outlined"/>
                         )}
                     />
-                </Stack>
+                </Stack>}
 
             </Stack>
             <Stack direction={"row"} spacing={1}>
@@ -506,20 +556,42 @@ const AddInsurance = ({...props}) => {
                     color="text.secondary">
                     {t("insurance.apci")}
                 </Typography>
-                <Autocomplete
-                    options={options}
-                    getOptionLabel={(option) => option}
-                    //value={selectedInsurance}
-                    popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
-                    size={"small"}
-                    //onChange={(event, newValue) => setSelectedInsurance(newValue)}
-                    renderInput={(params) => (
-                        <TextField {...params} placeholder={t('insurance.apci_placeholder')} variant="outlined"/>
-                    )}
-                />
+                <Select
+                    labelId="demo-multiple-name-label"
+                    id="demo-multiple-name"
+                    multiple
+                    displayEmpty={true}
+                    sx={{
+                        minHeight: 2,
+                        ".MuiSelect-multiple": {
+                            py: 1,
+                            px: 1,
+                            textAlign: 'left'
+                        }
+
+                    }}
+                    value={apcis}
+                    onChange={handleSelect}
+                    renderValue={(selected) => {
+                        if (selected?.length === 0) {
+                            return (
+                                <Typography
+                                    fontSize={13}
+                                    color="textSecondary">
+                                    {t("table.apci")}
+                                </Typography>
+                            );
+                        }
+                        return selected ? getCode(selected).join(", ") : "";
+                    }}>
+                    {apcisList?.map((apci: ApciModel) => (
+                        <MenuItem key={apci.uuid} value={apci.uuid}>
+                            {apci.code}
+                        </MenuItem>
+                    ))}
+                </Select>
 
             </Stack>}
-
 
             <Button variant={"contained"} onClick={handleUpdatePatient}>{t(pi ? 'edit' : 'save')}</Button>
         </Stack>
