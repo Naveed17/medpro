@@ -1,5 +1,5 @@
 import type {AppProps} from "next/app";
-import {appWithTranslation, UserConfig} from "next-i18next";
+import {appWithTranslation} from "next-i18next";
 import {GlobleStyles} from "@themes/globalStyle";
 import React, {ReactElement, ReactNode, useMemo} from "react";
 import {NextPage} from "next";

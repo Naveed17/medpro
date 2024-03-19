@@ -34,7 +34,7 @@ import {SmallAvatar} from "@features/avatar";
 import {LoadingScreen} from "@features/loadingScreen";
 
 const CardSection = ({...props}) => {
-    const {data, theme, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances} = props;
+    const {data, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances} = props;
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
     return (
         <Paper className="card-main">

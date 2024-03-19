@@ -34,7 +34,7 @@ import {NoDataCard, PatientMobileCard} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {useRequestInfiniteQuery, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRequestInfiniteQuery, useRequestQueryMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -734,14 +734,14 @@ function Patients() {
                     }
                 </MobileContainer>
 
-                {/* {patientData?.list?.length === 0 && <NoDataCard
+                {currentPage?.list?.length === 0 && <NoDataCard
                     t={t}
                     ns={"patient"}
                     data={{
                         mainIcon: "ic-patient",
                         title: "no-data.patient.title",
                         description: "no-data.patient.description",
-                    }}/>}*/}
+                    }}/>}
             </Box>
 
             <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
