@@ -436,7 +436,7 @@ function CertifDialog({ ...props }) {
                         paddingRight: { xs: 0, sm: 2 }
                     }}>
                         <Stack spacing={1}>
-                            {!fullScreen && <Stack direction={"row"} spacing={2} sx={{ width: "100%" }}>
+                            {!fullScreen && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: "100%" }}>
                                 <Stack sx={{ width: "100%" }}>
                                     <Typography style={{ color: "gray" }}
                                         fontSize={12}>{t('consultationIP.title')}</Typography>
