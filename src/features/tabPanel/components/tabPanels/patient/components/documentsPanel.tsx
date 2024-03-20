@@ -654,8 +654,10 @@ function DocumentsPanel({...props}) {
                     setOpenQuoteDialog(false)
                 }}
                 actionDialog={
-                    <DialogActions>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
+                           width={"100%"}>
                         <Button
+                            variant={"text-black"}
                             onClick={() => {
                                 setOpenQuoteDialog(false)
                             }}
@@ -663,14 +665,13 @@ function DocumentsPanel({...props}) {
                             {t("cancel")}
                         </Button>
                         <Button
-                            onClick={() => {
-                                saveQuote()
-                            }}
+                            variant="contained"
+                            onClick={() => saveQuote()}
                             disabled={acts.filter(act => act.selected).length === 0}
-                            startIcon={<SaveRoundedIcon/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("consultationIP.save", {ns: 'consultation'})}
                         </Button>
-                    </DialogActions>
+                    </Stack>
                 }
             />
         </>

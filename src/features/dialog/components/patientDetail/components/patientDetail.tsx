@@ -630,8 +630,10 @@ function PatientDetail({...props}) {
                             dispatch(setOpenUploadDialog(false));
                         }}
                         actionDialog={
-                            <DialogActions>
+                            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
+                                   width={"100%"}>
                                 <Button
+                                    variant={"text-black"}
                                     onClick={() => {
                                         dispatch(setOpenUploadDialog(false));
                                     }}
@@ -645,10 +647,10 @@ function PatientDetail({...props}) {
                                         dispatch(setOpenUploadDialog(false));
                                         handleUploadDocuments();
                                     }}
-                                    startIcon={<SaveRoundedIcon/>}>
+                                    startIcon={<IconUrl path="iconfinder_save" />}>
                                     {t("add-patient.register")}
                                 </Button>
-                            </DialogActions>
+                            </Stack>
                         }
                     />
                 </PatientDetailStyled>

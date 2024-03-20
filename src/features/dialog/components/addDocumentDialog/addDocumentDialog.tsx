@@ -1,5 +1,14 @@
 import React, {useEffect, useState} from "react";
-import {CircularProgress, Dialog, DialogContent, Grid, Stack, Theme, Typography, useTheme} from "@mui/material";
+import {
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    Grid, Menu,
+    MenuItem,
+    Stack,
+    Typography,
+    useTheme
+} from "@mui/material";
 import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
@@ -8,22 +17,43 @@ import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import Resizer from "react-image-file-resizer";
-
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-
 import {LoadingScreen} from "@features/loadingScreen";
+import {ImageHandler} from "@features/image";
+import useStopwatch from "@lib/hooks/useStopwatch";
+import {useAudioRecorder} from "react-audio-voice-recorder";
 
 function AddDocumentDialog({...props}) {
+    const {data} = props;
+    const router = useRouter();
+    const theme = useTheme();
+    const {
+        minutes,
+        seconds,
+        start: startWatch,
+        pause: pauseWatch,
+        reset: resetWatch
+    } = useStopwatch({autoStart: false});
+    const {
+        startRecording,
+        stopRecording,
+        togglePauseResume,
+        recordingBlob,
+        isPaused
+    } = useAudioRecorder();
+
+    const {t, ready} = useTranslation("common");
+
     const [files, setFiles] = useState<any[]>([]);
     const [type, setType] = useState("");
     const [loading, setLoading] = useState(true);
     const [load, setLoad] = useState(false);
     const [error, setError] = useState('');
-    const {data} = props;
-    const router = useRouter();
-    const theme = useTheme() as Theme;
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [anchorData, setAnchorData] = useState<any>(null);
+    const [isRecording, setIsRecording] = useState(false);
 
-    const {t, ready} = useTranslation("common");
+    const openMenu = Boolean(anchorEl);
 
     const {data: httpTypeResponse} = useRequestQuery({
         method: "GET",
@@ -40,18 +70,21 @@ function AddDocumentDialog({...props}) {
         setFiles(files.filter((_file: any) => _file.file !== file));
     };
 
-    useEffect(() => {
-        data.state.files = files;
-        data.setState(data.state);
-        data.handleUpdateFiles && data.handleUpdateFiles(files);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [files]);
+    const closeMenu = () => {
+        setAnchorEl(null);
+        setAnchorData(null);
+    }
 
-    const handleChange = (e: { target: { files: any[]; }; }) => {
+    const startRecord = () => {
+        startRecording();
+        startWatch();
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLoad(true);
         const filesAccepted = e.target.files;
         let docs: any = [];
-        Array.from(filesAccepted).forEach((file) => {
+        filesAccepted && Array.from(filesAccepted).forEach((file) => {
             if (file.size > 40000000) {
                 setError(`big`);
                 setLoad(false);
@@ -89,7 +122,19 @@ function AddDocumentDialog({...props}) {
                 el.scrollIntoView(true);
             setError('')
         }, 1500);
+
+        if (anchorEl) {
+            closeMenu();
+        }
     }
+
+    useEffect(() => {
+        data.state.files = files;
+        data.setState(data.state);
+        data.handleUpdateFiles && data.handleUpdateFiles(files);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [files]);
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -116,22 +161,26 @@ function AddDocumentDialog({...props}) {
                                 (item: any, index: number) => (
                                     <Grid key={index} item xs={6} sm={4} md={2}>
                                         <DocumentButton
+                                            {...{t, handleChange}}
+                                            type={item.slug}
                                             icon={item.logo.url}
                                             active={data.state.type}
-                                            t={t}
                                             lable={item.name}
                                             acceptedFormat={item.acceptedFormat}
                                             uuid={item.uuid}
                                             selected={type}
-                                            handleChange={handleChange}
                                             height={100}
-                                            handleOnClick={(v: string) => {
+                                            handleOnClick={(v: string, event: React.MouseEvent<HTMLElement>) => {
+                                                console.log("item", item);
                                                 setType(v);
+                                                setAnchorData(item);
                                                 data.state.type = v;
                                                 data.setState(data.state);
+                                                if (item.slug === "audio") {
+                                                    setAnchorEl(event.currentTarget)
+                                                }
                                             }}
                                         />
-
                                     </Grid>
                                 )
                             )}
@@ -187,6 +236,64 @@ function AddDocumentDialog({...props}) {
                 </Grid>
             </Grid>
 
+            <Menu
+                anchorEl={anchorEl}
+                id="account-menu"
+                open={openMenu}
+                onClose={closeMenu}
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            overflow: 'visible',
+                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
+                                width: 32,
+                                height: 32,
+                                ml: -0.5,
+                                mr: 1,
+                            },
+                            '&::before': {
+                                content: '""',
+                                display: 'block',
+                                position: 'absolute',
+                                top: 0,
+                                right: 14,
+                                width: 10,
+                                height: 10,
+                                bgcolor: 'background.paper',
+                                transform: 'translateY(-50%) rotate(45deg)',
+                                zIndex: 0,
+                            },
+                        },
+                    }
+                }}
+                transformOrigin={{horizontal: 'right', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
+                <MenuItem>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                        <ImageHandler src={anchorData?.logo.url} width="20" height="20"/>
+                        <Typography>{t("record-audio")}</Typography>
+                    </Stack>
+                </MenuItem>
+                <MenuItem>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                        <ImageHandler src={"/static/icons/fileadd.svg"} width="20" height="20"/>
+                        <Typography>{t("upload-audio")}</Typography>
+                        <input type="file" accept={anchorData?.acceptedFormat} multiple={true}
+                               onChange={handleChange}
+                               style={{
+                                   width: '100%',
+                                   height: '100%',
+                                   position: 'absolute',
+                                   left: 0,
+                                   top: 0,
+                                   opacity: 0
+                               }}/>
+                    </Stack>
+                </MenuItem>
+            </Menu>
             <Dialog
                 open={error !== ''}
                 aria-labelledby="draggable-dialog-title">
