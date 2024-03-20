@@ -7,7 +7,6 @@ import {
     Button,
     CardContent,
     Checkbox,
-    DialogActions,
     FormControl,
     Grid,
     IconButton,
@@ -38,7 +37,6 @@ import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {dashLayoutSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import moment from "moment/moment";
 import Add from "@mui/icons-material/Add";
 import DocumentCardStyled from "@features/card/components/documentCard/components/overrides/documentCardStyle";
