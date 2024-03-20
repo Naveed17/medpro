@@ -452,7 +452,7 @@ function Consultation() {
                                         setNote,
                                         setIsNote,
                                         editPatientInfo,
-                                        t,
+                                        t,isNote,
                                         resetTranscript,
                                         setIsStarted,
                                         listening,

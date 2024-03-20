@@ -90,8 +90,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
     });
 
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
-
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data.sort((a:{name:string}, b:{name:string}) => a.name.localeCompare(b.name))
 
     const formik = useFormik({
         enableReinitialize: true,

@@ -12,7 +12,7 @@ function ExpandableCard({...props}) {
         note,
         setNote,
         editPatientInfo,
-        t,
+        t,isNote,
         resetTranscript,
         setIsStarted,
         listening,
@@ -25,7 +25,7 @@ function ExpandableCard({...props}) {
     const debouncedOnChange = useCallback(
         debounce((value) => {
             editPatientInfo(value)
-        }, 1000), []);
+        },1000), [isNote]);
 
     const startStopRec = () => {
         if (listening && isStarted) {
@@ -55,8 +55,8 @@ function ExpandableCard({...props}) {
                     autoFocus
                     placeholder={t("writenote")}
                     onChange={(val) => {
+                        debouncedOnChange(val.target.value);
                         setNote(val.target.value);
-                        debouncedOnChange(val.target.value)
                     }}
                     rows={7}
                     value={note}
