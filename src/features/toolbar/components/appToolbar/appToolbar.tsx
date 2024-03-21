@@ -334,12 +334,9 @@ function AppToolbar({...props}) {
                                   style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
                                 <Tooltip title={t("documents")}>
                                     <Badge badgeContent={nbDoc} showZero={true} color="primary">
-                                        <IconButton onClick={() => setShowDocument(!showDocument)}
-                                                    style={{
-                                                        borderRadius: "0.625rem",
-                                                        border: "1px solid var(--secondaire-gris-claire, #DDD)",
-                                                        width: 40
-                                                    }}>
+                                        <IconButton
+                                            className={"btn-edit"}
+                                            onClick={() => setShowDocument(!showDocument)}>
                                             <IconUrl path={"doc"}/>
                                         </IconButton>
                                     </Badge>

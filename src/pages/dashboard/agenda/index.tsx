@@ -1615,8 +1615,9 @@ function Agenda() {
                         })
                     })}
                     actionDialog={
-                        <DialogActions>
+                        <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
                             <Button
+                                variant={"text-black"}
                                 onClick={() => {
                                     setOpenUploadDialog({...openUploadDialog, dialog: false});
                                 }}
@@ -1631,10 +1632,10 @@ function Agenda() {
                                     event.stopPropagation();
                                     handleUploadDocuments();
                                 }}
-                                startIcon={<SaveRoundedIcon/>}>
+                                startIcon={<IconUrl path="iconfinder_save" />}>
                                 {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
 

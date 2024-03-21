@@ -3,7 +3,7 @@ import {
     CircularProgress,
     Dialog,
     DialogContent,
-    Grid, Menu,
+    Grid, IconButton, Menu,
     MenuItem,
     Stack,
     Typography,
@@ -31,13 +31,11 @@ function AddDocumentDialog({...props}) {
         minutes,
         seconds,
         start: startWatch,
-        pause: pauseWatch,
         reset: resetWatch
     } = useStopwatch({autoStart: false});
     const {
         startRecording,
         stopRecording,
-        togglePauseResume,
         recordingBlob,
         isPaused
     } = useAudioRecorder();
@@ -76,6 +74,8 @@ function AddDocumentDialog({...props}) {
     }
 
     const startRecord = () => {
+        closeMenu();
+        setIsRecording(true);
         startRecording();
         startWatch();
     }
@@ -108,7 +108,7 @@ function AddDocumentDialog({...props}) {
                         },
                         "file")
                 } else {
-                    docs.push({type: type, file, progress: 100})
+                    docs.push({type, file, progress: 100})
                     setTimeout(() => {
                         setFiles([...files, ...docs]);
                         setLoad(false);
@@ -127,6 +127,23 @@ function AddDocumentDialog({...props}) {
             closeMenu();
         }
     }
+
+    useEffect(() => {
+        if (!recordingBlob) return;
+
+        const file = new File([recordingBlob], `Enregistrement audio`, {
+            type: 'audio/mpeg',
+            lastModified: Date.now()
+        });
+
+        let audio: any = [];
+        audio.push({type, file, progress: 100})
+        setFiles([...files, ...audio]);
+        setIsRecording(false);
+        resetWatch(0, false);
+        // recordingBlob will be present at this point after 'stopRecording' has been called
+    }, [recordingBlob]) // eslint-disable-line react-hooks/exhaustive-deps
+
 
     useEffect(() => {
         data.state.files = files;
@@ -171,7 +188,6 @@ function AddDocumentDialog({...props}) {
                                             selected={type}
                                             height={100}
                                             handleOnClick={(v: string, event: React.MouseEvent<HTMLElement>) => {
-                                                console.log("item", item);
                                                 setType(v);
                                                 setAnchorData(item);
                                                 data.state.type = v;
@@ -187,26 +203,50 @@ function AddDocumentDialog({...props}) {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} md={12}>
-                    {files.length === 0 && <Stack width={{xs: "100%", md: "80%"}}
-                                                  margin={"auto"}
-                                                  mt={6}
-                                                  spacing={1}
-                                                  padding={2}
-                                                  border={`1px dashed ${theme.palette.grey["200"]}`}
-                                                  borderRadius={2}>
-                        <div style={{width: "fit-content", margin: "auto"}}>
-                            <IconUrl path="fileadd" width={80} height={80}/>
-                        </div>
-                        {
-                            load && <div style={{width: "fit-content", margin: "auto"}}>
-                                <CircularProgress style={{margin: "auto"}}/>
-                            </div>
-                        }
-                        <Typography variant="subtitle1"
-                                    color="text.primary" textAlign={"center"}>{t("type_of_document")}</Typography>
-                        <Typography textAlign={"center"} fontSize={12}>{t("to_upload")}</Typography>
+                    {(isRecording || files.length === 0) &&
+                        <Stack width={{xs: "100%", md: "80%"}}
+                               margin={"auto"}
+                               mt={6}
+                               spacing={1}
+                               padding={2}
+                               border={`1px dashed ${theme.palette.grey["200"]}`}
+                               borderRadius={2}>
+                            {isRecording ?
+                                <Stack alignItems={"center"} spacing={2}>
+                                    <Typography>{t("start-record")}</Typography>
+                                    <Stack alignItems={"center"} spacing={.5}>
+                                        <IconButton className={"micro"}
+                                                    onClick={(event: any) => {
+                                                        event.stopPropagation();
+                                                        stopRecording();
+                                                    }}>
+                                            <IconUrl path={"ic-stop-record"}
+                                                     color={theme.palette.text.primary} width={30}
+                                                     height={30}/>
+                                        </IconButton>
 
-                    </Stack>}
+                                        <Typography className={"recording-text"}
+                                                    id={'timer'}
+                                                    style={{fontSize: 14, ...(isPaused && {color: theme.palette.text.primary})}}>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</Typography>
+                                    </Stack>
+                                </Stack>
+                                :
+                                <Stack alignItems={"center"} spacing={2}>
+                                    <div style={{width: "fit-content", margin: "auto"}}>
+                                        <IconUrl path="fileadd" width={80} height={80}/>
+                                    </div>
+                                    <Stack alignItems={"center"} spacing={.5}>
+                                        {load && <div style={{width: "fit-content", margin: "auto"}}>
+                                            <CircularProgress style={{margin: "auto"}}/>
+                                        </div>}
+                                        <Typography variant="subtitle1"
+                                                    color="text.primary"
+                                                    textAlign={"center"}>{t("type_of_document")}</Typography>
+                                        <Typography textAlign={"center"} fontSize={12}>{t("to_upload")}</Typography>
+                                    </Stack>
+                                </Stack>
+                            }
+                        </Stack>}
                     <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>
                         <Grid container spacing={1} alignItems="flex-start">
                             <Grid item xs={12} lg={12}>
@@ -272,7 +312,7 @@ function AddDocumentDialog({...props}) {
                 transformOrigin={{horizontal: 'right', vertical: 'top'}}
                 anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
                 <MenuItem>
-                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                    <Stack onClick={() => startRecord()} direction={"row"} alignItems={"center"} spacing={1}>
                         <ImageHandler src={anchorData?.logo.url} width="20" height="20"/>
                         <Typography>{t("record-audio")}</Typography>
                     </Stack>

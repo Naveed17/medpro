@@ -323,8 +323,9 @@ function Consultation() {
 
                         <IconButton
                             size={"small"}
-                            onClick={() => dispatch(onOpenPatientDrawer({patientId: patient?.uuid}))}>
-                            <Icon path={"ic-edit-patient"}/>
+                            onClick={() => dispatch(onOpenPatientDrawer({patientId: patient?.uuid}))}
+                            className="btn-edit">
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                         </IconButton>
                     </Stack>}
                 </Stack>
@@ -451,7 +452,7 @@ function Consultation() {
                                         setNote,
                                         setIsNote,
                                         editPatientInfo,
-                                        t,isNote,
+                                        t, isNote,
                                         resetTranscript,
                                         setIsStarted,
                                         listening,
