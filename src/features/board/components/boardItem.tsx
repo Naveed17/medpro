@@ -10,7 +10,7 @@ import {
     Stack,
     Typography,
     useTheme,
-    alpha, Tooltip
+    alpha, Tooltip, styled as Muistyled
 } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
@@ -61,6 +61,12 @@ const Container = styled.a`
     /* flexbox */
     display: flex;
 `;
+const DocButton = Muistyled(IconButton)(({ theme }) => ({
+    border: `1px solid ${theme.palette.divider}`,
+    background: theme.palette.background.default,
+    borderRadius: 8,
+    padding: theme.spacing(1.3)
+}))
 
 function getStyle(provided: DraggableProvided, style: Object | null) {
     if (!style) {
@@ -386,7 +392,10 @@ function BoardItem({...props}) {
                                             </span>
                                         </Tooltip>}
                                 </>}
-                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) && <>
+                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) && <Stack direction='row' spacing={.5}>
+                                    <DocButton>
+                                        <IconUrl path="ic-edit-file-new" width={9} height={9} />
+                                    </DocButton>
                                     <Tooltip
                                         title={commonTranslation("config.consultation_pay", {ns: "waitingRoom"})}>
                                         <IconButton
@@ -401,7 +410,7 @@ function BoardItem({...props}) {
                                             <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
                                         </IconButton>
                                     </Tooltip>
-                                </>}
+                                </Stack>}
                                 {!quote.content.patient?.isArchived &&
                                     <Tooltip
                                         title={commonTranslation("plus", {ns: "waitingRoom"})}>

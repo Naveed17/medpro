@@ -54,7 +54,7 @@ import {
 } from "@features/calendar";
 import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
-import {CustomIconButton} from "@features/buttons";
+import { CustomIconButton, CustomSwitch } from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
@@ -71,7 +71,8 @@ import {Label} from "@features/label";
 import {partition} from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
-import {AbilityContext} from "@features/casl/can";
+import { AbilityContext } from "@features/casl/can";
+import _ from "lodash";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -780,7 +781,32 @@ function WaitingRoom() {
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
-                                        headers={WaitingHeadCells}
+                                        toolbar={<Stack direction='row' mb={1} alignItems='center' borderBottom={1} borderColor="divider" py={1}>
+                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                <IconUrl path="ic-dubble-check-round" />
+                                                <Typography fontWeight={600}>
+                                                    {t("tabs.finished")}
+                                                </Typography>
+                                                <Label color="info" variant="filled">
+                                                    {[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])].length}
+                                                </Label>
+                                            </Stack>
+                                            <Stack ml="auto" direction={"row"} alignItems={"center"}
+
+                                                sx={{ height: 28 }}>
+                                                <CustomSwitch
+                                                    className="custom-switch"
+                                                    name="active"
+                                                    onChange={handleUnpaidFilter}
+                                                    checked={boardFilterData.unpaid}
+
+
+                                                />
+                                                <Typography variant={"body2"}
+                                                    fontSize={12}>{t("tabs.payed")}</Typography>
+                                            </Stack>
+                                        </Stack>}
+                                        headers={_.tail(WaitingHeadCells)}
                                         rows={[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])]}
                                         from={"waitingRoom"}
                                         t={t}
