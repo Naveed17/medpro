@@ -395,6 +395,7 @@ function AppToolbar({...props}) {
                                 <Can key={`document-button-list-${index}`} I={"manage"} a={item.feature as any}
                                      {...(item.permission && {field: item.permission})}>
                                     <MenuItem
+
                                         onClick={() => handleClose(item.label)}>
                                         <Icon path={item.icon}/>
                                         {t(item.label)}
