@@ -1,11 +1,11 @@
-import {GetStaticProps} from "next";
-import React, {ReactElement, useContext, useEffect, useState} from "react";
+import { GetStaticProps } from "next";
+import React, { ReactElement, useContext, useEffect, useState } from "react";
 //components
-import {NoDataCard, timerSelector, WaitingRoomMobileCard} from "@features/card";
+import { NoDataCard, timerSelector, WaitingRoomMobileCard } from "@features/card";
 // next-i18next
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {useTranslation} from "next-i18next";
-import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
+import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
 import {
     Box,
     Button,
@@ -19,31 +19,31 @@ import {
     Typography,
     useMediaQuery
 } from "@mui/material";
-import {SubHeader} from "@features/subHeader";
-import {RoomToolbar} from "@features/toolbar";
-import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
-import {Session} from "next-auth";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import { SubHeader } from "@features/subHeader";
+import { RoomToolbar } from "@features/toolbar";
+import { onOpenPatientDrawer, Otable, tableActionSelector } from "@features/table";
+import { Session } from "next-auth";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {ActionMenu} from "@features/menu";
+import { ActionMenu } from "@features/menu";
 import {
     prepareContextMenu,
     prepareSearchKeys,
     useMedicalEntitySuffix,
     useMutateOnGoing
 } from "@lib/hooks";
-import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
+import { Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry, WaitingHeadCells} from "@lib/constants";
-import {EventDef} from "@fullcalendar/core/internal";
-import {LoadingButton} from "@mui/lab";
+import { DefaultCountry, WaitingHeadCells } from "@lib/constants";
+import { EventDef } from "@fullcalendar/core/internal";
+import { LoadingButton } from "@mui/lab";
 import {
     agendaSelector,
     AppointmentStatus,
@@ -52,44 +52,45 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
+import { Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime } from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
-import {CustomIconButton} from "@features/buttons";
+import { CustomIconButton, CustomSwitch } from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import {DropResult} from "react-beautiful-dnd";
+import { DropResult } from "react-beautiful-dnd";
 import {
     appointmentSelector,
     setAppointmentSubmit,
     TabPanel
 } from "@features/tabPanel";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
-import {LoadingScreen} from "@features/loadingScreen";
-import {setDialog} from "@features/topNavBar";
-import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
-import {Label} from "@features/label";
-import {partition} from "lodash";
+import { leftActionBarSelector, resetFilter } from "@features/leftActionBar";
+import { LoadingScreen } from "@features/loadingScreen";
+import { setDialog } from "@features/topNavBar";
+import { useLeavePageConfirm } from "@lib/hooks/useLeavePageConfirm";
+import { Label } from "@features/label";
+import { partition } from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
-import {AbilityContext} from "@features/casl/can";
+import { AbilityContext } from "@features/casl/can";
+import _ from "lodash";
 
 function WaitingRoom() {
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const { trigger: mutateOnGoing } = useMutateOnGoing();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const ability = useContext(AbilityContext);
 
-    const {t, ready, i18n} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {direction} = useAppSelector(configSelector);
-    const {tableState} = useAppSelector(tableActionSelector);
-    const {isActive} = useAppSelector(timerSelector);
-    const {model} = useAppSelector(preConsultationSelector);
+    const { t, ready, i18n } = useTranslation(["waitingRoom", "common"], { keyPrefix: "config" });
+    const { config: agenda } = useAppSelector(agendaSelector);
+    const { query: filter } = useAppSelector(leftActionBarSelector);
+    const { direction } = useAppSelector(configSelector);
+    const { tableState } = useAppSelector(tableActionSelector);
+    const { isActive } = useAppSelector(timerSelector);
+    const { model } = useAppSelector(preConsultationSelector);
     const {
         motif,
         recurringDates,
@@ -97,10 +98,10 @@ function WaitingRoom() {
         patient,
         type
     } = useAppSelector(appointmentSelector);
-    const {next: is_next} = useAppSelector(dashLayoutSelector);
-    const {filter: boardFilterData} = useAppSelector(boardSelector);
+    const { next: is_next } = useAppSelector(dashLayoutSelector);
+    const { filter: boardFilterData } = useAppSelector(boardSelector);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
@@ -122,21 +123,21 @@ function WaitingRoom() {
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddAppointmentTab, setQuickAddAppointmentTab] = useState(1);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
-    const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
-    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [openUploadDialog, setOpenUploadDialog] = useState({ dialog: false, loading: false });
+    const [documentConfig, setDocumentConfig] = useState({ name: "", description: "", type: "analyse", files: [] });
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
-        {key: "startTime", value: "start-time", checked: true},
-        {key: "arrivalTime", value: "arrival-time", checked: true},
-        {key: "estimatedStartTime", value: "smart-list", checked: true}
+        { key: "startTime", value: "start-time", checked: true },
+        { key: "arrivalTime", value: "arrival-time", checked: true },
+        { key: "estimatedStartTime", value: "smart-list", checked: true }
     ]);
 
-    const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
-    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
-    const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
-    const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
-    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
+    const { trigger: updateTrigger } = useRequestQueryMutation("/agenda/appointment/update");
+    const { trigger: updateAppointmentStatus } = useRequestQueryMutation("/agenda/update/appointment/status");
+    const { trigger: handlePreConsultationData } = useRequestQueryMutation("/pre-consultation/update");
+    const { trigger: addAppointmentTrigger } = useRequestQueryMutation("/agenda/appointment/add");
+    const { trigger: triggerUploadDocuments } = useRequestQueryMutation("/agenda/appointment/documents");
 
     const {
         data: httpWaitingRoomsResponse,
@@ -190,7 +191,7 @@ function WaitingRoom() {
     }
 
     const handleUploadDocuments = () => {
-        setOpenUploadDialog({...openUploadDialog, loading: true});
+        setOpenUploadDialog({ ...openUploadDialog, loading: true });
         const params = new FormData();
         documentConfig.files.map((file: any) => {
             params.append(`files[${file.type}][]`, file.file, file.name);
@@ -200,7 +201,7 @@ function WaitingRoom() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/documents/${router.locale}`,
             data: params
         }, {
-            onSuccess: () => setOpenUploadDialog({loading: false, dialog: false})
+            onSuccess: () => setOpenUploadDialog({ loading: false, dialog: false })
         });
     }
 
@@ -209,8 +210,8 @@ function WaitingRoom() {
             const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
             router.push({
                 pathname: slugConsultation,
-                query: {inProgress: true}
-            }, slugConsultation, {locale: router.locale});
+                query: { inProgress: true }
+            }, slugConsultation, { locale: router.locale });
         } else {
             const defEvent = {
                 publicId: row?.uuid,
@@ -219,8 +220,8 @@ function WaitingRoom() {
                 }
             } as EventDef;
             dispatch(setSelectedEvent(defEvent));
-            dispatch(openDrawer({type: "view", open: false}));
-            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+            dispatch(openDrawer({ type: "view", open: false }));
+            dispatch(setDialog({ dialog: "switchConsultationDialog", value: true }));
         }
     }
 
@@ -235,9 +236,9 @@ function WaitingRoom() {
             }]
             :
             recurringDates.map(recurringDate => ({
-                    "start_date": recurringDate.date,
-                    "start_time": recurringDate.time
-                })
+                "start_date": recurringDate.date,
+                "start_time": recurringDate.time
+            })
             )));
         motif && params.append('consultation_reasons', motif.toString());
         params.append('title', `${patient?.firstName} ${patient?.lastName}`);
@@ -253,7 +254,7 @@ function WaitingRoom() {
         }, {
             onSuccess: (value) => {
                 mutateWaitingRoom();
-                dispatch(setAppointmentSubmit({uuids: value?.data.data}));
+                dispatch(setAppointmentSubmit({ uuids: value?.data.data }));
                 dispatch(setStepperIndex(0));
                 setTimeout(() => setQuickAddAppointment(false));
             },
@@ -290,7 +291,7 @@ function WaitingRoom() {
                 break;
             case "onConsultationView":
                 const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
-                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                router.push(slugConsultation, slugConsultation, { locale: router.locale });
                 break;
             case "onPreConsultation":
                 setOpenPreConsultationDialog(true);
@@ -314,10 +315,10 @@ function WaitingRoom() {
                 handleAppointmentStatus(row?.uuid as string, '10');
                 break;
             case "onAddConsultationDocuments":
-                setOpenUploadDialog({...openUploadDialog, dialog: true});
+                setOpenUploadDialog({ ...openUploadDialog, dialog: true });
                 break;
             case "onPatientDetail":
-                dispatch(onOpenPatientDrawer({patientId: row?.patient.uuid}));
+                dispatch(onOpenPatientDrawer({ patientId: row?.patient.uuid }));
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
@@ -358,7 +359,7 @@ function WaitingRoom() {
         setRow(data.row);
         switch (data.action) {
             case "PATIENT_DETAILS":
-                dispatch(onOpenPatientDrawer({patientId: data.row.patient.uuid}));
+                dispatch(onOpenPatientDrawer({ patientId: data.row.patient.uuid }));
                 setPatientDetailDrawer(true);
                 break;
             case "START_CONSULTATION":
@@ -366,7 +367,7 @@ function WaitingRoom() {
                 break;
             case "OPEN_CONSULTATION":
                 const slugConsultation = `/dashboard/consultation/${data.row?.uuid}`;
-                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                router.push(slugConsultation, slugConsultation, { locale: router.locale });
                 break;
             case "CANCEL_APPOINTMENT":
                 handleAppointmentStatus(data.row?.uuid as string, '6');
@@ -417,9 +418,9 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon/>,
+            icon: <CalendarIcon />,
             action: <CustomIconButton
-                sx={{mr: 1}}
+                sx={{ mr: 1 }}
                 onClick={() => {
                     setWithoutDateTime(false);
                     setQuickAddAppointment(true);
@@ -428,14 +429,14 @@ function WaitingRoom() {
                 variant="filled"
                 color={"primary"}
                 size={"small"}>
-                <AgendaAddViewIcon/>
+                <AgendaAddViewIcon />
             </CustomIconButton>
         },
         {
             id: '3',
             name: 'waiting-room',
             url: '#',
-            icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
+            icon: <IconUrl width={24} height={24} path="ic_waiting_room" />,
             ...(ability.can('manage', 'waiting-room', 'waiting-room__waiting-room__appointment-create') && {
                 action: <CustomIconButton
                     onClick={() => {
@@ -446,7 +447,7 @@ function WaitingRoom() {
                     variant="filled"
                     color={"primary"}
                     size={"small"}>
-                    <AgendaAddViewIcon/>
+                    <AgendaAddViewIcon />
                 </CustomIconButton>
             })
         },
@@ -454,7 +455,7 @@ function WaitingRoom() {
             id: '4,8',
             name: 'ongoing',
             url: '#',
-            icon: <IconUrl width={20} height={20} path="ic-attendre"/>
+            icon: <IconUrl width={20} height={20} path="ic-attendre" />
         },
         {
             id: '5',
@@ -465,10 +466,10 @@ function WaitingRoom() {
                 sx={{
                     ml: 'auto',
                     width: 20
-                }}/>
+                }} />
         }];
     const Toolbar = () => (
-        <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
+        <Card sx={{ minWidth: 235, border: 'none', mb: 2, overflow: 'visible' }}>
             <CardHeader
                 component={Stack}
                 borderBottom={1}
@@ -487,7 +488,7 @@ function WaitingRoom() {
                     }
                 }}
                 avatar={columns[1].icon}
-                {...(columns[1].action && {action: columns[1].action})}
+                {...(columns[1].action && { action: columns[1].action })}
                 title={
                     <Stack direction='row' alignItems='center' spacing={3}>
                         <Typography
@@ -495,7 +496,7 @@ function WaitingRoom() {
                             fontSize={14}>
                             {t(`tabs.${columns[1].name}`)}
                             <Label variant="filled" color="info"
-                                   sx={{ml: 1, height: 'auto', p: .6, minWidth: 20, fontWeight: 400}}>
+                                sx={{ ml: 1, height: 'auto', p: .6, minWidth: 20, fontWeight: 400 }}>
                                 {waitingRoomsGroup[3]?.length ?? ""}
                             </Label>
                         </Typography>
@@ -535,7 +536,7 @@ function WaitingRoom() {
         dispatch(resetFilter());
     });
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <>
@@ -554,88 +555,88 @@ function WaitingRoom() {
                     columns,
                     is_next,
                     isActive
-                }}/>
+                }} />
             </SubHeader>
             <Box>
                 <LinearProgress sx={{
                     visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
-                }} color="warning"/>
+                }} color="warning" />
 
                 <Box className="container">
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
-                                {...{columns, handleDragEvent, handleSortData, handleUnpaidFilter}}
+                                {...{ columns, handleDragEvent, handleSortData, handleUnpaidFilter }}
                                 isUnpaidFilter={boardFilterData.unpaid}
                                 handleEvent={handleTableActions}
-                                data={waitingRoomsGroup}/>
+                                data={waitingRoomsGroup} />
                         </TabPanel>
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
                         {!!waitingRoomsGroup[1]?.length ? <>
-                                <DesktopContainer>
-                                    <Otable
-                                        sx={{mt: 2}}
-                                        {...{
-                                            doctor_country,
-                                            roles,
-                                            loading: loadingRequest,
-                                            setLoading: setLoadingRequest
-                                        }}
-                                        toolbar={
+                            <DesktopContainer>
+                                <Otable
+                                    sx={{ mt: 2 }}
+                                    {...{
+                                        doctor_country,
+                                        roles,
+                                        loading: loadingRequest,
+                                        setLoading: setLoadingRequest
+                                    }}
+                                    toolbar={
 
-                                            <CardHeader
-                                                sx={{
-                                                    pt: 0,
-                                                    px: 0,
-                                                    pb: 1,
+                                        <CardHeader
+                                            sx={{
+                                                pt: 0,
+                                                px: 0,
+                                                pb: 1,
+                                                m: 0,
+                                                borderBottom: 1,
+                                                borderColor: "divider",
+                                                ".MuiCardHeader-action": {
                                                     m: 0,
-                                                    borderBottom: 1,
-                                                    borderColor: "divider",
-                                                    ".MuiCardHeader-action": {
-                                                        m: 0,
-                                                    }
-                                                }}
-                                                avatar={columns[0].icon}
-                                                {...(columns[0].action && {action: columns[0].action})}
-                                                title={
-                                                    <Typography
-                                                        color={"text.primary"} fontWeight={700}
-                                                        fontSize={14}>
-                                                        {t(`tabs.${columns[0].name}`)}
-                                                        <Label variant="filled" color="info"
-                                                               sx={{ml: 1, height: 'auto', p: .6, minWidth: 20}}>
-                                                            {waitingRoomsGroup[1].length}
-                                                        </Label>
-                                                    </Typography>}
+                                                }
+                                            }}
+                                            avatar={columns[0].icon}
+                                            {...(columns[0].action && { action: columns[0].action })}
+                                            title={
+                                                <Typography
+                                                    color={"text.primary"} fontWeight={700}
+                                                    fontSize={14}>
+                                                    {t(`tabs.${columns[0].name}`)}
+                                                    <Label variant="filled" color="info"
+                                                        sx={{ ml: 1, height: 'auto', p: .6, minWidth: 20 }}>
+                                                        {waitingRoomsGroup[1].length}
+                                                    </Label>
+                                                </Typography>}
+                                        />
+                                    }
+                                    headers={WaitingHeadCells}
+                                    rows={waitingRoomsGroup[1]}
+                                    from={"waitingRoom"}
+                                    t={t}
+                                    pagination
+                                    handleEvent={handleTableActions}
+                                />
+                            </DesktopContainer>
+                            <MobileContainer>
+                                <Stack spacing={1}>
+                                    {waitingRoomsGroup[1].map((item: any, i: number) => (
+                                        <React.Fragment key={item.uuid}>
+                                            <WaitingRoomMobileCard
+                                                quote={item}
+                                                index={i}
+                                                handleEvent={handleTableActions}
                                             />
-                                        }
-                                        headers={WaitingHeadCells}
-                                        rows={waitingRoomsGroup[1]}
-                                        from={"waitingRoom"}
-                                        t={t}
-                                        pagination
-                                        handleEvent={handleTableActions}
-                                    />
-                                </DesktopContainer>
-                                <MobileContainer>
-                                    <Stack spacing={1}>
-                                        {waitingRoomsGroup[1].map((item: any, i: number) => (
-                                            <React.Fragment key={item.uuid}>
-                                                <WaitingRoomMobileCard
-                                                    quote={item}
-                                                    index={i}
-                                                    handleEvent={handleTableActions}
-                                                />
-                                            </React.Fragment>
-                                        ))}
-                                    </Stack>
-                                </MobileContainer>
-                            </>
+                                        </React.Fragment>
+                                    ))}
+                                </Stack>
+                            </MobileContainer>
+                        </>
                             :
                             <NoDataCard
-                                {...{t}}
-                                sx={{mt: 8}}
+                                {...{ t }}
+                                sx={{ mt: 8 }}
                                 onHandleClick={() => {
                                     setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
@@ -648,51 +649,51 @@ function WaitingRoom() {
                                     description: "desc",
                                     buttons: [{
                                         text: "table.no-data.event.title",
-                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
+                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"} />,
                                         variant: "warning",
                                         color: "white"
                                     }]
-                                }}/>
+                                }} />
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={2}>
                         {!!waitingRoomsGroup[3]?.length ? <>
-                                <DesktopContainer>
-                                    <Otable
+                            <DesktopContainer>
+                                <Otable
 
-                                        {...{
-                                            doctor_country,
-                                            roles,
-                                            loading: loadingRequest,
-                                            setLoading: setLoadingRequest
-                                        }}
-                                        toolbar={<Toolbar/>}
-                                        headers={WaitingHeadCells}
-                                        rows={waitingRoomsGroup[3]}
-                                        from={"waitingRoom"}
-                                        t={t}
-                                        pagination
-                                        handleEvent={handleTableActions}
-                                    />
-                                </DesktopContainer>
-                                <MobileContainer>
-                                    <Stack spacing={1}>
-                                        {waitingRoomsGroup[3].map((item: any, i: number) => (
-                                            <React.Fragment key={item.uuid}>
-                                                <WaitingRoomMobileCard
-                                                    quote={item}
-                                                    index={i}
-                                                    handleEvent={handleTableActions}
-                                                />
-                                            </React.Fragment>
-                                        ))}
-                                    </Stack>
-                                </MobileContainer>
-                            </>
+                                    {...{
+                                        doctor_country,
+                                        roles,
+                                        loading: loadingRequest,
+                                        setLoading: setLoadingRequest
+                                    }}
+                                    toolbar={<Toolbar />}
+                                    headers={WaitingHeadCells}
+                                    rows={waitingRoomsGroup[3]}
+                                    from={"waitingRoom"}
+                                    t={t}
+                                    pagination
+                                    handleEvent={handleTableActions}
+                                />
+                            </DesktopContainer>
+                            <MobileContainer>
+                                <Stack spacing={1}>
+                                    {waitingRoomsGroup[3].map((item: any, i: number) => (
+                                        <React.Fragment key={item.uuid}>
+                                            <WaitingRoomMobileCard
+                                                quote={item}
+                                                index={i}
+                                                handleEvent={handleTableActions}
+                                            />
+                                        </React.Fragment>
+                                    ))}
+                                </Stack>
+                            </MobileContainer>
+                        </>
                             :
                             <NoDataCard
-                                {...{t}}
-                                sx={{mt: 8}}
+                                {...{ t }}
+                                sx={{ mt: 8 }}
                                 onHandleClick={() => {
                                     setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
@@ -705,11 +706,11 @@ function WaitingRoom() {
                                     description: "desc",
                                     buttons: [{
                                         text: "table.no-data.event.title",
-                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
+                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"} />,
                                         variant: "warning",
                                         color: "white"
                                     }]
-                                }}/>
+                                }} />
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={3}>
@@ -718,7 +719,7 @@ function WaitingRoom() {
                                 <DesktopContainer>
 
                                     <Otable
-                                        sx={{mt: 1, pr: 2}}
+                                        sx={{ mt: 1, pr: 2 }}
                                         {...{
                                             doctor_country,
                                             roles,
@@ -758,14 +759,14 @@ function WaitingRoom() {
                             </>
                             :
                             <NoDataCard
-                                {...{t}}
-                                sx={{mt: 8}}
+                                {...{ t }}
+                                sx={{ mt: 8 }}
                                 ns={"waitingRoom"}
                                 data={{
                                     mainIcon: "ic_waiting_room",
                                     title: "empty",
                                     description: "desc"
-                                }}/>
+                                }} />
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={4}>
@@ -773,14 +774,39 @@ function WaitingRoom() {
                             <>
                                 <DesktopContainer>
                                     <Otable
-                                        sx={{mt: 1, pr: 2}}
+                                        sx={{ mt: 1, pr: 2 }}
                                         {...{
                                             doctor_country,
                                             roles,
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
-                                        headers={WaitingHeadCells}
+                                        toolbar={<Stack direction='row' mb={1} alignItems='center' borderBottom={1} borderColor="divider" py={1}>
+                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                <IconUrl path="ic-dubble-check-round" />
+                                                <Typography fontWeight={600}>
+                                                    {t("tabs.finished")}
+                                                </Typography>
+                                                <Label color="info" variant="filled">
+                                                    {[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])].length}
+                                                </Label>
+                                            </Stack>
+                                            <Stack ml="auto" direction={"row"} alignItems={"center"}
+
+                                                sx={{ height: 28 }}>
+                                                <CustomSwitch
+                                                    className="custom-switch"
+                                                    name="active"
+                                                    onChange={handleUnpaidFilter}
+                                                    checked={boardFilterData.unpaid}
+
+
+                                                />
+                                                <Typography variant={"body2"}
+                                                    fontSize={12}>{t("tabs.payed")}</Typography>
+                                            </Stack>
+                                        </Stack>}
+                                        headers={_.tail(WaitingHeadCells)}
                                         rows={[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])]}
                                         from={"waitingRoom"}
                                         t={t}
@@ -804,25 +830,25 @@ function WaitingRoom() {
                             </>
                             :
                             <NoDataCard
-                                {...{t}}
-                                sx={{mt: 8}}
+                                {...{ t }}
+                                sx={{ mt: 8 }}
                                 ns={"waitingRoom"}
                                 data={{
                                     mainIcon: "ic_waiting_room",
                                     title: "empty",
                                     description: "desc"
-                                }}/>
+                                }} />
                         }
                     </TabPanel>
 
-                    <ActionMenu {...{contextMenu, handleClose}}>
+                    <ActionMenu {...{ contextMenu, handleClose }}>
                         {popoverActions.map((v: any, index) => (
                             <MenuItem
                                 key={index}
                                 className="popover-item"
                                 onClick={() => OnMenuActions(v.action)}>
                                 {v.icon}
-                                <Typography fontSize={15} sx={{color: "#fff"}}>
+                                <Typography fontSize={15} sx={{ color: "#fff" }}>
                                     {t(v.title)}
                                 </Typography>
                             </MenuItem>
@@ -831,7 +857,7 @@ function WaitingRoom() {
 
                     <Menu
                         id="sort-menu"
-                        {...{anchorEl}}
+                        {...{ anchorEl }}
                         open={anchorEl !== null}
                         anchorOrigin={{
                             vertical: 'top',
@@ -856,7 +882,7 @@ function WaitingRoom() {
                                 onClick={() => handleSortSelect(option.value)}>
                                 <Box
                                     component={Radio}
-                                    checkedIcon={<TripOriginRoundedIcon/>}
+                                    checkedIcon={<TripOriginRoundedIcon />}
                                     checked
                                     sx={{
                                         width: 17, height: 17, mr: '5px', ml: '-2px',
@@ -915,8 +941,8 @@ function WaitingRoom() {
                     setQuickAddPatient(false);
                 }}>
                 <QuickAddAppointment
-                    {...{t, withoutDateTime}}
-                    handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
+                    {...{ t, withoutDateTime }}
+                    handleAddPatient={(action: boolean) => setQuickAddPatient(action)} />
                 <Paper
                     sx={{
                         display: quickAddPatient ? "none" : "inline-block",
@@ -932,8 +958,8 @@ function WaitingRoom() {
                         }}
                         variant="text-primary"
                         onClick={() => setQuickAddAppointment(false)}
-                        startIcon={<CloseIcon/>}>
-                        {t("cancel", {ns: "common"})}
+                        startIcon={<CloseIcon />}>
+                        {t("cancel", { ns: "common" })}
                     </Button>
                     <LoadingButton
                         loading={loadingRequest}
@@ -944,7 +970,7 @@ function WaitingRoom() {
                             handleAddAppointment();
                         }}
                         disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
-                        {t("save", {ns: "common"})}
+                        {t("save", { ns: "common" })}
                     </LoadingButton>
                 </Paper>
             </Drawer>
@@ -954,17 +980,17 @@ function WaitingRoom() {
                 open={patientDetailDrawer}
                 dir={direction}
                 onClose={() => {
-                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                    dispatch(onOpenPatientDrawer({ patientId: "" }));
                     setPatientDetailDrawer(false);
                 }}>
                 <PatientDetail
-                    {...{isAddAppointment, patientId: tableState.patientId}}
+                    {...{ isAddAppointment, patientId: tableState.patientId }}
                     onCloseDialog={() => {
-                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        dispatch(onOpenPatientDrawer({ patientId: "" }));
                         setPatientDetailDrawer(false);
                     }}
                     onConsultationStart={(event: EventDef) => startConsultation(event)}
-                    onAddAppointment={() => console.log("onAddAppointment")}/>
+                    onAddAppointment={() => console.log("onAddAppointment")} />
             </Drawer>
 
             <Dialog
@@ -1001,29 +1027,29 @@ function WaitingRoom() {
                 }}
                 size={"md"}
                 title={t("pre_consultation_dialog_title")}
-                {...(!loadingRequest && {dialogClose: () => setOpenPreConsultationDialog(false)})}
+                {...(!loadingRequest && { dialogClose: () => setOpenPreConsultationDialog(false) })}
                 actionDialog={
                     <Stack direction={"row"}
-                           justifyContent={"space-between"} width={"100%"}>
+                        justifyContent={"space-between"} width={"100%"}>
                         <Button
                             variant={"text-black"}
                             onClick={() => setOpenPreConsultationDialog(false)}
-                            startIcon={<CloseIcon/>}>
-                            {t("cancel", {ns: "common"})}
+                            startIcon={<CloseIcon />}>
+                            {t("cancel", { ns: "common" })}
                         </Button>
                         <Button
                             disabled={loadingRequest}
                             variant="contained"
                             onClick={() => submitPreConsultationData()}
-                            startIcon={<IconUrl path="iconfinder_save"/>}>
-                            {t("save", {ns: "common"})}
+                            startIcon={<IconUrl path="iconfinder_save" />}>
+                            {t("save", { ns: "common" })}
                         </Button>
                     </Stack>
                 }
             />
 
             <Dialog
-                {...{direction}}
+                {...{ direction }}
                 action={"add_a_document"}
                 open={openUploadDialog.dialog}
                 data={{
@@ -1032,7 +1058,7 @@ function WaitingRoom() {
                     setState: setDocumentConfig
                 }}
                 size={"md"}
-                sx={{minHeight: 400}}
+                sx={{ minHeight: 400 }}
                 title={t("doc_detail_title")}
                 {...(!openUploadDialog.loading && {
                     dialogClose: () => setOpenUploadDialog({
@@ -1045,10 +1071,10 @@ function WaitingRoom() {
                         <Button
                             variant={"text-black"}
                             onClick={() => {
-                                setOpenUploadDialog({...openUploadDialog, dialog: false});
+                                setOpenUploadDialog({ ...openUploadDialog, dialog: false });
                             }}
-                            startIcon={<CloseIcon/>}>
-                            {t("cancel", {ns: "common"})}
+                            startIcon={<CloseIcon />}>
+                            {t("cancel", { ns: "common" })}
                         </Button>
                         <LoadingButton
                             loading={openUploadDialog.loading}
@@ -1058,8 +1084,8 @@ function WaitingRoom() {
                                 event.stopPropagation();
                                 handleUploadDocuments();
                             }}
-                            startIcon={<SaveRoundedIcon/>}>
-                            {t("save", {ns: "common"})}
+                            startIcon={<SaveRoundedIcon />}>
+                            {t("save", { ns: "common" })}
                         </LoadingButton>
                     </Stack>
                 }
@@ -1068,7 +1094,7 @@ function WaitingRoom() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, [

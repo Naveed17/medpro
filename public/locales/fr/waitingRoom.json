@@ -104,6 +104,7 @@
       "cancel": "Annuler",
       "appointment": "Rendez-vous",
       "waiting_time": "Temps d'attente",
+      "documents": "Documents",
       "no-data": {
         "event": {
           "title": "Ajouter votre premier rendez-vous",
