@@ -7,8 +7,8 @@ import {
     Dialog as MuiDialog,
     DialogActions,
     DialogContent,
-    DialogTitle,
-    Grid,
+    DialogTitle, Fab,
+    Grid, IconButton,
     List,
     MenuItem,
     Select,
@@ -93,6 +93,9 @@ function CertifDialog({ ...props }) {
     const [expandedMotif, setExpandedMotif] = useState(false);
     const [expandedActs, setExpandedActs] = useState(false);
     const [traking, setTraking] = useState<any[]>([]);
+    const [message, setMessage] = useState(t('write'));
+    const [loadingChat, setLoadingChat] = useState(false);
+    const [openChat, setOpenChat] = useState(false);
     const [antecedents, setAntecedents] = useState<string[]>([]);
     const [motifs, setMotifs] = useState<string[]>([]);
     const [acts, setActs] = useState<string[]>([]);
@@ -106,12 +109,14 @@ function CertifDialog({ ...props }) {
         { name: '{birthdate}', title: 'birthdate', show: data.state.brithdate },
         { name: '{cin}', title: 'cin', show: data.state.cin }
     ];
+
     const { trigger: triggerModelsCreate } = useRequestQueryMutation("/certif-models/create");
     const { trigger: triggerModelsUpdate } = useRequestQueryMutation("/certif-models/update");
     const { trigger: triggerModelParent } = useRequestQueryMutation("consultation/certif-models/parent");
     const { trigger: triggerFolderSwitch } = useRequestQueryMutation("/certif-models/folder/edit");
     const { trigger: triggerFolderDelete } = useRequestQueryMutation("/certif-models/delete");
     const { trigger: triggerGetData } = useRequestQueryMutation("/patient/data");
+    const { trigger: triggerChat } = useRequestQueryMutation("/chat/ai");
 
     const { data: httpModelResponse, mutate: mutateModel } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -370,6 +375,27 @@ function CertifDialog({ ...props }) {
         setExpandedAntecedent(false)
     }
 
+    const sendToAi = () => {
+        setLoadingChat(true)
+        const form = new FormData();
+        form.append('message', `${message} .( La réponse fournie doit etre en Html dont chaque phrase dans une balise p )`);
+        form.append('short', title);
+        form.append('isDocument', "true");
+        triggerChat({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/appointments/${data.appuuid}/chat`,
+            data: form
+        }, {
+            onSuccess: (r: any) => {
+                const res = (r?.data as HttpResponse).data;
+                addVal(res.message);
+                setMessage(`${t('write')} ${title}`)
+                setOpenChat(false)
+                setLoadingChat(false)
+            }
+        })
+    }
+
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
     const modelsList = (httpModelResponse as HttpResponse)?.data ?? [];
 
@@ -423,6 +449,10 @@ function CertifDialog({ ...props }) {
     useEffect(() => {
         setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 480) : 280);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        setMessage(`${t('write')} ${title}`)
+    }, [t, title])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
@@ -535,14 +565,48 @@ function CertifDialog({ ...props }) {
                                             <KeyboardArrowDownRoundedIcon />}
                                     </Button>
                                 </Stack>
-                                <Box>
+                                <Stack direction={"row"} spacing={1}>
+                                    <Fab size={"small"}
+                                        sx={{
+                                            width: 30,
+                                            height: 30,
+                                            minHeight: 30,
+                                            boxShadow: "none",
+                                            p: 1,
+                                            svg: {
+                                                fontSize: 18,
+                                                path: {
+                                                    fill: "white",
+                                                },
+                                            },
+                                        }}
+                                        onClick={() => setOpenChat(prev => !prev)}
+                                        color={"primary"}
+                                        aria-label="edit">
+                                        <IconUrl path={'ic-chatbot'} width={20} height={20} />
+                                    </Fab>
                                     <RecButton
                                         small
                                         onClick={() => {
                                             startStopRec();
                                         }} />
-                                </Box>
+                                </Stack>
                             </Stack>
+
+
+                            <Collapse in={openChat} timeout="auto" unmountOnExit>
+                                <Typography style={{ color: "gray" }} fontSize={12}>{t('write')}</Typography>
+                                <TextField
+                                    id="outlined-start-adornment"
+                                    value={message}
+                                    onChange={(ev) => setMessage(ev.target.value)}
+                                    sx={{ m: 1, width: '95%' }}
+                                    InputProps={{
+                                        endAdornment: <IconButton disabled={loadingChat} size={"small"} onClick={() => sendToAi()}><IconUrl path={"ic-send"} width={15} height={15} /> </IconButton>
+                                    }}
+                                />
+                                {loadingChat && <Typography style={{ color: "gray" }} fontSize={12}>{t('loading')}</Typography>}
+                            </Collapse>
                             <Collapse in={expanded} timeout="auto" unmountOnExit>
                                 <div className={'suggestion'}>
                                     {traking.map(item => (
