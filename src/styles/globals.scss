@@ -601,31 +601,3 @@ fieldset {
   color: transparent;
   text-shadow: 0 0 14px #a0a2a2;
 }
-
-//WaveSurferOptions style
-#waveform {
-  cursor: pointer;
-  position: relative;
-}
-#time,
-#duration {
-  position: absolute;
-  z-index: 11;
-  top: 50%;
-  margin-top: -1px;
-  transform: translateY(-50%);
-  font-size: 11px;
-  background: rgba(0, 0, 0, 0.75);
-  padding: 2px;
-  color: #ddd;
-}
-
-#time {
-  left: 0;
-}
-
-#duration {
-  right: 0;
-}
-
-//

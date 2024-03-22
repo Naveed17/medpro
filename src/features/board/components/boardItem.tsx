@@ -29,6 +29,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
 import {getDiffDuration} from "@lib/hooks";
 import {Label} from "@features/label";
+import {sideBarSelector} from "@features/menu";
 
 const imageSize: number = 40;
 
@@ -90,6 +91,7 @@ function BoardItem({...props}) {
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {mode} = useAppSelector(agendaSelector);
+    const {opened} = useAppSelector(sideBarSelector);
 
     const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
@@ -251,7 +253,11 @@ function BoardItem({...props}) {
                                     </Stack>
                                     {quote.content.status === 5 &&
                                         <Label
-                                            color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                                            {...(opened && {sx: {maxWidth: 100}})}
+                                            color={quote?.content.appointmentRestAmount == 0 ? "success" : quote?.content.fees - quote?.content.appointmentRestAmount === 0 ? "error" : "warning"}>
+                                            <Typography fontSize={10}
+                                                        className={"ellipsis"}>{commonTranslation(quote?.content.appointmentRestAmount == 0 ? "paid" : quote?.content.fees - quote?.content.appointmentRestAmount === 0 ? "unpaid" : "partially")}</Typography>
+                                        </Label>
                                     }
                                 </Stack>
                             </Stack>

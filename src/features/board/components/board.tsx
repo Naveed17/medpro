@@ -224,7 +224,7 @@ function Board({...props}) {
 
                                                                     <Badge
                                                                         sx={{pl: 1}}
-                                                                        invisible={!(boardData[key].length > 0 && index < 3)}
+                                                                        invisible={!(boardData[key].length > 0 && index !== 2)}
                                                                         badgeContent={boardData[key].length}
                                                                         color="info"/>
                                                                 </Stack>

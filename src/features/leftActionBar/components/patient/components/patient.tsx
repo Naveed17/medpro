@@ -12,7 +12,7 @@ import {
     ActionBarState,
     AppointmentActs,
     AppointmentDisease,
-    AppointmentReasonsFilter, FilterOverview, InsuranceFilter,
+    AppointmentReasonsFilter, AppointmentTypesFilter, FilterOverview, InsuranceFilter,
     setFilter
 } from "@features/leftActionBar";
 import React, {useState} from "react";
@@ -86,6 +86,15 @@ function Patient() {
                     />
                 </FilterRootStyled>
             ),
+        },
+        {
+            heading: {
+                id: "meetingType",
+                icon: "ic-agenda-jour-color",
+                title: "meetingType",
+            },
+            expanded: false,
+            children: (<AppointmentTypesFilter/>)
         },
         {
             heading: {

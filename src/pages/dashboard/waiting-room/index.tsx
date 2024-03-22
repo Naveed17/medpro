@@ -58,7 +58,7 @@ import {CustomIconButton} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
-    appointmentSelector,
+    appointmentSelector, resetAppointment,
     setAppointmentSubmit,
     TabPanel
 } from "@features/tabPanel";
@@ -226,7 +226,6 @@ function WaitingRoom() {
 
     const handleAddAppointment = () => {
         setLoadingRequest(true);
-
         const params = new FormData();
         params.append('dates', JSON.stringify(withoutDateTime ?
             [{
@@ -508,10 +507,11 @@ function WaitingRoom() {
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
             const sortKey = menuOptions.find(option => option.value === boardFilterData.sort)?.key;
+            const timeFormat = `DD-MM-YYYY HH:mm${sortKey === "arrivalTime" ? ":ss" : ""}`
             let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => {
                 const d1 = boardFilterData.order === "asscending" ? a : b;
                 const d2 = boardFilterData.order === "asscending" ? b : a;
-                return moment(`${d1.dayDate} ${d1[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf()
+                return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
             }).group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0]];
@@ -911,6 +911,7 @@ function WaitingRoom() {
                 open={quickAddAppointment}
                 dir={direction}
                 onClose={() => {
+                    dispatch(resetAppointment());
                     setQuickAddAppointment(false);
                     setQuickAddPatient(false);
                 }}>
@@ -931,7 +932,10 @@ function WaitingRoom() {
                             mr: 1
                         }}
                         variant="text-primary"
-                        onClick={() => setQuickAddAppointment(false)}
+                        onClick={() => {
+                            dispatch(resetAppointment());
+                            setQuickAddAppointment(false)
+                        }}
                         startIcon={<CloseIcon/>}>
                         {t("cancel", {ns: "common"})}
                     </Button>
@@ -1058,7 +1062,7 @@ function WaitingRoom() {
                                 event.stopPropagation();
                                 handleUploadDocuments();
                             }}
-                            startIcon={<SaveRoundedIcon/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("save", {ns: "common"})}
                         </LoadingButton>
                     </Stack>

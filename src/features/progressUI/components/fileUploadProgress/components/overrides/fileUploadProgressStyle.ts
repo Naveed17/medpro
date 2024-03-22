@@ -2,25 +2,26 @@ import {Box} from '@mui/material'
 import {styled} from '@mui/material/styles'
 
 const FileUploadProgressStyled = styled(Box)(({theme}) => ({
-    "#waveform": {
+    "& #waveform": {
         cursor: "pointer",
         position: "relative"
     },
-    " #hover": {
+    "& #time,#duration": {
         position: "absolute",
-        left: 0,
-        top: 0,
-        zIndex: 10,
-        pointerEvents: "none",
-        height: "100%",
-        width: 0,
-        mixBlendMode: "overlay",
-        background: "rgba(255, 255, 255, 0.5)",
-        opacity: 0,
-        transition: "opacity 0.2s ease"
+        zIndex: 11,
+        top: "50%",
+        marginTop: "-1px",
+        transform: "translateY(-50%)",
+        fontSize: 11,
+        background: " rgba(0, 0, 0, 0.75)",
+        padding: 2,
+        color: "#ddd"
     },
-    "#waveform:hover #hover": {
-        opacity: 1
+    "& #time": {
+        left: 0
+    },
+    "& #duration": {
+        right: 0
     },
     '& .btn-close': {
         alignSelf: 'center',

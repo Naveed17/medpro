@@ -97,7 +97,7 @@ function MainLayout({ ...props }) {
     const roles = (user as UserDataResponse)?.general_information.roles;
     const default_medical_entity = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
     const features = default_medical_entity?.features;
-    console.log("features", features)
+
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));

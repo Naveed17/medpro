@@ -270,7 +270,6 @@ function SideBarMenu({children}: LayoutProps) {
         (agendaPageIndex !== -1 || waitingRoomPageIndex !== -1) && setMenuItems(menus);
     }, [nb_appointment, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log("menuItems", menuItems)
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (

@@ -194,6 +194,10 @@ function Agenda() {
     const [openFabAdd, setOpenFabAdd] = useState(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>([
         {
+            key: "delete-appointment-insertion",
+            selected: true
+        },
+        {
             key: "delete-appointment-data",
             selected: false
         },
@@ -1499,7 +1503,7 @@ function Agenda() {
 
                                 <Grid container spacing={1}>
                                     {deleteAppointmentOptions.map((option: any, index: number) =>
-                                        <Grid key={option.key} item md={6} xs={12}>
+                                        <Grid key={option.key} item md={4} xs={12}>
                                             <Card
                                                 sx={{
                                                     padding: 1,
@@ -1539,9 +1543,9 @@ function Agenda() {
                     open={cancelDialog}
                     title={t(`dialogs.${actionDialog}-dialog.title`)}
                     actionDialog={
-                        <>
+                        <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
                             <Button
-                                variant="text-primary"
+                                variant="text-black"
                                 onClick={() => setCancelDialog(false)}
                                 startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${actionDialog}-dialog.cancel`)}
@@ -1550,13 +1554,14 @@ function Agenda() {
                                 {...{loading}}
                                 loadingPosition="start"
                                 variant="contained"
+                                disabled={deleteAppointmentOptions.filter(option => option.selected).length === 0}
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
                                                     path="ic-trash"></IconUrl>}>
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
-                        </>
+                        </Stack>
                     }
                 />
 
@@ -1632,7 +1637,7 @@ function Agenda() {
                                     event.stopPropagation();
                                     handleUploadDocuments();
                                 }}
-                                startIcon={<IconUrl path="iconfinder_save" />}>
+                                startIcon={<IconUrl path="iconfinder_save"/>}>
                                 {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
                         </Stack>

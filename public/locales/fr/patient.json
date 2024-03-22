@@ -57,6 +57,7 @@
     "reason_for_consultation": "Motif",
     "acts": "Acte",
     "disease": "Maladie",
+    "meetingType": "Type de RDV",
     "insurance": "Assurances",
     "keyword": "Mot clé",
     "more": "Plus",
