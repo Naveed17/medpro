@@ -118,7 +118,7 @@ function SideBarMenu({children}: LayoutProps) {
                         key={item.name}
                         condition={!hasAdminAccess}
                         wrapper={(children: any) =>
-                            <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
+                            <Can key={item.name} I={"read"} a={item.slug as any}>
                                 {children}
                             </Can>}>
                         <Hidden smUp={item.name === "wallet"}>
@@ -270,6 +270,7 @@ function SideBarMenu({children}: LayoutProps) {
         (agendaPageIndex !== -1 || waitingRoomPageIndex !== -1) && setMenuItems(menus);
     }, [nb_appointment, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    console.log("menuItems", menuItems)
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (

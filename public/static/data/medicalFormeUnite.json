@@ -469,30 +469,30 @@
     ]
   },
   {
-    "unit": "Cuiére C",
+    "unit": "Cuillère C",
     "multiple": true,
     "forms": [
       {
         "form": "Sirop",
-        "unit": "Cuiére C"
+        "unit": "Cuillère C"
       },
       {
         "form": "Suspension buvable",
-        "unit": "Cuiére C"
+        "unit": "Cuillère C"
       }
     ]
   },
   {
-    "unit": "Cuiére S",
+    "unit": "Cuillère S",
     "multiple": true,
     "forms": [
       {
         "form": "Sirop",
-        "unit": "Cuiére S"
+        "unit": "Cuillère S"
       },
       {
         "form": "Suspension buvable",
-        "unit": "Cuiére S"
+        "unit": "Cuillère S"
       }
     ]
   },
