@@ -1,5 +1,5 @@
-import { useTranslation } from "next-i18next";
-import React, { useEffect, useState } from "react";
+import {useTranslation} from "next-i18next";
+import React, {useEffect, useState} from "react";
 import {
     Box,
     Button,
@@ -7,8 +7,8 @@ import {
     Dialog as MuiDialog,
     DialogActions,
     DialogContent,
-    DialogTitle,
-    Grid,
+    DialogTitle, Fab,
+    Grid, IconButton,
     List,
     MenuItem,
     Select,
@@ -20,39 +20,39 @@ import {
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
-import { Theme } from "@mui/material/styles";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
+import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
-import { LoadingButton } from "@mui/lab";
-import { Dialog, prescriptionSelector, setParentModel } from "@features/dialog";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { configSelector, dashLayoutSelector } from "@features/base";
-import { useMedicalEntitySuffix, useMedicalProfessionalSuffix } from "@lib/hooks";
-import { Editor } from "@tinymce/tinymce-react";
-import { RecButton } from "@features/buttons";
-import { useSnackbar } from "notistack";
-import { getBackendOptions, MultiBackend, Tree } from "@minoru/react-dnd-treeview";
+import {LoadingButton} from "@mui/lab";
+import {Dialog, prescriptionSelector, setParentModel} from "@features/dialog";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {Editor} from "@tinymce/tinymce-react";
+import {RecButton} from "@features/buttons";
+import {useSnackbar} from "notistack";
+import {getBackendOptions, MultiBackend, Tree} from "@minoru/react-dnd-treeview";
 import TreeStyled from "@features/dialog/components/medicalPrescriptionCycleDialog/overrides/treeStyled";
-import { CustomDragPreview, CustomNode } from "@features/treeView";
-import { DndProvider } from "react-dnd";
-import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import {CustomDragPreview, CustomNode} from "@features/treeView";
+import {DndProvider} from "react-dnd";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import IconUrl from "@themes/urlIcon";
-import { tinymcePlugins, tinymceToolbar } from "@lib/constants";
+import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 import EditIcon from "@mui/icons-material/Edit";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import { agendaSelector } from "@features/calendar";
+import {agendaSelector} from "@features/calendar";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 
-import { LoadingScreen } from "@features/loadingScreen";
+import {LoadingScreen} from "@features/loadingScreen";
 import CertifDialogStyled from "@features/dialog/components/certifDialog/certifDialogStyle";
 
-function CertifDialog({ ...props }) {
-    const { data, fullScreen } = props
-    const { urlMedicalProfessionalSuffix } = useMedicalProfessionalSuffix();
+function CertifDialog({...props}) {
+    const {data, fullScreen} = props
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const router = useRouter();
     const theme = useTheme();
     const {
@@ -60,14 +60,14 @@ function CertifDialog({ ...props }) {
         listening,
         resetTranscript
     } = useSpeechRecognition();
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const dispatch = useAppDispatch();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
-    const { t, ready } = useTranslation("consultation");
-    const { direction } = useAppSelector(configSelector);
-    const { parent: modelParent } = useAppSelector(prescriptionSelector);
-    const { config: agenda } = useAppSelector(agendaSelector);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {t, ready} = useTranslation("consultation");
+    const {direction} = useAppSelector(configSelector);
+    const {parent: modelParent} = useAppSelector(prescriptionSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
@@ -93,27 +93,32 @@ function CertifDialog({ ...props }) {
     const [expandedMotif, setExpandedMotif] = useState(false);
     const [expandedActs, setExpandedActs] = useState(false);
     const [traking, setTraking] = useState<any[]>([]);
+    const [message, setMessage] = useState(t('write'));
+    const [loadingChat, setLoadingChat] = useState(false);
+    const [openChat, setOpenChat] = useState(false);
     const [antecedents, setAntecedents] = useState<string[]>([]);
     const [motifs, setMotifs] = useState<string[]>([]);
     const [acts, setActs] = useState<string[]>([]);
-    const hasAntecedents = data.patient?.antecedents ? Object.keys(data.patient.antecedents).reduce((total, key) => total + data.patient.antecedents[key], 0) > 0 : false;
+    const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total, key) => total + data.patient.antecedents[key], 0) > 0
     const hasMotif = data.sheetExam.appointment_data.consultation_reason.length > 0
     const contentBtns = [
-        { name: '{patient}', title: 'patient', show: true },
-        { name: '{doctor}', title: 'doctor', show: true },
-        { name: '{aujourd\'hui}', title: 'today', show: true },
-        { name: '{age}', title: 'age', show: data.state.brithdate },
-        { name: '{birthdate}', title: 'birthdate', show: data.state.brithdate },
-        { name: '{cin}', title: 'cin', show: data.state.cin }
+        {name: '{patient}', title: 'patient', show: true},
+        {name: '{doctor}', title: 'doctor', show: true},
+        {name: '{aujourd\'hui}', title: 'today', show: true},
+        {name: '{age}', title: 'age', show: data.state.brithdate},
+        {name: '{birthdate}', title: 'birthdate', show: data.state.brithdate},
+        {name: '{cin}', title: 'cin', show: data.state.cin}
     ];
-    const { trigger: triggerModelsCreate } = useRequestQueryMutation("/certif-models/create");
-    const { trigger: triggerModelsUpdate } = useRequestQueryMutation("/certif-models/update");
-    const { trigger: triggerModelParent } = useRequestQueryMutation("consultation/certif-models/parent");
-    const { trigger: triggerFolderSwitch } = useRequestQueryMutation("/certif-models/folder/edit");
-    const { trigger: triggerFolderDelete } = useRequestQueryMutation("/certif-models/delete");
-    const { trigger: triggerGetData } = useRequestQueryMutation("/patient/data");
 
-    const { data: httpModelResponse, mutate: mutateModel } = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const {trigger: triggerModelsCreate} = useRequestQueryMutation("/certif-models/create");
+    const {trigger: triggerModelsUpdate} = useRequestQueryMutation("/certif-models/update");
+    const {trigger: triggerModelParent} = useRequestQueryMutation("consultation/certif-models/parent");
+    const {trigger: triggerFolderSwitch} = useRequestQueryMutation("/certif-models/folder/edit");
+    const {trigger: triggerFolderDelete} = useRequestQueryMutation("/certif-models/delete");
+    const {trigger: triggerGetData} = useRequestQueryMutation("/patient/data");
+    const {trigger: triggerChat} = useRequestQueryMutation("/chat/ai");
+
+    const {data: httpModelResponse, mutate: mutateModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -126,7 +131,7 @@ function CertifDialog({ ...props }) {
         url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const { data: httpDocumentHeader } = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -175,7 +180,7 @@ function CertifDialog({ ...props }) {
 
     const startListening = () => {
         resetTranscript();
-        SpeechRecognition.startListening({ continuous: true, language: 'fr-FR' }).then(() => {
+        SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
             setIsStarted(true);
             setOldNote(value)
         })
@@ -201,7 +206,7 @@ function CertifDialog({ ...props }) {
             onSuccess: () => {
                 mutateParentModel();
                 mutateModel().then(() => {
-                    enqueueSnackbar(t("consultationIP.updated"), { variant: 'success' });
+                    enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'});
                     setEditModel(false);
                 });
             },
@@ -275,20 +280,20 @@ function CertifDialog({ ...props }) {
         setOpenCertificateModelDialog(true);
     }
 
-    const handleDrop = (newTree: any, { dragSourceId, dropTargetId }: any) => {
+    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
         handleMoveFolderRequest(dragSourceId, dropTargetId);
         setTreeData(newTree);
     }
 
     const switchModel = (node: any) => {
         selectModel(node.data);
-        setSelectedModel({ ...node.data, id: node.id });
+        setSelectedModel({...node.data, id: node.id});
         setEditModel(false);
     }
 
     const handleEditModel = (props: any) => {
         selectModel(props.node.data);
-        setSelectedModel({ ...props.node.data, id: props.node.id });
+        setSelectedModel({...props.node.data, id: props.node.id});
         setEditModel(true);
     }
 
@@ -370,6 +375,27 @@ function CertifDialog({ ...props }) {
         setExpandedAntecedent(false)
     }
 
+    const sendToAi = () => {
+        setLoadingChat(true)
+        const form = new FormData();
+        form.append('message', `${message} .( La réponse fournie doit etre en Html dont chaque phrase dans une balise p )`);
+        form.append('short', title);
+        form.append('isDocument', "true");
+        triggerChat({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/appointments/${data.appuuid}/chat`,
+            data: form
+        }, {
+            onSuccess: (r: any) => {
+                const res = (r?.data as HttpResponse).data;
+                addVal(res.message);
+                setMessage(`${t('write')} ${title}`)
+                setOpenChat(false)
+                setLoadingChat(false)
+            }
+        })
+    }
+
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
     const modelsList = (httpModelResponse as HttpResponse)?.data ?? [];
 
@@ -389,7 +415,7 @@ function CertifDialog({ ...props }) {
                     parent: model.uuid,
                     color: model.color ? model.color : theme.palette.text.primary,
                     text: certifie.title,
-                    data: { ...certifie, folder: model.uuid }
+                    data: {...certifie, folder: model.uuid}
                 }))
             ]);
         });
@@ -424,11 +450,15 @@ function CertifDialog({ ...props }) {
         setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 480) : 280);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
+    useEffect(()=>{
+        setMessage(`${t('write')} ${title}`)
+    },[t, title])
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <CertifDialogStyled>
-            <Grid container sx={{ height: "100%" }}>
+            <Grid container sx={{height: "100%"}}>
                 <Grid item xs={12} md={fullScreen ? 12 : 9}>
                     <List sx={{
                         width: '100%',
@@ -436,25 +466,25 @@ function CertifDialog({ ...props }) {
                         paddingRight: { xs: 0, sm: 2 }
                     }}>
                         <Stack spacing={1}>
-                            {!fullScreen && <Stack direction={"row"} spacing={2} sx={{ width: "100%" }}>
-                                <Stack sx={{ width: "100%" }}>
-                                    <Typography style={{ color: "gray" }}
-                                        fontSize={12}>{t('consultationIP.title')}</Typography>
+                            {!fullScreen && <Stack direction={"row"} spacing={2} sx={{width: "100%"}}>
+                                <Stack sx={{width: "100%"}}>
+                                    <Typography style={{color: "gray"}}
+                                                fontSize={12}>{t('consultationIP.title')}</Typography>
                                     <Stack alignItems={"center"} spacing={1} direction={"row"}>
                                         <TextField
-                                            style={{ width: "100%" }}
+                                            style={{width: "100%"}}
                                             value={title}
                                             onChange={(ev) => {
                                                 setTitle(ev.target.value)
                                                 data.state.title = ev.target.value;
                                                 data.setState(data.state)
-                                            }} />
+                                            }}/>
                                     </Stack>
                                 </Stack>
 
-                                <Stack sx={{ width: "100%" }}>
-                                    <Typography style={{ color: "gray" }}
-                                        fontSize={12}>{t('consultationIP.dir')}</Typography>
+                                <Stack sx={{width: "100%"}}>
+                                    <Typography style={{color: "gray"}}
+                                                fontSize={12}>{t('consultationIP.dir')}</Typography>
                                     <Select
                                         size={"small"}
                                         value={folder}
@@ -465,9 +495,9 @@ function CertifDialog({ ...props }) {
                                     </Select>
                                 </Stack>
 
-                                <Stack sx={{ width: "100%" }}>
-                                    <Typography style={{ color: "gray" }}
-                                        fontSize={12}>{t('consultationIP.alertTitle')}</Typography>
+                                <Stack sx={{width: "100%"}}>
+                                    <Typography style={{color: "gray"}}
+                                                fontSize={12}>{t('consultationIP.alertTitle')}</Typography>
                                     <Select
                                         size={"small"}
                                         value={selectedTemplate}
@@ -483,77 +513,111 @@ function CertifDialog({ ...props }) {
                                 </Stack>
                             </Stack>}
 
-                            {!fullScreen && <Typography style={{ color: "gray" }} fontSize={12} mt={1}
-                                mb={1}>{t('consultationIP.contenu')}</Typography>}
+                            {!fullScreen && <Typography style={{color: "gray"}} fontSize={12} mt={1}
+                                                        mb={1}>{t('consultationIP.contenu')}</Typography>}
 
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
-                                <Stack direction={"row"} alignItems={"center"} spacing={1} style={{ flexWrap: "wrap" }}>
+                                <Stack direction={"row"} alignItems={"center"} spacing={1} style={{flexWrap: "wrap"}}>
                                     {contentBtns.filter(cb => cb.show).map(cb => (
                                         <Tooltip key={cb.name} title={t(`consultationIP.${cb.title}_placeholder`)}>
                                             <Button color={"info"}
-                                                variant="outlined"
-                                                style={{ marginBottom: 5 }}
-                                                onClick={() => {
-                                                    addVal(cb.name)
-                                                }} size={"small"}> <AddIcon /> {t(`consultationIP.${cb.title}`)}
+                                                    variant="outlined"
+                                                    style={{marginBottom: 5}}
+                                                    onClick={() => {
+                                                        addVal(cb.name)
+                                                    }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}
                                             </Button>
                                         </Tooltip>))}
                                     <Button color={expanded ? "primary" : "info"}
-                                        variant="outlined"
-                                        style={{ marginBottom: 5 }}
-                                        onClick={() => showTrakingData()}
-                                        size={"small"}>
+                                            variant="outlined"
+                                            style={{marginBottom: 5}}
+                                            onClick={() => showTrakingData()}
+                                            size={"small"}>
                                         {t(`consultationIP.tracking_data`)}
-                                        {expanded ? <KeyboardArrowUpRoundedIcon /> : <KeyboardArrowDownRoundedIcon />}
+                                        {expanded ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
                                     </Button>
 
                                     {hasAntecedents && <Button color={expandedAntecedent ? "primary" : "info"}
-                                        variant="outlined"
-                                        style={{ marginBottom: 5 }}
-                                        onClick={() => showAntecedentData()}
-                                        size={"small"}>
+                                                               variant="outlined"
+                                                               style={{marginBottom: 5}}
+                                                               onClick={() => showAntecedentData()}
+                                                               size={"small"}>
                                         {t(`consultationIP.antecedent`)}
-                                        {expandedAntecedent ? <KeyboardArrowUpRoundedIcon /> :
-                                            <KeyboardArrowDownRoundedIcon />}
+                                        {expandedAntecedent ? <KeyboardArrowUpRoundedIcon/> :
+                                            <KeyboardArrowDownRoundedIcon/>}
                                     </Button>}
 
                                     {hasMotif && <Button color={expandedMotif ? "primary" : "info"}
-                                        variant="outlined"
-                                        style={{ marginBottom: 5 }}
-                                        onClick={() => showMotifData()} size={"small"}>
+                                                         variant="outlined"
+                                                         style={{marginBottom: 5}}
+                                                         onClick={() => showMotifData()} size={"small"}>
                                         {t(`consultationIP.consultation_reason`)}
-                                        {expandedMotif ? <KeyboardArrowUpRoundedIcon /> :
-                                            <KeyboardArrowDownRoundedIcon />}
+                                        {expandedMotif ? <KeyboardArrowUpRoundedIcon/> :
+                                            <KeyboardArrowDownRoundedIcon/>}
                                     </Button>}
 
                                     <Button color={expandedActs ? "primary" : "info"}
-                                        variant="outlined"
-                                        style={{ marginBottom: 5 }}
-                                        onClick={() => showActsData()} size={"small"}>
+                                            variant="outlined"
+                                            style={{marginBottom: 5}}
+                                            onClick={() => showActsData()} size={"small"}>
                                         {t(`consultationIP.acts`)}
-                                        {expandedActs ? <KeyboardArrowUpRoundedIcon /> :
-                                            <KeyboardArrowDownRoundedIcon />}
+                                        {expandedActs ? <KeyboardArrowUpRoundedIcon/> :
+                                            <KeyboardArrowDownRoundedIcon/>}
                                     </Button>
                                 </Stack>
-                                <Box>
+                                <Stack direction={"row"} spacing={1}>
+                                    <Fab size={"small"}
+                                         sx={{
+                                             width: 30 ,
+                                             height: 30,
+                                             minHeight: 30,
+                                             boxShadow: "none",
+                                             p: 1,
+                                             svg: {
+                                                 fontSize: 18,
+                                                 path: {
+                                                     fill: "white",
+                                                 },
+                                             },
+                                         }}
+                                         onClick={() => setOpenChat(prev => !prev)}
+                                         color={"primary"}
+                                         aria-label="edit">
+                                        <IconUrl path={'ic-chatbot'} width={20} height={20}/>
+                                    </Fab>
                                     <RecButton
                                         small
                                         onClick={() => {
                                             startStopRec();
-                                        }} />
-                                </Box>
+                                        }}/>
+                                </Stack>
                             </Stack>
+
+
+                            <Collapse in={openChat} timeout="auto" unmountOnExit>
+                                <Typography style={{color: "gray"}} fontSize={12}>{t('write')}</Typography>
+                                <TextField
+                                    id="outlined-start-adornment"
+                                    value={message}
+                                    onChange={(ev) => setMessage(ev.target.value)}
+                                    sx={{ m: 1, width: '95%' }}
+                                    InputProps={{
+                                        endAdornment: <IconButton disabled={loadingChat} size={"small"} onClick={()=> sendToAi()}><IconUrl path={"ic-send"} width={15} height={15}/> </IconButton>
+                                    }}
+                                />
+                                {loadingChat && <Typography style={{color: "gray"}} fontSize={12}>{t('loading')}</Typography>}
+                            </Collapse>
                             <Collapse in={expanded} timeout="auto" unmountOnExit>
                                 <div className={'suggestion'}>
                                     {traking.map(item => (
                                         <Button color={"info"}
-                                            variant="outlined"
-                                            onClick={() => {
-                                                addVal(`${item.key}: ${item.value.toString()} ${item.description}`)
-                                            }}
-                                            style={{ width: "fit-content", margin: 2 }}
-                                            key={item.key}
-                                            size={"small"}> <AddIcon /> {item.key} ({item.value} {item.description})
+                                                variant="outlined"
+                                                onClick={() => {
+                                                    addVal(`${item.key}: ${item.value.toString()} ${item.description}`)
+                                                }}
+                                                style={{width: "fit-content", margin: 2}}
+                                                key={item.key}
+                                                size={"small"}> <AddIcon/> {item.key} ({item.value} {item.description})
                                         </Button>
                                     ))}
                                     {traking.length === 0 && <Typography className={'empty'}>{t('noData')}</Typography>}
@@ -562,14 +626,14 @@ function CertifDialog({ ...props }) {
                             <Collapse in={expandedAntecedent} timeout="auto" unmountOnExit>
                                 <div className={'suggestion'}>
                                     {antecedents.map((item, index) => (
-                                        <Button style={{ width: "fit-content", margin: 2 }}
-                                            onClick={() => {
-                                                addVal(item.toString())
-                                            }}
-                                            color={"info"}
-                                            variant="outlined"
-                                            key={`antecedent${index}`}
-                                            size={"small"}> <AddIcon /> {item}
+                                        <Button style={{width: "fit-content", margin: 2}}
+                                                onClick={() => {
+                                                    addVal(item.toString())
+                                                }}
+                                                color={"info"}
+                                                variant="outlined"
+                                                key={`antecedent${index}`}
+                                                size={"small"}> <AddIcon/> {item}
                                         </Button>
                                     ))}
                                     {antecedents.length === 0 &&
@@ -580,12 +644,12 @@ function CertifDialog({ ...props }) {
                                 <div className={'suggestion'}>
                                     {motifs.map((item, index) => (
                                         <Button color={"info"}
-                                            variant="outlined"
-                                            style={{ width: "fit-content", margin: 2 }} onClick={() => {
-                                                addVal(item.toString())
-                                            }}
-                                            key={`motif${index}`}
-                                            size={"small"}> <AddIcon /> {item}
+                                                variant="outlined"
+                                                style={{width: "fit-content", margin: 2}} onClick={() => {
+                                            addVal(item.toString())
+                                        }}
+                                                key={`motif${index}`}
+                                                size={"small"}> <AddIcon/> {item}
                                         </Button>
                                     ))}
                                     {motifs.length === 0 && <Typography className={'empty'}>{t('noData')}</Typography>}
@@ -595,18 +659,18 @@ function CertifDialog({ ...props }) {
                                 <div className={'suggestion'}>
                                     {acts.map((item, index) => (
                                         <Button color={"info"}
-                                            variant="outlined"
-                                            style={{ width: "fit-content", margin: 2 }} onClick={() => {
-                                                addVal(item.toString())
-                                            }}
-                                            key={`motif${index}`}
-                                            size={"small"}> <AddIcon /> {item}
+                                                variant="outlined"
+                                                style={{width: "fit-content", margin: 2}} onClick={() => {
+                                            addVal(item.toString())
+                                        }}
+                                                key={`motif${index}`}
+                                                size={"small"}> <AddIcon/> {item}
                                         </Button>
                                     ))}
                                     {acts.length === 0 && <Typography className={'empty'}>{t('noData')}</Typography>}
                                 </div>
                             </Collapse>
-                            <div style={{ height, paddingBottom: "1rem" }}>
+                            <div style={{height, paddingBottom: "1rem"}}>
                                 <Editor
                                     value={value}
                                     tinymceScriptSrc={'/tinymce/tinymce.min.js'}
@@ -624,17 +688,17 @@ function CertifDialog({ ...props }) {
                                         plugins: tinymcePlugins,
                                         toolbar: tinymceToolbar,
                                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                    }} />
+                                    }}/>
                             </div>
                         </Stack>
                     </List>
                 </Grid>
-                {!fullScreen && <Grid item xs={12} md={3} style={{ borderLeft: `1px solid ${theme.palette.grey[200]}` }}>
+                {!fullScreen && <Grid item xs={12} md={3} style={{borderLeft: `1px solid ${theme.palette.grey[200]}`}}>
                     <Stack>
                         {editModel ?
                             <Stack direction={"row"} spacing={1} justifyContent={"end"}>
                                 <LoadingButton
-                                    {...{ loading }}
+                                    {...{loading}}
                                     loadingPosition="start"
                                     color="warning"
                                     size={"small"}
@@ -643,7 +707,7 @@ function CertifDialog({ ...props }) {
                                     }}
                                     className="custom-button"
                                     variant="contained"
-                                    startIcon={<EditIcon />}>
+                                    startIcon={<EditIcon/>}>
                                     {t("consultationIP.editModel")} {t("consultationIP.model")}
                                 </LoadingButton>
 
@@ -654,13 +718,13 @@ function CertifDialog({ ...props }) {
                                     {t('consultationIP.cancel')}
                                 </Button>
                             </Stack>
-                            : <Button sx={{ ml: 'auto', height: 1 }}
-                                size='small'
-                                disabled={title.length === 0 || value.length === 0}
-                                onClick={() => {
-                                    saveModel()
-                                }}
-                                startIcon={<AddIcon />}>
+                            : <Button sx={{ml: 'auto', height: 1}}
+                                      size='small'
+                                      disabled={title.length === 0 || value.length === 0}
+                                      onClick={() => {
+                                          saveModel()
+                                      }}
+                                      startIcon={<AddIcon/>}>
                                 {t('consultationIP.createAsModel')}
                             </Button>}
                     </Stack>
@@ -671,11 +735,11 @@ function CertifDialog({ ...props }) {
                     </Stack>
 
                     <DndProvider backend={MultiBackend} options={getBackendOptions()}>
-                        <TreeStyled {...{ fullScreen, innerHeight: window.innerHeight }} className={"app"}>
+                        <TreeStyled {...{fullScreen, innerHeight: window.innerHeight}} className={"app"}>
                             <Tree
                                 tree={treeData}
                                 rootId={0}
-                                render={(node, { depth, isOpen, onToggle }) => (
+                                render={(node, {depth, isOpen, onToggle}) => (
                                     <CustomNode
                                         {...{
                                             selectedNode: selectedModel?.id,
@@ -694,7 +758,7 @@ function CertifDialog({ ...props }) {
                                 enableAnimateExpand={true}
                                 initialOpen={initialOpenData}
                                 dragPreviewRender={(monitorProps) => (
-                                    <CustomDragPreview monitorProps={monitorProps} />
+                                    <CustomDragPreview monitorProps={monitorProps}/>
                                 )}
                                 onDrop={handleDrop}
                                 classes={{
@@ -709,9 +773,9 @@ function CertifDialog({ ...props }) {
                     <Button
                         size={"small"}
                         onClick={() => setOpenAddParentDialog(true)}
-                        sx={{ alignSelf: "flex-start", mb: 1, ml: 1 }}
+                        sx={{alignSelf: "flex-start", mb: 1, ml: 1}}
                         color={"primary"}
-                        startIcon={<AddRoundedIcon />}>
+                        startIcon={<AddRoundedIcon/>}>
                         {t("consultationIP.new_file")}
                     </Button>
                 </Grid>}
@@ -758,14 +822,14 @@ function CertifDialog({ ...props }) {
                             onClick={() => {
                                 setOpenAddParentDialog(false);
                             }}
-                            startIcon={<CloseIcon />}>
+                            startIcon={<CloseIcon/>}>
                             {t("consultationIP.cancel")}
                         </Button>
                         <LoadingButton
-                            {...{ loading }}
+                            {...{loading}}
                             disabled={parentModelName.length === 0}
                             onClick={handleAddParentModel}
-                            startIcon={<IconUrl path="ic-dowlaodfile" />}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
                             variant="contained">
                             {t("consultationIP.save")}
                         </LoadingButton>
@@ -777,14 +841,14 @@ function CertifDialog({ ...props }) {
                 color={theme.palette.error.main}
                 contrastText={theme.palette.error.contrastText}
                 dialogClose={() => setDeleteModelDialog(false)}
-                sx={{ direction }}
+                sx={{direction}}
                 action={() => {
                     return (
-                        <Box sx={{ minHeight: 150 }}>
-                            <Typography sx={{ textAlign: "center" }}
-                                variant="subtitle1">{t(`consultationIP.dialogs.delete-${dialogAction}-dialog.sub-title`)} </Typography>
-                            <Typography sx={{ textAlign: "center" }}
-                                margin={2}>{t(`consultationIP.dialogs.delete-${dialogAction}-dialog.description`)}</Typography>
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`consultationIP.dialogs.delete-${dialogAction}-dialog.sub-title`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`consultationIP.dialogs.delete-${dialogAction}-dialog.description`)}</Typography>
                         </Box>)
                 }}
                 open={deleteModelDialog}
@@ -794,16 +858,16 @@ function CertifDialog({ ...props }) {
                         <Button
                             variant="text-primary"
                             onClick={() => setDeleteModelDialog(false)}
-                            startIcon={<CloseIcon />}>
+                            startIcon={<CloseIcon/>}>
                             {t(`consultationIP.dialogs.delete-${dialogAction}-dialog.cancel`)}
                         </Button>
                         <LoadingButton
-                            {...{ loading }}
+                            {...{loading}}
                             loadingPosition="start"
                             variant="contained"
                             color={"error"}
                             onClick={handleDeleteFolder}
-                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"} path="icdelete" />}>
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"} path="icdelete"/>}>
                             {t(`consultationIP.dialogs.delete-${dialogAction}-dialog.confirm`)}
                         </LoadingButton>
                     </>
@@ -811,12 +875,12 @@ function CertifDialog({ ...props }) {
             />
 
             <Dialog
-                {...{ direction }}
+                {...{direction}}
                 color={theme.palette.warning.main}
                 contrastText={theme.palette.warning.contrastText}
                 action={"medical_prescription_model"}
                 open={openCertificateModelDialog}
-                data={{ t, models: ParentModels, selectedModel, color: "warning", setOpenAddParentDialog }}
+                data={{t, models: ParentModels, selectedModel, color: "warning", setOpenAddParentDialog}}
                 dialogClose={() => setOpenCertificateModelDialog(false)}
                 size="md"
                 title={`${t("consultationIP.move_the_template_in_folder")} "${selectedModel?.text}"`}
@@ -827,14 +891,14 @@ function CertifDialog({ ...props }) {
                             onClick={() => {
                                 setOpenCertificateModelDialog(false);
                             }}
-                            startIcon={<CloseIcon />}>
+                            startIcon={<CloseIcon/>}>
                             {t("consultationIP.cancel")}
                         </Button>
                         <LoadingButton
-                            {...{ loading }}
+                            {...{loading}}
                             loadingPosition={"start"}
                             color={"warning"}
-                            startIcon={<DriveFileMoveOutlinedIcon />}
+                            startIcon={<DriveFileMoveOutlinedIcon/>}
                             onClick={() => {
                                 setLoading(true);
                                 handleMoveFolderRequest(selectedModel?.id, modelParent, true);
@@ -843,7 +907,7 @@ function CertifDialog({ ...props }) {
                             {t("consultationIP.save")}
                         </LoadingButton>
                     </Stack>
-                )} />
+                )}/>
         </CertifDialogStyled>
     )
 }
