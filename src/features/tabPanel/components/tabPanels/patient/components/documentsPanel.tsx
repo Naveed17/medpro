@@ -10,7 +10,7 @@ import {
     FormControl,
     Grid,
     IconButton,
-    LinearProgress,
+    LinearProgress, Menu,
     MenuItem,
     Stack,
     Tab,
@@ -104,8 +104,7 @@ function DocFilter({...props}) {
                         onSelectAll: (selectedAll) => void handleSelectAll({types: selectedAll ? [] : typeofDocs}),
                         selectedAll,
                         indeterminate: !!queryState.types.length && !selectedAll,
-                    }}
-                >
+                    }}>
                     <Autocomplete
                         size={"small"}
                         multiple
@@ -174,10 +173,30 @@ function DocumentsPanel({...props}) {
     const [note, setNotes] = useState(t('noteQuote'));
     const [titleSearch, setTitleSearch] = useState("");
     const [loading, setLoading] = useState(true);
-
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
     const [queryState, setQueryState] = useState<any>({
         types: []
     });
+    const [popoverActions, setPopoverActions] = useState<any[]>([
+        {
+            title: "download_document",
+            icon: <Icon color={"white"} width={20} height={20} path="menu/ic-download-square"/>,
+            action: "onDownloadDocument",
+        },
+        {
+            title: "speech_to_text",
+            icon: <Icon color={"white"} width={20} height={20} path="fileadd"/>,
+            action: "onSpeechToText",
+        },
+        {
+            title: "delete_document",
+            icon: <Icon color={"white"} width={20} height={20} path="ic-trash"/>,
+            action: "onDeleteDocument",
+        }
+    ]);
 
     const selectedAll = queryState.types.length === typeofDocs?.length;
 
@@ -200,6 +219,26 @@ function DocumentsPanel({...props}) {
 
     const documents = (httpAppDocPatientResponse as HttpResponse)?.data.reduce((docs: any[], doc: any) => [...(docs ?? []), ...doc?.documents], []) ?? [];
     const quotes = (httpQuotesResponse as HttpResponse)?.data ?? [];
+
+
+    const handleClose = () => {
+        setContextMenu(null);
+    };
+
+    const handleContextMenu = (event: any, data: any) => {
+        console.log("data", data);
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                }
+                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+                // Other native context menus might behave different.
+                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                null,
+        );
+    };
 
     const handleSelectAll = (types: any): void => {
         setQueryState(types);
@@ -243,6 +282,7 @@ function DocumentsPanel({...props}) {
                                         onClick={() => {
                                             showDoc(card)
                                         }}
+                                        handleMoreAction={handleContextMenu}
                                         {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
                                 </React.Fragment>
                             )
@@ -304,9 +344,11 @@ function DocumentsPanel({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
+
     const handleTabsChange = (event: React.SyntheticEvent, newValue: number) => {
         setCurrentTab(newValue);
     };
+
     const showDoc = (card: any) => {
         if (card.documentType === 'medical-certificate') {
             setOpenDialog(true);
@@ -633,6 +675,52 @@ function DocumentsPanel({...props}) {
                     onClose={() => setIsViewerOpen('')}
                 />
             )}
+
+
+            <Menu
+                open={contextMenu !== null}
+                onClose={handleClose}
+                anchorReference="anchorPosition"
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            minWidth: 200,
+                            backgroundColor: theme.palette.text.primary,
+                            "& .popover-item": {
+                                padding: theme.spacing(2),
+                                display: "flex",
+                                alignItems: "center",
+                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                cursor: "pointer",
+                            }
+                        }
+                    }
+                }}
+                anchorPosition={
+                    contextMenu !== null
+                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                        : undefined
+                }
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}>
+                {popoverActions.map((v: any, index) => (
+                    <MenuItem
+                        key={index}
+                        className="popover-item">
+                        {v.icon}
+                        <Typography fontSize={15} sx={{color: "#fff"}}>
+                            {t(`config.${v.title}`, {ns: "patient"})}
+                        </Typography>
+                    </MenuItem>
+                ))}
+            </Menu>
 
             <Dialog
                 action={"quote-request-dialog"}

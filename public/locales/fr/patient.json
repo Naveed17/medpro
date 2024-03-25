@@ -56,6 +56,9 @@
   "config": {
     "reason_for_consultation": "Motif",
     "acts": "Acte",
+    "download_document": "Télécharger le document",
+    "delete_document": "Supprimer le document",
+    "speech_to_text": "Conversion audio/texte",
     "disease": "Maladie",
     "meetingType": "Type de RDV",
     "insurance": "Assurances",
