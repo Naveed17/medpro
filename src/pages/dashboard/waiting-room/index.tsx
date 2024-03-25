@@ -62,7 +62,6 @@ import {
     setAppointmentSubmit,
     TabPanel
 } from "@features/tabPanel";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {setDialog} from "@features/topNavBar";
