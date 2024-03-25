@@ -5,7 +5,7 @@ import {
     TableRow,
     TableCell,
     useMediaQuery,
-    Skeleton, DialogActions, Button, MenuItem, Menu, useTheme, Stack
+    Skeleton, DialogActions, Button, MenuItem, Menu, useTheme, Stack, Box, Grid, Card, FormControlLabel, Checkbox
 } from "@mui/material";
 // components
 import {NoDataCard, RDVCard, RDVMobileCard, RDVPreviousCard, timerSelector} from "@features/card";
@@ -29,6 +29,7 @@ import moment from "moment/moment";
 import {LoadingButton} from "@mui/lab";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {FacebookCircularProgress} from "@features/progressUI";
+import {deleteAppointmentOptionsData} from "@lib/constants";
 
 function RDVRow({...props}) {
     const {data: {patient, translate, closePatientDialog}} = props;
@@ -58,6 +59,8 @@ function RDVRow({...props}) {
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
 
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
@@ -144,6 +147,26 @@ function RDVRow({...props}) {
         });
     }
 
+    const handleDeleteAppointment = () => {
+        setLoadingReq(true);
+        const params = new FormData();
+        params.append("type", deleteAppointmentOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
+
+        updateAppointmentStatus({
+            method: "DELETE",
+            data: params,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentData?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateOnGoing();
+                mutatePatientHistory();
+                setDeleteDialog(false);
+            },
+            onSettled: () => setLoadingReq(false)
+        });
+    }
+
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationDetail":
@@ -166,7 +189,7 @@ function RDVRow({...props}) {
                 handleAppointmentStatus(appointmentData?.uuid as string, '6');
                 break;
             case "onDelete":
-                handleAppointmentStatus(appointmentData?.uuid as string, '9');
+                setDeleteDialog(true);
                 break;
             case "onPatientNoShow":
                 handleAppointmentStatus(appointmentData?.uuid as string, '10');
@@ -489,6 +512,85 @@ function RDVRow({...props}) {
                         }
                     </>
             }
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteDialog(false)}
+                sx={{
+                    direction: direction
+                }}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{commonTranslation(`dialogs.delete-dialog.sub-title`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{commonTranslation(`dialogs.delete-dialog.description`)}</Typography>
+
+                            <Grid container spacing={1}>
+                                {deleteAppointmentOptions.map((option: any, index: number) =>
+                                    <Grid key={option.key} item md={4} xs={12}>
+                                        <Card
+                                            sx={{
+                                                padding: 1,
+                                                ml: 2,
+                                                borderRadius: 1.4,
+                                                "& .MuiTypography-root": {
+                                                    fontSize: 14, fontWeight: "bold"
+                                                },
+                                                "& .MuiFormControlLabel-root": {
+                                                    ml: 1,
+                                                    width: "100%"
+                                                }
+                                            }}>
+                                            <FormControlLabel
+                                                label={commonTranslation(`dialogs.delete-dialog.${option.key}`)}
+                                                checked={option.selected}
+                                                control={
+                                                    <Checkbox
+                                                        onChange={(event) => {
+                                                            setDeleteAppointmentOptions([
+                                                                ...deleteAppointmentOptions.slice(0, index),
+                                                                {
+                                                                    ...deleteAppointmentOptions[index],
+                                                                    selected: event.target.checked
+                                                                },
+                                                                ...deleteAppointmentOptions.slice(index + 1)
+                                                            ])
+                                                        }}
+                                                    />
+                                                }
+                                            />
+                                        </Card>
+                                    </Grid>)}
+                            </Grid>
+                        </Box>)
+                }}
+                open={deleteDialog}
+                title={commonTranslation(`dialogs.delete-dialog.title`)}
+                actionDialog={
+                    <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant="text-black"
+                            onClick={() => setDeleteDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {commonTranslation(`dialogs.delete-dialog.cancel`)}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingReq}
+                            loadingPosition="start"
+                            variant="contained"
+                            disabled={deleteAppointmentOptions.filter(option => option.selected).length === 0}
+                            color={"error"}
+                            onClick={() => handleDeleteAppointment()}
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                path="ic-trash"></IconUrl>}>
+                            {commonTranslation(`dialogs.delete-dialog.confirm`)}
+                        </LoadingButton>
+                    </Stack>
+                }
+            />
         </>
     );
 }

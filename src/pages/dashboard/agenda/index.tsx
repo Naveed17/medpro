@@ -88,7 +88,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
-import {DefaultCountry, MobileContainer as smallScreen} from "@lib/constants";
+import {DefaultCountry, deleteAppointmentOptionsData, MobileContainer as smallScreen} from "@lib/constants";
 import IconUrl from "@themes/urlIcon";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -190,20 +190,7 @@ function Agenda() {
     ]);
     const [event, setEvent] = useState<EventDef | null>();
     const [openFabAdd, setOpenFabAdd] = useState(false);
-    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>([
-        {
-            key: "delete-appointment-insertion",
-            selected: true
-        },
-        {
-            key: "delete-appointment-data",
-            selected: false
-        },
-        {
-            key: "delete-transaction",
-            selected: false
-        }
-    ]);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
 
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
     const calendarRef = useRef<FullCalendar | null>(null);

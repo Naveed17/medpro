@@ -220,3 +220,18 @@ export const humanizerConfig = {
         },
     },
 }
+
+export const deleteAppointmentOptionsData = [
+    {
+        key: "delete-appointment-insertion",
+        selected: true
+    },
+    {
+        key: "delete-appointment-data",
+        selected: false
+    },
+    {
+        key: "delete-transaction",
+        selected: false
+    }
+]

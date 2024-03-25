@@ -310,7 +310,7 @@ function TimeSchedule({...props}) {
                             </FormControl>
                         </Grid>}
                         <Grid item md={!withoutDateTime ? 6 : 12} xs={12}>
-                            <Typography variant="body1" color="text.primary" mt={3} mb={1}>
+                            <Typography variant="body1" color="text.primary" mt={withoutDateTime ? 1 : 3} mb={1}>
                                 {t("stepper-1.reason-consultation")}
                             </Typography>
                             <FormControl fullWidth size="small">

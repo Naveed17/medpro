@@ -17,7 +17,7 @@ import {
     Paper, Radio,
     Stack,
     Typography,
-    useMediaQuery
+    useMediaQuery, Grid, FormControlLabel, Checkbox
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
@@ -41,7 +41,7 @@ import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} fro
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry, WaitingHeadCells} from "@lib/constants";
+import {DefaultCountry, deleteAppointmentOptionsData, WaitingHeadCells} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {LoadingButton} from "@mui/lab";
 import {
@@ -54,7 +54,7 @@ import {
 } from "@features/calendar";
 import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
-import { CustomIconButton, CustomSwitch } from "@features/buttons";
+import {CustomIconButton, CustomSwitch} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
@@ -71,7 +71,7 @@ import {Label} from "@features/label";
 import {partition} from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
-import { AbilityContext } from "@features/casl/can";
+import {AbilityContext} from "@features/casl/can";
 import _ from "lodash";
 
 function WaitingRoom() {
@@ -84,7 +84,7 @@ function WaitingRoom() {
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const ability = useContext(AbilityContext);
 
-    const {t, ready, i18n} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
+    const {t, ready, i18n} = useTranslation(["waitingRoom", "common"]);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {direction} = useAppSelector(configSelector);
@@ -132,6 +132,8 @@ function WaitingRoom() {
         {key: "arrivalTime", value: "arrival-time", checked: true},
         {key: "estimatedStartTime", value: "smart-list", checked: true}
     ]);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
@@ -308,7 +310,7 @@ function WaitingRoom() {
                 handleAppointmentStatus(row?.uuid as string, '6');
                 break;
             case "onDelete":
-                handleAppointmentStatus(row?.uuid as string, '9');
+                setDeleteDialog(true);
                 break;
             case "onPatientNoShow":
                 handleAppointmentStatus(row?.uuid as string, '10');
@@ -325,6 +327,26 @@ function WaitingRoom() {
                 break;
         }
         handleClose();
+    }
+
+    const handleDeleteAppointment = () => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        params.append("type", deleteAppointmentOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
+
+        updateAppointmentStatus({
+            method: "DELETE",
+            data: params,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateOnGoing();
+                mutateWaitingRoom();
+                setDeleteDialog(false);
+            },
+            onSettled: () => setLoadingRequest(false)
+        });
     }
 
     const handleSortData = (event: React.MouseEvent<HTMLElement>) => {
@@ -781,9 +803,10 @@ function WaitingRoom() {
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
-                                        toolbar={<Stack direction='row' mb={1} alignItems='center' borderBottom={1} borderColor="divider" py={1}>
+                                        toolbar={<Stack direction='row' mb={1} alignItems='center' borderBottom={1}
+                                                        borderColor="divider" py={1}>
                                             <Stack direction='row' alignItems='center' spacing={1}>
-                                                <IconUrl path="ic-dubble-check-round" />
+                                                <IconUrl path="ic-dubble-check-round"/>
                                                 <Typography fontWeight={600}>
                                                     {t("tabs.finished")}
                                                 </Typography>
@@ -793,7 +816,7 @@ function WaitingRoom() {
                                             </Stack>
                                             <Stack ml="auto" direction={"row"} alignItems={"center"}
 
-                                                sx={{ height: 28 }}>
+                                                   sx={{height: 28}}>
                                                 <CustomSwitch
                                                     className="custom-switch"
                                                     name="active"
@@ -803,7 +826,7 @@ function WaitingRoom() {
 
                                                 />
                                                 <Typography variant={"body2"}
-                                                    fontSize={12}>{t("tabs.payed")}</Typography>
+                                                            fontSize={12}>{t("tabs.payed")}</Typography>
                                             </Stack>
                                         </Stack>}
                                         headers={_.tail(WaitingHeadCells)}
@@ -1048,6 +1071,83 @@ function WaitingRoom() {
                             startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("save", {ns: "common"})}
                         </Button>
+                    </Stack>
+                }
+            />
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteDialog(false)}
+                sx={{direction: direction}}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`, {ns: "common"})} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`dialogs.delete-dialog.description`, {ns: "common"})}</Typography>
+
+                            <Grid container spacing={1}>
+                                {deleteAppointmentOptions.map((option: any, index: number) =>
+                                    <Grid key={option.key} item md={4} xs={12}>
+                                        <Card
+                                            sx={{
+                                                padding: 1,
+                                                ml: 2,
+                                                borderRadius: 1.4,
+                                                "& .MuiTypography-root": {
+                                                    fontSize: 14, fontWeight: "bold"
+                                                },
+                                                "& .MuiFormControlLabel-root": {
+                                                    ml: 1,
+                                                    width: "100%"
+                                                }
+                                            }}>
+                                            <FormControlLabel
+                                                label={t(`dialogs.delete-dialog.${option.key}`, {ns: "common"})}
+                                                checked={option.selected}
+                                                control={
+                                                    <Checkbox
+                                                        onChange={(event) => {
+                                                            setDeleteAppointmentOptions([
+                                                                ...deleteAppointmentOptions.slice(0, index),
+                                                                {
+                                                                    ...deleteAppointmentOptions[index],
+                                                                    selected: event.target.checked
+                                                                },
+                                                                ...deleteAppointmentOptions.slice(index + 1)
+                                                            ])
+                                                        }}
+                                                    />
+                                                }
+                                            />
+                                        </Card>
+                                    </Grid>)}
+                            </Grid>
+                        </Box>)
+                }}
+                open={deleteDialog}
+                title={t(`dialogs.delete-dialog.title`, {ns: "common"})}
+                actionDialog={
+                    <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant="text-black"
+                            onClick={() => setDeleteDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {t(`dialogs.delete-dialog.cancel`, {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingRequest}
+                            loadingPosition="start"
+                            variant="contained"
+                            disabled={deleteAppointmentOptions.filter(option => option.selected).length === 0}
+                            color={"error"}
+                            onClick={() => handleDeleteAppointment()}
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                path="ic-trash"></IconUrl>}>
+                            {t(`dialogs.delete-dialog.confirm`, {ns: "common"})}
+                        </LoadingButton>
                     </Stack>
                 }
             />

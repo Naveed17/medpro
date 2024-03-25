@@ -275,7 +275,10 @@
     "delete-dialog": {
       "title": "Supprimer RDV",
       "sub-title": "Voulez-vous vraiment supprimer le RDV?",
-      "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+      "description": "Vous perderez à jamais l'historique et les documents concernant ce patient",
+      "delete-appointment-insertion": "Données d'insertion",
+      "delete-appointment-data": "Données historiques",
+      "delete-transaction": "Données de transaction",
       "cancel": "Annuler",
       "confirm": "Supprimer"
     },
