@@ -865,13 +865,12 @@ function Agenda() {
     const deleteAppointment = (appointmentUUid: string) => {
         setLoading(true);
         const params = new FormData();
-        params.append("status", "9");
         params.append("type", deleteAppointmentOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
 
         updateAppointmentStatus({
-            method: "PATCH",
+            method: "DELETE",
             data: params,
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/${router.locale}`
         }, {
             onSuccess: () => {
                 dispatch(openDrawer({type: "view", open: false}));

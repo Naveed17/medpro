@@ -30,6 +30,7 @@ import {useTranslation} from "next-i18next";
 import {getDiffDuration} from "@lib/hooks";
 import {Label} from "@features/label";
 import {sideBarSelector} from "@features/menu";
+import {IconButtonStyled} from "@features/board";
 
 const imageSize: number = 40;
 
@@ -61,12 +62,6 @@ const Container = styled.a`
     /* flexbox */
     display: flex;
 `;
-const DocButton = Muistyled(IconButton)(({ theme }) => ({
-    border: `1px solid ${theme.palette.divider}`,
-    background: theme.palette.background.default,
-    borderRadius: 8,
-    padding: theme.spacing(1.3)
-}))
 
 function getStyle(provided: DraggableProvided, style: Object | null) {
     if (!style) {
@@ -392,25 +387,32 @@ function BoardItem({...props}) {
                                             </span>
                                         </Tooltip>}
                                 </>}
-                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) && <Stack direction='row' spacing={.5}>
-                                    <DocButton>
-                                        <IconUrl path="ic-edit-file-new" width={9} height={9} />
-                                    </DocButton>
-                                    <Tooltip
-                                        title={commonTranslation("config.consultation_pay", {ns: "waitingRoom"})}>
-                                        <IconButton
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "ON_PAY",
-                                                row: quote.content,
-                                                event
-                                            })}
-                                            size={"small"}
-                                            disableFocusRipple
-                                            sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}>
-                                            <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </Stack>}
+                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) &&
+                                    <Stack direction='row' spacing={.5}>
+                                        {!opened && <IconButtonStyled size={"small"}>
+                                            <IconUrl width={16} height={16} path="ic-edit-file-new"/>
+                                        </IconButtonStyled>}
+                                        <Tooltip
+                                            title={commonTranslation("config.consultation_pay", {ns: "waitingRoom"})}>
+                                            <IconButton
+                                                sx={{
+                                                    width: 30,
+                                                    height: 30,
+                                                    background: theme.palette.primary.main,
+                                                    borderRadius: 1,
+                                                    p: .8
+                                                }}
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                    action: "ON_PAY",
+                                                    row: quote.content,
+                                                    event
+                                                })}
+                                                size={"small"}
+                                                disableFocusRipple>
+                                                <IconUrl color={"white"} path="ic-argent"/>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Stack>}
                                 {!quote.content.patient?.isArchived &&
                                     <Tooltip
                                         title={commonTranslation("plus", {ns: "waitingRoom"})}>
