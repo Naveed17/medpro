@@ -235,19 +235,13 @@ function AppToolbar({...props}) {
                             }}>
                             <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                         </IconButton>
-                        <Button
-                            sx={{minWidth: 35}}
-                            size={"medium"}
+                        <CustomIconButton
                             onClick={handleClick}
-                            variant="contained"
-                            color="warning">
-                            {
-                                isMobile ? <AddIcon/> :
-                                    <>
-                                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add")}
-                                    </>
-                            }
-                        </Button>
+                            variant="filled"
+                            color={"warning"}
+                            size={"small"}>
+                            <AgendaAddViewIcon color={theme.palette.text.primary}/>
+                        </CustomIconButton>
                         <StyledMenu
                             id="basic-menu"
                             elevation={0}
@@ -337,7 +331,7 @@ function AppToolbar({...props}) {
                                         <IconButton
                                             className={"btn-edit"}
                                             onClick={() => setShowDocument(!showDocument)}>
-                                            <IconUrl path={"doc"}/>
+                                            <IconUrl path={"ic-white-docs"} color={theme.palette.text.primary}/>
                                         </IconButton>
                                     </Badge>
                                 </Tooltip>

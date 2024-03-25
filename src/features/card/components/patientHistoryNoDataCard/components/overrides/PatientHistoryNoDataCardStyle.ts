@@ -3,7 +3,7 @@ import { Card } from '@mui/material';
 const CIPPatientHistoryNoDataCardStyled = styled(Card)(({ theme }) => ({
     '& .card-header': {
         backgroundColor: theme.palette.text.secondary,
-        padding:theme.spacing(2),
+        //padding:theme.spacing(2),
         svg:{
             path:{
                 fill:theme.palette.grey[0]
@@ -28,7 +28,7 @@ const CIPPatientHistoryNoDataCardStyled = styled(Card)(({ theme }) => ({
                         },
                     },
                     padding: theme.spacing(0),
-                    
+
                 }
             },
         }

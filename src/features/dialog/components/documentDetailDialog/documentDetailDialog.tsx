@@ -833,7 +833,6 @@ function DocumentDetailDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
                     {menu ? <List>
-
                             {actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     {!button.disabled && <ListItemButton

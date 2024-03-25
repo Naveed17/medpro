@@ -250,7 +250,7 @@ function ConsultationInProgress() {
                 content: 'widget',
                 expanded: cardPositions ? cardPositions.widget : false,
                 config: false,
-                icon: "ic-edit-file-pen"
+                icon: "docs/ic-note"
             },
             ...(ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
                 id: 'item-2',
@@ -264,12 +264,12 @@ function ConsultationInProgress() {
                 id: 'item-3',
                 content: 'exam',
                 expanded: cardPositions ? cardPositions.exam : true,
-                icon: "ic-edit-file-pen"
+                icon: "docs/ic-note"
             }
         ]]);
     const [mobileCards, setMobileCards] = useState([[
-        { id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen" },
-        { id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen" }
+        { id: 'item-1', content: 'widget', expanded: false, config: false, icon: "docs/ic-note" },
+        { id: 'item-3', content: 'exam', expanded: true, icon: "docs/ic-note" }
     ]]);
 
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
@@ -1210,13 +1210,13 @@ function ConsultationInProgress() {
                         content: 'widget',
                         expanded: cardPositions ? cardPositions.widget : false,
                         config: false,
-                        icon: "ic-edit-file-pen"
+                        icon: "docs/ic-note"
                     }
                 ], [{
                     id: 'item-3',
                     content: 'exam',
                     expanded: cardPositions ? cardPositions.exam : true,
-                    icon: "ic-edit-file-pen"
+                    icon: "docs/ic-note"
                 }]])
             }
 

@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Box, Button, Grid, List, ListItemIcon, Stack, TextField, Typography } from "@mui/material";
-import { useRouter } from "next/router";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useAppSelector } from "@lib/redux/hooks";
-import { dashLayoutSelector } from "@features/base";
-import { getBirthdayFormat, useMedicalEntitySuffix } from "@lib/hooks";
-import { Session } from "next-auth";
-import { MotifCard } from "@features/card";
-import { DefaultCountry, iconDocument, SubMotifCard } from "@lib/constants";
-import { BoxFees, ListItemDetailsStyled, ListItemStyled } from "@features/tabPanel";
+import React, {useEffect, useState} from "react";
+import {Box, Button, Grid, List, ListItemIcon, Stack, TextField, Typography, useTheme} from "@mui/material";
+import {useRouter} from "next/router";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {Session} from "next-auth";
+import {MotifCard} from "@features/card";
+import {DefaultCountry, iconDocument, SubMotifCard} from "@lib/constants";
+import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
 import Image from "next/image";
 import moment from "moment";
 
-function AppointmentHistoryContent({ ...props }) {
+function AppointmentHistoryContent({...props}) {
     const {
         showDoc,
         mutate,
@@ -28,16 +28,17 @@ function AppointmentHistoryContent({ ...props }) {
         t
     } = props;
     const router = useRouter();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const theme = useTheme();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const { data: user } = session as Session;
-    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
+    const {data: user} = session as Session;
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const [collapse, setCollapse] = useState<any>("");
     const [app, setApp] = useState<any>();
     const [selected, setSelected] = useState<string>('')
 
-    const { trigger: triggerRaEdit } = useRequestQueryMutation("/RA/edit");
-    const { data: httpPatientHistory } = useRequestQuery(medicalEntityHasUser && patient ? {
+    const {trigger: triggerRaEdit} = useRequestQueryMutation("/RA/edit");
+    const {data: httpPatientHistory} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/${historyUUID}/data/${router.locale}`
     } : null);
@@ -61,7 +62,7 @@ function AppointmentHistoryContent({ ...props }) {
         app?.appointment.acts.map((act: { act_uuid: any; name: any; price: any; qte: any; }) => {
             selectedActs.push({
                 uuid: act.act_uuid,
-                act: { name: act.name },
+                act: {name: act.name},
                 fees: act.price,
                 qte: act.qte
             })
@@ -73,7 +74,7 @@ function AppointmentHistoryContent({ ...props }) {
             info: selectedActs,
             consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
-            age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
             patient: `${type} ${patient.firstName} ${patient.lastName}`,
         });
         setOpenDialog(true);
@@ -81,12 +82,12 @@ function AppointmentHistoryContent({ ...props }) {
 
     const reqSheetChange = (rs: any, ev: any, appID: number, sheetID: number, sheetAnalysisID: number) => {
 
-        const data = { ...rs }
+        const data = {...rs}
         data.result = ev.target.value
-        let capp = { ...app }
-        capp.appointment = { ...capp.appointment }
+        let capp = {...app}
+        capp.appointment = {...capp.appointment}
         capp.appointment.requestedAnalyses = [...capp.appointment.requestedAnalyses]
-        capp.appointment.requestedAnalyses[sheetID] = { ...capp.appointment.requestedAnalyses[sheetID] }
+        capp.appointment.requestedAnalyses[sheetID] = {...capp.appointment.requestedAnalyses[sheetID]}
         capp.appointment.requestedAnalyses[sheetID].hasAnalysis = [...capp.appointment.requestedAnalyses[sheetID].hasAnalysis]
         capp.appointment.requestedAnalyses[sheetID].hasAnalysis[sheetAnalysisID] = data
 
@@ -118,7 +119,7 @@ function AppointmentHistoryContent({ ...props }) {
 
     return (
         <Stack spacing={2} padding={2}>
-            <MotifCard data={app} mini={mini} t={t} />
+            <MotifCard data={app} mini={mini} t={t}/>
             <List dense>
                 {SubMotifCard.map((col: any, indx: number) => (
                     <React.Fragment key={`list-item-${indx}`}>
@@ -126,14 +127,14 @@ function AppointmentHistoryContent({ ...props }) {
                             <ListItemStyled
                                 onClick={() => setCollapse(collapse === col.id ? "" : col.id)}>
                                 <ListItemIcon>
-                                    <IconUrl path={col.icon} />
+                                    <IconUrl path={col.icon}/>
                                 </ListItemIcon>
                                 <Typography variant="body2" fontWeight={700}>
                                     {t(col.title)}
                                 </Typography>
                             </ListItemStyled>
 
-                            <ListItemDetailsStyled sx={{ p: 0 }}>
+                            <ListItemDetailsStyled sx={{p: 0}}>
                                 {col.type === "treatment" && app?.appointment.treatments.length > 0 && <>
                                     {
                                         <>
@@ -142,18 +143,18 @@ function AppointmentHistoryContent({ ...props }) {
                                                     isOtherProfessional: any;
                                                 }) => t.isOtherProfessional).length > 0 &&
                                                 <Typography fontSize={12}
-                                                    fontWeight={"bold"}>{t('consultationIP.treatement_in_progress')}</Typography>
+                                                            fontWeight={"bold"}>{t('consultationIP.treatement_in_progress')}</Typography>
                                             }
                                             {app.appointment.treatments.filter((t: {
                                                 isOtherProfessional: boolean;
                                             }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
-                                                <Box
-                                                    key={`list-treatement-${idx}`}
-                                                    className={'boxHisto'}>
-                                                    <Typography
-                                                        fontSize={12}>{treatment.name}</Typography>
-                                                </Box>
-                                            )
+                                                    <Box
+                                                        key={`list-treatement-${idx}`}
+                                                        className={'boxHisto'}>
+                                                        <Typography
+                                                            fontSize={12}>{treatment.name}</Typography>
+                                                    </Box>
+                                                )
                                             )}
 
                                             {
@@ -161,35 +162,35 @@ function AppointmentHistoryContent({ ...props }) {
                                                     isOtherProfessional: any;
                                                 }) => !t.isOtherProfessional).length > 0 &&
                                                 <Typography fontSize={12}
-                                                    fontWeight={"bold"}>{t('prescription')}</Typography>
+                                                            fontWeight={"bold"}>{t('prescription')}</Typography>
                                             }
                                             {app.appointment.treatments.filter((t: {
                                                 isOtherProfessional: any;
                                             }) => !t.isOtherProfessional).map((treatment: any, idx: number) => (
-                                                <Box
-                                                    key={`list-treatement-${idx}`}
-                                                    className={'boxHisto'}>
-                                                    <Typography
-                                                        fontSize={12}>{treatment.name}</Typography>
-                                                    <Stack direction={"row"}>
-                                                        {
-                                                            treatment.dosage && <Typography
-                                                                className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
-                                                        {
-                                                            treatment.duration > 0 &&
-                                                            <Typography
-                                                                className={"treamtementDetail"}
-                                                                ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
-                                                        }
-                                                    </Stack>
-                                                </Box>
-                                            )
+                                                    <Box
+                                                        key={`list-treatement-${idx}`}
+                                                        className={'boxHisto'}>
+                                                        <Typography
+                                                            fontSize={12}>{treatment.name}</Typography>
+                                                        <Stack direction={"row"}>
+                                                            {
+                                                                treatment.dosage && <Typography
+                                                                    className={"treamtementDetail"}>• {treatment.dosage}</Typography>}
+                                                            {
+                                                                treatment.duration > 0 &&
+                                                                <Typography
+                                                                    className={"treamtementDetail"}
+                                                                    ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
+                                                            }
+                                                        </Stack>
+                                                    </Box>
+                                                )
                                             )}
                                         </>
                                     } </>}
 
                                 {col.type === "document" && app?.documents.length > 0 && <>
-                                    <Box style={{ padding: 20, paddingTop: 25 }}>
+                                    <Box style={{padding: 20, paddingTop: 25}}>
                                         <Grid
                                             container
                                             spacing={2}
@@ -201,29 +202,29 @@ function AppointmentHistoryContent({ ...props }) {
                                                     md={2}
                                                     key={`doc-item-${data.uuid}`}>
                                                     <Stack direction={"row"}
-                                                        style={{ background: "white" }}
-                                                        borderRadius={1} padding={1}
-                                                        spacing={1} onClick={() => {
-                                                            showDoc(data)
-                                                        }} alignItems="center">
+                                                           style={{background: "white"}}
+                                                           borderRadius={1} padding={1}
+                                                           spacing={1} onClick={() => {
+                                                        showDoc(data)
+                                                    }} alignItems="center">
                                                         {data.documentType !== 'photo' &&
                                                             <IconUrl height={25} width={25}
-                                                                path={iconDocument(data.documentType)} />}
+                                                                     path={iconDocument(data.documentType)}/>}
                                                         {data.documentType === 'photo' &&
                                                             <Image width={25}
-                                                                height={25}
-                                                                src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_32']}
-                                                                style={{ borderRadius: 5 }}
-                                                                alt={'photo history'} />}
+                                                                   height={25}
+                                                                   src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_32']}
+                                                                   style={{borderRadius: 5}}
+                                                                   alt={'photo history'}/>}
                                                         <Typography variant='subtitle2'
-                                                            textAlign={"center"}
-                                                            whiteSpace={"nowrap"}
-                                                            display={"block"}
-                                                            maxWidth={"60%"}
-                                                            style={{ cursor: "pointer" }}
-                                                            overflow={"hidden !important"}
-                                                            textOverflow={'ellipsis'}
-                                                            fontSize={9}>
+                                                                    textAlign={"center"}
+                                                                    whiteSpace={"nowrap"}
+                                                                    display={"block"}
+                                                                    maxWidth={"60%"}
+                                                                    style={{cursor: "pointer"}}
+                                                                    overflow={"hidden !important"}
+                                                                    textOverflow={'ellipsis'}
+                                                                    fontSize={9}>
                                                             {t(data.title)}
                                                         </Typography>
                                                     </Stack>
@@ -255,7 +256,7 @@ function AppointmentHistoryContent({ ...props }) {
                                                             <TextField
                                                                 placeholder={"--"}
                                                                 size="small"
-                                                                inputProps={{ className: "input" }}
+                                                                inputProps={{className: "input"}}
                                                                 onChange={(ev) => {
                                                                     reqSheetChange(rs, ev, appID, reqSheetID, reqSheetHasAnalysisID)
                                                                 }}
@@ -266,13 +267,13 @@ function AppointmentHistoryContent({ ...props }) {
                                                                 onBlur={() => {
                                                                     setSelected('')
                                                                 }}
-                                                                value={rs.result || ""} />
+                                                                value={rs.result || ""}/>
                                                         </Stack>
                                                     )
                                                 )}
 
                                                 <Box mt={1} mb={2} width={"fit-content"}
-                                                    ml={"auto"}>
+                                                     ml={"auto"}>
                                                     <Button
                                                         variant="contained"
                                                         color={"info"}
@@ -280,7 +281,7 @@ function AppointmentHistoryContent({ ...props }) {
                                                             editReqSheet(appID, reqSheetID)
                                                         }}
                                                         startIcon={<IconUrl
-                                                            path="ic-edit-file-pen" />}>
+                                                            path="ic-edit-file-pen"/>}>
                                                         {t("consultationIP.save")}
                                                     </Button>
                                                 </Box>
@@ -291,60 +292,60 @@ function AppointmentHistoryContent({ ...props }) {
 
                                 {col.type === "req-medical-imaging" && app?.appointment.requestedImaging && Object.keys(app?.appointment.requestedImaging)
                                     .length > 0 && <>
-                                        {
-                                            app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
-                                                <Box key={`req-sheet-imgx-${idx}`}
-                                                    className={"boxHisto"}>
-                                                    <Typography
-                                                        fontSize={12}>{rs["medical-imaging"]?.name}</Typography>
-                                                    {rs.uri &&
-                                                        <Grid container mb={0.1} mt={0}
-                                                            spacing={1}>
-                                                            {
-                                                                app.documents.filter((doc: {
-                                                                    uri: any;
-                                                                }) => rs.uri.includes(doc.uri)).map((card: any) => (
-                                                                    <Grid item xs={3}
-                                                                        key={`doc-item-${card.uuid}`}>
-                                                                        <Stack direction={"row"}
-                                                                            style={{ background: "white" }}
-                                                                            borderRadius={1}
-                                                                            padding={1}
-                                                                            spacing={1}
-                                                                            onClick={() => {
-                                                                                showDoc(card)
-                                                                            }}
-                                                                            alignItems="center">
-                                                                            {card.documentType !== 'photo' &&
-                                                                                <IconUrl height={25}
-                                                                                    width={25}
-                                                                                    path={iconDocument(card.documentType)} />}
-                                                                            {card.documentType === 'photo' &&
-                                                                                <Image width={25}
-                                                                                    height={25}
-                                                                                    src={card.uri}
-                                                                                    style={{ borderRadius: 5 }}
-                                                                                    alt={'photo history'} />}
-                                                                            <Typography
-                                                                                variant='subtitle2'
-                                                                                textAlign={"center"}
-                                                                                whiteSpace={"nowrap"}
-                                                                                display={"block"}
-                                                                                maxWidth={"60%"}
-                                                                                style={{ cursor: "pointer" }}
-                                                                                overflow={"hidden !important"}
-                                                                                textOverflow={'ellipsis'}
-                                                                                fontSize={9}>
-                                                                                {t(card.title)}
-                                                                            </Typography>
-                                                                        </Stack>
-                                                                    </Grid>
-                                                                ))
-                                                            }
-                                                        </Grid>}
-                                                </Box>))
-                                        }
-                                    </>}
+                                    {
+                                        app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
+                                            <Box key={`req-sheet-imgx-${idx}`}
+                                                 className={"boxHisto"}>
+                                                <Typography
+                                                    fontSize={12}>{rs["medical-imaging"]?.name}</Typography>
+                                                {rs.uri &&
+                                                    <Grid container mb={0.1} mt={0}
+                                                          spacing={1}>
+                                                        {
+                                                            app.documents.filter((doc: {
+                                                                uri: any;
+                                                            }) => rs.uri.includes(doc.uri)).map((card: any) => (
+                                                                <Grid item xs={3}
+                                                                      key={`doc-item-${card.uuid}`}>
+                                                                    <Stack direction={"row"}
+                                                                           style={{background: "white"}}
+                                                                           borderRadius={1}
+                                                                           padding={1}
+                                                                           spacing={1}
+                                                                           onClick={() => {
+                                                                               showDoc(card)
+                                                                           }}
+                                                                           alignItems="center">
+                                                                        {card.documentType !== 'photo' &&
+                                                                            <IconUrl height={25}
+                                                                                     width={25}
+                                                                                     path={iconDocument(card.documentType)}/>}
+                                                                        {card.documentType === 'photo' &&
+                                                                            <Image width={25}
+                                                                                   height={25}
+                                                                                   src={card.uri}
+                                                                                   style={{borderRadius: 5}}
+                                                                                   alt={'photo history'}/>}
+                                                                        <Typography
+                                                                            variant='subtitle2'
+                                                                            textAlign={"center"}
+                                                                            whiteSpace={"nowrap"}
+                                                                            display={"block"}
+                                                                            maxWidth={"60%"}
+                                                                            style={{cursor: "pointer"}}
+                                                                            overflow={"hidden !important"}
+                                                                            textOverflow={'ellipsis'}
+                                                                            fontSize={9}>
+                                                                            {t(card.title)}
+                                                                        </Typography>
+                                                                    </Stack>
+                                                                </Grid>
+                                                            ))
+                                                        }
+                                                    </Grid>}
+                                            </Box>))
+                                    }
+                                </>}
 
                                 {col.type === "act-fees" && <BoxFees>
                                     {
@@ -357,20 +358,20 @@ function AppointmentHistoryContent({ ...props }) {
                                                 </Grid>
                                                 <Grid item xs={3}>
                                                     <Typography textAlign={"center"}
-                                                        className={"header"}>{t('consultationIP.qte')}</Typography>
+                                                                className={"header"}>{t('consultationIP.qte')}</Typography>
                                                 </Grid>
                                                 <Grid item xs={3}>
                                                     <Typography textAlign={"center"}
-                                                        className={"header"}>{t('consultationIP.price')}</Typography>
+                                                                className={"header"}>{t('consultationIP.price')}</Typography>
                                                 </Grid>
                                                 <Grid item xs={3}>
                                                     <Typography textAlign={"right"}
-                                                        className={"header"}>{t('consultationIP.total')}</Typography>
+                                                                className={"header"}>{t('consultationIP.total')}</Typography>
                                                 </Grid>
                                             </Grid>
 
                                             <Grid container spacing={2} pb={1} pt={1}
-                                                style={{ borderBottom: '1px dashed gray' }}>
+                                                  style={{borderBottom: '1px dashed gray'}}>
                                                 <Grid item xs={3}>
                                                     <Typography className={"feesContent"}
                                                     >{t('consultationIP.consultation')}</Typography>
@@ -379,17 +380,17 @@ function AppointmentHistoryContent({ ...props }) {
                                                 <Grid item xs={3}></Grid>
                                                 <Grid item xs={3}>
                                                     <Typography textAlign={"right"}
-                                                        className={"feesContent"}>{app?.appointment.consultation_fees && app?.appointment.consultation_fees !== "null"
-                                                            ? app?.appointment.consultation_fees
-                                                            : "--"} {devise}</Typography>
+                                                                className={"feesContent"}>{app?.appointment.consultation_fees && app?.appointment.consultation_fees !== "null"
+                                                        ? app?.appointment.consultation_fees
+                                                        : "--"} {devise}</Typography>
                                                 </Grid>
                                             </Grid>
                                             {app?.appointment.acts.map(
                                                 (act: any, idx: number) => (
                                                     <Grid container pb={1} pt={1}
-                                                        style={{ borderBottom: '1px dashed gray' }}
-                                                        key={`fees-${idx}`}
-                                                        spacing={2} alignItems="center">
+                                                          style={{borderBottom: '1px dashed gray'}}
+                                                          key={`fees-${idx}`}
+                                                          spacing={2} alignItems="center">
                                                         <Grid item xs={3}>
                                                             <Typography
                                                                 className={"feesContent"}>{act.name}</Typography>
@@ -413,12 +414,13 @@ function AppointmentHistoryContent({ ...props }) {
                                                 )
                                             )}
 
-                                            <Stack style={{ marginLeft: -24, marginRight: -24 }} mt={2} pt={1} direction={"row"}
-                                                alignItems={"center"}
-                                                justifyContent={"flex-end"}>
+                                            <Stack style={{marginLeft: -24, marginRight: -24}} mt={2} pt={1}
+                                                   direction={"row"}
+                                                   alignItems={"center"}
+                                                   justifyContent={"flex-end"}>
                                                 <Typography textAlign={"right"} mr={2}
-                                                    fontWeight={"bold"}
-                                                    fontSize={18}>
+                                                            fontWeight={"bold"}
+                                                            fontSize={18}>
                                                     Total : {app?.appointment.fees} {devise} |
                                                 </Typography>
                                                 <Button
@@ -427,8 +429,10 @@ function AppointmentHistoryContent({ ...props }) {
                                                     onClick={() => {
                                                         printFees(app)
                                                     }}
-                                                    startIcon={<IconUrl
-                                                        path="ic-imprime" />}>
+                                                    startIcon={<IconUrl color={theme.palette.text.primary}
+                                                                        width={16}
+                                                                        height={16}
+                                                                        path="menu/ic-print"/>}>
                                                     {t("consultationIP.print")}
                                                 </Button>
                                             </Stack>

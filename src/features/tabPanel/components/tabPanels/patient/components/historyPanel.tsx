@@ -161,20 +161,22 @@ function HistoryPanel({...props}) {
                                 }}/>
                             </React.Fragment>))}
                     </Stack>
-                    {totalPagesLa > pagesLa && <Button style={{width: "fit-content"}} size={"small"} onClick={() => {
-                        if (medicalEntityHasUser) {
-                            triggerConsultationPrevious({
-                                method: "GET",
-                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
-                            }, {
-                                onSuccess: (r: any) => {
-                                    const res = r?.data.data;
-                                    setApps([...apps, ...res.list])
-                                }
-                            });
-                            setPagesLa(pagesLa + 1)
-                        }
-                    }}>{t('consultationIP.more')}</Button>}
+                    {totalPagesLa > pagesLa && <Button
+                        sx={{width: "fit-content", mt: 1}} size={"small"}
+                        onClick={() => {
+                            if (medicalEntityHasUser) {
+                                triggerConsultationPrevious({
+                                    method: "GET",
+                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
+                                }, {
+                                    onSuccess: (r: any) => {
+                                        const res = r?.data.data;
+                                        setApps([...apps, ...res.list])
+                                    }
+                                });
+                                setPagesLa(pagesLa + 1)
+                            }
+                        }}>{t('consultationIP.more')}</Button>}
                 </Box>
 
                 {info && (

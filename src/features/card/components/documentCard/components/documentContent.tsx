@@ -1,12 +1,10 @@
-import {Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {Stack, Typography, useTheme} from "@mui/material";
 import moment from "moment-timezone";
 import React from "react";
-import {MobileContainer} from "@lib/constants";
 import Icon from "@themes/urlIcon";
 
 function DocumentContent({...props}) {
     const {t, data, date, resize, width = null} = props;
-    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const theme = useTheme();
 
     return (
