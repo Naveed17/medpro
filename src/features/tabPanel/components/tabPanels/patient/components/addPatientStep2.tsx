@@ -73,7 +73,7 @@ function AddPatientStep2({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
-    const {countries} = useCountries("nationality=true");
+    const {countries} = useCountries("nationality=true", contacts.length > 0);
     const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {t: commonTranslation} = useTranslation("common");
@@ -191,12 +191,12 @@ function AddPatientStep2({...props}) {
 
     const {trigger: triggerAddPatient} = useRequestQueryMutation("/patient/add");
 
-    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(contacts.length > 0 && values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((httpStatesResponse && locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -298,7 +298,7 @@ function AddPatientStep2({...props}) {
 
 
     useEffect(() => {
-        if (countries) {
+        if (countries?.length > 0) {
             const defaultCountry = countries.find(country => country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
             setCountriesData(countries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
