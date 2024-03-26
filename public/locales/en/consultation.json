@@ -94,6 +94,8 @@
     "credit": "Credit"
   },
   "end of consultation": "End of Consultation",
+  "write": "Please write",
+  "loading": "Please wait a moment",
   "week": "Week",
   "years":"years",
   "month": "Month",
@@ -709,6 +711,9 @@
     "size": "Size",
     "weight": "Weight",
     "growth": "Growth",
+    "boy": "of boys",
+    "girl": "of girls",
+    "18years": "from 1 to 18 years",
     "3years": "girls and boys from birth to 3 years old",
     "filter": "Filtred",
     "perimetreCranien": "Cranial perimeter"

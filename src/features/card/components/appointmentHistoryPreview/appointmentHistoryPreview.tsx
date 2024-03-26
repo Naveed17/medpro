@@ -78,13 +78,13 @@ function AppointmentHistoryPreview({...props}) {
                         color="text.secondary"
                         sx={{cursor: "pointer"}}
                         textTransform={"capitalize"}>
-                        {!isMobile &&moment(app.date, "DD-MM-YYYY").format(
+                        {moment(app.date, "DD-MM-YYYY").format(
                             "ddd DD-MM-YYYY"
                         )}{" "}
-                        <AccessTimeIcon
+                        {!isMobile && <AccessTimeIcon
                             style={{marginBottom: "-3px", width: 20, height: 15}}
-                        />{" "}
-                        {app.time}
+                        />}{" "}
+                        {!isMobile && app.time}
                     </Typography>
                     <IconButton onClick={(e) => {
                         e.stopPropagation()

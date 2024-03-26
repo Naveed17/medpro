@@ -183,7 +183,6 @@ function Page({...props}) {
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // @ts-ignore
     return (
         <PageStyled>
             <div className={"dropzone"} id="inner-dropzone">
