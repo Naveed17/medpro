@@ -337,8 +337,7 @@ function SecretaryConsultationDialog({...props}) {
                                                     {instruction.length} / {255}
                                                 </InputAdornment>
                                             ),
-                                        }}
-                                    />
+                                        }}/>
 
                                     <Button
                                         className="counter-btn"

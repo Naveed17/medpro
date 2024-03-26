@@ -92,7 +92,7 @@ import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
-
+import {channel} from '@features/chat/actions'
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
     // some basic styles to make the items look a bit nicer
@@ -662,8 +662,23 @@ function ConsultationInProgress() {
         setIsViewerOpen("");
     }
 
+    const sendMsg = () =>{
+        const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+
+        console.log(localInstr)
+        console.log(channel)
+
+/*        channel.publish(selectedDiscussion, JSON.stringify({
+            message: localInstr,
+            from: medicalEntityHasUser,
+            to: getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).uuid,
+            user: `${general_information.firstName} ${general_information.lastName}`
+        }))*/
+    }
+
     const saveConsultation = () => {
-        setLoading(true);
+        sendMsg()
+        /*setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
 
         const form = new FormData();
@@ -711,7 +726,7 @@ function ConsultationInProgress() {
                 router.push("/dashboard/agenda");
             },
             onSettled: () => setLoading(false)
-        });
+        });*/
     }
 
     const end = () => {
