@@ -48,6 +48,7 @@ import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {useSnackbar} from "notistack";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
@@ -162,6 +163,7 @@ function DocumentsPanel({...props}) {
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
+    const {enqueueSnackbar} = useSnackbar();
 
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
@@ -195,6 +197,7 @@ function DocumentsPanel({...props}) {
 
     const {trigger: triggerQuoteUpdate} = useRequestQueryMutation("/patient/quote");
     const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/patient/documents/delete");
+    const {trigger: triggerDocumentSpeechToText} = useRequestQueryMutation("/patient/document/speech-to-text");
 
     const {
         data: httpAppDocPatientResponse,
@@ -501,10 +504,26 @@ function DocumentsPanel({...props}) {
         setOpenDialog(true);
     }
 
+    const handleSpeechToText = () => {
+        setLoadingRequest(true);
+        medicalEntityHasUser && triggerDocumentSpeechToText({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/stt/${selectedDocument?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});
+            },
+            onSettled: () => setLoadingRequest(false)
+        });
+    }
+
     const OnMenuActions = async (action: string) => {
         switch (action) {
             case "onDeleteDocument":
                 setDeleteDialog(true);
+                break;
+            case "onSpeechToText":
+                handleSpeechToText();
                 break;
         }
         handleClose();

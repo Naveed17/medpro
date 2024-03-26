@@ -296,11 +296,14 @@ function RDVRow({...props}) {
                     {previousAppointmentsData.length > 0 && <>
                         <tr>
                             <TableCell style={{background: 'transparent'}} colSpan={3} className="text-row">
-                                <Typography variant="body1" color="text.primary">
-                                    {t("old-appo")}{" "}
-                                    {previousAppointmentsData.length > 1 &&
-                                        `(${previousAppointmentsData.length})`}
-                                </Typography>
+                                <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                                    <Typography variant="body1" color="text.primary">
+                                        {t("old-appo")}{" "}
+                                        {previousAppointmentsData.length > 1 &&
+                                            `(${previousAppointmentsData.length})`}
+                                    </Typography>
+                                    {isLoadingPatientHistory && <FacebookCircularProgress size={20}/>}
+                                </Stack>
                             </TableCell>
                         </tr>
                         {previousAppointments.map((data: any, index: number) => (
