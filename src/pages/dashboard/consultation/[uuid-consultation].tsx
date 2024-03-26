@@ -9,13 +9,14 @@ import {
     Card,
     CardMedia,
     Checkbox,
-    DialogActions, DialogContent,
+    Dialog as DialogMui,
+    DialogActions,
+    DialogContent,
     Drawer,
     Fab,
     Grid,
     IconButton,
     LinearProgress,
-    Dialog as DialogMui,
     Stack,
     Toolbar,
     Typography,
@@ -24,13 +25,13 @@ import {
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
-    ConsultationDetailCard,
-    PendingDocumentCard,
-    resetTimer,
-    timerSelector,
-    HistoryAppointementContainer,
     AppointHistoryContainerStyled,
-    RecondingBoxStyled
+    ConsultationDetailCard,
+    HistoryAppointementContainer,
+    PendingDocumentCard,
+    RecondingBoxStyled,
+    resetTimer,
+    timerSelector
 } from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
@@ -42,12 +43,12 @@ import {MyCardStyled, SubHeader} from "@features/subHeader";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {
     appointmentSelector,
+    DocumentPreview,
     DocumentsTab,
     EventType,
     FeesTab,
     HistoryTab,
-    Instruction,
-    resetAppointment,
+    Instruction, resetAppointment,
     TabPanel,
     TimeSchedule
 } from "@features/tabPanel";
@@ -56,12 +57,12 @@ import {LoadingButton} from "@mui/lab";
 import {SubFooter} from "@features/subFooter";
 import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog} from "@features/toolbar";
 import {
+    ChatDiscussionDialog,
     Dialog,
     DialogProps,
     handleDrawerAction,
-    PatientDetail,
-    ChatDiscussionDialog,
-    ObservationHistoryDialog
+    ObservationHistoryDialog,
+    PatientDetail
 } from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
@@ -80,7 +81,6 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import Draggable from "react-draggable";
-import {DocumentPreview} from "@features/tabPanel";
 import DialogTitle from "@mui/material/DialogTitle";
 import {CustomIconButton, SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
@@ -92,6 +92,8 @@ import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
+import {chatSelector} from "@features/chat/selectors";
+import useUsers from "@lib/hooks/rest/useUsers";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -139,6 +141,8 @@ function ConsultationInProgress() {
     const ability = useContext(AbilityContext);
 
     const {t} = useTranslation("consultation");
+    const {users} = useUsers();
+
     //***** SELECTORS ****//
     const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
@@ -146,6 +150,8 @@ function ConsultationInProgress() {
     const {selectedDialog, record} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
+    const {channel} = useAppSelector(chatSelector);
+
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {
         type,
@@ -283,6 +289,8 @@ function ConsultationInProgress() {
     const [fullOb, setFullOb] = useState(false);
     const [nextAppDays, setNextAppDays] = useState("day")
     const [insuranceGenerated, setInsuranceGenerated] = useState(false)
+    const [selectedDiscussion, setSelectedDiscussion] = useState("");
+    const [selectedUser, setSelectedUser] = useState("");
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -350,6 +358,7 @@ function ConsultationInProgress() {
 
     const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
     const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
+    const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
 
     // ********** Requests ********** \\
     const changeModel = (prop: ModalModel, ind: number, index: number) => {
@@ -379,73 +388,73 @@ function ConsultationInProgress() {
         setCards([..._cards])
     };
 
-    const showDoc = (card:any,print?:boolean) => {
+    const showDoc = (card: any, print?: boolean) => {
 
-            let type = "";
-            if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
-            setInfo("document_detail");
-            if (card && card?.documentType === "medical-certificate") {
-                setState({
-                    uuid: card.uuid,
-                    certifUuid: card.certificate[0].uuid,
-                    content: card.certificate[0].content,
-                    doctor: card.name,
-                    patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
-                    birthdate: patient?.birthdate,
-                    cin: patient?.idCard,
-                    tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
-                    age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                    days: card.days,
-                    description: card.description,
-                    title: card.title,
-                    createdAt: card.createdAt,
-                    detectedType: card.type,
-                    name: "certif",
-                    type: "write_certif",
-                    documentHeader: card.certificate[0].documentHeader,
-                    mutate: mutateDoc,
-                    mutateDetails: mutatePatient
-                });
-            } else {
-                let info = card;
-                let uuidDoc = "";
-                switch (card?.documentType) {
-                    case "prescription":
-                        info = card.prescription[0].prescription_has_drugs;
-                        uuidDoc = card.prescription[0].uuid;
-                        break;
-                    case "requested-analysis":
-                        info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
-                        uuidDoc = card.requested_Analyses[0].uuid;
-                        break;
-                    case "requested-medical-imaging":
-                        info = card.medical_imaging[0]["medical-imaging"];
-                        uuidDoc = card.medical_imaging[0].uuid;
-                        break;
-                }
-                setState({
-                    uuid: card.uuid,
-                    uri: card.uri,
-                    name: card.title,
-                    type: card.documentType,
-                    createdAt: card.createdAt,
-                    description: card.description,
-                    info: info,
-                    detectedType: card.type,
-                    age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                    uuidDoc: uuidDoc,
-                    patient: `${type} ${
-                        patient?.firstName
-                    } ${patient?.lastName}`,
-                    cin: patient?.idCard ? patient?.idCard : "",
-                    mutate: mutateDoc,
-                    mutateDetails: mutatePatient,
-                    print
-                });
+        let type = "";
+        if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+            type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+        setInfo("document_detail");
+        if (card && card?.documentType === "medical-certificate") {
+            setState({
+                uuid: card.uuid,
+                certifUuid: card.certificate[0].uuid,
+                content: card.certificate[0].content,
+                doctor: card.name,
+                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+                birthdate: patient?.birthdate,
+                cin: patient?.idCard,
+                tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
+                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                days: card.days,
+                description: card.description,
+                title: card.title,
+                createdAt: card.createdAt,
+                detectedType: card.type,
+                name: "certif",
+                type: "write_certif",
+                documentHeader: card.certificate[0].documentHeader,
+                mutate: mutateDoc,
+                mutateDetails: mutatePatient
+            });
+        } else {
+            let info = card;
+            let uuidDoc = "";
+            switch (card?.documentType) {
+                case "prescription":
+                    info = card.prescription[0].prescription_has_drugs;
+                    uuidDoc = card.prescription[0].uuid;
+                    break;
+                case "requested-analysis":
+                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
+                    uuidDoc = card.requested_Analyses[0].uuid;
+                    break;
+                case "requested-medical-imaging":
+                    info = card.medical_imaging[0]["medical-imaging"];
+                    uuidDoc = card.medical_imaging[0].uuid;
+                    break;
             }
-            setOpenDialogSave(false);
-            setTimeout(() => setOpenDialog(true));
+            setState({
+                uuid: card.uuid,
+                uri: card.uri,
+                name: card.title,
+                type: card.documentType,
+                createdAt: card.createdAt,
+                description: card.description,
+                info: info,
+                detectedType: card.type,
+                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                uuidDoc: uuidDoc,
+                patient: `${type} ${
+                    patient?.firstName
+                } ${patient?.lastName}`,
+                cin: patient?.idCard ? patient?.idCard : "",
+                mutate: mutateDoc,
+                mutateDetails: mutatePatient,
+                print
+            });
+        }
+        setOpenDialogSave(false);
+        setTimeout(() => setOpenDialog(true));
 
     }
 
@@ -662,9 +671,46 @@ function ConsultationInProgress() {
         setIsViewerOpen("");
     }
 
+    const addDiscussion = (user: UserModel) => {
+        createDiscussion({
+            method: "POST",
+            data: {
+                "members": [{
+                    uuid: medicalEntityHasUser,
+                    name: `${general_information.firstName} ${general_information.lastName}`
+                }, {
+                    uuid: user.uuid,
+                    name: `${user?.FirstName} ${user?.lastName}`
+                }]
+            },
+            url: `/-/chat/api/discussion`
+        }, {
+            onSuccess: (res: any) => {
+                setSelectedDiscussion(res.data)
+            }
+        })
+
+    }
+
+    const sendMsg = () => {
+        const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+        const control = meeting ? `, RDV prochain ${meeting} ${t(nextAppDays)}`:""
+        const msg = `<span class="tag rdv" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, ${localInstr} ${control}</span>`;
+
+        channel.publish(selectedDiscussion, JSON.stringify({
+            message: msg,
+            from: medicalEntityHasUser,
+            to: selectedUser,
+            user: `${general_information.firstName} ${general_information.lastName}`
+        }))
+    }
+
     const saveConsultation = () => {
         setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+
+        if (localInstr)
+            sendMsg()
 
         const form = new FormData();
         form.append("status", "5");
@@ -1776,6 +1822,8 @@ function ConsultationInProgress() {
                     mutatePatient,
                     nextAppDays, setNextAppDays,
                     insuranceGenerated, changeCoveredBy,
+                    selectedUser, setSelectedUser, addDiscussion,
+                    users,medicalEntityHasUser,
                     showPreview
                 }}
                 size={"lg"}
