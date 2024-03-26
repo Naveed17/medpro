@@ -22,7 +22,7 @@ const CardInsurance = ({...props}) => {
                          alt={"insurance image"}/>
                     <Stack>
                         <Typography className={"number"}>{pi.insuranceNumber}</Typography>
-                        <Typography className={"expireIn"}>expire le 24/09/2024</Typography>
+                        <Typography className={"expireIn"}>expire le {pi.insuranceBook.endDate}</Typography>
                     </Stack>
                 </Stack>
             </Stack>
