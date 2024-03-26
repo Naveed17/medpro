@@ -6,7 +6,7 @@ import {
     Box,
     Button,
     CardContent,
-    Checkbox, DialogActions,
+    Checkbox,
     FormControl,
     Grid,
     IconButton,
@@ -28,7 +28,7 @@ import ImageViewer from "react-simple-image-viewer";
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import {a11yProps, downloadFileAsPdf, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {a11yProps, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
@@ -44,8 +44,6 @@ import DocumentCardStyled from "@features/card/components/documentCard/component
 import {LoadingScreen} from "@features/loadingScreen";
 import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
-import {generatedDocs} from "@lib/constants";
-import {downloadFileFromUrl} from "@lib/hooks/downloadFileFromUrl";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {Session} from "next-auth";

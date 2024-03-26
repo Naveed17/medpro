@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {Label} from "@features/label";
-import {Box, Button, Collapse, Drawer, IconButton, Stack, Typography, useTheme,} from "@mui/material";
+import {Box, Button, Collapse, Drawer, Stack, Typography, useTheme} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, Dialog, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";

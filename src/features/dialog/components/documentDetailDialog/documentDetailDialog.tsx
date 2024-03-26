@@ -56,12 +56,9 @@ import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import {useSnackbar} from "notistack";
 import {FacebookCircularProgress} from "@features/progressUI";
-
 import {LoadingScreen} from "@features/loadingScreen";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Doc} from "@features/page";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import {generatedDocs, multiMedias, slugs} from "@lib/constants";
 import {downloadFileFromUrl} from "@lib/hooks/downloadFileFromUrl";
 
