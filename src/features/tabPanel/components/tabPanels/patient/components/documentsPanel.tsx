@@ -311,9 +311,7 @@ function DocumentsPanel({...props}) {
                                 queryState.types.length === 0 ? true : queryState.types.some((st: string) => st === doc.documentType)).map((card: any, idx: number) =>
                                 <React.Fragment key={`doc-item-${idx}`}>
                                     <DocumentCard
-                                        onClick={() => {
-                                            showDoc(card)
-                                        }}
+                                        onClick={() => showDoc(card)}
                                         handleMoreAction={handleContextMenu}
                                         {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
                                 </React.Fragment>
@@ -354,9 +352,8 @@ function DocumentsPanel({...props}) {
                                       }}>
                                     <React.Fragment>
                                         <DocumentCard
-                                            onClick={() => {
-                                                showDoc(card)
-                                            }}
+                                            onClick={() => showDoc(card)}
+                                            handleMoreAction={handleContextMenu}
                                             {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
                                     </React.Fragment>
                                 </Grid>
