@@ -290,7 +290,7 @@ const Chat = ({...props}) => {
                                         }}>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             <Typography fontWeight={500}
-                                                        variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
+                                                        variant='body2'>{`${user.FirstName ? user.FirstName : ""} ${user.lastName ? user.lastName : ""}`}</Typography>
                                             <div style={{
                                                 width: 5,
                                                 height: 5,

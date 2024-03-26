@@ -14,6 +14,7 @@ import {
     InputBase,
     Radio,
     RadioGroup,
+    Select,
     Skeleton,
     Stack,
     TextField,
@@ -39,6 +40,7 @@ import {useTheme} from "@emotion/react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {Dialog} from "@features/dialog";
 import CheckIcon from "@mui/icons-material/Check";
+import MenuItem from "@mui/material/MenuItem";
 
 const limit = 255;
 
@@ -62,7 +64,9 @@ function SecretaryConsultationDialog({...props}) {
             showPreview,
             nextAppDays, setNextAppDays,
             mutatePatient,
-            insuranceGenerated, changeCoveredBy
+            insuranceGenerated, changeCoveredBy,
+            selectedUser, setSelectedUser, addDiscussion,
+            users, medicalEntityHasUser
         }
     } = props;
     const router = useRouter();
@@ -92,6 +96,14 @@ function SecretaryConsultationDialog({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
+
+    const resetDialog = () => {
+        setOpenPaymentDialog(false);
+    }
+
+    const openDialogPayment = () => {
+        setOpenPaymentDialog(true);
+    }
 
     useEffect(() => {
         if (httpAppointmentTransactions) {
@@ -125,13 +137,13 @@ function SecretaryConsultationDialog({...props}) {
         }
     }, [httpAppointmentTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const resetDialog = () => {
-        setOpenPaymentDialog(false);
-    }
-
-    const openDialogPayment = () => {
-        setOpenPaymentDialog(true);
-    }
+    useEffect(() => {
+        const usr = users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser)
+        if (usr.length > 0) {
+            setSelectedUser(usr[0].uuid)
+            addDiscussion(usr[0].uuid)
+        }
+    }, [users]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -321,6 +333,20 @@ function SecretaryConsultationDialog({...props}) {
                                         !isMobile &&
                                         <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
                                     }
+
+                                    <Select
+                                        id="demo-simple-select"
+                                        value={selectedUser}
+                                        size={"small"}
+                                        onChange={event => {
+                                            addDiscussion(users.find((usr: UserModel) => usr.uuid === event.target.value))
+                                            setSelectedUser(event.target.value)
+                                        }}>
+                                        {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser).map((user: UserModel) => (
+                                            <MenuItem key={user.uuid}
+                                                      value={user.uuid}>{user.firstName} {user.lastName}</MenuItem>))}
+                                    </Select>
+
                                     <TextField
                                         fullWidth
                                         multiline
@@ -330,7 +356,7 @@ function SecretaryConsultationDialog({...props}) {
                                             localStorage.setItem(`instruction-data-${app_uuid}`, event.target.value.slice(0, limit));
                                         }}
                                         placeholder={t("type_instruction_for_the_secretary")}
-                                        rows={isMobile ? 2 : 4}
+                                        rows={2}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment defaultValue={instruction} position="end">
