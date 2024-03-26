@@ -44,7 +44,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {generatePdfFromHtml, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {
+    downloadFileAsPdf,
+    generatePdfFromHtml,
+    useMedicalEntitySuffix,
+    useMedicalProfessionalSuffix
+} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
@@ -57,6 +62,8 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Doc} from "@features/page";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import {generatedDocs, multiMedias, slugs} from "@lib/constants";
+import {downloadFileFromUrl} from "@lib/hooks/downloadFileFromUrl";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -125,9 +132,6 @@ function DocumentDetailDialog({...props}) {
 
     const {direction} = useAppSelector(configSelector);
 
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses', 'lens']
-    const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
-    const multimedias = ['video', 'audio', 'photo'];
     const list = [
         {
             title: 'document_type',
@@ -155,7 +159,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'print',
             icon: "menu/ic-print",
-            disabled: multimedias.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type)
         },
         {
             title: 'email',
@@ -164,7 +168,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'settings',
             icon: "docs/ic-note",
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: 'download',
@@ -183,22 +187,22 @@ function DocumentDetailDialog({...props}) {
         {
             title: data.header.show ? 'hide' : 'show',
             icon: `menu/${!data.header.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
             icon: `menu/${!data.header.page ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: `menu/${!data.title.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.patient.show ? 'hidepatient' : 'showpatient',
             icon: `menu/${data.patient.show ? 'ic-cancel-patient' : 'ic-user'}`,
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         }
     ];
 
@@ -253,21 +257,6 @@ function DocumentDetailDialog({...props}) {
             setIsPrinting(false);
         }
     })
-
-    const downloadF = () => {
-        fetch(file.url,{
-            headers: {'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'}}).then(response => {
-            response.blob().then(blob => {
-                const fileURL = window.URL.createObjectURL(blob);
-                let alink = document.createElement('a');
-                alink.href = fileURL;
-                alink.download = `${state?.type} ${state?.patient}`
-                alink.click();
-            })
-        })
-    }
 
     const handleActions = async (action: string) => {
         switch (action) {
@@ -377,26 +366,9 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "download":
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    if (data.isNew){
-                        const element = document.getElementById('page0');
-                        element && html2canvas(element).then(canvas => {
-                            const imgData = canvas.toDataURL('image/png');
-                            const pdf = new jsPDF();
-                            const width = pdf.internal.pageSize.getWidth();
-                            const height = pdf.internal.pageSize.getHeight();
-                            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-                            pdf.save('capture.pdf');
-                        });
-                    } else {
-                        const file = await generatePdfFromHtml(componentRef, "blob");
-                        const fileURL = window.URL.createObjectURL((file as Blob));
-                        let alink = document.createElement('a');
-                        alink.href = fileURL;
-                        alink.download = `${state?.type} ${state?.patient}`
-                        alink.click();
-                    }
+                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew);
                 } else {
-                    downloadF();
+                    downloadFileFromUrl(file.url, `${state?.type} ${state?.patient}`);
                 }
                 break;
             case "settings":
@@ -451,8 +423,7 @@ function DocumentDetailDialog({...props}) {
                         setOpenDialog && setOpenDialog(false);
                     }
                 }
-            )
-            ;
+            );
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
                 method: " DELETE",
@@ -730,7 +701,7 @@ function DocumentDetailDialog({...props}) {
                                 Download PDF
                             </a>
                         )}
-                        {!multimedias.some(multi => multi === state?.type) &&
+                        {!multiMedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
                                     {generatedDocsNode}
@@ -750,11 +721,13 @@ function DocumentDetailDialog({...props}) {
                                                     <Typography>{t('ureadbleFile')}</Typography>
                                                     <Typography fontSize={12}
                                                                 style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
-                                                    <Button onClick={downloadF} color={"info"}
-                                                            variant="outlined"
-                                                            startIcon={<IconUrl path="menu/ic-download-square"
-                                                                                width={20}
-                                                                                height={20}/>}>
+                                                    <Button
+                                                        onClick={() => downloadFileFromUrl(file?.url, `${state?.type} ${state?.patient}`)}
+                                                        color={"info"}
+                                                        variant="outlined"
+                                                        startIcon={<IconUrl path="menu/ic-download-square"
+                                                                            width={20}
+                                                                            height={20}/>}>
                                                         {t('download')}
                                                     </Button>
                                                 </Stack>
@@ -794,7 +767,7 @@ function DocumentDetailDialog({...props}) {
                                 </Box>
                             </Box>
                         }
-                        {multimedias.some(multi => multi === state?.type) &&
+                        {multiMedias.some(multi => multi === state?.type) &&
                             <Box>
                                 {state?.type === 'photo' &&
                                     <TransformWrapper initialScale={1}>
@@ -842,8 +815,7 @@ function DocumentDetailDialog({...props}) {
                                         </ListItemIcon>
                                         {menu && <ListItemText sx={{ml: 1}} primary={t(button.title)}/>}
                                     </ListItemButton>}
-                                </ListItem>)
-                            }
+                                </ListItem>)}
                             <ListItem className='secound-list'>
                                 <ListItemButton onClick={() => {
                                     setMenu(false)
@@ -969,13 +941,12 @@ function DocumentDetailDialog({...props}) {
             </Grid>
 
             <CustomDialog
+                {...{t, direction}}
                 action={"remove"}
-                direction={direction}
                 open={openRemove}
                 data={selected}
                 color={(theme: Theme) => theme.palette.error.main}
                 title={t('removedoc')}
-                t={t}
                 actionDialog={
                     <DialogActions>
                         <Button onClick={() => {

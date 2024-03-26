@@ -37,6 +37,7 @@ export * from "./prepareContextMenu";
 export * from "./isSupported";
 export * from "./isAppleDevise";
 export * from "./highlightedDays";
+export * from "./downloadFileAsPdf";
 export * from "./groupPermissionsByFeature";
 export * from "./getPermissionsCount";
 export * from "./prescriptionPreviewDosage";

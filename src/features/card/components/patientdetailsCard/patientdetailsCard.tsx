@@ -283,7 +283,7 @@ function PatientDetailsCard({...props}) {
                                         <Stack
                                             sx={{width: "100%"}}
                                             direction={"row"}
-                                            alignItems={"center"}
+                                            alignItems={"start"}
                                             justifyContent="space-between">
                                             <Stack>
                                                 <InputBase

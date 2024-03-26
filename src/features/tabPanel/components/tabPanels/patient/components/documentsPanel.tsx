@@ -6,7 +6,7 @@ import {
     Box,
     Button,
     CardContent,
-    Checkbox,
+    Checkbox, DialogActions,
     FormControl,
     Grid,
     IconButton,
@@ -22,20 +22,20 @@ import {
 } from "@mui/material";
 //components
 import {DocumentCard, NoDataCard} from "@features/card";
-import {Dialog} from "@features/dialog";
+import {Dialog as CustomDialog, Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import {a11yProps, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {a11yProps, downloadFileAsPdf, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {useRouter} from "next/router";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import moment from "moment/moment";
 import Add from "@mui/icons-material/Add";
@@ -44,6 +44,12 @@ import DocumentCardStyled from "@features/card/components/documentCard/component
 import {LoadingScreen} from "@features/loadingScreen";
 import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+import {generatedDocs} from "@lib/constants";
+import {downloadFileFromUrl} from "@lib/hooks/downloadFileFromUrl";
+import {Theme} from "@mui/material/styles";
+import {LoadingButton} from "@mui/lab";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
@@ -154,6 +160,7 @@ function DocumentsPanel({...props}) {
     } = props;
     const router = useRouter();
     const theme = useTheme();
+    const {data: session} = useSession();
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
@@ -162,10 +169,13 @@ function DocumentsPanel({...props}) {
     const {t, ready} = useTranslation(["consultation", "patient"]);
     const {selectedDialog} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser, secretaryAccess} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
 
     // filter checked array
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
+    const [selectedDocument, setSelectedDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
     const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
@@ -173,6 +183,7 @@ function DocumentsPanel({...props}) {
     const [note, setNotes] = useState(t('noteQuote'));
     const [titleSearch, setTitleSearch] = useState("");
     const [loading, setLoading] = useState(true);
+    const [loadingReq, setLoadingReq] = useState(false);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -180,29 +191,17 @@ function DocumentsPanel({...props}) {
     const [queryState, setQueryState] = useState<any>({
         types: []
     });
-    const [popoverActions, setPopoverActions] = useState<any[]>([
-        {
-            title: "download_document",
-            icon: <Icon color={"white"} width={20} height={20} path="menu/ic-download-square"/>,
-            action: "onDownloadDocument",
-        },
-        {
-            title: "speech_to_text",
-            icon: <Icon color={"white"} width={20} height={20} path="fileadd"/>,
-            action: "onSpeechToText",
-        },
-        {
-            title: "delete_document",
-            icon: <Icon color={"white"} width={20} height={20} path="ic-trash"/>,
-            action: "onDeleteDocument",
-        }
-    ]);
+    const [popoverActions, setPopoverActions] = useState<any[]>([]);
 
     const selectedAll = queryState.types.length === typeofDocs?.length;
 
     const {trigger: triggerQuoteUpdate} = useRequestQueryMutation("/patient/quote");
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/patient/documents/delete");
 
-    const {data: httpAppDocPatientResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
+    const {
+        data: httpAppDocPatientResponse,
+        mutate: mutateAppDocPatient
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/documents/${router.locale}`
     } : null);
@@ -219,14 +218,49 @@ function DocumentsPanel({...props}) {
 
     const documents = (httpAppDocPatientResponse as HttpResponse)?.data.reduce((docs: any[], doc: any) => [...(docs ?? []), ...doc?.documents], []) ?? [];
     const quotes = (httpQuotesResponse as HttpResponse)?.data ?? [];
-
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const handleClose = () => {
         setContextMenu(null);
     };
 
+    const handleDeleteDocument = () => {
+        setLoadingReq(true);
+        medicalEntityHasUser && triggerDocumentDelete({
+            method: "DELETE",
+            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity?.uuid}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}`}/documents/${selectedDocument?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                if (documentViewIndex === 1) {
+                    mutatePatientDocuments();
+                } else {
+                    mutateAppDocPatient();
+                }
+            },
+            onSettled: () => {
+                setDeleteDialog(false);
+                setLoadingReq(false);
+            }
+        });
+    }
+
     const handleContextMenu = (event: any, data: any) => {
-        console.log("data", data);
+        setSelectedDocument(data);
+        setPopoverActions([
+            ...(data.type?.includes("audio") ? [
+                {
+                    title: "speech_to_text",
+                    icon: <Icon color={"white"} width={20} height={20} path="ic-micro"/>,
+                    action: "onSpeechToText",
+                }
+            ] : []),
+            {
+                title: "delete_document",
+                icon: <Icon color={"white"} width={20} height={20} path="ic-trash"/>,
+                action: "onDeleteDocument",
+            }
+        ])
         setContextMenu(
             contextMenu === null
                 ? {
@@ -472,6 +506,15 @@ function DocumentsPanel({...props}) {
         setOpenDialog(true);
     }
 
+    const OnMenuActions = async (action: string) => {
+        switch (action) {
+            case "onDeleteDocument":
+                setDeleteDialog(true);
+                break;
+        }
+        handleClose();
+    }
+
     useEffect(() => {
         if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
             switch (selectedDialog.action) {
@@ -519,8 +562,7 @@ function DocumentsPanel({...props}) {
 
     return (
         <>
-            {loading && <LinearProgress/>}
-            {!loading && <PanelCardStyled
+            <PanelCardStyled
                 sx={{
                     "& .MuiCardContent-root": {
                         background: "white"
@@ -528,7 +570,8 @@ function DocumentsPanel({...props}) {
                     marginBottom: "1rem"
                 }}>
                 <CardContent>
-                    <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                    <AppBar position="static" color={"transparent"}
+                            className={"app-bar-header"}>
                         <Toolbar variant="dense">
                             <Stack direction={"row"}
                                    alignItems={"center"}
@@ -546,6 +589,7 @@ function DocumentsPanel({...props}) {
                             </Stack>
                         </Toolbar>
                     </AppBar>
+                    {loading && <LinearProgress color="warning" sx={{mt: -2, mb: 2}}/>}
 
                     <Grid container spacing={1.2}>
                         {quotes.map((card: any, idx: number) =>
@@ -596,8 +640,8 @@ function DocumentsPanel({...props}) {
                                                        onHandleClick={() => setOpenQuoteDialog(true)}
                                                        data={AddQuoteCardData}/>}
                 </CardContent>
-            </PanelCardStyled>}
-            {(documents.length > 0 || patientDocuments?.length > 0) && !loading ? (
+            </PanelCardStyled>
+            {(documents.length > 0 || patientDocuments?.length > 0) ? (
                 <>
                     <PanelCardStyled
                         sx={{
@@ -618,7 +662,7 @@ function DocumentsPanel({...props}) {
                                 </Tabs>
                                 <LinearProgress sx={{
                                     mt: .2,
-                                    display: loadingRequest ? "block" : "none"
+                                    display: loadingRequest || loading ? "block" : "none"
                                 }} color="warning"/>
                             </Box>
                             {tabsContent.map((tabContent, tabContentIndex) =>
@@ -713,7 +757,8 @@ function DocumentsPanel({...props}) {
                 {popoverActions.map((v: any, index) => (
                     <MenuItem
                         key={index}
-                        className="popover-item">
+                        className="popover-item"
+                        onClick={() => OnMenuActions(v.action)}>
                         {v.icon}
                         <Typography fontSize={15} sx={{color: "#fff"}}>
                             {t(`config.${v.title}`, {ns: "patient"})}
@@ -721,6 +766,37 @@ function DocumentsPanel({...props}) {
                     </MenuItem>
                 ))}
             </Menu>
+
+            <CustomDialog
+                {...{t, direction}}
+                action={"remove"}
+                open={deleteDialog}
+                data={{
+                    title: t('consultationIP.askRemovedoc'),
+                    subtitle: t('consultationIP.subtitleRemovedoc'),
+                    icon: "/static/icons/ic-edit-file-new.svg",
+                    name1: selectedDocument?.title,
+                    name2: t(selectedDocument?.type),
+                }}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('consultationIP.removedoc')}
+                actionDialog={
+                    <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant="text-primary" onClick={() => {
+                            setDeleteDialog(false);
+                        }}
+                            startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
+                        <LoadingButton
+                            loading={loadingReq}
+                            onClick={handleDeleteDocument}
+                            variant="contained"
+                            startIcon={<IconUrl path="ic-trash" color="white"/>}
+                            sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                        >{t('consultationIP.remove')}</LoadingButton>
+                    </Stack>
+                }
+            />
 
             <Dialog
                 action={"quote-request-dialog"}

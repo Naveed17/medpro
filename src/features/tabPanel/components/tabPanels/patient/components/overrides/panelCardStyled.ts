@@ -39,9 +39,6 @@ const PanelCardStyled = styled(Card)(({theme}) => ({
     "& .phone-handler": {
         // paddingTop: 0
     },
-    "& .app-bar-header": {
-        marginBottom: 14
-    },
     "& textarea": {
         borderColor: theme.palette.common.white,
         borderRadius: 6,

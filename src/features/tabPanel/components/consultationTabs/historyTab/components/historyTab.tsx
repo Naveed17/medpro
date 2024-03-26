@@ -234,7 +234,7 @@ function HistoryTab({...props}) {
                         {t("history")}
                     </Label>
                 </Stack>}
-            <Stack spacing={1}>
+            <Stack spacing={1.2}>
                 {latest_appointment && latest_appointment.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>
                         <PatientHistoryStaticCard

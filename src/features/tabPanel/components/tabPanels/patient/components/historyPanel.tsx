@@ -136,7 +136,7 @@ function HistoryPanel({...props}) {
                     <Typography fontWeight={600} p={1}>
                         {t("history")}
                     </Typography>
-                    <Stack spacing={2} mt={0}>
+                    <Stack spacing={1.2} mt={0}>
                         {apps.map((app: any, appID: number) => (
                             <React.Fragment key={`app-el-${appID}`}>
                                 <HistoryContainer {...{
