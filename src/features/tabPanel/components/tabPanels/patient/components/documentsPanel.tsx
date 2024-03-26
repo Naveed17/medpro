@@ -603,7 +603,12 @@ function DocumentsPanel({...props}) {
                             </Stack>
                         </Toolbar>
                     </AppBar>
-                    {loading && <LinearProgress color="warning" sx={{mt: -2, mb: 2}}/>}
+
+                    <LinearProgress
+                        color="warning"
+                        sx={{
+                            mt: -2, mb: 2, visibility: loading ? "visible" : "hidden"
+                        }}/>
 
                     <Grid container spacing={1.2}>
                         {quotes.map((card: any, idx: number) =>
@@ -675,8 +680,8 @@ function DocumentsPanel({...props}) {
                                              label={tabHeader.title} {...a11yProps(tabHeaderIndex)} />)}
                                 </Tabs>
                                 <LinearProgress sx={{
-                                    mt: .2,
-                                    display: loadingRequest || loading ? "block" : "none"
+                                    mt: loadingRequest || loading ? 0 : -.6,
+                                    visibility: loadingRequest || loading ? "visible" : "hidden"
                                 }} color="warning"/>
                             </Box>
                             {tabsContent.map((tabContent, tabContentIndex) =>
