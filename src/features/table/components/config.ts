@@ -273,7 +273,6 @@ const rowsActionsData = [
             )
         ),
     },
-
     {
         action: "insurance-agreement",
         component: dynamic((): any =>
@@ -283,9 +282,25 @@ const rowsActionsData = [
         ),
     },
     {
+        action: "agreements",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/agreementsRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "act-row",
         component: dynamic((): any =>
             import("@features/table/components/rows/actRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "insurance-appointment",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/insuranceAppointmentRow").then(
                 (mod) => mod
             )
         ),

@@ -205,5 +205,27 @@
 
   },
   "noTransaction":"No transaction",
-  "addTransaction": "Click on the + button to add a transaction"
+  "addTransaction": "Click on the + button to add a transaction",
+  "insurances_key": "Insurances",
+  "insurances": {
+    "nbConsult": "N°consultation",
+    "nbAct": "Nb act",
+    "amount": "Amount",
+    "global": "Global",
+    "archived": "Bordereaux archivés",
+    "print": "Imprimer",
+    "archive": "Archiver",
+    "export": "Exporter",
+    "stat": "Statistique",
+    "table": {
+      "date": "Date",
+      "name": "Name",
+      "quality": "Quality",
+      "act": "Acte",
+      "apci": "APCI",
+      "amount": "Montant",
+      "patientPart": "Part patient",
+      "remb": "Remboursement"
+    }
+  }
 }

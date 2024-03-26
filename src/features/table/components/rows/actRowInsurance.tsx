@@ -11,7 +11,7 @@ function ActRowInsurance({...props}) {
     const {row, handleChange, t, handleEvent, loading, data} = props;
     const {apcis, mutate, setLoading, trigger, urlMedicalEntitySuffix, medicalEntityHasUser, router} = data
     const {agreement} = useAppSelector(stepperSelector);
-    const _act = agreement.acts.find((act: any) => act.uuid === row.uuid)
+    //const _act = agreement.acts.find((act: any) => act.uuid === row.uuid)
     const theme = useTheme();
     const [fees, setFees] = useState(row.fees);
     const [patient_part, setPatient_part] = useState(row.patient_part);

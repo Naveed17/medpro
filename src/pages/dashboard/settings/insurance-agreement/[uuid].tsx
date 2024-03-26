@@ -284,7 +284,6 @@ function Actes() {
                         </Button>
                         <LoadingButton
                             {...{loading}}
-                            loadingPosition="start"
                             disabled={!newAct}
                             variant="contained"
                             onClick={save}>

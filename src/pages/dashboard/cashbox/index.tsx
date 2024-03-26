@@ -50,6 +50,7 @@ import {ImageHandler} from "@features/image";
 import {LoadingScreen} from "@features/loadingScreen";
 import Can, {AbilityContext} from "@features/casl/can";
 import {ToggleButtonStyled} from "@features/toolbar";
+import {InsuranceDocket} from "@features/insuranceDocket";
 
 const noCardData = {
     mainIcon: "ic-unpaid",
@@ -106,6 +107,10 @@ function Cashbox() {
         ...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
             label: "transactions",
             value: "transactions"
+        }] : []),
+        ...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
+            label: "insurances_key",
+            value: "insurances_key"
         }] : [])
     ];
     const MenuActions = [
@@ -692,6 +697,41 @@ function Cashbox() {
                                             ))}
                                     </Stack>
                                 </MobileContainer>
+                            </CardContent>
+                        </Card>
+                    </Stack>
+                </TabPanel>
+
+                <TabPanel padding={1} value={selectedTab} index={"insurances_key"}>
+                    <Stack spacing={1}>
+                        <Card sx={{border: "none"}}>
+                            <CardContent>
+                                <Stack
+                                    direction="row"
+                                    alignItems={{xs: "center", md: "center"}}
+                                    justifyContent="space-between"
+                                    mb={2}
+                                    pb={1}
+                                    borderBottom={1}
+                                    borderColor="divider">
+                                    <Stack>
+                                        <Typography fontWeight={700}>
+                                            {t("insurances_key")}
+                                        </Typography>
+                                        <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
+                                    </Stack>
+                                    {rows.length > 0 &&
+                                        <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
+                                            <Button
+                                                onClick={exportDoc}
+                                                variant="outlined"
+                                                color="info"
+                                                startIcon={<IconUrl path="ic-export-new"/>}>
+                                                {t("export")}
+                                            </Button>
+                                        </Can>}
+                                </Stack>
+                                <InsuranceDocket/>
                             </CardContent>
                         </Card>
                     </Stack>

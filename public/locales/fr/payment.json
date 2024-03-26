@@ -204,5 +204,27 @@
     "insurance": "Assurance / Convention"
   },
   "noTransaction": "Aucune transaction",
-  "addTransaction": "Cliquez sur le bouton + pour ajouter une transaction"
+  "addTransaction": "Cliquez sur le bouton + pour ajouter une transaction",
+  "insurances_key": "Assurances",
+  "insurances": {
+    "nbConsult": "N°consultation",
+    "nbAct": "Nbre Acte",
+    "amount": "Montant",
+    "global": "Bordereau global",
+    "archived": "Bordereaux archivés",
+    "print": "Imprimer",
+    "archive": "Archiver",
+    "export": "Exporter",
+    "stat": "Statistique",
+    "table": {
+      "date": "Date",
+      "name": "Name",
+      "quality": "Quality",
+      "act": "Acte",
+      "apci": "APCI",
+      "amount": "Montant",
+      "patientPart": "Part patient",
+      "remb": "Remboursement"
+    }
+  }
 }
