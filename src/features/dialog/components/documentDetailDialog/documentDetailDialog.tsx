@@ -423,7 +423,7 @@ function DocumentDetailDialog({...props}) {
             );
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
-                method: " DELETE",
+                method: "DELETE",
                 url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}`}/documents/${state?.uuid}/${router.locale}`
             }, {
                 onSuccess: () => {
@@ -938,22 +938,23 @@ function DocumentDetailDialog({...props}) {
             </Grid>
 
             <CustomDialog
-                {...{t, direction}}
+                {...{direction}}
                 action={"remove"}
                 open={openRemove}
                 data={selected}
                 color={(theme: Theme) => theme.palette.error.main}
                 title={t('removedoc')}
                 actionDialog={
-                    <DialogActions>
-                        <Button onClick={() => {
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant={"text-black"} onClick={() => {
                             setOpenRemove(false);
                         }}
-                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                            startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                         <LoadingButton variant="contained"
                                        sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
                                        onClick={() => dialogSave(state)}>{t('remove')}</LoadingButton>
-                    </DialogActions>
+                    </Stack>
                 }
             />
 

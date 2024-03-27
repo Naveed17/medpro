@@ -191,10 +191,7 @@ function Departments() {
 
                 <CustomDialog
                     action={"department"}
-                    {...{
-                        t,
-                        direction
-                    }}
+                    {...{direction}}
                     open={openAddDrawer}
                     data={{
                         data: selectedDepartment,

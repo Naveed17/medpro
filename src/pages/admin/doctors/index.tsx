@@ -207,10 +207,7 @@ function Doctors() {
 
             <CustomDialog
                 action={"doctor"}
-                {...{
-                    t,
-                    direction
-                }}
+                {...{direction}}
                 open={openAddDoctorDialog}
                 data={{
                     closeDraw: () => setOpenAddDoctorDialog(false)
