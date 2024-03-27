@@ -92,7 +92,6 @@ import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
-import {chatSelector} from "@features/chat/selectors";
 import {useChannel} from "ably/react";
 
 const grid = 5;

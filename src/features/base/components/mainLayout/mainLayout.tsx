@@ -52,7 +52,7 @@ import IconUrl from "@themes/urlIcon";
 import {Chat} from "@features/chat";
 import {caslSelector} from "@features/casl";
 import {chatSelector} from "@features/chat/selectors";
-import {setChannel, setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
+import {setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
 
 function PaperComponent(props: PaperProps) {
     return (
