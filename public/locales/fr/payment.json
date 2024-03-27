@@ -200,7 +200,7 @@
     "add_now": "vous avez la possibilité d'ajouter un paiement anticipé",
     "addavance": "Ajouter avance",
     "later": "Terminer plus tard",
-    "appointments":"Consultations",
+    "appointments": "Consultations",
     "insurance": "Assurance / Convention"
   },
   "noTransaction": "Aucune transaction",
@@ -216,15 +216,32 @@
     "archive": "Archiver",
     "export": "Exporter",
     "stat": "Statistique",
+    "code": "Code",
+    "reference_center": "Centre de référence",
+    "start_date": "Date de début",
+    "end_date": "Date de fin",
+    "search": "Recherche",
+    "all": "Tous",
     "table": {
+      "memberNo": "N° d’adhérent",
       "date": "Date",
-      "name": "Name",
-      "quality": "Quality",
+      "name": "Nom et prénom",
+      "quality": "Qualité",
       "act": "Acte",
       "apci": "APCI",
       "amount": "Montant",
       "patientPart": "Part patient",
-      "remb": "Remboursement"
+      "remb": "Montant de Remb.",
+      "dateArc": "Date Arch.",
+      "refSlip": "Réf. bordereau",
+      "ref": "Réf.",
+      "srart_date": "Date début",
+      "end_date": "Date fin",
+      "act_reject": "Act. rejetés",
+      "mtt_requested": "Mtt demandé",
+      "mtt_granted": "Mtt accordé",
+      "balance": "Solde",
+      "vir": "Vir."
     }
   }
 }

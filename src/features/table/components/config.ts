@@ -312,6 +312,14 @@ const rowsActionsData = [
                 (mod) => mod
             )
         ),
+    },
+    {
+        action: "archive-insurance-slip",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/archiveSlipRow").then(
+                (mod) => mod
+            )
+        ),
     }
 ];
 
