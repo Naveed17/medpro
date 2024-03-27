@@ -43,50 +43,22 @@ import {TabPanel} from "@features/tabPanel";
 import NumberIcon from "@themes/overrides/icons/numberIcon";
 import TimerIcon from "@themes/overrides/icons/timerIcon";
 import {StatsProgressCard} from "@features/card";
-
-const countries = [
-    {
-        code: "tn",
-        name: "Tunisie",
-        value: 234
-    },
-    {
-        code: "ly",
-        name: "Libya",
-        value: 145
-    },
-    {
-        code: "ma",
-        name: "Maroc",
-        value: 145
-    },
-    {
-        code: "dz",
-        name: "Algerie",
-        value: 45
-    },
-    {
-        code: "fr",
-        name: "France",
-        value: 22
-    }
-
-]
+import {useCountries} from "@lib/hooks/rest";
 
 function Statistics() {
     const theme = useTheme();
     const dispatch = useAppDispatch();
-
-    const {t, ready, i18n} = useTranslation(["stats", "common"]);
+    const {countries} = useCountries();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const [value, setValue] = React.useState(0);
+
+    const {t, ready, i18n} = useTranslation(["stats", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
 
+    const [value, setValue] = React.useState(0);
     const [viewChart, setViewChart] = useState('month');
     const [fullScreenChart, setFullScreenChart] = useState({"act": false, "motif": false, "type": false});
-
     const [state, setState] = useState({
         rdv_type: {
             view: "numbers",
@@ -110,6 +82,7 @@ function Statistics() {
         }
     })
     const {rdv_type, act_by_rdv, motif_by_consult} = state
+
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-stats/${router.locale}?format=${viewChart}`
@@ -128,9 +101,6 @@ function Statistics() {
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
-    useEffect(() => {
-        dispatch(toggleSideBar(true));
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const appointmentStats = ((statsAppointmentHttp as HttpResponse)?.data ?? []) as any;
     const appointmentPerPeriod = (appointmentStats?.period ? Object.values(appointmentStats.period) : []) as any[];
@@ -144,12 +114,20 @@ function Statistics() {
     const patientPerPeriod = (patientStats?.period ? Object.values(patientStats.period) : []) as any[];
     const patientPerAge = (patientStats?.age ? Object.values(patientStats.age) : []) as any[];
     const patientPerGender = (patientStats?.gender ? Object.values(patientStats.gender) : []) as any[];
-    const patientPerLocation = (patientStats?.location ? Object.values(patientStats.location) : []) as any[];
+    const patientPerLocation = (patientStats?.location ? Object.values(patientStats.location).map((location: any) => ({
+        ...location,
+        ...countries.find(country => country.uuid === location.key)
+    })) : []) as any[];
     const VIEW_OPTIONS = [
         {value: "day", label: "Day", text: "Jour", icon: TodayIcon, format: "D"},
         {value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
         {value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM"}
     ];
+    console.log("countries", countries)
+    console.log("patientPerLocation", patientPerLocation)
+    useEffect(() => {
+        dispatch(toggleSideBar(true));
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         //reload resources from cdn servers
@@ -297,7 +275,7 @@ function Statistics() {
                                                             },
                                                         }
                                                     }) as any}
-                                                    height={240}
+                                                    height={300}
                                                 />
                                             </ChartStyled>
                                         </CardContent>
@@ -473,11 +451,11 @@ function Statistics() {
                                                             <Chart
                                                                 type='donut'
                                                                 series={
-                                                                    [65, 35]
+                                                                    patientPerLocation.reduce((locations: any[], location: any) => [...(locations ?? []), location.doc_count], [])
                                                                 }
                                                                 options={
-
                                                                     merge(ChartsOption(), {
+                                                                        labels: patientPerLocation.reduce((locations: any[], location: any) => [...(locations ?? []), location.name], []),
                                                                         plotOptions: {
                                                                             pie: {
                                                                                 donut: {
@@ -542,15 +520,14 @@ function Statistics() {
                                                             </Stack>
                                                         </Stack>
                                                         <List>
-                                                            {countries.map((country, idx) => (
+                                                            {patientPerLocation.map((country, idx) => (
                                                                 <ListItem
                                                                     key={idx}
                                                                     disablePadding
                                                                     sx={{pb: 1}}
                                                                     secondaryAction={<Typography fontWeight={600}>
-                                                                        {country.value}
-                                                                    </Typography>}
-                                                                >
+                                                                        {country.doc_count}
+                                                                    </Typography>}>
                                                                     <ListItemIcon sx={{minWidth: 45}}>
                                                                         <Avatar
                                                                             sx={{
@@ -938,7 +915,7 @@ function Statistics() {
                                                             },
                                                         }
                                                     }) as any}
-                                                    height={240}
+                                                    height={260}
                                                 />
                                             </ChartStyled>
                                         </CardContent>
@@ -1189,15 +1166,14 @@ function Statistics() {
                                                     </Stack>
                                                 </Stack>
                                                 <List>
-                                                    {countries.map((country, idx) => (
+                                                    {patientPerLocation.map((country, idx) => (
                                                         <ListItem
                                                             key={idx}
                                                             disablePadding
                                                             sx={{pb: 1}}
                                                             secondaryAction={<Typography fontWeight={600}>
-                                                                {country.value}
-                                                            </Typography>}
-                                                        >
+                                                                {country.doc_count}
+                                                            </Typography>}>
                                                             <ListItemIcon sx={{minWidth: 45}}>
                                                                 <Avatar
                                                                     sx={{
