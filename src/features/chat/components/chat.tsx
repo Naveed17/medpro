@@ -33,14 +33,16 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
 import {tinymcePlugins} from "@lib/constants";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {PatientDetail} from "@features/dialog";
-import {configSelector} from "@features/base";
+import {Dialog as CustomDialog, PatientDetail} from "@features/dialog";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import useUsers from "@lib/hooks/rest/useUsers";
-import {agendaSelector} from "@features/calendar";
+import {agendaSelector, openDrawer} from "@features/calendar";
 import {chatSelector} from "@features/chat/selectors";
 import {setOpenChat} from "@features/chat/actions";
+import {setStepperIndex} from "@features/stepper";
+import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import PresenceMessage = Types.PresenceMessage;
 
 interface IPatient {
@@ -85,6 +87,7 @@ const Chat = ({...props}) => {
 
     const {direction} = useAppSelector(configSelector);
     const {message: msg} = useAppSelector(chatSelector);
+    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
 
@@ -99,6 +102,8 @@ const Chat = ({...props}) => {
     const [showUsers, setShowUsers] = useState(false);
     const [messages, setMessages] = useState([]);
     const [firstLoad, setFirstLoad] = useState(true);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+    const [patient, setPatient] = useState<any>(null);
 
     const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
     const {trigger: getDiscussion} = useRequestQueryMutation("/chat/messages");
@@ -109,14 +114,6 @@ const Chat = ({...props}) => {
         method: "GET",
         url: `/-/chat/api/discussion/${medicalEntityHasUser}`
     })
-
-    const scrollToTop = () => {
-        if (refList)
-            refList.scrollTo({
-                top: 0,
-                behavior: 'smooth',
-            });
-    }
 
     const hasMessages = (uuid: string) => {
         return lastMessages && Object.keys(lastMessages).find(lm => lm === uuid)
@@ -155,6 +152,52 @@ const Chat = ({...props}) => {
             }
         });
 
+    }
+
+    const checkRdvs = () => {
+        const rdvElements = document.querySelectorAll(".rdv");
+        rdvElements.forEach(element => {
+            // Create two button elements
+            const button1 = document.createElement("button");
+            const button2 = document.createElement("button");
+
+            // Set the text for the buttons
+            button1.textContent = "Payment";
+            button2.textContent = "Planifier RDV";
+            button1.className = "btn1"
+            button2.className = "btn2"
+
+            button1.onclick = () => {
+                setPatient({
+                    uuid: element.getAttribute("patient"),
+                    firstName: element.getAttribute("fn"),
+                    lastName: element.getAttribute("ln")
+                });
+                setOpenPaymentDialog(true)
+            }
+            button2.onclick = () => {
+                router.push("/dashboard/agenda").then(() => {
+                    dispatch(setStepperIndex(1));
+                    dispatch(setOpenChat(false))
+
+                    const _patient = {
+                        uuid: element.getAttribute("patient"),
+                        firstName: element.getAttribute("fn"),
+                        lastName: element.getAttribute("ln")
+                    }
+                    dispatch(setAppointmentPatient(_patient as PatientWithNextAndLatestAppointment));
+                    (appointmentTypes && appointmentTypes.length > 1) && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
+                    dispatch(openDrawer({type: "add", open: true}));
+                });
+            }
+
+            // Append the buttons to the current element
+            const div = document.createElement("div")
+            div.className = "btnDiv"
+            div.appendChild(button1);
+            div.appendChild(button2);
+            element.appendChild(div);
+        });
     }
 
     const addDiscussion = (user: UserModel) => {
@@ -217,12 +260,16 @@ const Chat = ({...props}) => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (refList)
-            refList.scrollTo({
-                top: refList.scrollHeight,
-                behavior: 'smooth',
-            });
+        checkRdvs();
+        setTimeout(() => {
+            if (refList)
+                refList.scrollTo({
+                    top: refList.scrollHeight,
+                    behavior: 'smooth',
+                });
+        }, 500)
         checkTags()
+
     }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -333,16 +380,16 @@ const Chat = ({...props}) => {
                     </Paper>
                 </Grid>}
                 <Grid item xs={12} md={8}>
+
                     {isMobile && <Stack className='user-wrapper' style={{
                         position: "absolute",
-                        zIndex:999,
+                        zIndex: 999,
                         padding: "5px 20px",
                         width: "100%"
                     }}><Stack direction={"row"}
-
-                            spacing={1}
-                            justifyContent={"space-between"}
-                            alignItems={"center"}>
+                              spacing={1}
+                              justifyContent={"space-between"}
+                              alignItems={"center"}>
                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                             <IconUrl path={"chat"} width={20} height={20}/>
                             <Typography fontWeight={"bold"}>Chat</Typography>
@@ -359,7 +406,7 @@ const Chat = ({...props}) => {
                         </Stack>
                     </Stack>
                         <Stack>
-                            <Collapse in={showUsers} style={{margin: 0,background:"white"}}>
+                            <Collapse in={showUsers} style={{margin: 0, background: "white"}}>
                                 {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser && !hasMessages(user.uuid)).map((user: UserModel) => (
                                     <Stack
                                         className={`user-item`}
@@ -550,6 +597,25 @@ const Chat = ({...props}) => {
                     </Stack>
                 </DialogContent>
             </Dialog>
+
+            <CustomDialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient,
+                    setOpenPaymentDialog,
+                }}
+                size={"lg"}
+                fullWidth
+                title={"translationCommon.payment_dialog_title"}
+                dialogClose={() => setOpenPaymentDialog(false)}
+            />
         </ChatStyled>
     );
 }

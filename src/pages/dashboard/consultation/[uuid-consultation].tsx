@@ -48,7 +48,8 @@ import {
     EventType,
     FeesTab,
     HistoryTab,
-    Instruction, resetAppointment,
+    Instruction,
+    resetAppointment,
     TabPanel,
     TimeSchedule
 } from "@features/tabPanel";
@@ -139,6 +140,7 @@ function ConsultationInProgress() {
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
 
+    const {t} = useTranslation("consultation");
     const {t, i18n} = useTranslation("consultation");
 
     //***** SELECTORS ****//
@@ -175,6 +177,9 @@ function ConsultationInProgress() {
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+
+    const {channel} = useChannel(medical_entity?.uuid);
+
     const {inProgress} = router.query;
     const {jti} = session?.user as any;
     const EventStepper = [
@@ -195,8 +200,6 @@ function ConsultationInProgress() {
         },
     ];
     const isAddAppointment = false;
-    // INIT CHAT
-    const {channel} = useChannel(medical_entity?.uuid);
 
     const [selectedTab, setSelectedTab] = useState<string>("consultation_form");
     const [changes, setChanges] = useState([
@@ -689,13 +692,12 @@ function ConsultationInProgress() {
                 setSelectedDiscussion(res.data)
             }
         })
-
     }
 
     const sendMsg = () => {
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-        const control = meeting ? `, RDV prochain ${meeting} ${t(nextAppDays)}` : ""
-        const msg = `<span class="tag rdv" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, ${localInstr} ${control}</span>`;
+        const control = checkedNext ? `, RDV prochain ${meeting} ${t(nextAppDays)}` : ""
+        const msg = `<div class="rdv" patient="${patient?.uuid}" fn="${patient?.firstName}" ln="${patient?.lastName}"><span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, ${localInstr} ${control}</span></div>`;
 
         channel.publish(selectedDiscussion, JSON.stringify({
             message: msg,

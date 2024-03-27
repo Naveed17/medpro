@@ -73,6 +73,8 @@ function SecretaryConsultationDialog({...props}) {
     const router = useRouter();
     const {users} = useUsers();
     const theme = useTheme() as Theme;
+    const {users} = useUsers();
+
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
