@@ -12,7 +12,8 @@ import {
     Paper,
     PaperProps,
     Stack,
-    Typography, useMediaQuery,
+    Typography,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
 import axios from "axios";
@@ -52,7 +53,7 @@ import IconUrl from "@themes/urlIcon";
 import {Chat} from "@features/chat";
 import {caslSelector} from "@features/casl";
 import {chatSelector} from "@features/chat/selectors";
-import {setChannel, setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
+import {setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -373,7 +374,7 @@ function FcmLayout({...props}) {
     const client = useAbly();
 
     useConnectionStateListener((stateChange) => {
-        if (["closing", "closed","disconnected"].includes(stateChange.current))
+        if (["closing", "closed", "disconnected"].includes(stateChange.current))
             !isOffline && client.connect()
     });
 
@@ -387,7 +388,6 @@ function FcmLayout({...props}) {
             dispatch(setMessagesRefresh(payload.message))
         }
     });
-    dispatch(setChannel(channel))
     const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
 
     return (
@@ -415,7 +415,9 @@ function FcmLayout({...props}) {
                     medicalEntityHasUser,
                     medical_entity,
                     presenceData,
-                    setHasMessage
+                    setHasMessage,
+                    setOpenPaymentDialog,
+                    setNotificationData
                 }} />
             </Drawer>
 
@@ -563,10 +565,10 @@ function FcmLayout({...props}) {
                     </Stack>
                 </Stack>}
                 {!isMobile && <Fab color="info"
-                      style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
-                      onClick={() => {
-                          dispatch(setOpenChat(true))
-                      }}>
+                                   style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                                   onClick={() => {
+                                       dispatch(setOpenChat(true))
+                                   }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
                         <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
