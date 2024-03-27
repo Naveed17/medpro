@@ -44,7 +44,7 @@ const ChatStyled = styled("div")(({theme}) => ({
 
         },
         ".chat-list": {
-            margin: theme.spacing(3,0,0, 0),
+            margin: theme.spacing(3, 0, 0, 0),
             display: 'flex',
             flexDirection: 'column',
             height: 'calc(100vh - 215px)',
@@ -137,8 +137,29 @@ const ChatStyled = styled("div")(({theme}) => ({
             backgroundColor: theme.palette.text.primary,
         }
     },
-    ".tag:hover":{
+    ".tag:hover": {
         textDecoration: "underline"
+    },
+    ".btn1": {
+        height: 32,
+        backgroundColor: theme.palette.primary.main,
+        borderRadius: 8,
+        border: 0,
+        color: "white"
+    },
+    ".btn2": {
+        height: 32,
+        backgroundColor: "#C5E5F9",
+        borderRadius: 8,
+        border: 0,
+        color: theme.palette.primary.main,
+        fontWeight: "bold"
+    },
+    ".btnDiv": {
+        gap: 5,
+        display: "flex",
+        justifyContent: "flex-end",
+        marginTop: 8
     }
 }));
 
