@@ -649,8 +649,11 @@
     "size": "Size",
     "weight": "Weight",
     "growth": "Growth",
+    "boy": "of boys",
+    "girl": "of girls",
+    "18years": "from 1 to 18 years",
     "3years": "girls and boys from birth to 3 years old",
-    "filter": "Filter",
+    "filter": "Filtred",
     "perimetreCranien": "Cranial perimeter"
   }
 }
