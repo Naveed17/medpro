@@ -52,7 +52,7 @@ import IconUrl from "@themes/urlIcon";
 import {Chat} from "@features/chat";
 import {caslSelector} from "@features/casl";
 import {chatSelector} from "@features/chat/selectors";
-import {setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
+import {setChannel, setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -394,7 +394,7 @@ function MainLayout({...props}) {
             dispatch(setMessagesRefresh(payload.message))
         }
     });
-
+    dispatch(setChannel(channel))
     const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
 
     return (
