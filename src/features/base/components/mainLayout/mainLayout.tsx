@@ -394,7 +394,7 @@ function MainLayout({...props}) {
             dispatch(setMessagesRefresh(payload.message))
         }
     });
-    dispatch(setChannel(channel))
+
     const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
 
     return (

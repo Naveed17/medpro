@@ -41,6 +41,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {Dialog} from "@features/dialog";
 import CheckIcon from "@mui/icons-material/Check";
 import MenuItem from "@mui/material/MenuItem";
+import useUsers from "@lib/hooks/rest/useUsers";
 
 const limit = 255;
 
@@ -66,10 +67,11 @@ function SecretaryConsultationDialog({...props}) {
             mutatePatient,
             insuranceGenerated, changeCoveredBy,
             selectedUser, setSelectedUser, addDiscussion,
-            users, medicalEntityHasUser
+            medicalEntityHasUser
         }
     } = props;
     const router = useRouter();
+    const {users} = useUsers();
     const theme = useTheme() as Theme;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 

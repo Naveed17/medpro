@@ -93,7 +93,7 @@ import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
 import {chatSelector} from "@features/chat/selectors";
-import useUsers from "@lib/hooks/rest/useUsers";
+import {useChannel} from "ably/react";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -140,8 +140,7 @@ function ConsultationInProgress() {
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
 
-    const { t, i18n } = useTranslation("consultation");
-    const {users} = useUsers();
+    const {t, i18n} = useTranslation("consultation");
 
     //***** SELECTORS ****//
     const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
@@ -150,7 +149,7 @@ function ConsultationInProgress() {
     const {selectedDialog, record} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
-    const {channel} = useAppSelector(chatSelector);
+
 
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {
@@ -197,6 +196,8 @@ function ConsultationInProgress() {
         },
     ];
     const isAddAppointment = false;
+    // INIT CHAT
+    const {channel} = useChannel(medical_entity?.uuid);
 
     const [selectedTab, setSelectedTab] = useState<string>("consultation_form");
     const [changes, setChanges] = useState([
@@ -694,7 +695,7 @@ function ConsultationInProgress() {
 
     const sendMsg = () => {
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-        const control = meeting ? `, RDV prochain ${meeting} ${t(nextAppDays)}`:""
+        const control = meeting ? `, RDV prochain ${meeting} ${t(nextAppDays)}` : ""
         const msg = `<span class="tag rdv" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, ${localInstr} ${control}</span>`;
 
         channel.publish(selectedDiscussion, JSON.stringify({
@@ -1828,7 +1829,7 @@ function ConsultationInProgress() {
                     nextAppDays, setNextAppDays,
                     insuranceGenerated, changeCoveredBy,
                     selectedUser, setSelectedUser, addDiscussion,
-                    users,medicalEntityHasUser,
+                    medicalEntityHasUser,
                     showPreview
                 }}
                 size={"lg"}
@@ -1948,7 +1949,7 @@ function ConsultationInProgress() {
                                         </Button>
                                         {info !== "add_a_document" && <Button
                                             variant="contained"
-                                            sx={{ width: { xs: 1, sm: 'auto' } }}
+                                            sx={{width: {xs: 1, sm: 'auto'}}}
                                             onClick={() => handleSaveDialog()}
                                             disabled={info.includes("medical_prescription") && state?.length === 0}
                                             startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
