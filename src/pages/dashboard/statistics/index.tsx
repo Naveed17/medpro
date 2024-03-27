@@ -44,10 +44,14 @@ import NumberIcon from "@themes/overrides/icons/numberIcon";
 import TimerIcon from "@themes/overrides/icons/timerIcon";
 import {StatsProgressCard} from "@features/card";
 import {useCountries} from "@lib/hooks/rest";
+import {DefaultCountry} from "@lib/constants";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function Statistics() {
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    const {data: session} = useSession();
     const {countries} = useCountries();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -102,6 +106,9 @@ function Statistics() {
         setValue(newValue);
     };
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const appointmentStats = ((statsAppointmentHttp as HttpResponse)?.data ?? []) as any;
     const appointmentPerPeriod = (appointmentStats?.period ? Object.values(appointmentStats.period) : []) as any[];
     const appointmentPerPeriodKeys = (appointmentStats?.period ? Object.keys(appointmentStats.period) : []) as any[];
@@ -123,8 +130,7 @@ function Statistics() {
         {value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
         {value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM"}
     ];
-    console.log("countries", countries)
-    console.log("patientPerLocation", patientPerLocation)
+
     useEffect(() => {
         dispatch(toggleSideBar(true));
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -135,7 +141,7 @@ function Statistics() {
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
-
+    console.log(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country.code !== val.code ? val.doc_count : 0), 0))
     return (
         <>
             <SubHeader
@@ -491,7 +497,7 @@ function Statistics() {
                                                                 <Typography fontWeight={700} color='primary'
                                                                             fontSize={28}
                                                                             variant="subtitle1">
-                                                                    65
+                                                                    {Math.round(patientPerLocation.find(location => location.code === doctor_country?.code)?.doc_count / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) ?? ""}
                                                                     <Typography fontSize={12} fontWeight={500}
                                                                                 variant="caption">
                                                                         %
@@ -507,7 +513,7 @@ function Statistics() {
                                                                 <Typography fontWeight={700} color='warning.main'
                                                                             fontSize={28}
                                                                             variant="subtitle1">
-                                                                    35
+                                                                    {Math.round(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country?.code !== val.code ? val.doc_count : 0), 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) ?? ""}
                                                                     <Typography fontSize={12} fontWeight={500}
                                                                                 variant="caption">
                                                                         %
@@ -526,7 +532,7 @@ function Statistics() {
                                                                     disablePadding
                                                                     sx={{pb: 1}}
                                                                     secondaryAction={<Typography fontWeight={600}>
-                                                                        {country.doc_count}
+                                                                        {`${Math.round(country.doc_count / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100)} %`}
                                                                     </Typography>}>
                                                                     <ListItemIcon sx={{minWidth: 45}}>
                                                                         <Avatar
@@ -1103,11 +1109,11 @@ function Statistics() {
                                                     <Chart
                                                         type='donut'
                                                         series={
-                                                            [65, 35]
+                                                            patientPerLocation.reduce((locations: any[], location: any) => [...(locations ?? []), location.doc_count], [])
                                                         }
                                                         options={
-
                                                             merge(ChartsOption(), {
+                                                                labels: patientPerLocation.reduce((locations: any[], location: any) => [...(locations ?? []), location.name], []),
                                                                 plotOptions: {
                                                                     pie: {
 
@@ -1141,7 +1147,7 @@ function Statistics() {
                                                     <Stack pb={1}>
                                                         <Typography fontWeight={700} color='primary' fontSize={56}
                                                                     variant="subtitle1">
-                                                            65
+                                                            {Math.round((patientPerLocation.find(location => location.code === doctor_country.code)?.doc_count ?? 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) ?? ""}
                                                             <Typography fontSize={18} fontWeight={700}
                                                                         variant="caption">
                                                                 %
@@ -1154,7 +1160,7 @@ function Statistics() {
                                                     <Stack borderTop={1.5} borderColor={'divider'}>
                                                         <Typography fontWeight={700} color='warning.main' fontSize={56}
                                                                     variant="subtitle1">
-                                                            35
+                                                            {Math.round(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country.code !== val.code ? val.doc_count : 0), 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) ?? ""}
                                                             <Typography fontSize={18} fontWeight={500}
                                                                         variant="caption">
                                                                 %
