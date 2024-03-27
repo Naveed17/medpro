@@ -140,9 +140,7 @@ function ConsultationInProgress() {
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
 
-    const {t} = useTranslation("consultation");
     const {t, i18n} = useTranslation("consultation");
-
     //***** SELECTORS ****//
     const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);

@@ -71,7 +71,6 @@ function SecretaryConsultationDialog({...props}) {
         }
     } = props;
     const router = useRouter();
-    const {users} = useUsers();
     const theme = useTheme() as Theme;
     const {users} = useUsers();
 
