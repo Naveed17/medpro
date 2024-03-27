@@ -353,17 +353,18 @@ function PatientDetail({...props}) {
         }] : []),
         ...(ability.can('manage', 'patients', 'patients__patient__details__documents') ? [{
             title: "tabs.documents",
-            children: <DocumentsPanel {...{
-                roles,
-                documentViewIndex,
-                patient, patientId,
-                setOpenUploadDialog: (ev: boolean) => {
-                    dispatch(setOpenUploadDialog(ev))
-                },
-                mutatePatientDetails,
-                loadingRequest,
-                setLoadingRequest
-            }} />
+            children: <DocumentsPanel
+                {...{
+                    roles,
+                    documentViewIndex,
+                    patient,
+                    patientId,
+                    handleTabChange: (index: number) => setDocumentViewIndex(index),
+                    setOpenUploadDialog: (ev: boolean) => dispatch(setOpenUploadDialog(ev)),
+                    mutatePatientDetails,
+                    loadingRequest,
+                    setLoadingRequest
+                }} />
         }] : []),
         ...(isBeta && ability.can('manage', 'patients', 'patients__patient__details__payment') ? [{
             title: "tabs.transactions",
@@ -647,7 +648,7 @@ function PatientDetail({...props}) {
                                         dispatch(setOpenUploadDialog(false));
                                         handleUploadDocuments();
                                     }}
-                                    startIcon={<IconUrl path="iconfinder_save" />}>
+                                    startIcon={<IconUrl path="iconfinder_save"/>}>
                                     {t("add-patient.register")}
                                 </Button>
                             </Stack>

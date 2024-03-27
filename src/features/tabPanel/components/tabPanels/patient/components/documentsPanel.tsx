@@ -152,7 +152,9 @@ function DocFilter({...props}) {
 
 function DocumentsPanel({...props}) {
     const {
-        documentViewIndex, patient,
+        documentViewIndex: currentTab,
+        handleTabChange,
+        patient,
         roles, setOpenUploadDialog,
         mutatePatientDetails,
         loadingRequest, setLoadingRequest
@@ -177,7 +179,6 @@ function DocumentsPanel({...props}) {
     const [document, setDocument] = useState<any>();
     const [selectedDocument, setSelectedDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
     const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
     const [note, setNotes] = useState(t('noteQuote'));
@@ -230,10 +231,10 @@ function DocumentsPanel({...props}) {
         setLoadingReq(true);
         medicalEntityHasUser && triggerDocumentDelete({
             method: "DELETE",
-            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity?.uuid}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}`}/documents/${selectedDocument?.uuid}/${router.locale}`
+            url: `/api/medical-entity/${currentTab === 0 ? "agendas/appointments" : `${medical_entity?.uuid}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}`}/documents/${selectedDocument?.uuid}/${router.locale}`
         }, {
             onSuccess: () => {
-                if (documentViewIndex === 1) {
+                if (currentTab === 1) {
                     mutatePatientDocuments();
                 } else {
                     mutateAppDocPatient();
@@ -378,7 +379,7 @@ function DocumentsPanel({...props}) {
     }
 
     const handleTabsChange = (event: React.SyntheticEvent, newValue: number) => {
-        setCurrentTab(newValue);
+        handleTabChange(newValue);
     };
 
     const showDoc = (card: any) => {
@@ -787,7 +788,7 @@ function DocumentsPanel({...props}) {
             </Menu>
 
             <CustomDialog
-                {...{t, direction}}
+                {...{direction}}
                 action={"remove"}
                 open={deleteDialog}
                 data={{

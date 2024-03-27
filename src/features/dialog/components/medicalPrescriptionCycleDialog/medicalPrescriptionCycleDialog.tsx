@@ -90,7 +90,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {lastPrescriptions} = useLastPrescription();
-    console.log("drugs", drugs)
+
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
     const {direction} = useAppSelector(configSelector);
     const {drawerAction} = useAppSelector(dialogSelector);
