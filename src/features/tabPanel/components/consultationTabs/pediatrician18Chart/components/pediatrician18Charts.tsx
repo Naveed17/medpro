@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {Card, Checkbox, FormControlLabel, Grid, Stack, Typography} from "@mui/material";
+import React, {useEffect, useRef, useState} from "react";
+import {Button, Card, Checkbox, FormControlLabel, Grid, Stack, Typography, useTheme} from "@mui/material";
 import 'react-h5-audio-player/lib/styles.css';
 import dynamic from "next/dynamic";
 import moment from "moment/moment";
@@ -9,18 +9,129 @@ import {
     weightBoy,
     weightGirl
 } from "@features/tabPanel/components/consultationTabs/pediatrician18Chart/chartData";
+import IconUrl from "@themes/urlIcon";
+import {PDFDocument, rgb} from "pdf-lib";
+import fontkit from '@pdf-lib/fontkit';
+import {merge} from "lodash";
+import {ChartsOption} from "@features/charts";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
-
 function Pediatrician18Charts({...props}) {
-
+    const theme = useTheme();
 
     const [state, setState] = useState<any>(null);
     const [height, setHeight] = useState<boolean>(false);
     const [weight, setWeight] = useState<boolean>(true);
 
-    const {sheet, birthdate, gender, modelData, date, t} = props;
+    const {patient, sheet, birthdate, gender, modelData, date, t} = props;
+
+    const generatePdfTemplate = async () => {
+        // init doc
+        const pdfDoc = await PDFDocument.create();
+        //init font kit
+        pdfDoc.registerFontkit(fontkit);
+        //load font and embed it to pdf document
+        const fontBytes = await fetch("/static/fonts/KidsBoys/KidsBoys.otf").then((res) => res.arrayBuffer());
+        const customFont = await pdfDoc.embedFont(fontBytes);
+        // load template pdf
+        const docFile = await fetch("/static/files/bebe-templete-pink.pdf").then((res) => res.arrayBuffer());
+        const templatePdfDoc = await PDFDocument.load(docFile);
+        const pinkColor = rgb(0.9450980392156862, 0.4470588235294118, 0.6);
+        const copiedPages = await pdfDoc.copyPages(templatePdfDoc, templatePdfDoc.getPageIndices());
+        // ApexCharts export chart image
+        ApexCharts.exec("chart-growth", "dataURI").then(async ({imgURI}: any) => {
+            console.log(imgURI);
+            const chartGrowthBytes = await fetch(imgURI).then((res) => res.arrayBuffer())
+            console.log("chartGrowthBytes", imgURI, chartGrowthBytes)
+            const chartGrowth = await pdfDoc.embedPng(chartGrowthBytes);
+            const chartGrowthDims = chartGrowth.scale(0.35);
+            copiedPages[0].drawImage(chartGrowth, {
+                x: 420,
+                y: 68,
+                width: chartGrowthDims.width,
+                height: chartGrowthDims.height,
+            })
+            // draw bebe coordination
+            copiedPages[0].drawText('Je m\'appelle', {
+                x: 115,
+                y: 344,
+                size: 12,
+                font: customFont,
+                color: pinkColor
+            })
+            console.log("patient", patient);
+            copiedPages[0].drawText(`${patient.firstName} ${patient.lastName}`, {
+                x: 170,
+                y: 344,
+                size: 16,
+                font: customFont,
+                color: pinkColor
+            })
+            copiedPages[0].drawText(`née le ${birthdate}`, {
+                x: 134,
+                y: 326,
+                size: 12,
+                font: customFont,
+                color: pinkColor
+            })
+            copiedPages[0].drawText(`Ma Maman Salma & Mon Papa Sélim`, {
+                x: 110,
+                y: 310,
+                size: 12,
+                font: customFont,
+                color: pinkColor
+            })
+            // Draw bebe First acts
+            copiedPages[0].drawText(patient.firstName, {
+                x: 354,
+                y: 512,
+                size: 16,
+                font: customFont,
+                color: pinkColor
+            })
+            copiedPages[0].drawText('13 / 06 / 2023', {
+                x: 396,
+                y: 480,
+                size: 12,
+                font: customFont,
+                color: pinkColor
+            })
+            // Draw bebe poid/taille
+            const weight = Object.values(sheet.poids.data).slice(-1)[0] as string;
+            copiedPages[0].drawText(`${weight} Kg`, {
+                x: 98,
+                y: 240,
+                size: 14,
+                font: customFont,
+                color: pinkColor
+            })
+
+            const size = Object.values(sheet.taille.data).slice(-1)[0]?.toString();
+            copiedPages[0].drawText(`${size?.slice(-3, 1) ?? "0"} m ${size?.slice(-2)}`, {
+                x: 216,
+                y: 240,
+                size: 14,
+                font: customFont,
+                color: pinkColor
+            })
+            // Draw bebe eye color
+            copiedPages[0].drawCircle({
+                x: 91.2,
+                y: 58.8,
+                size: 2.6,
+                color: pinkColor
+            })
+
+            // Add page tok pdf file
+            pdfDoc.addPage(copiedPages[0]);
+            // Save as base64
+            const mergedPdf = await pdfDoc.saveAsBase64();
+            // Dynamic import print-js and print file
+            const printJS = (await import('print-js')).default
+            printJS({printable: mergedPdf, type: 'pdf', base64: true})
+        });
+    }
 
     useEffect(() => {
         let patientHeight: { x: number, y: number }[] = []
@@ -100,7 +211,9 @@ function Pediatrician18Charts({...props}) {
             series,
             options: {
                 chart: {
+                    id: "chart-growth",
                     height: 350,
+                    //fontFamily: "KidsBoys",
                     toolbar: {
                         tools: {
                             download: true,
@@ -152,23 +265,37 @@ function Pediatrician18Charts({...props}) {
                     </Typography>
                     <Typography textAlign={"center"} fontSize={12}
                                 style={{opacity: 0.5}}>{t('pediatrician.18years')}</Typography>
-                    <Stack direction={"row"} spacing={1} alignItems={"center"} paddingLeft={2}>
-                        <Typography fontWeight={"bold"}>{t('pediatrician.filter')}</Typography>
-                        <FormControlLabel control={<Checkbox checked={weight} onChange={(ev) => {
-                            setWeight(ev.target.checked)
-                        }}/>} label={t('pediatrician.weight')}/>
-                        <FormControlLabel control={<Checkbox checked={height} onChange={(ev) => {
-                            setHeight(ev.target.checked)
-                        }}/>} label={t('pediatrician.size')}/>
+                    <Stack direction={"row"} alignItems={"center"} paddingLeft={2} justifyContent={"space-between"}>
+                        <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                            <Typography fontWeight={"bold"}>{t('pediatrician.filter')}</Typography>
+                            <FormControlLabel control={<Checkbox checked={weight} onChange={(ev) => {
+                                setWeight(ev.target.checked)
+                            }}/>} label={t('pediatrician.weight')}/>
+                            <FormControlLabel control={<Checkbox checked={height} onChange={(ev) => {
+                                setHeight(ev.target.checked)
+                            }}/>} label={t('pediatrician.size')}/>
+                        </Stack>
+
+                        {state && <Button
+                            variant="text-black"
+                            size={"small"}
+                            sx={{
+                                mr: 1,
+                                border: `1px solid ${theme.palette.grey["200"]}`,
+                                bgcolor: theme => theme.palette.grey['A500'],
+                            }}
+                            onClick={async (event) => {
+                                event.stopPropagation();
+                                await generatePdfTemplate();
+                            }}
+                            startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
+                            {t("consultationIP.print")}
+                        </Button>}
                     </Stack>
-                    {state && <ApexChart type="line"
-                                         stroke={{
-                                             curve: 'smooth',
-                                             dashArray: 2,
-                                             width: 1
-                                         }}
-                                         options={state.options}
-                                         series={state.series}/>}
+                    {state && <ApexChart
+                        type="line"
+                        options={merge(ChartsOption(), state.options)}
+                        series={state.series}/>}
                 </Card>
             </Grid>
         </Grid>
