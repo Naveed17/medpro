@@ -41,9 +41,7 @@ function Pediatrician18Charts({...props}) {
         const copiedPages = await pdfDoc.copyPages(templatePdfDoc, templatePdfDoc.getPageIndices());
         // ApexCharts export chart image
         ApexCharts.exec("chart-growth", "dataURI").then(async ({imgURI}: any) => {
-            console.log(imgURI);
             const chartGrowthBytes = await fetch(imgURI).then((res) => res.arrayBuffer())
-            console.log("chartGrowthBytes", imgURI, chartGrowthBytes)
             const chartGrowth = await pdfDoc.embedPng(chartGrowthBytes);
             const chartGrowthDims = chartGrowth.scale(0.35);
             copiedPages[0].drawImage(chartGrowth, {
@@ -60,7 +58,6 @@ function Pediatrician18Charts({...props}) {
                 font: customFont,
                 color: pinkColor
             })
-            console.log("patient", patient);
             copiedPages[0].drawText(`${patient.firstName} ${patient.lastName}`, {
                 x: 170,
                 y: 344,
