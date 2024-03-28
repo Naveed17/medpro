@@ -42,7 +42,7 @@ function InsuranceAppointmentRow({ ...props }) {
                     />
                 )}
             </TableCell>
-            <TableCell align="center">
+            <TableCell align="left">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
                         {row.memberNo}
@@ -51,7 +51,7 @@ function InsuranceAppointmentRow({ ...props }) {
                     <Skeleton variant="text" width={100} />
                 )}
             </TableCell>
-            <TableCell align="center">
+            <TableCell align="left">
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1}>
                         <IconUrl path="ic-agenda-jour" />

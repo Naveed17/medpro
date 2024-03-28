@@ -18,6 +18,11 @@ import { AbilityContext } from "@features/casl/can";
 import { ImageHandler } from "@features/image";
 import { TabPanel } from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { InsuranceAppointMobileCard } from "@features/card";
 
 function ConsultationInProgress() {
     const router = useRouter();
@@ -349,7 +354,7 @@ function ConsultationInProgress() {
                     value={selectedTab}
                     onChange={handleChangeTab}
                     sx={{
-                        width: { xs: "70%", md: "50%" },
+                        width: { xs: "100%", md: "50%" },
                         px: 2,
                         [`& .${tabsClasses.scrollButtons}`]: {
                             "&.Mui-disabled": { opacity: 0.5 },
@@ -410,8 +415,10 @@ function ConsultationInProgress() {
                         ))}
                     </Stack>
                     <Card>
-                        <Stack p={2} direction='row' alignItems='center' justifyContent='space-between' spacing={1}>
-                            <Stack direction='row' alignItems='center' spacing={1}>
+                        <Stack p={2} direction={{ xs: 'column', md: 'row' }} alignItems='center' justifyContent='space-between' spacing={1}>
+                            <Stack direction={{ xs: 'column', sm: 'row' }} alignItems='center' spacing={1} {...(isMobile && {
+                                width: 1
+                            })}>
                                 <FormControl fullWidth size="small" sx={{ minWidth: 100 }}>
                                     <Select id="demo-simple-select"
                                         value={'all'}
@@ -429,38 +436,53 @@ function ConsultationInProgress() {
 
                                     </Select>
                                 </FormControl>
-                                <FormControl fullWidth size="small" sx={{ minWidth: 300 }}>
-                                    <TextField InputProps={{
+                                <FormControl fullWidth size="small" sx={{ minWidth: { xs: "auto", md: 300 } }}>
+                                    <TextField fullWidth={isMobile} InputProps={{
                                         startAdornment: <InputAdornment position="start">
                                             <IconUrl path="ic-search" width={16} height={16} />
                                         </InputAdornment>
                                     }} placeholder={t("search")} />
                                 </FormControl>
                             </Stack>
-                            <Stack direction='row' alignItems='center' spacing={1}>
-                                <Button variant="grey" startIcon={<IconUrl path="ic-archive-new" />}>{t("archive")}</Button>
-                                <Button variant="grey" startIcon={<IconUrl path="ic-printer-new" />}>{t("print")}</Button>
-                                <Button variant="grey" startIcon={<IconUrl path="ic-export-new" />}>{t("export")}</Button>
+                            <Stack direction='row' alignItems='center' spacing={1}
+                                {...(isMobile && {
+                                    width: 1
+                                })}
+                            >
+                                <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-archive-new" />}>{t("archive")}</Button>
+                                <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-printer-new" />}>{t("print")}</Button>
+                                <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-export-new" />}>{t("export")}</Button>
                             </Stack>
                         </Stack>
-                        <Otable
-                            {...{ t }}
-                            headers={headCells}
-                            //handleEvent={handleTableActions}
-                            rows={[...rows]}
-                            total={0}
-                            totalPages={1}
-                            from={"insurance-appointment"}
-                            pagination
-                        />
+                        <DesktopContainer>
+                            <Otable
+                                {...{ t }}
+                                headers={headCells}
+                                //handleEvent={handleTableActions}
+                                rows={[...rows]}
+                                total={0}
+                                totalPages={1}
+                                from={"insurance-appointment"}
+                                pagination
+                            />
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={2} p={2}>
+                                {rows.map((item) => (
+                                    <InsuranceAppointMobileCard key={item.uuid} t={t} row={item} />
+                                ))}
+                            </Stack>
+                        </MobileContainer>
                     </Card>
                 </Stack>
 
             </TabPanel>
             <TabPanel padding={1} value={selectedTab} index={"archived"}>
                 <Card>
-                    <Stack p={2} direction='row' alignItems='center' justifyContent='space-between' spacing={1}>
-                        <Stack direction='row' alignItems='center' spacing={1}>
+                    <Stack p={2} direction={{ xs: 'column', md: 'row' }} alignItems='center' justifyContent='space-between' spacing={1}>
+                        <Stack direction={{ xs: 'column', sm: 'row' }} alignItems='center' spacing={1} {...(isMobile && {
+                            width: 1
+                        })}>
                             <FormControl fullWidth size="small" sx={{ minWidth: 100 }}>
                                 <Select id="demo-simple-select"
                                     value={'all'}
@@ -478,17 +500,21 @@ function ConsultationInProgress() {
 
                                 </Select>
                             </FormControl>
-                            <FormControl fullWidth size="small" sx={{ minWidth: 300 }}>
-                                <TextField InputProps={{
+                            <FormControl fullWidth size="small" sx={{ minWidth: { xs: "auto", md: 300 } }}>
+                                <TextField fullWidth={isMobile} InputProps={{
                                     startAdornment: <InputAdornment position="start">
                                         <IconUrl path="ic-search" width={16} height={16} />
                                     </InputAdornment>
                                 }} placeholder={t("search")} />
                             </FormControl>
                         </Stack>
-                        <Stack direction='row' alignItems='center' spacing={1}>
-                            <Button variant="grey" startIcon={<IconUrl path="ic-printer-new" />}>{t("print")}</Button>
-                            <Button variant="grey" startIcon={<IconUrl path="ic-export-new" />}>{t("export")}</Button>
+                        <Stack direction='row' alignItems='center' spacing={1}
+                            {...(isMobile && {
+                                width: 1
+                            })}
+                        >
+                            <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-printer-new" />}>{t("print")}</Button>
+                            <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-export-new" />}>{t("export")}</Button>
                         </Stack>
                     </Stack>
                     <Otable
@@ -504,7 +530,219 @@ function ConsultationInProgress() {
                 </Card>
             </TabPanel>
             <TabPanel padding={1} value={selectedTab} index={"stat"}>
-                <Typography>Stat</Typography>
+                <Stack spacing={2}>
+                    <Card>
+                        <CardContent>
+                            <Stack spacing={2}>
+                                <Typography variant="subtitle1" fontWeight={700}>{t("3rd_paryty_pay")}</Typography>
+                                <Stack
+                                    display="grid"
+                                    sx={{ gap: 1.2 }}
+                                    gridTemplateColumns={`repeat(${isMobile ? "1" : "6"},minmax(0,1fr))`}
+                                >
+                                    <Stack spacing={-0.5}
+                                        {...(isMobile && {
+                                            sx: {
+                                                pb: 2,
+                                                borderBottom: `1px solid ${theme.palette.divider}`
+                                            }
+                                        })}
+                                    >
+                                        <Typography variant="h6" fontWeight={700}>1568</Typography>
+                                        <Typography variant="body2" fontWeight={500}>{t("no_of_books")}</Typography>
+                                    </Stack>
+                                    <Stack spacing={-0.5} sx={{
+                                        ...(isMobile ? {
+                                            borderBottom: `1px solid ${theme.palette.divider}`,
+                                            pb: 2
+                                        } : {
+                                            borderLeft: `1px solid ${theme.palette.divider}`,
+                                            pl: 2
+                                        })
+                                    }}>
+                                        <Typography variant="h6" fontWeight={700}>620</Typography>
+                                        <Typography variant="body2" fontWeight={500}>{t("books_with_APCI")}</Typography>
+                                    </Stack>
+                                    <Stack spacing={-0.5} sx={{
+                                        ...(isMobile ? {
+                                            borderBottom: `1px solid ${theme.palette.divider}`,
+                                            pb: 2
+                                        } : {
+                                            borderLeft: `1px solid ${theme.palette.divider}`,
+                                            pl: 2
+                                        })
+                                    }}>
+                                        <Typography variant="h6" fontWeight={700}>861</Typography>
+                                        <Typography variant="body2" fontWeight={500}>{t("total_rightsholders")}</Typography>
+                                    </Stack>
+                                    <Stack spacing={-0.5} sx={{
+                                        ...(isMobile ? {
+                                            borderBottom: `1px solid ${theme.palette.divider}`,
+                                            pb: 2
+                                        } : {
+                                            borderLeft: `1px solid ${theme.palette.divider}`,
+                                            pl: 2
+                                        })
+                                    }}>
+                                        <Typography variant="h6" fontWeight={700}>579</Typography>
+                                        <Typography variant="body2" fontWeight={500}>{t("rightsholders_APCI")}</Typography>
+                                    </Stack>
+                                    <Stack spacing={-0.5} sx={{
+                                        ...(isMobile ? {
+                                            borderBottom: `1px solid ${theme.palette.divider}`,
+                                            pb: 2
+                                        } : {
+                                            borderLeft: `1px solid ${theme.palette.divider}`,
+                                            pl: 2
+                                        })
+                                    }}>
+                                        <Typography variant="h6" fontWeight={700}>167</Typography>
+                                        <Typography variant="body2" fontWeight={500}>{t("APCI_patients_seen")}</Typography>
+                                    </Stack>
+                                    <Stack spacing={-0.5} sx={{
+                                        ...(isMobile ? {
+                                            borderBottom: `1px solid ${theme.palette.divider}`,
+                                            pb: 2
+                                        } : {
+                                            borderLeft: `1px solid ${theme.palette.divider}`,
+                                            pl: 2
+                                        })
+                                    }}>
+                                        <Typography variant="h6" fontWeight={700}>79</Typography>
+                                        <Typography variant="body2" fontWeight={500}>{t("APCI_patients_with_no_consultation")}</Typography>
+                                    </Stack>
+                                </Stack>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent>
+                            <Stack spacing={4}>
+                                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent='space-between'>
+                                    <Typography variant="subtitle1" fontWeight={700}>{t("recipes")}</Typography>
+                                    <Stack direction='row' alignItems='center' spacing={1}>
+                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                            <DatePicker
+                                                renderInput={(props) => <TextField sx={{ maxWidth: 180 }} {...props} />}
+                                                inputFormat={"dd/MM/yyyy"}
+                                                onChange={function (value: unknown, keyboardInputValue?: string | undefined): void {
+                                                    throw new Error("Function not implemented.");
+                                                }} value={undefined}
+                                            />
+                                        </LocalizationProvider>
+                                        <Typography fontSize={12} fontWeight={500}>
+                                            {t("upto")}
+                                        </Typography>
+                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                            <DatePicker
+
+                                                renderInput={(props) => <TextField sx={{ maxWidth: 180 }} {...props} />}
+                                                inputFormat={"dd/MM/yyyy"}
+                                                onChange={function (value: unknown, keyboardInputValue?: string | undefined): void {
+                                                    throw new Error("Function not implemented.");
+                                                }} value={undefined}
+                                            />
+                                        </LocalizationProvider>
+                                    </Stack>
+                                </Stack>
+                                <Stack
+                                    display="grid"
+                                    sx={{ gap: 1.2 }}
+                                    gridTemplateColumns={`repeat(${isMobile ? 1 : 4},minmax(0,1fr))`}
+                                >
+                                    <Stack direction='row' alignItems='center' spacing={2}
+                                        {...(isMobile && {
+                                            sx: {
+                                                pb: 2,
+                                                borderBottom: `1px solid ${theme.palette.divider}`
+                                            }
+                                        })}
+
+                                    >
+                                        <ImageHandler
+                                            src={`/static/icons/ic-earning-light-blue-bg.svg`}
+                                            alt={"img"}
+                                            width={40}
+                                            height={40}
+                                        />
+                                        <Stack spacing={-0.5}>
+                                            <Typography variant="h6" fontWeight={700}>16869
+                                                <Typography variant="caption" fontWeight={500} ml={1}>TND</Typography>
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight={500}>{t("montant_total_demandé")}</Typography>
+                                        </Stack>
+                                    </Stack>
+                                    <Stack direction='row' alignItems='center' spacing={2} sx={{
+                                        ...(isMobile ? {
+                                            borderBottom: `1px solid ${theme.palette.divider}`,
+                                            pb: 2
+                                        } : {
+                                            borderLeft: `1px solid ${theme.palette.divider}`,
+                                            pl: 2
+                                        })
+                                    }}>
+                                        <ImageHandler
+                                            src={`/static/icons/ic-cash-light-green-bg.svg`}
+                                            alt={"img"}
+                                            width={40}
+                                            height={40}
+                                        />
+                                        <Stack spacing={-0.5}>
+                                            <Typography variant="h6" fontWeight={700}>16679
+                                                <Typography variant="caption" fontWeight={500} ml={1}>TND</Typography>
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight={500}>{t("total_granted")}</Typography>
+                                        </Stack>
+                                    </Stack>
+                                    <Stack direction='row' alignItems='center' spacing={2} sx={{
+                                        ...(isMobile ? {
+                                            borderBottom: `1px solid ${theme.palette.divider}`,
+                                            pb: 2
+                                        } : {
+                                            borderLeft: `1px solid ${theme.palette.divider}`,
+                                            pl: 2
+                                        })
+                                    }}>
+                                        <ImageHandler
+                                            src={`/static/icons/ic-paid-light-red-bg.svg`}
+                                            alt={"img"}
+                                            width={40}
+                                            height={40}
+                                        />
+                                        <Stack spacing={-0.5}>
+                                            <Typography variant="h6" fontWeight={700}>1667.78
+                                                <Typography variant="caption" fontWeight={500} ml={1}>TND</Typography>
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight={500}>{t("balance")}</Typography>
+                                        </Stack>
+                                    </Stack>
+                                    <Stack direction='row' alignItems='center' spacing={2} sx={{
+                                        ...(isMobile ? {
+                                            borderBottom: `1px solid ${theme.palette.divider}`,
+                                            pb: 2
+                                        } : {
+                                            borderLeft: `1px solid ${theme.palette.divider}`,
+                                            pl: 2
+                                        })
+                                    }}>
+                                        <ImageHandler
+                                            src={`/static/icons/ic-transfer-info-bg.svg`}
+                                            alt={"img"}
+                                            width={40}
+                                            height={40}
+                                        />
+                                        <Stack spacing={-0.5}>
+                                            <Typography variant="h6" fontWeight={700}>1667.78
+                                                <Typography variant="caption" fontWeight={500} ml={1}>TND</Typography>
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight={500}>{t("transfer")} CNAM</Typography>
+                                        </Stack>
+                                    </Stack>
+                                </Stack>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Stack>
             </TabPanel>
 
         </Stack>
