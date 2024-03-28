@@ -50,10 +50,10 @@ const PatientInsurance = ({...props}) => {
             {patientInsurances?.map((pi: any) => (
                 <Box key={pi.uuid} className={"insurance-box"}>
                     <Collapse in={selectedInsurance !== pi.insurance.uuid}>
-                        <CardInsurance {...{pi, setSelectedInsurance}}/>
+                        <CardInsurance {...{pi,t, setSelectedInsurance}}/>
                     </Collapse>
                     <Collapse in={selectedInsurance === pi.insurance.uuid}>
-                        <AddInsurance {...{t, pi, setAddNew,patient,mutatePatientInsurances,requestAction:"PUT"}}/>
+                        <AddInsurance {...{t, pi, setAddNew,patient,mutatePatientInsurances,requestAction:"PUT",setSelectedInsurance}}/>
                     </Collapse>
                 </Box>
             ))}

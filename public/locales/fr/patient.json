@@ -421,6 +421,9 @@
     "startDate": "Date de début",
     "endDate": "Date de fin",
     "noInsurance": "Aucune assurance pour ce patient",
-    "addInsurance": "Cliquez sur le bouton « + » pour ajouter assurance"
+    "addInsurance": "Cliquez sur le bouton « + » pour ajouter assurance",
+    "expire": "Expire le",
+    "edit": "Modifier",
+    "save": "Enregistrer"
   }
 }

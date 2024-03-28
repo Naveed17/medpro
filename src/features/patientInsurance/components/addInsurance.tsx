@@ -7,7 +7,8 @@ import {
     Collapse,
     Grid,
     MenuItem,
-    Select, SelectChangeEvent,
+    Select,
+    SelectChangeEvent,
     Stack,
     TextField,
     Typography
@@ -52,7 +53,7 @@ const GroupItems = styled('ul')({
 });
 
 const AddInsurance = ({...props}) => {
-    const {t, pi, setAddNew, patient, requestAction = "POST",mutatePatientInsurances} = props;
+    const {t, pi, setAddNew, patient, requestAction = "POST", mutatePatientInsurances,setSelectedInsurance} = props;
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -112,23 +113,22 @@ const AddInsurance = ({...props}) => {
             })
         )
     });
-
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             insurance: {
                 insurance_book: pi ? pi.insuranceBook.insuranceNumber : "",
-                start_date: pi ? pi.insuranceBook.startDate : "",
-                end_date: pi ? pi.insuranceBook.endDate : "",
-                insurance_key:  "",
+                start_date: pi ? new Date(moment(pi.insuranceBook.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
+                end_date: pi ? new Date(moment(pi.insuranceBook.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
+                insurance_key: "",
                 insurance_number: pi ? pi.insuranceNumber : "",
                 insurance_uuid: pi ? pi.insurance.uuid : "",
-                insurance_type: pi ? pi.type : "",
+                insurance_type: pi ? pi.type.toString() : "",
                 insurance_social: {
                     firstName: pi && pi.insuredPerson ? pi.insuredPerson.firstName : "",
                     lastName: pi && pi.insuredPerson ? pi.insuredPerson.lastName : "",
                     birthday: pi && pi.insuredPerson && pi.insuredPerson.birthday ? pi.insuredPerson.birthday : "",
-                    phone: pi && pi.contact ? pi.contact : {
+                    phone: pi && pi.insuredPerson.contact ? pi.insuredPerson.contact : {
                         code: doctor_country?.phone,
                         value: "",
                         type: "phone",
@@ -137,7 +137,7 @@ const AddInsurance = ({...props}) => {
                         is_support: false
                     }
                 },
-                expand: false,
+                expand: pi ? pi.type !== 0 : false,
                 online: false
             }
         },
@@ -151,7 +151,7 @@ const AddInsurance = ({...props}) => {
     const router = useRouter();
     const {t: commonTranslation} = useTranslation("common");
 
-    const [selectedInsurance, setSelectedInsurance] = useState<InsuranceModel | null>(pi ? pi.insurance : null);
+    const [selected, setSelected] = useState<InsuranceModel | null>(pi ? pi.insurance : null);
     const [boxes, setBoxes] = useState<InsuranceBoxModel[]>([]);
     const [selectedBox, setSelectedBox] = useState<InsuranceBoxModel | null>(null);
     const [apcisList, setApcisList] = useState<ApciModel[]>([]);
@@ -186,6 +186,8 @@ const AddInsurance = ({...props}) => {
         }, {
             onSuccess: () => {
                 setAddNew(false)
+                setSelected(null);
+                setSelectedInsurance("");
                 mutatePatientInsurances && mutatePatientInsurances();
             }
         })
@@ -220,13 +222,13 @@ const AddInsurance = ({...props}) => {
     const {values, errors, touched, getFieldProps, setFieldValue} = formik;
 
     useEffect(() => {
-        if (selectedInsurance)
-            getApci(selectedInsurance.uuid)
+        if (selected)
+            getApci(selected.uuid)
         else {
             setApcisList([])
             setApcis([])
         }
-    }, [selectedInsurance]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [selected]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Stack spacing={1}>
@@ -273,7 +275,7 @@ const AddInsurance = ({...props}) => {
                                     if (res.length > 0) {
                                         const el = insurances.find(insc => insc.uuid === res[0].insurance.uuid)
                                         if (el) {
-                                            setSelectedInsurance(el)
+                                            setSelected(el)
                                             setBoxes(el.boxes)
                                             setFieldValue(`insurance.insurance_uuid`, el.uuid);
 
@@ -332,12 +334,12 @@ const AddInsurance = ({...props}) => {
                     {insurances && <Autocomplete
                         options={insurances}
                         getOptionLabel={(option) => option.name}
-                        value={selectedInsurance}
+                        value={selected}
                         popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
                         size={"small"}
                         isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
                         onChange={(event, newValue) => {
-                            setSelectedInsurance(newValue)
+                            setSelected(newValue)
                             if (newValue) {
                                 setFieldValue(`insurance.insurance_uuid`, newValue.uuid);
                                 setBoxes(newValue.boxes)
@@ -388,6 +390,7 @@ const AddInsurance = ({...props}) => {
                             value={getFieldProps(`insurance.insurance_type`) ?
                                 socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance.insurance_type`).value) : ""}
                             onChange={(event, insurance: any) => {
+                                console.log(insurance?.value)
                                 setFieldValue(`insurance.insurance_type`, insurance?.value)
                                 setFieldValue(`insurance.expand`, insurance?.key !== "socialInsured")
                             }}
@@ -549,7 +552,7 @@ const AddInsurance = ({...props}) => {
                 </Stack>
             </Collapse>
 
-            {selectedInsurance && selectedInsurance.hasApci && <Stack spacing={1} style={{width: "100%"}}>
+            {selected && selected.hasApci && <Stack spacing={1} style={{width: "100%"}}>
                 <Typography
                     className="label"
                     variant="body2"
@@ -593,7 +596,7 @@ const AddInsurance = ({...props}) => {
 
             </Stack>}
 
-            <Button variant={"contained"} onClick={handleUpdatePatient}>{t(pi ? 'edit' : 'save')}</Button>
+            <Button variant={"contained"} onClick={handleUpdatePatient}>{t(pi ? t('insurance.edit') : t('insurance.save'))}</Button>
         </Stack>
     );
 }

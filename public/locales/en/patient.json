@@ -418,7 +418,10 @@
     "startDate": "Start date",
     "endDate": "End date",
     "noInsurance": "No insurance for this patient",
-    "addInsurance": "Click on the « + » button to add insurance"
+    "addInsurance": "Click on the « + » button to add insurance",
+    "expire": "Expire",
+    "edit": "Edit",
+    "save": "Save"
   }
 
 }
