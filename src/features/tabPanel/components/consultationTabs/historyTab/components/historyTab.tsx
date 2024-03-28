@@ -15,8 +15,8 @@ import {AppointmentHistoryContent} from "@features/card/components/appointmentHi
 import Icon from "@themes/icon";
 import moment from "moment/moment";
 import {WidgetCharts} from "@features/tabPanel";
-import PediatricianCharts
-    from "@features/tabPanel/components/consultationTabs/pediatricianChart/components/pediatricianCharts";
+import {Pediatrician18Charts} from "@features/tabPanel/components/consultationTabs/pediatrician18Chart";
+import {PediatricianCharts} from "@features/tabPanel/components/consultationTabs/pediatricianChart";
 
 function HistoryTab({...props}) {
 
@@ -163,8 +163,13 @@ function HistoryTab({...props}) {
             {/****** Pediatrican charts ******/}
 
             {
-                patient?.birthdate && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") < 5 &&
+                patient?.birthdate && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") < 4 &&
                 <PediatricianCharts {...{sheet, birthdate: patient?.birthdate,modelData,date, t}}/>
+            }
+
+            {
+                patient?.birthdate  && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") > 5 && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") <= 18 && sheet &&  (Object.keys(sheet).includes("poids") || Object.keys(sheet).includes("taille")) &&
+                <Pediatrician18Charts {...{sheet, birthdate: patient?.birthdate,gender:patient?.gender,modelData,date, t}}/>
             }
             {/****** Latest appointment ******/}
             {latest_appointment && latest_appointment.length > 0 &&
