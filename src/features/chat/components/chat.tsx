@@ -160,7 +160,6 @@ const Chat = ({...props}) => {
             // Create two button elements
             const button1 = document.createElement("button");
             const button2 = document.createElement("button");
-console.log(element)
             // Set the text for the buttons
             button1.textContent = "Paiement";
             button2.textContent = "Planifier un RDV";
@@ -258,8 +257,7 @@ console.log(element)
         setHasMessage(false);
         checkTags()
         setTimeout(() => {
-
-        checkRdvs();
+            checkRdvs();
         }, 1000)
 
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -272,7 +270,7 @@ console.log(element)
                     top: refList.scrollHeight,
                     behavior: 'smooth',
                 });
-        }, 500)
+        }, 1100)
         checkTags()
 
     }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
