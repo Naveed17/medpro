@@ -8,9 +8,10 @@ import {
     sizeGirl,
     weightBoy,
     weightGirl
-} from "@features/tabPanel";
+} from "@features/tabPanel/components/consultationTabs/pediatrician18Chart/chartData";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
+
 
 function Pediatrician18Charts({...props}) {
 

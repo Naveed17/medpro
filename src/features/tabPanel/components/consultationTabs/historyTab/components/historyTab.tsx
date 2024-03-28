@@ -15,15 +15,13 @@ import {AppointmentHistoryContent} from "@features/card/components/appointmentHi
 import Icon from "@themes/icon";
 import moment from "moment/moment";
 import {WidgetCharts} from "@features/tabPanel";
-import PediatricianCharts
-    from "@features/tabPanel/components/consultationTabs/pediatricianChart/components/pediatricianCharts";
-import Pediatrician18Charts
-    from "@features/tabPanel/components/consultationTabs/pediatrician18Chart/components/pediatrician18Charts";
 import IconUrl from "@themes/urlIcon";
 import {agendaSelector} from "@features/calendar";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
+import {Pediatrician18Charts} from "@features/tabPanel/components/consultationTabs/pediatrician18Chart";
+import {PediatricianCharts} from "@features/tabPanel/components/consultationTabs/pediatricianChart";
 
 function HistoryTab({...props}) {
 

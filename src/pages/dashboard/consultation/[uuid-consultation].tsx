@@ -385,6 +385,10 @@ function ConsultationInProgress() {
 
         let _cards: any[] = [...cards];
         _cards[ind][index].expanded = true;
+
+        const _locPosition = JSON.parse(localStorage.getItem("cardPositions") as string)
+        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition,widget: true}))
+
         _cards[ind][index].config = false;
         setCards([..._cards])
     };
