@@ -20,8 +20,12 @@ import {agendaSelector} from "@features/calendar";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
-import {Pediatrician18Charts} from "@features/tabPanel/components/consultationTabs/pediatrician18Chart";
+
+const Pediatrician18Charts = dynamic(() => import("@features/tabPanel/components/consultationTabs/pediatrician18Chart/components/pediatrician18Charts"), {
+    ssr: false,
+});
 import {PediatricianCharts} from "@features/tabPanel/components/consultationTabs/pediatricianChart";
+import dynamic from "next/dynamic";
 
 function HistoryTab({...props}) {
 
@@ -217,6 +221,7 @@ function HistoryTab({...props}) {
                 patient?.birthdate && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") > 5 && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") <= 18 && sheet && (Object.keys(sheet).includes("poids") || Object.keys(sheet).includes("taille")) &&
                 <Pediatrician18Charts {...{
                     sheet,
+                    patient,
                     birthdate: patient?.birthdate,
                     gender: patient?.gender,
                     modelData,
