@@ -156,46 +156,49 @@ const Chat = ({...props}) => {
 
     const checkRdvs = () => {
         const rdvElements = document.querySelectorAll(".rdv");
-        rdvElements.forEach(element => {
+        rdvElements.forEach((element, index) => {
             // Create two button elements
-            const button1 = document.createElement("button");
-            const button2 = document.createElement("button");
-            // Set the text for the buttons
-            button1.textContent = "Paiement";
-            button2.textContent = "Planifier un RDV";
-            button1.className = "btn1"
-            button2.className = "btn2"
+            if (!document.getElementById(`${element.getAttribute("patient")}-btns${index}`)) {
+                const button1 = document.createElement("button");
+                const button2 = document.createElement("button");
+                // Set the text for the buttons
+                button1.textContent = "Paiement";
+                button2.textContent = "Planifier un RDV";
+                button1.className = "btn1"
+                button2.className = "btn2"
 
-            button1.onclick = () => {
-                setPatient({
-                    uuid: element.getAttribute("patient"),
-                    firstName: element.getAttribute("fn"),
-                    lastName: element.getAttribute("ln")
-                });
-                setOpenPaymentDialog(true)
-            }
-            button2.onclick = () => {
-                router.push("/dashboard/agenda").then(() => {
-                    dispatch(setStepperIndex(1));
-                    dispatch(setOpenChat(false))
-
-                    const _patient = {
+                button1.onclick = () => {
+                    setPatient({
                         uuid: element.getAttribute("patient"),
                         firstName: element.getAttribute("fn"),
                         lastName: element.getAttribute("ln")
-                    }
-                    dispatch(setAppointmentPatient(_patient as PatientWithNextAndLatestAppointment));
-                    (appointmentTypes && appointmentTypes.length > 1) && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
-                    dispatch(openDrawer({type: "add", open: true}));
-                });
-            }
+                    });
+                    setOpenPaymentDialog(true)
+                }
+                button2.onclick = () => {
+                    router.push("/dashboard/agenda").then(() => {
+                        dispatch(setStepperIndex(1));
+                        dispatch(setOpenChat(false))
 
-            // Append the buttons to the current element
-            const div = document.createElement("div")
-            div.className = "btnDiv"
-            div.appendChild(button1);
-            div.appendChild(button2);
-            element.appendChild(div);
+                        const _patient = {
+                            uuid: element.getAttribute("patient"),
+                            firstName: element.getAttribute("fn"),
+                            lastName: element.getAttribute("ln")
+                        }
+                        dispatch(setAppointmentPatient(_patient as PatientWithNextAndLatestAppointment));
+                        (appointmentTypes && appointmentTypes.length > 1) && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
+                        dispatch(openDrawer({type: "add", open: true}));
+                    });
+                }
+
+                // Append the buttons to the current element
+                const div = document.createElement("div")
+                div.className = "btnDiv"
+                div.id = `${element.getAttribute("patient")}-btns${index}`
+                div.appendChild(button1);
+                div.appendChild(button2);
+                element.appendChild(div);
+            }
         });
     }
 
@@ -256,23 +259,19 @@ const Chat = ({...props}) => {
     useEffect(() => {
         setHasMessage(false);
         checkTags()
-        setTimeout(() => {
-            checkRdvs();
-        }, 1000)
-
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
 
+        checkRdvs();
         setTimeout(() => {
             if (refList)
                 refList.scrollTo({
                     top: refList.scrollHeight,
                     behavior: 'smooth',
                 });
-        }, 1100)
+        }, 500)
         checkTags()
-
     }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
