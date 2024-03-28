@@ -117,18 +117,18 @@ const AddInsurance = ({...props}) => {
         enableReinitialize: true,
         initialValues: {
             insurance: {
-                insurance_book: "",
-                start_date: "",
-                end_date: "",
-                insurance_key: "",
+                insurance_book: pi ? pi.insuranceBook.insuranceNumber : "",
+                start_date: pi ? pi.insuranceBook.startDate : "",
+                end_date: pi ? pi.insuranceBook.endDate : "",
+                insurance_key:  "",
                 insurance_number: pi ? pi.insuranceNumber : "",
-                insurance_uuid: "",
-                insurance_type: "",
+                insurance_uuid: pi ? pi.insurance.uuid : "",
+                insurance_type: pi ? pi.type : "",
                 insurance_social: {
-                    firstName: "",
-                    lastName: "",
-                    birthday: "",
-                    phone: {
+                    firstName: pi && pi.insuredPerson ? pi.insuredPerson.firstName : "",
+                    lastName: pi && pi.insuredPerson ? pi.insuredPerson.lastName : "",
+                    birthday: pi && pi.insuredPerson && pi.insuredPerson.birthday ? pi.insuredPerson.birthday : "",
+                    phone: pi && pi.contact ? pi.contact : {
                         code: doctor_country?.phone,
                         value: "",
                         type: "phone",

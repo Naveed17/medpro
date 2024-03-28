@@ -290,8 +290,13 @@ function PaymentDialog({...props}) {
                                     variant="subtitle1"
                                     fontSize={12}
                                     ml={1}
+                                    style={{
+                                        textOverflow: "ellipsis",
+                                        overflow: "hidden",
+                                        width: 35
+                                    }}
                                     fontWeight={500}>
-                                    Fiche N°{patient.fiche_id}
+                                    {patient.fiche_id}
                                 </Typography>
                             </Label>}
                         </Stack>
