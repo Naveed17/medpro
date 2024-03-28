@@ -160,10 +160,10 @@ const Chat = ({...props}) => {
             // Create two button elements
             const button1 = document.createElement("button");
             const button2 = document.createElement("button");
-
+console.log(element)
             // Set the text for the buttons
-            button1.textContent = "Payment";
-            button2.textContent = "Planifier RDV";
+            button1.textContent = "Paiement";
+            button2.textContent = "Planifier un RDV";
             button1.className = "btn1"
             button2.className = "btn2"
 
@@ -257,10 +257,15 @@ const Chat = ({...props}) => {
     useEffect(() => {
         setHasMessage(false);
         checkTags()
+        setTimeout(() => {
+
+        checkRdvs();
+        }, 1000)
+
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        checkRdvs();
+
         setTimeout(() => {
             if (refList)
                 refList.scrollTo({
