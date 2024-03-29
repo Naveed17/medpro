@@ -56,7 +56,7 @@ function WidgetCharts({...props}) {
     return (
         <Stack spacing={1}>
             <ApexChart type="line"
-                       options={merge(ChartsOption(), chart.options)}
+                       options={merge(ChartsOption(), chart.option)}
                        series={chart.series}
                        height={200}
                        width={500}/>
