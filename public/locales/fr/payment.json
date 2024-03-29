@@ -248,7 +248,7 @@
       "dateArc": "Date Arch.",
       "refSlip": "Réf. bordereau",
       "ref": "Réf.",
-      "srart_date": "Date début",
+      "start_date": "Date début",
       "end_date": "Date fin",
       "act_reject": "Act. rejetés",
       "mtt_requested": "Mtt demandé",

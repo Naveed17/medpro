@@ -65,7 +65,7 @@ function InsuranceAppointmentRow({ ...props }) {
             </TableCell>
             <TableCell align="center">
                 {row ? (
-                    <Typography fontSize={13} fontWeight={600} color="text.primary">
+                    <Typography className="ellipsis" fontSize={13} fontWeight={600} color="text.primary">
                         {row.name}
                     </Typography>
                 ) : (

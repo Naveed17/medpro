@@ -22,7 +22,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
-import { InsuranceAppointMobileCard } from "@features/card";
+import { ArchiveInsuranceMobileCard, InsuranceAppointMobileCard } from "@features/card";
 
 function ConsultationInProgress() {
     const router = useRouter();
@@ -72,10 +72,10 @@ function ConsultationInProgress() {
             align: "left",
         },
         {
-            id: "srart_date",
+            id: "start_date",
             numeric: true,
             disablePadding: false,
-            label: "srart_date",
+            label: "start_date",
             sortable: true,
             align: "left",
         },
@@ -517,16 +517,23 @@ function ConsultationInProgress() {
                             <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-export-new" />}>{t("export")}</Button>
                         </Stack>
                     </Stack>
-                    <Otable
-                        {...{ t }}
-                        headers={headCellsArchiveSlip}
-                        //handleEvent={handleTableActions}
-                        rows={['1']}
-                        total={0}
-                        totalPages={1}
-                        from={"archive-insurance-slip"}
-                        pagination
-                    />
+                    <DesktopContainer>
+                        <Otable
+                            {...{ t }}
+                            headers={headCellsArchiveSlip}
+                            //handleEvent={handleTableActions}
+                            rows={['1']}
+                            total={0}
+                            totalPages={1}
+                            from={"archive-insurance-slip"}
+                            pagination
+                        />
+                    </DesktopContainer>
+                    <MobileContainer>
+                        <Stack p={2}>
+                            <ArchiveInsuranceMobileCard {...{ row: true, t }} />
+                        </Stack>
+                    </MobileContainer>
                 </Card>
             </TabPanel>
             <TabPanel padding={1} value={selectedTab} index={"stat"}>
