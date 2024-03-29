@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Card, Checkbox, FormControlLabel, Grid, Stack, Typography, useTheme} from "@mui/material";
 import 'react-h5-audio-player/lib/styles.css';
 import dynamic from "next/dynamic";
@@ -8,7 +8,7 @@ import {
     sizeGirl,
     weightBoy,
     weightGirl
-} from "@features/tabPanel/components/consultationTabs/pediatrician18Chart/chartData";
+} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
 import {PDFDocument, rgb} from "pdf-lib";
 import fontkit from '@pdf-lib/fontkit';
@@ -20,7 +20,7 @@ const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 function Pediatrician18Charts({...props}) {
     const theme = useTheme();
 
-    const [state, setState] = useState<any>(null);
+    const [state, setState] = useState<any>({series: [], options: {}});
     const [height, setHeight] = useState<boolean>(false);
     const [weight, setWeight] = useState<boolean>(true);
 
@@ -35,7 +35,8 @@ function Pediatrician18Charts({...props}) {
         const fontBytes = await fetch("/static/fonts/KidsBoys/KidsBoys.otf").then((res) => res.arrayBuffer());
         const customFont = await pdfDoc.embedFont(fontBytes);
         // load template pdf
-        const docFile = await fetch("/static/files/bebe-templete-pink.pdf").then((res) => res.arrayBuffer());
+        console.log("patient", patient)
+        const docFile = await fetch("/static/files/bebe-template-pink.pdf").then((res) => res.arrayBuffer());
         const templatePdfDoc = await PDFDocument.load(docFile);
         const pinkColor = rgb(0.9450980392156862, 0.4470588235294118, 0.6);
         const copiedPages = await pdfDoc.copyPages(templatePdfDoc, templatePdfDoc.getPageIndices());
@@ -247,8 +248,7 @@ function Pediatrician18Charts({...props}) {
 
             },
         })
-
-    }, [sheet, birthdate, height, weight, t]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [sheet, birthdate, height, weight]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Grid container spacing={1} marginBottom={2}>
@@ -292,7 +292,7 @@ function Pediatrician18Charts({...props}) {
                     {state && <ApexChart
                         type="line"
                         options={merge(ChartsOption(), state.options)}
-                        series={state.series}/>}
+                        series={state?.series}/>}
                 </Card>
             </Grid>
         </Grid>

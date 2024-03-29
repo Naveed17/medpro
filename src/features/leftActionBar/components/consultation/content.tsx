@@ -139,8 +139,8 @@ const Content = ({...props}) => {
             state.forEach((item: any) => {
 
                 item.data.forEach((data: any) => {
-                    if(data.start) data.start = moment(data.start).format('DD-MM-YYYY')
-                    if(data.end) data.end = moment(data.end).format('DD-MM-YYYY')
+                    if (data.start) data.start = moment(data.start).format('DD-MM-YYYY')
+                    if (data.end) data.end = moment(data.end).format('DD-MM-YYYY')
                     _res.push({
                         ...data,
                         uuid: item.uuid,
@@ -249,8 +249,8 @@ const Content = ({...props}) => {
     const getRes = (ants: any[]) => {
         let _res: any[] = [];
         ants.forEach(pa => {
-            if(pa.start) pa.start = moment(pa.start,"DD-MM-YYYY").format("YYYY-MM-DD")
-            if(pa.end) pa.end = moment(pa.start,"DD-MM-YYYY").format("YYYY-MM-DD")
+            if (pa.start) pa.start = moment(pa.start, "DD-MM-YYYY").format("YYYY-MM-DD")
+            if (pa.end) pa.end = moment(pa.start, "DD-MM-YYYY").format("YYYY-MM-DD")
             const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
             index === -1 ?
                 _res.push({
@@ -873,8 +873,9 @@ const Content = ({...props}) => {
                 title={t("removedoc")}
                 t={t}
                 actionDialog={
-                    <DialogActions>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
                         <Button
+                            variant={"text-black"}
                             onClick={() => {
                                 setOpenRemove(false);
                             }}
@@ -889,7 +890,7 @@ const Content = ({...props}) => {
                             onClick={dialogSave}>
                             {t("remove")}
                         </LoadingButton>
-                    </DialogActions>
+                    </Stack>
                 }
             />
 
@@ -913,8 +914,9 @@ const Content = ({...props}) => {
                     title={getTitle()}
                     dialogClose={handleClose}
                     actionDialog={
-                        <DialogActions>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
                             <Button
+                                variant={"text-black"}
                                 onClick={handleClose}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}
@@ -923,10 +925,10 @@ const Content = ({...props}) => {
                                 variant="contained"
                                 disabled={info === "add_treatment" && state?.length == 0}
                                 onClick={handleCloseDialog}
-                                startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                startIcon={<Icon path="iconfinder_save"/>}>
                                 {t("save")}
                             </Button>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
             )}
