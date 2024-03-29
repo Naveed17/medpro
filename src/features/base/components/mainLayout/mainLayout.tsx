@@ -12,7 +12,8 @@ import {
     Paper,
     PaperProps,
     Stack,
-    Typography, useMediaQuery,
+    Typography,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
 import axios from "axios";
@@ -388,7 +389,6 @@ function MainLayout({...props}) {
             dispatch(setMessagesRefresh(payload.message))
         }
     });
-
     const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
 
     return (
@@ -416,7 +416,9 @@ function MainLayout({...props}) {
                     medicalEntityHasUser,
                     medical_entity,
                     presenceData,
-                    setHasMessage
+                    setHasMessage,
+                    setOpenPaymentDialog,
+                    setNotificationData
                 }} />
             </Drawer>
 
@@ -564,10 +566,10 @@ function MainLayout({...props}) {
                     </Stack>
                 </Stack>}
                 {!isMobile && <Fab color="info"
-                      style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
-                      onClick={() => {
-                          dispatch(setOpenChat(true))
-                      }}>
+                                   style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                                   onClick={() => {
+                                       dispatch(setOpenChat(true))
+                                   }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
                         <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
