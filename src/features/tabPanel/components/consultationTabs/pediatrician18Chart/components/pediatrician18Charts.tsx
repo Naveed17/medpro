@@ -15,11 +15,20 @@ import fontkit from '@pdf-lib/fontkit';
 import {merge} from "lodash";
 import {ChartsOption} from "@features/charts";
 import {useRequestQueryMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {useRouter} from "next/router";
+import {PsychomotorDevelopmentXY} from "@lib/constants";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
 function Pediatrician18Charts({...props}) {
     const theme = useTheme();
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [state, setState] = useState<any>({series: [], options: {}});
     const [height, setHeight] = useState<boolean>(false);
@@ -38,7 +47,6 @@ function Pediatrician18Charts({...props}) {
         const fontBytes = await fetch("/static/fonts/KidsBoys/KidsBoys.otf").then((res) => res.arrayBuffer());
         const customFont = await pdfDoc.embedFont(fontBytes);
         // load template pdf
-        console.log("patient", patient)
         const docFile = await fetch(`/static/files/bebe-template-${patient.gender === "M" ? 'bleu' : 'pink'}.pdf`).then((res) => res.arrayBuffer());
         const templatePdfDoc = await PDFDocument.load(docFile);
         const pinkColor = rgb(0.9450980392156862, 0.4470588235294118, 0.6);
@@ -89,22 +97,7 @@ function Pediatrician18Charts({...props}) {
                 font: customFont,
                 color: textColor
             })
-            // Draw bebe First acts
-            copiedPages[0].drawText(patient.firstName, {
-                x: 354,
-                y: 512,
-                size: 16,
-                font: customFont,
-                color: textColor
-            })
-            copiedPages[0].drawText('13 / 06 / 2023', {
-                x: 396,
-                y: 480,
-                size: 12,
-                font: customFont,
-                color: textColor
-            })
-            // Draw bebe poid/taille
+            // Draw bebe weight / size
             const weight = Object.values(sheet.poids.data).slice(-1)[0] as string;
             copiedPages[0].drawText(`${weight} Kg`, {
                 x: 98,
@@ -130,13 +123,43 @@ function Pediatrician18Charts({...props}) {
                 color: textColor
             })
 
-            // Add page tok pdf file
-            pdfDoc.addPage(copiedPages[0]);
-            // Save as base64
-            const mergedPdf = await pdfDoc.saveAsBase64();
-            // Dynamic import print-js and print file
-            const printJS = (await import('print-js')).default
-            printJS({printable: mergedPdf, type: 'pdf', base64: true})
+            // Get patient antecedents
+            medicalEntityHasUser && triggerAntecedentsPatient({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/antecedents/${router.locale}`
+            }, {
+                onSuccess: (result) => {
+                    // Draw bebe First acts
+                    const antecedents = ((result?.data as HttpResponse)?.data['Développementpsychomoteur'] ?? []) as AntecedentsModel[];
+                    if (antecedents) {
+                        antecedents.forEach((antecedent) => {
+                            const data = PsychomotorDevelopmentXY.find(item => item.key === antecedent.name)
+                            data?.coordinates && Object.keys(data.coordinates).forEach(key => {
+                                if (antecedent[key as keyof typeof antecedent]) {
+                                    const coordinates = data?.coordinates[key as keyof typeof data.coordinates];
+                                    copiedPages[0].drawText(antecedent[key as keyof typeof antecedent], {
+                                        x: coordinates?.x,
+                                        y: coordinates?.y,
+                                        size: coordinates?.size,
+                                        font: customFont,
+                                        color: textColor
+                                    })
+                                }
+                            })
+                        })
+
+                    }
+                },
+                onSettled: async () => {
+                    // Add page tok pdf file
+                    pdfDoc.addPage(copiedPages[0]);
+                    // Save as base64
+                    const mergedPdf = await pdfDoc.saveAsBase64();
+                    // Dynamic import print-js and print file
+                    const printJS = (await import('print-js')).default
+                    printJS({printable: mergedPdf, type: 'pdf', base64: true})
+                }
+            });
         });
     }
 

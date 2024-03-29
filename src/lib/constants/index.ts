@@ -241,3 +241,19 @@ export const generatedDocs = ['prescription', 'requested-analysis', 'requested-m
 export const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
 
 export const multiMedias = ['video', 'audio', 'photo'];
+
+export const PsychomotorDevelopmentXY = [
+    {
+        key: "Premiers mots",
+        coordinates: {
+            startDate: {x: 396, y: 480, size: 12},
+            note: {x: 354, y: 512, size: 16}
+        }
+    },
+    {
+        key: "Station debout",
+        coordinates: {
+            startDate: {x: 492, y: 496, size: 12}
+        }
+    }
+]
