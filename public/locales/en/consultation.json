@@ -220,6 +220,8 @@
     "noRequest-description": "Please select your requests",
     "drag-imagery": "Drag and drop medical imaging",
     "medical_procedures": "Fee Note",
+    "service": "Service",
+    "add_act": "Add act ",
     "consultation": "Consultation",
     "seeRes": "See result",
     "reason": "Reason",
@@ -542,6 +544,7 @@
       }
     }
   },
+  "service": "Service",
   "table": {
     "acts": "Acts",
     "title": "Title",
@@ -561,13 +564,15 @@
     "check": "Check",
     "quality": "Quantity",
     "total": "Total",
+    "fees": "Fees",
+    "reimb": "Reimbursement",
     "documents": "Documents",
     "created-at": "Created at",
     "#": "#",
     "send_the_link": "Send questionnaire link",
     "date_of_appointment": "Date of appointment",
     "see_details": "See details",
-    "rem_amount": "Reimbursement"
+    "empty": ""
   },
   "tracking_data": "Tracking data",
   "exempleFees": "Search ...",

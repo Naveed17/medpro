@@ -125,12 +125,12 @@ function CIPMedicalProceduresRow({ ...props }) {
 
             </TableCell>
             <TableCell align="center">
-                {/*<InputBaseStyled
+                <InputBaseStyled
                     size="small"
                     sx={{
                         fontSize: 13, fontWeight: 600, input: {
                             p: .5,
-                            textAlign: (row.contribution || row.contribution === 0) && row.contribution !== null ? "left" : "center"
+                            textAlign:  "center"
                         }
                     }}
                     readOnly={!row.selected}
@@ -158,9 +158,7 @@ function CIPMedicalProceduresRow({ ...props }) {
                             debouncedOnChange(row.uuid)
                         }
                     }}
-                />*/}
-
-
+                />
             </TableCell>
             <TableCell align={"center"}>
                 {row.selected && row.uuid !== 'consultation_type' ? (

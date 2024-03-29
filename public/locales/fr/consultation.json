@@ -136,6 +136,7 @@
   "wait": "quelques instants...",
   "quote": "Devis",
   "noData": "Aucune données",
+  "service": "Prestation",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -565,14 +566,14 @@
     "check": "Contrôle",
     "quality": "Qte.",
     "total": "Total",
+    "fees": "Honoraires",
+    "reimb": "Mnt de Remb.",
     "documents": "Documents",
     "created-at": "Crée le",
     "send_the_link": "Envoyer le lien du questionnaire",
     "date_of_appointment": "Date du rendez-vous",
     "see_details": "Voir détails",
-    "empty": "",
-    "fees": "Honoraires",
-    "rem_amount": "Mnt de Remb."
+    "empty": ""
   },
   "tracking_data": "Données de suivi",
   "exempleFees": "Recherche...",

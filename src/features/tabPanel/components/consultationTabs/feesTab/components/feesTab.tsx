@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {
     Box,
-    Button,
     Card,
     CardContent,
     Collapse,
-    IconButton, InputAdornment,
+    IconButton,
+    InputAdornment,
     LinearProgress,
-    Stack, TextField,
+    Stack,
+    TextField,
     Typography,
     useTheme
 } from "@mui/material";
@@ -18,7 +19,6 @@ import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {getBirthdayFormat, useMutateOnGoing} from "@lib/hooks";
-import {Add} from "@mui/icons-material";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment";
 
@@ -60,7 +60,7 @@ function FeesTab({...props}) {
             id: "amount",
             numeric: true,
             disablePadding: false,
-            label: "rem_amount",
+            label: "reimb",
             sortable: true,
             align: "center",
         },
@@ -90,7 +90,6 @@ function FeesTab({...props}) {
         },
 
     ];
-
     const {
         acts,
         setActs,
@@ -111,7 +110,6 @@ function FeesTab({...props}) {
         setOpenDialog,
         setState
     } = props;
-
 
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
     const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
@@ -226,17 +224,17 @@ function FeesTab({...props}) {
 
                 <DesktopContainer>
 
-                    <Card style={{height:"57vh"}}>
-                        <CardContent style={{padding:0}}>
+                    <Card style={{height: "57vh"}}>
+                        <CardContent style={{padding: 0}}>
                             <Stack direction='row' pt={1} pl={2} pr={2} alignItems={{xs: 'flex-start', md: 'center'}}
                                    justifyContent="space-between" mb={2} pb={1} borderBottom={1}
                                    borderColor='divider'>
                                 <Typography fontWeight={700} mt={1} mb={1}>
-                                    {t("consultationIP.service")}
+                                    {t("service")}
                                 </Typography>
                                 <Stack direction={'row'} alignItems="center" spacing={1}>
                                     {!isQuoteRequest && <Stack direction={'row'} spacing={1} alignItems={"flex-end"}>
-                                        <IconButton onClick={(event)=>{
+                                        <IconButton onClick={(event) => {
                                             setOpenDialogSave(true);
                                             let type = "";
                                             if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -247,24 +245,29 @@ function FeesTab({...props}) {
                                             setState({
                                                 type: "fees",
                                                 name: "Honoraire",
-                                                info: acts.filter((act: { selected:boolean }) => act.selected),
+                                                info: acts.filter((act: { selected: boolean }) => act.selected),
                                                 createdAt: moment().format("DD/MM/YYYY"),
                                                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                                 patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
                                             });
                                             setOpenDialog(true);
 
-                                        }} style={{width:40,height:40,borderRadius:10,background:theme.palette.grey['A500']}}>
-                                            <IconUrl  width={16} height={16} path="menu/ic-print"/>
+                                        }} style={{
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: 10,
+                                            background: theme.palette.grey['A500']
+                                        }}>
+                                            <IconUrl width={16} height={16} path="menu/ic-print"/>
                                         </IconButton>
-                                        <Button variant="contained" startIcon={<Add/>}>
+                                        {/*<Button variant="contained" startIcon={<Add/>}>
                                             {t("consultationIP.add_act")}
-                                        </Button>
+                                        </Button>*/}
                                     </Stack>}
                                 </Stack>
                             </Stack>
                             {loading && <LinearProgress/>}
-                            <Collapse in={!loading} style={{maxHeight:"47vh",overflow:"auto",padding:0}}>
+                            <Collapse in={!loading} style={{maxHeight: "47vh", overflow: "auto", padding: 0}}>
 
                                 {!isQuoteRequest && <Stack pl={2} pr={2}>
                                     <TextField
@@ -314,7 +317,7 @@ function FeesTab({...props}) {
                                 <CardContent>
                                     <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
                                         <Typography variant="body2">
-                                            {t("table.rem_amount")}
+                                            {t("table.reimb")}
                                         </Typography>
                                         <Typography fontWeight={700}>
                                             0 {devise}

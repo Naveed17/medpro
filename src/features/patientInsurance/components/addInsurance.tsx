@@ -128,7 +128,7 @@ const AddInsurance = ({...props}) => {
                     firstName: pi && pi.insuredPerson ? pi.insuredPerson.firstName : "",
                     lastName: pi && pi.insuredPerson ? pi.insuredPerson.lastName : "",
                     birthday: pi && pi.insuredPerson && pi.insuredPerson.birthday ? pi.insuredPerson.birthday : "",
-                    phone: pi && pi.insuredPerson.contact ? pi.insuredPerson.contact : {
+                    phone: pi && pi.insuredPerson && pi.insuredPerson.contact ? pi.insuredPerson.contact : {
                         code: doctor_country?.phone,
                         value: "",
                         type: "phone",

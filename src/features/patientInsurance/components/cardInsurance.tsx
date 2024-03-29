@@ -15,7 +15,7 @@ const CardInsurance = ({...props}) => {
             <Stack>
                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                     <Typography className={"name"}>{pi.insurance.name}</Typography>
-                    <Typography className={"title"}>{t(`social_insured.${SocialInsured.find(si =>si.value == pi.type)?.label}`)}</Typography>
+                    <Typography className={"title"}>{t(`social_insured.${SocialInsured.find(si =>si.value == pi.type)?.label}`, {ns: "common"})}</Typography>
                 </Stack>
                 <Stack direction={"row"} spacing={1}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
