@@ -28,7 +28,7 @@ import {resetAppointment, setAppointmentPatient, setOpenUploadDialog} from "@fea
 import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
-import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
+import {Antecedent} from "@features/leftActionBar";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
@@ -37,7 +37,6 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useAntecedentTypes} from "@lib/hooks/rest";
-
 import {LoadingScreen} from "@features/loadingScreen";
 
 const Content = ({...props}) => {
