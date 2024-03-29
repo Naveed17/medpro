@@ -4,28 +4,24 @@ import {Box, Button, Collapse, Drawer, Stack, Typography, useTheme} from "@mui/m
 import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, Dialog, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import HistoryStyled
-    from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
+import HistoryStyled from "./overrides/historyStyled";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {HistoryCard, PatientHistoryStaticCard} from "@features/card";
-import {AppointmentHistoryPreview} from "@features/card/components/appointmentHistoryPreview";
+import {
+    HistoryCard,
+    PatientHistoryStaticCard,
+    AppointmentHistoryPreview,
+    AppointmentHistoryContent
+} from "@features/card";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
-import {AppointmentHistoryContent} from "@features/card/components/appointmentHistoryContent";
 import Icon from "@themes/icon";
 import moment from "moment/moment";
-import {WidgetCharts} from "@features/tabPanel";
+import {Pediatrician18Charts, PediatricianCharts, WidgetCharts} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
 import {agendaSelector} from "@features/calendar";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
-
-const Pediatrician18Charts = dynamic(() => import("@features/tabPanel/components/consultationTabs/pediatrician18Chart/components/pediatrician18Charts"), {
-    ssr: false,
-});
-import {PediatricianCharts} from "@features/tabPanel/components/consultationTabs/pediatricianChart";
-import dynamic from "next/dynamic";
 
 function HistoryTab({...props}) {
 
@@ -180,31 +176,36 @@ function HistoryTab({...props}) {
                         {keys.map((key: string) => (
                             <tbody key={key}>
                             <tr>
-                                <td style={{minWidth: 120}}><Typography
-                                    className={"keys col"}
-                                    style={{
-                                        width: "100%",
-                                        whiteSpace: "nowrap",
-                                        display: "flex",
-                                        gap: 5,
-                                        paddingBottom: 8
-                                    }}>
-                                    <div onClick={() => setSelectedKey(selectedKey === key ? "" : key)}>
+                                <td style={{minWidth: 120}}>
+                                    <Stack direction={"row"} alignItems={"center"}>
+                                         <span onClick={() => setSelectedKey(selectedKey === key ? "" : key)}>
                                         <IconUrl path={"status-up"}/>
-                                    </div>
-                                    {sheet[key]['label']}
-                                </Typography>
+                                    </span>
+                                        <Typography
+                                            className={"keys col"}
+                                            style={{
+                                                width: "100%",
+                                                whiteSpace: "nowrap",
+                                                display: "flex",
+                                                gap: 5,
+                                                paddingBottom: 8
+                                            }}>
+                                            {sheet[key]['label']}
+                                        </Typography>
+                                    </Stack>
+
                                 </td>
                                 {dates.map((date: string) => (<td key={date}><Typography
                                     className={"data col"}>{sheet[key]['data'][date] ? sheet[key]['data'][date] + sheet[key]['description'] : '-'}</Typography>
                                 </td>))}
                             </tr>
                             <tr>
-                                <Collapse in={selectedKey === key}>
-                                    {selectedKey === key && <WidgetCharts {...{sheet, selectedKey}}/>}
-                                </Collapse>
+                                <td>
+                                    <Collapse in={selectedKey === key}>
+                                        {selectedKey === key && <WidgetCharts {...{sheet, selectedKey}}/>}
+                                    </Collapse>
+                                </td>
                             </tr>
-
                             </tbody>
                         ))}
                     </HistoryStyled>}

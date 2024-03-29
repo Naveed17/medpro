@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Button, Card, Checkbox, FormControlLabel, Grid, Stack, Typography, useTheme} from "@mui/material";
 import 'react-h5-audio-player/lib/styles.css';
 import dynamic from "next/dynamic";
@@ -8,23 +8,26 @@ import {
     sizeGirl,
     weightBoy,
     weightGirl
-} from "@features/tabPanel/components/consultationTabs/pediatrician18Chart/chartData";
+} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
-import {PDFDocument, rgb} from "pdf-lib";
+import {PDFDocument, rgb, degrees} from "pdf-lib";
 import fontkit from '@pdf-lib/fontkit';
 import {merge} from "lodash";
 import {ChartsOption} from "@features/charts";
+import {useRequestQueryMutation} from "@lib/axios";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
 function Pediatrician18Charts({...props}) {
     const theme = useTheme();
 
-    const [state, setState] = useState<any>(null);
+    const [state, setState] = useState<any>({series: [], options: {}});
     const [height, setHeight] = useState<boolean>(false);
     const [weight, setWeight] = useState<boolean>(true);
 
     const {patient, sheet, birthdate, gender, modelData, date, t} = props;
+
+    const {trigger: triggerAntecedentsPatient} = useRequestQueryMutation("/antecedents/patient/get");
 
     const generatePdfTemplate = async () => {
         // init doc
@@ -35,9 +38,12 @@ function Pediatrician18Charts({...props}) {
         const fontBytes = await fetch("/static/fonts/KidsBoys/KidsBoys.otf").then((res) => res.arrayBuffer());
         const customFont = await pdfDoc.embedFont(fontBytes);
         // load template pdf
-        const docFile = await fetch("/static/files/bebe-templete-pink.pdf").then((res) => res.arrayBuffer());
+        console.log("patient", patient)
+        const docFile = await fetch(`/static/files/bebe-template-${patient.gender === "M" ? 'bleu' : 'pink'}.pdf`).then((res) => res.arrayBuffer());
         const templatePdfDoc = await PDFDocument.load(docFile);
         const pinkColor = rgb(0.9450980392156862, 0.4470588235294118, 0.6);
+        const bleuColor = rgb(0, 0.6823529411764706, 0.9372549019607843);
+        const textColor = patient.gender === "M" ? bleuColor : pinkColor;
         const copiedPages = await pdfDoc.copyPages(templatePdfDoc, templatePdfDoc.getPageIndices());
         // ApexCharts export chart image
         ApexCharts.exec("chart-growth", "dataURI").then(async ({imgURI}: any) => {
@@ -55,29 +61,33 @@ function Pediatrician18Charts({...props}) {
                 x: 115,
                 y: 344,
                 size: 12,
+                rotate: degrees(2),
                 font: customFont,
-                color: pinkColor
+                color: textColor
             })
             copiedPages[0].drawText(`${patient.firstName} ${patient.lastName}`, {
                 x: 170,
                 y: 344,
                 size: 16,
+                rotate: degrees(2),
                 font: customFont,
-                color: pinkColor
+                color: textColor
             })
             copiedPages[0].drawText(`née le ${birthdate}`, {
                 x: 134,
                 y: 326,
                 size: 12,
+                rotate: degrees(2),
                 font: customFont,
-                color: pinkColor
+                color: textColor
             })
             copiedPages[0].drawText(`Ma Maman Salma & Mon Papa Sélim`, {
                 x: 110,
                 y: 310,
                 size: 12,
+                rotate: degrees(2),
                 font: customFont,
-                color: pinkColor
+                color: textColor
             })
             // Draw bebe First acts
             copiedPages[0].drawText(patient.firstName, {
@@ -85,14 +95,14 @@ function Pediatrician18Charts({...props}) {
                 y: 512,
                 size: 16,
                 font: customFont,
-                color: pinkColor
+                color: textColor
             })
             copiedPages[0].drawText('13 / 06 / 2023', {
                 x: 396,
                 y: 480,
                 size: 12,
                 font: customFont,
-                color: pinkColor
+                color: textColor
             })
             // Draw bebe poid/taille
             const weight = Object.values(sheet.poids.data).slice(-1)[0] as string;
@@ -101,7 +111,7 @@ function Pediatrician18Charts({...props}) {
                 y: 240,
                 size: 14,
                 font: customFont,
-                color: pinkColor
+                color: textColor
             })
 
             const size = Object.values(sheet.taille.data).slice(-1)[0]?.toString();
@@ -110,14 +120,14 @@ function Pediatrician18Charts({...props}) {
                 y: 240,
                 size: 14,
                 font: customFont,
-                color: pinkColor
+                color: textColor
             })
             // Draw bebe eye color
             copiedPages[0].drawCircle({
                 x: 91.2,
                 y: 58.8,
                 size: 2.6,
-                color: pinkColor
+                color: textColor
             })
 
             // Add page tok pdf file
@@ -247,8 +257,7 @@ function Pediatrician18Charts({...props}) {
 
             },
         })
-
-    }, [sheet, birthdate, height, weight, t]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [sheet, birthdate, height, weight]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Grid container spacing={1} marginBottom={2}>
@@ -292,7 +301,7 @@ function Pediatrician18Charts({...props}) {
                     {state && <ApexChart
                         type="line"
                         options={merge(ChartsOption(), state.options)}
-                        series={state.series}/>}
+                        series={state?.series}/>}
                 </Card>
             </Grid>
         </Grid>
