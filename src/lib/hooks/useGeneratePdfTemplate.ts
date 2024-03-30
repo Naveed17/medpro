@@ -8,7 +8,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks/index";
 import {useRouter} from "next/router";
 
-function useGeneratePdfTemplate(patient: PatientModel, sheet: any) {
+function useGeneratePdfTemplate() {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -16,7 +16,7 @@ function useGeneratePdfTemplate(patient: PatientModel, sheet: any) {
 
     const {trigger: triggerAntecedentsPatient} = useRequestQueryMutation("/antecedents/patient/get");
 
-    const generatePdfTemplate = useCallback(async () => {
+    const generatePdfTemplate = useCallback(async (patient: PatientModel, sheet: any) => {
         // init doc
         const pdfDoc = await PDFDocument.create();
         //init font kit
@@ -32,7 +32,6 @@ function useGeneratePdfTemplate(patient: PatientModel, sheet: any) {
         const textColor = patient.gender === "M" ? bleuColor : pinkColor;
         const copiedPages = await pdfDoc.copyPages(templatePdfDoc, templatePdfDoc.getPageIndices());
         // ApexCharts export chart image
-        const ApexCharts = (await import('apexcharts')).default;
         ApexCharts.exec("chart-growth", "dataURI").then(async ({imgURI}: any) => {
             const chartGrowthBytes = await fetch(imgURI).then((res) => res.arrayBuffer())
             const chartGrowth = await pdfDoc.embedPng(chartGrowthBytes);
@@ -140,7 +139,7 @@ function useGeneratePdfTemplate(patient: PatientModel, sheet: any) {
                 }
             });
         });
-    }, [medicalEntityHasUser, patient.birthdate, patient.firstName, patient.gender, patient.lastName, patient.uuid, router.locale, sheet?.poids.data, sheet?.taille.data, triggerAntecedentsPatient, urlMedicalEntitySuffix])
+    }, [medicalEntityHasUser, router.locale, triggerAntecedentsPatient, urlMedicalEntitySuffix])
 
     return {generatePdfTemplate}
 }

@@ -34,7 +34,7 @@ function useRequestInfiniteQuery<Data = unknown, Error = unknown>(request: GetRe
         ({signal, pageParam = (isMobile ? 0 : 1)}) =>
             ((request?.url?.length ?? 0) > 0 && queryKey.length > 0) ? instanceAxios.request<Data>({
                 ...request,
-                params: {page: isMobile ? pageParam + 1 : pageParam},
+                ...(isMobile && {params: {page: pageParam + 1}}),
                 ...(variables?.query && {url: `${request?.url}${variables.query}`}),
                 ...(!request?.url?.includes("/api/public") && {
                     headers: {
