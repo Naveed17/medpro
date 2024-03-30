@@ -31,7 +31,6 @@ export default function Pagination({...props}) {
             </Typography>
             <BasicPagination
                 onChange={(e, v) => {
-                    console.log("pagination", page, v);
                     const previousPage = page;
                     setPage(v);
                     router.replace({

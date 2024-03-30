@@ -7,16 +7,22 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks/index";
 import {useRouter} from "next/router";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
-function useGeneratePdfTemplate(patient: PatientModel, sheet: any) {
+function useGeneratePdfTemplate() {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional;
+
     const {trigger: triggerAntecedentsPatient} = useRequestQueryMutation("/antecedents/patient/get");
 
-    const generatePdfTemplate = useCallback(async () => {
+    const generatePdfTemplate = useCallback(async (patient: PatientModel, sheet: any) => {
         // init doc
         const pdfDoc = await PDFDocument.create();
         //init font kit
@@ -32,7 +38,6 @@ function useGeneratePdfTemplate(patient: PatientModel, sheet: any) {
         const textColor = patient.gender === "M" ? bleuColor : pinkColor;
         const copiedPages = await pdfDoc.copyPages(templatePdfDoc, templatePdfDoc.getPageIndices());
         // ApexCharts export chart image
-        const ApexCharts = (await import('apexcharts')).default;
         ApexCharts.exec("chart-growth", "dataURI").then(async ({imgURI}: any) => {
             const chartGrowthBytes = await fetch(imgURI).then((res) => res.arrayBuffer())
             const chartGrowth = await pdfDoc.embedPng(chartGrowthBytes);
@@ -101,7 +106,26 @@ function useGeneratePdfTemplate(patient: PatientModel, sheet: any) {
                 size: 2.6,
                 color: textColor
             })
-
+            // Get doctor QR code
+            const canvas = document.getElementById('qr-canva')?.children[0] as HTMLCanvasElement;
+            const contentDataURL = canvas?.toDataURL('image/png');
+            const qrCodeBytes = await fetch(contentDataURL).then((res) => res.arrayBuffer());
+            const pngImage = await pdfDoc.embedPng(qrCodeBytes);
+            const pngImageDims = pngImage.scale(0.3);
+            copiedPages[0].drawImage(pngImage, {
+                x: 309,
+                y: 32,
+                width: pngImageDims.width,
+                height: pngImageDims.height,
+            })
+            // Draw doctor details
+            copiedPages[0].drawText(`${medical_professional?.civility.shortName} ${medical_professional?.publicName}`, {
+                x: 718,
+                y: 329,
+                size: 16,
+                font: customFont,
+                color: textColor
+            })
             // Get patient antecedents
             medicalEntityHasUser && triggerAntecedentsPatient({
                 method: "GET",
@@ -140,7 +164,7 @@ function useGeneratePdfTemplate(patient: PatientModel, sheet: any) {
                 }
             });
         });
-    }, [medicalEntityHasUser, patient.birthdate, patient.firstName, patient.gender, patient.lastName, patient.uuid, router.locale, sheet?.poids.data, sheet?.taille.data, triggerAntecedentsPatient, urlMedicalEntitySuffix])
+    }, [medicalEntityHasUser, router.locale, triggerAntecedentsPatient, urlMedicalEntitySuffix]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return {generatePdfTemplate}
 }

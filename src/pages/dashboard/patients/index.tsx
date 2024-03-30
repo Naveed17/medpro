@@ -345,7 +345,7 @@ function Patients() {
         } : null,
         {
             ...ReactQueryNoValidateConfig,
-            ...(medicalEntityHasUser && {variables: {query: `?limit=10&withPagination=true${router.query.params ?? localFilter}`}})
+            ...(medicalEntityHasUser && {variables: {query: `?${!isMobile ? `page=${page}&` : ""}limit=10&withPagination=true${router.query.params ?? localFilter}`}})
         });
 
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
@@ -611,16 +611,6 @@ function Patients() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (!isMobile && (new URL(location.href)).searchParams.get("previousPage")) {
-            if (isNext) {
-                fetchNextPage({pageParam: page});
-            } else {
-                fetchPreviousPage({pageParam: page});
-            }
-        }
-    }, [isNext]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         //remove query params on load from url

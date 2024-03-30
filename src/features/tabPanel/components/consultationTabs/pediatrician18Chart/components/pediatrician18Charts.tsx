@@ -18,14 +18,54 @@ const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
 function Pediatrician18Charts({...props}) {
     const theme = useTheme();
+    const {generatePdfTemplate} = useGeneratePdfTemplate();
 
-    const [state, setState] = useState<any>({series: [], options: {}});
+    const [state, setState] = useState<any>({
+        series: [],
+        options: {
+            chart: {
+                id: "chart-growth",
+                height: 350,
+                //fontFamily: "KidsBoys",
+                toolbar: {
+                    tools: {
+                        download: true,
+                        selection: false,
+                        zoom: false,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: false,
+                        reset: false,
+                        customIcons: []
+                    },
+                }
+            },
+            hover: {
+                filter: {
+                    type: 'none',
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            legend: {
+                verticalAlign: "center",
+                position: 'right'
+            },
+            colors: [],
+            markers: {
+                size: [0, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 5]
+            },
+            stroke: {
+                width: 2,
+                dashArray: []
+            },
+        }
+    });
     const [height, setHeight] = useState<boolean>(false);
     const [weight, setWeight] = useState<boolean>(true);
 
     const {patient, sheet, birthdate, gender, modelData, date, t} = props;
-
-    const {generatePdfTemplate} = useGeneratePdfTemplate(patient, sheet);
 
     useEffect(() => {
         let patientHeight: { x: number, y: number }[] = []
@@ -169,7 +209,7 @@ function Pediatrician18Charts({...props}) {
                             }}/>} label={t('pediatrician.size')}/>
                         </Stack>
 
-                        {state && <Button
+                        <Button
                             variant="text-black"
                             size={"small"}
                             sx={{
@@ -179,16 +219,16 @@ function Pediatrician18Charts({...props}) {
                             }}
                             onClick={async (event) => {
                                 event.stopPropagation();
-                                await generatePdfTemplate();
+                                await generatePdfTemplate(patient, sheet);
                             }}
                             startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
                             {t("consultationIP.print")}
-                        </Button>}
+                        </Button>
                     </Stack>
-                    {state && <ApexChart
+                    <ApexChart
                         type="line"
                         options={merge(ChartsOption(), state.options)}
-                        series={state?.series}/>}
+                        series={state?.series}/>
                 </Card>
             </Grid>
         </Grid>

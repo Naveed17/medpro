@@ -261,5 +261,17 @@ export const PsychomotorDevelopmentXY = [
         coordinates: {
             startDate: {x: 338, y: 380, size: 12}
         }
+    },
+    {
+        key: "Marche sans appui",
+        coordinates: {
+            startDate: {x: 564, y: 426, size: 12}
+        }
+    },
+    {
+        key: "Propreté nocturne et diurne",
+        coordinates: {
+            startDate: {x: 522, y: 361, size: 12}
+        }
     }
 ]
