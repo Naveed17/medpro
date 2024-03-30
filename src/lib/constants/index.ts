@@ -246,7 +246,7 @@ export const PsychomotorDevelopmentXY = [
     {
         key: "Premiers mots",
         coordinates: {
-            startDate: {x: 396, y: 480, size: 12},
+            startDate: {x: 394, y: 480, size: 12},
             note: {x: 354, y: 512, size: 16}
         }
     },
@@ -254,6 +254,12 @@ export const PsychomotorDevelopmentXY = [
         key: "Station debout",
         coordinates: {
             startDate: {x: 492, y: 496, size: 12}
+        }
+    },
+    {
+        key: "Station assise",
+        coordinates: {
+            startDate: {x: 338, y: 380, size: 12}
         }
     }
 ]
