@@ -106,8 +106,7 @@ function useGeneratePdfTemplate() {
                 size: 2.6,
                 color: textColor
             })
-            // Draw doctor details
-            // get QR code parent container
+            // Get doctor QR code
             const canvas = document.getElementById('qr-canva')?.children[0] as HTMLCanvasElement;
             const contentDataURL = canvas?.toDataURL('image/png');
             const qrCodeBytes = await fetch(contentDataURL).then((res) => res.arrayBuffer());
@@ -119,7 +118,7 @@ function useGeneratePdfTemplate() {
                 width: pngImageDims.width,
                 height: pngImageDims.height,
             })
-            console.log("contentDataURL", contentDataURL)
+            // Draw doctor details
             copiedPages[0].drawText(`${medical_professional?.civility.shortName} ${medical_professional?.publicName}`, {
                 x: 718,
                 y: 329,
