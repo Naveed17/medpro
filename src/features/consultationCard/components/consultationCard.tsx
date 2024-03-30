@@ -44,7 +44,6 @@ function ConsultationCard({...props}: any) {
         dispatch,
         printGlasses,
         isClose,
-        session,
         changeModel,
         acts,
         loading,
