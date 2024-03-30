@@ -198,7 +198,6 @@ function ConsultationCard({...props}: any) {
                                                                     dispatch,
                                                                     mini: true,
                                                                     t,
-                                                                    session,
                                                                     acts,
                                                                     direction,
                                                                     mutate: mutatePatient,

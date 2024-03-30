@@ -22,6 +22,9 @@ import {agendaSelector} from "@features/calendar";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useQRCode} from "next-qrcode";
 
 function HistoryTab({...props}) {
 
@@ -29,7 +32,6 @@ function HistoryTab({...props}) {
         patient,
         dispatch,
         t,
-        session,
         direction,
         setOpenDialog,
         showDoc,
@@ -45,6 +47,8 @@ function HistoryTab({...props}) {
     let dates: string[] = [];
     let keys: string[] = [];
     const theme = useTheme();
+    const {data: session} = useSession();
+    const {Canvas} = useQRCode();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t: commonTranslation} = useTranslation("common");
@@ -52,6 +56,9 @@ function HistoryTab({...props}) {
     const {selectedApp} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
+
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional;
 
     const {data: httpPatientHistory, mutate: mutatePatientHistory} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
@@ -211,6 +218,30 @@ function HistoryTab({...props}) {
                     </HistoryStyled>}
             </div>
 
+            {/****** Doctor QR CODE ******/}
+            {medical_professional &&
+                <div className='hidden' id={'qr-canva'}>
+                    <Canvas
+                        key={"qrUrl"}
+                        text={medical_professional?.webUrl ?? ""}
+                        options={{
+                            errorCorrectionLevel: 'H',
+                            margin: 0,
+                            color: {
+                                dark: '#000000',
+                                light: '#FFFFFF',
+                            },
+                        }}
+                        logo={{
+                            src: '/static/icons/Med-logo.png',
+                            options: {
+                                width: 40,
+                                x: 76,
+                                y: 76
+                            }
+                        }}
+                    />
+                </div>}
             {/****** Pediatrican charts ******/}
 
             {patient?.birthdate && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") < 4 &&

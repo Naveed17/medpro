@@ -7,12 +7,18 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks/index";
 import {useRouter} from "next/router";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function useGeneratePdfTemplate() {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional;
 
     const {trigger: triggerAntecedentsPatient} = useRequestQueryMutation("/antecedents/patient/get");
 
@@ -100,7 +106,27 @@ function useGeneratePdfTemplate() {
                 size: 2.6,
                 color: textColor
             })
-
+            // Draw doctor details
+            // get QR code parent container
+            const canvas = document.getElementById('qr-canva')?.children[0] as HTMLCanvasElement;
+            const contentDataURL = canvas?.toDataURL('image/png');
+            const qrCodeBytes = await fetch(contentDataURL).then((res) => res.arrayBuffer());
+            const pngImage = await pdfDoc.embedPng(qrCodeBytes);
+            const pngImageDims = pngImage.scale(0.3);
+            copiedPages[0].drawImage(pngImage, {
+                x: 309,
+                y: 32,
+                width: pngImageDims.width,
+                height: pngImageDims.height,
+            })
+            console.log("contentDataURL", contentDataURL)
+            copiedPages[0].drawText(`${medical_professional?.civility.shortName} ${medical_professional?.publicName}`, {
+                x: 718,
+                y: 329,
+                size: 16,
+                font: customFont,
+                color: textColor
+            })
             // Get patient antecedents
             medicalEntityHasUser && triggerAntecedentsPatient({
                 method: "GET",
@@ -139,7 +165,7 @@ function useGeneratePdfTemplate() {
                 }
             });
         });
-    }, [medicalEntityHasUser, router.locale, triggerAntecedentsPatient, urlMedicalEntitySuffix])
+    }, [medicalEntityHasUser, router.locale, triggerAntecedentsPatient, urlMedicalEntitySuffix]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return {generatePdfTemplate}
 }
