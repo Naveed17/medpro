@@ -1,6 +1,6 @@
 import {degrees, PDFDocument, rgb} from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
-import {HoroScope, PsychomotorDevelopmentXY, signs} from "@lib/constants";
+import {PsychomotorDevelopmentXY, signs} from "@lib/constants";
 import {useCallback} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
