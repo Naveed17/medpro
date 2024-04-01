@@ -696,7 +696,7 @@ function ConsultationInProgress() {
     const sendMsg = () => {
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
         const control = checkedNext ? `, RDV prochain ${meeting} ${t(nextAppDays)}` : ""
-        const msg = `<div class="rdv" patient="${patient?.uuid}" fn="${patient?.firstName}" ln="${patient?.lastName}"><span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, ${localInstr} ${control}</span></div>`;
+        const msg = `<div class="rdv" patient="${patient?.uuid}" fn="${patient?.firstName}" ln="${patient?.lastName}"> &lt; <span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">> ${localInstr} ${control}</span></div>`;
 
         channel.publish(selectedDiscussion, JSON.stringify({
             message: msg,
