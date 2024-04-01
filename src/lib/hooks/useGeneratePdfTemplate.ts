@@ -1,6 +1,6 @@
 import {degrees, PDFDocument, rgb} from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
-import {PsychomotorDevelopmentXY} from "@lib/constants";
+import {HoroScope, PsychomotorDevelopmentXY, signs} from "@lib/constants";
 import {useCallback} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -9,6 +9,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks/index";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import moment from "moment-timezone";
 
 function useGeneratePdfTemplate() {
     const router = useRouter();
@@ -23,6 +24,7 @@ function useGeneratePdfTemplate() {
     const {trigger: triggerAntecedentsPatient} = useRequestQueryMutation("/antecedents/patient/get");
 
     const generatePdfTemplate = useCallback(async (patient: PatientModel, sheet: any) => {
+        console.log("patient", patient);
         // init doc
         const pdfDoc = await PDFDocument.create();
         //init font kit
@@ -90,7 +92,6 @@ function useGeneratePdfTemplate() {
                 font: customFont,
                 color: textColor
             })
-
             const size = Object.values(sheet.taille.data).slice(-1)[0]?.toString();
             copiedPages[0].drawText(`${size?.slice(-3, 1) ?? "0"} m ${size?.slice(-2)}`, {
                 x: 216,
@@ -106,6 +107,37 @@ function useGeneratePdfTemplate() {
                 size: 2.6,
                 color: textColor
             })*/
+            // Draw bebe Zodiac sign
+            const birthdate = moment(patient.birthdate, "DD-MM-YYYY");
+            const sign = Number(new Intl.DateTimeFormat('fr-TN-u-ca-persian', {month: 'numeric'}).format(birthdate.toDate())) - 1;
+            copiedPages[0].drawText(signs[sign].split(':')[0], {
+                x: 157,
+                y: 208.5,
+                size: 14,
+                font: customFont,
+                color: textColor
+            })
+            // Draw bebe photo
+            if (patient?.hasPhoto) {
+                const photoURL = (patient?.hasPhoto as any).url as string;
+                const photoExtension = photoURL.includes(".png") ? "png" : "jpg";
+                const photoUrlBytes = await fetch(photoURL, {
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        crossOrigin: "Anonymous"
+                    }
+                }).then((res) => res.arrayBuffer());
+                const photoUrlImage = await (photoExtension === "png" ? pdfDoc.embedPng(photoUrlBytes) : pdfDoc.embedJpg(photoUrlBytes));
+                const photoUrlDims = photoUrlImage.scale(0.2);
+                console.log("photoURL", photoURL, photoUrlDims)
+                copiedPages[0].drawImage(photoUrlImage, {
+                    x: 64,
+                    y: 370,
+                    rotate: degrees(2),
+                    width: 210,
+                    height: 170
+                })
+            }
             // Get doctor QR code
             const canvas = document.getElementById('qr-canva')?.children[0] as HTMLCanvasElement;
             const contentDataURL = canvas?.toDataURL('image/png');
