@@ -9,7 +9,7 @@ import CardInsurance from "@features/patientInsurance/components/cardInsurance";
 import {useTranslation} from "next-i18next";
 
 const PatientInsurance = ({...props}) => {
-    const {patientInsurances,mutatePatientInsurances,patient} = props;
+    const {patientInsurances,mutatePatientInsurances,patient,urlMedicalEntitySuffix,medicalEntityHasUser} = props;
 
     const {t} = useTranslation(["patient", "common"]);
 
@@ -50,7 +50,7 @@ const PatientInsurance = ({...props}) => {
             {patientInsurances?.map((pi: any) => (
                 <Box key={pi.uuid} className={"insurance-box"}>
                     <Collapse in={selectedInsurance !== pi.insurance.uuid}>
-                        <CardInsurance {...{pi,t, setSelectedInsurance}}/>
+                        <CardInsurance {...{pi,t, setSelectedInsurance,urlMedicalEntitySuffix,medicalEntityHasUser,patient,mutatePatientInsurances}}/>
                     </Collapse>
                     <Collapse in={selectedInsurance === pi.insurance.uuid}>
                         <AddInsurance {...{t, pi, setAddNew,patient,mutatePatientInsurances,requestAction:"PUT",setSelectedInsurance}}/>

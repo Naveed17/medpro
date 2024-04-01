@@ -30,13 +30,13 @@ function Step1({...props}) {
                 spacing={2}>
                 <Stack spacing={0.5} width={1}>
                     <Typography variant="body2" color="text.secondary">
-                        {t(`dialog.stepper.${agreement.type}`)}{" "}
+                        {t(`dialog.stepper.${agreement?.type}`)}{" "}
                         <Typography variant="caption" color="error">
                             *
                         </Typography>
                     </Typography>
 
-                    {agreement.type === "insurance" ? <Autocomplete
+                    {agreement && agreement.type === "insurance" ? <Autocomplete
                         options={insurances}
                         getOptionLabel={(option) => option.name}
                         isOptionEqualToValue={(option: any, value) => option.name === value.name}

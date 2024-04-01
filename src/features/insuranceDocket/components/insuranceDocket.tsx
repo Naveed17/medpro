@@ -48,15 +48,7 @@ const headCells = [
         label: "end_date",
         align: "center",
         sortable: false,
-    },
-    {
-        id: "empty",
-        numeric: false,
-        disablePadding: false,
-        label: "empty",
-        align: "center",
-        sortable: false,
-    },
+    }
 ];
 
 const InsuranceDocket = ({...props}) => {

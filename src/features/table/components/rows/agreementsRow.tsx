@@ -13,7 +13,8 @@ function AgreementsRow({...props}) {
     const {insurances} = useInsurances()
     const theme = useTheme()
     return (
-        <TableRowStyled key={uniqueId} >
+        <TableRowStyled key={uniqueId}
+                        onClick={(e:any) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}>
             <TableCell>
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1}>
@@ -25,7 +26,6 @@ function AgreementsRow({...props}) {
 
                         </Tooltip>}
                         <Typography fontWeight={600}
-                                    onClick={(e) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}
                                     color="text.primary">
                             {row.insurance ? row.insurance.name: row.mutual}
                         </Typography>
@@ -37,7 +37,25 @@ function AgreementsRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.label}
+                        {row.label ? row.label : "-"}
+                    </Typography>
+                ) : (
+                    <Skeleton variant="text" width={100}/>
+                )}
+            </TableCell>
+            <TableCell align="center">
+                {row ? (
+                    <Typography fontSize={13} fontWeight={600} color="text.primary">
+                        {row.startDate}
+                    </Typography>
+                ) : (
+                    <Skeleton variant="text" width={100}/>
+                )}
+            </TableCell>
+            <TableCell align="center">
+                {row ? (
+                    <Typography fontSize={13} fontWeight={600} color="text.primary">
+                        {row.finDate}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>

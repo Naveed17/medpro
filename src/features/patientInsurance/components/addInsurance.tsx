@@ -185,9 +185,10 @@ const AddInsurance = ({...props}) => {
             data: params
         }, {
             onSuccess: () => {
+                console.log(mutatePatientInsurances)
                 setAddNew(false)
                 setSelected(null);
-                setSelectedInsurance("");
+                setSelectedInsurance && setSelectedInsurance("");
                 mutatePatientInsurances && mutatePatientInsurances();
             }
         })

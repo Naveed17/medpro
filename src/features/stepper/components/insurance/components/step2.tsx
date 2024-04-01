@@ -66,7 +66,7 @@ function Step2({...props}) {
     const dispatch = useAppDispatch();
 
     const [mainActes, setMainActes] = useState<any>(acts);
-    const [select, setSelect] = useState<string[]>(agreement.acts.map((act: any) => act.uuid));
+    const [select, setSelect] = useState<string[]>(agreement?.acts.map((act: any) => act.uuid));
 
     const handleChange = (row: any) => {
         let _agreement = JSON.parse(JSON.stringify(agreement));

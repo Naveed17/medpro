@@ -240,11 +240,23 @@ function ConsultationInProgress() {
 
     const [selectedTab, setSelectedTab] = useState("global");
 
+    const uuid = router.query.uuid;
+
     const { data: httpDocket, mutate } = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/insurance-dockets/${router.locale}`,
     })
-    const uuid = router.query.uuid;
+
+    console.log(httpDocket)
+
+    const {data: httpInsurances} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
+    });
+
+    const insuranceList = httpInsurances?.data;
+
+    console.log(insuranceList)
 
     const tabsData = [
         ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
@@ -263,6 +275,10 @@ function ConsultationInProgress() {
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
+    }
+
+    const createDockets = () => {
+
     }
 
     useEffect(() => {
@@ -339,7 +355,7 @@ function ConsultationInProgress() {
                                 </CardContent>
                             </Card>
                         </Stack>
-                        <IconButton disableRipple sx={{
+                       {/* <IconButton disableRipple sx={{
                             ml: 1, ...(isMobile && {
                                 position: 'absolute',
                                 top: -12,
@@ -347,7 +363,7 @@ function ConsultationInProgress() {
                             })
                         }}>
                             <IconUrl path="ic-edit-pen" width={20} height={20} color={theme.palette.text.primary} />
-                        </IconButton>
+                        </IconButton>*/}
                     </Stack>
                 </CardContent>
                 <Tabs
@@ -403,7 +419,6 @@ function ConsultationInProgress() {
                                         <Stack direction={isMobile ? "column-reverse" : "column"}>
                                             <Typography variant="h6" fontWeight={700}>
                                                 {card.amount}
-                                                <span style={{ fontSize: 14, marginLeft: 4 }}>{devise}</span>
                                             </Typography>
                                             <Typography variant="body2" fontSize={11} textTransform="capitalize">
                                                 {t(card.title)}
@@ -449,7 +464,10 @@ function ConsultationInProgress() {
                                     width: 1
                                 })}
                             >
-                                <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-archive-new" />}>{t("archive")}</Button>
+                                <Button fullWidth={isMobile}
+                                        onClick={createDockets}
+                                        variant="grey"
+                                        startIcon={<IconUrl path="ic-archive-new" />}>{t("archive")}</Button>
                                 <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-printer-new" />}>{t("print")}</Button>
                                 <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-export-new" />}>{t("export")}</Button>
                             </Stack>

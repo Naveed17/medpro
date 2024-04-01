@@ -160,7 +160,10 @@
       "listen": "Ecoutez",
       "documents": "Documents",
       "created-at": "crée le",
-      "created-by": "créé par"
+      "created-by": "créé par",
+      "label": "Label",
+      "start_date": "Date début",
+      "end_date": "Date fin"
     },
     "add-patient": {
       "personal-info": "Information personnelle",
