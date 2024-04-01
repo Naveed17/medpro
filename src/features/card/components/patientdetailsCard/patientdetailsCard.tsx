@@ -320,6 +320,7 @@ function PatientDetailsCard({...props}) {
                                                     backgroundColor: theme.palette.background.default,
                                                     borderRadius: 8
                                                 }} onClick={() => {
+                                                    closePatientDialog && closePatientDialog()
                                                     dispatch(setOpenChat(true))
                                                     dispatch(setMessage(`<span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`))
                                                 }}>
