@@ -24,7 +24,6 @@ function useGeneratePdfTemplate() {
     const {trigger: triggerAntecedentsPatient} = useRequestQueryMutation("/antecedents/patient/get");
 
     const generatePdfTemplate = useCallback(async (patient: PatientModel, sheet: any) => {
-        console.log("patient", patient);
         // init doc
         const pdfDoc = await PDFDocument.create();
         //init font kit
