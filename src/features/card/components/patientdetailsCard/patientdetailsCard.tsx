@@ -192,7 +192,6 @@ function PatientDetailsCard({...props}) {
                 data: params
             }, {
                 onSuccess: () => {
-                    setRequestLoading(false);
                     mutatePatientList && mutatePatientList();
                     mutateAgenda && mutateAgenda();
                     invalidateQueries([
@@ -208,7 +207,8 @@ function PatientDetailsCard({...props}) {
                         } as any;
                         dispatch(setSelectedEvent(event));
                     }
-                }
+                },
+                onSettled: () => setRequestLoading(false)
             });
         }
     }

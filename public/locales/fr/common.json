@@ -326,6 +326,7 @@
       "sub-title": "Êtes-vous sûr de vouloir terminer ou mettre en pause la consultation en cours ?",
       "description": "Vous devez mettre fin, ou mettre en pause la consultation actuelle.",
       "cancel": "Annuler",
+      "later_on": "Plus tard",
       "finish": "Terminer",
       "pause": "Mettre en Pause"
     },

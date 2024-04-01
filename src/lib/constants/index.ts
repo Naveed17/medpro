@@ -273,5 +273,11 @@ export const PsychomotorDevelopmentXY = [
         coordinates: {
             startDate: {x: 522, y: 361, size: 12}
         }
+    },
+    {
+        key: "Première dent",
+        coordinates: {
+            startDate: {x: 405, y: 438, size: 12}
+        }
     }
 ]

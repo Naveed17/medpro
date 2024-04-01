@@ -100,12 +100,12 @@ function useGeneratePdfTemplate() {
                 color: textColor
             })
             // Draw bebe eye color
-            copiedPages[0].drawCircle({
+            /*copiedPages[0].drawCircle({
                 x: 91.2,
                 y: 58.8,
                 size: 2.6,
                 color: textColor
-            })
+            })*/
             // Get doctor QR code
             const canvas = document.getElementById('qr-canva')?.children[0] as HTMLCanvasElement;
             const contentDataURL = canvas?.toDataURL('image/png');
@@ -113,7 +113,7 @@ function useGeneratePdfTemplate() {
             const pngImage = await pdfDoc.embedPng(qrCodeBytes);
             const pngImageDims = pngImage.scale(0.3);
             copiedPages[0].drawImage(pngImage, {
-                x: 309,
+                x: 308.5,
                 y: 32,
                 width: pngImageDims.width,
                 height: pngImageDims.height,
