@@ -302,7 +302,7 @@ function Consultation() {
                                     borderRadius: 8
                                 }} onClick={() => {
                                     dispatch(setOpenChat(true))
-                                    dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                                    dispatch(setMessage(`&lt; <span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">> </span>`))
                                 }}>
                                     <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                                 </IconButton>}
@@ -316,7 +316,7 @@ function Consultation() {
                             size={"small"}
                             onClick={() => {
                                 dispatch(setOpenChat(true))
-                                dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                                dispatch(setMessage(`&lt; <span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">> </span>`))
                             }}>
                             <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                         </IconButton>

@@ -339,7 +339,7 @@ const Chat = ({...props}) => {
                                         }}>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             <Typography fontWeight={500}
-                                                        variant='body2'>{`${user.FirstName ? user.FirstName : ""} ${user.lastName ? user.lastName : ""}`}</Typography>
+                                                        variant='body2'>{`${user.firstName ? user.firstName : ""} ${user.lastName ? user.lastName : ""}`}</Typography>
                                             <div style={{
                                                 width: 5,
                                                 height: 5,
@@ -374,6 +374,14 @@ const Chat = ({...props}) => {
                                 </Stack>
 
                                 <Typography variant='caption' fontSize={9}
+                                            style={{
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                display: "-webkit-box",
+                                                lineClamp: 2,
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: "vertical",
+                                            }}
                                             color="text.secondary">{disc.lastMessage.replace(/<[^>]+>/g, '').replace(/\&nbsp;/g, '')}</Typography>
                                 <Typography variant='caption' fontSize={9}
                                             color="text.secondary">{disc.lastMessageTimestamp ? moment.duration(moment().diff(new Date(disc.lastMessageTimestamp))).humanize() : "New"}</Typography>
@@ -574,12 +582,13 @@ const Chat = ({...props}) => {
                         {patients.map(patient => (
                             <Card key={patient.uuid}>
                                 <CardContent>
-                                    <Stack style={{cursor: "pointer"}} onClick={() => {
-                                        setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`)
-                                        setOpen(false)
-                                    }}>
-                                        <Typography color={"primary"}
-                                                    fontWeight={"bold"}>
+                                    <Stack style={{cursor: "pointer"}}
+                                           onClick={() => {
+                                               setMessage((prev) => `${prev.substring(0, prev.length - 4)} &lt; <span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">> </span></p>`)
+                                               setPatients([])
+                                               setOpen(false)
+                                           }}>
+                                        <Typography color={"primary"} fontWeight={"bold"}>
                                             {patient.firstName} {patient.lastName}
                                         </Typography>
                                         <Stack direction='row' alignItems='center' spacing={1}>
