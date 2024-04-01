@@ -12,7 +12,8 @@ import {
 import IconUrl from "@themes/urlIcon";
 import {merge} from "lodash";
 import {ChartsOption} from "@features/charts";
-import useGeneratePdfTemplate from "@lib/hooks/useGeneratePdfTemplate";
+import {useGeneratePdfTemplate} from "@lib/hooks";
+
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 

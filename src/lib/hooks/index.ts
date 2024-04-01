@@ -3,6 +3,7 @@ export {default as useDateConverture} from "./useDateConverture";
 export {default as unsubscribeTopic} from "./unsubscribeTopic";
 export {default as useMedicalEntitySuffix} from "./useMedicalEntitySuffix";
 export {default as useMedicalProfessionalSuffix} from "./useMedicalProfessionalSuffix";
+export {default as useGeneratePdfTemplate} from "./useGeneratePdfTemplate";
 export {default as useMutateOnGoing} from "./useMutateOnGoing";
 export {default as useInvalidateQueries} from "./useInvalidateQueries";
 export {default as useLastPrescription} from "./useLastPrescription";

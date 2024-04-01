@@ -9,7 +9,9 @@ import {
     weight36
 } from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
-import useGeneratePdfTemplate from "@lib/hooks/useGeneratePdfTemplate";
+import {useGeneratePdfTemplate} from "@lib/hooks";
+import {merge} from "lodash";
+import {ChartsOption} from "@features/charts";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
@@ -186,7 +188,7 @@ function PediatricianCharts({...props}) {
 
             },
         })
-    }, [sheet, birthdate, height, weight, perimetreCranien, t]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [sheet, birthdate, height, weight]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Grid container spacing={1} marginBottom={2}>
@@ -227,12 +229,7 @@ function PediatricianCharts({...props}) {
                     </Stack>
                     <ApexChart
                         type="line"
-                        stroke={{
-                            curve: 'smooth',
-                            dashArray: 2,
-                            width: 1
-                        }}
-                        options={state.options}
+                        options={merge(ChartsOption(), state.options)}
                         series={state.series}/>
                 </Card>
             </Grid>

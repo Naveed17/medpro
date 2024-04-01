@@ -3,9 +3,9 @@ import {humanizerConfig} from "@lib/constants";
 
 const humanizeDuration = require("humanize-duration");
 
-export const getDiffDuration = (date: string, largest = 2, round= true) => {
+export const getDiffDuration = (date: string, largest = 2, round = true) => {
     const local = moment.tz(date, "DD-MM-YYYY HH:mm:ss", "Africa/Tunis");
     const shortEnglishHumanizer = humanizeDuration.humanizer(humanizerConfig);
-    const duration: any = moment.duration(moment().utc().diff(local.local()));
+    const duration: any = moment.duration(moment.utc().diff(local.local()));
     return shortEnglishHumanizer(duration, {largest, round});
 }
