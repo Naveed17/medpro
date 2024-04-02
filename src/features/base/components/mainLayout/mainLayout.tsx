@@ -581,7 +581,8 @@ function MainLayout({...props}) {
                         <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
                 </Fab>
-            </Stack></Draggable>}
+            </Stack>
+            </Draggable>}
         </AbilityContext.Provider>
     );
 }
