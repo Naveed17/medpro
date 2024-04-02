@@ -592,7 +592,7 @@ function Patients() {
 
     useEffect(() => {
         if (httpPatientsResponse) {
-            const patientsResponse = httpPatientsResponse.pages.reduce((pages: any[], page: any) => [...(pages ?? []), ...page.data.data.list], []) ?? [];
+            const patientsResponse = httpPatientsResponse.pages.reduce((pages: any[], page: any) => [...(pages ?? []), ...(page.data?.data?.list ?? [])], []) ?? [];
             setRows(patientsResponse);
         }
     }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps

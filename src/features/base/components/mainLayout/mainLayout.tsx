@@ -548,10 +548,15 @@ function MainLayout({...props}) {
                     />}
             </Dialog>
 
-            {!isMobile &&  <Draggable bounds="body"><Stack direction={"row"}
-                    spacing={2}
-                    alignItems={'center'}
-                    sx={{position: "absolute", bottom: 75, right: 40, zIndex: 99}}>
+            {!isMobile && <Draggable bounds="body"><Stack direction={"row"}
+                                                          spacing={2}
+                                                          alignItems={'center'}
+                                                          sx={{
+                                                              position: "absolute",
+                                                              bottom: 75,
+                                                              right: 40,
+                                                              zIndex: 99
+                                                          }}>
                 {message && <Stack direction={"row"}
                                    padding={1}
                                    spacing={2}
@@ -581,7 +586,8 @@ function MainLayout({...props}) {
                         <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
                 </Fab>
-            </Stack></Draggable>}
+            </Stack>
+            </Draggable>}
         </AbilityContext.Provider>
     );
 }
