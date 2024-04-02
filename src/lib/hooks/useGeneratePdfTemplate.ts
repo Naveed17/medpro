@@ -122,8 +122,9 @@ function useGeneratePdfTemplate() {
                 const photoExtension = photoURL.includes(".png") ? "png" : "jpg";
                 const photoUrlBytes = await fetch(photoURL, {
                     headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        crossOrigin: "Anonymous"
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
                     }
                 }).then((res) => res.arrayBuffer());
                 const photoUrlImage = await (photoExtension === "png" ? pdfDoc.embedPng(photoUrlBytes) : pdfDoc.embedJpg(photoUrlBytes));

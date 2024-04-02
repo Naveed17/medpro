@@ -10,6 +10,7 @@ function AuthGuard({children}: LayoutProps) {
 
     const medical_entity = (session?.data as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
     const features = medical_entity?.features;
+    console.log("features", features)
     const routerPathname = router.pathname;
 
     const hasAdminAccess = true;
