@@ -1,17 +1,15 @@
 import React from "react";
-import {Stack, useMediaQuery} from "@mui/material";
+import {Stack} from "@mui/material";
 import 'react-h5-audio-player/lib/styles.css';
 import dynamic from "next/dynamic";
-import {MobileContainer as smallScreen} from "@lib/constants";
+import {merge} from "lodash";
+import {ChartsOption} from "@features/charts";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
 
 function WidgetCharts({...props}) {
-
     const {sheet, selectedKey} = props;
-
-    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const getCategories = () => {
         let res: string[] = [];
@@ -58,7 +56,7 @@ function WidgetCharts({...props}) {
     return (
         <Stack spacing={1}>
             <ApexChart type="line"
-                       options={chart.option}
+                       options={merge(ChartsOption(), chart.option)}
                        series={chart.series}
                        height={200}
                        width={500}/>

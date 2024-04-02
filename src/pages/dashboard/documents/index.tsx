@@ -51,6 +51,7 @@ import {MobileContainer as smallScreen} from "@lib/constants";
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 
 import {LoadingScreen} from "@features/loadingScreen";
+
 const actions = [
     {
         icon: <IconUrl color={"gray"}
@@ -103,7 +104,7 @@ function Documents() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
-    const {t, ready} = useTranslation(["docs", "common"]);
+    const {t, ready, i18n} = useTranslation(["docs", "common"]);
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
@@ -229,6 +230,11 @@ function Documents() {
         }
     }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["docs", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     const ocrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.list ?? []) as OcrDocument[];
     const totalOcrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.total ?? 0) as number;
     const totalPagesOcrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.totalPages ?? 0) as number;
@@ -316,7 +322,7 @@ function Documents() {
                                         <Card sx={{
                                             backgroundColor: theme.palette.background.default,
                                             border: `1px dashed ${theme.palette.primary.main}`,
-                                            height:1
+                                            height: 1
                                         }}>
                                             <CardContent>
                                                 <label htmlFor="contained-button-file">
@@ -564,7 +570,7 @@ function Documents() {
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'docs', "agenda"]))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'docs']))
     }
 })
 

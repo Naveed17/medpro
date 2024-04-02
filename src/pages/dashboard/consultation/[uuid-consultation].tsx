@@ -140,8 +140,7 @@ function ConsultationInProgress() {
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
 
-    const {t} = useTranslation("consultation");
-
+    const {t, i18n} = useTranslation("consultation");
     //***** SELECTORS ****//
     const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
@@ -258,7 +257,7 @@ function ConsultationInProgress() {
                 content: 'widget',
                 expanded: cardPositions ? cardPositions.widget : false,
                 config: false,
-                icon: "ic-edit-file-pen"
+                icon: "docs/ic-note"
             },
             ...(ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
                 id: 'item-2',
@@ -272,7 +271,7 @@ function ConsultationInProgress() {
                 id: 'item-3',
                 content: 'exam',
                 expanded: cardPositions ? cardPositions.exam : true,
-                icon: "ic-edit-file-pen"
+                icon: "docs/ic-note"
             }
         ]]);
     const [mobileCards, setMobileCards] = useState([[
@@ -386,6 +385,10 @@ function ConsultationInProgress() {
 
         let _cards: any[] = [...cards];
         _cards[ind][index].expanded = true;
+
+        const _locPosition = JSON.parse(localStorage.getItem("cardPositions") as string)
+        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition,widget: true}))
+
         _cards[ind][index].config = false;
         setCards([..._cards])
     };
@@ -682,7 +685,7 @@ function ConsultationInProgress() {
                     name: `${general_information.firstName} ${general_information.lastName}`
                 }, {
                     uuid: user.uuid,
-                    name: `${user?.FirstName} ${user?.lastName}`
+                    name: `${user?.firstName} ${user?.lastName}`
                 }]
             },
             url: `/-/chat/api/discussion`
@@ -1258,13 +1261,13 @@ function ConsultationInProgress() {
                         content: 'widget',
                         expanded: cardPositions ? cardPositions.widget : false,
                         config: false,
-                        icon: "ic-edit-file-pen"
+                        icon: "docs/ic-note"
                     }
                 ], [{
                     id: 'item-3',
                     content: 'exam',
                     expanded: cardPositions ? cardPositions.exam : true,
-                    icon: "ic-edit-file-pen"
+                    icon: "docs/ic-note"
                 }]])
             }
 
@@ -1318,6 +1321,11 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["consultation"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -1944,6 +1952,7 @@ function ConsultationInProgress() {
                                         </Button>
                                         {info !== "add_a_document" && <Button
                                             variant="contained"
+                                            sx={{width: {xs: 1, sm: 'auto'}}}
                                             onClick={() => handleSaveDialog()}
                                             disabled={info.includes("medical_prescription") && state?.length === 0}
                                             startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
@@ -2320,10 +2329,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             ...(await serverSideTranslations(locale as string, [
                 "consultation",
                 "menu",
-                "common",
-                "agenda",
-                "payment",
-                "patient",
+                "common"
             ])),
         },
     };

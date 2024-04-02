@@ -15,6 +15,7 @@ export * from "./editMotifDialog";
 export * from "./ocrDocsDialog";
 export * from "./openingHoursDialog";
 export * from './newUserDialog'
+export * from './addDepartmentDialog'
 export * from './chatDiscussion'
 export * from './observationHistoryDialog'
 export { default as Dialog } from "./dialog";

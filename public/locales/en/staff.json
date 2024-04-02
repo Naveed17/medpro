@@ -1,0 +1,31 @@
+{
+  "config": {
+    "sub-header": {
+      "title": "Liste des personnels"
+    },
+    "filter": {
+      "title": "Filtre",
+      "doctors": "Médecin",
+      "search": "Nom & prénom/Tél/N° fiche",
+      "birthdate": "Date de naissance",
+      "gender": "Genre",
+      "male": "Homme",
+      "female": "Femme",
+      "name": "Recherche",
+      "phone": "Numéro de téléphone"
+    },
+    "table": {
+      "empty": "",
+      "name": "Nom",
+      "department": "Département",
+      "speciality": "Spécialisation",
+      "contact": "Contact",
+      "email": "Email",
+      "status": "Statut",
+      "join-date": "Date d'entrée en service",
+      "active": "Active",
+      "function": "Fonction",
+      "inactive": "Inactive"
+    }
+  }
+}

@@ -12,7 +12,7 @@ import {
     ActionBarState,
     AppointmentActs,
     AppointmentDisease,
-    AppointmentReasonsFilter, FilterOverview, InsuranceFilter,
+    AppointmentReasonsFilter, AppointmentTypesFilter, FilterOverview, InsuranceFilter,
     setFilter
 } from "@features/leftActionBar";
 import React, {useState} from "react";
@@ -36,9 +36,9 @@ function Patient() {
     const handleFilterChange = (data: any) => {
         window.history.replaceState({
             ...window.history.state,
-            as: "/dashboard/patient?page=1",
-            url: "/dashboard/patient?page=1"
-        }, '', "/dashboard/patient?page=1");
+            as: "/dashboard/patients?page=1",
+            url: "/dashboard/patients?page=1"
+        }, '', "/dashboard/patients?page=1");
         dispatch(setSelectedRows([]));
         dispatch(setFilter(data));
     }
@@ -52,38 +52,49 @@ function Patient() {
             },
             expanded: true,
             children: (
-                <PatientFilter
-                    {...{t}}
-                    OnSearch={(data: { query: ActionBarState }) => {
-                        handleFilterChange({patient: data.query});
-                    }}
-                    item={{
-                        heading: {
-                            icon: "ic-patient",
-                            title: "patient",
-                        },
-                        textField: {
-                            labels: [
-                                {label: "name", placeholder: "search"},
-                                {label: "birthdate", placeholder: "--/--/----"},
-                            ],
-                        },
-                        gender: {
-                            heading: "gender",
-                            genders: ["male", "female"],
-                        },
-                        hasDouble: {
-                            heading: "duplication"
-                        },
-                        ...(isBeta && {
-                            rest: {
-                                heading: "unPayed"
-                            }
-                        })
-                    }}
-                    keyPrefix={"filter."}
-                />
+                <FilterRootStyled>
+                    <PatientFilter
+                        {...{t}}
+                        OnSearch={(data: { query: ActionBarState }) => {
+                            handleFilterChange({patient: data.query});
+                        }}
+                        item={{
+                            heading: {
+                                icon: "ic-patient",
+                                title: "patient",
+                            },
+                            textField: {
+                                labels: [
+                                    {label: "name", placeholder: "search"},
+                                    {label: "birthdate", placeholder: "--/--/----"},
+                                ],
+                            },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            hasDouble: {
+                                heading: "duplication"
+                            },
+                            ...(isBeta && {
+                                rest: {
+                                    heading: "unPayed"
+                                }
+                            })
+                        }}
+                        keyPrefix={"filter."}
+                    />
+                </FilterRootStyled>
             ),
+        },
+        {
+            heading: {
+                id: "meetingType",
+                icon: "ic-agenda-jour-color",
+                title: "meetingType",
+            },
+            expanded: false,
+            children: (<AppointmentTypesFilter/>)
         },
         {
             heading: {

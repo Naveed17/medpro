@@ -13,6 +13,7 @@ function DocumentButton({...props}) {
     const theme = useTheme() as Theme;
     const {
         lable,
+        type,
         icon,
         uuid,
         selected,
@@ -39,7 +40,7 @@ function DocumentButton({...props}) {
                     border: `2px solid ${theme.palette.primary.main}`,
                 },
             })}
-            onClick={() => handleOnClick(uuid)}>
+            onClick={(e) => handleOnClick(uuid, e)}>
             <Badge badgeContent={notifications} color="warning"/>
             {loading ? (
                 <>
@@ -52,17 +53,18 @@ function DocumentButton({...props}) {
                 </>
             ) : (
                 <>
-
                     <div style={{width: "fit-content", margin: "auto"}}>
                         <ImageHandler src={icon} width="30" height="30"/>
-                        <input type="file" accept={acceptedFormat} multiple={true} onChange={handleChange} style={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'absolute',
-                            left: 0,
-                            top: 0,
-                            opacity: 0
-                        }}/>
+                        {type !== "audio" &&
+                            <input type="file" accept={acceptedFormat} multiple={true} onChange={handleChange}
+                                   style={{
+                                       width: '100%',
+                                       height: '100%',
+                                       position: 'absolute',
+                                       left: 0,
+                                       top: 0,
+                                       opacity: 0
+                                   }}/>}
                     </div>
 
                     <Typography variant="body2">{capitalize(t(lable))}</Typography>

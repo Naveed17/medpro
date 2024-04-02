@@ -86,7 +86,7 @@ function Consultation() {
 
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
-    const editPatientInfo = (val:string) => {
+    const editPatientInfo = (val: string) => {
         const params = new FormData();
         if (patient && medicalEntityHasUser) {
             const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`;
@@ -311,7 +311,7 @@ function Consultation() {
 
                     </Box>
 
-                    <Stack direction={"row"} spacing={1} sx={{position: "absolute", top: 20, right: 10}}>
+                    {!loading && <Stack direction={"row"} spacing={1} sx={{position: "absolute", top: 20, right: 10}}>
                         <IconButton
                             size={"small"}
                             onClick={() => {
@@ -323,11 +323,11 @@ function Consultation() {
 
                         <IconButton
                             size={"small"}
-                            onClick={() => {dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));}}
-                            >
-                            <Icon path={"ic-edit-patient"}/>
+                            onClick={() => dispatch(onOpenPatientDrawer({patientId: patient?.uuid}))}
+                            className="btn-edit">
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                         </IconButton>
-                    </Stack>
+                    </Stack>}
                 </Stack>
                 {isBeta && patient &&
                     <Stack direction={"row"} p={1} spacing={1} onClick={() => {
@@ -452,7 +452,7 @@ function Consultation() {
                                         setNote,
                                         setIsNote,
                                         editPatientInfo,
-                                        t,isNote,
+                                        t, isNote,
                                         resetTranscript,
                                         setIsStarted,
                                         listening,

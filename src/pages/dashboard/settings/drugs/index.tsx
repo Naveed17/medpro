@@ -1,4 +1,4 @@
-import {SubHeader} from "@features/subHeader";
+import { SubHeader } from "@features/subHeader";
 import {
     Box,
     Button, Dialog, DialogActions,
@@ -11,50 +11,52 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import React, {ReactElement, useState} from "react";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {useTranslation} from "next-i18next";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {configSelector, DashLayout} from "@features/base";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {useRouter} from "next/router";
-import {Otable} from "@features/table";
-import {DrugsDrawer} from "@features/drawer";
-import {useAppSelector} from "@lib/redux/hooks";
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import React, { ReactElement, useState } from "react";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { useTranslation } from "next-i18next";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { configSelector, DashLayout } from "@features/base";
+import { LoadingScreen } from "@features/loadingScreen";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import { useRouter } from "next/router";
+import { Otable } from "@features/table";
+import { DrugsDrawer } from "@features/drawer";
+import { useAppSelector } from "@lib/redux/hooks";
+import { useMedicalProfessionalSuffix } from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
+import { LoadingButton } from "@mui/lab";
 import Icon from "@themes/urlIcon";
-import {useSnackbar} from "notistack";
+import { useSnackbar } from "notistack";
 import Can from "@features/casl/can";
+import { MobileContainer } from "@themes/mobileContainer";
+import { DrugMobileCard } from "@features/card";
 
 function Drugs() {
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useRouter();
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
-    const {enqueueSnackbar} = useSnackbar();
+    const { urlMedicalProfessionalSuffix } = useMedicalProfessionalSuffix();
+    const { enqueueSnackbar } = useSnackbar();
 
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "drugs.config"});
-    const {direction} = useAppSelector(configSelector);
+    const { t, ready } = useTranslation(["settings", "common"], { keyPrefix: "drugs.config" });
+    const { direction } = useAppSelector(configSelector);
 
     const [edit, setEdit] = useState(false);
     const [selectedDrug, setSelectedDrug] = useState<any>(null);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
-    const {data: drugsResponse, mutate: mutateDrugs} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const { data: drugsResponse, mutate: mutateDrugs } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/drugs/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(urlMedicalProfessionalSuffix && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
+        ...(urlMedicalProfessionalSuffix && { variables: { query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true" } })
     });
 
-    const {trigger: deleteDrugsTrigger} = useRequestQueryMutation("/settings/drug/delete");
+    const { trigger: deleteDrugsTrigger } = useRequestQueryMutation("/settings/drug/delete");
 
     const headCells = [
         {
@@ -99,7 +101,7 @@ function Drugs() {
         },
     ];
     const drugs = ((drugsResponse as HttpResponse)?.data?.list ?? []) as DrugModel[];
-
+    const drugsMobileRes = isMobile ? ((drugsResponse as HttpResponse)?.data ?? []) as DrugModel[] : [];
     const removeDrug = (uuid: string) => {
         setLoadingRequest(true)
         urlMedicalProfessionalSuffix && deleteDrugsTrigger({
@@ -107,7 +109,7 @@ function Drugs() {
             url: `${urlMedicalProfessionalSuffix}/drugs/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("alert.delete"), {variant: "success"});
+                enqueueSnackbar(t("alert.delete"), { variant: "success" });
                 setTimeout(() => setOpenDeleteDialog(false));
                 mutateDrugs();
             },
@@ -132,7 +134,7 @@ function Drugs() {
         setEdit(false);
     }
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <>
@@ -151,7 +153,7 @@ function Drugs() {
                             }}
                             variant="contained"
                             color="success"
-                            sx={{ml: "auto"}}>
+                            sx={{ ml: "auto" }}>
                             {t("add")}
                         </Button>
                     </Can>
@@ -160,11 +162,11 @@ function Drugs() {
             <DesktopContainer>
                 <Box
                     sx={{
-                        p: {xs: "40px 8px", sm: "30px 8px", md: 2},
-                        "& table": {tableLayout: "fixed"},
+                        p: { xs: "40px 8px", sm: "30px 8px", md: 2 },
+                        "& table": { tableLayout: "fixed" },
                     }}>
                     <Otable
-                        {...{t}}
+                        {...{ t }}
                         headers={headCells}
                         pagination
                         handleEvent={handleTableActions}
@@ -175,9 +177,20 @@ function Drugs() {
                     />
                 </Box>
             </DesktopContainer>
+            <MobileContainer>
+                <Box className="container">
+                    <Stack spacing={1}>
+                        {drugsMobileRes.map((drug: DrugModel, index: number) => (
+                            <React.Fragment key={drug.uuid}>
+                                <DrugMobileCard {...{ row: drug, t, handleEvent: handleTableActions }} />
+                            </React.Fragment>
+                        ))}
+                    </Stack>
+                </Box>
+            </MobileContainer>
             <Drawer anchor={"right"} open={edit} dir={direction} onClose={closeDraw}>
                 <DrugsDrawer
-                    {...{t, closeDraw}}
+                    {...{ t, closeDraw }}
                     data={selectedDrug}
                 />
             </Drawer>
@@ -196,12 +209,12 @@ function Drugs() {
                 }}>
                     {t("dialog.delete.title")}
                 </DialogTitle>
-                <DialogContent style={{paddingTop: 20}}>
+                <DialogContent style={{ paddingTop: 20 }}>
                     <Typography>
                         {t("dialog.delete.desc")}
                     </Typography>
                 </DialogContent>
-                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                <DialogActions sx={{ borderTop: 1, borderColor: "divider", px: 1, py: 2 }}>
                     <Stack direction="row" spacing={1}>
                         <Button
                             variant="text-black"
@@ -209,7 +222,7 @@ function Drugs() {
                                 setOpenDeleteDialog(false);
                                 setTimeout(() => setSelectedDrug(null));
                             }}
-                            startIcon={<CloseIcon/>}>
+                            startIcon={<CloseIcon />}>
                             {t("dialog.cancel")}
                         </Button>
                         <LoadingButton
@@ -218,7 +231,7 @@ function Drugs() {
                             variant="contained"
                             color="error"
                             onClick={() => removeDrug(selectedDrug?.uuid as string)}
-                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            startIcon={<Icon path="setting/icdelete" color="white" />}>
                             {t("dialog.delete.delete")}
                         </LoadingButton>
                     </Stack>

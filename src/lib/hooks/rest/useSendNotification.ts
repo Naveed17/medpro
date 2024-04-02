@@ -21,9 +21,7 @@ const useSendNotification = () => {
         });
     }, [router.locale, triggerNotificationPush, urlMedicalEntitySuffix]);
 
-    return {
-        trigger
-    }
+    return {trigger}
 }
 
 export default useSendNotification;

@@ -56,7 +56,11 @@
   "config": {
     "reason_for_consultation": "Motif",
     "acts": "Acte",
+    "download_document": "Télécharger le document",
+    "delete_document": "Supprimer le document",
+    "speech_to_text": "Conversion audio/texte",
     "disease": "Maladie",
+    "meetingType": "Type de RDV",
     "insurance": "Assurances",
     "keyword": "Mot clé",
     "more": "Plus",
@@ -310,8 +314,12 @@
       },
       "delete-dialog": {
         "title": "Supprimer Patient",
-        "sub-title": "Voulez-vous vraiment supprimer ce patient?",
-        "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+        "sub-title": "Êtes-vous sûr de vouloir supprimer les données du patient sélectionné ?",
+        "description": "Cette action supprimera définitivement les données du patient sélectionné. Veuillez procéder avec prudence, car cette action ne peut être annulée.",
+        "delete-all": "Tous supprimer",
+        "delete-appointment": "Données de rendez-vous",
+        "delete-appointment-data": "Données historiques",
+        "delete-transaction": "Données de transaction",
         "cancel": "Annuler",
         "confirm": "Supprimer"
       }

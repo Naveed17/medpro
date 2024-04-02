@@ -206,7 +206,8 @@ export const authOptions: NextAuthOptions = {
                             ...updatedToken.data,
                             medical_entity: {
                                 ...updatedToken.data?.medical_entities[medical_entity_index].medical_entity,
-                                has_selected_entity: !session?.reset
+                                has_selected_entity: !session?.reset,
+                                root: session?.root ?? ""
                             },
                             medical_entities: updatedToken.data?.medical_entities?.map((medical_entity_data: any) => ({
                                 ...medical_entity_data,

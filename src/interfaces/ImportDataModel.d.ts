@@ -4,6 +4,7 @@ interface ImportDataModel {
     errors: number;
     info: number;
     status: number;
+    type: number;
     duplication: number;
     importDate: string;
 }

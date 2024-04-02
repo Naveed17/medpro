@@ -235,19 +235,13 @@ function AppToolbar({...props}) {
                             }}>
                             <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                         </IconButton>
-                        <Button
-                            sx={{minWidth: 35}}
-                            size={"medium"}
+                        <CustomIconButton
                             onClick={handleClick}
-                            variant="contained"
-                            color="warning">
-                            {
-                                isMobile ? <AddIcon/> :
-                                    <>
-                                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add")}
-                                    </>
-                            }
-                        </Button>
+                            variant="filled"
+                            color={"warning"}
+                            size={"small"}>
+                            <AgendaAddViewIcon color={theme.palette.text.primary}/>
+                        </CustomIconButton>
                         <StyledMenu
                             id="basic-menu"
                             elevation={0}
@@ -334,13 +328,10 @@ function AppToolbar({...props}) {
                                   style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
                                 <Tooltip title={t("documents")}>
                                     <Badge badgeContent={nbDoc} showZero={true} color="primary">
-                                        <IconButton onClick={() => setShowDocument(!showDocument)}
-                                                    style={{
-                                                        borderRadius: "0.625rem",
-                                                        border: "1px solid var(--secondaire-gris-claire, #DDD)",
-                                                        width: 40
-                                                    }}>
-                                            <IconUrl path={"doc"}/>
+                                        <IconButton
+                                            className={"btn-edit"}
+                                            onClick={() => setShowDocument(!showDocument)}>
+                                            <IconUrl path={"ic-white-docs"} color={theme.palette.text.primary}/>
                                         </IconButton>
                                     </Badge>
                                 </Tooltip>

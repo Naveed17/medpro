@@ -811,7 +811,7 @@ function PlacesDetail() {
                                             </React.Fragment>
                                         ))}
                                         <Grid item xs={12} lg={10} ml="auto">
-                                            <Button onClick={handleAddPhone} startIcon={<AddIcon />}>
+                                            <Button size={"small"} onClick={handleAddPhone} startIcon={<AddIcon />}>
                                                 {t("lieux.new.addNumber")}
                                             </Button>
                                         </Grid>
@@ -879,12 +879,12 @@ function PlacesDetail() {
                                     {...a11yProps(tabHeaderIndex)}
                                 />)
                             )}
-                            <Button
+{/*                            <Button
                                 onClick={() => setOpeningHoursDialog(true)}
                                 variant={"text"}
                                 startIcon={<AddIcon />}
                                 size={"small"}
-                                sx={{ ml: "auto", mr: '1rem', height: 30 }}>{t("lieux.new.add-timeshedule")}</Button>
+                                sx={{ ml: "auto", mr: '1rem', height: 30 }}>{t("lieux.new.add-timeshedule")}</Button>*/}
                         </Tabs>
                         {horaires.map((tabContent, tabContentIndex) => (
                             <TabPanel

@@ -11,7 +11,9 @@ function AuthGuard({children}: LayoutProps) {
     const medical_entity = (session?.data as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
     const features = medical_entity?.features;
     const routerPathname = router.pathname;
-    const slugFeature = routerPathname.split('/')[2];
+
+    const hasAdminAccess = true;
+    const slugFeature = routerPathname.split('/')[2] === "payment" ? "cashbox" : routerPathname.split('/')[2];
     const hasFeatureAccess = features?.find((feature: FeatureModel) => slugFeature?.includes(feature.slug)) ?? false;
 
     useEffect(() => {
@@ -36,7 +38,7 @@ function AuthGuard({children}: LayoutProps) {
         return <LoadingScreen/>
     }
 
-    if (!hasFeatureAccess && router.pathname !== '/dashboard') {
+    if (!hasAdminAccess && router.pathname.includes("/admin/") || !hasFeatureAccess && router.pathname.includes("/dashboard/")) {
         console.log("auth guard loading")
         return <LoadingScreen
             text={"permission"}

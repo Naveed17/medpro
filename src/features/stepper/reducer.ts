@@ -8,7 +8,6 @@ export type StepperProps = {
 const initialState: StepperProps = {
   currentStep: 0,
 };
-
 export const StepperReducer = createReducer(initialState, (builder) => {
   builder.addCase(setStepperIndex, (state, action) => {
     state.currentStep = action.payload;

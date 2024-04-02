@@ -1,6 +1,6 @@
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo} from "react";
 // material
-import {CssBaseline} from "@mui/material";
+import {CssBaseline, useTheme} from "@mui/material";
 import {
     createTheme,
     ThemeProvider
@@ -33,6 +33,7 @@ type SupportedLocales = keyof typeof locales;
 function ThemeConfig({children}: LayoutProps) {
     const {mode} = useAppSelector(configSelector);
     const router = useRouter();
+    const theme = useTheme();
     const lang: string | undefined = router.locale;
     const locale: SupportedLocales = Localization(lang);
     const dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -73,9 +74,14 @@ function ThemeConfig({children}: LayoutProps) {
             shape: {
                 borderRadius: 6
             },
-        }, locales[locale]),
-        [dir, locale, mode],
-    );
+            breakpoints: {
+                values: {
+                    ...theme.breakpoints.values,
+                    xl: 1440
+                }
+            }
+        }, locales[locale]), [dir, locale, mode, theme]);
+
     themeWithLocale.components = componentsOverride(themeWithLocale);
 
     return (

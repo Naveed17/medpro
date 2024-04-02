@@ -12,10 +12,7 @@ import {Otable} from "@features/table";
 import {PfTemplateDetail} from "@features/pfTemplateDetail";
 import {useRequestQueryMutation} from "@lib/axios";
 import AddIcon from "@mui/icons-material/Add";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
@@ -41,7 +38,7 @@ function PatientFileTemplates() {
     });
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
 
     const [displayedItems, setDisplayedItems] = useState(10);
@@ -178,6 +175,11 @@ function PatientFileTemplates() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [models, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -225,7 +227,6 @@ function PatientFileTemplates() {
                                 <FileTemplateMobileCard
                                     data={row}
                                     edit={handleEdit}
-                                    handleConfig={null}
                                     handleChange={handleChange}
                                 />
                             </React.Fragment>
@@ -293,8 +294,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

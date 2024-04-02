@@ -52,7 +52,7 @@ function Profile() {
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
-    const {t, ready} = useTranslation("settings");
+    const {t, ready, i18n} = useTranslation("settings");
     const {direction} = useAppSelector(configSelector);
     const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -103,6 +103,12 @@ function Profile() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, medicalProfessionalData, user]);// eslint-disable-line react-hooks/exhaustive-deps
+
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const [dialogContent, setDialogContent] = useState("");
 
@@ -383,9 +389,9 @@ function Profile() {
                                     <Can I={"manage"} a={"settings"} field={"settings__profile__insurance__edit"}>
                                         <IconButton
                                             size="small"
-                                            color="primary"
+                                            className="btn-edit"
                                             onClick={() => dialogOpen("assurance")}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                         </IconButton>
                                     </Can>
                                 </Stack>
@@ -490,9 +496,9 @@ function Profile() {
                                     <Can I={"manage"} a={"settings"} field={"settings__profile__payment_means__edit"}>
                                         <IconButton
                                             size="small"
-                                            color="primary"
+                                            className="btn-edit"
                                             onClick={() => dialogOpen("mode")}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                         </IconButton>
                                     </Can>
                                 </Stack>
@@ -546,9 +552,9 @@ function Profile() {
                                     <Can I={"manage"} a={"settings"} field={"settings__profile__languages__edit"}>
                                         <IconButton
                                             size="small"
-                                            color="primary"
+                                            className="btn-edit"
                                             onClick={() => dialogOpen("langues")}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                         </IconButton>
                                     </Can>
                                 </Stack>
@@ -616,9 +622,9 @@ function Profile() {
                                     <Can I={"manage"} a={"settings"} field={"settings__actfees__show"}>
                                         <IconButton
                                             size="small"
-                                            color="primary"
+                                            className="btn-edit"
                                             onClick={() => router.push("/dashboard/settings/actfees")}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                         </IconButton>
                                     </Can>
                                 </Stack>
@@ -710,8 +716,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

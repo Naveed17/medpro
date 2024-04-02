@@ -19,9 +19,7 @@ function useTimer() {
         } else {
             clearInterval(interval);
         }
-        return () => {
-            clearInterval(interval);
-        };
+        return () => clearInterval(interval);
     }, [isActive, isPaused, time]);
 
     return {timer: moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss')};

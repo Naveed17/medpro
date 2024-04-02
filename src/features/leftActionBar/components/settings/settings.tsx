@@ -18,7 +18,6 @@ import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {LoadingScreen} from "@features/loadingScreen";
-import Can from "@features/casl/can";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 
@@ -31,6 +30,7 @@ function Settings() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const locations = medical_entity?.location ?? null;
+    const hasAdminAccess = router.pathname.includes("/admin");
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -42,33 +42,30 @@ function Settings() {
                 </Typography>
                 <nav aria-label="main mailbox folders">
                     <List>
-                        {settingsData.data.map((item: any) => (
-                            <Can key={item.name} I={"read"} a={"settings"}
-                                 field={`settings__${item.href.split('/')[3]}__show` as any}>
-                                <ListItem
-                                    {...(item.fill !== "default" && {
-                                        sx: {
-                                            "& .MuiListItemIcon-root svg path": {
-                                                fill: (theme) => theme.palette.primary.main
-                                            }
+                        {settingsData[hasAdminAccess ? "admin" : "dashboard"].map((item: any) => (
+                            <ListItem
+                                {...(item.fill !== "default" && {
+                                    sx: {
+                                        "& .MuiListItemIcon-root svg path": {
+                                            fill: (theme) => theme.palette.primary.main
                                         }
-                                    })
                                     }
-                                    key={item.name}
-                                    {...(item.disable && {sx: {display: "none"}})}
-                                    className={router.pathname === item.href ? 'active' : ''}
-                                    disablePadding>
-                                    <ListItemButton
-                                        onClick={() => router.push(`${item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`)}
-                                        disabled={item.disable}
-                                        disableRipple>
-                                        <ListItemIcon>
-                                            <IconUrl width={20} height={20} path={item.icon}/>
-                                        </ListItemIcon>
-                                        <ListItemText primary={t('menu.' + item.name)}/>
-                                    </ListItemButton>
-                                </ListItem>
-                            </Can>
+                                })
+                                }
+                                key={item.name}
+                                {...(item.disable && {sx: {display: "none"}})}
+                                className={router.pathname.includes(item.href) ? 'active' : ''}
+                                disablePadding>
+                                <ListItemButton
+                                    onClick={() => router.push(`${item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`)}
+                                    disabled={item.disable}
+                                    disableRipple>
+                                    <ListItemIcon>
+                                        <IconUrl width={20} height={20} path={item.icon}/>
+                                    </ListItemIcon>
+                                    <ListItemText primary={t('menu.' + item.name)}/>
+                                </ListItemButton>
+                            </ListItem>
                         ))}
                     </List>
                 </nav>

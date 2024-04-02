@@ -46,7 +46,7 @@ function ConsultationType() {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motifType.config"});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "motifType.config"});
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -185,6 +185,12 @@ function ConsultationType() {
         }
     }, [appointmentTypesResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -293,8 +299,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

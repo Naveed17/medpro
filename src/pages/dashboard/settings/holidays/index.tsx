@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
@@ -25,7 +25,7 @@ function Holidays() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "holidays.config"});
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "holidays.config"});
     const {direction} = useAppSelector(configSelector);
     const {config: agenda, openAbsenceDrawer} = useAppSelector(agendaSelector);
     const absenceData = useAppSelector(absenceDrawerSelector);
@@ -143,6 +143,11 @@ function Holidays() {
         },
     ];
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['settings']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (<>
@@ -248,7 +253,7 @@ function Holidays() {
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', "patient", 'settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 

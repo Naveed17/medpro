@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         Connection: 'keep-alive',
         'Content-Encoding': 'none',
         'Cache-Control': 'no-cache, no-transform',
-        'Content-Type': 'text/event-stream',
+        'Content-Type': 'text/event-stream; charset=utf-8',
     });
 
     const session = await getServerSession(req, res, authOptions);
@@ -26,6 +26,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             'Authorization': `Bearer ${process.env.MERCURE_JWT_TOKEN}`
         }
     })
+
+    evtSource.onopen = () => {
+        res.write(`event: message\nopenConnection: true\n\n`)
+    };
 
     evtSource.onmessage = (e: MessageEvent<any>) => {
         res.write(`event: message\ndata: ${e.data}\n\n`)

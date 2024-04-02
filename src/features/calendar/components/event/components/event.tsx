@@ -6,12 +6,11 @@ import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {ConditionalWrapper, convertHexToRGBA} from "@lib/hooks";
 import {alpha, Theme} from "@mui/material/styles";
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AppointmentPopoverCard, timerSelector} from "@features/card";
-import {openDrawer, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
 import {setDialog} from "@features/topNavBar";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 import {MobileContainer as smallScreen} from "@lib/constants";
@@ -24,6 +23,7 @@ function Event({...props}) {
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {isActive} = useAppSelector(timerSelector);
+    const {mode} = useAppSelector(agendaSelector);
 
     const handleStartConsultation = (event: any) => {
         if (!isActive) {
@@ -168,7 +168,7 @@ function Event({...props}) {
                             color={"text.primary"}
                             fontWeight={600}
                             noWrap>
-                            {view === "timeGridDay" ? (
+                            {view === "timeGridDay" && mode === "normal" ? (
                                     <Stack spacing={.5} alignItems={"center"}
                                            direction={appointment?.dur > 15 ? "column" : "row"}>
                                         <span>{event.event._def.title}</span>
@@ -182,15 +182,18 @@ function Event({...props}) {
                                 )
                                 :
                                 <span
+                                    {...(mode !== "normal" && {className: "blur-text"})}
                                     style={{
                                         width: '100%',
-                                        paddingBottom: 4,
-                                        paddingTop: 4
+                                        ...(mode === "normal" && {
+                                            paddingBottom: 4,
+                                            paddingTop: 4
+                                        })
                                     }}>{event.event._def.title}</span>
                             }
                         </Typography>
                         {appointment?.isOnline && <Avatar
-                            className={"online-appointment"}
+                            className={`online-appointment`}
                             alt="Online appointment"
                             src="/static/icons/Med-logo_.svg"
                         />}
@@ -210,7 +213,7 @@ function Event({...props}) {
                                     alignSelf: appointment?.dur > 15 ? "flex-end" : 'flex-start',
                                     mr: appointment?.motif?.length > 0 ? .5 : 0
                                 }}>
-                                <PlayCircleIcon/>
+                                <Icon path={"ic-play-audio-black"}/>
                             </IconButton>}
                     </Stack>
                 </Stack>
