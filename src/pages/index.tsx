@@ -85,7 +85,7 @@ function Home() {
     const hasSelectedEntity = medicalEntity?.has_selected_entity ?? false;
     const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
-    return ((!hasMultiMedicalEntities || hasSelectedEntity) ?
+    return ((!hasMultiMedicalEntities && hasSelectedEntity) ?
         <Redirect
             to={medicalEntity?.root === "admin" ? "/admin" : (features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`)} />
         :
