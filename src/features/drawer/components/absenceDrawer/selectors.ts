@@ -3,4 +3,7 @@ import {createSelector} from "@reduxjs/toolkit";
 
 export const selectAbsenceDrawer = (state: RootState) => state.absence;
 
-export const absenceDrawerSelector = createSelector(selectAbsenceDrawer, state => state);
+export const absenceDrawerSelector = createSelector(selectAbsenceDrawer, state => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

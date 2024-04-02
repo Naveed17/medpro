@@ -28,7 +28,7 @@ function Acts() {
     const {medical_professional} = useMedicalProfessionalSuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "actes"});
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const [mainActs, setMainActs] = useState<ActModel[]>([]);
@@ -160,6 +160,12 @@ function Acts() {
         }
         setItems(val.slice(0, 10));
     };
+
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['settings']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -380,7 +386,7 @@ function Acts() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'patient', 'settings']))
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
     }
 })
 

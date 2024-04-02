@@ -3,4 +3,7 @@ import {createSelector} from "@reduxjs/toolkit";
 
 export const selectDialogOpeningHours = (state: RootState) => state.openingHours;
 
-export const dialogOpeningHoursSelector = createSelector(selectDialogOpeningHours, state => state);
+export const dialogOpeningHoursSelector = createSelector(selectDialogOpeningHours, state => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

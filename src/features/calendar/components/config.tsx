@@ -208,75 +208,117 @@ export const SlotFormat = {
     hour12: false,
 } as FormatterInput;
 
-export const CalendarContextMenu = [
+type ContextMenuProps = {
+    title: string;
+    icon: any;
+    action: string;
+    feature: string;
+    permission: string;
+};
+
+function tuple<T extends ContextMenuProps[]>(...o: T) {
+    return o;
+}
+
+export const CalendarContextMenu = tuple(
     {
         title: "start_the_consultation",
         icon: <PlayCircleFilledWhiteOutlinedIcon/>,
         action: "onConsultationDetail",
+        feature: "agenda",
+        permission: "agenda__appointment__start"
     },
     {
         title: "consultation_pay",
         icon: <IconUrl width={20} height={20} color={"white"} path="ic-fees"/>,
         action: "onPay",
+        feature: "cashbox",
+        permission: "cash_box__transaction__create"
     },
     {
         title: "pre_consultation_data",
         icon: <Icon color={"white"} width={20} height={20} path="docs/ic-note"/>,
         action: "onPreConsultation",
+        feature: "agenda",
+        permission: "agenda__appointment__add_follow_up_data"
     },
     {
         title: "import_document",
         icon: <Icon color={"white"} width={20} height={20} path="fileadd"/>,
         action: "onAddConsultationDocuments",
+        feature: "agenda",
+        permission: "agenda__appointment__import_document"
     },
     {
         title: "confirm_appointment",
         icon: <CheckCircleOutlineRoundedIcon/>,
         action: "onConfirmAppointment",
+        feature: "agenda",
+        permission: "agenda__appointment__auto_confirm"
     },
     {
         title: "view_the_consultation",
         icon: <PlayCircleIcon/>,
         action: "onConsultationView",
+        feature: "consultation",
+        permission: "*"
     },
     {
         title: "add_patient_to_waiting_room",
         icon: <Icon color={"white"} width={20} height={20} path="ic_waiting_room"/>,
         action: "onWaitingRoom",
+        feature: "waiting-room",
+        permission: "waiting-room__waiting-room__show"
     },
     {
         title: "patient_no_show",
         icon: <PersonOffIcon/>,
         action: "onPatientNoShow",
+        feature: "agenda",
+        permission: "agenda__appointment__patient_show_up"
     },
     {
         title: "leave_waiting_room",
         icon: <Icon color={"white"} width={20} height={20} path="ic_waiting_room"/>,
         action: "onLeaveWaitingRoom",
+        feature: "waiting-room",
+        permission: "waiting-room__waiting-room__show"
     },
     {
         title: "see_patient_form",
         icon: <Icon color={"white"} width={"20"} height={"20"} path="docs/antecedent"/>,
         action: "onPatientDetail",
+        feature: "patients",
+        permission: "patients__patient__show"
     },
     {
         title: "reschedule_appointment",
         icon: <Icon color={"white"} width={"20"} height={"20"} path="agenda/ic-agenda-jour"/>,
         action: "onReschedule",
+        feature: "agenda",
+        permission: "agenda__appointment__reshedule"
     },
     {
         title: "move_appointment",
         icon: <Icon color={"white"} path="iconfinder"/>,
         action: "onMove",
+        feature: "agenda",
+        permission: "agenda__appointment__edit"
     },
     {
         title: "cancel_appointment",
         icon: <Icon color={"white"} width={"16"} height={"16"} path="close"/>,
         action: "onCancel",
+        feature: "agenda",
+        permission: "agenda__appointment__cancel"
     },
     {
         title: "delete_appointment",
         icon: <Icon color={"white"} width={"20"} height={"20"} path="ic-delete"/>,
         action: "onDelete",
+        feature: "agenda",
+        permission: "agenda__appointment__delete"
     }
-];
+);
+
+export type ContextMenuModel = typeof CalendarContextMenu[number];

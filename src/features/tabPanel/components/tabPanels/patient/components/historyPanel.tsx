@@ -136,7 +136,7 @@ function HistoryPanel({...props}) {
                     <Typography fontWeight={600} p={1}>
                         {t("history")}
                     </Typography>
-                    <Stack spacing={2} mt={0}>
+                    <Stack spacing={1.2} mt={0}>
                         {apps.map((app: any, appID: number) => (
                             <React.Fragment key={`app-el-${appID}`}>
                                 <HistoryContainer {...{
@@ -161,20 +161,22 @@ function HistoryPanel({...props}) {
                                 }}/>
                             </React.Fragment>))}
                     </Stack>
-                    {totalPagesLa > pagesLa && <Button style={{width: "fit-content"}} size={"small"} onClick={() => {
-                        if (medicalEntityHasUser) {
-                            triggerConsultationPrevious({
-                                method: "GET",
-                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
-                            }, {
-                                onSuccess: (r: any) => {
-                                    const res = r?.data.data;
-                                    setApps([...apps, ...res.list])
-                                }
-                            });
-                            setPagesLa(pagesLa + 1)
-                        }
-                    }}>{t('consultationIP.more')}</Button>}
+                    {totalPagesLa > pagesLa && <Button
+                        sx={{width: "fit-content", mt: 1}} size={"small"}
+                        onClick={() => {
+                            if (medicalEntityHasUser) {
+                                triggerConsultationPrevious({
+                                    method: "GET",
+                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
+                                }, {
+                                    onSuccess: (r: any) => {
+                                        const res = r?.data.data;
+                                        setApps([...apps, ...res.list])
+                                    }
+                                });
+                                setPagesLa(pagesLa + 1)
+                            }
+                        }}>{t('consultationIP.more')}</Button>}
                 </Box>
 
                 {info && (

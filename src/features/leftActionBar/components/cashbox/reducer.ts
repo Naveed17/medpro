@@ -4,8 +4,8 @@ import {
     setCashBoxes,
     setInsurancesList, setMutate,
     setPaymentTypesList,
-    setSelectedBoxes, SetSelectedTab
-} from "@features/leftActionBar/components/cashbox/actions";
+    setSelectedBoxes, setSelectedTabIndex
+} from "./actions";
 
 const initialState: any = {
     insurances: [],
@@ -15,7 +15,7 @@ const initialState: any = {
     selectedBoxes: [],
     cashboxes: [],
     mutate: null,
-    selectedTab:'consultations',
+    selectedTab: 'consultations',
     filterCB: {
         type_transaction: '',
         status_transaction: '',
@@ -27,14 +27,13 @@ const initialState: any = {
         gender: '',
         birthdate: '',
         name: ''
-
     }
 };
 
 export const CashboxReducer = createReducer(initialState, builder => {
     builder
         .addCase(setFilterCB, (state, action) => {
-            state.filterCB = action.payload;
+            return {...state, filterCB: {...state.filterCB, ...action.payload}}
         })
         .addCase(setInsurances, (state, action) => {
             state.insurances = action.payload;
@@ -57,7 +56,7 @@ export const CashboxReducer = createReducer(initialState, builder => {
         .addCase(setMutate, (state, action) => {
             state.mutate = action.payload;
         })
-        .addCase(SetSelectedTab, (state, action) => {
+        .addCase(setSelectedTabIndex, (state, action) => {
             state.selectedTab = action.payload;
         })
 });

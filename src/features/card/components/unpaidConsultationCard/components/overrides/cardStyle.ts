@@ -40,13 +40,16 @@ const CardStyled = styled(Card)(({ theme }) => ({
           transform: "translateY(-50%)",
           backgroundColor: theme.palette.text.primary,
           "@media (max-width: 370px)": {
-            right: 6,
+            right: 8,
           },
         },
       },
     },
     "@media (max-width: 370px)": {
       gridTemplateColumns: "repeat(3, minmax(100px, 100px))",
+      ".ellipsis":{
+        width:48,
+      }
     },
   },
 }));

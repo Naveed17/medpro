@@ -8,7 +8,8 @@ import IconUrl from "@themes/urlIcon";
 import {uniqueId} from "lodash";
 
 function AgendaRow({...props}) {
-    const {row, handleChange, handleConfig, edit, t} = props;
+    const {row, handleChange} = props;
+
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -32,7 +33,7 @@ function AgendaRow({...props}) {
             <TableCell align="center">
                 <Switch
                     name="isAutoConfirm"
-                    onChange={(e) => handleChange(row, "isAutoConfirm", "")}
+                    onChange={() => handleChange(row, "isAutoConfirm", "")}
                     checked={row.isAutoConfirm}
                 />
             </TableCell>
@@ -41,7 +42,7 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Checkbox
                         name="isDefault"
-                        onChange={(e) => handleChange(row, "isDefault", "")}
+                        onChange={() => handleChange(row, "isDefault", "")}
                         checked={row.isDefault}
                     />
                 ) : (
@@ -53,7 +54,7 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Switch
                         name="isActive"
-                        onChange={(e) => handleChange(row, "isActive", "")}
+                        onChange={() => handleChange(row, "isActive", "")}
                         checked={row.isActive}
                     />
                 ) : (
@@ -66,7 +67,7 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Switch
                         name="isPublic"
-                        onChange={(e) => handleChange(row, "isPublic", "")}
+                        onChange={() => handleChange(row, "isPublic", "")}
                         checked={row.isPublic}
                     />
                 ) : (

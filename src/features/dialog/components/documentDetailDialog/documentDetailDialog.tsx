@@ -33,6 +33,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
+import PreviewA4 from "@features/files/components/previewA4";
 
 import {useReactToPrint} from "react-to-print";
 import moment from "moment";
@@ -43,17 +44,23 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import PreviewA4 from "@features/files/components/previewA4";
-import {generatePdfFromHtml, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {
+    downloadFileAsPdf,
+    generatePdfFromHtml,
+    useMedicalEntitySuffix,
+    useMedicalProfessionalSuffix
+} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import {useSnackbar} from "notistack";
 import {FacebookCircularProgress} from "@features/progressUI";
-
 import {LoadingScreen} from "@features/loadingScreen";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {Doc} from "@features/page";
+import {generatedDocs, multiMedias, slugs} from "@lib/constants";
+import {downloadFileFromUrl} from "@lib/hooks/downloadFileFromUrl";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -91,6 +98,7 @@ function DocumentDetailDialog({...props}) {
     const previewDocRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
     const [docs, setDocs] = useState([]);
+    const [urls, setUrls] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
     const [error, setError] = useState(false);
     const [docPageOffset] = useState(1);
@@ -116,12 +124,11 @@ function DocumentDetailDialog({...props}) {
     const [sendEmailDrawer, setSendEmailDrawer] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<any>(null);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [onReSize, setOnResize] = useState(true)
+    const [pdfUrl, setPdfUrl] = useState('');
 
     const {direction} = useAppSelector(configSelector);
 
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses', 'lens']
-    const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
-    const multimedias = ['video', 'audio', 'photo'];
     const list = [
         {
             title: 'document_type',
@@ -149,7 +156,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'print',
             icon: "menu/ic-print",
-            disabled: multimedias.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type)
         },
         {
             title: 'email',
@@ -158,7 +165,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'settings',
             icon: "docs/ic-note",
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: 'download',
@@ -177,22 +184,22 @@ function DocumentDetailDialog({...props}) {
         {
             title: data.header.show ? 'hide' : 'show',
             icon: `menu/${!data.header.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
             icon: `menu/${!data.header.page ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: `menu/${!data.title.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.patient.show ? 'hidepatient' : 'showpatient',
             icon: `menu/${data.patient.show ? 'ic-cancel-patient' : 'ic-user'}`,
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         }
     ];
 
@@ -225,7 +232,9 @@ function DocumentDetailDialog({...props}) {
                 ...selected.header.data,
                 background: {show: selected.header.data.background.show, content: selected.file ? selected.file : ''}
             })
+            setOnResize(true)
             setHeader(selected.header.header)
+            setUrls(selected.documentsUrl)
             setOpenAlert(false);
             setTimeout(() => {
                 setLoading(false)
@@ -245,18 +254,6 @@ function DocumentDetailDialog({...props}) {
             setIsPrinting(false);
         }
     })
-
-    const downloadF = () => {
-        fetch(file.url).then(response => {
-            response.blob().then(blob => {
-                const fileURL = window.URL.createObjectURL(blob);
-                let alink = document.createElement('a');
-                alink.href = fileURL;
-                alink.download = `${state?.type} ${state?.patient}`
-                alink.click();
-            })
-        })
-    }
 
     const handleActions = async (action: string) => {
         switch (action) {
@@ -290,8 +287,8 @@ function DocumentDetailDialog({...props}) {
                             action: 'medical_prescription_cycle',
                             state: state?.info.map((drug: any) => ({
                                 cycles: drug.cycles,
-                                drugUuid: drug.standard_drug.uuid,
-                                name: drug.standard_drug.commercial_name,
+                                drugUuid: drug.standard_drug?.uuid,
+                                name: drug.drugName
                             })),
                             uuid: state?.uuidDoc,
                             appUuid: state?.appUuid
@@ -366,16 +363,9 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "download":
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    const file = await generatePdfFromHtml(componentRef, "blob");
-                    const fileURL = window.URL.createObjectURL((file as Blob));
-                    let alink = document.createElement('a');
-                    alink.href = fileURL;
-                    alink.download =
-                        `${state?.type} ${state?.patient}`
-
-                    alink.click();
+                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew);
                 } else {
-                    downloadF();
+                    downloadFileFromUrl(file.url, `${state?.type} ${state?.patient}`);
                 }
                 break;
             case "settings":
@@ -419,8 +409,7 @@ function DocumentDetailDialog({...props}) {
         if (state?.type === "quote") {
             medicalEntityHasUser && triggerDocumentDelete({
                     method: "DELETE",
-                    url: `${urlMedicalEntitySuffix} / mehu /${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}
-    /${router.locale}`
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/quotes/${state?.uuid}/${router.locale}`
                 },
                 {
                     onSuccess: () => {
@@ -431,12 +420,11 @@ function DocumentDetailDialog({...props}) {
                         setOpenDialog && setOpenDialog(false);
                     }
                 }
-            )
-            ;
+            );
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
-                url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state?.uuid}/${router.locale}`
+                url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}`}/documents/${state?.uuid}/${router.locale}`
             }, {
                 onSuccess: () => {
                     state?.mutate && state?.mutate();
@@ -490,6 +478,24 @@ function DocumentDetailDialog({...props}) {
         });
     }
 
+    /* const convertToPdf = async (htmlContent) => {
+         const response = await fetch('/api/convertToPdf', {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+             },
+             body: JSON.stringify({ htmlContent }),
+         });
+         if (response.ok) {
+             const pdfBlob = await response.blob();
+             const pdfUrl = URL.createObjectURL(pdfBlob);
+             setPdfUrl(pdfUrl);
+         } else {
+             console.error('Failed to convert HTML to PDF');
+         }
+     };
+
+ */
     useEffect(() => {
         setIsImg(state?.detectedType?.split('/')[0] === 'image')
         setFile(state?.uri)
@@ -498,7 +504,7 @@ function DocumentDetailDialog({...props}) {
     useEffect(() => {
         if (state?.print && previewDocRef.current) {
             setIsPrinting(true);
-            setTimeout(() => handlePrint());
+            setTimeout(() => handlePrint(), 1000);
         }
     }, [state?.print, previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -506,6 +512,7 @@ function DocumentDetailDialog({...props}) {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
+
             if (docInfo.length === 0) {
                 setLoading(false)
             } else {
@@ -529,6 +536,7 @@ function DocumentDetailDialog({...props}) {
                             }
                         })
                         setHeader(_template.header.header)
+                        setUrls(_template.documentsUrl)
                     }
                 } else {
                     const templates: any[] = [];
@@ -553,6 +561,7 @@ function DocumentDetailDialog({...props}) {
                             }
                         })
                         setHeader(templates[0].header.header)
+                        setUrls(templates[0].documentsUrl)
                     } else {
                         const defaultdoc = docInfo.find((di: {
                             isDefault: any;
@@ -571,6 +580,7 @@ function DocumentDetailDialog({...props}) {
                                 }
                             })
                             setHeader(defaultdoc.header.header)
+                            setUrls(defaultdoc.documentsUrl)
                         } else {
                             setSelectedTemplate(docInfo[0].uuid)
                             setData({
@@ -585,17 +595,66 @@ function DocumentDetailDialog({...props}) {
                                 }
                             })
                             setHeader(docInfo[0].header.header)
+                            setUrls(docInfo[0].documentsUrl)
                         }
                     }
                 }
-                setLoading(false)
+                setTimeout(() => {
+                    setLoading(false)
+                }, 1000)
             }
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const generatedDocsNode = generatedDocs.some(doc => doc === state?.type) &&
         <div>
-            {!loading && <PreviewA4
+            {loading ? <div className={data.size ? data.size : "portraitA5"}></div> :
+                data.isNew ? <Box ref={previewDocRef}>
+                    <Doc {...{
+                        data,
+                        setData,
+                        componentRef,
+                        header, setHeader,
+                        date,
+                        onReSize, setOnResize,
+                        urlMedicalProfessionalSuffix,
+                        docs: urls,
+                        setDocs: setUrls,
+                        state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                            ...state,
+                            info: [{
+                                fees: state?.consultationFees,
+                                hiddenData: true,
+                                act: {
+                                    name: "Consultation",
+                                },
+                                qte: 1
+                            }]
+                        } : state
+                    }}/>
+                </Box> : <PreviewA4
+                    {...{
+                        previewDocRef,
+                        componentRef,
+                        eventHandler,
+                        data,
+                        values: header,
+                        state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                            ...state,
+                            info: [{
+                                fees: state?.consultationFees,
+                                hiddenData: true,
+                                act: {
+                                    name: "Consultation",
+                                },
+                                qte: 1
+                            }]
+                        } : state,
+                        date,
+                        loading,
+                        t
+                    }} />}
+            {/* {!loading && <PreviewA4
                 {...{
                     previewDocRef,
                     componentRef,
@@ -616,8 +675,7 @@ function DocumentDetailDialog({...props}) {
                     date,
                     loading,
                     t
-                }} />}
-            {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
+                }} />}*/}
         </div>
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -635,7 +693,12 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
-                        {!multimedias.some(multi => multi === state?.type) &&
+                        {pdfUrl && (
+                            <a href={pdfUrl} download="converted.pdf">
+                                Download PDF
+                            </a>
+                        )}
+                        {!multiMedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
                                     {generatedDocsNode}
@@ -655,10 +718,13 @@ function DocumentDetailDialog({...props}) {
                                                     <Typography>{t('ureadbleFile')}</Typography>
                                                     <Typography fontSize={12}
                                                                 style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
-                                                    <Button onClick={downloadF} color={"info"}
-                                                            variant="outlined"
-                                                            startIcon={<IconUrl path="menu/ic-download-square" width={20}
-                                                                                height={20}/>}>
+                                                    <Button
+                                                        onClick={() => downloadFileFromUrl(file?.url, `${state?.type} ${state?.patient}`)}
+                                                        color={"info"}
+                                                        variant="outlined"
+                                                        startIcon={<IconUrl path="menu/ic-download-square"
+                                                                            width={20}
+                                                                            height={20}/>}>
                                                         {t('download')}
                                                     </Button>
                                                 </Stack>
@@ -698,7 +764,7 @@ function DocumentDetailDialog({...props}) {
                                 </Box>
                             </Box>
                         }
-                        {multimedias.some(multi => multi === state?.type) &&
+                        {multiMedias.some(multi => multi === state?.type) &&
                             <Box>
                                 {state?.type === 'photo' &&
                                     <TransformWrapper initialScale={1}>
@@ -737,7 +803,6 @@ function DocumentDetailDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
                     {menu ? <List>
-
                             {actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     {!button.disabled && <ListItemButton
@@ -747,8 +812,7 @@ function DocumentDetailDialog({...props}) {
                                         </ListItemIcon>
                                         {menu && <ListItemText sx={{ml: 1}} primary={t(button.title)}/>}
                                     </ListItemButton>}
-                                </ListItem>)
-                            }
+                                </ListItem>)}
                             <ListItem className='secound-list'>
                                 <ListItemButton onClick={() => {
                                     setMenu(false)
@@ -807,10 +871,6 @@ function DocumentDetailDialog({...props}) {
                                             document.getElementById('date-input')?.focus()
                                         }}
                                     />
-                                    {/*<Button size='small' className='btn-modi' onClick={() => console.log(date)}>
-                                    <IconUrl path="ic-edit"/>
-                                    {t('modifier')}
-                                </Button>*/}
                                 </ListItemButton>
                             </ListItem>
                             {
@@ -878,23 +938,23 @@ function DocumentDetailDialog({...props}) {
             </Grid>
 
             <CustomDialog
+                {...{direction}}
                 action={"remove"}
-                direction={direction}
                 open={openRemove}
                 data={selected}
                 color={(theme: Theme) => theme.palette.error.main}
                 title={t('removedoc')}
-                t={t}
                 actionDialog={
-                    <DialogActions>
-                        <Button onClick={() => {
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant={"text-black"} onClick={() => {
                             setOpenRemove(false);
                         }}
-                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                            startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                         <LoadingButton variant="contained"
                                        sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
                                        onClick={() => dialogSave(state)}>{t('remove')}</LoadingButton>
-                    </DialogActions>
+                    </Stack>
                 }
             />
 

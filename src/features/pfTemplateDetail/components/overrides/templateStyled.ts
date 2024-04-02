@@ -3,6 +3,11 @@ import {Card} from '@mui/material'
 
 const TemplateStyled = styled(Card)(({theme}) => ({
     border: 'none',
+    ".btn-edit": {
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: 8,
+        padding: theme.spacing(.8),
+    },
     ".MuiCardContent-root": {
         padding: theme.spacing(2),
         position: 'relative',
@@ -35,21 +40,28 @@ const TemplateStyled = styled(Card)(({theme}) => ({
             borderRadius: 6,
             position: "relative",
             display: "flex",
-            flexDirection: "column",
+            justifyContent: "center",
             alignItems: 'center',
-            minHeight: 168,
+            minHeight: 235,
             ".portraitA4": {
                 minHeight: 400,
                 [theme.breakpoints.down("md")]: {
                     width: '100%',
                     margin: '0 !important',
-
-
                 },
 
             },
-            "& div": {
-                width: '100%',
+            ".page": {
+                zoom: "18%"
+            },
+            ".a4": {
+                zoom: "18%"
+            },
+            ".a5": {
+                zoom: "25%"
+            },
+            ".landscapea4": {
+                zoom: "15% !important"
             },
             [theme.breakpoints.down("md")]: {
                 width: '100%',

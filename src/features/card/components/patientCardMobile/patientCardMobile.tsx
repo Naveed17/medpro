@@ -120,8 +120,7 @@ export default function MobileTable({...props}) {
                                             setOpenTooltip(true);
                                         }}
                                         sx={{display: "block", ml: "auto"}}
-                                        size="small"
-                                    >
+                                        size="small">
                                         <Icon path="more-vert"/>
                                     </IconButton>
                                 }

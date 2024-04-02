@@ -16,7 +16,7 @@ export const prepareContextMenu = (action: string, eventMenu: EventModal, roles:
         action === "onCancel" &&
         (["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
         action === "onDelete" &&
-        ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) ||
+        ["ON_GOING"].includes(eventMenu?.status.key) ||
         action === "onMove" &&
         ((eventMenu?.status.key !== "CONFIRMED" && moment().isAfter(eventMenu?.time)) || ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
         action === "onPatientNoShow" &&

@@ -1,5 +1,5 @@
 import {GetStaticPaths, GetStaticProps} from "next";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
@@ -21,7 +21,6 @@ import {
 import {instanceAxios, useRequestQueryMutation} from "@lib/axios";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
-import {batch} from "react-redux";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -56,7 +55,7 @@ function Document() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation("docs");
+    const {t, ready, i18n} = useTranslation("docs");
     const ocrData = useAppSelector(ocrDocumentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {patient} = useAppSelector(appointmentSelector);
@@ -87,7 +86,7 @@ function Document() {
             url: `${urlMedicalEntitySuffix}/ocr/documents/${documentUuid}/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => router.push('/dashboard/documents').then(() => medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`])),
+            onSuccess: () => router.push('/dashboard/documents').then(() => invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/ocr/documents/${router.locale}`])),
             onSettled: () => setLoading(false)
         });
     }
@@ -99,12 +98,15 @@ function Document() {
     }
 
     useLeavePageConfirm(() => {
-        batch(() => {
-            dispatch(onResetPatient());
-            dispatch(resetAppointment());
-            dispatch(resetOcrData());
-        });
+        dispatch(onResetPatient());
+        dispatch(resetAppointment());
+        dispatch(resetOcrData());
     });
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["docs"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -278,7 +280,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
         props: {
             dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs", "agenda", "patient"])),
+            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs"])),
         },
     };
 }

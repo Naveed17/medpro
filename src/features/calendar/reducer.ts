@@ -5,12 +5,13 @@ import {
     setConfig,
     setCurrentDate,
     setGroupedByDayAppointments,
-    setLastUpdate, setPendingAppointments,
+    setLastUpdate, setMessagesRefresh, setNavigatorMode,
     setSelectedEvent,
     setStepperIndex,
     setView
 } from './actions';
 import {EventDef} from "@fullcalendar/core/internal";
+import moment from "moment-timezone";
 
 export type CalendarProps = {
     view: string | undefined;
@@ -21,15 +22,16 @@ export type CalendarProps = {
     openPatientDrawer: boolean;
     openPayDialog: boolean;
     currentStepper: number;
+    mode: "discreet" | "normal",
     config: AgendaConfigurationModel | null;
     agendas: AgendaConfigurationModel[];
-    pendingAppointments: AppointmentModel[];
     currentDate: { date: Date, fallback: boolean };
     selectedEvent: EventDef | null;
     actionSet: any | null;
     sortedData: GroupEventsModel[];
     absences: AppointmentModel[];
     appointmentTypes: AppointmentTypeModel[];
+    messagesRefresh: string,
     lastUpdateNotification: { title: string, body: string } | null;
 };
 
@@ -42,15 +44,16 @@ const initialState: CalendarProps = {
     openMoveDrawer: false,
     openPayDialog: false,
     currentStepper: 0,
+    mode: "normal",
     config: null,
     actionSet: null,
     agendas: [],
-    pendingAppointments: [],
-    currentDate: {date: new Date(), fallback: false},
+    currentDate: {date: moment().toDate(), fallback: false},
     selectedEvent: null,
     sortedData: [],
     absences: [],
     appointmentTypes: [],
+    messagesRefresh: "",
     lastUpdateNotification: null
 };
 
@@ -86,8 +89,6 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.actionSet = action.payload;
     }).addCase(setAgendas, (state, action) => {
         state.agendas = action.payload;
-    }).addCase(setPendingAppointments, (state, action) => {
-        state.pendingAppointments = action.payload;
     }).addCase(setCurrentDate, (state, action) => {
         state.currentDate = action.payload;
     }).addCase(setSelectedEvent, (state, action) => {
@@ -100,5 +101,9 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.lastUpdateNotification = action.payload;
     }).addCase(setAppointmentTypes, (state, action) => {
         state.appointmentTypes = action.payload;
+    }).addCase(setMessagesRefresh, (state, action) => {
+        state.messagesRefresh = action.payload;
+    }).addCase(setNavigatorMode, (state, action) => {
+        state.mode = action.payload;
     });
 });

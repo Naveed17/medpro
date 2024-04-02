@@ -12,9 +12,11 @@ import {useRouter} from "next/router";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useAppSelector} from "@lib/redux/hooks";
 import CircleIcon from '@mui/icons-material/Circle';
+import IconUrl from "@themes/urlIcon";
+import {Label} from "@features/label";
 
 function AppointmentHistoryPreview({...props}) {
-    const {children, app, appuuid, dispatch, t, mini} = props;
+    const {children, app, appuuid, dispatch, t, mini, handleDeleteApp} = props;
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
@@ -56,42 +58,56 @@ function AppointmentHistoryPreview({...props}) {
                 }
                 borderBottom={1}
                 borderColor="divider">
-                {!isMobile && <Typography
-                    display="flex"
-                    alignItems="center"
-                    component="div"
-                    sx={{cursor: "pointer"}}
-                    fontWeight={600}>
-                    <Icon path={"ic-doc"}/>
-                    {capitalize(t("reason_for_consultation"))}{" "}
-                    {app.consultationReason.length > 0 ? (
-                        <>: {app.consultationReason.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>
-                    ) : (
-                        <>: --</>
-                    )}
-                </Typography>}
-                <Stack ml="auto" direction={"row"} spacing={1} alignItems={"center"}>
-                    {!mini && <Chip icon={<CircleIcon style={{color: `${app.type.color}`}}/>} size={"small"}
-                                    label={app.type.name} color={"info"}/>}
+                {!isMobile &&
+                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                        <Icon path={"ic-white-docs"} width={20} height={20}/>
+                        <Typography
+                            display="flex"
+                            alignItems="center"
+                            component="div"
+                            sx={{cursor: "pointer"}}
+                            fontWeight={600}>
+                            {capitalize(t("reason_for_consultation"))}{" "}
+                            {app.consultationReason.length > 0 ? (
+                                <>: {app.consultationReason.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>
+                            ) : (
+                                <>: --</>
+                            )}
+                        </Typography>
+                    </Stack>}
+                <Stack ml="auto" direction={"row"} spacing={1}
+                       alignItems={"center"} {...(isMobile && {justifyContent: "space-between", width: "100%"})}>
+                    {!mini && <Label variant={"filled"} color={"white"}>{app.type.name}</Label>}
                     <Typography
                         variant="body2"
                         color="text.secondary"
                         sx={{cursor: "pointer"}}
                         textTransform={"capitalize"}>
-                        {!isMobile &&moment(app.date, "DD-MM-YYYY").format(
+                        {moment(app.date, "DD-MM-YYYY").format(
                             "ddd DD-MM-YYYY"
                         )}{" "}
-                        <AccessTimeIcon
+                        {!isMobile && <AccessTimeIcon
                             style={{marginBottom: "-3px", width: 20, height: 15}}
-                        />{" "}
-                        {app.time}
+                        />}{" "}
+                        {!isMobile && app.time}
                     </Typography>
-                    <IconButton onClick={(e) => {
-                        e.stopPropagation()
-                        handleConsultation();
-                    }}>
-                        <OpenInNewIcon style={{color: "white", width: app.uuid === appuuid ? 0 : "", fontSize: 20}}/>
-                    </IconButton>
+                    {app.uuid !== appuuid && <Stack direction={"row"} alignItems={"center"} pl={2}>
+                        <IconButton
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                handleConsultation();
+                            }}>
+                            <IconUrl path={"ic-re-open"} color={"white"} width={18} height={18}/>
+                        </IconButton>
+                        <IconButton
+                            sx={{mt: -.3}}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteApp();
+                            }}>
+                            <IconUrl path={"ic-trash"} color={"white"} width={20} height={20}/>
+                        </IconButton>
+                    </Stack>}
                 </Stack>
             </Stack>
             <CardContent

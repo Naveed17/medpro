@@ -141,7 +141,7 @@ export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
 
 export const MedicalFormUnit = data;
 
-export const PrescriptionMultiUnits = MedicalFormUnit.filter(medic => medic.multiple).map(medic => medic.unit);
+export const PrescriptionMultiUnits = MedicalFormUnit.reduce((medics: any[], medic: any) => [...(medics ?? []), ...(medic.multiple ? [medic.unit] : [])], []);
 
 export const TransactionType = [
     // Add Payment ( ajout caisse/ Alimenter )
@@ -185,7 +185,7 @@ export const TransactionStatus = [
     },
 ];
 
-export const iconDocument = (data:string) => {
+export const iconDocument = (data: string) => {
     return data === "prescription" && "docs/ic-prescription" ||
         data == "requested-analysis" && "docs/ic-analyse" ||
         data == "analyse" && "docs/ic-analyse" ||
@@ -220,3 +220,66 @@ export const humanizerConfig = {
         },
     },
 }
+
+export const deleteAppointmentOptionsData = [
+    {
+        key: "delete-appointment-insertion",
+        selected: true
+    },
+    {
+        key: "delete-appointment-data",
+        selected: false
+    },
+    {
+        key: "delete-transaction",
+        selected: false
+    }
+]
+
+export const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses', 'lens']
+
+export const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
+
+export const multiMedias = ['video', 'audio', 'photo'];
+
+export const PsychomotorDevelopmentXY = [
+    {
+        key: "Premiers mots",
+        coordinates: {
+            startDate: {x: 394, y: 480, size: 12},
+            note: {x: 354, y: 512, size: 16}
+        }
+    },
+    {
+        key: "Station debout",
+        coordinates: {
+            startDate: {x: 492, y: 496, size: 12}
+        }
+    },
+    {
+        key: "Station assise",
+        coordinates: {
+            startDate: {x: 338, y: 380, size: 12}
+        }
+    },
+    {
+        key: "Marche sans appui",
+        coordinates: {
+            startDate: {x: 564, y: 426, size: 12}
+        }
+    },
+    {
+        key: "Propreté nocturne et diurne",
+        coordinates: {
+            startDate: {x: 522, y: 361, size: 12}
+        }
+    },
+    {
+        key: "Première dent",
+        coordinates: {
+            startDate: {x: 405, y: 438, size: 12}
+        }
+    }
+]
+
+export const signs = ['Bélier: Le Bélier', 'Taureau: Le Taureau', 'Gémeaux: Les Gémeaux', 'Cancer: Le Crabe', 'Lion: Le Lion', 'Vierge: La Vierge', 'Balance: La Balance', 'Scorpion: Le Scorpion', 'Sagittaire: Le Sagittaire', 'Capricorne: Le Capricorne', 'Verseau: Le Verseau', 'Poissons: Les Poissons'];

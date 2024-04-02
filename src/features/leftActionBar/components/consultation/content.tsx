@@ -2,7 +2,6 @@
 import {
     Button,
     CardContent,
-    DialogActions,
     IconButton,
     List,
     ListItem,
@@ -29,7 +28,7 @@ import {resetAppointment, setAppointmentPatient, setOpenUploadDialog} from "@fea
 import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
-import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
+import {Antecedent} from "@features/leftActionBar";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
@@ -38,7 +37,6 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useAntecedentTypes} from "@lib/hooks/rest";
-
 import {LoadingScreen} from "@features/loadingScreen";
 
 const Content = ({...props}) => {
@@ -79,22 +77,22 @@ const Content = ({...props}) => {
         mutate: mutateAntecedents
     } = useRequestQuery([4, 6, 7].includes(id) && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/antecedents/${router.locale}`
     } : null);
 
     const {data: httpPatientAnalyses, mutate: mutateAnalyses} = useRequestQuery(id === 9 && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/analysis/${router.locale}`
     } : null);
 
     const {data: httpPatientMI, mutate: mutateMi} = useRequestQuery(id === 5 && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
     } : null);
 
     const {data: httpTreatment, mutate: mutateTreatment} = useRequestQuery(id === 1 && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/treatments/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/appointments/treatments/${router.locale}`
     } : null);
 
     const patientAntecedents = (httpAntecedents as HttpResponse)?.data;
@@ -139,8 +137,8 @@ const Content = ({...props}) => {
             state.forEach((item: any) => {
 
                 item.data.forEach((data: any) => {
-                    if(data.start) data.start = moment(data.start).format('DD-MM-YYYY')
-                    if(data.end) data.end = moment(data.end).format('DD-MM-YYYY')
+                    if (data.start) data.start = moment(data.start).format('DD-MM-YYYY')
+                    if (data.end) data.end = moment(data.end).format('DD-MM-YYYY')
                     _res.push({
                         ...data,
                         uuid: item.uuid,
@@ -152,7 +150,7 @@ const Content = ({...props}) => {
             form.append("patient_uuid", patient.uuid);
             medicalEntityHasUser && triggerAntecedentCreate({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
                     slug: any;
                 }) => ant.slug === infoDynamic).uuid}/fr`,
                 data: form
@@ -249,8 +247,8 @@ const Content = ({...props}) => {
     const getRes = (ants: any[]) => {
         let _res: any[] = [];
         ants.forEach(pa => {
-            if(pa.start) pa.start = moment(pa.start,"DD-MM-YYYY").format("YYYY-MM-DD")
-            if(pa.end) pa.end = moment(pa.start,"DD-MM-YYYY").format("YYYY-MM-DD")
+            if (pa.start) pa.start = moment(pa.start, "DD-MM-YYYY").format("YYYY-MM-DD")
+            if (pa.end) pa.end = moment(pa.start, "DD-MM-YYYY").format("YYYY-MM-DD")
             const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
             index === -1 ?
                 _res.push({
@@ -873,8 +871,9 @@ const Content = ({...props}) => {
                 title={t("removedoc")}
                 t={t}
                 actionDialog={
-                    <DialogActions>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
                         <Button
+                            variant={"text-black"}
                             onClick={() => {
                                 setOpenRemove(false);
                             }}
@@ -889,7 +888,7 @@ const Content = ({...props}) => {
                             onClick={dialogSave}>
                             {t("remove")}
                         </LoadingButton>
-                    </DialogActions>
+                    </Stack>
                 }
             />
 
@@ -913,8 +912,9 @@ const Content = ({...props}) => {
                     title={getTitle()}
                     dialogClose={handleClose}
                     actionDialog={
-                        <DialogActions>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
                             <Button
+                                variant={"text-black"}
                                 onClick={handleClose}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}
@@ -923,10 +923,10 @@ const Content = ({...props}) => {
                                 variant="contained"
                                 disabled={info === "add_treatment" && state?.length == 0}
                                 onClick={handleCloseDialog}
-                                startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                startIcon={<Icon path="iconfinder_save"/>}>
                                 {t("save")}
                             </Button>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
             )}

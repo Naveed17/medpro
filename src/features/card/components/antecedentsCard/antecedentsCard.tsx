@@ -2,7 +2,7 @@
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 // material
-import {Button, DialogActions, Grid, Paper, Skeleton, Typography,} from "@mui/material";
+import {Button, Grid, Paper, Skeleton, Stack, Typography} from "@mui/material";
 // ____________________________________
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -45,13 +45,6 @@ function AntecedentsCard({...props}) {
 
     const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/patient/antecedent");
 
-    const isObject = (val: any) => {
-        if (val === null) {
-            return false;
-        }
-        return typeof val === 'object' && !Array.isArray(val)
-    }
-
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
@@ -72,7 +65,7 @@ function AntecedentsCard({...props}) {
         form.append("patient_uuid", patient.uuid);
         medicalEntityHasUser && triggerAntecedentUpdate({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
             data: form
@@ -210,7 +203,7 @@ function AntecedentsCard({...props}) {
                                                 >
                                                     {loading ? <Skeleton variant="text"/> : item &&
                                                         <span style={{cursor: 'pointer', marginLeft: 4}}>
-                                                            {item.name}{" "}{item?.note ?`(${item?.note})`:""}
+                                                            {item.name}{" "}{item?.note ? `(${item?.note})` : ""}
                                                             {item.startDate ? " / " + item.startDate : ""}{" "}
                                                             {item.endDate ? " - " + item.endDate : ""}
                                                             {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
@@ -263,8 +256,9 @@ function AntecedentsCard({...props}) {
                         setInfoDynamic("");
                     }}
                     actionDialog={
-                        <DialogActions>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
                             <Button
+                                variant={"text-black"}
                                 onClick={() => {
                                     setOpenDialog(false);
                                     setInfo("");
@@ -275,11 +269,10 @@ function AntecedentsCard({...props}) {
                             </Button>
                             <Button
                                 variant="contained"
-                                onClick={handleCloseDialog}
-                                startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                onClick={handleCloseDialog}>
                                 {t("register")}
                             </Button>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
             )}

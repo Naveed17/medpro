@@ -1,7 +1,7 @@
 import {Stack, TextField, Typography, useMediaQuery} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import FormControl from "@mui/material/FormControl";
-import React from "react";
+import React, {useEffect} from "react";
 import {DateTimePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {FormikProvider, useFormik} from "formik";
@@ -10,6 +10,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {setAbsenceData, absenceDrawerSelector} from "@features/drawer";
 import {NoDataCard} from "@features/card";
 import {MobileContainer as smallScreen} from "@lib/constants";
+import * as Yup from "yup";
 
 function AbsenceDrawer({...props}) {
     const {t, main = false} = props;
@@ -17,6 +18,25 @@ function AbsenceDrawer({...props}) {
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {endDate, startDate, title} = useAppSelector(absenceDrawerSelector);
+
+    const validationSchema = Yup.object().shape({
+        title: Yup.string().required(),
+        repeat: Yup.boolean(),
+        startDate: Yup.date().required(t("dialogs.absence-dialog.datetime-required")),
+        endDate: Yup
+            .date()
+            .when('startDate', (startDate, schema) => {
+                if (startDate[0]) {
+                    const currentDay = new Date(startDate[0].getTime());
+                    //const nextDay = new Date(startDate[0].getTime() + 86400000);
+                    return schema
+                        .min(currentDay, t("dialogs.absence-dialog.end-after-start-time"));
+                    //.max(nextDay, 'End time cannot be more than 24 hours after start time');
+                } else {
+                    return schema;
+                }
+            }).required(t("dialogs.absence-dialog.datetime-required"))
+    })
 
     const formik = useFormik({
         enableReinitialize: false,
@@ -26,12 +46,17 @@ function AbsenceDrawer({...props}) {
             endDate: endDate ? endDate : moment().toDate(),
             repeat: false
         },
+        validationSchema,
         onSubmit: async (values) => {
             console.log("ok", values);
         },
     });
 
-    const {values, setFieldValue} = formik;
+    const {values, errors, setFieldValue} = formik;
+
+    useEffect(() => {
+        dispatch(setAbsenceData({hasError: Object.keys(errors).length > 0}));
+    }, [dispatch, errors]);
 
     return (
         <Stack spacing={3}
@@ -64,7 +89,7 @@ function AbsenceDrawer({...props}) {
                                     fullWidth
                                     onChange={(e) => {
                                         setFieldValue("title", e.target.value);
-                                        dispatch(setAbsenceData({"title": e.target.value}));
+                                        dispatch(setAbsenceData({title: e.target.value}));
                                     }}
                                     placeholder={t("dialogs.absence-dialog.type-placeholder")} variant="outlined"/>
                             </FormControl>
@@ -80,12 +105,18 @@ function AbsenceDrawer({...props}) {
                                         inputFormat="dd/MM/yyyy HH:mm"
                                         ampmInClock={false}
                                         ampm={false}
-                                        label="Basic date time picker"
+                                        label={t("dialogs.absence-dialog.startDate-placeholder")}
                                         onChange={event => {
                                             setFieldValue("startDate", event);
-                                            dispatch(setAbsenceData({"startDate": event}));
+                                            dispatch(setAbsenceData({startDate: event}));
                                         }}
-                                        renderInput={(params) => <TextField size={"small"} {...params} />}
+                                        renderInput={(params) => <TextField
+                                            {...params}
+                                            {...((values.startDate !== null) && {
+                                                error: Boolean(errors.startDate),
+                                                helperText: t(errors.startDate)
+                                            })}
+                                            size={"small"}/>}
                                         value={values.startDate}/>
                                 </LocalizationProvider>
                             </FormControl>
@@ -101,12 +132,18 @@ function AbsenceDrawer({...props}) {
                                         inputFormat="dd/MM/yyyy HH:mm"
                                         ampmInClock={false}
                                         ampm={false}
-                                        label="Basic date time picker"
+                                        label={t("dialogs.absence-dialog.endDate-placeholder")}
                                         onChange={event => {
                                             setFieldValue("endDate", event);
                                             dispatch(setAbsenceData({"endDate": event}));
                                         }}
-                                        renderInput={(params) => <TextField size={"small"} {...params} />}
+                                        renderInput={(params) => <TextField
+                                            {...params}
+                                            {...((values.endDate !== null) && {
+                                                error: Boolean(errors.endDate),
+                                                helperText: t(errors.endDate)
+                                            })}
+                                            size={"small"}/>}
                                         value={values.endDate}/>
                                 </LocalizationProvider>
                             </FormControl>

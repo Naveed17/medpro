@@ -7,11 +7,10 @@ import {
     Button,
     CardContent,
     Checkbox,
-    DialogActions,
     FormControl,
     Grid,
     IconButton,
-    LinearProgress,
+    LinearProgress, Menu,
     MenuItem,
     Stack,
     Tab,
@@ -23,7 +22,7 @@ import {
 } from "@mui/material";
 //components
 import {DocumentCard, NoDataCard} from "@features/card";
-import {Dialog} from "@features/dialog";
+import {Dialog as CustomDialog, Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 
 import PanelCardStyled from "./overrides/panelCardStyled";
@@ -36,9 +35,8 @@ import {consultationSelector} from "@features/toolbar";
 import {useRouter} from "next/router";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import moment from "moment/moment";
 import Add from "@mui/icons-material/Add";
 import DocumentCardStyled from "@features/card/components/documentCard/components/overrides/documentCardStyle";
@@ -46,6 +44,11 @@ import DocumentCardStyled from "@features/card/components/documentCard/component
 import {LoadingScreen} from "@features/loadingScreen";
 import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+import {Theme} from "@mui/material/styles";
+import {LoadingButton} from "@mui/lab";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useSnackbar} from "notistack";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
@@ -106,8 +109,7 @@ function DocFilter({...props}) {
                         onSelectAll: (selectedAll) => void handleSelectAll({types: selectedAll ? [] : typeofDocs}),
                         selectedAll,
                         indeterminate: !!queryState.types.length && !selectedAll,
-                    }}
-                >
+                    }}>
                     <Autocomplete
                         size={"small"}
                         multiple
@@ -150,44 +152,60 @@ function DocFilter({...props}) {
 
 function DocumentsPanel({...props}) {
     const {
-        documentViewIndex, patient,
+        documentViewIndex: currentTab,
+        handleTabChange,
+        patient,
         roles, setOpenUploadDialog,
         mutatePatientDetails,
         loadingRequest, setLoadingRequest
     } = props;
     const router = useRouter();
     const theme = useTheme();
+    const {data: session} = useSession();
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
+    const {enqueueSnackbar} = useSnackbar();
 
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     const {selectedDialog} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser, secretaryAccess} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
 
     // filter checked array
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
+    const [selectedDocument, setSelectedDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
     const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
     const [note, setNotes] = useState(t('noteQuote'));
     const [titleSearch, setTitleSearch] = useState("");
     const [loading, setLoading] = useState(true);
-
+    const [loadingReq, setLoadingReq] = useState(false);
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
     const [queryState, setQueryState] = useState<any>({
         types: []
     });
+    const [popoverActions, setPopoverActions] = useState<any[]>([]);
 
     const selectedAll = queryState.types.length === typeofDocs?.length;
 
     const {trigger: triggerQuoteUpdate} = useRequestQueryMutation("/patient/quote");
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/patient/documents/delete");
+    const {trigger: triggerDocumentSpeechToText} = useRequestQueryMutation("/patient/document/speech-to-text");
 
-    const {data: httpAppDocPatientResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
+    const {
+        data: httpAppDocPatientResponse,
+        mutate: mutateAppDocPatient
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/documents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/documents/${router.locale}`
     } : null);
 
     const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequestQuery(patient ? {
@@ -202,6 +220,61 @@ function DocumentsPanel({...props}) {
 
     const documents = (httpAppDocPatientResponse as HttpResponse)?.data.reduce((docs: any[], doc: any) => [...(docs ?? []), ...doc?.documents], []) ?? [];
     const quotes = (httpQuotesResponse as HttpResponse)?.data ?? [];
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const handleClose = () => {
+        setContextMenu(null);
+    };
+
+    const handleDeleteDocument = () => {
+        setLoadingReq(true);
+        medicalEntityHasUser && triggerDocumentDelete({
+            method: "DELETE",
+            url: `/api/medical-entity/${currentTab === 0 ? "agendas/appointments" : `${medical_entity?.uuid}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}`}/documents/${selectedDocument?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                if (currentTab === 1) {
+                    mutatePatientDocuments();
+                } else {
+                    mutateAppDocPatient();
+                }
+            },
+            onSettled: () => {
+                setDeleteDialog(false);
+                setLoadingReq(false);
+            }
+        });
+    }
+
+    const handleContextMenu = (event: any, data: any) => {
+        setSelectedDocument(data);
+        setPopoverActions([
+            ...(data.type?.includes("audio") ? [
+                {
+                    title: "speech_to_text",
+                    icon: <Icon color={"white"} width={20} height={20} path="ic-micro"/>,
+                    action: "onSpeechToText",
+                }
+            ] : []),
+            {
+                title: "delete_document",
+                icon: <Icon color={"white"} width={20} height={20} path="ic-trash"/>,
+                action: "onDeleteDocument",
+            }
+        ])
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                }
+                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+                // Other native context menus might behave different.
+                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                null,
+        );
+    };
 
     const handleSelectAll = (types: any): void => {
         setQueryState(types);
@@ -234,7 +307,7 @@ function DocumentsPanel({...props}) {
                              }
                          })}>
                         {documents.length > 0 ?
-                            documents.sort( (a:any,b:any) => {
+                            documents.sort((a: any, b: any) => {
                                 return moment(b.createdAt, 'DD-MM-YYYY HH:mm').diff(moment(a.createdAt, 'DD-MM-YYYY HH:mm'))
                             }).filter((doc: {
                                 title: string
@@ -242,10 +315,9 @@ function DocumentsPanel({...props}) {
                                 queryState.types.length === 0 ? true : queryState.types.some((st: string) => st === doc.documentType)).map((card: any, idx: number) =>
                                 <React.Fragment key={`doc-item-${idx}`}>
                                     <DocumentCard
-                                        onClick={() => {
-                                            showDoc(card)
-                                        }}
-                                        {...{t, data: card, date: true, time: true, title: true,width:"13rem"}}/>
+                                        onClick={() => showDoc(card)}
+                                        handleMoreAction={handleContextMenu}
+                                        {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
                                 </React.Fragment>
                             )
                             :
@@ -284,10 +356,9 @@ function DocumentsPanel({...props}) {
                                       }}>
                                     <React.Fragment>
                                         <DocumentCard
-                                            onClick={() => {
-                                                showDoc(card)
-                                            }}
-                                            {...{t, data: card, date: true, time: true, title: true,width:"13rem"}}/>
+                                            onClick={() => showDoc(card)}
+                                            handleMoreAction={handleContextMenu}
+                                            {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
                                     </React.Fragment>
                                 </Grid>
                             )
@@ -306,9 +377,11 @@ function DocumentsPanel({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
+
     const handleTabsChange = (event: React.SyntheticEvent, newValue: number) => {
-        setCurrentTab(newValue);
+        handleTabChange(newValue);
     };
+
     const showDoc = (card: any) => {
         if (card.documentType === 'medical-certificate') {
             setOpenDialog(true);
@@ -395,7 +468,7 @@ function DocumentsPanel({...props}) {
 
             triggerQuoteUpdate({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/quotes/${router.locale}`,
                 data: form
             }, {
                 onSuccess: () => {
@@ -430,6 +503,31 @@ function DocumentsPanel({...props}) {
             patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
         });
         setOpenDialog(true);
+    }
+
+    const handleSpeechToText = () => {
+        setLoadingRequest(true);
+        medicalEntityHasUser && triggerDocumentSpeechToText({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/stt/${selectedDocument?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});
+            },
+            onSettled: () => setLoadingRequest(false)
+        });
+    }
+
+    const OnMenuActions = async (action: string) => {
+        switch (action) {
+            case "onDeleteDocument":
+                setDeleteDialog(true);
+                break;
+            case "onSpeechToText":
+                handleSpeechToText();
+                break;
+        }
+        handleClose();
     }
 
     useEffect(() => {
@@ -479,8 +577,7 @@ function DocumentsPanel({...props}) {
 
     return (
         <>
-            {loading && <LinearProgress/>}
-            {!loading && <PanelCardStyled
+            <PanelCardStyled
                 sx={{
                     "& .MuiCardContent-root": {
                         background: "white"
@@ -488,7 +585,8 @@ function DocumentsPanel({...props}) {
                     marginBottom: "1rem"
                 }}>
                 <CardContent>
-                    <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                    <AppBar position="static" color={"transparent"}
+                            className={"app-bar-header"}>
                         <Toolbar variant="dense">
                             <Stack direction={"row"}
                                    alignItems={"center"}
@@ -507,20 +605,32 @@ function DocumentsPanel({...props}) {
                         </Toolbar>
                     </AppBar>
 
+                    <LinearProgress
+                        color="warning"
+                        sx={{
+                            mt: -2, mb: 2, visibility: loading ? "visible" : "hidden"
+                        }}/>
+
                     <Grid container spacing={1.2}>
                         {quotes.map((card: any, idx: number) =>
                             <Grid item xs={12} md={6} key={`doc-item-${idx}`}>
                                 <DocumentCardStyled style={{width: "100%"}}>
                                     <Stack direction={"row"} spacing={2} onClick={() => {
                                         let _acts: any[] = [];
-                                        acts.map(act => _acts = [..._acts, {
-                                            ...act,
-                                            selected: card.quotes_items.findIndex((qi: {
+                                        acts.map(act => {
+                                            const _el = card.quotes_items.find((qi: {
                                                 act_item: { uuid: string; };
-                                            }) => qi.act_item && qi.act_item.uuid === act.act.uuid) !== -1
-                                        }])
-                                        showQuote(card.uuid, _acts.filter(act => act.selected), card.notes)
-                                    }} alignItems={"center"}
+                                            }) => qi.act_item && qi.act_item.uuid === act.act.uuid)
+                                            if (_el)
+                                                _acts = [..._acts, {
+                                                    ...act,
+                                                    qte: _el.qty_item,
+                                                    fees: _el.price_item
+                                                }];
+                                            showQuote(card.uuid, _acts, card.notes)
+                                        })
+                                    }}
+                                           alignItems={"center"}
                                            padding={2}>
                                         <IconUrl width={25} height={25} path={"ic-quote"}/>
                                         <Stack>
@@ -550,8 +660,8 @@ function DocumentsPanel({...props}) {
                                                        onHandleClick={() => setOpenQuoteDialog(true)}
                                                        data={AddQuoteCardData}/>}
                 </CardContent>
-            </PanelCardStyled>}
-            {(documents.length > 0 || patientDocuments?.length > 0) && !loading ? (
+            </PanelCardStyled>
+            {(documents.length > 0 || patientDocuments?.length > 0) ? (
                 <>
                     <PanelCardStyled
                         sx={{
@@ -571,8 +681,8 @@ function DocumentsPanel({...props}) {
                                              label={tabHeader.title} {...a11yProps(tabHeaderIndex)} />)}
                                 </Tabs>
                                 <LinearProgress sx={{
-                                    mt: .2,
-                                    display: loadingRequest ? "block" : "none"
+                                    mt: loadingRequest || loading ? 0 : -.6,
+                                    visibility: loadingRequest || loading ? "visible" : "hidden"
                                 }} color="warning"/>
                             </Box>
                             {tabsContent.map((tabContent, tabContentIndex) =>
@@ -630,6 +740,84 @@ function DocumentsPanel({...props}) {
                 />
             )}
 
+
+            <Menu
+                open={contextMenu !== null}
+                onClose={handleClose}
+                anchorReference="anchorPosition"
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            minWidth: 200,
+                            backgroundColor: theme.palette.text.primary,
+                            "& .popover-item": {
+                                padding: theme.spacing(2),
+                                display: "flex",
+                                alignItems: "center",
+                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                cursor: "pointer",
+                            }
+                        }
+                    }
+                }}
+                anchorPosition={
+                    contextMenu !== null
+                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                        : undefined
+                }
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}>
+                {popoverActions.map((v: any, index) => (
+                    <MenuItem
+                        key={index}
+                        className="popover-item"
+                        onClick={() => OnMenuActions(v.action)}>
+                        {v.icon}
+                        <Typography fontSize={15} sx={{color: "#fff"}}>
+                            {t(`config.${v.title}`, {ns: "patient"})}
+                        </Typography>
+                    </MenuItem>
+                ))}
+            </Menu>
+
+            <CustomDialog
+                {...{direction}}
+                action={"remove"}
+                open={deleteDialog}
+                data={{
+                    title: t('consultationIP.askRemovedoc'),
+                    subtitle: t('consultationIP.subtitleRemovedoc'),
+                    icon: "/static/icons/ic-edit-file-new.svg",
+                    name1: selectedDocument?.title,
+                    name2: t(selectedDocument?.type),
+                }}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('consultationIP.removedoc')}
+                actionDialog={
+                    <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant="text-primary" onClick={() => {
+                            setDeleteDialog(false);
+                        }}
+                            startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
+                        <LoadingButton
+                            loading={loadingReq}
+                            onClick={handleDeleteDocument}
+                            variant="contained"
+                            startIcon={<IconUrl path="ic-trash" color="white"/>}
+                            sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                        >{t('consultationIP.remove')}</LoadingButton>
+                    </Stack>
+                }
+            />
+
             <Dialog
                 action={"quote-request-dialog"}
                 data={{
@@ -648,8 +836,10 @@ function DocumentsPanel({...props}) {
                     setOpenQuoteDialog(false)
                 }}
                 actionDialog={
-                    <DialogActions>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
+                           width={"100%"}>
                         <Button
+                            variant={"text-black"}
                             onClick={() => {
                                 setOpenQuoteDialog(false)
                             }}
@@ -657,14 +847,13 @@ function DocumentsPanel({...props}) {
                             {t("cancel")}
                         </Button>
                         <Button
-                            onClick={() => {
-                                saveQuote()
-                            }}
+                            variant="contained"
+                            onClick={() => saveQuote()}
                             disabled={acts.filter(act => act.selected).length === 0}
-                            startIcon={<SaveRoundedIcon/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("consultationIP.save", {ns: 'consultation'})}
                         </Button>
-                    </DialogActions>
+                    </Stack>
                 }
             />
         </>

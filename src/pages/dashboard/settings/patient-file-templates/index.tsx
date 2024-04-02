@@ -12,10 +12,7 @@ import {Otable} from "@features/table";
 import {PfTemplateDetail} from "@features/pfTemplateDetail";
 import {useRequestQueryMutation} from "@lib/axios";
 import AddIcon from "@mui/icons-material/Add";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {FileTemplateMobileCard} from "@features/card";
@@ -26,6 +23,7 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
 import {useWidgetModels} from "@lib/hooks/rest";
+import Can from "@features/casl/can";
 
 function PatientFileTemplates() {
     const theme: Theme = useTheme();
@@ -40,7 +38,7 @@ function PatientFileTemplates() {
     });
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config"});
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "templates.config"});
     const {direction} = useAppSelector(configSelector);
 
     const [displayedItems, setDisplayedItems] = useState(10);
@@ -177,6 +175,11 @@ function PatientFileTemplates() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [models, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -185,18 +188,19 @@ function PatientFileTemplates() {
                 <RootStyled>
                     <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
-
-                <Button
-                    type="submit"
-                    variant="contained"
-                    onClick={() => {
-                        setOpen(true);
-                        setData(null);
-                        setAction("add");
-                    }}
-                    color="success">
-                    {!isMobile ? t("add") : <AddIcon/>}
-                </Button>
+                <Can I={"manage"} a={"settings"} field={"settings__patient-file-templates__create"}>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        onClick={() => {
+                            setOpen(true);
+                            setData(null);
+                            setAction("add");
+                        }}
+                        color="success">
+                        {!isMobile ? t("add") : <AddIcon/>}
+                    </Button>
+                </Can>
             </SubHeader>
             <Box
                 bgcolor={theme.palette.background.default}
@@ -223,7 +227,6 @@ function PatientFileTemplates() {
                                 <FileTemplateMobileCard
                                     data={row}
                                     edit={handleEdit}
-                                    handleConfig={null}
                                     handleChange={handleChange}
                                 />
                             </React.Fragment>
@@ -291,8 +294,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

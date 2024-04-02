@@ -30,7 +30,6 @@ import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
-import DeleteIcon from '@mui/icons-material/Delete';
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
@@ -72,7 +71,7 @@ function PersonalInsuranceCard({...props}) {
         mutate: mutatePatientInsurances
     } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/insurances/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const RegisterPatientSchema = Yup.object().shape({
@@ -178,7 +177,7 @@ function PersonalInsuranceCard({...props}) {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerPatientUpdate({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);
@@ -269,7 +268,7 @@ function PersonalInsuranceCard({...props}) {
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: requestAction,
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
             data: params
         }, {
             onSuccess: () => {
@@ -384,29 +383,27 @@ function PersonalInsuranceCard({...props}) {
                                                     </Grid>
                                                     {!editable.personalInsuranceCard &&
                                                         <Grid pt={.5} pb={.5} item xs={6} md={4}>
-                                                            <Stack direction={"row"} alignItems={"start"} spacing={1}
+                                                            <Stack direction={"row"} alignItems={"center"} spacing={1}
                                                                    justifyContent={"flex-end"}>
                                                                 <IconButton
                                                                     disabled={loadingRequest}
-                                                                    className='btn-add'
+                                                                    className="btn-edit"
                                                                     onClick={() => handleEditInsurance(insurance)}
                                                                     size="small">
-                                                                    <IconUrl path={"setting/edit"}/>
+                                                                    <IconUrl color={theme.palette.text.secondary}
+                                                                             path="ic-edit-patient"/>
                                                                 </IconButton>
                                                                 <IconButton
                                                                     disabled={loadingRequest}
-                                                                    className='icon-button'
-                                                                    color={"error"}
                                                                     sx={{
-                                                                        paddingTop: .4,
-                                                                        "& svg": {
-                                                                            width: 18,
-                                                                            height: 18
-                                                                        },
+                                                                        '& .react-svg svg': {
+                                                                            width: 20,
+                                                                            height: 20
+                                                                        }
                                                                     }}
                                                                     onClick={() => handleDeleteInsurance(insurance)}
                                                                     size="small">
-                                                                    <DeleteIcon/>
+                                                                    <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
                                                                 </IconButton>
                                                             </Stack>
                                                         </Grid>}

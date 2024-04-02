@@ -9,13 +9,15 @@ export type DialogAbsenceProps = {
     startDate: Date | null;
     endDate: Date | null;
     mode: string;
+    hasError: boolean;
 };
 
 const initialState: DialogAbsenceProps = {
     title: "",
     startDate: new Date(),
     endDate: new Date(),
-    mode: "insert"
+    mode: "insert",
+    hasError: false
 };
 
 export const absenceDrawerReducer = createReducer(initialState, builder => {

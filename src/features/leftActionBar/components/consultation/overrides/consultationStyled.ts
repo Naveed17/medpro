@@ -27,8 +27,8 @@ const ConsultationStyled = styled(Box)(({theme}) => ({
         '& .MuiListItemIcon-root': {
             minWidth: 20,
             svg: {
-                width: 14,
-                height: 14,
+                width: 16,
+                height: 16,
             }
         }
     },
@@ -44,7 +44,12 @@ const ConsultationStyled = styled(Box)(({theme}) => ({
         color: "black",
         fontSize: 12,
         marginLeft: -6
-    }
+    },
+    "& .btn-edit": {
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: 8,
+        padding: theme.spacing(.8),
+    },
 }));
 
 export default ConsultationStyled;

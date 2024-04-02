@@ -3,6 +3,7 @@
     "title": "Ongoing Consultation"
   },
   "filter": {
+    "title": "Filtered",
     "year": "years",
     "day": "day(s)",
     "month": "month",
@@ -93,7 +94,10 @@
     "credit": "Credit"
   },
   "end of consultation": "End of Consultation",
-  "week": "Week" ,
+  "write": "Please write",
+  "loading": "Please wait a moment",
+  "week": "Week",
+  "years":"years",
   "month": "Month",
   "noteQuote": "The patient confirms having voluntarily chosen his treatment, being fully informed of the indications and contraindications, and undertakes to pay the fees linked to the care mentioned in this estimate.",
   "cancel": "Cancel",
@@ -101,7 +105,7 @@
   "medical-imaging": "Medical imaging",
   "medical-certificate": "Generated document ",
   "Rapport": "Rapport",
-  "type-title": "Type de document",
+  "type-title": "document type",
   "search-title": "Search document",
   "type-placeholder": "Select document type",
   "search": "Search",
@@ -135,11 +139,21 @@
     "recent-search": "Select the requested medical imaging",
     "recent-search-balance-sheet": "Select the requested balance sheet",
     "saveAsModel": "Save as model",
+    "receiver": "Receiver",
+    "subject": "Subject",
+    "sendEmailWithsuccess": "Send with success",
+    "content": "Content",
+    "send_document_joint": "send",
     "analysis": "Analyses",
     "drag-balance-sheet": "Slide the balance sheet",
     "drag-description": "Or if you prefer, you can click on it",
     "reason_for_consultation": "Reason",
     "toolbar": "Toolbar",
+    "cfiche":"File",
+    "patient-fiche":"Open patient file",
+    "docs": "Docs",
+    "start": "Start date",
+    "end": "End date",
     "rapport": "Rapport",
     "patient_history": "Patient History",
     "title": "Title",
@@ -155,13 +169,15 @@
     "traitments": "Traitments",
     "config": "Configure",
     "more": "More...",
+    "printing": "Printing",
+    "model_missing_name": "Missing name",
     "ureadbleFile": "Unable to preview the file",
     "downloadnow": "a problem occurred while reading this document",
     "wait": "Verifying file...",
     "record": "Record audio",
     "contenu": "Content",
     "audio": "Audio",
-    "quote": "Devis",
+    "quote": "Quote",
     "listen": "Listen",
     "seeHistory": "View history",
     "patient_observation_history": "History",
@@ -203,7 +219,6 @@
     "noDoc": "No document",
     "noRequest-description": "Please select your requests",
     "drag-imagery": "Drag and drop medical imaging",
-    "drag-imagery-description": "Or if you prefer, you can click on it",
     "medical_procedures": "Fee Note",
     "consultation": "Consultation",
     "seeRes": "See result",
@@ -239,6 +254,7 @@
     "vaccine": "Vaccine",
     "draw_up_an_order": "Write Prescription",
     "write_mail": "Compose Mail",
+    "save_print": "Print & Save",
     "write_certif": "Medical Document",
     "medical-certificate": "Medical Document",
     "balance_sheet_request": "Balance Sheet Request",
@@ -266,6 +282,9 @@
     "week": "week(s)",
     "month": "month",
     "year": "year(s)",
+    "dosage-model":"Dosage model",
+    "add-dosage-model": "Add dosage model",
+    "no_unit-dosage-model": "No model",
     "cycle": "Cycle",
     "unit": "unit",
     "no_unit": "No unit",
@@ -295,6 +314,10 @@
     "sphere": "Sphere",
     "cylindre": "Cylinder",
     "axe": "Axe",
+    "add_model_dosage": "Add new model",
+    "model_dosage_name": "Model name",
+    "model_dosage_name_placeholder": "model name",
+    "models": "Models",
     "farvision": "Far vision",
     "nearvision": "Near vision",
     "name_of_drug": "Drug name",
@@ -328,7 +351,7 @@
     "weight_is_stable": "Weight is stable",
     "last_6_months": "Last 6 months?",
     "preview": "Preview",
-    "modeles": "Modeles",
+    "modeles": "Models",
     "dir": "Directories",
     "search": "Search by keyword",
     "chemical_dependency": "Do you have a chemical dependency?",
@@ -359,6 +382,10 @@
     "delete": "Delete",
     "document_name": "Document name",
     "document_note": "Note",
+    "hide-header-page": {
+      "show": "Hide second page header",
+      "hide": "Show second page header"
+    },
     "modifier": "Edit",
     "document_type": "Document type",
     "biology_order": "Biology order",
@@ -368,6 +395,8 @@
     "created_by": "Created by",
     "you": "you",
     "documents": "Documents",
+    "yes-delete": "Yes, Delete it",
+    "close-save": "Close & save",
     "created-at": "Created at",
     "in_progress": "In progress",
     "orderly": "Prescription",
@@ -403,6 +432,10 @@
     "requested-medical-imaging": "Requested medical imaging",
     "years": "Years",
     "months": "Months",
+    "insuranceGenerated": "Insurance documents",
+    "empty-insurance-docs": "No insurance documents found",
+    "empty-insurance-docs-description": "Trying to select insurance for this patient",
+    "insurance": "Insurance",
     "add_vaccin": "Add a vaccine",
     "name_the_vaccination": "Please name the vaccination",
     "lot_number": "Lot number",
@@ -433,6 +466,11 @@
     "configureNow": "Please configure your consultation file",
     "configure": "Configure",
     "date": "Date",
+    "dosge_time": "dosage duration",
+    "add_model": "add model",
+    "model_list": "Model list",
+    "way_of_life": "Way of life",
+    "allergic": "Allergic",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Delete folder",
@@ -472,7 +510,7 @@
       "observation": "my observations",
       "diagnostic": "my diagnosis was",
       "disease": "disease",
-      "antecedents": "Voici les antecedents ",
+      "antecedents": "Antecedents ",
       "treatment": "and I recommended the following treatments",
       "analyses": "I requested the following analyzes",
       "mi": "I asked for medical imaging",
@@ -484,6 +522,9 @@
     "alerts": {
       "favorite": {
         "delete": "favorite was successfully deleted"
+      },
+      "speech-text": {
+        "title": "AI audio processing is underway..."
       }
     },
     "no-data": {
@@ -494,6 +535,10 @@
       "analyse": {
         "title": "No favorites",
         "description": "Add balance sheets"
+      },
+      "prescription": {
+        "title": "No medicine selected",
+        "description": "Select the medication and write the prescription"
       }
     }
   },
@@ -506,6 +551,9 @@
     "reason": "Reason",
     "duration": "Duration",
     "status": "Status",
+    "code": "Code",
+    "contribution": "Contribution",
+    "insurance": "Application support",
     "patient": "Patient",
     "agenda": "Agenda",
     "action": "Action",
@@ -541,6 +589,14 @@
   "price_of_act": "Price of the procedure",
   "end_consultation_btn": "End consultation",
   "no-data": {
+    "imaging": {
+      "title": "No favorites",
+      "description": "Add medical images"
+    },
+    "analyse": {
+      "title": "No favorites",
+      "description": "Add balance sheets"
+    },
     "event": {
       "title": "No document",
       "description": "Add analyses, reports, medical imaging, photos, videos...",
@@ -565,6 +621,7 @@
   "pay": "Pay now",
   "consultation_fees_paid": "All consultation fees have been paid.",
   "recap": "Consultation summary",
+  "doc_list": "Documents list",
   "type_the_instruction_for_the_secretary": "Type the instruction for the secretary",
   "type_instruction_for_the_secretary": "Type the instruction for the secretary",
   "end_consultation": "End of consultation",
@@ -577,6 +634,10 @@
   "plan_a_meeting": "Schedule a follow-up",
   "covred": "Covered by insurance",
   "day": "Day",
+  "year": "year",
+  "back": "Return",
+  "add_&_finish_appointment": "Finish & Add appointment",
+  "later_on": "Later",
   "requestedAnalyses": "Requested analyse",
   "requestedPrescription": "Prescription",
   "steppers": {
@@ -590,7 +651,7 @@
   "background": {
     "title": "Medical background",
     "way_of_life": "Lifestyle",
-    "allergic": "Allergies",
+    "allergic": "Allergics",
     "family_antecedents": "Family history",
     "medical_antecedents": "Medical history",
     "surgical_antecedents": "Surgical history",
@@ -615,7 +676,6 @@
     "title": "Tooth Treatment",
     "subtitle": "Click on the desired tooth and select the acts",
     "note": "Note",
-
     "rightEye": "Right eye",
     "leftEye": "Left eye",
     "av": "Av",
@@ -633,14 +693,15 @@
     "ophtalmologiqueExam": "Ophthalmological Examination",
     "pachymetry": "Pachymetry  ( 445->645 )",
     "measuredTO": "Measured TO ( 0->70)",
-    "annexes": "Annexes",
+    "annexes": "Appendices",
     "sa": "SA",
     "fluo": "Fluo",
     "fo": "FO",
     "cv": "Visual field",
+    "tocorrected": "TO corrected",
     "oct": "OCT",
     "angiographie": "Angiography",
-    "other":"Others",
+    "other": "Others",
     "tonus": "Toning exam",
     "comp": "Complementary exam",
     "close": "Close"

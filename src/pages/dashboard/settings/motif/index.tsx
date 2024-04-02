@@ -33,6 +33,7 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import Can from "@features/casl/can";
 
 const MotifListMobile = lazy(
     (): any => import("@features/card/components/motifListMobile/motifListMobile")
@@ -47,7 +48,7 @@ function Motif() {
 
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
 
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -68,7 +69,7 @@ function Motif() {
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
@@ -158,7 +159,7 @@ function Motif() {
 
         medicalEntityHasUser && triggerMotifUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${props.uuid}/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
@@ -195,7 +196,7 @@ function Motif() {
         setLoading(true);
         medicalEntityHasUser && triggerMotifDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});
@@ -238,6 +239,11 @@ function Motif() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [httpConsultReasonResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -249,15 +255,17 @@ function Motif() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => {
-                            editMotif(null as any, "add");
-                        }}
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
+                    <Can I={"manage"} a={"settings"} field={"settings__motif__create"}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => {
+                                editMotif(null as any, "add");
+                            }}
+                            sx={{ml: "auto"}}>
+                            {t("add")}
+                        </Button>
+                    </Can>
                 </Stack>
             </SubHeader>
 
@@ -360,8 +368,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

@@ -22,13 +22,13 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
-import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
+import {setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {SmallAvatar} from "@features/avatar";
 import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
+import Can from "@features/casl/can";
 
 function PatientRow({...props}) {
     const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
@@ -157,7 +157,7 @@ function PatientRow({...props}) {
                                         </ConditionalWrapper>
                                     </Badge>
 
-                                    <Stack marginLeft={2} style={{cursor: 'pointer'}} onClick={(e) => {
+                                    <Stack marginLeft={2} spacing={0.4} style={{cursor: 'pointer'}} onClick={(e) => {
                                         e.stopPropagation();
                                         dispatch(
                                             onOpenPatientDrawer({
@@ -167,43 +167,76 @@ function PatientRow({...props}) {
                                         );
                                         handleEvent("PATIENT_DETAILS", row);
                                     }}>
-                                        <Stack direction={"row"} alignItems={"center"}>
-                                            {row.fiche_id && <Typography
-                                                className={"ellipsis"}
-                                                maxWidth={140}
-                                                fontSize={12}
-                                                color={"primary.main"}>{`N°${row.fiche_id} - `}</Typography>}
-                                            <Typography
-                                                color={"primary.main"}> {row.firstName} {row.lastName}</Typography>
-
-                                            {row.hasInfo &&
-                                                <Chip
-                                                    sx={{marginLeft: 1, height: 26}}
-                                                    color={"info"}
-                                                    icon={<InfoRoundedIcon fontSize={"small"} color="action"/>}
-                                                    label={t("error.info-title")}/>
-                                            }
-                                        </Stack>
 
                                         <Typography
-                                            variant="body2"
-                                            component="span"
-                                            color="text.secondary"
-                                            className="text-time">
-                                            {loading ? (
-                                                <Skeleton variant="text" width={100}/>
-                                            ) : (
-                                                <>
-                                                    <IconUrl path="ic-anniverssaire"/> {row.birthdate} - {" "}
+                                            color={"primary.main"}
+                                            fontWeight={600}> {row.firstName} {row.lastName}</Typography>
+                                        {row.fiche_id &&
+                                            <Stack direction='row' alignItems='center'>
+                                                <IconUrl path="ic-folder" width={16} height={16}
+                                                         color={theme.palette.text.secondary}/>
+                                                <Tooltip title={row.fiche_id}>
+                                                    <Typography
+                                                        variant="body2"
+                                                        className={"ellipsis"}
+                                                        color='text.secondary'
+                                                        maxWidth={140}>
+                                                        {`N°${row.fiche_id}`}
+                                                    </Typography>
+                                                </Tooltip>
+                                            </Stack>
+                                        }
+                                        {row.hasInfo &&
+                                            <Chip
+                                                sx={{marginLeft: 1, height: 26}}
+                                                color={"info"}
+                                                icon={<InfoRoundedIcon fontSize={"small"} color="action"/>}
+                                                label={t("error.info-title")}/>
+                                        }
+
+
+                                        {loading ? (
+                                            <Skeleton variant="text" width={100}/>
+                                        ) : (
+                                            <Stack direction={"row"}>
+                                                <IconUrl path="ic-anniverssaire-2"/>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={500}
+                                                    display='flex'
+                                                    alignItems='flex-start'
+                                                    color="text.secondary">
+                                                    {row.birthdate} - {" "}
                                                     {row.birthdate && moment().diff(moment(row.birthdate, "DD-MM-YYYY"), "years") + " ans"}
-                                                </>
-                                            )}
-                                        </Typography>
+                                                </Typography>
+                                            </Stack>
+                                        )}
                                     </Stack>
                                 </>
                             )}
                         </Typography>
                     </Box>
+                </Box>
+            </TableCell>
+
+            <TableCell>
+                <Box display="flex" component="span" alignItems="center">
+                    {loading ? (
+                        <Skeleton variant="text" width={100}/>
+                    ) : (
+                        <>
+                            {(row?.contact?.length > 0 ? <Stack direction={"row"}>
+                                <IconUrl path="ic-phone" width={16} height={16} color={theme.palette.text.primary}/>
+                                {row.contact[0].code &&
+                                    <Typography fontWeight={600} variant={"body2"}
+                                                fontSize={13}
+                                                sx={{ml: 0.6}}>{row.contact[0].code}</Typography>
+                                }
+                                <Typography fontWeight={600} fontSize={13} variant={"body2"}
+                                            sx={{ml: 0.6}}>{row.contact[0].value}</Typography>
+                            </Stack> : "-")}
+                        </>
+                    )}
                 </Box>
             </TableCell>
             <TableCell>
@@ -232,114 +265,7 @@ function PatientRow({...props}) {
                     </Stack>
                 ) || "-"}
             </TableCell>
-            <TableCell>
-                <Box display="flex" component="span" alignItems="center">
-                    {loading ? (
-                        <Skeleton variant="text" width={100}/>
-                    ) : (
-                        <>
-                            {(row?.contact?.length > 0 ? <Stack direction={"row"}>
-                                {row.contact[0].code &&
-                                    <Typography variant={"body2"} color={"primary"}
-                                                sx={{ml: 0.6}}>({row.contact[0].code})</Typography>
-                                }
-                                <Typography variant={"body2"} color={"primary"}
-                                            sx={{ml: 0.6}}>{row.contact[0].value}</Typography>
-                            </Stack> : "-")}
-                        </>
-                    )}
-                </Box>
-            </TableCell>
-            <TableCell align={"center"}>
-                <Box display="flex" alignItems="center" sx={{float: "left"}}>
-                    {loading ? (
-                        <Skeleton variant="text" width={140}/>
-                    ) : row.nextAppointment?.dayDate ? (
-                        <Stack direction={"row"} margin={"auto"} sx={{
-                            "& .MuiButtonBase-root": {
-                                height: "fit-content",
-                                alignSelf: "center"
-                            }
-                        }}>
-                            <IconButton
-                                onClick={event => {
-                                    event.stopPropagation();
-                                    const appointment = {
-                                        title: `${row.lastName}  ${row.firstName}`,
-                                        publicId: row.nextAppointment.uuid,
-                                        extendedProps: {
-                                            time: moment(`${row.nextAppointment.dayDate} ${row.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
-                                            patient: row,
-                                            motif: row.nextAppointment.consultationReasons,
-                                            description: "",
-                                            dur: row.nextAppointment.duration,
-                                            status: AppointmentStatus[row.nextAppointment.status]
-                                        }
-                                    }
-                                    dispatch(setSelectedEvent(appointment as any));
-                                    const newDate = moment(appointment?.extendedProps.time);
-                                    dispatch(setMoveDateTime({
-                                        date: newDate,
-                                        time: newDate.format("HH:mm"),
-                                        action: "move",
-                                        selected: false
-                                    }));
-                                    handleEvent("APPOINTMENT_MOVE", appointment);
-                                }}
-                                size="small">
-                                <IconUrl path="ic-historique"/>
-                            </IconButton>
 
-                            <Box ml={1}>
-                                <Typography
-                                    component="span"
-                                    className="next-appointment"
-                                    variant="body2"
-                                    color="text.primary"
-                                >
-                                    <>
-                                        <IconUrl path="ic-agenda"/>
-                                        {row.nextAppointment?.dayDate}
-                                    </>
-                                </Typography>
-                                <Typography
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        "& svg": {
-                                            width: 11,
-                                            mr: 0.6,
-                                        },
-                                    }}
-                                    component="span"
-                                    variant="body2"
-                                    color="text.primary"
-                                >
-                                    <>
-                                        <IconUrl path="ic-time"/>
-                                        {row.nextAppointment?.startTime}
-                                    </>
-                                </Typography>
-                            </Box>
-                        </Stack>
-                    ) : (
-                        <Button
-                            onClick={event => {
-                                event.stopPropagation();
-                                handleEvent("ADD_APPOINTMENT", row);
-                            }}
-                            variant="text"
-                            size="small"
-                            color="primary"
-                            style={{margin: "auto"}}
-                            startIcon={<IconUrl path="ic-agenda-+"/>}
-                            sx={{position: "relative"}}
-                        >
-                            {t("table.add-appointment")}
-                        </Button>
-                    )}
-                </Box>
-            </TableCell>
             <TableCell align={"center"}>
                 <Box display="flex" alignItems="center" margin={"auto"}>
                     {loading ? (
@@ -349,41 +275,44 @@ function PatientRow({...props}) {
                             <Box ml={1}>
                                 <Typography
                                     component="span"
-                                    className="next-appointment"
+                                    className="next-appointment ellipsis"
                                     variant="body2"
                                     color="text.primary"
+                                    fontWeight={600}
+                                    fontSize={13}
                                 >
                                     {loading ? (
                                         <Skeleton variant="text" width={100}/>
                                     ) : (
                                         <>
-                                            <IconUrl path="ic-agenda"/>
+                                            <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                             {row.previousAppointments?.dayDate || "-"}
                                         </>
                                     )}
                                 </Typography>
-                                <Typography
+                                {row.previousAppointments?.startTime !== "00:00" && <Typography
                                     sx={{
                                         display: "flex",
                                         alignItems: "center",
                                         "& svg": {
-                                            width: 11,
                                             mr: 0.6
                                         },
                                     }}
                                     component="span"
                                     variant="body2"
                                     color="text.primary"
+                                    fontWeight={600}
+                                    fontSize={13}
                                 >
                                     {loading ? (
                                         <Skeleton variant="text" width={100}/>
                                     ) : (
                                         <>
-                                            <IconUrl path="ic-time"/>{" "}
+                                            <IconUrl path="ic-time" width={16} height={16}/>{" "}
                                             {row.previousAppointments?.startTime || "-"}
                                         </>
                                     )}
-                                </Typography>
+                                </Typography>}
                             </Box>
                         </>
                     ) : (
@@ -399,13 +328,102 @@ function PatientRow({...props}) {
                     )}
                 </Box>
             </TableCell>
+            <TableCell align={"center"}>
+                <Box display="flex" alignItems="center" sx={{float: "left"}}>
+                    {loading ? (
+                        <Skeleton variant="text" width={140}/>
+                    ) : row.nextAppointment?.dayDate ? (
+                        <Stack direction={"row"} margin={"auto"} sx={{
+                            "& .MuiButtonBase-root": {
+                                height: "fit-content",
+                                alignSelf: "center"
+                            }
+                        }}>
+                            <Can I={"manage"} a={"agenda"} field={"agenda__appointment__edit"}>
+                                <IconButton
+                                    onClick={event => {
+                                        event.stopPropagation();
+                                        const appointment = {
+                                            title: `${row.lastName}  ${row.firstName}`,
+                                            publicId: row.nextAppointment.uuid,
+                                            extendedProps: {
+                                                time: moment(`${row.nextAppointment.dayDate} ${row.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
+                                                patient: row,
+                                                description: "",
+                                                dur: row.nextAppointment.duration
+                                            }
+                                        }
+                                        dispatch(setSelectedEvent(appointment as any));
+                                        const newDate = moment(appointment?.extendedProps.time);
+                                        dispatch(setMoveDateTime({
+                                            date: newDate,
+                                            time: newDate.format("HH:mm"),
+                                            action: "move",
+                                            selected: false
+                                        }));
+                                        handleEvent("APPOINTMENT_MOVE", appointment);
+                                    }}
+                                    size="small">
+                                    <IconUrl path="ic-historique" width={17} height={17}
+                                             color={theme.palette.primary.main}/>
+                                </IconButton>
+                            </Can>
+                            <Box ml={1}>
+                                <Typography
+                                    component="span"
+                                    className="next-appointment ellipsis"
+                                    variant="body2"
+                                    color="text.primary"
+                                    fontWeight={600}
+                                    fontSize={13}>
+                                    <>
+                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
+                                        {row.nextAppointment?.dayDate}
+                                    </>
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        "& svg": {
 
+                                            mr: 0.6,
+                                        },
+                                    }}
+                                    component="span"
+                                    variant="body2"
+                                    color="text.primary"
+                                    fontWeight={600}
+                                    fontSize={13}>
+                                    <>
+                                        <IconUrl path="ic-time" width={16} height={16}/>
+                                        {row.nextAppointment?.startTime}
+                                    </>
+                                </Typography>
+                            </Box>
+                        </Stack>
+                    ) : (
+                        <Can I={"manage"} a={"agenda"} field={"agenda__appointment__create"}>
+                            <Button
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleEvent("ADD_APPOINTMENT", row);
+                                }}
+                                variant="text"
+                                size="small"
+                                color="primary"
+                                style={{margin: "auto"}}
+                                startIcon={<IconUrl path="ic-agenda-+"/>}
+                                sx={{position: "relative", fontWeight: 600}}>
+                                {t("table.add-appointment")}
+                            </Button>
+                        </Can>
+                    )}
+                </Box>
+            </TableCell>
             <TableCell
-                align="right"
-                sx={{
-                    marginLeft: "auto"
-                }}>
-                <Box alignItems="flex-end">
+                align="right">
+                <Stack direction='row' alignItems="center" justifyContent='flex-end'>
                     {loading ? (
                         <>
                             <Skeleton
@@ -418,19 +436,46 @@ function PatientRow({...props}) {
                             <Skeleton variant="text" width={60}/>
                         </>
                     ) : (
-                        <Tooltip title={t('more')}>
-                            <IconButton
-                                disabled={loading}
-                                onClick={event => {
-                                    event.stopPropagation();
-                                    handleEvent("OPEN-POPOVER", row, event);
-                                }}
-                                size="small">
-                                <MoreVertIcon/>
-                            </IconButton>
-                        </Tooltip>
+                        <Stack spacing={1} direction='row' alignItems='center' justifyContent='flex-end'>
+                            <Can I={"manage"} a={"patients"} field={"patients__patient__update"}>
+                                <Tooltip title={t('popover-action.view_patient_data')}>
+                                    <IconButton
+                                        disabled={loading}
+                                        className="btn-edit"
+                                        onClick={event => {
+                                            event.stopPropagation();
+                                            handleEvent("EDIT", row, event);
+                                        }}
+                                        size="small"
+                                        sx={{mt: .2}}>
+                                        <IconUrl path="ic-edit-patient" width={16} height={16}
+                                                 color={theme.palette.text.secondary}/>
+                                    </IconButton>
+                                </Tooltip>
+                            </Can>
+                            <Can I={"manage"} a={"patients"} field={"patients__patient__delete"}>
+                                <Tooltip title={t('popover-action.delete_patient_data')}>
+                                    <IconButton
+                                        disabled={loading}
+                                        sx={{
+                                            mr: { md: 1 },
+                                            '& .react-svg svg': {
+                                                width: 20,
+                                                height: 20
+                                            }
+                                        }}
+                                        onClick={event => {
+                                            event.stopPropagation();
+                                            handleEvent("DELETE", row, event);
+                                        }}
+                                        size="small">
+                                        <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
+                                    </IconButton>
+                                </Tooltip>
+                            </Can>
+                        </Stack>
                     )}
-                </Box>
+                </Stack>
             </TableCell>
         </TableRowStyled>
     );

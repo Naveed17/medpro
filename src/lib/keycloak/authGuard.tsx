@@ -3,33 +3,22 @@ import {useRouter} from "next/router";
 import React, {useEffect} from "react";
 import {LoadingScreen} from "@features/loadingScreen";
 import LockIcon from "@themes/overrides/icons/lockIcon";
-import {setLock} from "@features/appLock";
-import {toggleSideBar} from "@features/menu";
-import {useAppDispatch} from "../redux/hooks";
 
 function AuthGuard({children}: LayoutProps) {
     const {data: session, status} = useSession();
-    const dispatch = useAppDispatch();
     const router = useRouter();
 
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
-    const userPermission = [
-        "/dashboard/settings/profil",
-        "/dashboard/settings/acts",
-        "/dashboard/settings/actfees",
-        "/dashboard/consultation/[uuid-consultation]"
-    ];
+    const medical_entity = (session?.data as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
+    const features = medical_entity?.features;
+    const routerPathname = router.pathname;
 
-    useEffect(() => {
-        if (localStorage.getItem('lock-on') === 'true') {
-            dispatch(setLock(true));
-            dispatch(toggleSideBar(true));
-        }
-    }, [dispatch]);
+    const hasAdminAccess = true;
+    const slugFeature = routerPathname.split('/')[2] === "payment" ? "cashbox" : routerPathname.split('/')[2];
+    const hasFeatureAccess = features?.find((feature: FeatureModel) => slugFeature?.includes(feature.slug)) ?? false;
 
     useEffect(() => {
         if (status === "unauthenticated" && router.asPath !== "/auth/signIn") {
-            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')});
+            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar' : '/')});
         }
     }, [status, router]);
 
@@ -37,7 +26,7 @@ function AuthGuard({children}: LayoutProps) {
         // check if the error has occurred
         if (session?.error === "RefreshAccessTokenError") {
             signIn('keycloak', {
-                callbackUrl: `${router.locale}/dashboard/agenda`,
+                callbackUrl: `/${router.locale}`,
             }); // Force sign in to hopefully resolve error
         }
     }, [session?.error, router]);
@@ -49,12 +38,16 @@ function AuthGuard({children}: LayoutProps) {
         return <LoadingScreen/>
     }
 
-    if (userPermission.includes(router.pathname) && roles.includes('ROLE_SECRETARY')) {
+    if (!hasAdminAccess && router.pathname.includes("/admin/") || !hasFeatureAccess && router.pathname.includes("/dashboard/")) {
         console.log("auth guard loading")
-        return <LoadingScreen text={"permission"} iconNote={<LockIcon/>} button={'back'}/>
+        return <LoadingScreen
+            text={"permission"}
+            iconNote={<LockIcon/>}
+            button={'back'}
+            OnClick={() => router.push("/dashboard")}/>
     }
 
-    return <>{children}</>;
+    return children;
 }
 
 export default AuthGuard;

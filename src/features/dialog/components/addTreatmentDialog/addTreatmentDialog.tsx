@@ -61,7 +61,7 @@ function AddTreatmentDialog({...props}) {
         if (value.length >= 2) {
             triggerDrugsGet({
                 method: "GET",
-                url: `/api/drugs/${router.locale}?name=${value}`
+                url: `/api/private/drugs/${router.locale}?name=${value}`
             }, {
                 onSuccess: (cnx: any) => cnx?.data && setDrugsList((cnx.data as HttpResponse)?.data ?? [])
             });

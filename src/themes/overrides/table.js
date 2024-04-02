@@ -11,7 +11,7 @@ export default function Table(theme) {
           background: "transparent",
           "& .MuiTableBody-root": {
             ".MuiTableRow-root": {
-              "& .MuiTableCell-root": {
+              "& .MuiTableCell-root:not(.MuiTableCell-head)": {
                 borderRadius: 0,
                 borderTop: "1px solid transparent",
                 borderBottom: `1px solid ${theme.palette.divider}`,
@@ -27,7 +27,7 @@ export default function Table(theme) {
                 padding: 0,
               },
               "&:hover": {
-                "& > .MuiTableCell-root": {
+                "& > .MuiTableCell-root:not(.MuiTableCell-head)": {
                   backgroundColor: theme.palette.primary.lighter,
                   borderBottom: `1px solid ${theme.palette.divider}`,
                   "&.text-row": {
@@ -45,7 +45,7 @@ export default function Table(theme) {
               },
               "&:first-of-type": {
                 "&:hover": {
-                  ".MuiTableCell-root": {
+                  ".MuiTableCell-root:not(.MuiTableCell-head)": {
                     background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
                   }
                 },
@@ -86,43 +86,44 @@ export default function Table(theme) {
         },
         head: {
           color: theme.palette.text.secondary,
-          // backgroundColor: "rgba(6, 150, 214, 0.2)",
           paddingTop: theme.spacing(1),
           paddingBottom: theme.spacing(1),
-          "&:first-of-type": {
-            borderTopLeftRadius: theme.shape.borderRadius,
-            borderBottomLeftRadius: theme.shape.borderRadius,
-            "& span": {
-              flexDirection: "row !important",
-              justifyContent: "flex-start !important",
+          "&.MuiTableCell-head": {
+            "&:first-of-type": {
+              borderTopLeftRadius: theme.shape.borderRadius,
+              borderBottomLeftRadius: theme.shape.borderRadius,
+              "& span": {
+                flexDirection: "row !important",
+                justifyContent: "flex-start !important",
+              },
             },
-          },
-          "&:last-of-type": {
-            borderTopRightRadius: theme.shape.borderRadius,
-            borderBottomRightRadius: theme.shape.borderRadius,
-          },
-          "&.MuiTableCell-root": {
-            padding: theme.spacing(1, 2),
-            overflow: "hidden",
-            borderColor: "transparent",
-            color: theme.palette.text.secondary,
-            textTransform: "normal",
-            fontWeight: 500,
-            fontSize: 13,
-            fontFamily: "Poppins",
-            letterSpacing: "1px",
-            cursor: "pointer",
-            span: {
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+            "&:last-of-type": {
+              borderTopRightRadius: theme.shape.borderRadius,
+              borderBottomRightRadius: theme.shape.borderRadius,
             },
-            div: {
-              float: "right",
-            },
-            "& .MuiTableSortLabel-root": {
-              "& .MuiTableSortLabel-icon": {
-                transform: "rotate(90deg)",
+            "&.MuiTableCell-root": {
+              padding: theme.spacing(1, 2),
+              overflow: "hidden",
+              borderColor: "transparent",
+              color: theme.palette.text.secondary,
+              textTransform: "normal",
+              fontWeight: 500,
+              fontSize: 13,
+              fontFamily: "Poppins",
+              letterSpacing: "1px",
+              cursor: "pointer",
+              span: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+              },
+              div: {
+                float: "right",
+              },
+              "& .MuiTableSortLabel-root": {
+                "& .MuiTableSortLabel-icon": {
+                  transform: "rotate(90deg)",
+                },
               },
             },
           },

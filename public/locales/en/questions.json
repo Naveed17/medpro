@@ -1,10 +1,10 @@
 {
-    "weight": "points",
-    "answers": "answers",
-    "publish": "publish my answer",
-    "write_answer": "write an answer",
-    "in_progress": "in progress",
-    "closed": "closed",
-    "category": "category",
-    "height": "height"
+  "weight": "Weight",
+  "answers": "Answers",
+  "publish": "Publish my answer",
+  "write_answer": "Write an answer",
+  "in_progress": "In progress",
+  "closed": "Closed",
+  "category": "Category",
+  "height": "Height"
 }

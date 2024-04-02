@@ -1,5 +1,5 @@
 import {GetStaticProps} from "next";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 //components
 import {NoDataCard, timerSelector, WaitingRoomMobileCard} from "@features/card";
 // next-i18next
@@ -11,14 +11,13 @@ import {
     Button,
     Card,
     CardHeader,
-    DialogActions,
-    Drawer,
-    LinearProgress,
+    Drawer, useTheme,
+    LinearProgress, Menu,
     MenuItem,
-    Paper,
+    Paper, Radio,
     Stack,
     Typography,
-    useMediaQuery
+    useMediaQuery, Grid, FormControlLabel, Checkbox
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
@@ -31,20 +30,18 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {ActionMenu, toggleSideBar} from "@features/menu";
+import {ActionMenu} from "@features/menu";
 import {
     prepareContextMenu,
     prepareSearchKeys,
-    useIsMountedRef,
     useMedicalEntitySuffix,
     useMutateOnGoing
 } from "@lib/hooks";
-import {appLockSelector} from "@features/appLock";
 import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry, WaitingHeadCells} from "@lib/constants";
+import {DefaultCountry, deleteAppointmentOptionsData, WaitingHeadCells} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {LoadingButton} from "@mui/lab";
 import {
@@ -55,39 +52,40 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {Board} from "@features/board";
+import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
-import {CustomIconButton} from "@features/buttons";
-import AddIcon from "@mui/icons-material/Add";
+import {CustomIconButton, CustomSwitch} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
-    appointmentSelector,
+    appointmentSelector, resetAppointment,
     setAppointmentSubmit,
     TabPanel
 } from "@features/tabPanel";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
-import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
 import {partition} from "lodash";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
+import {AbilityContext} from "@features/casl/can";
+import _ from "lodash";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
-    const isMounted = useIsMountedRef();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
-    const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
+    const ability = useContext(AbilityContext);
 
+    const {t, ready, i18n} = useTranslation(["waitingRoom", "common"]);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive} = useAppSelector(timerSelector);
@@ -100,6 +98,7 @@ function WaitingRoom() {
         type
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {filter: boardFilterData} = useAppSelector(boardSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -126,6 +125,15 @@ function WaitingRoom() {
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [menuOptions] = useState<any[]>([
+        {key: "startTime", value: "start-time", checked: true},
+        {key: "arrivalTime", value: "arrival-time", checked: true},
+        {key: "estimatedStartTime", value: "smart-list", checked: true}
+    ]);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
+
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
@@ -212,17 +220,14 @@ function WaitingRoom() {
                     ...row
                 }
             } as EventDef;
-            batch(() => {
-                dispatch(setSelectedEvent(defEvent));
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-            });
+            dispatch(setSelectedEvent(defEvent));
+            dispatch(openDrawer({type: "view", open: false}));
+            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
         }
     }
 
     const handleAddAppointment = () => {
         setLoadingRequest(true);
-
         const params = new FormData();
         params.append('dates', JSON.stringify(withoutDateTime ?
             [{
@@ -304,7 +309,7 @@ function WaitingRoom() {
                 handleAppointmentStatus(row?.uuid as string, '6');
                 break;
             case "onDelete":
-                handleAppointmentStatus(row?.uuid as string, '9');
+                setDeleteDialog(true);
                 break;
             case "onPatientNoShow":
                 handleAppointmentStatus(row?.uuid as string, '10');
@@ -323,6 +328,47 @@ function WaitingRoom() {
         handleClose();
     }
 
+    const handleDeleteAppointment = () => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        params.append("type", deleteAppointmentOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
+
+        updateAppointmentStatus({
+            method: "DELETE",
+            data: params,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateOnGoing();
+                mutateWaitingRoom();
+                setDeleteDialog(false);
+            },
+            onSettled: () => setLoadingRequest(false)
+        });
+    }
+
+    const handleSortData = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleUnpaidFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(setIsUnpaid(event.target.checked));
+    };
+
+    const handleSortSelect = (value: string) => {
+        dispatch(setSortTime(value));
+        setAnchorEl(null);
+    };
+    const handleOrderSelect = (value: string) => {
+        dispatch(setOrderSort(value));
+        setAnchorEl(null);
+    };
+
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
+    };
+
     const handleDragEvent = (result: DropResult, item: BoardModel) => {
         handleAppointmentStatus(
             item.content.uuid,
@@ -338,6 +384,10 @@ function WaitingRoom() {
                 break;
             case "START_CONSULTATION":
                 startConsultation(data.row);
+                break;
+            case "OPEN_CONSULTATION":
+                const slugConsultation = `/dashboard/consultation/${data.row?.uuid}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "CANCEL_APPOINTMENT":
                 handleAppointmentStatus(data.row?.uuid as string, '6');
@@ -399,7 +449,7 @@ function WaitingRoom() {
                 variant="filled"
                 color={"primary"}
                 size={"small"}>
-                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+                <AgendaAddViewIcon/>
             </CustomIconButton>
         },
         {
@@ -407,17 +457,19 @@ function WaitingRoom() {
             name: 'waiting-room',
             url: '#',
             icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
-            action: <CustomIconButton
-                onClick={() => {
-                    setWithoutDateTime(true);
-                    setQuickAddAppointment(true);
-                    setTimeout(() => setQuickAddAppointmentTab(3));
-                }}
-                variant="filled"
-                color={"primary"}
-                size={"small"}>
-                <AddIcon fontSize={"small"} htmlColor={"white"}/>
-            </CustomIconButton>
+            ...(ability.can('manage', 'waiting-room', 'waiting-room__waiting-room__appointment-create') && {
+                action: <CustomIconButton
+                    onClick={() => {
+                        setWithoutDateTime(true);
+                        setQuickAddAppointment(true);
+                        setTimeout(() => setQuickAddAppointmentTab(3));
+                    }}
+                    variant="filled"
+                    color={"primary"}
+                    size={"small"}>
+                    <AgendaAddViewIcon/>
+                </CustomIconButton>
+            })
         },
         {
             id: '4,8',
@@ -437,19 +489,23 @@ function WaitingRoom() {
                 }}/>
         }];
     const Toolbar = () => (
-        <Card sx={{minWidth: 235, border: 'none', mb: 2}}>
+        <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
             <CardHeader
                 component={Stack}
                 borderBottom={1}
                 borderColor="divider"
                 direction="row"
                 sx={{
+                    m: 0,
+                    pt: 0,
+                    px: 0,
+                    pb: 1,
+
+                    borderBottom: 1,
+                    borderColor: "divider",
                     ".MuiCardHeader-action": {
                         m: 0,
-                    },
-                    p: 0,
-                    pb: 1,
-                    "& .MuiButtonBase-root": {mr: 1}
+                    }
                 }}
                 avatar={columns[1].icon}
                 {...(columns[1].action && {action: columns[1].action})}
@@ -472,28 +528,30 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
-                moment(a.startTime === "00:00" ? b.createdAt : `${a.dayDate} ${a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(b.startTime === "00:00" ? a.createdAt : `${b.dayDate} ${b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()
-            ).group((diag: any) => diag.status);
-            const onGoingAppointment = partition(groupedData[3], (event: any) => event.startTime === "00:00");
-            groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0].reverse()]
+            const sortKey = menuOptions.find(option => option.value === boardFilterData.sort)?.key;
+            const timeFormat = `DD-MM-YYYY HH:mm${sortKey === "arrivalTime" ? ":ss" : ""}`
+            let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => {
+                const d1 = boardFilterData.order === "asscending" ? a : b;
+                const d2 = boardFilterData.order === "asscending" ? b : a;
+                return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
+            }).group((diag: any) => diag.status);
+            const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
+            groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0]];
+            if (sortKey === "arrivalTime") {
+                groupedData[3].reverse();
+            } else if (sortKey === "startTime") {
+                groupedData[3].reverse().sort((a: any) => a.startTime === "00:00" ? 1 : -1);
+            }
+            if (boardFilterData.unpaid && groupedData[5]) {
+                groupedData[5] = groupedData[5].filter((data: any) => data.restAmount > 0);
+            }
             setWaitingRoomsGroup(groupedData);
         }
-    }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpWaitingRoomsResponse, is_next, boardFilterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (isMounted.current && !lock) {
-            dispatch(toggleSideBar(false));
-        }
-    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (!openPaymentDialog) {
-            setTimeout(() => {
-                mutateWaitingRoom();
-            }, 300);
-        }
-    }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
+        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilter());
@@ -529,14 +587,14 @@ function WaitingRoom() {
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
-                                {...{columns, handleDragEvent}}
+                                {...{columns, handleDragEvent, handleSortData, handleUnpaidFilter}}
+                                isUnpaidFilter={boardFilterData.unpaid}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
                         </TabPanel>
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
-                        {waitingRoomsGroup[1] ? <>
-
+                        {!!waitingRoomsGroup[1]?.length ? <>
                                 <DesktopContainer>
                                     <Otable
                                         sx={{mt: 2}}
@@ -553,10 +611,12 @@ function WaitingRoom() {
                                                     pt: 0,
                                                     px: 0,
                                                     pb: 1,
-                                                    mr: 2,
+                                                    m: 0,
                                                     borderBottom: 1,
                                                     borderColor: "divider",
-                                                    ".MuiCardHeader-action": {m: 0}
+                                                    ".MuiCardHeader-action": {
+                                                        m: 0,
+                                                    }
                                                 }}
                                                 avatar={columns[0].icon}
                                                 {...(columns[0].action && {action: columns[0].action})}
@@ -599,6 +659,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(1));
                                 }}
@@ -617,7 +678,7 @@ function WaitingRoom() {
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={2}>
-                        {waitingRoomsGroup[3] ? <>
+                        {!!waitingRoomsGroup[3]?.length ? <>
                                 <DesktopContainer>
                                     <Otable
 
@@ -655,6 +716,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(3));
                                 }}
@@ -673,7 +735,7 @@ function WaitingRoom() {
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={3}>
-                        {(waitingRoomsGroup[4] || waitingRoomsGroup[8]) ?
+                        {(!!waitingRoomsGroup[4]?.length || !!waitingRoomsGroup[8]?.length) ?
                             <>
                                 <DesktopContainer>
 
@@ -740,7 +802,33 @@ function WaitingRoom() {
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
-                                        headers={WaitingHeadCells}
+                                        toolbar={<Stack direction='row' mb={1} alignItems='center' borderBottom={1}
+                                                        borderColor="divider" py={1}>
+                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                <IconUrl path="ic-dubble-check-round"/>
+                                                <Typography fontWeight={600}>
+                                                    {t("tabs.finished")}
+                                                </Typography>
+                                                <Label color="info" variant="filled">
+                                                    {[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])].length}
+                                                </Label>
+                                            </Stack>
+                                            <Stack ml="auto" direction={"row"} alignItems={"center"}
+
+                                                   sx={{height: 28}}>
+                                                <CustomSwitch
+                                                    className="custom-switch"
+                                                    name="active"
+                                                    onChange={handleUnpaidFilter}
+                                                    checked={boardFilterData.unpaid}
+
+
+                                                />
+                                                <Typography variant={"body2"}
+                                                            fontSize={12}>{t("tabs.payed")}</Typography>
+                                            </Stack>
+                                        </Stack>}
+                                        headers={_.tail(WaitingHeadCells)}
                                         rows={[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])]}
                                         from={"waitingRoom"}
                                         t={t}
@@ -788,9 +876,79 @@ function WaitingRoom() {
                             </MenuItem>
                         ))}
                     </ActionMenu>
+
+                    <Menu
+                        id="sort-menu"
+                        {...{anchorEl}}
+                        open={anchorEl !== null}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        sx={{
+                            "& .MuiPaper-root": {
+                                borderRadius: 2,
+                                minWidth: 180
+                            }
+                        }}
+                        onClose={handleCloseMenu}>
+                        <Typography fontWeight={600} px={2} my={.5}>{t("sort.sort-by")} </Typography>
+
+                        {menuOptions.map((option) => (
+                            <MenuItem
+                                key={option.value}
+                                onClick={() => handleSortSelect(option.value)}>
+                                <Box
+                                    component={Radio}
+                                    checkedIcon={<TripOriginRoundedIcon/>}
+                                    checked
+                                    sx={{
+                                        width: 17, height: 17, mr: '5px', ml: '-2px',
+                                        '& .MuiSvgIcon-root': {
+                                            color: theme.palette.primary.main
+                                        }
+                                    }}
+                                    style={{
+                                        visibility: option.value === boardFilterData.sort ? 'visible' : 'hidden',
+                                    }}
+                                />
+                                {t(`sort.${option.value}`)}
+                            </MenuItem>
+                        ))}
+                        {/*<Stack mt={1} px={1} direction={"row"} alignItems={"center"} spacing={1}
+                               justifyContent={"center"}>
+                            <ToggleButton
+                                size={"small"}
+                                sx={{border: "none"}}
+                                color={"primary"}
+                                selected={orderSort === "asscending"}
+                                value="check"
+                                onChange={() => handleOrderSelect("asscending")}>
+                                <IconUrl {...(orderSort !== "asscending" && {color: theme.palette.text.primary})}
+                                         width={16} height={16}
+                                         path={"ic-linear-sort-descending"}/>
+                                {orderSort === "asscending" && <Typography ml={1}>{t("sort.ascending")}</Typography>}
+                            </ToggleButton>
+
+                            <ToggleButton
+                                size={"small"}
+                                sx={{border: "none"}}
+                                color={"primary"}
+                                selected={orderSort === "descending"}
+                                value="check"
+                                onChange={() => handleOrderSelect("descending")}>
+                                <IconUrl  {...(orderSort !== "descending" && {color: theme.palette.text.primary})}
+                                          width={16} height={16}
+                                          path={"ic-linear-sort-asscending"}/>
+                                {orderSort === "descending" && <Typography ml={1}>{t("sort.decreasing")}</Typography>}
+                            </ToggleButton>
+                        </Stack>*/}
+                    </Menu>
                 </Box>
-
-
             </Box>
 
             <Drawer
@@ -801,6 +959,7 @@ function WaitingRoom() {
                 open={quickAddAppointment}
                 dir={direction}
                 onClose={() => {
+                    dispatch(resetAppointment());
                     setQuickAddAppointment(false);
                     setQuickAddPatient(false);
                 }}>
@@ -821,7 +980,10 @@ function WaitingRoom() {
                             mr: 1
                         }}
                         variant="text-primary"
-                        onClick={() => setQuickAddAppointment(false)}
+                        onClick={() => {
+                            dispatch(resetAppointment());
+                            setQuickAddAppointment(false)
+                        }}
                         startIcon={<CloseIcon/>}>
                         {t("cancel", {ns: "common"})}
                     </Button>
@@ -833,7 +995,7 @@ function WaitingRoom() {
                             event.stopPropagation();
                             handleAddAppointment();
                         }}
-                        disabled={type === "" || !patient}>
+                        disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
                         {t("save", {ns: "common"})}
                     </LoadingButton>
                 </Paper>
@@ -893,18 +1055,99 @@ function WaitingRoom() {
                 title={t("pre_consultation_dialog_title")}
                 {...(!loadingRequest && {dialogClose: () => setOpenPreConsultationDialog(false)})}
                 actionDialog={
-                    <DialogActions>
-                        <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                    <Stack direction={"row"}
+                           justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant={"text-black"}
+                            onClick={() => setOpenPreConsultationDialog(false)}
+                            startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "common"})}
                         </Button>
                         <Button
                             disabled={loadingRequest}
                             variant="contained"
                             onClick={() => submitPreConsultationData()}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("save", {ns: "common"})}
                         </Button>
-                    </DialogActions>
+                    </Stack>
+                }
+            />
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteDialog(false)}
+                sx={{direction: direction}}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`, {ns: "common"})} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`dialogs.delete-dialog.description`, {ns: "common"})}</Typography>
+
+                            <Grid container spacing={1}>
+                                {deleteAppointmentOptions.map((option: any, index: number) =>
+                                    <Grid key={option.key} item md={4} xs={12}>
+                                        <Card
+                                            sx={{
+                                                padding: 1,
+                                                ml: 2,
+                                                borderRadius: 1.4,
+                                                "& .MuiTypography-root": {
+                                                    fontSize: 14, fontWeight: "bold"
+                                                },
+                                                "& .MuiFormControlLabel-root": {
+                                                    ml: 1,
+                                                    width: "100%"
+                                                }
+                                            }}>
+                                            <FormControlLabel
+                                                label={t(`dialogs.delete-dialog.${option.key}`, {ns: "common"})}
+                                                checked={option.selected}
+                                                control={
+                                                    <Checkbox
+                                                        onChange={(event) => {
+                                                            setDeleteAppointmentOptions([
+                                                                ...deleteAppointmentOptions.slice(0, index),
+                                                                {
+                                                                    ...deleteAppointmentOptions[index],
+                                                                    selected: event.target.checked
+                                                                },
+                                                                ...deleteAppointmentOptions.slice(index + 1)
+                                                            ])
+                                                        }}
+                                                    />
+                                                }
+                                            />
+                                        </Card>
+                                    </Grid>)}
+                            </Grid>
+                        </Box>)
+                }}
+                open={deleteDialog}
+                title={t(`dialogs.delete-dialog.title`, {ns: "common"})}
+                actionDialog={
+                    <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant="text-black"
+                            onClick={() => setDeleteDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {t(`dialogs.delete-dialog.cancel`, {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingRequest}
+                            loadingPosition="start"
+                            variant="contained"
+                            disabled={deleteAppointmentOptions.filter(option => option.selected).length === 0}
+                            color={"error"}
+                            onClick={() => handleDeleteAppointment()}
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                path="ic-trash"></IconUrl>}>
+                            {t(`dialogs.delete-dialog.confirm`, {ns: "common"})}
+                        </LoadingButton>
+                    </Stack>
                 }
             />
 
@@ -927,8 +1170,9 @@ function WaitingRoom() {
                     })
                 })}
                 actionDialog={
-                    <DialogActions>
+                    <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
                         <Button
+                            variant={"text-black"}
                             onClick={() => {
                                 setOpenUploadDialog({...openUploadDialog, dialog: false});
                             }}
@@ -943,10 +1187,10 @@ function WaitingRoom() {
                                 event.stopPropagation();
                                 handleUploadDocuments();
                             }}
-                            startIcon={<SaveRoundedIcon/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("save", {ns: "common"})}
                         </LoadingButton>
-                    </DialogActions>
+                    </Stack>
                 }
             />
         </>
@@ -959,11 +1203,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         ...(await serverSideTranslations(locale as string, [
             "menu",
             "common",
-            "patient",
-            "agenda",
-            "consultation",
-            "payment",
-            "waitingRoom",
+            "waitingRoom"
         ])),
     },
 });

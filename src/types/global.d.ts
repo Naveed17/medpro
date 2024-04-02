@@ -1,7 +1,7 @@
-import {CustomShadowType} from "@themes/shadows";
+import { CustomShadowType } from "@themes/shadows";
 import React from "react";
-import {PaletteColor} from "@mui/material";
-import {DateClickArg} from "@fullcalendar/interaction";
+import { PaletteColor } from "@mui/material";
+import { DateClickArg } from "@fullcalendar/interaction";
 
 declare global {
     type LayoutProps = {
@@ -40,26 +40,25 @@ declare module "notistack" {
 }
 declare module "@mui/material/Fab" {
     interface FabPropsColorOverrides {
-        text: true,
+        text: true;
         white: true;
         black: true;
     }
 }
 declare module "@mui/material/Button" {
-
     interface ButtonPropsVariantOverrides {
         google: true;
         white: true;
         "text-transparent": true;
         "text-black": true;
-        "contained-white": true
+        "contained-white": true;
         filter: true;
         "text-primary": true;
         consultationIP: true;
     }
 
     interface ButtonPropsColorOverrides {
-        text: true,
+        text: true;
         white: true;
         black: true;
     }
@@ -67,7 +66,7 @@ declare module "@mui/material/Button" {
 
 declare module "@mui/material/CircularProgress" {
     interface CircularProgressPropsColorOverrides {
-        white: true
+        white: true;
     }
 }
 
@@ -79,7 +78,7 @@ declare module "@mui/material/Chip" {
 
 declare module "@mui/material/SvgIcon" {
     interface SvgIconPropsColorOverrides {
-        text: true,
+        text: true;
         white: true;
         black: true;
     }
@@ -106,6 +105,10 @@ declare module "@mui/material" {
         B900: string;
         B901: string;
         B902: string;
+        B903: string;
+        B904: string;
+        B905: string;
+        B906: string;
     }
 
     interface PaletteColor {
@@ -138,20 +141,18 @@ declare module "@mui/material/styles" {
 
 declare module "@fullcalendar/interaction" {
     interface MouseTouchEvent extends MouseEvent {
-        changedTouches: Touch[]
+        changedTouches: Touch[];
     }
 
     interface DateClickTouchArg extends DateClickArg {
-        jsEvent: MouseTouchEvent
+        jsEvent: MouseTouchEvent;
     }
 }
 
-declare module '@emotion/styled/types' {
+declare module "@emotion/styled/types" {
     interface CreateStyled<T> {
-        isDragging?: Boolean
+        isDragging?: Boolean;
     }
 }
 
-declare module '@pqina/flip' {
-
-}
+declare module "@pqina/flip" {}

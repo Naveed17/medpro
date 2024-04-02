@@ -95,7 +95,7 @@ function PreviewDialog({...props}) {
                                 elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
                                 switch (pr.name) {
                                     case "name":
-                                        const val = `${index + 1} • ${el.standard_drug.commercial_name}`;
+                                        const val = `${index + 1} • ${el.drugName}`;
                                         elx.append(val)
                                         rows.push({
                                             value: val,
@@ -197,7 +197,7 @@ function PreviewDialog({...props}) {
                         case "write_certif":
                             const certifLine = document.createElement('div');
                             certifLine.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
-                            
+
                             let txt = el.name?.replaceAll('{patient}', state.patient)
                             txt = txt?.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
                             txt = txt?.replaceAll('[date]', moment().format('DD/MM/YYYY'))
@@ -469,7 +469,7 @@ function PreviewDialog({...props}) {
     }, [data])
 
     return (
-        <div ref={previewDocRef}>
+        <div ref={previewDocRef} style={{ margin: "0", padding: "0" }}>
             {pages.slice(0, nbPage ? 1 : pages.length).map((el, idx) => (
                 <div key={idx}>
                     <div className="page-break"/>

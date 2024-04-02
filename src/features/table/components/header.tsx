@@ -16,8 +16,8 @@ function OHead({...props}) {
         orderBy,
         onRequestSort,
         data,
-        handleConfig,
         t,
+        prefix = null,
         numSelected,
         hideHeaderOnMobile,
         rowCount,
@@ -25,10 +25,6 @@ function OHead({...props}) {
     } = props;
     const createSortHandler = (property: any) => (event: any) => {
         onRequestSort(event, property);
-    };
-
-    const handleChange = (value: string | boolean, event: any) => {
-        handleConfig(value, event);
     };
 
     return (
@@ -71,13 +67,13 @@ function OHead({...props}) {
                                     })}
                                     IconComponent={headCell.sortable ? CodeIcon : null}
                                     sx={{
+                                        fontWeight: 500,
                                         justifyContent:
                                             headCell.align === "center"
                                                 ? "center !important"
                                                 : "flex-start",
-                                    }}
-                                >
-                                    {capitalize(t(`table.${headCell.label}`))}
+                                    }}>
+                                    {headCell.label !== "empty" && capitalize(t(`${prefix ? `${prefix}.` : ""}table.${headCell.label}`))}
                                     {orderBy === headCell.id ? (
                                         <Box component="span" sx={visuallyHidden}>
                                             {order === "desc"

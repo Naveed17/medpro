@@ -1,68 +1,29 @@
 // material
 import {
     IconButton,
-    Menu,
-    MenuItem,
     Skeleton,
     Stack,
     TableCell,
-    Typography,
-    useTheme
+    Typography
 } from "@mui/material";
 // utils
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 // style
 import RootStyled from "./overrides/rootStyled";
-import {ModelDot} from '@features/modelDot'
-import {useRouter} from "next/router";
-import {AppointmentStatus} from "@features/calendar";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {ModelDot} from '@features/modelDot';
 import {Label} from "@features/label";
-import React, {useState} from "react";
-import {onAppointmentView} from "@lib/hooks/onAppointmentView";
-
-
+import React from "react";
 import {LoadingScreen} from "@features/loadingScreen";
+import {AppointmentStatus} from "@features/calendar";
 
 function RdvCard({...props}) {
-    const {inner, patient, loading, handlePreConsultationDialog} = props;
-    const dispatch = useAppDispatch();
-    const router = useRouter();
-    const theme = useTheme();
+    const {inner, loading, handleContextMenu} = props;
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {t: commonTranslation} = useTranslation("common");
 
-    const [contextMenu, setContextMenu] = useState<{
-        mouseX: number;
-        mouseY: number;
-    } | null>(null);
     const status = AppointmentStatus[parseInt(inner?.status)];
-
-    const handleClose = () => {
-        setContextMenu(null);
-    };
-
-    const handleContextMenu = (event: any) => {
-        event.stopPropagation();
-        setContextMenu(
-            contextMenu === null
-                ? {
-                    mouseX: event.clientX + 2,
-                    mouseY: event.clientY - 6,
-                }
-                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-                // Other native context menus might behave different.
-                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-                null,
-        );
-    };
-
-    const onConsultationView = (appointmentUuid: string) => {
-        const slugConsultation = `/dashboard/consultation/${appointmentUuid}`;
-        router.push(slugConsultation, slugConsultation, {locale: router.locale});
-    }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -142,7 +103,7 @@ function RdvCard({...props}) {
                     ) : (
                         <IconButton
                             disabled={loading}
-                            onClick={handleContextMenu}
+                            onClick={event => handleContextMenu(event, inner)}
                             sx={{display: "block", ml: "auto"}}
                             size="small">
                             <Icon path="more-vert"/>
@@ -150,70 +111,6 @@ function RdvCard({...props}) {
                     )}
                 </TableCell>
             </RootStyled>
-
-            <Menu
-                open={contextMenu !== null}
-                onClose={handleClose}
-                anchorReference="anchorPosition"
-                slotProps={{
-                    paper: {
-                        elevation: 0,
-                        sx: {
-                            minWidth: 200,
-                            backgroundColor: theme.palette.text.primary,
-                            "& .popover-item": {
-                                padding: theme.spacing(2),
-                                display: "flex",
-                                alignItems: "center",
-                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
-                                cursor: "pointer",
-                            }
-                        }
-                    }
-                }}
-                anchorPosition={
-                    contextMenu !== null
-                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
-                        : undefined
-                }
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}>
-                <MenuItem
-                    className="popover-item"
-                    onClick={() => {
-                        if (inner?.status === 5) {
-                            onConsultationView(inner?.uuid)
-                        } else {
-                            handleClose();
-                            onAppointmentView({
-                                dispatch,
-                                patient,
-                                inner
-                            })
-                        }
-                    }}>
-                    <Typography fontSize={15} sx={{color: "#fff"}}>
-                        {t(inner?.status === 5 ? "start-consultation" : "see-details")}
-                    </Typography>
-                </MenuItem>
-                {/*<MenuItem
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        handleClose();
-                        handlePreConsultationDialog(inner);
-                    }}
-                    className="popover-item">
-                    <Typography fontSize={15} sx={{color: "#fff"}}>
-                        {t("pre_consultation_data")}
-                    </Typography>
-                </MenuItem>*/}
-            </Menu>
         </>
     );
 }

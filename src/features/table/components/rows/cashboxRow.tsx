@@ -205,7 +205,7 @@ function CashboxRow({...props}) {
                                 <Tooltip
                                     key={insurance.insurance?.uuid + "ins"}
                                     title={insurance.insurance.name}>
-                                    <Avatar variant={"circular"} sx={{width: 30, height: 30}}>
+                                    <Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
                                         <ImageHandler
                                             alt={insurance.insurance?.name}
                                             src={

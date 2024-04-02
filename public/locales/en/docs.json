@@ -1,5 +1,72 @@
 {
+  "add-doc": "Add Document",
+  "add-complete": "Add Complete",
+  "add-quick": "Add Quick",
+  "scanner": "Scanner",
   "sub-header": {
-    "title": "Documents"
+    "title": "Documents",
+    "sub-title": "Blood Analysis Result",
+    "add-doc": "Add Document"
+  },
+  "document-in-progress": "Documents in Progress",
+  "document-treated": "Processed Documents",
+  "delete-document": "Delete Document",
+  "preview-document": "Preview Document",
+  "wait": "File Verification...",
+  "classify-document": "Classify Document",
+  "retry-ocr": "Retry Document Processing with OCR",
+  "filter": {
+    "title": "Document Details",
+    "sub-title": "Filter",
+    "caption": "Document",
+    "patient-suggested": "Patient Suggested",
+    "name": "Document Name",
+    "name-placeholder": "Type the document name",
+    "type": "Document Type",
+    "type-placeholder": "Select the type",
+    "assign": "Destination",
+    "assign-patient": "Patient File",
+    "assign-appointment": "Consultation",
+    "selected-appointment": "Select Consultation",
+    "date": "Document Date",
+    "status": "Document Status"
+  },
+  "doc-status": {
+    "pending": "Processing In Progress",
+    "finish": "Processing Finished",
+    "failed": "Processing Failed",
+    "affected": "Processing Affected"
+  },
+  "table": {
+    "header": {
+      "name": "Name",
+      "value": "Recorded Value"
+    }
+  },
+  "no-data": {
+    "docs": {
+      "title": "Add the First Document",
+      "description": "You have no medical documents. Add your documents by clicking on Add Document",
+      "import": "Import a Document"
+    }
+  },
+  "dialogs": {
+    "add-dialog": {
+      "title": "Add a New Document",
+      "upload-title": "Drag and Drop One or More",
+      "upload-sub-title": "Browse on my Computer",
+      "notification-title": "Document Processing Notification",
+      "notification-desc": "This document may take a moment to be classified. You have the choice to wait for it to finish or classify it later at your convenience.",
+      "scan-more": "Scan More",
+      "scan-doc": "Scan a Document",
+      "scan-doc-desc": "Take a photo of your document, it will be automatically cropped",
+      "list-title": "To ensure the quality of your documents",
+      "list-1": "Use a solid background.",
+      "list-2": "Ensure good lighting.",
+      "add-img-or-file": "Add an Image or File",
+      "cancel": "Cancel",
+      "later": "Classify Later",
+      "confirm": "Classify"
+    }
   }
 }

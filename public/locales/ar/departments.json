@@ -1,0 +1,20 @@
+{
+  "config": {
+    "sub-header": {
+      "title": "قائمة بالإدارات"
+    },
+    "filter": {
+      "title": "الفلتر",
+      "departments": "القسم",
+      "search": "بحث",
+      "search-input": "اسم القسم"
+    },
+    "table": {
+      "empty": "",
+      "department": "القسم",
+      "department-head": "رئيس القسم",
+      "status": "الحالة",
+      "date": "التاريخ"
+    }
+  }
+}

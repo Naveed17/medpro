@@ -16,7 +16,7 @@ import {
     Skeleton,
     Stack,
     Tooltip,
-    Typography,
+    Typography, useMediaQuery,
     useTheme,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -46,6 +46,7 @@ import {useSession} from "next-auth/react";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
+import {setMessage, setOpenChat} from "@features/chat/actions";
 
 function Consultation() {
     const dispatch = useAppDispatch();
@@ -58,9 +59,10 @@ function Consultation() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances: allInsurances} = useInsurances();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
-    const {patient,loading:loadingG} = useAppSelector(consultationSelector);
+    const {patient, loading: loadingG} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -84,14 +86,12 @@ function Consultation() {
 
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
-    const editPatientInfo = () => {
+    const editPatientInfo = (val: string) => {
         const params = new FormData();
         if (patient && medicalEntityHasUser) {
-            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`;
-
+            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`;
             params.append('attribute', 'note');
-            params.append('value', note);
-
+            params.append('value', val);
             triggerPatientUpdate({
                 method: "PATCH",
                 url,
@@ -251,7 +251,7 @@ function Consultation() {
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
                                         fontWeight: 500,
-                                        width: 150
+                                        width: 100
                                     }}>
                                     {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
                                 </Typography>
@@ -296,40 +296,63 @@ function Consultation() {
                                         {patient?.email}
                                     </Typography>
                                 )}
+
+                                {isMobile && <IconButton style={{
+                                    backgroundColor: theme.palette.background.default,
+                                    borderRadius: 8
+                                }} onClick={() => {
+                                    dispatch(setOpenChat(true))
+                                    dispatch(setMessage(`&lt; <span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">> </span>`))
+                                }}>
+                                    <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
+                                </IconButton>}
                             </Box>
                         )}
 
                     </Box>
 
-                    <Box
-                        onClick={() => {
-                            dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
-                        }}>
+                    {!loading && <Stack direction={"row"} spacing={1} sx={{position: "absolute", top: 20, right: 10}}>
                         <IconButton
                             size={"small"}
-                            sx={{position: "absolute", top: 20, right: 10}}>
-                            <Icon path={"ic-edit-patient"}/>
+                            onClick={() => {
+                                dispatch(setOpenChat(true))
+                                dispatch(setMessage(`&lt; <span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">> </span>`))
+                            }}>
+                            <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                         </IconButton>
-                    </Box>
+
+                        <IconButton
+                            size={"small"}
+                            onClick={() => dispatch(onOpenPatientDrawer({patientId: patient?.uuid}))}
+                            className="btn-edit">
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
+                        </IconButton>
+                    </Stack>}
                 </Stack>
-                {isBeta  && patient  &&
+                {isBeta && patient &&
                     <Stack direction={"row"} p={1} spacing={1} onClick={() => {
                         dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
                     }}>
                         {patient.wallet > 0 && <Label variant='filled'
-                                sx={{color: theme.palette.success.main, background: theme.palette.success.lighter}}>
+                                                      sx={{
+                                                          color: theme.palette.success.main,
+                                                          background: theme.palette.success.lighter
+                                                      }}>
                             <span>{t('wallet')}</span>
                             <span style={{
                                 fontSize: 14,
                                 marginLeft: 5,
                                 marginRight: 5,
                                 fontWeight: "bold"
-                            }}>{!loadingG ?patient.wallet:"-"}</span>
+                            }}>{!loadingG ? patient.wallet : "-"}</span>
                             <span>{devise}</span>
                         </Label>}
 
-                        {  patient.rest_amount !== 0 && <Label variant='filled'
-                                sx={{color: theme.palette.error.main, background: theme.palette.error.lighter}}>
+                        {patient.rest_amount !== 0 && <Label variant='filled'
+                                                             sx={{
+                                                                 color: theme.palette.error.main,
+                                                                 background: theme.palette.error.lighter
+                                                             }}>
                             <span style={{fontSize: 11}}>{t('credit')}</span>
                             <span style={{
                                 fontSize: 14,
@@ -357,9 +380,11 @@ function Consultation() {
                                 px: 1.5,
                             }}>
                             {upperFirst(t("ficheID"))}{" "}
-                            <span style={{fontWeight: "bold",maxWidth:150,whiteSpace: "nowrap",
+                            <span style={{
+                                fontWeight: "bold", maxWidth: 130, whiteSpace: "nowrap",
                                 overflow: "hidden",
-                                textOverflow: "ellipsis"}}>{patient?.fiche_id}</span>
+                                textOverflow: "ellipsis"
+                            }}>{patient?.fiche_id}</span>
                         </Button>
                     </Stack>
                 )}
@@ -372,7 +397,7 @@ function Consultation() {
                             setIsNote(!isNote);
                         }}>
                         <ListItemIcon>
-                            <Icon width={50} height={50} path={"docs/ic-note"}/>
+                            <Icon path={"docs/ic-note"}/>
                         </ListItemIcon>
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>
@@ -427,7 +452,7 @@ function Consultation() {
                                         setNote,
                                         setIsNote,
                                         editPatientInfo,
-                                        t,
+                                        t, isNote,
                                         resetTranscript,
                                         setIsStarted,
                                         listening,
@@ -473,7 +498,7 @@ function Consultation() {
                                     <Box px={1.5}>
                                         {collapse === col.id && <Content  {...{
                                             id: col.id,
-                                            url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/preview/${router.locale}`,
+                                            url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`,
                                             patient
                                         }}/>}
                                     </Box>

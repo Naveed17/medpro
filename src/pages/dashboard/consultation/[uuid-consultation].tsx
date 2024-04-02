@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
@@ -9,13 +9,14 @@ import {
     Card,
     CardMedia,
     Checkbox,
-    DialogActions, DialogContent,
+    Dialog as DialogMui,
+    DialogActions,
+    DialogContent,
     Drawer,
     Fab,
     Grid,
     IconButton,
     LinearProgress,
-    Dialog as DialogMui,
     Stack,
     Toolbar,
     Typography,
@@ -23,19 +24,26 @@ import {
     useTheme
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} from "@features/card";
+import {
+    AppointHistoryContainerStyled,
+    ConsultationDetailCard,
+    HistoryAppointementContainer,
+    PendingDocumentCard,
+    RecondingBoxStyled,
+    resetTimer,
+    timerSelector
+} from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
 import {getBirthdayFormat, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
-import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
 import {AppToolbar} from "@features/toolbar/components/appToolbar";
 import {MyCardStyled, SubHeader} from "@features/subHeader";
-import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {
     appointmentSelector,
+    DocumentPreview,
     DocumentsTab,
     EventType,
     FeesTab,
@@ -45,13 +53,18 @@ import {
     TabPanel,
     TimeSchedule
 } from "@features/tabPanel";
-import AppointHistoryContainerStyled
-    from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {SubFooter} from "@features/subFooter";
 import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog} from "@features/toolbar";
-import {Dialog, DialogProps, handleDrawerAction, PatientDetail} from "@features/dialog";
+import {
+    ChatDiscussionDialog,
+    Dialog,
+    DialogProps,
+    handleDrawerAction,
+    ObservationHistoryDialog,
+    PatientDetail
+} from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
 import {useSession} from "next-auth/react";
@@ -60,22 +73,18 @@ import {ConsultationFilter} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
-import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useSendNotification, useWidgetModels} from "@lib/hooks/rest";
-import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import Draggable from "react-draggable";
-import {DocumentPreview} from "@features/tabPanel/components/consultationTabs/documentPreview";
 import DialogTitle from "@mui/material/DialogTitle";
 import {CustomIconButton, SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import {motion} from "framer-motion";
 import MicIcon from "@mui/icons-material/Mic";
 import useStopwatch from "@lib/hooks/useStopwatch";
@@ -83,7 +92,8 @@ import {useAudioRecorder} from "react-audio-voice-recorder";
 import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
-import ObservationHistoryDialog from "@features/dialog/components/observationHistoryDialog/observationHistoryDialog";
+import {AbilityContext} from "@features/casl/can";
+import {useChannel} from "ably/react";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -128,18 +138,18 @@ function ConsultationInProgress() {
         recordingBlob,
         isPaused
     } = useAudioRecorder();
-    const {t} = useTranslation("consultation");
-    //***** SELECTORS ****//
-    const {
-        medicalEntityHasUser,
-        medicalProfessionalData
-    } = useAppSelector(dashLayoutSelector);
+    const ability = useContext(AbilityContext);
 
+    const {t, i18n} = useTranslation("consultation");
+    //***** SELECTORS ****//
+    const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {selectedDialog, record} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
+
+
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {
         type,
@@ -165,6 +175,9 @@ function ConsultationInProgress() {
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+
+    const {channel} = useChannel(medical_entity?.uuid);
+
     const {inProgress} = router.query;
     const {jti} = session?.user as any;
     const EventStepper = [
@@ -237,21 +250,30 @@ function ConsultationInProgress() {
     const [addFinishAppointment, setAddFinishAppointment] = useState<boolean>(false);
     const [showDocument, setShowDocument] = useState(false);
     const [nbDoc, setNbDoc] = useState(0);
-    const [cards, setCards] = useState([[
-        {
-            id: 'item-1',
-            content: 'widget',
-            expanded: cardPositions ? cardPositions.widget : false,
-            config: false,
-            icon: "ic-edit-file-pen"
-        },
-        {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
-    ], [{
-        id: 'item-3',
-        content: 'exam',
-        expanded: cardPositions ? cardPositions.exam : true,
-        icon: "ic-edit-file-pen"
-    }]]);
+    const [cards, setCards] = useState([
+        [
+            {
+                id: 'item-1',
+                content: 'widget',
+                expanded: cardPositions ? cardPositions.widget : false,
+                config: false,
+                icon: "docs/ic-note"
+            },
+            ...(ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
+                id: 'item-2',
+                content: 'history',
+                expanded: false,
+                icon: "ic-historique"
+            }] : [])
+        ],
+        [
+            {
+                id: 'item-3',
+                content: 'exam',
+                expanded: cardPositions ? cardPositions.exam : true,
+                icon: "docs/ic-note"
+            }
+        ]]);
     const [mobileCards, setMobileCards] = useState([[
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}
@@ -268,6 +290,8 @@ function ConsultationInProgress() {
     const [fullOb, setFullOb] = useState(false);
     const [nextAppDays, setNextAppDays] = useState("day")
     const [insuranceGenerated, setInsuranceGenerated] = useState(false)
+    const [selectedDiscussion, setSelectedDiscussion] = useState("");
+    const [selectedUser, setSelectedUser] = useState("");
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -281,7 +305,7 @@ function ConsultationInProgress() {
     // ********** Requests ********** \\
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequestQuery(agenda && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const sheet = (httpSheetResponse as HttpResponse)?.data
@@ -289,15 +313,32 @@ function ConsultationInProgress() {
     const sheetModal = sheet?.modal;
 
     const hasDataHistory = sheet?.hasDataHistory
-    const tabsData = [...sheet?.hasHistory ? [{
-        label: "patient_history",
-        label_mobile: "patient_history",
-        value: "patient history"
-    }] : [], ...tabs]
+    const tabsData = [
+        ...sheet?.hasHistory && ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
+            label: "patient_history",
+            label_mobile: "patient_history",
+            value: "patient history"
+        }] : [],
+        ...(ability.can("manage", "consultation", "consultation__consultation__fiche__show") ? [{
+            label: "consultation_form",
+            label_mobile: "cfiche",
+            value: "consultation form"
+        }] : []),
+        ...(ability.can("manage", "consultation", "consultation__consultation__documents__show") ? [{
+            label: "documents",
+            label_mobile: "docs",
+            value: "documents"
+        }] : []),
+        ...(ability.can("manage", "consultation", "consultation__consultation__fees__show") ? [{
+            label: "medical_procedures",
+            label_mobile: "fees",
+            value: "medical procedures"
+        }] : [])
+    ]
 
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${sheet?.patient}/preview/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${sheet?.patient}/preview/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const {data: httpPreviousResponse} = useRequestQuery(sheet?.hasHistory && agenda ? {
@@ -318,6 +359,7 @@ function ConsultationInProgress() {
 
     const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
     const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
+    const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
 
     // ********** Requests ********** \\
     const changeModel = (prop: ModalModel, ind: number, index: number) => {
@@ -351,20 +393,19 @@ function ConsultationInProgress() {
         setCards([..._cards])
     };
 
-    const showDoc = (card: any) => {
+    const showDoc = (card: any, print?: boolean) => {
+
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
         setInfo("document_detail");
-        if (card.documentType === "medical-certificate") {
+        if (card && card?.documentType === "medical-certificate") {
             setState({
                 uuid: card.uuid,
                 certifUuid: card.certificate[0].uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: `${type} ${
-                    patient?.firstName
-                } ${patient?.lastName}`,
+                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
                 tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
@@ -383,7 +424,7 @@ function ConsultationInProgress() {
         } else {
             let info = card;
             let uuidDoc = "";
-            switch (card.documentType) {
+            switch (card?.documentType) {
                 case "prescription":
                     info = card.prescription[0].prescription_has_drugs;
                     uuidDoc = card.prescription[0].uuid;
@@ -413,7 +454,8 @@ function ConsultationInProgress() {
                 } ${patient?.lastName}`,
                 cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutateDoc,
-                mutateDetails: mutatePatient
+                mutateDetails: mutatePatient,
+                print
             });
         }
         setOpenDialogSave(false);
@@ -442,7 +484,7 @@ function ConsultationInProgress() {
             setLoadingRequest(true);
             medicalEntityHasUser && triggerDocumentSpeechToText({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/stt/${selectedAudio?.uuid}/${router.locale}`
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/stt/${selectedAudio?.uuid}/${router.locale}`
             }, {
                 onSuccess: () => {
                     enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});
@@ -517,10 +559,8 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(resetTimer());
-                    dispatch(openDrawer({type: "view", open: false}));
-                });
+                dispatch(resetTimer());
+                dispatch(openDrawer({type: "view", open: false}));
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
             }
@@ -594,7 +634,8 @@ function ConsultationInProgress() {
                     <Button
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
-                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary}/> :
+                        startIcon={addFinishAppointment ?
+                            <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary}/> :
                             <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"}/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
                             {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
@@ -635,9 +676,45 @@ function ConsultationInProgress() {
         setIsViewerOpen("");
     }
 
+    const addDiscussion = (user: UserModel) => {
+        createDiscussion({
+            method: "POST",
+            data: {
+                "members": [{
+                    uuid: medicalEntityHasUser,
+                    name: `${general_information.firstName} ${general_information.lastName}`
+                }, {
+                    uuid: user.uuid,
+                    name: `${user?.firstName} ${user?.lastName}`
+                }]
+            },
+            url: `/-/chat/api/discussion`
+        }, {
+            onSuccess: (res: any) => {
+                setSelectedDiscussion(res.data)
+            }
+        })
+    }
+
+    const sendMsg = () => {
+        const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+        const control = checkedNext ? `, RDV prochain ${meeting} ${t(nextAppDays)}` : ""
+        const msg = `<div class="rdv" patient="${patient?.uuid}" fn="${patient?.firstName}" ln="${patient?.lastName}"> &lt; <span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">> ${localInstr} ${control}</span></div>`;
+
+        channel.publish(selectedDiscussion, JSON.stringify({
+            message: msg,
+            from: medicalEntityHasUser,
+            to: selectedUser,
+            user: `${general_information.firstName} ${general_information.lastName}`
+        }))
+    }
+
     const saveConsultation = () => {
         setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+
+        if (localInstr)
+            sendMsg()
 
         const form = new FormData();
         form.append("status", "5");
@@ -676,11 +753,9 @@ function ConsultationInProgress() {
             data: form
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(resetTimer());
-                    dispatch(resetAppointment());
-                    dispatch(openDrawer({type: "view", open: false}));
-                });
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+                dispatch(openDrawer({type: "view", open: false}));
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
@@ -1186,13 +1261,13 @@ function ConsultationInProgress() {
                         content: 'widget',
                         expanded: cardPositions ? cardPositions.widget : false,
                         config: false,
-                        icon: "ic-edit-file-pen"
+                        icon: "docs/ic-note"
                     }
                 ], [{
                     id: 'item-3',
                     content: 'exam',
                     expanded: cardPositions ? cardPositions.exam : true,
-                    icon: "ic-edit-file-pen"
+                    icon: "docs/ic-note"
                 }]])
             }
 
@@ -1246,6 +1321,11 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["consultation"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -1444,7 +1524,7 @@ function ConsultationInProgress() {
                                     fullOb,
                                     setFullOb,
                                     patient
-                                }}/>
+                                }} />
                             </Grid>}
                             <Grid item md={showDocument ? 2 : 0}>
                                 {showDocument && <DocumentPreview {...{
@@ -1455,7 +1535,7 @@ function ConsultationInProgress() {
                                     theme,
                                     showPreview,
                                     t,
-                                }}/>}
+                                }} />}
                             </Grid>
                             {isMobile && <Grid item xs={12}>
                                 <ConsultationCard {...{
@@ -1505,7 +1585,7 @@ function ConsultationInProgress() {
                                     fullOb,
                                     setFullOb,
                                     patient
-                                }}/>
+                                }} />
                             </Grid>}
                         </Grid>}
                     </TabPanel>
@@ -1540,7 +1620,7 @@ function ConsultationInProgress() {
                             devise,
                             mutatePatient,
                             t
-                        }}/>
+                        }} />
                     </TabPanel>
                 </Box>
 
@@ -1703,6 +1783,7 @@ function ConsultationInProgress() {
             <DialogMui
                 open={openHistoryDialog && isMobile}
                 scroll={'paper'}
+                dir={direction}
                 fullWidth={true}
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description">
@@ -1750,6 +1831,8 @@ function ConsultationInProgress() {
                     mutatePatient,
                     nextAppDays, setNextAppDays,
                     insuranceGenerated, changeCoveredBy,
+                    selectedUser, setSelectedUser, addDiscussion,
+                    medicalEntityHasUser,
                     showPreview
                 }}
                 size={"lg"}
@@ -1762,6 +1845,11 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
+                    PaperProps={{
+                        sx: {
+                            overflow: 'hidden'
+                        }
+                    }}
                     data={{
                         appuuid: app_uuid,
                         patient,
@@ -1775,7 +1863,7 @@ function ConsultationInProgress() {
                         setPrescription
                     }}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
-                    direction={"ltr"}
+                    direction={direction}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}
                     {...(info === "document_detail" && {
                         sx: {height: 480, p: 0},
@@ -1802,7 +1890,8 @@ function ConsultationInProgress() {
                         ),
                         sx: {
                             p: 1.5,
-                            overflowX: 'hidden'
+                            overflowX: 'hidden',
+                            overflowY: 'hidden'
                         }
 
                     })}
@@ -1863,9 +1952,10 @@ function ConsultationInProgress() {
                                         </Button>
                                         {info !== "add_a_document" && <Button
                                             variant="contained"
+                                            sx={{width: {xs: 1, sm: 'auto'}}}
                                             onClick={() => handleSaveDialog()}
                                             disabled={info.includes("medical_prescription") && state?.length === 0}
-                                            startIcon={<IconUrl path={"ic-imprime"}/>}>
+                                            startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
                                             {t("consultationIP.save_print")}
                                         </Button>}
                                     </>}
@@ -1908,7 +1998,7 @@ function ConsultationInProgress() {
                 />
             )}
 
-            {!isMobile && <Draggable bounds="body">
+            {/* {!isMobile && <Draggable bounds="body">
                 <Fab sx={{
                     position: "fixed",
                     bottom: 82,
@@ -1922,7 +2012,7 @@ function ConsultationInProgress() {
                      aria-label="edit">
                     <IconUrl path={'ic-chatbot'}/>
                 </Fab>
-            </Draggable>}
+            </Draggable>}*/}
 
             {(record || selectedAudio !== null) && <Draggable bounds="body" cancel=".btn-action">
                 <CardMedia
@@ -1932,7 +2022,7 @@ function ConsultationInProgress() {
                         bottom: 76,
                         right: 85
                     }}>
-                    <RecondingBoxStyle
+                    <RecondingBoxStyled
                         id={"record"}
                         direction={"row"}
                         spacing={1}
@@ -2225,7 +2315,7 @@ function ConsultationInProgress() {
                                 }
                             </>
                         }
-                    </RecondingBoxStyle>
+                    </RecondingBoxStyled>
                 </CardMedia>
             </Draggable>}
         </>
@@ -2239,10 +2329,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             ...(await serverSideTranslations(locale as string, [
                 "consultation",
                 "menu",
-                "common",
-                "agenda",
-                "payment",
-                "patient",
+                "common"
             ])),
         },
     };

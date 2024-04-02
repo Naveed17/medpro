@@ -1,4 +1,4 @@
-import {TextIconRadio} from "@features/buttons";
+import { TextIconRadio } from "@features/buttons";
 import {
     Box,
     FormControlLabel, Grid,
@@ -7,31 +7,32 @@ import {
     RadioGroup,
     Select,
     Stack,
+    useTheme
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import React, {useEffect, useState} from "react";
-import {useTranslation} from "next-i18next";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "next-i18next";
 import FormControlStyled from "./overrides/FormControlStyled";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
-import {IconsTypes, openDrawer, setStepperIndex} from "@features/calendar";
-import {ModelDot} from "@features/modelDot";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { appointmentSelector, setAppointmentType } from "@features/tabPanel";
+import { IconsTypes, openDrawer, setStepperIndex } from "@features/calendar";
+import { ModelDot } from "@features/modelDot";
 
 
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingScreen } from "@features/loadingScreen";
 
-import {dashLayoutSelector} from "@features/base";
+import { dashLayoutSelector } from "@features/base";
 
-function EventType({...props}) {
-    const {onNext, OnAction, select, defaultType = null} = props;
-
+function EventType({ ...props }) {
+    const { onNext, OnAction, select, defaultType = null } = props;
+    const theme = useTheme();
     const dispatch = useAppDispatch();
 
-    const {type} = useAppSelector(appointmentSelector);
-    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
-    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
+    const { type } = useAppSelector(appointmentSelector);
+    const { appointmentTypes } = useAppSelector(dashLayoutSelector);
+    const { t, ready } = useTranslation("agenda", { keyPrefix: "steppers", });
 
     const [typeEvent, setTypeEvent] = useState(type);
 
@@ -56,7 +57,7 @@ function EventType({...props}) {
         }
     }, [appointmentTypes, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <>
@@ -67,9 +68,9 @@ function EventType({...props}) {
                 color="warning"
             />
 
-            <Box className="inner-section type-time-slot" sx={{width: "100%"}}>
+            <Box className="inner-section type-time-slot" sx={{ width: "100%" }}>
                 <FormControlStyled
-                    sx={{padding: 0}}
+                    sx={{ padding: 0 }}
                     fullWidth
                     size="small">
                     {!select ? (
@@ -96,12 +97,12 @@ function EventType({...props}) {
                         </RadioGroup>
                     ) : (
                         <List
-                            sx={{width: '100%', p: 0}}
+                            sx={{ width: '100%', p: 0 }}
                             component="nav">
                             <ListItemText primary={
                                 <Grid container alignItems={"center"}>
                                     <Grid item md={5} xs={12}>
-                                        <Typography pr={2} sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
+                                        <Typography pr={2} sx={{ fontSize: "1rem", fontWeight: "bold" }} color="text.primary">
                                             {t("stepper-0.title")} :
                                         </Typography>
                                     </Grid>
@@ -132,8 +133,13 @@ function EventType({...props}) {
                                                             icon={type && IconsTypes[type.icon]}
                                                             color={type?.color}
                                                             selected={false}
-                                                            marginRight={10}></ModelDot>
-                                                        <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>
+                                                            {...(theme.direction === 'rtl' && {
+                                                                style: {
+                                                                    marginLeft: 10
+                                                                }
+                                                            })}
+                                                            marginRight={theme.direction !== "rtl" ? 10 : 0}></ModelDot>
+                                                        <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
                                                             {type?.name}
                                                         </Typography>
                                                     </Stack>
@@ -141,7 +147,7 @@ function EventType({...props}) {
                                             }}>
                                             {appointmentTypes?.map((type) => (
                                                 <MenuItem
-                                                    sx={{display: "flex"}}
+                                                    sx={{ display: "flex" }}
                                                     className="text-inner"
                                                     value={type.uuid}
                                                     key={type.uuid}>
@@ -149,15 +155,20 @@ function EventType({...props}) {
                                                         icon={type && IconsTypes[type.icon]}
                                                         color={type?.color}
                                                         selected={false}
-                                                        marginRight={10}></ModelDot>
-                                                    <Typography sx={{fontSize: "16px"}}>
+                                                        {...(theme.direction === 'rtl' && {
+                                                            style: {
+                                                                marginLeft: 10
+                                                            }
+                                                        })}
+                                                        marginRight={theme.direction !== "rtl" ? 10 : 0}></ModelDot>
+                                                    <Typography sx={{ fontSize: "16px" }}>
                                                         {type.name}
                                                     </Typography>
                                                 </MenuItem>
                                             ))}
                                         </Select>
                                     </Grid>
-                                </Grid>}/>
+                                </Grid>} />
                         </List>)}
                 </FormControlStyled>
             </Box>
@@ -178,7 +189,7 @@ function EventType({...props}) {
                             mr: 1,
                         }}
                         onClick={() => {
-                            dispatch(openDrawer({type: "add", open: false}));
+                            dispatch(openDrawer({ type: "add", open: false }));
                             if (OnAction) {
                                 OnAction("close");
                             }

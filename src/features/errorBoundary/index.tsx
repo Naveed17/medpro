@@ -1,7 +1,5 @@
 import React from "react";
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 
 class ErrorBoundary extends React.Component {
     constructor(props: any) {

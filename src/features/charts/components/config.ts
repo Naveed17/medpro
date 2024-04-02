@@ -22,7 +22,7 @@ function ChartsOption() {
         colors: [
             theme.palette.primary.main,
             theme.palette.warning.main,
-            theme.palette.info.main,
+            theme.palette.grey["B900"],
             theme.palette.error.main,
             theme.palette.success.main
         ],
@@ -33,7 +33,7 @@ function ChartsOption() {
             zoom: {enabled: false},
             // animations: { enabled: false },
             foreColor: theme.palette.text.disabled,
-            fontFamily: theme.typography.fontFamily
+            //fontFamily: theme.typography.fontFamily
         },
 
         // States
@@ -70,8 +70,8 @@ function ChartsOption() {
         // Stroke
         stroke: {
             width: 3,
-            curve: 'smooth',
-            lineCap: 'round'
+            //curve: 'smooth',
+            //lineCap: 'round'
         },
 
         // Grid

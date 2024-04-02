@@ -14,7 +14,7 @@ import {
     Theme,
     Tooltip,
     Typography,
-    useMediaQuery
+    useMediaQuery, useTheme
 } from '@mui/material'
 import {Form, FormikProvider, useFormik} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
@@ -25,13 +25,10 @@ import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {NoDataCard, NoteCardCollapse} from "@features/card";
 import {a11yProps, arrayUniqueByKey, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
-import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {debounce} from "lodash";
 import SearchIcon from "@mui/icons-material/Search";
@@ -42,6 +39,7 @@ import {TabPanel} from "@features/tabPanel";
 import RemoveCircleRoundedIcon from "@mui/icons-material/RemoveCircleRounded";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import IconUrl from "@themes/urlIcon";
 
 function BalanceSheetDialog({...props}) {
     const {data} = props;
@@ -50,13 +48,14 @@ function BalanceSheetDialog({...props}) {
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const {enqueueSnackbar} = useSnackbar();
+    const theme = useTheme();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [model, setModel] = useState<string>('');
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [balanceValue, setBalanceValue] = useState<AnalysisModel | null>(null);
+    const [balanceValue] = useState<AnalysisModel | null>(null);
     const [searchAnalysis, setSearchAnalysis] = useState<AnalysisModel[]>([]);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
@@ -92,7 +91,7 @@ function BalanceSheetDialog({...props}) {
         mutate: mutateAnalysisFavorites
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${router.locale}`
     } : null);
 
     const modals = ((httpModelResponse as HttpResponse)?.data ?? []) as any[];
@@ -225,7 +224,7 @@ function BalanceSheetDialog({...props}) {
         medicalImagery?.uuid && form.append('analyse', medicalImagery.uuid);
         medicalEntityHasUser && triggerFavoriteAdd({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${router.locale}`,
             data: form,
         }, {
             onSuccess: () => mutateAnalysisFavorites()
@@ -366,7 +365,7 @@ function BalanceSheetDialog({...props}) {
                                             onDelete={() => {
                                                 medicalEntityHasUser && triggerFavoriteDelete({
                                                     method: "DELETE",
-                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
+                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
                                                 }, {
                                                     onSuccess: () => {
                                                         enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});
@@ -444,14 +443,16 @@ function BalanceSheetDialog({...props}) {
                                         <IconButton
                                             size="small"
                                             color={"primary"}
-                                            onClick={editModel}><SaveRoundedIcon/>
+                                            onClick={editModel}>
+                                            <IconUrl color={theme.palette.text.primary} path="ic-check"/>
                                         </IconButton>
                                     </Tooltip>
                                     <Tooltip title={t('delete_template')}>
                                         <IconButton
                                             size="small"
                                             color={"error"}
-                                            onClick={() => deleteModel(selectedModel.uuid)}><DeleteOutlineRoundedIcon/>
+                                            onClick={() => deleteModel(selectedModel.uuid)}>
+                                            <Icon color={theme.palette.error.main} path="ic-trash"/>
                                         </IconButton>
                                     </Tooltip>
                                     <Tooltip title={t('close_template')}>
@@ -533,17 +534,19 @@ function BalanceSheetDialog({...props}) {
                                         sx={{pl: 4}}
                                         alignItems="flex-start"
                                         onClick={() => onSetModelData(item)}>
-                                        <ListItemIcon sx={{minWidth: 26}}>
-                                            <Icon width={"16"} height={"16"} path="ic-soura"/>
+                                        <ListItemIcon sx={{minWidth: 26, mt: 0.5}}>
+                                            <Icon width={"18"} height={"18"} path="docs/ic-analyse"/>
                                         </ListItemIcon>
-                                        <ListItemText color={"primary"} primary={<Typography
-                                            color={"primary"}>{item.name}</Typography>}/>
+                                        <ListItemText primary={
+                                            <Typography fontSize={12} fontWeight={600}
+                                                        color={"primary"}>{item.name}</Typography>}/>
 
-                                        <IconButton size="small" onClick={(event) => {
-                                            event.stopPropagation();
-                                            deleteModel(item.uuid);
-                                        }}>
-                                            <Icon path="setting/icdelete"/>
+                                        <IconButton size="small"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        deleteModel(item.uuid);
+                                                    }}>
+                                            <Icon color={theme.palette.error.main} path="ic-trash"/>
                                         </IconButton>
                                     </ListItemButton>
                                 )}

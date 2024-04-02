@@ -32,6 +32,8 @@ import {useRouter} from "next/router";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {Label} from "@features/label";
+import Can from "@features/casl/can";
 
 type ChipColors = OverridableStringUnion<'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
     ChipPropsColorOverrides>;
@@ -142,9 +144,21 @@ function ImportDataRow({...props}) {
                 </TableCell>
                 <TableCell align={"center"}>
                     {row ? (
-                        <Chip
-                            color={colors[row.status]}
-                            label={`${t('tabs.' + status[row.status])}`}/>
+                        <Typography fontSize={13} variant={"body2"}>
+                            {t(row?.type === 1 ? "export-data" : "import-data")}
+                        </Typography>
+                    ) : (
+                        <Stack>
+                            <Skeleton variant="text" width={100}/>
+                            <Skeleton variant="text" width={100}/>
+                        </Stack>
+                    )}
+                </TableCell>
+                <TableCell align={"center"}>
+                    {row ? (
+                        <Label variant={"ghost"} color={colors[row.status]}>
+                            {t('tabs.' + status[row.status])}
+                        </Label>
                     ) : (
                         <Stack>
                             <Skeleton variant="text" width={100}/>
@@ -177,31 +191,33 @@ function ImportDataRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell align="right">
-                    {process.env.NODE_ENV === 'development' && (row ? (
-                        <Box display="flex" sx={{float: "right"}} alignItems="center">
-                            {(row.status == 1 || row.status == 3) && <LoadingButton
-                                {...{loading}}
-                                onClick={() => {
-                                    handleEvent("delete-import", row.uuid);
-                                }}
-                                variant="text"
-                                size="small"
-                                color="error"
-                                startIcon={<RestartAltIcon/>}
-                                sx={{mr: 1}}>
-                                {t("table.reset")}
-                            </LoadingButton>}
-                        </Box>
-                    ) : (
-                        <Stack
-                            direction="row"
-                            spacing={1}
-                            alignItems="center"
-                            justifyContent="flex-end">
-                            <Skeleton variant="text" width={50}/>
-                            <Skeleton variant="text" width={50}/>
-                        </Stack>
-                    ))}
+                    <Can I={"manage"} a={"settings"} field={"settings__data__delete"}>
+                        {process.env.NODE_ENV === 'development' && (row ? (
+                            <Box display="flex" sx={{float: "right"}} alignItems="center">
+                                {(row.status == 1 || row.status == 3) && <LoadingButton
+                                    {...{loading}}
+                                    onClick={() => {
+                                        handleEvent("delete-import", row.uuid);
+                                    }}
+                                    variant="text"
+                                    size="small"
+                                    color="error"
+                                    startIcon={<RestartAltIcon/>}
+                                    sx={{mr: 1}}>
+                                    {t("table.reset")}
+                                </LoadingButton>}
+                            </Box>
+                        ) : (
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                                justifyContent="flex-end">
+                                <Skeleton variant="text" width={50}/>
+                                <Skeleton variant="text" width={50}/>
+                            </Stack>
+                        ))}
+                    </Can>
                 </TableCell>
             </TableRowStyled>
             {expandType.length > 0 &&

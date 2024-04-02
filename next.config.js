@@ -5,7 +5,7 @@ const plugins = [];
 const withPWA = require("next-pwa")({
     dest: "public",
     register: true,
-    maximumFileSizeToCacheInBytes: 30000000,
+    maximumFileSizeToCacheInBytes: 33000000,
     disable: process.env.NODE_ENV === 'development',
     skipWaiting: true
 });
@@ -22,6 +22,9 @@ plugins.push(withBundleAnalyzer);
 const nextConfig = {
     output: 'standalone',
     i18n,
+    experimental: {
+        nextScriptWorkers: false
+    },
     images: {
         dangerouslyAllowSVG: true,
         remotePatterns: [
@@ -30,7 +33,14 @@ const nextConfig = {
                 hostname: 'flagcdn.com',
                 port: '',
                 pathname: '**',
-            }, {
+            },
+            {
+                protocol: 'https',
+                hostname: process.env.S3_PUBLIC_API || '',
+                port: '',
+                pathname: '**',
+            },
+            {
                 protocol: 'https',
                 hostname: process.env.S3_URL || '',
                 port: '',

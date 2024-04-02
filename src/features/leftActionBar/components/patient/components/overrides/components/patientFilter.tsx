@@ -22,6 +22,7 @@ import {leftActionBarSelector} from "@features/leftActionBar";
 import {FormikProvider, useFormik} from "formik";
 import Switch from "@mui/material/Switch";
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
+import {configSelector} from "@features/base";
 
 interface Lab {
     label: string;
@@ -39,9 +40,11 @@ function PatientFilter({...props}) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const {query: filter} = useAppSelector(leftActionBarSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [edited, setEdited] = useState(false);
-
+    const [, updateState] = useState<any>();
+    const forceUpdate = useCallback(() => updateState({}), []);
     const formik = useFormik({
         onSubmit<Values>(): void | Promise<any> {
             return undefined;
@@ -94,6 +97,10 @@ function PatientFilter({...props}) {
         }
         setEdited(false);
     }, [queryState?.name]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        forceUpdate();
+    }, [direction, forceUpdate]);
 
     return (
         <FormikProvider value={formik}>
@@ -259,7 +266,15 @@ function PatientFilter({...props}) {
                         </Typography>
 
                         <FormControlLabel
-                            sx={{ml: .2, my: 1}}
+                            sx={{
+                                ml: .2,
+                                my: 1,
+                                '& .MuiSwitch-thumb': {
+                                    boxShadow: theme => theme.customShadows.filterButton,
+                                    width: 16,
+                                    height: 16,
+                                }
+                            }}
                             control={
                                 <Switch
                                     color="warning"
@@ -286,7 +301,15 @@ function PatientFilter({...props}) {
                             {t(`${keyPrefix}payment`)}
                         </Typography>
                         <FormControlLabel
-                            sx={{ml: .2, my: 1}}
+                            sx={{
+                                ml: .2,
+                                my: 1,
+                                '& .MuiSwitch-thumb': {
+                                    boxShadow: theme => theme.customShadows.filterButton,
+                                    width: 16,
+                                    height: 16,
+                                }
+                            }}
                             control={
                                 <Switch
                                     color="primary"

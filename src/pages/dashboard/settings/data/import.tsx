@@ -97,7 +97,7 @@ function ImportData() {
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -156,6 +156,12 @@ function ImportData() {
             setUriFile((httpFileResponse as HttpResponse).data.file.url);
     }, [httpFileResponse]);
 
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     const handleRemove = (file: any) => {
         setFiles(files.filter((_file: any) => _file !== file));
         setFileLength(0);
@@ -197,6 +203,7 @@ function ImportData() {
         setLoading(true);
         const params = new FormData();
         params.append("method", values.source);
+        params.append("type", "0");
         params.append(
             "withAppointments",
             (values.source === "med-pro" && values.type === "2").toString()
@@ -512,8 +519,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

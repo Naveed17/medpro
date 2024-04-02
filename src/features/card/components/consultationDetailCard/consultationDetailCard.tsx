@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {
     Autocomplete,
     Box,
@@ -33,6 +33,7 @@ import IconUrl from "@themes/urlIcon";
 import NotesComponent from "@features/card/components/consultationDetailCard/notesComponent";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import Can from "@features/casl/can";
 
 const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
     const {
@@ -69,6 +70,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
     const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
     const [isStarted, setIsStarted] = useState(false);
     const [loadChanges, setLoadChanges] = useState(false);
+    const [typing, setTyping] = useState("");
 
     const modelContent = useRef(app_data?.notes ? app_data?.notes.value : "");
     const oldNote = useRef(app_data?.notes ? app_data?.notes.value : "");
@@ -81,15 +83,14 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
         mutate: mutateReasonsData
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
     });
 
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
-
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data.sort((a:{name:string}, b:{name:string}) => a.name.localeCompare(b.name))
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -127,7 +128,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
 
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
             data: params
         }, {
             onSuccess: () => mutateReasonsData().then((result: any) => {
@@ -173,7 +174,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
         const form = new FormData();
         if (ev === 'notes') {
             modelContent.current = newValue
-            if(!isStarted) oldNote.current = newValue;
+            if (!isStarted) oldNote.current = newValue;
         }
         form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
 
@@ -184,11 +185,15 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
             }, {
                 onSuccess: () => {
                     setLoadChanges(false)
-                }
+                    setTyping("saved")
+                },
+                onError: () => setTyping("error")
+
             }
         )
     }
-    const debouncedOnChange = debounce(saveChanges, 1000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const debouncedOnChange = useCallback(debounce(saveChanges, 1000), []);
 
 
     useEffect(() => {
@@ -229,200 +234,211 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                         style={{display: hide ? "none" : "block"}}
                         onSubmit={handleSubmit}>
 
-                        {!fullOb && <Box width={1}>
-                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
-                                {t("reason_for_consultation")}
-                            </Typography>
-                            <Autocomplete
-                                id={"motif"}
-                                disabled={!reasons}
-                                freeSolo
-                                multiple
-                                autoHighlight
-                                disableClearable
-                                size="small"
-                                value={values.motif && reasons ? reasons.filter((reason: {
-                                    uuid: any;
-                                }) => values.motif.includes(reason.uuid)) : []}
-                                onChange={(e, newValue: any) => {
-
-                                    e.stopPropagation();
-                                    const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
-                                    if (addReason) {
-                                        // Create a new value from the user input
-                                        addNewReason(addReason.inputValue);
-                                    } else {
-                                        handleReasonChange(newValue);
-                                    }
-                                    setTimeout(() => {
-                                        mutateSheetData()
-                                    }, 2000)
-
-                                }}
-                                filterOptions={(options, params) => filterReasonOptions(options, params, t)}
-                                sx={{color: "text.secondary"}}
-                                options={reasons ? reasons.filter((item: {
-                                    isEnabled: any;
-                                }) => item.isEnabled) : []}
-                                loading={reasons?.length === 0}
-                                getOptionLabel={(option) => {
-                                    // Value selected with enter, right from the input
-                                    if (typeof option === 'string') {
-                                        return option;
-                                    }
-                                    // Add "xxx" option created dynamically
-                                    if (option.inputValue) {
-                                        return option.inputValue;
-                                    }
-                                    // Regular option
-                                    return option.name;
-                                }}
-                                isOptionEqualToValue={(option: any, value) => option.name === value?.name}
-                                renderOption={(props, option) => (
-                                    <Stack key={option.uuid ? option.uuid : "-1"}>
-                                        {!option.uuid && <Divider/>}
-                                        <MenuItem
-                                            {...props}
-                                            {...(!option.uuid && {sx: {color: theme.palette.error.main}})}
-                                            value={option.uuid}>
-                                            {!option.uuid && <AddOutlinedIcon/>}
-                                            {option.name}
-                                        </MenuItem>
-                                    </Stack>
-                                )}
-                                renderInput={params => <TextField color={"info"}
-                                                                  {...params}
-                                                                  InputProps={{
-                                                                      ...params.InputProps,
-                                                                      endAdornment: (
-                                                                          <React.Fragment>
-                                                                              {loadingReq ?
-                                                                                  <CircularProgress
-                                                                                      color="inherit"
-                                                                                      size={20}/> : null}
-                                                                              {params.InputProps.endAdornment}
-                                                                          </React.Fragment>
-                                                                      ),
-                                                                  }}
-                                                                  placeholder={"--"}
-                                                                  sx={{paddingLeft: 0}}
-                                                                  variant="outlined" fullWidth/>}/>
-                        </Box>}
-
-                        <NotesComponent{...{
-                            saveChanges,
-                            values,
-                            setFieldValue,
-                            t,
-                            oldNote,
-                            hasDataHistory,
-                            mutateSheetData,
-                            seeHistory,
-                            isStarted,
-                            setIsStarted,
-                            debouncedOnChange,
-                            fullOb, setFullOb,
-                            loadChanges, setLoadChanges,
-                            modelContent,
-                            loading
-                        }}/>
-                        {!fullOb && <Box width={1}>
-                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}
-                                   mb={1}>
-                                <Typography variant="body2" fontWeight={500}>
-                                    {t("diagnosis")}
+                        <Can I={"manage"} a={"consultation"}
+                             field={"consultation__consultation__fiche__consultation_reason__show"}>
+                            {!fullOb && <Box width={1}>
+                                <Typography variant="body2" paddingBottom={1} fontWeight={500}>
+                                    {t("reason_for_consultation")}
                                 </Typography>
+                                <Autocomplete
+                                    id={"motif"}
+                                    disabled={!reasons}
+                                    freeSolo
+                                    multiple
+                                    autoHighlight
+                                    disableClearable
+                                    size="small"
+                                    value={values.motif && reasons ? reasons.filter((reason: {
+                                        uuid: any;
+                                    }) => values.motif.includes(reason.uuid)) : []}
+                                    onChange={(e, newValue: any) => {
 
-                                <Tooltip title={t('toolbar')}>
-                                    <IconButton className={'btn-full'} size={"small"} onClick={() => {
-                                        mutateSheetData && mutateSheetData()
-                                        setEditDiagnosic(!editDiagnosic)
-                                    }
-                                    }>
-                                        <IconUrl path={'tools'}/>
-                                    </IconButton>
-                                </Tooltip>
-                            </Stack>
-                            {
-                                !editDiagnosic && <Editor
-                                    initialValue={values.diagnosis}
-                                    tinymceScriptSrc={'/tinymce/tinymce.min.js'}
-                                    onEditorChange={(event) => {
-                                        debouncedOnChange("diagnosis", event)
+                                        e.stopPropagation();
+                                        const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
+                                        if (addReason) {
+                                            // Create a new value from the user input
+                                            addNewReason(addReason.inputValue);
+                                        } else {
+                                            handleReasonChange(newValue);
+                                        }
+                                        setTimeout(() => {
+                                            mutateSheetData()
+                                        }, 2000)
+
                                     }}
-                                    init={{
-                                        branding: false,
-                                        statusbar: false,
-                                        menubar: false,
-                                        height: 200,
-                                        toolbar: false,
-                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                    }}/>
-                            }
-                            {
-                                editDiagnosic && <Editor
-                                    initialValue={values.diagnosis}
-                                    tinymceScriptSrc={'/tinymce/tinymce.min.js'}
-                                    onEditorChange={(event) => {
-                                        debouncedOnChange("diagnosis", event)
+                                    filterOptions={(options, params) => filterReasonOptions(options, params, t)}
+                                    sx={{color: "text.secondary"}}
+                                    options={reasons ? reasons.filter((item: {
+                                        isEnabled: any;
+                                    }) => item.isEnabled) : []}
+                                    loading={reasons?.length === 0}
+                                    getOptionLabel={(option) => {
+                                        // Value selected with enter, right from the input
+                                        if (typeof option === 'string') {
+                                            return option;
+                                        }
+                                        // Add "xxx" option created dynamically
+                                        if (option.inputValue) {
+                                            return option.inputValue;
+                                        }
+                                        // Regular option
+                                        return option.name;
                                     }}
-                                    init={{
-                                        branding: false,
-                                        statusbar: false,
-                                        menubar: false,
-                                        height: 400,
-                                        toolbar_mode: 'wrap',
-                                        plugins: tinymcePlugins,
-                                        toolbar: tinymceToolbarNotes,
-                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                    }}/>
-                            }
-                        </Box>}
-                        {!fullOb && <Box width={1}>
-                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
-                                {t("disease")}
-                            </Typography>
-                            <Autocomplete
-                                id={"diseases"}
-                                freeSolo
-                                multiple
-                                autoHighlight
-                                disableClearable
-                                size="small"
-                                value={values.disease}
-                                onChange={(e, newValue: any) => {
-                                    e.stopPropagation();
-                                    //handleDiseasesChange(newValue)
-                                    handleOnChange("disease", newValue)
-                                }}
-                                filterOptions={(options, params) => {
-                                    const {inputValue} = params;
-                                    if (inputValue.length > 0) options.unshift(inputValue)
-                                    return options
-                                }}
-                                sx={{color: "text.secondary"}}
-                                options={diseases}
-                                renderInput={params => <TextField color={"info"}
-                                                                  {...params}
-                                                                  InputProps={{
-                                                                      ...params.InputProps,
-                                                                      endAdornment: (
-                                                                          <React.Fragment>
-                                                                              {loadingReq ?
-                                                                                  <CircularProgress
-                                                                                      color="inherit"
-                                                                                      size={20}/> : null}
-                                                                              {params.InputProps.endAdornment}
-                                                                          </React.Fragment>
-                                                                      ),
-                                                                  }}
-                                                                  placeholder={"--"}
-                                                                  sx={{paddingLeft: 0}}
-                                                                  onChange={(ev) => {
-                                                                      findDiseases(ev.target.value)
-                                                                  }}
-                                                                  variant="outlined" fullWidth/>}/>
-                        </Box>}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                    renderOption={(props, option) => (
+                                        <Stack key={option.uuid ? option.uuid : "-1"}>
+                                            {!option.uuid && <Divider/>}
+                                            <MenuItem
+                                                {...props}
+                                                {...(!option.uuid && {sx: {color: theme.palette.error.main}})}
+                                                value={option.uuid}>
+                                                {!option.uuid && <AddOutlinedIcon/>}
+                                                {option.name}
+                                            </MenuItem>
+                                        </Stack>
+                                    )}
+                                    renderInput={params => <TextField color={"info"}
+                                                                      {...params}
+                                                                      InputProps={{
+                                                                          ...params.InputProps,
+                                                                          endAdornment: (
+                                                                              <React.Fragment>
+                                                                                  {loadingReq ?
+                                                                                      <CircularProgress
+                                                                                          color="inherit"
+                                                                                          size={20}/> : null}
+                                                                                  {params.InputProps.endAdornment}
+                                                                              </React.Fragment>
+                                                                          ),
+                                                                      }}
+                                                                      placeholder={"--"}
+                                                                      sx={{paddingLeft: 0}}
+                                                                      variant="outlined" fullWidth/>}/>
+                            </Box>}
+                        </Can>
+                        <Can I={"manage"} a={"consultation"}
+                             field={"consultation__consultation__fiche__observation__show"}>
+                            <NotesComponent{...{
+                                saveChanges,
+                                values,
+                                setFieldValue,
+                                t,
+                                oldNote,
+                                hasDataHistory,
+                                mutateSheetData,
+                                seeHistory,
+                                isStarted,
+                                setIsStarted,
+                                debouncedOnChange,
+                                fullOb, setFullOb,
+                                loadChanges, setLoadChanges,
+                                modelContent,
+                                loading, typing, setTyping
+                            }}/>
+                        </Can>
+                        <Can I={"manage"} a={"consultation"}
+                             field={"consultation__consultation__fiche__diagnosis__show"}>
+                            {!fullOb && <Box width={1}>
+                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}
+                                       mb={1}>
+                                    <Typography variant="body2" fontWeight={500}>
+                                        {t("diagnosis")}
+                                    </Typography>
+
+                                    <Tooltip title={t('toolbar')}>
+                                        <IconButton className={'btn-full'} size={"small"} onClick={() => {
+                                            mutateSheetData && mutateSheetData()
+                                            setEditDiagnosic(!editDiagnosic)
+                                        }
+                                        }>
+                                            <IconUrl path={'tools'}/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Stack>
+                                {
+                                    !editDiagnosic && <Editor
+                                        initialValue={values.diagnosis}
+                                        tinymceScriptSrc={'/tinymce/tinymce.min.js'}
+                                        onEditorChange={(event) => {
+                                            debouncedOnChange("diagnosis", event)
+                                        }}
+                                        init={{
+                                            branding: false,
+                                            statusbar: false,
+                                            menubar: false,
+                                            height: 200,
+                                            toolbar: false,
+                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                        }}/>
+                                }
+                                {
+                                    editDiagnosic && <Editor
+                                        initialValue={values.diagnosis}
+                                        tinymceScriptSrc={'/tinymce/tinymce.min.js'}
+                                        onEditorChange={(event) => {
+                                            debouncedOnChange("diagnosis", event)
+                                        }}
+                                        init={{
+                                            branding: false,
+                                            statusbar: false,
+                                            menubar: false,
+                                            height: 400,
+                                            toolbar_mode: 'wrap',
+                                            plugins: tinymcePlugins,
+                                            toolbar: tinymceToolbarNotes,
+                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                        }}/>
+                                }
+                            </Box>}
+                        </Can>
+                        <Can I={"manage"} a={"consultation"}
+                             field={"consultation__consultation__fiche__diseases__show"}>
+                            {!fullOb && <Box width={1}>
+                                <Typography variant="body2" paddingBottom={1} fontWeight={500}>
+                                    {t("disease")}
+                                </Typography>
+                                <Autocomplete
+                                    id={"diseases"}
+                                    freeSolo
+                                    multiple
+                                    autoHighlight
+                                    disableClearable
+                                    size="small"
+                                    value={values.disease}
+                                    onChange={(e, newValue: any) => {
+                                        e.stopPropagation();
+                                        //handleDiseasesChange(newValue)
+                                        handleOnChange("disease", newValue)
+                                    }}
+                                    filterOptions={(options, params) => {
+                                        const {inputValue} = params;
+                                        if (inputValue.length > 0) options.unshift(inputValue)
+                                        return options
+                                    }}
+                                    sx={{color: "text.secondary"}}
+                                    options={diseases}
+                                    renderInput={params => <TextField color={"info"}
+                                                                      {...params}
+                                                                      InputProps={{
+                                                                          ...params.InputProps,
+                                                                          endAdornment: (
+                                                                              <React.Fragment>
+                                                                                  {loadingReq ?
+                                                                                      <CircularProgress
+                                                                                          color="inherit"
+                                                                                          size={20}/> : null}
+                                                                                  {params.InputProps.endAdornment}
+                                                                              </React.Fragment>
+                                                                          ),
+                                                                      }}
+                                                                      placeholder={"--"}
+                                                                      sx={{paddingLeft: 0}}
+                                                                      onChange={(ev) => {
+                                                                          findDiseases(ev.target.value)
+                                                                      }}
+                                                                      variant="outlined" fullWidth/>}/>
+                            </Box>}
+                        </Can>
                     </Stack>
                 </FormikProvider>
             </CardContent>

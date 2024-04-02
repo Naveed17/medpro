@@ -34,7 +34,7 @@ import {SmallAvatar} from "@features/avatar";
 import {LoadingScreen} from "@features/loadingScreen";
 
 const CardSection = ({...props}) => {
-    const {data, theme, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances} = props;
+    const {data, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances} = props;
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
     return (
         <Paper className="card-main">
@@ -85,20 +85,23 @@ const CardSection = ({...props}) => {
                                             <IconUrl width={"36"} height={"36"} path="men-avatar"/>
                                         </Avatar>
                                     </Badge>
-                                    <Stack direction={"column"}>
+                                    <Stack direction={"column"} alignItems='flex-start'>
                                         <Typography
-                                            className="heading"
-                                            variant="body1"
+                                            className="ellipsis"
+                                            fontWeight={600}
+                                            color={'primary'}
+                                            maxWidth={100}
                                             component="div">
                                             {data.firstName} {data.lastName}
                                         </Typography>
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <IconUrl
-                                                path="ic-anniverssaire"
+                                                path="ic-anniverssaire-2"
                                                 className="d-inline-block mr-1"
                                             />
                                             <Typography variant={"caption"}>
-                                                {data.nextAppointment?.dayDate || "-"}
+                                                {data.birthdate} - {" "}
+                                                {data.birthdate && moment().diff(moment(data.birthdate, "DD-MM-YYYY"), "years") + " ans"}
                                             </Typography>
                                         </Stack>
                                     </Stack>
@@ -142,15 +145,8 @@ const CardSection = ({...props}) => {
 
                         <Box
                             className="border-left-sec"
-                            sx={{
-
-                                borderLeft: `5px solid ${
-                                    data?.isParent
-                                        ? theme.palette.success.main
-                                        : theme.palette.warning.main
-                                }`,
-                            }}>
-                            <Stack>
+                        >
+                            <Stack alignItems='flex-start'>
                                 {loading ? (
                                     <Skeleton variant="text" width={140}/>
                                 ) : data.nextAppointment?.dayDate ? (
@@ -188,8 +184,10 @@ const CardSection = ({...props}) => {
                                                 }));
                                                 handleEvent("APPOINTMENT_MOVE", appointment);
                                             }}
-                                            size="small">
-                                            <IconUrl path="ic-historique"/>
+                                            size="small"
+                                            sx={{mt: -0.2}}
+                                        >
+                                            <IconUrl path="ic-historique" width={14} height={14}/>
                                         </IconButton>
 
                                         <Box>
@@ -198,8 +196,9 @@ const CardSection = ({...props}) => {
                                                 variant="body2"
                                                 color="text.primary"
                                                 className="date-time-text"
+                                                fontWeight={600}
                                                 component="div">
-                                                <IconUrl path="ic-agenda"/>
+                                                <IconUrl path="ic-agenda-jour"/>
                                                 {data.nextAppointment?.dayDate}
                                                 <IconUrl path="ic-time"/>
                                                 {data.nextAppointment?.startTime}
@@ -215,7 +214,7 @@ const CardSection = ({...props}) => {
                                         variant="text"
                                         size="small"
                                         color="primary"
-                                        startIcon={<IconUrl path="ic-agenda-+"/>}
+                                        startIcon={<IconUrl path="ic-agenda-+" width={12} height={12}/>}
                                         sx={{position: "relative", justifyContent: "flex-start",}}
                                     >
                                         {t("config.table.add-appointment")}
@@ -224,14 +223,15 @@ const CardSection = ({...props}) => {
                                 {!loading && !data.isParent && (
                                     <Typography
                                         sx={{
-                                            ml: data.nextAppointment?.dayDate ? 3.3 : 0,
+                                            ml: data.nextAppointment?.dayDate ? 3.125 : 0,
                                         }}
                                         display="inline"
                                         variant="body2"
                                         color="text.primary"
                                         className="date-time-text"
+                                        fontWeight={600}
                                         component="div">
-                                        <IconUrl path="ic-agenda"/>
+                                        <IconUrl path="ic-agenda-jour"/>
                                         {data.previousAppointments?.dayDate || "-"}
                                         <IconUrl path="ic-time"/>
                                         {data.previousAppointments?.startTime || "-"}

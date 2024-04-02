@@ -18,6 +18,8 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import moment from "moment-timezone";
+import {ConditionalWrapper} from "@lib/hooks";
+import Can from "@features/casl/can";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -231,47 +233,52 @@ function CalendarRowDetail({...props}) {
                     }
                 </TableCell>
                 <TableCell align="right">
-                    {isBeta && (data?.restAmount > 0 || data?.restAmount < 0) && data?.status?.key !== "PENDING" ? <Box>
-                        <Label
-                            variant='filled'
+                    {(isBeta && (data?.restAmount > 0 || data?.restAmount < 0)) && <Label
+                        variant='filled'
+                        sx={{
+                            "& .MuiSvgIcon-root": {
+                                width: 16,
+                                height: 16,
+                                pl: 0
+                            },
+                            color: theme.palette.error.main,
+                            background: theme.palette.error.lighter
+                        }}>
+                        <Typography
                             sx={{
-                                "& .MuiSvgIcon-root": {
-                                    width: 16,
-                                    height: 16,
-                                    pl: 0
-                                }
-                            }}
-                            color={data.restAmount > 0 ? "expire" : "success"}>
-                            <Typography
-                                sx={{
-                                    fontSize: 10,
-                                }}>
-                                {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${Math.abs(data.restAmount)}`} {devise}</Typography>
-                        </Label>
-                    </Box> : "--"}
+                                fontSize: 10,
+                            }}>
+                            {t(data?.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(data?.restAmount)}`} {devise}</Typography>
+                    </Label>}
                 </TableCell>
                 <TableCell align="right" sx={{p: "0px 12px!important"}}>
                     {!data.patient?.isArchived &&
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
                             {(!roles.includes("ROLE_SECRETARY") && ["FINISHED", "WAITING_ROOM"].includes(data?.status?.key)) &&
-                                <Tooltip title={t("consultation_pay")}>
-                            <span>
-                                <IconButton
-                                    disabled={loading}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleEvent("onPay", data, event);
-                                    }}
-                                    sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}
-                                    size="small">
-                                    <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
-                                </IconButton>
-                            </span>
-                                </Tooltip>}
+                                <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__create"}>
+                                    <ConditionalWrapper
+                                        condition={loading}
+                                        wrapper={(children: any) => <Tooltip
+                                            title={t("consultation_pay")}>{children}</Tooltip>}>
+                                        <IconButton
+                                            disabled={loading}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                handleEvent("onPay", data, event);
+                                            }}
+                                            sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}
+                                            size="small">
+                                            <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
+                                        </IconButton>
+                                    </ConditionalWrapper>
+                                </Can>}
                             {data?.status?.key === "PENDING" &&
                                 <>
-                                    <Tooltip title={t("confirm")}>
-                                        <span>
+                                    <Can I={"manage"} a={"agenda"} field={"agenda__appointment__auto_confirm"}>
+                                        <ConditionalWrapper
+                                            condition={loading}
+                                            wrapper={(children: any) => <Tooltip
+                                                title={t("confirm")}>{children}</Tooltip>}>
                                             <IconButton
                                                 disableRipple
                                                 color={"success"}
@@ -291,10 +298,13 @@ function CalendarRowDetail({...props}) {
                                                 }}>
                                                 <DoneRoundedIcon sx={{width: 18, height: 18}} htmlColor={"white"}/>
                                             </IconButton>
-                                        </span>
-                                    </Tooltip>
-                                    <Tooltip title={t("manage")}>
-                                        <span>
+                                        </ConditionalWrapper>
+                                    </Can>
+                                    <Can I={"manage"} a={"agenda"} field={"agenda__appointment__edit"}>
+                                        <ConditionalWrapper
+                                            condition={loading}
+                                            wrapper={(children: any) => <Tooltip
+                                                title={t("manage")}>{children}</Tooltip>}>
                                             <IconButton
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
                                                     "onMove",
@@ -311,53 +321,63 @@ function CalendarRowDetail({...props}) {
                                                 }}>
                                                 <IconUrl width={16} height={16} path="ic-edit-patient"/>
                                             </IconButton>
-                                        </span>
-                                    </Tooltip>
+                                        </ConditionalWrapper>
+                                    </Can>
                                 </>}
-                            {data?.status?.key === "CONFIRMED" && <Tooltip title={t("add_waiting_room")}>
-                                <span>
-                                    <IconButton
-                                        onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
-                                            "onWaitingRoom",
-                                            data,
-                                            event
-                                        )}
-                                        size={"small"}
-                                        disableFocusRipple
-                                        sx={{background: theme.palette.primary.main, borderRadius: 1}}>
-                                    <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
-                                </IconButton>
-                                </span>
-                            </Tooltip>}
+                            {data?.status?.key === "CONFIRMED" &&
+                                <Can I={"manage"} a={"waiting-room"} field={"*"}>
+                                    <ConditionalWrapper
+                                        condition={loading}
+                                        wrapper={(children: any) => <Tooltip
+                                            title={t("add_waiting_room")}>{children}</Tooltip>}>
+                                        <IconButton
+                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
+                                                "onWaitingRoom",
+                                                data,
+                                                event
+                                            )}
+                                            size={"small"}
+                                            disableFocusRipple
+                                            sx={{background: theme.palette.primary.main, borderRadius: 1}}>
+                                            <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
+                                        </IconButton>
+                                    </ConditionalWrapper>
+                                </Can>}
                             {(!roles.includes("ROLE_SECRETARY") && ["CONFIRMED", "WAITING_ROOM"].includes(data?.status?.key)) &&
-                                <Tooltip title={t("start")}>
-                            <span>
-                                <IconButton
-                                    disabled={loading}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleEvent("onConsultationDetail", data, event);
-                                    }}
-                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
-                                    size="small">
-                                    <PlayCircleIcon fontSize={"small"}/>
-                                </IconButton>
-                            </span>
-                                </Tooltip>}
-                            {data?.status?.key !== "PENDING" && <Tooltip title={t('more')}>
-                            <span>
-                                <IconButton
-                                    disabled={loading}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleEvent("OPEN-POPOVER", data, event);
-                                    }}
-                                    size="small">
-                                    <MoreVertIcon/>
-                                </IconButton>
-                            </span>
-                            </Tooltip>}
-                        </Stack>}
+                                <Can I={"manage"} a={"consultation"} field={"*"}>
+                                    <ConditionalWrapper
+                                        condition={loading}
+                                        wrapper={(children: any) => <Tooltip
+                                            title={t("start")}>{children}</Tooltip>}>
+                                        <IconButton
+                                            disabled={loading}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                handleEvent("onConsultationDetail", data, event);
+                                            }}
+                                            sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
+                                            size="small">
+                                            <PlayCircleIcon fontSize={"small"}/>
+                                        </IconButton>
+                                    </ConditionalWrapper>
+                                </Can>}
+                            {data?.status?.key !== "PENDING" &&
+                                <ConditionalWrapper
+                                    condition={loading}
+                                    wrapper={(children: any) => <Tooltip
+                                        title={t("more")}>{children}</Tooltip>}>
+                                    <IconButton
+                                        disabled={loading}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            handleEvent("OPEN-POPOVER", data, event);
+                                        }}
+                                        size="small">
+                                        <MoreVertIcon/>
+                                    </IconButton>
+                                </ConditionalWrapper>}
+                        </Stack>
+                    }
                 </TableCell>
             </TableRowStyled>
         </>

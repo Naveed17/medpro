@@ -8,15 +8,26 @@ import moment from "moment/moment";
 import {SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import IconUrl from "@themes/urlIcon";
 
 function PatientHistoryCard({...props}) {
-    const {keyID, data, appuuid, selectedApp, dispatch, t, children, closePatientDialog = null, setSelectedTab} = props;
+    const {
+        keyID,
+        data,
+        appuuid,
+        selectedApp,
+        dispatch,
+        t,
+        children,
+        closePatientDialog = null,
+        setSelectedTab,
+        handleDeleteApp
+    } = props;
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const router = useRouter();
 
-    const handleConsultation = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.stopPropagation();
+    const handleConsultation = () => {
         const slugConsultation = `/dashboard/consultation/${keyID}`;
         router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
             closePatientDialog && closePatientDialog();
@@ -37,7 +48,6 @@ function PatientHistoryCard({...props}) {
                 }}>
                 <Stack
                     className="card-header"
-                    p={2}
                     direction="row"
                     justifyContent={"space-between"}
                     alignItems="center"
@@ -48,20 +58,22 @@ function PatientHistoryCard({...props}) {
                     }}
                     borderBottom={1}
                     borderColor="divider">
-                    {!isMobile && <Typography
-                        display="flex"
-                        alignItems="center"
-                        component="div"
-                        sx={{cursor: "pointer"}}
-                        fontWeight={600}>
-                        <Icon path={"ic-doc"}/>
-                        {capitalize(t("reason_for_consultation"))}{" "}
-                        {data?.appointment.consultationReasons.length > 0 ? (
-                            <>: {data?.appointment.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>
-                        ) : (
-                            <>: --</>
-                        )}
-                    </Typography>}
+                    {!isMobile && <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                        <Icon path={"ic-white-docs"} width={20} height={20}/>
+                        <Typography
+                            display="flex"
+                            alignItems="center"
+                            component="div"
+                            sx={{cursor: "pointer"}}
+                            fontWeight={600}>
+                            {capitalize(t("reason_for_consultation"))}{" "}
+                            {data?.appointment.consultationReasons.length > 0 ? (
+                                <>: {data?.appointment.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>
+                            ) : (
+                                <>: --</>
+                            )}
+                        </Typography>
+                    </Stack>}
                     <Stack ml="auto" direction={"row"} spacing={1} alignItems={"center"}>
                         <Typography
                             variant="body2"
@@ -76,11 +88,23 @@ function PatientHistoryCard({...props}) {
                             />{" "}
                             {data?.appointment.startTime}
                         </Typography>
-                        <IconButton onClick={(e) => {
-                            handleConsultation(e);
-                        }}>
-                            <OpenInNewIcon style={{color: "white", fontSize: 20}}/>
-                        </IconButton>
+                        <Stack direction={"row"} alignItems={"center"} pl={2}>
+                            <IconButton
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleConsultation();
+                                }}>
+                                <IconUrl path={"ic-re-open"} color={"white"} width={18} height={18}/>
+                            </IconButton>
+                            <IconButton
+                                sx={{mt: -.3}}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteApp();
+                                }}>
+                                <IconUrl path={"ic-trash"} color={"white"} width={20} height={20}/>
+                            </IconButton>
+                        </Stack>
                     </Stack>
                 </Stack>
                 <CardContent
