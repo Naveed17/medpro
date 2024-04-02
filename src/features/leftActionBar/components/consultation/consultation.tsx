@@ -525,7 +525,8 @@ function Consultation() {
                     patient,
                     setOpenPaymentDialog,
                     mutatePatient: () => {
-
+                        const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`;
+                        invalidateQueries([url])
                     }
                 }}
                 size={"lg"}
