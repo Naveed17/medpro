@@ -118,7 +118,7 @@ function SideBarMenu({children}: LayoutProps) {
                         key={item.name}
                         condition={!hasAdminAccess}
                         wrapper={(children: any) =>
-                            <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
+                            <Can key={item.name} I={"read"} a={item.slug as any}>
                                 {children}
                             </Can>}>
                         <Hidden smUp={item.name === "wallet"}>
@@ -246,22 +246,28 @@ function SideBarMenu({children}: LayoutProps) {
     });
 
     useEffect(() => {
-        if (menuItems[3]) {
+        const paymentPageIndex = menuItems.findIndex(item => item.icon === "ic-payment");
+        if (paymentPageIndex !== -1) {
             let demo = user.medical_entity.hasDemo;
             if (localStorage.getItem("newCashbox")) {
                 demo = localStorage.getItem("newCashbox") === "1";
             }
-            menuItems[3].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
+            menuItems[paymentPageIndex].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
             setMenuItems([...menuItems]);
         }
     }, [newCashBox]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setMenuItems([
-            {...menuItems[0], badge: nb_appointment},
-            {...menuItems[1], badge: waiting_room},
-            ...menuItems.slice(2),
-        ]);
+        let menus = [...menuItems];
+        const agendaPageIndex = menuItems.findIndex(item => item.icon === "ic-agenda");
+        if (agendaPageIndex !== -1) {
+            menus[agendaPageIndex] = {...menus[agendaPageIndex], badge: nb_appointment}
+        }
+        const waitingRoomPageIndex = menuItems.findIndex(item => item.icon === "ic-salle-sidenav");
+        if (waitingRoomPageIndex !== -1) {
+            menus[waitingRoomPageIndex] = {...menus[waitingRoomPageIndex], badge: waiting_room}
+        }
+        (agendaPageIndex !== -1 || waitingRoomPageIndex !== -1) && setMenuItems(menus);
     }, [nb_appointment, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;

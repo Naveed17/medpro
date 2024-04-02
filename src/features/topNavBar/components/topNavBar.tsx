@@ -163,8 +163,28 @@ function TopNavBar({...props}) {
         });
     }
 
+    const handleResetConsultation = () => {
+        setLoadingReq(true);
+        const form = new FormData();
+        form.append("status", "11");
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: form,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/status/${router.locale}`
+        }, {
+            onSuccess: () => {
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
+                refreshAgendaData();
+            },
+            onSettled: () => setLoadingReq(false)
+        });
+
+    }
+
     const handlePauseStartConsultation = () => {
-        setLoadingReq(true)
+        setLoadingReq(true);
         const form = new FormData();
         form.append('status', '8');
         updateAppointmentStatus({
@@ -592,6 +612,7 @@ function TopNavBar({...props}) {
                         color={theme.palette.error.main}
                         contrastText={theme.palette.error.contrastText}
                         dialogClose={() => dispatch(setDialog({dialog: "switchConsultationDialog", value: false}))}
+                        onClose={() => dispatch(setDialog({dialog: "switchConsultationDialog", value: false}))}
                         sx={{
                             direction
                         }}
@@ -604,15 +625,14 @@ function TopNavBar({...props}) {
                         actionDialog={
                             <Stack direction={isMobile ? "column" : "row"} justifyContent={"space-between"}
                                    sx={{width: "100%"}}>
-                                <Button
-                                    variant="text-primary"
-                                    onClick={() => dispatch(setDialog({
-                                        dialog: "switchConsultationDialog",
-                                        value: false
-                                    }))}
-                                    startIcon={<CloseIcon/>}>
-                                    {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.cancel`)}
-                                </Button>
+                                <Stack direction={isMobile ? "column" : "row"} spacing={2}>
+                                    <Button
+                                        variant="text-black"
+                                        onClick={handleResetConsultation}
+                                        startIcon={<IconUrl path="ic-temps"/>}>
+                                        {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.later_on`)}
+                                    </Button>
+                                </Stack>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
                                     <LoadingButton
                                         loading={loadingReq}

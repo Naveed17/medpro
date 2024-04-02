@@ -11,7 +11,7 @@ function QuickAddAppointment({...props}) {
         <QuickAddAppointmentStyled>
             <Typography variant={"body2"}>{t("add-quick-drawer")}</Typography>
             <EventType select defaultType={0}/>
-            {!withoutDateTime && <TimeSchedule select/>}
+            <TimeSchedule select {...{withoutDateTime}}/>
             <Patient
                 select
                 {...{handleAddPatient}}

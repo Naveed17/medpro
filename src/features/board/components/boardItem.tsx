@@ -29,6 +29,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
 import {getDiffDuration} from "@lib/hooks";
 import {Label} from "@features/label";
+import {sideBarSelector} from "@features/menu";
+import {IconButtonStyled} from "@features/board";
 
 const imageSize: number = 40;
 
@@ -90,6 +92,7 @@ function BoardItem({...props}) {
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {mode} = useAppSelector(agendaSelector);
+    const {opened} = useAppSelector(sideBarSelector);
 
     const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
@@ -251,7 +254,11 @@ function BoardItem({...props}) {
                                     </Stack>
                                     {quote.content.status === 5 &&
                                         <Label
-                                            color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                                            {...(opened && {sx: {maxWidth: 100}})}
+                                            color={quote?.content.appointmentRestAmount == 0 ? "success" : quote?.content.fees - quote?.content.appointmentRestAmount === 0 ? "error" : "warning"}>
+                                            <Typography fontSize={10}
+                                                        className={"ellipsis"}>{commonTranslation(quote?.content.appointmentRestAmount == 0 ? "paid" : quote?.content.fees - quote?.content.appointmentRestAmount === 0 ? "unpaid" : "partially")}</Typography>
+                                        </Label>
                                     }
                                 </Stack>
                             </Stack>
@@ -373,33 +380,39 @@ function BoardItem({...props}) {
                                                     sx={{
                                                         p: .85,
                                                         border: `1px solid ${theme.palette.divider}`,
-                                                        borderRadius: 1,
-                                                        ...(is_next && {
-                                                            background: theme.palette.primary.main,
-                                                            border: "none"
-                                                        }),
+                                                        borderRadius: 1
                                                     }}>
                                                     <IconUrl path={"ic-play-audio-black"}/>
                                                 </IconButton>
                                             </span>
                                         </Tooltip>}
                                 </>}
-                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) && <>
-                                    <Tooltip
-                                        title={commonTranslation("config.consultation_pay", {ns: "waitingRoom"})}>
-                                        <IconButton
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "ON_PAY",
-                                                row: quote.content,
-                                                event
-                                            })}
-                                            size={"small"}
-                                            disableFocusRipple
-                                            sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}>
-                                            <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </>}
+                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) &&
+                                    <Stack direction='row' spacing={.5}>
+                                        {!opened && <IconButtonStyled size={"small"}>
+                                            <IconUrl width={16} height={16} path="ic-edit-file-new"/>
+                                        </IconButtonStyled>}
+                                        <Tooltip
+                                            title={commonTranslation("config.consultation_pay", {ns: "waitingRoom"})}>
+                                            <IconButton
+                                                sx={{
+                                                    width: 30,
+                                                    height: 30,
+                                                    background: theme.palette.primary.main,
+                                                    borderRadius: 1,
+                                                    p: .8
+                                                }}
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                    action: "ON_PAY",
+                                                    row: quote.content,
+                                                    event
+                                                })}
+                                                size={"small"}
+                                                disableFocusRipple>
+                                                <IconUrl color={"white"} path="ic-argent"/>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Stack>}
                                 {!quote.content.patient?.isArchived &&
                                     <Tooltip
                                         title={commonTranslation("plus", {ns: "waitingRoom"})}>

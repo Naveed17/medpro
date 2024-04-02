@@ -50,7 +50,7 @@ function Board({...props}) {
     const {columns, data, isUnpaidFilter, handleEvent, handleDragEvent, handleSortData, handleUnpaidFilter} = props;
     const {opened} = useAppSelector(sideBarSelector);
 
-    const {t} = useTranslation('waitingRoom', {keyPrefix: 'config.tabs'});
+    const {t} = useTranslation('waitingRoom');
 
     const [boardData, setBoardData] = useState<any>({});
 
@@ -219,12 +219,12 @@ function Board({...props}) {
                                                                             textOverflow: "ellipsis",
                                                                             width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : "auto",
                                                                         }}>
-                                                                        {t(key)}
+                                                                        {t(`tabs.${key}`)}
                                                                     </Typography>
 
                                                                     <Badge
                                                                         sx={{pl: 1}}
-                                                                        invisible={!(boardData[key].length > 0 && index < 3)}
+                                                                        invisible={!(boardData[key].length > 0 && index !== 2)}
                                                                         badgeContent={boardData[key].length}
                                                                         color="info"/>
                                                                 </Stack>

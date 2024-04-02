@@ -11,6 +11,7 @@ export const siteHeader = {
         {
             icon: "ic-doctors",
             name: "doctors",
+            slug: "doctors",
             href: '/admin/doctors',
             badge: 0,
             enabled: true
@@ -18,6 +19,7 @@ export const siteHeader = {
         {
             icon: "ic-staff",
             name: "staff",
+            slug: "staff",
             href: '/admin/staff',
             badge: 0,
             enabled: true
@@ -25,6 +27,7 @@ export const siteHeader = {
         {
             icon: "ic-departments",
             name: "departments",
+            slug: "departments",
             href: '/admin/departments',
             badge: 0,
             enabled: true
@@ -32,8 +35,17 @@ export const siteHeader = {
     ],
     sidebarItems: [
         {
+            icon: "ic-dashboard",
+            name: "dashboard",
+            slug: "dashboard",
+            href: '/dashboard',
+            badge: 0,
+            enabled: true
+        },
+        {
             icon: "ic-agenda",
             name: "agenda",
+            slug: "agenda",
             href: '/dashboard/agenda',
             badge: 0,
             enabled: true
@@ -41,6 +53,7 @@ export const siteHeader = {
         {
             icon: "ic-salle-sidenav",
             name: "waiting-room",
+            slug: "waiting-room",
             href: '/dashboard/waiting-room',
             badge: 0,
             enabled: true
@@ -48,24 +61,28 @@ export const siteHeader = {
         {
             icon: "ic-user2",
             name: "patient",
+            slug: "patients",
             href: '/dashboard/patients',
             enabled: true
         },
         {
             icon: "ic-payment",
             name: "cashbox",
+            slug: "cashbox",
             href: '/dashboard/payment',
             enabled: true
         },
         {
             icon: "ic-docs",
             name: "documents",
+            slug: "documents",
             href: '/dashboard/documents',
             enabled: process.env.NODE_ENV === 'development'
         },
         {
             icon: "shopping-bag",
             name: "inventory",
+            slug: "inventory",
             href: '/dashboard/inventory',
             enabled: process.env.NODE_ENV === 'development'
         }

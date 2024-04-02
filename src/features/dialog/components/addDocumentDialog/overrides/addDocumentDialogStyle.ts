@@ -10,5 +10,10 @@ const AddDocumentDialogStyled = styled(Stack)(({ theme }) => ({
             height: 28,
         }
     },
+    "& .micro":{
+        border: "2px solid",
+        borderRadius: 40,
+        padding:10
+    }
 }));
 export default AddDocumentDialogStyled;

@@ -11,14 +11,13 @@ import {
     Button,
     Card,
     CardHeader,
-    DialogActions,
     Drawer, useTheme,
     LinearProgress, Menu,
     MenuItem,
     Paper, Radio,
     Stack,
     Typography,
-    useMediaQuery
+    useMediaQuery, Grid, FormControlLabel, Checkbox
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
@@ -42,7 +41,7 @@ import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} fro
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry, WaitingHeadCells} from "@lib/constants";
+import {DefaultCountry, deleteAppointmentOptionsData, WaitingHeadCells} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {LoadingButton} from "@mui/lab";
 import {
@@ -55,15 +54,14 @@ import {
 } from "@features/calendar";
 import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
-import {CustomIconButton} from "@features/buttons";
+import {CustomIconButton, CustomSwitch} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
-    appointmentSelector,
+    appointmentSelector, resetAppointment,
     setAppointmentSubmit,
     TabPanel
 } from "@features/tabPanel";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {setDialog} from "@features/topNavBar";
@@ -73,6 +71,7 @@ import {partition} from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
 import {AbilityContext} from "@features/casl/can";
+import _ from "lodash";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -84,7 +83,7 @@ function WaitingRoom() {
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const ability = useContext(AbilityContext);
 
-    const {t, ready, i18n} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
+    const {t, ready, i18n} = useTranslation(["waitingRoom", "common"]);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {direction} = useAppSelector(configSelector);
@@ -132,6 +131,8 @@ function WaitingRoom() {
         {key: "arrivalTime", value: "arrival-time", checked: true},
         {key: "estimatedStartTime", value: "smart-list", checked: true}
     ]);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
@@ -227,7 +228,6 @@ function WaitingRoom() {
 
     const handleAddAppointment = () => {
         setLoadingRequest(true);
-
         const params = new FormData();
         params.append('dates', JSON.stringify(withoutDateTime ?
             [{
@@ -309,7 +309,7 @@ function WaitingRoom() {
                 handleAppointmentStatus(row?.uuid as string, '6');
                 break;
             case "onDelete":
-                handleAppointmentStatus(row?.uuid as string, '9');
+                setDeleteDialog(true);
                 break;
             case "onPatientNoShow":
                 handleAppointmentStatus(row?.uuid as string, '10');
@@ -326,6 +326,26 @@ function WaitingRoom() {
                 break;
         }
         handleClose();
+    }
+
+    const handleDeleteAppointment = () => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        params.append("type", deleteAppointmentOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
+
+        updateAppointmentStatus({
+            method: "DELETE",
+            data: params,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateOnGoing();
+                mutateWaitingRoom();
+                setDeleteDialog(false);
+            },
+            onSettled: () => setLoadingRequest(false)
+        });
     }
 
     const handleSortData = (event: React.MouseEvent<HTMLElement>) => {
@@ -509,10 +529,11 @@ function WaitingRoom() {
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
             const sortKey = menuOptions.find(option => option.value === boardFilterData.sort)?.key;
+            const timeFormat = `DD-MM-YYYY HH:mm${sortKey === "arrivalTime" ? ":ss" : ""}`
             let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => {
                 const d1 = boardFilterData.order === "asscending" ? a : b;
                 const d2 = boardFilterData.order === "asscending" ? b : a;
-                return moment(`${d1.dayDate} ${d1[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf()
+                return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
             }).group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0]];
@@ -781,7 +802,33 @@ function WaitingRoom() {
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
-                                        headers={WaitingHeadCells}
+                                        toolbar={<Stack direction='row' mb={1} alignItems='center' borderBottom={1}
+                                                        borderColor="divider" py={1}>
+                                            <Stack direction='row' alignItems='center' spacing={1}>
+                                                <IconUrl path="ic-dubble-check-round"/>
+                                                <Typography fontWeight={600}>
+                                                    {t("tabs.finished")}
+                                                </Typography>
+                                                <Label color="info" variant="filled">
+                                                    {[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])].length}
+                                                </Label>
+                                            </Stack>
+                                            <Stack ml="auto" direction={"row"} alignItems={"center"}
+
+                                                   sx={{height: 28}}>
+                                                <CustomSwitch
+                                                    className="custom-switch"
+                                                    name="active"
+                                                    onChange={handleUnpaidFilter}
+                                                    checked={boardFilterData.unpaid}
+
+
+                                                />
+                                                <Typography variant={"body2"}
+                                                            fontSize={12}>{t("tabs.payed")}</Typography>
+                                            </Stack>
+                                        </Stack>}
+                                        headers={_.tail(WaitingHeadCells)}
                                         rows={[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])]}
                                         from={"waitingRoom"}
                                         t={t}
@@ -912,6 +959,7 @@ function WaitingRoom() {
                 open={quickAddAppointment}
                 dir={direction}
                 onClose={() => {
+                    dispatch(resetAppointment());
                     setQuickAddAppointment(false);
                     setQuickAddPatient(false);
                 }}>
@@ -932,7 +980,10 @@ function WaitingRoom() {
                             mr: 1
                         }}
                         variant="text-primary"
-                        onClick={() => setQuickAddAppointment(false)}
+                        onClick={() => {
+                            dispatch(resetAppointment());
+                            setQuickAddAppointment(false)
+                        }}
                         startIcon={<CloseIcon/>}>
                         {t("cancel", {ns: "common"})}
                     </Button>
@@ -1004,18 +1055,99 @@ function WaitingRoom() {
                 title={t("pre_consultation_dialog_title")}
                 {...(!loadingRequest && {dialogClose: () => setOpenPreConsultationDialog(false)})}
                 actionDialog={
-                    <DialogActions>
-                        <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                    <Stack direction={"row"}
+                           justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant={"text-black"}
+                            onClick={() => setOpenPreConsultationDialog(false)}
+                            startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "common"})}
                         </Button>
                         <Button
                             disabled={loadingRequest}
                             variant="contained"
                             onClick={() => submitPreConsultationData()}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("save", {ns: "common"})}
                         </Button>
-                    </DialogActions>
+                    </Stack>
+                }
+            />
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteDialog(false)}
+                sx={{direction: direction}}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`, {ns: "common"})} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`dialogs.delete-dialog.description`, {ns: "common"})}</Typography>
+
+                            <Grid container spacing={1}>
+                                {deleteAppointmentOptions.map((option: any, index: number) =>
+                                    <Grid key={option.key} item md={4} xs={12}>
+                                        <Card
+                                            sx={{
+                                                padding: 1,
+                                                ml: 2,
+                                                borderRadius: 1.4,
+                                                "& .MuiTypography-root": {
+                                                    fontSize: 14, fontWeight: "bold"
+                                                },
+                                                "& .MuiFormControlLabel-root": {
+                                                    ml: 1,
+                                                    width: "100%"
+                                                }
+                                            }}>
+                                            <FormControlLabel
+                                                label={t(`dialogs.delete-dialog.${option.key}`, {ns: "common"})}
+                                                checked={option.selected}
+                                                control={
+                                                    <Checkbox
+                                                        onChange={(event) => {
+                                                            setDeleteAppointmentOptions([
+                                                                ...deleteAppointmentOptions.slice(0, index),
+                                                                {
+                                                                    ...deleteAppointmentOptions[index],
+                                                                    selected: event.target.checked
+                                                                },
+                                                                ...deleteAppointmentOptions.slice(index + 1)
+                                                            ])
+                                                        }}
+                                                    />
+                                                }
+                                            />
+                                        </Card>
+                                    </Grid>)}
+                            </Grid>
+                        </Box>)
+                }}
+                open={deleteDialog}
+                title={t(`dialogs.delete-dialog.title`, {ns: "common"})}
+                actionDialog={
+                    <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant="text-black"
+                            onClick={() => setDeleteDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {t(`dialogs.delete-dialog.cancel`, {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingRequest}
+                            loadingPosition="start"
+                            variant="contained"
+                            disabled={deleteAppointmentOptions.filter(option => option.selected).length === 0}
+                            color={"error"}
+                            onClick={() => handleDeleteAppointment()}
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                path="ic-trash"></IconUrl>}>
+                            {t(`dialogs.delete-dialog.confirm`, {ns: "common"})}
+                        </LoadingButton>
+                    </Stack>
                 }
             />
 
@@ -1038,8 +1170,9 @@ function WaitingRoom() {
                     })
                 })}
                 actionDialog={
-                    <DialogActions>
+                    <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
                         <Button
+                            variant={"text-black"}
                             onClick={() => {
                                 setOpenUploadDialog({...openUploadDialog, dialog: false});
                             }}
@@ -1054,10 +1187,10 @@ function WaitingRoom() {
                                 event.stopPropagation();
                                 handleUploadDocuments();
                             }}
-                            startIcon={<SaveRoundedIcon/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("save", {ns: "common"})}
                         </LoadingButton>
-                    </DialogActions>
+                    </Stack>
                 }
             />
         </>

@@ -9,7 +9,6 @@ import {
     Box,
     Button, Card, Checkbox,
     Container,
-    DialogActions,
     Drawer, FormControlLabel, Grid,
     LinearProgress,
     Paper,
@@ -89,11 +88,10 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
-import {DefaultCountry, MobileContainer as smallScreen} from "@lib/constants";
+import {DefaultCountry, deleteAppointmentOptionsData, MobileContainer as smallScreen} from "@lib/constants";
 import IconUrl from "@themes/urlIcon";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSendNotification} from "@lib/hooks/rest";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
@@ -192,16 +190,7 @@ function Agenda() {
     ]);
     const [event, setEvent] = useState<EventDef | null>();
     const [openFabAdd, setOpenFabAdd] = useState(false);
-    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>([
-        {
-            key: "delete-appointment-data",
-            selected: false
-        },
-        {
-            key: "delete-transaction",
-            selected: false
-        }
-    ]);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
 
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
     const calendarRef = useRef<FullCalendar | null>(null);
@@ -861,13 +850,12 @@ function Agenda() {
     const deleteAppointment = (appointmentUUid: string) => {
         setLoading(true);
         const params = new FormData();
-        params.append("status", "9");
         params.append("type", deleteAppointmentOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
 
         updateAppointmentStatus({
-            method: "PATCH",
+            method: "DELETE",
             data: params,
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/${router.locale}`
         }, {
             onSuccess: () => {
                 dispatch(openDrawer({type: "view", open: false}));
@@ -1499,7 +1487,7 @@ function Agenda() {
 
                                 <Grid container spacing={1}>
                                     {deleteAppointmentOptions.map((option: any, index: number) =>
-                                        <Grid key={option.key} item md={6} xs={12}>
+                                        <Grid key={option.key} item md={4} xs={12}>
                                             <Card
                                                 sx={{
                                                     padding: 1,
@@ -1539,9 +1527,9 @@ function Agenda() {
                     open={cancelDialog}
                     title={t(`dialogs.${actionDialog}-dialog.title`)}
                     actionDialog={
-                        <>
+                        <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
                             <Button
-                                variant="text-primary"
+                                variant="text-black"
                                 onClick={() => setCancelDialog(false)}
                                 startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${actionDialog}-dialog.cancel`)}
@@ -1550,13 +1538,14 @@ function Agenda() {
                                 {...{loading}}
                                 loadingPosition="start"
                                 variant="contained"
+                                disabled={deleteAppointmentOptions.filter(option => option.selected).length === 0}
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
                                                     path="ic-trash"></IconUrl>}>
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
-                        </>
+                        </Stack>
                     }
                 />
 
@@ -1577,8 +1566,11 @@ function Agenda() {
                     title={t("pre_consultation_dialog_title", {ns: "common"})}
                     {...(!loading && {dialogClose: () => setOpenPreConsultationDialog(false)})}
                     actionDialog={
-                        <DialogActions>
-                            <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
+                            <Button
+                                variant={"text-black"}
+                                onClick={() => setOpenPreConsultationDialog(false)}
+                                startIcon={<CloseIcon/>}>
                                 {t("cancel", {ns: "common"})}
                             </Button>
                             <LoadingButton
@@ -1586,10 +1578,10 @@ function Agenda() {
                                 loadingPosition="start"
                                 variant="contained"
                                 onClick={() => submitPreConsultationData()}
-                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                                startIcon={<IconUrl path="iconfinder_save"/>}>
                                 {t("save", {ns: "common"})}
                             </LoadingButton>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
 
@@ -1612,8 +1604,9 @@ function Agenda() {
                         })
                     })}
                     actionDialog={
-                        <DialogActions>
+                        <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
                             <Button
+                                variant={"text-black"}
                                 onClick={() => {
                                     setOpenUploadDialog({...openUploadDialog, dialog: false});
                                 }}
@@ -1628,10 +1621,10 @@ function Agenda() {
                                     event.stopPropagation();
                                     handleUploadDocuments();
                                 }}
-                                startIcon={<SaveRoundedIcon/>}>
+                                startIcon={<IconUrl path="iconfinder_save"/>}>
                                 {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
 

@@ -99,7 +99,7 @@ function CertifDialog({...props}) {
     const [antecedents, setAntecedents] = useState<string[]>([]);
     const [motifs, setMotifs] = useState<string[]>([]);
     const [acts, setActs] = useState<string[]>([]);
-    const hasAntecedents = data.patient?.antecedents ? Object.keys(data.patient.antecedents).reduce((total, key) => total + data.patient.antecedents[key], 0) > 0 : false;
+    const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total, key) => total + data.patient.antecedents[key], 0) > 0
     const hasMotif = data.sheetExam.appointment_data.consultation_reason.length > 0
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -462,11 +462,11 @@ function CertifDialog({...props}) {
                 <Grid item xs={12} md={fullScreen ? 12 : 9}>
                     <List sx={{
                         width: '100%',
-                        bgColor: 'background.paper',
-                        paddingRight: 2
+                        bgcolor: theme => theme.palette.background.paper,
+                        paddingRight: { xs: 0, sm: 2 }
                     }}>
                         <Stack spacing={1}>
-                            {!fullScreen && <Stack direction={"row"} spacing={2} sx={{width: "100%"}}>
+                            {!fullScreen && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: "100%" }}>
                                 <Stack sx={{width: "100%"}}>
                                     <Typography style={{color: "gray"}}
                                                 fontSize={12}>{t('consultationIP.title')}</Typography>

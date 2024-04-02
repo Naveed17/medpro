@@ -13,7 +13,7 @@ function AuthGuard({children}: LayoutProps) {
     const routerPathname = router.pathname;
 
     const hasAdminAccess = true;
-    const slugFeature = routerPathname.split('/')[2];
+    const slugFeature = routerPathname.split('/')[2] === "payment" ? "cashbox" : routerPathname.split('/')[2];
     const hasFeatureAccess = features?.find((feature: FeatureModel) => slugFeature?.includes(feature.slug)) ?? false;
 
     useEffect(() => {

@@ -1,1 +1,1 @@
-export { default as WidgetCharts } from './pediatrician18Charts';
+export { default as Pediatrician18Charts } from './pediatrician18Charts';

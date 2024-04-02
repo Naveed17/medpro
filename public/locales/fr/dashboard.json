@@ -1,0 +1,19 @@
+{
+    "sub-header": {
+        "title": "Aperçu du centre médical"
+    },
+    "appointments": "Rendez-vous",
+    "total_patients": "Total des patients",
+    "new-patients": "Nouveaux patients",
+    "avg_wait_time": "Temps d'attente moyen des patients",
+    "min": "min",
+    "rdv-request": "Demandes de rendez-vous",
+    "recent_activities": "Activités récentes",
+    "file_no": "Fiche N°",
+    "assigned_doctor": "Médecin désigné",
+    "type": "Type",
+    "reason": "Motif",
+    "last_visit": "Dernière visite",
+    "documents": "Documents",
+    "add_doc": "Ajouter des documents"
+}

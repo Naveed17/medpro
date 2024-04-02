@@ -54,6 +54,7 @@ import {Chat} from "@features/chat";
 import {caslSelector} from "@features/casl";
 import {chatSelector} from "@features/chat/selectors";
 import {setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
+import Draggable from "react-draggable";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -121,8 +122,10 @@ function MainLayout({...props}) {
         if (fcmSession !== jti) {
             if (data.type === "no_action") {
                 if (data.mode === "foreground") {
+                    // User actions alert
                     enqueueSnackbar(message.notification.body, {variant: "info"});
                 } else if (data.body.hasOwnProperty('progress')) {
+                    // Import Data progress bar refresh
                     if (data.body.progress === -1 || data.body.progress === 100) {
                         localStorage.removeItem("import-data");
                         localStorage.removeItem("import-data-progress");
@@ -139,6 +142,7 @@ function MainLayout({...props}) {
                     }
                 }
             } else if (data.type === "session") {
+                // Update session permissions feature
                 update({[message.data.root]: data.body});
             } else if (slugFeature === message.data.root) {
                 switch (message.data.root) {
@@ -163,27 +167,29 @@ function MainLayout({...props}) {
                         } else if (data.body.action === "update") {
                             // update pending notifications status
                             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
-                            // refresh on going api
+                            // Mutate on going api
                             mutateOnGoing();
                         }
                         break;
                     case "waiting-room":
-                        // refresh agenda
+                        // Mutate agenda
                         dispatch(setLastUpdate(data));
-                        // refresh on going api
+                        // Mutate on going api
                         mutateOnGoing();
                         break;
                     case "consultation":
-                        // refresh agenda
+                        // Mutate agenda
                         dispatch(setLastUpdate(data));
-                        // refresh on going api
+                        // Mutate on going api
                         mutateOnGoing();
                         break;
                     case "documents":
+                        // Mutate Speech to text Documents
                         enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
                         invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
                         break;
                     default:
+                        // Mutate dynamic requests
                         data.body.mutate && invalidateQueries([data.body.mutate]);
                         break;
                 }
@@ -389,6 +395,7 @@ function MainLayout({...props}) {
             dispatch(setMessagesRefresh(payload.message))
         }
     });
+
     const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
 
     return (
@@ -541,10 +548,10 @@ function MainLayout({...props}) {
                     />}
             </Dialog>
 
-            <Stack direction={"row"}
-                   spacing={2}
-                   alignItems={'center'}
-                   sx={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
+            {!isMobile &&  <Draggable bounds="body"><Stack direction={"row"}
+                    spacing={2}
+                    alignItems={'center'}
+                    sx={{position: "absolute", bottom: 75, right: 40, zIndex: 99}}>
                 {message && <Stack direction={"row"}
                                    padding={1}
                                    spacing={2}
@@ -565,17 +572,16 @@ function MainLayout({...props}) {
                         <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
                     </Stack>
                 </Stack>}
-                {!isMobile && <Fab color="info"
-                                   style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
-                                   onClick={() => {
-                                       dispatch(setOpenChat(true))
-                                   }}>
+                <Fab color="info"
+                     style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                     onClick={() => {
+                         dispatch(setOpenChat(true))
+                     }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
                         <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
-                </Fab>}
-            </Stack>
-
+                </Fab>
+            </Stack></Draggable>}
         </AbilityContext.Provider>
     );
 }

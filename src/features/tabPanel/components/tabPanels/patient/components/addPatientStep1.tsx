@@ -291,9 +291,8 @@ function AddPatientStep1({...props}) {
                                                 style={{
                                                     minWidth:32,
                                                     minHeight:32,
-                                                }}
-                                                >
-                                                <IconUrl path="ic-return-photo" width={18} height={18}/>
+                                                }}>
+                                                <IconUrl path="ic-camera-add" width={18} height={18}/>
                                             </IconButton>
                                         </label>
                                     </Grid>

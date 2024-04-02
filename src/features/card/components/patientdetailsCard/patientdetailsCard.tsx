@@ -192,7 +192,6 @@ function PatientDetailsCard({...props}) {
                 data: params
             }, {
                 onSuccess: () => {
-                    setRequestLoading(false);
                     mutatePatientList && mutatePatientList();
                     mutateAgenda && mutateAgenda();
                     invalidateQueries([
@@ -208,7 +207,8 @@ function PatientDetailsCard({...props}) {
                         } as any;
                         dispatch(setSelectedEvent(event));
                     }
-                }
+                },
+                onSettled: () => setRequestLoading(false)
             });
         }
     }
@@ -233,7 +233,16 @@ function PatientDetailsCard({...props}) {
                                         sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
                                     />
                                 ) : (
-                                    <label htmlFor="contained-button-file" style={{cursor: "pointer", height: 100}}>
+
+                                    <label htmlFor="contained-button-file"
+                                           style={{
+                                               position: "relative",
+                                               zIndex: 1,
+                                               cursor: "pointer",
+                                               display: 'inline-flex',
+                                               width: 118,
+                                               height: 118,
+                                           }}>
                                         <InputStyled
                                             id="contained-button-file"
                                             onChange={(e) => handleDrop(e.target.files as FileList)}
@@ -241,20 +250,28 @@ function PatientDetailsCard({...props}) {
                                         />
                                         <Avatar
                                             src={values.picture.url}
-                                            sx={{
-                                                width: 100, height: 100, "& svg": {
-                                                    padding: 1.5
-                                                }
-                                            }}>
-                                            <IconUrl path="ic-user-profile"/>
+                                            sx={{width: 118, height: 118}}>
+                                            <IconUrl path="ic-image"/>
                                         </Avatar>
                                         <IconButton
-                                            onClick={() => {
-                                                document.getElementById('contained-button-file')?.click()
-                                            }}
+                                            color="primary"
                                             type="button"
-                                            className={"import-avatar"}>
-                                            <IconUrl path="ic-return-photo"/>
+                                            sx={{
+                                                position: "absolute",
+                                                bottom: 6,
+                                                padding: .5,
+                                                right: 6,
+                                                zIndex: 1,
+                                                pointerEvents: "none",
+                                                bgcolor: "#fff !important",
+
+                                            }}
+                                            style={{
+                                                minWidth: 32,
+                                                minHeight: 32,
+                                            }}>
+                                            <IconUrl path="ic-camera-add" width={18}
+                                                     height={18}/>
                                         </IconButton>
                                     </label>
                                 )}
@@ -266,7 +283,7 @@ function PatientDetailsCard({...props}) {
                                         <Stack
                                             sx={{width: "100%"}}
                                             direction={"row"}
-                                            alignItems={"center"}
+                                            alignItems={"start"}
                                             justifyContent="space-between">
                                             <Stack>
                                                 <InputBase
@@ -521,8 +538,9 @@ function PatientDetailsCard({...props}) {
                                             </Stack>
 
                                             <Stack spacing={1}>
-                                                <Stack spacing={2} direction={"row"} alignItems={"center"}
-                                                       justifyContent={"flex-end"}>
+                                                <Stack spacing={2} direction={isMobile ? "column" : "row"}
+                                                       alignItems={"center"}
+                                                       justifyContent={isMobile ? "center" : "flex-end"}>
                                                     {isBeta && rest > 0 &&
                                                         <div onClick={() => {
                                                             setOpenPaymentDialog(true)
@@ -549,8 +567,9 @@ function PatientDetailsCard({...props}) {
                                                             borderRadius: 8
                                                         }}
                                                         onClick={() => {
+                                                            closePatientDialog && closePatientDialog();
                                                             dispatch(setOpenChat(true))
-                                                            dispatch(setMessage(`<span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`))
+                                                            dispatch(setMessage(`&lt; <span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag"> > </span>`))
                                                         }}>
                                                         <IconUrl
                                                             path={"chat"}
@@ -560,7 +579,7 @@ function PatientDetailsCard({...props}) {
                                                 </Stack>
 
                                                 {!roles.includes('ROLE_SECRETARY') && (
-                                                    <Box>
+                                                    <>
                                                         {loading ? (
                                                             <Skeleton
                                                                 variant="rectangular"
@@ -573,23 +592,32 @@ function PatientDetailsCard({...props}) {
                                                                 }}
                                                             />
                                                         ) : (
-                                                            <LoadingButton
-                                                                loading={requestLoading}
-                                                                onClick={startConsultationFormPatient}
-                                                                disabled={isActive}
-                                                                variant="contained"
-                                                                sx={{
-                                                                    ml: {md: "auto", xs: 0},
-                                                                    maxWidth: {md: 193, xs: "100%"},
-                                                                }}
-                                                                color="warning"
-                                                                startIcon={<PlayCircleIcon/>}>
-                                                                <Typography
-                                                                    component='strong' variant={"body2"}
-                                                                    fontSize={13}>{t("start-consultation")}</Typography>
-                                                            </LoadingButton>
+                                                            !isMobile ? <LoadingButton
+                                                                    loading={requestLoading}
+                                                                    onClick={startConsultationFormPatient}
+                                                                    disabled={isActive}
+                                                                    variant="contained"
+                                                                    sx={{
+                                                                        ml: {md: "auto", xs: 0},
+                                                                        maxWidth: {md: 193, xs: "100%"},
+                                                                    }}
+                                                                    color="warning"
+                                                                    startIcon={<PlayCircleIcon/>}>
+                                                                    <Typography
+                                                                        component='strong' variant={"body2"}
+                                                                        fontSize={13}>{t("start-consultation")}</Typography>
+                                                                </LoadingButton>
+                                                                :
+                                                                <IconButton
+                                                                    disabled={isActive}
+                                                                    sx={{
+                                                                        borderRadius: 8
+                                                                    }}
+                                                                    onClick={startConsultationFormPatient}>
+                                                                    <PlayCircleIcon/>
+                                                                </IconButton>
                                                         )}
-                                                    </Box>
+                                                    </>
                                                 )}
                                             </Stack>
                                         </Stack>

@@ -448,7 +448,7 @@ function PatientRow({...props}) {
                                         }}
                                         size="small"
                                         sx={{mt: .2}}>
-                                        <IconUrl path="ic-edit-pen" width={20} height={20}
+                                        <IconUrl path="ic-edit-patient" width={16} height={16}
                                                  color={theme.palette.text.secondary}/>
                                     </IconButton>
                                 </Tooltip>

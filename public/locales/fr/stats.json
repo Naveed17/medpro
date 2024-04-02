@@ -25,7 +25,7 @@
   "new-patients": "Nouveaux patients",
   "appointments": "Rendez-vous",
   "new-appointments": "Nouveaux rendez-vous",
-  "avg_time_patient": "Average patient wait time",
+  "avg_time_patient": "Temps d'attente moyen des patients",
   "reason": "Motif par Consultations",
   "act": "Acte par Consultations",
   "rdv_per-min": "Consultations par jour.",
@@ -47,8 +47,9 @@
   "patient_by_location": "Patient par lieu",
   "national": "Nationales",
   "inter_national": "International",
-  "patient_by_age": "Patient by age",
-  "patient_by_gender": "Patient by gender",
+  "patient_by_age": "Patient par âge",
+  "patient_by_gender": "Patient par genre",
   "male": "Homme",
-  "female": "Femmes"
+  "female": "Femmes",
+  "other": "Autre"
 }

@@ -371,7 +371,7 @@ function PaymentDialog({...props}) {
                                     theme,
                                     loading,
                                     devise
-                                }}/>
+                                }} />
                             </> : !loading && !isMobile && <Stack spacing={1} style={{
                                 width: "100%", height: "50vh",
                                 display: 'flex',
@@ -604,7 +604,7 @@ function PaymentDialog({...props}) {
                                         addTransactions,
                                         name: `${patient.firstName} ${patient.lastName}`,
                                         wallet
-                                    }}/>
+                                    }} />
                                 ))}
                             </Stack>
                         </div>
@@ -612,14 +612,16 @@ function PaymentDialog({...props}) {
                 </Grid>
             </Grid>
             <Box style={{height: 70}}/>
-            <Stack direction={"row"} style={{
-                position: 'absolute',
-                bottom: 2,
-                width: "95%",
-                borderTop: "1px solid #ddd",
-                backgroundColor: "white",
-                padding: "15px 0"
-            }} justifyContent={"flex-end"} spacing={1}>
+            <Stack direction={"row"}
+                   sx={{
+                       position: 'absolute',
+                       bottom: 2,
+                       width: "95%",
+                       borderTop: "1px solid #ddd",
+                       backgroundColor: "white",
+                       padding: "15px 0"
+                   }}
+                   justifyContent={"flex-end"} spacing={1}>
                 <Button variant={"text-black"} onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
                 {!(getTotalPayments() == 0) ?
                     <Button

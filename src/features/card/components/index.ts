@@ -70,3 +70,9 @@ export * from './staffMobileCard';
 export * from './departmentMobileCard'
 export * from './insuranceAppointMobileCard';
 export * from './archiveInsuranceMobileCard'
+export * from './departmentMobileCard';
+export * from './rdvRequestCard';
+export * from './agendaTimelineCard';
+export * from './drugMobileCard';
+export * from './appointmentHistoryContent';
+export * from './appointmentHistoryPreview';

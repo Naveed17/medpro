@@ -1,6 +1,7 @@
 [
   {
     "unit": "Gélule",
+    "multiple": true,
     "forms": [
       {
         "form": "Gélule",
@@ -223,6 +224,7 @@
   },
   {
     "unit": "Comprimé",
+    "multiple": true,
     "forms": [
       {
         "form": "Comprimé",
@@ -435,6 +437,7 @@
   },
   {
     "unit": "Gélules",
+    "multiple": true,
     "forms": [
       {
         "form": "Gélule  gastrorésistante",
@@ -469,30 +472,30 @@
     ]
   },
   {
-    "unit": "Cuiére C",
+    "unit": "Cuillère C",
     "multiple": true,
     "forms": [
       {
         "form": "Sirop",
-        "unit": "Cuiére C"
+        "unit": "Cuillère C"
       },
       {
         "form": "Suspension buvable",
-        "unit": "Cuiére C"
+        "unit": "Cuillère C"
       }
     ]
   },
   {
-    "unit": "Cuiére S",
+    "unit": "Cuillère S",
     "multiple": true,
     "forms": [
       {
         "form": "Sirop",
-        "unit": "Cuiére S"
+        "unit": "Cuillère S"
       },
       {
         "form": "Suspension buvable",
-        "unit": "Cuiére S"
+        "unit": "Cuillère S"
       }
     ]
   },
@@ -605,6 +608,7 @@
   },
   {
     "unit": "Gouttes",
+    "multiple": true,
     "forms": [
       {
         "form": "Gouttes buvables",
@@ -678,6 +682,7 @@
   },
   {
     "unit": "Pulvérisateur",
+    "multiple": true,
     "forms": [
       {
         "form": "Solution pour pulverisation nasale",

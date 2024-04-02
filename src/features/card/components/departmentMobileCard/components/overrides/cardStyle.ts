@@ -3,7 +3,7 @@ const CardStyled = styled(Card)(({theme}) => ({
     ".btn-edit": {
         border: `1px solid ${theme.palette.divider}`,
         borderRadius: 8,
-        padding: theme.spacing(1),
+        padding: theme.spacing(.8),
     },
     ".row":{
         display:'grid',

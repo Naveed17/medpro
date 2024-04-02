@@ -34,7 +34,7 @@ import {NoDataCard, PatientMobileCard} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRequestInfiniteQuery, useRequestQueryMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -328,19 +328,25 @@ function Patients() {
     const {trigger: triggerDeletePatient} = useRequestQueryMutation("/patient/delete");
     const {trigger: triggerCheckDuplication} = useRequestQueryMutation("/patient/duplication/check");
 
-    let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+    const searchParams = (new URL(location.href)).searchParams;
+    let page = parseInt(searchParams.get("page") || "1");
+    let isNext = parseInt(searchParams.get("previousPage") ?? "1") < page;
 
     const {
         data: httpPatientsResponse,
+        fetchNextPage,
+        fetchPreviousPage,
+        hasNextPage,
         mutate: mutatePatients,
         isLoading
-    } = useRequestQuery(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}`
-    } : null, {
-        ...ReactQueryNoValidateConfig,
-        ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=10&withPagination=true${router.query.params ?? localFilter}`}})
-    });
+    } = useRequestInfiniteQuery(medicalEntityHasUser ? {
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}`,
+        } : null,
+        {
+            ...ReactQueryNoValidateConfig,
+            ...(medicalEntityHasUser && {variables: {query: `?${!isMobile ? `page=${page}&` : ""}limit=10&withPagination=true${router.query.params ?? localFilter}`}})
+        });
 
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
         setLoadingRequest(true);
@@ -571,6 +577,8 @@ function Patients() {
                 break;
         }
     }
+    const currentPageParams = httpPatientsResponse?.pageParams.findIndex(pageIndex => pageIndex === page) ?? 0;
+    const currentPage = httpPatientsResponse?.pages[currentPageParams === -1 ? 0 : currentPageParams]?.data.data as PaginationModel ?? null;
 
     useLeavePageConfirm((path: string) => {
         if (!path.includes("/dashboard/patient")) {
@@ -584,12 +592,8 @@ function Patients() {
 
     useEffect(() => {
         if (httpPatientsResponse) {
-            const patientsResponse = (httpPatientsResponse as HttpResponse)?.data?.list ?? [];
-            if (isMobile && localFilter?.length > 0) {
-                setRows(patientsResponse)
-            } else {
-                setRows((prev) => [...prev, ...patientsResponse]);
-            }
+            const patientsResponse = httpPatientsResponse.pages.reduce((pages: any[], page: any) => [...(pages ?? []), ...page.data.data.list], []) ?? [];
+            setRows(patientsResponse);
         }
     }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -610,12 +614,11 @@ function Patients() {
 
     useEffect(() => {
         //remove query params on load from url
-        isMobile && router.replace(router.pathname, undefined, {shallow: true});
+        //isMobile && router.replace(router.pathname, router.pathname, {shallow: true});
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const patientData = (httpPatientsResponse as HttpResponse)?.data ?? []
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -658,9 +661,9 @@ function Patients() {
                         {...{t, insurances, mutatePatient: mutatePatients}}
                         headers={headCells}
                         handleEvent={handleTableActions}
-                        rows={patientData?.list ?? []}
-                        total={patientData?.total ?? 0}
-                        totalPages={patientData?.totalPages ?? 1}
+                        rows={currentPage?.list ?? []}
+                        total={currentPage?.total ?? 0}
+                        totalPages={currentPage?.totalPages ?? 1}
                         from={"patient"}
                         pagination
                         loading={!Boolean(httpPatientsResponse)}
@@ -706,25 +709,22 @@ function Patients() {
                         {...{insurances}}
 
                     />
-                    {rows.length === 10 &&
+                    {hasNextPage &&
                         <Stack alignItems='center'>
                             <LoadingButton
                                 loading={isLoading}
                                 loadingPosition={"start"}
                                 startIcon={<RefreshIcon/>}
                                 onClick={() => {
-                                    router.push({
-                                        query: {page: ++page}
-                                    })
-                                }}
-                            >
+                                    fetchNextPage();
+                                }}>
                                 {t("load-more")}
                             </LoadingButton>
                         </Stack>
                     }
                 </MobileContainer>
 
-                {patientData?.list?.length === 0 && <NoDataCard
+                {currentPage?.list?.length === 0 && <NoDataCard
                     t={t}
                     ns={"patient"}
                     data={{

@@ -44,6 +44,7 @@ import {Label} from "@features/label";
 import {DefaultCountry, MobileContainer} from "@lib/constants";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import {setMessage, setOpenChat} from "@features/chat/actions";
+import {startCase} from "lodash";
 
 function AppointmentDetail({...props}) {
     const {
@@ -153,7 +154,7 @@ function AppointmentDetail({...props}) {
                                 <Chip
                                     color="error"
                                     label={t(error)}
-                                    icon={<ReportProblemRoundedIcon sx={{width: 16, height: 16}}/>}/>
+                                    icon={<ReportProblemRoundedIcon sx={{width: 20, height: 20}}/>}/>
                             </Stack>
                         )
                     )}
@@ -190,52 +191,20 @@ function AppointmentDetail({...props}) {
                                                 "& .injected-svg": {
                                                     margin: 0,
                                                 },
-                                                width: 51,
-                                                height: 51,
+                                                width: 54,
+                                                height: 54,
                                                 borderRadius: 1,
-                                            }}
-                                        />
-                                        {/*                                       <IconButton
-                                            color="primary"
-                                            size="small"
-                                            className="add-photo"
-                                            component="label">
-                                            <input
-                                                hidden
-                                                accept="image/*"
-                                                type="file"
-                                                onChange={handleFileUpload}
-                                            />
-                                            <IconUrl path="ic-camera"/>
-                                        </IconButton>*/}
+                                            }}>
+                                            <IconUrl path="ic-image"/>
+                                        </Avatar>
                                     </Box>
                                     <Stack sx={{width: "100%"}}>
                                         <Typography
                                             className={"user-name"}
                                             variant="subtitle1"
                                             color="primary"
-                                            fontWeight={700}>
-                                            <Stack direction={"row"} justifyContent={"space-between"}>
-                                                <span>{appointment?.title}</span>
-                                                {(isBeta && (appointment?.extendedProps?.restAmount > 0 || appointment?.extendedProps?.restAmount < 0)) &&
-                                                    <Label
-                                                        variant='filled'
-                                                        sx={{
-                                                            "& .MuiSvgIcon-root": {
-                                                                width: 16,
-                                                                height: 16,
-                                                                pl: 0
-                                                            },
-                                                            color: theme.palette.error.main,
-                                                            background: theme.palette.error.lighter
-                                                        }}>
-                                                        <Typography
-                                                            sx={{
-                                                                fontSize: 10,
-                                                            }}>
-                                                            {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
-                                                    </Label>}
-                                            </Stack>
+                                            fontWeight={600}>
+                                            {startCase(appointment?.title)}
                                         </Typography>
                                         <List sx={{py: 1, pt: 0}}>
                                             {appointment?.extendedProps.patient?.birthdate && (
@@ -261,7 +230,7 @@ function AppointmentDetail({...props}) {
                                                     }}>
                                                     <Stack direction={"row"} alignItems={"center"}
                                                            justifyContent={"center"}>
-                                                        <IconUrl width={"16"} height={"16"} path="ic-message-contour"/>
+                                                        <IconUrl width={20} height={20} path="ic-message-contour"/>
                                                         <Link
                                                             underline="none"
                                                             href={`mailto:${appointment?.extendedProps.patient.email}`}
@@ -298,21 +267,43 @@ function AppointmentDetail({...props}) {
                                         </List>
                                     </Stack>
                                 </Stack>
-                                {(canManageActions && OnEditDetail && !appointment?.extendedProps.patient?.isArchived) &&
-                                    <Stack>
-                                        <IconButton className={"edit-button"} size="small"
-                                                    onClick={() => OnEditDetail(appointment)}>
-                                            <IconUrl path="ic-edit-patient"/>
-                                        </IconButton>
-                                        <IconButton className={"edit-button"} size="small"
-                                                    onClick={() => {
-                                                        dispatch(setOpenChat(true))
-                                                        dispatch(setMessage(`<span class="tag" id="${appointment?.extendedProps.patient?.uuid}">${appointment?.extendedProps.patient?.firstName} ${appointment?.extendedProps.patient?.lastName} </span><span class="afterTag">, </span>`))
-                                                    }}>
-                                            <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
-                                        </IconButton>
-                                    </Stack>
-                                }
+                                <Stack spacing={1} pb={1}>
+                                    {(canManageActions && OnEditDetail && !appointment?.extendedProps.patient?.isArchived) &&
+                                        <Stack direction={"row"} alignItems={"center"} spacing={1.2}
+                                               justifyContent={"flex-end"}>
+                                            <IconButton className={"edit-button"} size="small"
+                                                        onClick={() => {
+                                                            dispatch(setOpenChat(true))
+                                                            dispatch(setMessage(`&lt; <span class="tag" id="${appointment?.extendedProps.patient?.uuid}">${appointment?.extendedProps.patient?.firstName} ${appointment?.extendedProps.patient?.lastName} </span><span class="afterTag">> </span>`))
+                                                        }}>
+                                                <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20}
+                                                         height={20}/>
+                                            </IconButton>
+                                            <IconButton className={"btn-edit"} size="small"
+                                                        onClick={() => OnEditDetail(appointment)}>
+                                                <IconUrl width={16} height={16} color={theme.palette.text.secondary}
+                                                         path="ic-edit-patient"/>
+                                            </IconButton>
+                                        </Stack>}
+                                    {(isBeta && (appointment?.extendedProps?.restAmount > 0 || appointment?.extendedProps?.restAmount < 0)) &&
+                                        <Label
+                                            variant='filled'
+                                            sx={{
+                                                "& .MuiSvgIcon-root": {
+                                                    width: 20,
+                                                    height: 20,
+                                                    pl: 0
+                                                },
+                                                color: theme.palette.error.main,
+                                                background: theme.palette.error.lighter
+                                            }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: 10,
+                                                }}>
+                                                {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
+                                        </Label>}
+                                </Stack>
                             </Stack>
 
                             {(!roles.includes("ROLE_SECRETARY") && canManageActions && (OnConsultationView || OnConsultation)) && (
@@ -376,7 +367,7 @@ function AppointmentDetail({...props}) {
                                         color={"secondary"}
                                         fullWidth
                                         variant="contained"
-                                        startIcon={<UploadFileOutlinedIcon/>}>
+                                        startIcon={<IconUrl path={"fileadd"} width={18} height={18} color={"white"}/>}>
                                         {t("import_document")}
                                     </LoadingButton>
                                     <LoadingButton
@@ -448,7 +439,7 @@ function AppointmentDetail({...props}) {
                                         fullWidth
                                         variant="contained"
                                         startIcon={
-                                            <IconUrl width={"16"} height={"16"} path="ic-user1"/>
+                                            <IconUrl width={18} height={18} path="ic-user1"/>
                                         }>
                                         {t("event.missPatient")}
                                     </LoadingButton>
@@ -464,7 +455,7 @@ function AppointmentDetail({...props}) {
                                         fullWidth
                                         variant="contained"
                                         startIcon={
-                                            <IconUrl width={"16"} height={"16"} path="ic-agenda"/>
+                                            <IconUrl width={18} height={18} path="ic-agenda"/>
                                         }>
                                         {t("event.reschedule")}
                                     </LoadingButton>
@@ -496,13 +487,13 @@ function AppointmentDetail({...props}) {
                                             ? "none"
                                             : "flex",
                                     "& svg": {
-                                        width: 16,
-                                        height: 16,
+                                        width: 18,
+                                        height: 18,
                                     },
                                 }}
                                 startIcon={
                                     <IconUrl
-                                        path="icdelete"
+                                        path="ic-trash"
                                         color={
                                             ["CANCELED", "PATIENT_CANCELED"].includes(appointment?.extendedProps.status.key)
                                                 ? "white"
