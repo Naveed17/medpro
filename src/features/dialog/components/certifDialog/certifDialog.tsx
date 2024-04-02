@@ -96,7 +96,7 @@ function CertifDialog({...props}) {
     const [message, setMessage] = useState(t('write'));
     const [loadingChat, setLoadingChat] = useState(false);
     const [openChat, setOpenChat] = useState(false);
-    const [antecedents, setAntecedents] = useState<string[]>([]);
+    const [antecedents, setAntecedents] = useState<{ name:string,note:string }[]>([]);
     const [motifs, setMotifs] = useState<string[]>([]);
     const [acts, setActs] = useState<string[]>([]);
     const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total, key) => total + data.patient.antecedents[key], 0) > 0
@@ -330,9 +330,9 @@ function CertifDialog({...props}) {
         }, {
             onSuccess: (result) => {
                 const res = result.data.data
-                let ant: string[] = [];
+                let ant: any[] = [];
                 Object.keys(res).forEach(key => {
-                    res[key].map((asc: { name: string; }) => ant.push(asc.name))
+                    res[key].map((asc: { name: string; note:string }) => ant.push({name:asc.name,note:asc.note}))
                 })
                 setAntecedents(ant)
             }
@@ -628,12 +628,12 @@ function CertifDialog({...props}) {
                                     {antecedents.map((item, index) => (
                                         <Button style={{width: "fit-content", margin: 2}}
                                                 onClick={() => {
-                                                    addVal(item.toString())
+                                                    addVal(item.name.toString() + " " + item.note.toString())
                                                 }}
                                                 color={"info"}
                                                 variant="outlined"
                                                 key={`antecedent${index}`}
-                                                size={"small"}> <AddIcon/> {item}
+                                                size={"small"}> <AddIcon/> {item.name}
                                         </Button>
                                     ))}
                                     {antecedents.length === 0 &&
