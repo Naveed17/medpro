@@ -36,7 +36,7 @@ import {useSpeechRecognition} from "react-speech-recognition";
 import {capitalizeFirst, getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useInsurances, useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import Content from "@features/leftActionBar/components/consultation/content";
@@ -47,6 +47,7 @@ import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
 import {setMessage, setOpenChat} from "@features/chat/actions";
+import {Dialog} from "@features/dialog";
 
 function Consultation() {
     const dispatch = useAppDispatch();
@@ -66,6 +67,7 @@ function Consultation() {
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [loading, setLoading] = useState<boolean>(true);
     const [note, setNote] = useState("");
@@ -76,6 +78,7 @@ function Consultation() {
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     const [oldNote, setOldNote] = useState("");
+    const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
@@ -323,15 +326,15 @@ function Consultation() {
 
                         <IconButton
                             size={"small"}
-                            onClick={() => {dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));}}
-                            >
+                            onClick={() => {
+                                dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));}}>
                             <Icon path={"ic-edit-patient"}/>
                         </IconButton>
                     </Stack>
                 </Stack>
                 {isBeta && patient &&
                     <Stack direction={"row"} p={1} spacing={1} onClick={() => {
-                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                        setOpenPaymentDialog(true)
                     }}>
                         {patient.wallet > 0 && <Label variant='filled'
                                                       sx={{
@@ -508,6 +511,30 @@ function Consultation() {
                     ))}
                 </List>
             </Stack>
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient,
+                    setOpenPaymentDialog,
+                    mutatePatient: () => {
+
+                    }
+                }}
+                size={"lg"}
+                fullWidth
+                title={t("payment_dialog_title", {ns: "payment"})}
+                dialogClose={() => {
+                    setOpenPaymentDialog(false)
+                }}
+            />
         </ConsultationStyled>
     );
 }
