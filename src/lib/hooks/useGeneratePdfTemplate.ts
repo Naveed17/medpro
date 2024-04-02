@@ -121,22 +121,25 @@ function useGeneratePdfTemplate() {
                 const photoURL = (patient?.hasPhoto as any).url as string;
                 const photoExtension = photoURL.includes(".png") ? "png" : "jpg";
                 const photoUrlBytes = await fetch(photoURL, {
+                    // Fix CROSS origin issues with no-cache header
                     headers: {
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
                         'Pragma': 'no-cache',
                         'Expires': '0'
                     }
                 }).then((res) => res.arrayBuffer());
-                const photoUrlImage = await (photoExtension === "png" ? pdfDoc.embedPng(photoUrlBytes) : pdfDoc.embedJpg(photoUrlBytes));
-                const photoUrlDims = photoUrlImage.scale(0.2);
-                console.log("photoURL", photoURL, photoUrlDims)
-                copiedPages[0].drawImage(photoUrlImage, {
-                    x: 64,
-                    y: 370,
-                    rotate: degrees(2),
-                    width: 210,
-                    height: 170
-                })
+                try {
+                    const photoUrlImage = await (photoExtension === "png" ? pdfDoc.embedPng(photoUrlBytes) : pdfDoc.embedJpg(photoUrlBytes));
+                    copiedPages[0].drawImage(photoUrlImage, {
+                        x: 64,
+                        y: 370,
+                        rotate: degrees(2),
+                        width: 210,
+                        height: 170
+                    })
+                } catch (e) {
+                    console.log("Draw photo error", e);
+                }
             }
             // Get doctor QR code
             const canvas = document.getElementById('qr-canva')?.children[0] as HTMLCanvasElement;
