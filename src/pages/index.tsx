@@ -76,7 +76,6 @@ function Home() {
         }
     }, [router, status]);
 
-    if (!ready || loading) return (<LoadingScreen/>);
 
     const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) =>
         [...(entites ?? []), {...data?.medical_entity, isOwner: data.is_owner}], []) ?? []) as MedicalEntityModel[];
@@ -85,7 +84,9 @@ function Home() {
     const hasSelectedEntity = medicalEntity?.has_selected_entity ?? false;
     const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
-    return ((!hasMultiMedicalEntities && hasSelectedEntity) ?
+    if (!ready || loading) return (<LoadingScreen/>);
+
+    return (hasSelectedEntity ?
             <Redirect
                 to={medicalEntity?.root === "admin" ? "/admin" : (features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`)}/>
             :
