@@ -54,6 +54,7 @@ import {Chat} from "@features/chat";
 import {caslSelector} from "@features/casl";
 import {chatSelector} from "@features/chat/selectors";
 import {setMessage as setGlobalMsg, setOpenChat} from "@features/chat/actions";
+import Draggable from "react-draggable";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -547,10 +548,10 @@ function MainLayout({...props}) {
                     />}
             </Dialog>
 
-            <Stack direction={"row"}
-                   spacing={2}
-                   alignItems={'center'}
-                   sx={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
+            {!isMobile &&  <Draggable bounds="body"><Stack direction={"row"}
+                    spacing={2}
+                    alignItems={'center'}
+                    sx={{position: "absolute", bottom: 75, right: 40, zIndex: 99}}>
                 {message && <Stack direction={"row"}
                                    padding={1}
                                    spacing={2}
@@ -571,17 +572,16 @@ function MainLayout({...props}) {
                         <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
                     </Stack>
                 </Stack>}
-                {!isMobile && <Fab color="info"
-                                   style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
-                                   onClick={() => {
-                                       dispatch(setOpenChat(true))
-                                   }}>
+                <Fab color="info"
+                     style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                     onClick={() => {
+                         dispatch(setOpenChat(true))
+                     }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
                         <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
-                </Fab>}
-            </Stack>
-
+                </Fab>
+            </Stack></Draggable>}
         </AbilityContext.Provider>
     );
 }

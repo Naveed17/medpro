@@ -569,7 +569,7 @@ function PatientDetailsCard({...props}) {
                                                         onClick={() => {
                                                             closePatientDialog && closePatientDialog();
                                                             dispatch(setOpenChat(true))
-                                                            dispatch(setMessage(`<span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`))
+                                                            dispatch(setMessage(`&lt; <span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag"> > </span>`))
                                                         }}>
                                                         <IconUrl
                                                             path={"chat"}
