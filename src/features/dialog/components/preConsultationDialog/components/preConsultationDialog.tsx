@@ -55,7 +55,10 @@ function PreConsultationDialog({...props}) {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const {data: httpSheetResponse} = useRequestQuery(medicalEntityHasUser && agenda && uuid ? {
+    const {
+        data: httpSheetResponse,
+        isLoading: isSheetLoading
+    } = useRequestQuery(medicalEntityHasUser && agenda && uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
@@ -172,22 +175,23 @@ function PreConsultationDialog({...props}) {
                 </Box>
             </Stack>
 
-            {(models && Array.isArray(models) && sheetModal && !loading && selectedModel) && <WidgetForm
-                {...{
-                    models,
-                    changes,
-                    setChanges,
-                    isClose,
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/data/${router.locale}`,
-                }}
-                expandButton={false}
-                modal={selectedModel}
-                data={sheetModal.data}
-                autoUpdate={false}
-                appuuid={uuid}
-                showToolbar={true}
-                setSM={setSelectedModel}
-                handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
+            {(!isSheetLoading && models && Array.isArray(models) && sheetModal && !loading && selectedModel) &&
+                <WidgetForm
+                    {...{
+                        models,
+                        changes,
+                        setChanges,
+                        isClose,
+                        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/data/${router.locale}`,
+                    }}
+                    expandButton={false}
+                    modal={selectedModel}
+                    data={sheetModal.data}
+                    autoUpdate={false}
+                    appuuid={uuid}
+                    showToolbar={true}
+                    setSM={setSelectedModel}
+                    handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
         </PreConsultationDialogStyled>)
 }
 

@@ -114,7 +114,7 @@ function LoadingScreen({...props}) {
                         variant="body2"
                         className={'loading-text'}
                         sx={{
-                            fontWeight: 300,
+                            fontWeight: 400,
                             fontSize: 16,
                         }}
                         {...(text === "loading" && {mt: 3})}

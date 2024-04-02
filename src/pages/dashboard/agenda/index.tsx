@@ -7,10 +7,9 @@ import {
     Alert,
     Backdrop,
     Box,
-    Button,
+    Button, Card, Checkbox,
     Container,
-    DialogActions,
-    Drawer,
+    Drawer, FormControlLabel, Grid,
     LinearProgress,
     Paper,
     SpeedDial,
@@ -30,6 +29,8 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
+
+const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
 import {DateSelectArg, DatesSetArg, EventChangeArg} from "@fullcalendar/core";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -77,9 +78,8 @@ import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
 import {
     appointmentGroupByDate,
-    appointmentPrepareEvent,
-    prepareSearchKeys,
-    useInvalidateQueries,
+    appointmentPrepareEvent, mergeArrayByKey,
+    prepareSearchKeys, useInvalidateQueries,
     useMedicalEntitySuffix,
     useMutateOnGoing
 } from "@lib/hooks";
@@ -88,11 +88,10 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
-import {DefaultCountry, MobileContainer as smallScreen} from "@lib/constants";
+import {DefaultCountry, deleteAppointmentOptionsData, MobileContainer as smallScreen} from "@lib/constants";
 import IconUrl from "@themes/urlIcon";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSendNotification} from "@lib/hooks/rest";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
@@ -102,8 +101,6 @@ import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import LeaveIcon from "@themes/overrides/icons/leaveIcon";
 import {setOpenChat} from "@features/chat/actions";
 import ChatIcon from "@themes/overrides/icons/chatIcon";
-
-const humanizeDuration = require("humanize-duration");
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, key: 'add-quick'},
@@ -124,7 +121,7 @@ function Agenda() {
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
+    const {t, ready, i18n} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -193,6 +190,7 @@ function Agenda() {
     ]);
     const [event, setEvent] = useState<EventDef | null>();
     const [openFabAdd, setOpenFabAdd] = useState(false);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
 
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
     const calendarRef = useRef<FullCalendar | null>(null);
@@ -281,12 +279,8 @@ function Agenda() {
                 eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
             });
         } else {
-            const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []))
-            const mergedMap = new Map();
-            filteredEvents.forEach((item) => mergedMap.set(item.id, {...item}));
-            events.current.forEach((item) => mergedMap.set(item.id, {...mergedMap.get(item.id), ...item}));
-            const mergedArray = Array.from(mergedMap.values());
-
+            const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []));
+            const mergedArray = mergeArrayByKey(filteredEvents, events.current, "id");
             eventsUpdated.push(...mergedArray.map(event => ({
                 ...event,
                 filtered: localFilter.length > 0 && !appointments?.find(appointment => appointment.uuid === event.id)
@@ -339,6 +333,11 @@ function Agenda() {
             localMaxSlot
         }
     }
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common', 'patient']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (lastUpdateNotification) {
@@ -850,12 +849,13 @@ function Agenda() {
 
     const deleteAppointment = (appointmentUUid: string) => {
         setLoading(true);
-        const form = new FormData();
-        form.append("status", "9");
+        const params = new FormData();
+        params.append("type", deleteAppointmentOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
+
         updateAppointmentStatus({
-            method: "PATCH",
-            data: form,
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
+            method: "DELETE",
+            data: params,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/${router.locale}`
         }, {
             onSuccess: () => {
                 dispatch(openDrawer({type: "view", open: false}));
@@ -1082,7 +1082,7 @@ function Agenda() {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <div>
+        <>
             <SubHeader
                 sx={{
                     "& .MuiToolbar-root": {
@@ -1363,7 +1363,7 @@ function Agenda() {
                         <LoadingButton
                             loading={loadingRequest}
                             onClick={() => handleAddAbsence()}
-                            disabled={absenceData.title.length === 0}
+                            disabled={absenceData.title.length === 0 || absenceData.hasError}
                             variant="contained"
                             color={"primary"}>
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
@@ -1484,14 +1484,52 @@ function Agenda() {
                                             variant="subtitle1">{t(`dialogs.${actionDialog}-dialog.sub-title`)} </Typography>
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>{t(`dialogs.${actionDialog}-dialog.description`)}</Typography>
+
+                                <Grid container spacing={1}>
+                                    {deleteAppointmentOptions.map((option: any, index: number) =>
+                                        <Grid key={option.key} item md={4} xs={12}>
+                                            <Card
+                                                sx={{
+                                                    padding: 1,
+                                                    ml: 2,
+                                                    borderRadius: 1.4,
+                                                    "& .MuiTypography-root": {
+                                                        fontSize: 14, fontWeight: "bold"
+                                                    },
+                                                    "& .MuiFormControlLabel-root": {
+                                                        ml: 1,
+                                                        width: "100%"
+                                                    }
+                                                }}>
+                                                <FormControlLabel
+                                                    label={t(`dialogs.delete-dialog.${option.key}`)}
+                                                    checked={option.selected}
+                                                    control={
+                                                        <Checkbox
+                                                            onChange={(event) => {
+                                                                setDeleteAppointmentOptions([
+                                                                    ...deleteAppointmentOptions.slice(0, index),
+                                                                    {
+                                                                        ...deleteAppointmentOptions[index],
+                                                                        selected: event.target.checked
+                                                                    },
+                                                                    ...deleteAppointmentOptions.slice(index + 1)
+                                                                ])
+                                                            }}
+                                                        />
+                                                    }
+                                                />
+                                            </Card>
+                                        </Grid>)}
+                                </Grid>
                             </Box>)
                     }}
                     open={cancelDialog}
                     title={t(`dialogs.${actionDialog}-dialog.title`)}
                     actionDialog={
-                        <>
+                        <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
                             <Button
-                                variant="text-primary"
+                                variant="text-black"
                                 onClick={() => setCancelDialog(false)}
                                 startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${actionDialog}-dialog.cancel`)}
@@ -1500,13 +1538,14 @@ function Agenda() {
                                 {...{loading}}
                                 loadingPosition="start"
                                 variant="contained"
+                                disabled={deleteAppointmentOptions.filter(option => option.selected).length === 0}
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                    path="icdelete"></IconUrl>}>
+                                                    path="ic-trash"></IconUrl>}>
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
-                        </>
+                        </Stack>
                     }
                 />
 
@@ -1527,8 +1566,11 @@ function Agenda() {
                     title={t("pre_consultation_dialog_title", {ns: "common"})}
                     {...(!loading && {dialogClose: () => setOpenPreConsultationDialog(false)})}
                     actionDialog={
-                        <DialogActions>
-                            <Button onClick={() => setOpenPreConsultationDialog(false)} startIcon={<CloseIcon/>}>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
+                            <Button
+                                variant={"text-black"}
+                                onClick={() => setOpenPreConsultationDialog(false)}
+                                startIcon={<CloseIcon/>}>
                                 {t("cancel", {ns: "common"})}
                             </Button>
                             <LoadingButton
@@ -1536,10 +1578,10 @@ function Agenda() {
                                 loadingPosition="start"
                                 variant="contained"
                                 onClick={() => submitPreConsultationData()}
-                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                                startIcon={<IconUrl path="iconfinder_save"/>}>
                                 {t("save", {ns: "common"})}
                             </LoadingButton>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
 
@@ -1562,8 +1604,9 @@ function Agenda() {
                         })
                     })}
                     actionDialog={
-                        <DialogActions>
+                        <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
                             <Button
+                                variant={"text-black"}
                                 onClick={() => {
                                     setOpenUploadDialog({...openUploadDialog, dialog: false});
                                 }}
@@ -1578,10 +1621,10 @@ function Agenda() {
                                     event.stopPropagation();
                                     handleUploadDocuments();
                                 }}
-                                startIcon={<SaveRoundedIcon/>}>
+                                startIcon={<IconUrl path="iconfinder_save"/>}>
                                 {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
 
@@ -1679,7 +1722,7 @@ function Agenda() {
                     <AgendaFilter/>
                 </DrawerBottom>
             </Box>
-        </div>
+        </>
     )
 }
 
@@ -1695,7 +1738,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
         props: {
             dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient']))
         }
     }
 }

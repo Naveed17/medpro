@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import StaffRow from "@features/table/components/rows/staffRow";
 
 const rowsActionsData = [
     {
@@ -100,6 +101,18 @@ const rowsActionsData = [
         action: "users",
         component: dynamic((): any =>
             import("@features/table/components/rows/userRow").then((mod) => mod)
+        ),
+    },
+    {
+        action: "doctors",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/doctorRow").then((mod) => mod)
+        ),
+    },
+    {
+        action: "staff",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/staffRow").then((mod) => mod)
         ),
     },
     {
@@ -237,7 +250,30 @@ const rowsActionsData = [
             )
         ),
     },
-
+     {
+        action: "rest-pass",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/restPassRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "billing-history",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/billingHishtoryRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "department",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/departmentRow").then(
+                (mod) => mod
+            )
+        ),
+    }
 ];
 
 export default rowsActionsData;

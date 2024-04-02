@@ -11,7 +11,7 @@ import {
     ListItem,
     Stack,
     TextField,
-    Typography,
+    Typography, useTheme,
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
@@ -39,6 +39,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 function AppointmentCard({...props}) {
     const {patientId = null, handleOnDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
+    const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
@@ -231,11 +232,11 @@ function AppointmentCard({...props}) {
                         </Typography>
                     </Label>
                     {((!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && !["FINISHED", "ON_GOING"].includes(data?.status?.key))) && !appointment?.extendedProps.patient?.isArchived) &&
-                        <IconButton
-                            size="small"
-                            onClick={onEditConsultation}
-                            className="btn-toggle">
-                            <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
+                        <IconButton className={"btn-edit"} size="small"
+                                    onClick={onEditConsultation}>
+                            <IconUrl color={theme.palette.text.secondary}
+                                     width={16} height={16}
+                                     path={editConsultation ? "iconfinder_save" : "ic-edit-patient"}/>
                         </IconButton>}
                 </Stack>
                 <Stack
@@ -250,7 +251,7 @@ function AppointmentCard({...props}) {
                                     sx={{cursor: "pointer"}}
                                     direction="row" spacing={2} alignItems="center">
                                     <Typography fontWeight={400}>
-                                        {t("appintment_date")} :
+                                        {t("appointment_date")} :
                                     </Typography>
                                     <ConditionalWrapper
                                         condition={onMoveAppointment && !appointment?.extendedProps.patient?.isArchived && (!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING"))}
@@ -259,7 +260,7 @@ function AppointmentCard({...props}) {
                                             sx={{p: .5}}>{children}</Button>}>
                                         <Stack spacing={2} direction="row" alignItems="center">
                                             <Stack spacing={0.5} direction="row" alignItems="center">
-                                                <IconUrl className="callander" path="ic-agenda-jour"/>
+                                                <IconUrl path="ic-agenda-jour" width={18} heigth={18} color={theme.palette.primary.main}/>
                                                 <Typography className="time-slot">
                                                     {data?.date}
                                                 </Typography>

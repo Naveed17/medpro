@@ -1,6 +1,7 @@
-import { styled } from '@mui/material/styles'
-import { Stack } from '@mui/material'
-const AppToolbarStyled = styled(Stack)(({ theme }) => ({
+import {styled} from '@mui/material/styles'
+import {Stack} from '@mui/material'
+
+const AppToolbarStyled = styled(Stack)(({theme}) => ({
     '.custom-tab': {
         color: theme.palette.grey[700] + ' !important',
         '&.Mui-selected': {
@@ -26,6 +27,11 @@ const AppToolbarStyled = styled(Stack)(({ theme }) => ({
             right: 20,
 
         },
+    },
+    "& .btn-edit": {
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: 8,
+        padding: theme.spacing(.8),
     }
 
 }));

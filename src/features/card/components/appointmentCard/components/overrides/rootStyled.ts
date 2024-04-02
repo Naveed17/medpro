@@ -27,12 +27,6 @@ const RootStyled = styled(Card)(({theme}) => {
                     "& .date": {
                         fontWeight: 600,
                     },
-                    "& .callander": {
-                        "& svg": {
-                            width: 12,
-                            height: 12,
-                        },
-                    },
                     "& .time-slot": {
                         fontWeight: 700,
                     },

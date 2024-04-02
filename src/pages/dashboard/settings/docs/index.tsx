@@ -72,7 +72,7 @@ function DocsConfig() {
         }
     })
 
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
     const {trigger: triggerMPHeader} = useRequestQueryMutation("/MP/header");
 
@@ -197,6 +197,11 @@ function DocsConfig() {
 
         }
     }, [httpData, setFieldValue])
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -600,8 +605,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

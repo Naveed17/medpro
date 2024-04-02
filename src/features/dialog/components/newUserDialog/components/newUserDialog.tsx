@@ -4,8 +4,9 @@ import DialogStyled from './overrides/dialogStyle'
 import {Stepper, stepperSelector, setStepperIndex} from '@features/stepper'
 import {useAppDispatch, useAppSelector} from '@lib/redux/hooks';
 import CloseIcon from "@mui/icons-material/Close";
-import Step1 from './step1';
-import Step2 from './step2';
+import InfoStep from './infoStep';
+import AuthorizationStep from './authorizationStep';
+import AssignmentStep from "./assignmentStep";
 import {DefaultCountry} from '@lib/constants';
 import {Session} from 'next-auth';
 import {useSession} from 'next-auth/react';
@@ -20,49 +21,50 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from '@lib/hooks';
 import {useSnackbar} from 'notistack';
 import {useRequestQueryMutation} from '@lib/axios';
 import {useRouter} from 'next/router';
-
-const stepperData = [
-    {
-        title: "dialog.user"
-    },
-    {
-        title: "dialog.role_permissions"
-    },
-    {
-        title: "dialog.end"
-    }
-];
+import {useTranslation} from "next-i18next";
+import {LoadingScreen} from "@features/loadingScreen";
+import _ from "lodash";
 
 function NewUserDialog({...props}) {
-    const {t, profiles, onNextPreviStep, onClose} = props
+    const {profiles, onNextPreviStep, onClose, type = "authorization"} = props
     const {contacts} = useContactType();
     const router = useRouter();
     const {data: session} = useSession();
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {cashboxes} = useCashBox();
+    const {cashboxes} = useCashBox(type === "authorization");
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
 
+    const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
     const {agendas} = useAppSelector(agendaSelector);
     const {currentStep} = useAppSelector(stepperSelector);
 
     const [openFeatureCollapse, setFeatureCollapse] = useState(false);
     const [loading, setLoading] = useState(false);
-
+    const [stepperData] = useState([
+        {
+            title: "dialog.info"
+        },
+        {
+            title: `dialog.${type === "authorization" ? "role_permissions" : "role_assignments"}`
+        },
+        {
+            title: "dialog.end"
+        }
+    ]);
     const {data: userSession} = session as Session;
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const features = (userSession as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
-    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("users/profile/add");
 
-    const initFormData = () => {
+    const initRoleData = () => {
         const featuresInit: any = {};
         features?.map((feature: any) => {
             Object.assign(featuresInit, {
-                [feature.slug]: feature?.hasProfile ? (feature.slug === "agenda" ? agendas : cashboxes).map(featureEntity => ({
+                [feature.slug]: feature?.hasProfile ? (["agenda", "consultation"].includes(feature.slug) ? agendas : cashboxes).map(featureEntity => ({
                     ...feature,
                     featureEntity: {
                         ...featureEntity,
@@ -88,7 +90,7 @@ function NewUserDialog({...props}) {
         form.append('is_public', "true");
         form.append('is_default', "true");
         form.append('firstname', values.first_name);
-        values.selectedRole.length > 0 && form.append('profile', values.selectedRole);
+        form.append('lastname', values.last_name);
         values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
             code: phoneData.dial?.phone,
             value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
@@ -98,6 +100,44 @@ function NewUserDialog({...props}) {
             is_support: false
         }))));
         form.append('password', values.password);
+
+        if (type === "authorization") {
+            const features: any = {};
+            Object.entries(values.roles).forEach((role: any) => {
+                const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
+                    const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                        [...(permissions ?? []),
+                            ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+                    return [
+                        ...(features ?? []),
+                        ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
+                }, []).length > 0;
+
+                if (hasFeaturePermissions) {
+                    features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
+                        const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                            [...(permissions ?? []),
+                                ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+
+                        const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (permissions.length ?? 0) > 0) : (permissions.length ?? 0) > 0;
+                        return [
+                            ...(features ?? []),
+                            ...(hasPermissions ? [{
+                                object: feature?.featureEntity?.uuid,
+                                featureProfile: feature?.profile,
+                                permissions: permissions.map((permission: PermissionModel) => permission.uuid)
+                            }] : [])
+                        ];
+                    }, [])
+                }
+            });
+            form.append("features", JSON.stringify(features));
+        } else {
+            values.department.length > 0 && form.append('department', _.map(values.department, "uuid").join(","));
+            form.append('type', values.selectedRole);
+            form.append('assigned', _.map(values.assigned_doctors, "uuid").join(","));
+        }
+
         triggerUserAdd({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
@@ -116,63 +156,14 @@ function NewUserDialog({...props}) {
         });
     }
 
-    const handleCreateProfile = () => {
-        setLoading(true);
-        const form = new FormData();
-        const features: any = {};
-
-        form.append("name", values.role_name);
-        Object.entries(values.roles).forEach((role: any) => {
-            const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
-                const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
-                    [...(permissions ?? []),
-                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
-                return [
-                    ...(features ?? []),
-                    ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
-            }, []).length > 0;
-
-            if (hasFeaturePermissions) {
-                features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
-                    const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
-                        [...(permissions ?? []),
-                            ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
-
-                    const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (permissions.length ?? 0) > 0) : (permissions.length ?? 0) > 0;
-                    return [
-                        ...(features ?? []),
-                        ...(hasPermissions ? [{
-                            object: feature?.featureEntity?.uuid,
-                            featureProfile: feature?.profile,
-                            permissions: permissions.map((permission: PermissionModel) => permission.uuid)
-                        }] : [])
-                    ];
-                }, [])
-            }
-        });
-
-        form.append("features", JSON.stringify(features));
-
-        triggerProfileUpdate({
-            method: "POST",
-            url: `${urlMedicalEntitySuffix}/profile/${router.locale}`,
-            data: form
-        }, {
-            onSuccess: () => {
-                enqueueSnackbar(t("created-role"), {variant: "success"});
-                invalidateQueries([`${urlMedicalEntitySuffix}/profile/${router.locale}`]);
-                setFeatureCollapse(false);
-            },
-            onSettled: () => setLoading(false)
-        });
-    }
-
     const validationSchema = [
         Yup.object().shape({
             name: Yup.string().min(3).max(50).required(),
             email: Yup.string().email().required(),
             first_name: Yup.string().required(),
             password: Yup.string().required(),
+            generatePassword: Yup.boolean().required(),
+            resetPassword: Yup.boolean().required(),
             phones: Yup.array().of(
                 Yup.object().shape({
                     dial: Yup.object().shape({
@@ -197,54 +188,62 @@ function NewUserDialog({...props}) {
             } : {})
         }),
         Yup.object().shape({
-            selectedRole: Yup.string().when("$condition", (condition, schema) =>
-                openFeatureCollapse ? schema : schema.required()
-            ),
-            role_name: Yup.string().when("$condition", (condition, schema) =>
-                !openFeatureCollapse ? schema : schema.required()
-            ),
-            roles: Yup.object().shape(
-                features?.reduce((features: any, feature: any) => ({
-                    ...(features ?? {}), ...{
-                        [feature.slug]: Yup.array().of(Yup.object().shape({
-                            name: Yup.string(),
-                            hasProfile: Yup.boolean(),
-                            featureEntity: Yup.object().shape({
+            ...(type === "authorization" ? {
+                roles: Yup.object().shape(
+                    features?.reduce((features: any, feature: any) => ({
+                        ...(features ?? {}), ...{
+                            [feature.slug]: Yup.array().of(Yup.object().shape({
                                 name: Yup.string(),
-                                uuid: Yup.string()
-                            }),
-                            uuid: Yup.string(),
-                            slug: Yup.string(),
-                            root: Yup.string(),
-                            permissions: Yup.array().of(
-                                Yup.object().shape({
+                                hasProfile: Yup.boolean(),
+                                featureEntity: Yup.object().shape({
                                     name: Yup.string(),
                                     uuid: Yup.string()
-                                })
-                            )
-                        }))
-                    }
-                }), {})
-            )
+                                }),
+                                uuid: Yup.string(),
+                                slug: Yup.string(),
+                                root: Yup.string(),
+                                permissions: Yup.array().of(
+                                    Yup.object().shape({
+                                        name: Yup.string(),
+                                        uuid: Yup.string()
+                                    })
+                                )
+                            }))
+                        }
+                    }), {})
+                )
+            } : {
+                selectedRole: Yup.string().required(),
+                department: Yup.array().of(Yup.object().shape({
+                    uuid: Yup.string()
+                })),
+                assigned_doctors: Yup.array().of(Yup.object().shape({
+                    uuid: Yup.string()
+                })).min(1).required().required()
+            })
         })
     ];
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             name: '',
             first_name: '',
+            last_name: '',
             phones: [
                 {
                     phone: "", dial: doctor_country
                 }
             ],
             email: '',
-            selectedRole: "",
-            roles: initFormData(),
-            role_name: '',
+            selectedRole: 'secretary',
+            generatePassword: false,
+            resetPassword: true,
+            ...(type === "authorization" && {roles: initRoleData()}),
+            department: [],
+            assigned_doctors: [],
             password: '',
-            confirm_password: '',
-
+            confirm_password: ''
         },
         onSubmit: () => {
             if (currentStep === stepperData.length - 1) {
@@ -252,19 +251,18 @@ function NewUserDialog({...props}) {
                 return;
             }
             if (currentStep === stepperData.length - 2) {
-                if (openFeatureCollapse) {
-                    handleCreateProfile();
-                } else {
-                    handleCreateUser();
-                }
+                handleCreateUser();
             } else {
                 dispatch(setStepperIndex(currentStep + 1))
             }
         },
         validationSchema: validationSchema[currentStep]
     });
-    const {handleSubmit, errors, values} = formik
-    console.log(errors, values);
+
+    const {handleSubmit, values} = formik
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <DialogStyled>
             <DialogTitle bgcolor="primary.main" component={Stack} direction='row' justifyContent='space-between'>
@@ -277,9 +275,8 @@ function NewUserDialog({...props}) {
             </DialogTitle>
             <Box px={{xs: 0, sm: 2}} py={3} bgcolor="background.default">
                 <Stepper
-                    {...{stepperData}}
+                    {...{t, stepperData}}
                     tabIndex={currentStep}
-                    t={t}
                     minWidth={660}
                     padding={0}
                 />
@@ -288,9 +285,20 @@ function NewUserDialog({...props}) {
             <FormikProvider value={formik}>
                 <Form noValidate onSubmit={handleSubmit}>
                     <Box px={{xs: 2, sm: 4}} py={2}>
-                        {currentStep === 0 && <Step1 {...{formik, t, doctor_country}} />}
+                        {currentStep === 0 && <InfoStep {...{formik, t, doctor_country}} />}
                         {currentStep === 1 &&
-                            <Step2 {...{formik, t, profiles, openFeatureCollapse, setFeatureCollapse}} />}
+                            (type === 'authorization' ?
+                                    <AuthorizationStep {...{
+                                        formik,
+                                        t,
+                                        profiles,
+                                        openFeatureCollapse,
+                                        setFeatureCollapse
+                                    }} />
+                                    :
+                                    <AssignmentStep {...{formik, t}} />
+                            )
+                        }
                         {currentStep === 2 &&
                             <Stack alignItems='center' sx={{'.MuiTypography-root': {textAlign: 'center'}}}>
                                 <SuccessCard
@@ -304,11 +312,7 @@ function NewUserDialog({...props}) {
                     <DialogActions className='dialog-action'>
                         <Button
                             onClick={() => {
-                                if (openFeatureCollapse) {
-                                    setFeatureCollapse(false);
-                                } else {
-                                    onNextPreviStep();
-                                }
+                                onNextPreviStep();
                             }}
                             variant='text-black'>
                             {t(`dialog.${currentStep > 0 ? 'back' : 'cancel'}`)}

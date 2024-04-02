@@ -23,7 +23,7 @@ const RootStyled = styled(Stack)(({theme}) => ({
         borderRadius: "50%",
     },
     "& .react-svg": {
-        marginRight: "5px",
+       // marginRight: "5px",
     },
     "& .date-birth": {
         display: "flex",

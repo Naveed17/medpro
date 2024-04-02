@@ -56,7 +56,7 @@ function TemplatesConfig() {
     const theme = useTheme();
     const { enqueueSnackbar } = useSnackbar();
 
-    const { t, ready } = useTranslation(["settings", "common"], {
+    const { t, ready, i18n } = useTranslation(["settings", "common"], {
         keyPrefix: "documents.config",
     });
     const { t: tConsultation } = useTranslation("consultation");
@@ -299,6 +299,13 @@ function TemplatesConfig() {
         setModel(null);
         setOpenDialog(true);
     }
+
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return <LoadingScreen button text={"loading-error"} />;
 
     return (
@@ -380,6 +387,7 @@ function TemplatesConfig() {
                                 <Stack key={res.uuid} spacing={2}>
                                     <Box className={"container"}>
                                         <div
+                                            style={{ width: '100%' }}
                                             onMouseOver={() => {
                                                 handleMouseOver(res.uuid);
                                             }}
@@ -417,10 +425,11 @@ function TemplatesConfig() {
                                                     }}>
                                                     <IconButton
                                                         size="small"
+                                                        className="btn-edit"
                                                         onClick={() => {
                                                             edit(res);
                                                         }}>
-                                                        <IconUrl color={theme.palette.primary.main}
+                                                        <IconUrl color={theme.palette.text.secondary}
                                                             path="ic-edit-patient" />
                                                     </IconButton>
                                                 </Stack>
@@ -534,6 +543,7 @@ function TemplatesConfig() {
                                         <Stack direction="column" key={res.uuid} spacing={2}>
                                             <Box className={"container"}>
                                                 <div
+                                                    style={{ width: '100%' }}
                                                     onMouseOver={() => {
                                                         handleMouseOver(res.uuid);
                                                     }}
@@ -573,7 +583,7 @@ function TemplatesConfig() {
                                                                 setTimeout(() => setOpen(true));
                                                             }}>
                                                             <IconUrl width={20} height={20}
-                                                                color={theme.palette.primary.main}
+                                                                color={theme.palette.text.secondary}
                                                                 path="ic-open-eye" />
                                                         </IconButton>
                                                         <Can I={"manage"} a={"settings"}
@@ -583,7 +593,7 @@ function TemplatesConfig() {
                                                                 onClick={() => {
                                                                     handleEditDoc(res);
                                                                 }}>
-                                                                <IconUrl color={theme.palette.primary.main}
+                                                                <IconUrl color={theme.palette.text.secondary}
                                                                     path="ic-edit-patient" />
                                                             </IconButton>
                                                         </Can>
@@ -600,7 +610,7 @@ function TemplatesConfig() {
                                                                 onClick={() => {
                                                                     removeDoc(res);
                                                                 }}>
-                                                                <IconUrl color={theme.palette.error.main}
+                                                                <IconUrl color={theme.palette.text.secondary}
                                                                     path="ic-trash" />
                                                             </IconButton>
                                                         </Can>
@@ -663,6 +673,7 @@ function TemplatesConfig() {
                                             <Stack key={res.uuid} spacing={2}>
                                                 <Box className={"container"}>
                                                     <div
+                                                        style={{ width: '100%' }}
                                                         onMouseOver={() => {
                                                             handleMouseOver(res.uuid);
                                                         }}
@@ -836,6 +847,7 @@ function TemplatesConfig() {
                                             <Stack key={card.uuid} spacing={2}>
                                                 <Box className={"container"}>
                                                     <div
+                                                        style={{ width: '100%' }}
                                                         onMouseOver={() => {
                                                             handleMouseOver(card.uuid);
                                                         }}
@@ -902,7 +914,7 @@ function TemplatesConfig() {
                                                                     setTimeout(() => setOpen(true));
                                                                 }}>
                                                                 <IconUrl width={20} height={20}
-                                                                    color={theme.palette.primary.main}
+                                                                    color={theme.palette.text.secondary}
                                                                     path="ic-open-eye" />
                                                             </IconButton>
 
@@ -933,7 +945,7 @@ function TemplatesConfig() {
                                                                         setInfo(getPrescriptionUI());
                                                                         setOpenDialog(true);
                                                                     }}>
-                                                                    <IconUrl color={theme.palette.primary.main}
+                                                                    <IconUrl color={theme.palette.text.secondary}
                                                                         path="ic-edit-patient" />
                                                                 </IconButton>
                                                             </Can>
@@ -950,7 +962,7 @@ function TemplatesConfig() {
                                                                     onClick={() => {
                                                                         removePrescription(card.uuid);
                                                                     }}>
-                                                                    <IconUrl color={theme.palette.error.main}
+                                                                    <IconUrl color={theme.palette.text.secondary}
                                                                         path="ic-trash" />
                                                                 </IconButton>
                                                             </Can>
@@ -1040,6 +1052,7 @@ function TemplatesConfig() {
                                     <Stack key={card.uuid} spacing={2}>
                                         <Box className={"container"}>
                                             <div
+                                                style={{ width: '100%' }}
                                                 onMouseOver={() => {
                                                     handleMouseOver(card.uuid);
                                                 }}
@@ -1081,7 +1094,8 @@ function TemplatesConfig() {
                                                             setAction("showAnalyses");
                                                         }}>
                                                         <IconUrl width={20} height={20}
-                                                            color={theme.palette.primary.main} path="ic-open-eye" />
+                                                            color={theme.palette.text.secondary}
+                                                            path="ic-open-eye" />
                                                     </IconButton>
                                                     <Can I={"manage"} a={"settings"}
                                                         field={"settings__templates__analyses__update"}>
@@ -1099,7 +1113,7 @@ function TemplatesConfig() {
                                                                 setInfo("balance_sheet_request");
                                                                 setOpenDialog(true);
                                                             }}>
-                                                            <IconUrl color={theme.palette.primary.main}
+                                                            <IconUrl color={theme.palette.text.secondary}
                                                                 path="ic-edit-patient" />
                                                         </IconButton>
                                                     </Can>
@@ -1116,7 +1130,8 @@ function TemplatesConfig() {
                                                             onClick={() => {
                                                                 removeAnalyses(card.uuid);
                                                             }}>
-                                                            <IconUrl color={theme.palette.error.main} path="ic-trash" />
+                                                            <IconUrl color={theme.palette.text.secondary}
+                                                                path="ic-trash" />
                                                         </IconButton>
                                                     </Can>
                                                 </Stack>
@@ -1302,8 +1317,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "consultation",
-            "settings",
+            "settings"
         ])),
     },
 });

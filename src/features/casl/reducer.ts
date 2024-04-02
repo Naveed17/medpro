@@ -12,8 +12,7 @@ const initialState: user = {
 };
 
 export const CaslReducer = createReducer(initialState, builder => {
-    builder
-        .addCase(setPermissions, (state, action: any) => {
-            state.permissions = {...state.permissions, ...action.payload}
-        });
+    builder.addCase(setPermissions, (state, action: any) => {
+        state.permissions = {...state.permissions, ...action.payload}
+    });
 });

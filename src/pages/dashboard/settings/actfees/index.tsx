@@ -1,9 +1,9 @@
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
-import { configSelector, DashLayout, dashLayoutSelector, setOngoing, } from "@features/base";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useCallback, useEffect, useState} from "react";
+import {configSelector, DashLayout, dashLayoutSelector, setOngoing,} from "@features/base";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 import {
     Box,
     Button,
@@ -28,29 +28,29 @@ import {
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
-import { RootStyled } from "@features/toolbar";
-import { SubHeader } from "@features/subHeader";
-import { Otable } from "@features/table";
-import { useSnackbar } from "notistack";
+import {useTranslation} from "next-i18next";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {RootStyled} from "@features/toolbar";
+import {SubHeader} from "@features/subHeader";
+import {Otable} from "@features/table";
+import {useSnackbar} from "notistack";
 
-import { LoadingScreen } from "@features/loadingScreen";
+import {LoadingScreen} from "@features/loadingScreen";
 
-import { DefaultCountry } from "@lib/constants";
-import { ActFeesMobileCard } from "@features/card";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { MobileContainer } from "@themes/mobileContainer";
-import { LoadingButton } from "@mui/lab";
+import {DefaultCountry} from "@lib/constants";
+import {ActFeesMobileCard} from "@features/card";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
-import { useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix, } from "@lib/hooks";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
-import { ActionMenu } from "@features/menu";
-import { Dialog as MedDialog } from "@features/dialog";
-import { setStepperIndex, stepperSelector } from "@features/stepper";
+import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix,} from "@lib/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {ActionMenu} from "@features/menu";
+import {Dialog as MedDialog} from "@features/dialog";
+import {setStepperIndex, stepperSelector} from "@features/stepper";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -111,22 +111,22 @@ const stepperData = [
 ];
 
 function ActFees() {
-    const { data: session } = useSession();
-    const { data: user } = session as Session;
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
     const router = useRouter();
     const theme = useTheme();
 
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("sm")
     );
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { medical_professional } = useMedicalProfessionalSuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medical_professional} = useMedicalProfessionalSuffix();
     const dispatch = useAppDispatch();
-    const { trigger: invalidateQueries } = useInvalidateQueries();
-    const { currentStep } = useAppSelector(stepperSelector);
-    const { t, ready } = useTranslation("settings", { keyPrefix: "actfees" });
-    const { medicalProfessionalData } = useAppSelector(dashLayoutSelector);
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {currentStep} = useAppSelector(stepperSelector);
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "actfees"});
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -143,7 +143,7 @@ function ActFees() {
         fees: string;
         code: string;
         contribution: string;
-    }>({ act: null, fees: "", code: "", contribution: "" });
+    }>({act: null, fees: "", code: "", contribution: ""});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -156,30 +156,30 @@ function ActFees() {
         ? medical_entity.country
         : DefaultCountry;
     const devise = doctor_country.currency?.name;
-    const { direction } = useAppSelector(configSelector);
-    const { trigger: triggerActUpdate } = useRequestQueryMutation(
+    const {direction} = useAppSelector(configSelector);
+    const {trigger: triggerActUpdate} = useRequestQueryMutation(
         "/settings/acts/update"
     );
-    const { trigger: triggerActDelete } = useRequestQueryMutation(
+    const {trigger: triggerActDelete} = useRequestQueryMutation(
         "/settings/acts/delete"
     );
-    const { trigger: triggerAddAct } =
+    const {trigger: triggerAddAct} =
         useRequestQueryMutation("/settings/acts/add");
 
-    const { data: httpActSpeciality } = useRequestQuery(
+    const {data: httpActSpeciality} = useRequestQuery(
         medical_professional
             ? {
                 method: "GET",
                 url: `/api/public/acts/${router.locale}`,
                 params: {
                     ["specialities[0]"]:
-                        medical_professional.specialities[0].speciality.uuid,
+                    medical_professional.specialities[0].speciality.uuid,
                 },
             }
             : null
     );
 
-    const { data: httpProfessionalsActs, mutate: mutateActs } = useRequestQuery(
+    const {data: httpProfessionalsActs, mutate: mutateActs} = useRequestQuery(
         medical_professional
             ? {
                 method: "GET",
@@ -224,13 +224,18 @@ function ActFees() {
         }
     }, [httpProfessionalsActs]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['settings']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     const handleCreate = () => {
         setCreate(true);
     };
 
     const handleRemove = () => {
         setCreate(false);
-        setNewFees({ act: null, fees: "", code: "", contribution: "" });
+        setNewFees({act: null, fees: "", code: "", contribution: ""});
     };
 
     const editFees = () => {
@@ -244,7 +249,7 @@ function ActFees() {
             },
             {
                 onSuccess: () =>
-                    enqueueSnackbar(t("alert.updated"), { variant: "success" }),
+                    enqueueSnackbar(t("alert.updated"), {variant: "success"}),
             }
         );
     };
@@ -260,7 +265,7 @@ function ActFees() {
                 onSuccess: () => {
                     mutateActs().then(() => {
                         setOpen(false);
-                        enqueueSnackbar(t("alert.delete-act"), { variant: "success" });
+                        enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
                         mutateMedicalProfessionalData();
                     });
                 },
@@ -282,12 +287,12 @@ function ActFees() {
             const form = new FormData();
             form.append(
                 "name",
-                JSON.stringify({ [router.locale as string]: newFees.act })
+                JSON.stringify({[router.locale as string]: newFees.act})
             );
             form.append("price", `${newFees.fees}`);
             newFees.code.length > 0 && form.append("code", `${newFees.code}`);
             newFees.contribution.length > 0 &&
-                form.append("contribution", `${newFees.contribution}`);
+            form.append("contribution", `${newFees.contribution}`);
 
             triggerAddAct(
                 {
@@ -300,8 +305,8 @@ function ActFees() {
                         setLoading(false);
                         mutateActs().then(() => {
                             setCreate(false);
-                            setNewFees({ act: null, fees: "", code: "", contribution: "" });
-                            enqueueSnackbar(t("alert.add"), { variant: "success" });
+                            setNewFees({act: null, fees: "", code: "", contribution: ""});
+                            enqueueSnackbar(t("alert.add"), {variant: "success"});
                         });
                     },
                 }
@@ -366,11 +371,11 @@ function ActFees() {
                 onSuccess: () => {
                     setLoading(false);
                     mutateActs().then(() => {
-                        enqueueSnackbar(t("alert.updated"), { variant: "success" });
+                        enqueueSnackbar(t("alert.updated"), {variant: "success"});
                         mutateMedicalProfessionalData();
                         if (typeof newFees.act !== "string") {
                             setCreate(false);
-                            setNewFees({ act: null, fees: "", code: "", contribution: "" });
+                            setNewFees({act: null, fees: "", code: "", contribution: ""});
                         }
                     });
                 },
@@ -394,10 +399,10 @@ function ActFees() {
         }
     };
     const handleTableActions = ({
-        action,
-        event,
-        row,
-    }: {
+                                    action,
+                                    event,
+                                    row,
+                                }: {
         action: string;
         event: any;
         row: any;
@@ -454,18 +459,18 @@ function ActFees() {
     }, [httpProfessionalsActs, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
-    if (!ready) return <LoadingScreen button text={"loading-error"} />;
+    if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{ margin: 0 }}>{t("path")}</p>
+                    <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
                 {!create && isMobile && (
                     <Button
                         variant="contained"
-                        startIcon={<AddIcon />}
+                        startIcon={<AddIcon/>}
                         onClick={() => handleCreate()}
                     >
                         {t("add_a_new_act")}
@@ -477,7 +482,7 @@ function ActFees() {
                         {!create && (
                             <Button
                                 variant="contained"
-                                startIcon={<AddIcon />}
+                                startIcon={<AddIcon/>}
                                 onClick={() => handleCreate()}
                             >
                                 {t("add_a_new_act")}
@@ -511,7 +516,7 @@ function ActFees() {
                 )}
             </SubHeader>
 
-            <Card style={{ margin: 20, marginBottom: 0, paddingLeft: 10 }}>
+            <Card style={{margin: 20, marginBottom: 0, paddingLeft: 10}}>
                 <FormControlLabel
                     label={t("betav")}
                     sx={{
@@ -533,9 +538,9 @@ function ActFees() {
                                         onSuccess: () => {
                                             enqueueSnackbar(
                                                 t(isChecked ? "alert.demodisabled" : "alert.demo"),
-                                                { variant: "success" }
+                                                {variant: "success"}
                                             );
-                                            dispatch(setOngoing({ newCashBox: !isChecked }));
+                                            dispatch(setOngoing({newCashBox: !isChecked}));
                                             localStorage.setItem(
                                                 "newCashbox",
                                                 !isChecked ? "1" : "0"
@@ -587,11 +592,11 @@ function ActFees() {
             )}
             <Box
                 sx={{
-                    p: { xs: "40px 8px", sm: "30px 8px", md: 2 },
-                    table: { tableLayout: "fixed" },
+                    p: {xs: "40px 8px", sm: "30px 8px", md: 2},
+                    table: {tableLayout: "fixed"},
                 }}
             >
-                <Paper sx={{ p: 2, table: { tableLayout: "auto" } }}>
+                <Paper sx={{p: 2, table: {tableLayout: "auto"}}}>
                     <Stack
                         direction="row"
                         alignItems="center"
@@ -620,7 +625,7 @@ function ActFees() {
                             from={"actfees"}
                             edit={handleEdit}
                             handleEvent={handleTableActions}
-                            {...{ t, loading, handleSelected }}
+                            {...{t, loading, handleSelected}}
                             total={(httpProfessionalsActs as HttpResponse)?.data?.total}
                             totalPages={
                                 (httpProfessionalsActs as HttpResponse)?.data?.totalPages
@@ -666,18 +671,18 @@ function ActFees() {
                 >
                     {t("dialog.delete-act-title")}
                 </DialogTitle>
-                <DialogContent style={{ paddingTop: 20 }}>
+                <DialogContent style={{paddingTop: 20}}>
                     <Typography>{t("dialog.delete-act-desc")}</Typography>
                 </DialogContent>
                 <DialogActions
-                    sx={{ borderTop: 1, borderColor: "divider", px: 1, py: 2 }}
+                    sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}
                 >
                     <Stack direction="row" spacing={1}>
                         <Button
                             onClick={() => {
                                 setOpen(false);
                             }}
-                            startIcon={<CloseIcon />}
+                            startIcon={<CloseIcon/>}
                         >
                             {t("dialog.cancel")}
                         </Button>
@@ -686,14 +691,14 @@ function ActFees() {
                             loading={loading}
                             color="error"
                             onClick={() => removeFees(selected?.uuid as any)}
-                            startIcon={<Icon path="setting/icdelete" color="white" />}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}
                         >
                             {t("dialog.delete")}
                         </LoadingButton>
                     </Stack>
                 </DialogActions>
             </Dialog>
-            <ActionMenu {...{ contextMenu, handleClose: handleCloseMenu }}>
+            <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
                 {popoverChildData ? (
                     <MenuItem>
                         <Typography color="common.white">Child Data</Typography>
@@ -707,9 +712,9 @@ function ActFees() {
             <MedDialog
                 action={"agreement"}
                 open={openAgreementDialog}
-                data={{ t, devise, stepperData, collapse }}
+                data={{t, devise, stepperData, collapse}}
                 direction={direction}
-                sx={{ bgcolor: theme.palette.background.default }}
+                sx={{bgcolor: theme.palette.background.default}}
                 dialogClose={() => {
                     setAgreementDialog(false);
                     setCollapse(false);
@@ -744,14 +749,14 @@ function ActFees() {
                                     >
                                         <CloseIcon
                                             fontSize="small"
-                                            sx={{ color: "common.white" }}
+                                            sx={{color: "common.white"}}
                                         />
                                     </IconButton>
                                 ) : (
                                     <FormControlLabel
                                         sx={{
                                             mr: 0,
-                                            ".MuiTypography-root": { color: "common.white" },
+                                            ".MuiTypography-root": {color: "common.white"},
                                         }}
                                         control={
                                             <Switch
@@ -782,7 +787,7 @@ function ActFees() {
                         justifyContent="space-between"
                         position="relative"
                         {...(stepperData.length - 1 === currentStep && {
-                            pb: { xs: 6, sm: 0 },
+                            pb: {xs: 6, sm: 0},
                         })}
                     >
                         <Button
@@ -809,7 +814,7 @@ function ActFees() {
                                 {...(stepperData.length - 1 === currentStep && {
                                     variant: "outlined",
                                     color: "info",
-                                    sx: { bgcolor: theme.palette.grey["A500"] },
+                                    sx: {bgcolor: theme.palette.grey["A500"]},
                                 })}
                             >
                                 {t("dialog.next")}
@@ -823,10 +828,10 @@ function ActFees() {
                                     }}
                                     variant="contained"
                                     sx={{
-                                        position: { xs: "absolute", sm: "static" },
-                                        width: { xs: "100%", sm: "auto" },
-                                        left: { xs: -8, sm: "unset" },
-                                        bottom: { xs: 0, sm: "unset" },
+                                        position: {xs: "absolute", sm: "static"},
+                                        width: {xs: "100%", sm: "auto"},
+                                        left: {xs: -8, sm: "unset"},
+                                        bottom: {xs: 0, sm: "unset"},
                                     }}
                                 >
                                     {t("dialog.confirm_save")}
@@ -841,7 +846,7 @@ function ActFees() {
                 title={t("dialog.create_act")}
                 size={"sm"}
                 open={create}
-                data={{ acts, theme, t, isMobile, newFees, setNewFees, filter, devise }}
+                data={{acts, theme, t, isMobile, newFees, setNewFees, filter, devise}}
                 direction={direction}
                 onClose={() => {
                     setCreate(false);
@@ -857,7 +862,7 @@ function ActFees() {
                         width={1}
                     >
                         <Button
-                            startIcon={<CloseIcon />}
+                            startIcon={<CloseIcon/>}
                             variant="text-black"
                             onClick={() => {
                                 handleRemove();
@@ -866,8 +871,8 @@ function ActFees() {
                             {t("cancel")}
                         </Button>
                         <LoadingButton
-                            startIcon={<AddIcon />}
-                            {...{ loading }}
+                            startIcon={<AddIcon/>}
+                            {...{loading}}
                             disabled={newFees.act === null || newFees.fees.length === 0}
                             variant="contained"
                             onClick={() => {
@@ -903,7 +908,7 @@ function ActFees() {
                         {t("dialog.confirm_dialog_title")}
                     </Typography>
                     <IconButton size="small" onClick={() => setConfirmDialog(false)}>
-                        <CloseIcon fontSize="small" />
+                        <CloseIcon fontSize="small"/>
                     </IconButton>
                 </DialogTitle>
                 <DialogContent>
@@ -926,7 +931,6 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
             "settings",
         ])),
     },

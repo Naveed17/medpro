@@ -115,7 +115,7 @@ export default function Table(theme) {
               span: {
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
               },
               div: {
                 float: "right",

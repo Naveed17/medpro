@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 // utils
 import Icon from "@themes/icon";
-import Link from "@themes/Link";
+import Link from "next/link";
 // material-ui
 import {
     Avatar,
@@ -38,7 +38,7 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 import {WarningTooltip} from "./warningTooltip";
-import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries, isAppleDevise, isSupported} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
 import CloseIcon from "@mui/icons-material/Close";
@@ -98,6 +98,8 @@ function TopNavBar({...props}) {
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
     const settingHas = router.pathname.includes("settings/");
+    const hasAdminAccess = router.pathname.includes("/admin");
+
     const open = Boolean(anchorEl);
     const id = open ? "simple-popover" : undefined;
 
@@ -161,8 +163,28 @@ function TopNavBar({...props}) {
         });
     }
 
+    const handleResetConsultation = () => {
+        setLoadingReq(true);
+        const form = new FormData();
+        form.append("status", "11");
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: form,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/status/${router.locale}`
+        }, {
+            onSuccess: () => {
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
+                refreshAgendaData();
+            },
+            onSettled: () => setLoadingReq(false)
+        });
+
+    }
+
     const handlePauseStartConsultation = () => {
-        setLoadingReq(true)
+        setLoadingReq(true);
         const form = new FormData();
         form.append('status', '8');
         updateAppointmentStatus({
@@ -235,7 +257,7 @@ function TopNavBar({...props}) {
     }
 
     const requestNotificationPermission = () => {
-        Notification?.requestPermission().then((permission) => {
+        !isAppleDevise() && isSupported() && Notification?.requestPermission().then((permission) => {
             console.log("requestPermission", permission);
             // If the user accepts, let's create a notification
             if (permission === "granted") {
@@ -369,14 +391,15 @@ function TopNavBar({...props}) {
                                     <Icon path="ic-toggle"/>
                                 </IconButton>
                             ) :
-                            (!router.pathname.includes("/statistics") && <IconButton
-                                disabled={lock}
-                                color="primary"
-                                edge="start"
-                                className="btn"
-                                onClick={() => dispatch(toggleSideBar(opened))}>
-                                <Icon path="ic-toggle"/>
-                            </IconButton>)
+                            (!["/dashboard/statistics", "/admin/doctors/[uuid]", "/admin/staff/[uuid]"].includes(router.pathname) &&
+                                <IconButton
+                                    disabled={lock}
+                                    color="primary"
+                                    edge="start"
+                                    className="btn"
+                                    onClick={() => dispatch(toggleSideBar(opened))}>
+                                    <Icon path="ic-toggle"/>
+                                </IconButton>)
                         }
 
                         <Hidden mdDown>
@@ -414,98 +437,100 @@ function TopNavBar({...props}) {
                                         <IconUrl path={"ic-notification-off"} width={25} height={25} color={"black"}/>
                                     </Avatar>
                                 </WarningTooltip>}
-                            {next &&
-                                <LoadingButton
-                                    {...{loading}}
-                                    disableRipple
-                                    color={"black"}
-                                    onClick={() => {
-                                        if (isActive || roles.includes('ROLE_SECRETARY')) {
-                                            setPatientId(next.patient_uuid);
-                                            setPatientDetailDrawer(true);
-                                        } else {
-                                            handleStartConsultation(next);
-                                        }
-                                    }}
-                                    sx={{
-                                        scale: "0.96",
-                                        mr: isActive ? 0 : 1,
-                                        p: "6px 12px",
-                                        backgroundColor: (theme) => theme.palette.info.lighter,
-                                        '&:hover': {
+                            {!hasAdminAccess && <Box>
+                                {next &&
+                                    <LoadingButton
+                                        {...{loading}}
+                                        disableRipple
+                                        color={"black"}
+                                        onClick={() => {
+                                            if (isActive || roles.includes('ROLE_SECRETARY')) {
+                                                setPatientId(next.patient_uuid);
+                                                setPatientDetailDrawer(true);
+                                            } else {
+                                                handleStartConsultation(next);
+                                            }
+                                        }}
+                                        sx={{
+                                            scale: "0.96",
+                                            mr: isActive ? 0 : 1,
+                                            p: "6px 12px",
                                             backgroundColor: (theme) => theme.palette.info.lighter,
-                                        }
-                                    }}
-                                    loadingPosition={"start"}
-                                    startIcon={<Badge
-                                        overlap="circular"
-                                        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                        badgeContent={
-                                            <Avatar alt="Small avatar" sx={{
-                                                pt: .2,
-                                                width: 16,
-                                                height: 16,
-                                                borderRadius: 20,
-                                                border: `2px solid ${theme.palette.background.paper}`
-                                            }}>
-                                                <IconUrl width={14} height={16} path={"ic-next"}/>
-                                            </Avatar>
-                                        }>
-                                        <Avatar
-                                            sx={{
-                                                width: 30,
-                                                height: 30,
-                                                borderRadius: 20,
-                                                border: `2px solid ${theme.palette.background.paper}`
-                                            }} variant={"circular"}
-                                            src={`/static/icons/men-avatar.svg`}/>
-                                    </Badge>}
-                                    variant={"contained"}>
-                                    <Stack direction={"row"} alignItems={"center"}>
-                                        {next.patient}
-                                        <Avatar
-                                            alt="Small avatar"
-                                            variant={"square"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                resetNextConsultation(next.uuid);
-                                            }}
-                                            sx={{
-                                                ml: 1,
-                                                background: "#FFF",
-                                                width: 30,
-                                                height: 30,
-                                                border: `1px solid ${theme.palette.grey["A900"]}`
-                                            }}>
-                                            <CloseRoundedIcon
+                                            '&:hover': {
+                                                backgroundColor: (theme) => theme.palette.info.lighter,
+                                            }
+                                        }}
+                                        loadingPosition={"start"}
+                                        startIcon={<Badge
+                                            overlap="circular"
+                                            anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                            badgeContent={
+                                                <Avatar alt="Small avatar" sx={{
+                                                    pt: .2,
+                                                    width: 16,
+                                                    height: 16,
+                                                    borderRadius: 20,
+                                                    border: `2px solid ${theme.palette.background.paper}`
+                                                }}>
+                                                    <IconUrl width={14} height={16} path={"ic-next"}/>
+                                                </Avatar>
+                                            }>
+                                            <Avatar
                                                 sx={{
-                                                    color: theme.palette.text.primary,
-                                                    width: 20,
-                                                    height: 20
-                                                }}/>
-                                        </Avatar>
-                                    </Stack>
-                                </LoadingButton>
-                            }
-                            {isActive &&
-                                <CipCard
-                                    openPatientDialog={(uuid: string) => {
-                                        setPatientId(uuid);
-                                        setPatientDetailDrawer(true);
-                                    }}/>
-                            }
-                            <Can I={"read"} a={"consultation"}>
-                                <Badge
-                                    color="warning"
-                                    badgeContent={pausedConsultation.length}
-                                    sx={{ml: 1}}
-                                    onClick={(event) => handleClick(event, "paused")}
-                                    className="custom-badge badge">
-                                    <IconButton color="primary" edge="start">
-                                        <Icon path={"ic-consultation-pause"}/>
-                                    </IconButton>
-                                </Badge>
-                            </Can>
+                                                    width: 30,
+                                                    height: 30,
+                                                    borderRadius: 20,
+                                                    border: `2px solid ${theme.palette.background.paper}`
+                                                }} variant={"circular"}
+                                                src={`/static/icons/men-avatar.svg`}/>
+                                        </Badge>}
+                                        variant={"contained"}>
+                                        <Stack direction={"row"} alignItems={"center"}>
+                                            {next.patient}
+                                            <Avatar
+                                                alt="Small avatar"
+                                                variant={"square"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    resetNextConsultation(next.uuid);
+                                                }}
+                                                sx={{
+                                                    ml: 1,
+                                                    background: "#FFF",
+                                                    width: 30,
+                                                    height: 30,
+                                                    border: `1px solid ${theme.palette.grey["A900"]}`
+                                                }}>
+                                                <CloseRoundedIcon
+                                                    sx={{
+                                                        color: theme.palette.text.primary,
+                                                        width: 20,
+                                                        height: 20
+                                                    }}/>
+                                            </Avatar>
+                                        </Stack>
+                                    </LoadingButton>
+                                }
+                                {isActive &&
+                                    <CipCard
+                                        openPatientDialog={(uuid: string) => {
+                                            setPatientId(uuid);
+                                            setPatientDetailDrawer(true);
+                                        }}/>
+                                }
+                                <Can I={"read"} a={"consultation"}>
+                                    <Badge
+                                        color="warning"
+                                        badgeContent={pausedConsultation.length}
+                                        sx={{mr: 2, ml: 1}}
+                                        onClick={(event) => handleClick(event, "paused")}
+                                        className="custom-badge badge">
+                                        <IconButton color="primary" edge="start">
+                                            <Icon path={"ic-consultation-pause"}/>
+                                        </IconButton>
+                                    </Badge>
+                                </Can>
+                            </Box>}
                             {(installable && !isMobile) &&
                                 <Button sx={{mr: 2, p: "6px 12px"}}
                                         onClick={handleInstallClick}
@@ -518,6 +543,7 @@ function TopNavBar({...props}) {
                                 <Badge
                                     badgeContent={notificationsCount}
                                     className="custom-badge"
+                                    {...(router.pathname.includes("/admin") && {sx: {ml: 1.4}})}
                                     color="warning"
                                     {...(item.action && {
                                         onClick: (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -531,13 +557,7 @@ function TopNavBar({...props}) {
                                     </MenuItem>
                                 </Badge>
                             ))}
-                            {/*<Badge
-                                onClick={(event) => handleClick(event, "appointment-stats")}
-                                className="custom-badge badge">
-                                <IconButton color="primary" edge="start">
-                                    <Icon path={"ic-plusinfo-quetsion"}/>
-                                </IconButton>
-                            </Badge>*/}
+
                             <Menu
                                 id={id}
                                 open={open}
@@ -580,7 +600,7 @@ function TopNavBar({...props}) {
                                 {popovers[popoverAction]}
                             </Menu>
                         </MenuList>
-                        {/*<LangButton/>*/}
+
                         {!isMobile && <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
                                 <ProfilMenu/>
@@ -592,6 +612,7 @@ function TopNavBar({...props}) {
                         color={theme.palette.error.main}
                         contrastText={theme.palette.error.contrastText}
                         dialogClose={() => dispatch(setDialog({dialog: "switchConsultationDialog", value: false}))}
+                        onClose={() => dispatch(setDialog({dialog: "switchConsultationDialog", value: false}))}
                         sx={{
                             direction
                         }}
@@ -604,15 +625,14 @@ function TopNavBar({...props}) {
                         actionDialog={
                             <Stack direction={isMobile ? "column" : "row"} justifyContent={"space-between"}
                                    sx={{width: "100%"}}>
-                                <Button
-                                    variant="text-primary"
-                                    onClick={() => dispatch(setDialog({
-                                        dialog: "switchConsultationDialog",
-                                        value: false
-                                    }))}
-                                    startIcon={<CloseIcon/>}>
-                                    {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.cancel`)}
-                                </Button>
+                                <Stack direction={isMobile ? "column" : "row"} spacing={2}>
+                                    <Button
+                                        variant="text-black"
+                                        onClick={handleResetConsultation}
+                                        startIcon={<IconUrl path="ic-temps"/>}>
+                                        {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.later_on`)}
+                                    </Button>
+                                </Stack>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
                                     <LoadingButton
                                         loading={loadingReq}

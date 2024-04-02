@@ -61,3 +61,13 @@ export * from './analysisMobileCard';
 export * from './medicalImagingMobileCard';
 export * from './featurePermissionsCard';
 export * from './appointHistoryContainer';
+export * from './statsProgreesCard';
+export * from './doctorsMobileCard'
+export * from './statsProgreesCard';
+export * from './staffMobileCard';
+export * from './departmentMobileCard';
+export * from './rdvRequestCard';
+export * from './agendaTimelineCard';
+export * from './drugMobileCard';
+export * from './appointmentHistoryContent';
+export * from './appointmentHistoryPreview';

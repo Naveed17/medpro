@@ -1340,7 +1340,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 {t("cycle", {ns: "consultation"})}
                                             </Button>
 
-                                            <ConditionalWrapper
+                                            {drugs[idx]?.drugUuid && <ConditionalWrapper
                                                 condition={drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length > 0)}
                                                 wrapper={(children: any) => <Tooltip
                                                     title={t("add-dosage-model", {ns: "consultation"})}>{children}</Tooltip>}>
@@ -1364,7 +1364,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                              {...(drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length > 0) && {color: theme.palette.text.primary})}
                                                              path={"dosage-model"}/>
                                                 </IconButton>
-                                            </ConditionalWrapper>
+                                            </ConditionalWrapper>}
                                         </Stack>
 
                                     </Paper>

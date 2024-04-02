@@ -1,18 +1,14 @@
-import { styled } from '@mui/material/styles';
-import { Card } from '@mui/material';
-const CIPPatientHistoryNoDataCardStyled = styled(Card)(({ theme }) => ({
+import {styled} from '@mui/material/styles';
+import {Card} from '@mui/material';
+
+const CIPPatientHistoryNoDataCardStyled = styled(Card)(({theme}) => ({
     '& .card-header': {
         backgroundColor: theme.palette.text.secondary,
-        padding:theme.spacing(2),
-        svg:{
-            path:{
-                fill:theme.palette.grey[0]
-            }
-        }
+        padding: theme.spacing(2)
     },
     '& .motif-card': {
         height: '100%',
-        width:'100%',
+        width: '100%',
         '.MuiCardContent-root': {
             padding: theme.spacing(1),
             '.MuiList-root': {
@@ -28,7 +24,7 @@ const CIPPatientHistoryNoDataCardStyled = styled(Card)(({ theme }) => ({
                         },
                     },
                     padding: theme.spacing(0),
-                    
+
                 }
             },
         }

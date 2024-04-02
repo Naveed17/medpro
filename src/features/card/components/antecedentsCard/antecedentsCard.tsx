@@ -2,7 +2,7 @@
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 // material
-import {Button, DialogActions, Grid, Paper, Skeleton, Typography,} from "@mui/material";
+import {Button, Grid, Paper, Skeleton, Stack, Typography} from "@mui/material";
 // ____________________________________
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -256,8 +256,9 @@ function AntecedentsCard({...props}) {
                         setInfoDynamic("");
                     }}
                     actionDialog={
-                        <DialogActions>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
                             <Button
+                                variant={"text-black"}
                                 onClick={() => {
                                     setOpenDialog(false);
                                     setInfo("");
@@ -268,11 +269,10 @@ function AntecedentsCard({...props}) {
                             </Button>
                             <Button
                                 variant="contained"
-                                onClick={handleCloseDialog}
-                                startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                onClick={handleCloseDialog}>
                                 {t("register")}
                             </Button>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
             )}

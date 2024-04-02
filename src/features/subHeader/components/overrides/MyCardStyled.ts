@@ -28,14 +28,6 @@ const MyCardStyled = styled("div")(({theme}) => ({
         border: "1px solid #DDD",
         marginRight: 10
     },
-    '& .react-svg': {
-        marginRight: theme.spacing(1),
-        svg: {
-            path: {
-                fill: theme.palette.text.primary,
-            }
-        }
-    },
     '& .card-icon': {
         svg: {
             path: {

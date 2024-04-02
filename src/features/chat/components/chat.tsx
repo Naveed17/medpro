@@ -211,7 +211,7 @@ const Chat = ({...props}) => {
                     name: `${general_information.firstName} ${general_information.lastName}`
                 }, {
                     uuid: user.uuid,
-                    name: `${user?.FirstName} ${user?.lastName}`
+                    name: `${user?.firstName} ${user?.lastName}`
                 }]
             },
             url: `/-/chat/api/discussion`
@@ -339,7 +339,7 @@ const Chat = ({...props}) => {
                                         }}>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             <Typography fontWeight={500}
-                                                        variant='body2'>{`${user.firstName ? user.firstName : ""} ${user.lastName ? user.lastName : ""}`}</Typography>
+                                                        variant='body2'>{`${user.firstName} ${user.lastName}`}</Typography>
                                             <div style={{
                                                 width: 5,
                                                 height: 5,
@@ -428,7 +428,7 @@ const Chat = ({...props}) => {
                                         }}>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             <Typography fontWeight={500}
-                                                        variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
+                                                        variant='body2'>{`${user.firstName} ${user.lastName}`}</Typography>
                                             <div style={{
                                                 width: 5,
                                                 height: 5,
