@@ -188,7 +188,7 @@ function PediatricianCharts({...props}) {
 
             },
         })
-    }, [sheet, birthdate, height, weight]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [sheet, birthdate, height, weight, perimetreCranien]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Grid container spacing={1} marginBottom={2}>
