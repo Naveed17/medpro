@@ -615,6 +615,8 @@ function TransactionPanel({...props}) {
                     mutatePatient: () => {
                         mutateTransactions();
                         walletMutate();
+                        const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`;
+                        invalidateQueries([url])
                     }
                 }}
                 size={"lg"}
