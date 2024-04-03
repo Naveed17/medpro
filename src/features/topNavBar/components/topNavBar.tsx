@@ -7,7 +7,7 @@ import {
     Avatar,
     Badge,
     Box,
-    Button,
+    Button, Card,
     Drawer,
     Hidden,
     IconButton, Menu,
@@ -38,13 +38,20 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 import {WarningTooltip} from "./warningTooltip";
-import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries, isAppleDevise, isSupported} from "@lib/hooks";
+import {
+    useMedicalEntitySuffix,
+    useMutateOnGoing,
+    useInvalidateQueries,
+    isAppleDevise,
+    isSupported,
+    capitalizeFirst
+} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
-import CloseIcon from "@mui/icons-material/Close";
 import {resetAppointment} from "@features/tabPanel";
 import {partition} from "lodash";
 import Can from "@features/casl/can";
+import {Label} from "@features/label";
 
 let deferredPrompt: any;
 
@@ -75,7 +82,7 @@ function TopNavBar({...props}) {
     } = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
-    const {switchConsultationDialog} = useAppSelector(navBarSelector);
+    const {switchConsultationDialog, action: dialogAction} = useAppSelector(navBarSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -437,11 +444,9 @@ function TopNavBar({...props}) {
                                         <IconUrl path={"ic-notification-off"} width={25} height={25} color={"black"}/>
                                     </Avatar>
                                 </WarningTooltip>}
-                            {!hasAdminAccess && <Box>
+                            {!hasAdminAccess && <Stack direction={"row"} alignItems={"center"}>
                                 {next &&
-                                    <LoadingButton
-                                        {...{loading}}
-                                        disableRipple
+                                    <Card
                                         color={"black"}
                                         onClick={() => {
                                             if (isActive || roles.includes('ROLE_SECRETARY')) {
@@ -452,54 +457,32 @@ function TopNavBar({...props}) {
                                             }
                                         }}
                                         sx={{
-                                            scale: "0.96",
+                                            border: "none",
                                             mr: isActive ? 0 : 1,
                                             p: "6px 12px",
                                             backgroundColor: (theme) => theme.palette.info.lighter,
                                             '&:hover': {
                                                 backgroundColor: (theme) => theme.palette.info.lighter,
                                             }
-                                        }}
-                                        loadingPosition={"start"}
-                                        startIcon={<Badge
-                                            overlap="circular"
-                                            anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                            badgeContent={
-                                                <Avatar alt="Small avatar" sx={{
-                                                    pt: .2,
-                                                    width: 16,
-                                                    height: 16,
-                                                    borderRadius: 20,
-                                                    border: `2px solid ${theme.palette.background.paper}`
-                                                }}>
-                                                    <IconUrl width={14} height={16} path={"ic-next"}/>
-                                                </Avatar>
-                                            }>
-                                            <Avatar
-                                                sx={{
-                                                    width: 30,
-                                                    height: 30,
-                                                    borderRadius: 20,
-                                                    border: `2px solid ${theme.palette.background.paper}`
-                                                }} variant={"circular"}
-                                                src={`/static/icons/men-avatar.svg`}/>
-                                        </Badge>}
-                                        variant={"contained"}>
-                                        <Stack direction={"row"} alignItems={"center"}>
-                                            {next.patient}
-                                            <Avatar
-                                                alt="Small avatar"
-                                                variant={"square"}
+                                        }}>
+                                        <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
+                                            <Typography
+                                                className={"timer-text"}
+                                                fontWeight={800}>
+                                                {next.patient}
+                                            </Typography>
+                                            <Label color="primary" variant="filled">
+                                                {commonTranslation("pending")}
+                                            </Label>
+                                            <IconButton
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     resetNextConsultation(next.uuid);
                                                 }}
                                                 sx={{
                                                     ml: 1,
-                                                    background: "#FFF",
                                                     width: 30,
                                                     height: 30,
-                                                    border: `1px solid ${theme.palette.grey["A900"]}`
                                                 }}>
                                                 <CloseRoundedIcon
                                                     sx={{
@@ -507,9 +490,9 @@ function TopNavBar({...props}) {
                                                         width: 20,
                                                         height: 20
                                                     }}/>
-                                            </Avatar>
+                                            </IconButton>
                                         </Stack>
-                                    </LoadingButton>
+                                    </Card>
                                 }
                                 {isActive &&
                                     <CipCard
@@ -530,7 +513,7 @@ function TopNavBar({...props}) {
                                         </IconButton>
                                     </Badge>
                                 </Can>
-                            </Box>}
+                            </Stack>}
                             {(installable && !isMobile) &&
                                 <Button sx={{mr: 2, p: "6px 12px"}}
                                         onClick={handleInstallClick}
@@ -621,39 +604,44 @@ function TopNavBar({...props}) {
                         }}
                         action={"switch-consultation"}
                         open={switchConsultationDialog}
-                        title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title`)}
+                        title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title${selectedEvent === null ? `-${dialogAction}` : ""}`)}
                         actionDialog={
                             <Stack direction={isMobile ? "column" : "row"} justifyContent={"space-between"}
                                    sx={{width: "100%"}}>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
-                                    <Button
+                                    <LoadingButton
+                                        loading={loadingReq}
+                                        loadingPosition="start"
                                         variant="text-black"
                                         onClick={handleResetConsultation}
                                         startIcon={<IconUrl path="ic-temps"/>}>
                                         {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.later_on`)}
-                                    </Button>
+                                    </LoadingButton>
                                 </Stack>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
-                                    <LoadingButton
-                                        loading={loadingReq}
-                                        loadingPosition="start"
-                                        onClick={handlePauseStartConsultation}
-                                        startIcon={<IconUrl height={"18"} width={"18"}
-                                                            path="ic-pause-mate"></IconUrl>}>
-                                        <Typography color={"text.primary"}>
-                                            {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
-                                        </Typography>
-                                    </LoadingButton>
-                                    <LoadingButton
-                                        loading={loadingReq}
-                                        loadingPosition="start"
-                                        onClick={handleSaveStartConsultation}
-                                        variant="contained"
-                                        color={"error"}
-                                        startIcon={<IconUrl height={"18"} width={"18"}
-                                                            path="ic-check-circle"></IconUrl>}>
-                                        {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.finish`)}
-                                    </LoadingButton>
+                                    {dialogAction !== "finish" ?
+                                        <LoadingButton
+                                            loading={loadingReq}
+                                            color={"white"}
+                                            variant="contained"
+                                            loadingPosition="start"
+                                            onClick={handlePauseStartConsultation}
+                                            startIcon={<IconUrl height={"18"} width={"18"}
+                                                                path="ic-pause-mate"></IconUrl>}>
+                                            <Typography color={"text.primary"}>
+                                                {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
+                                            </Typography>
+                                        </LoadingButton>
+                                        :
+                                        <LoadingButton
+                                            loading={loadingReq}
+                                            loadingPosition="start"
+                                            onClick={handleSaveStartConsultation}
+                                            variant="contained"
+                                            color={"error"}
+                                            startIcon={<IconUrl path="ic-check"></IconUrl>}>
+                                            {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.finish`)}
+                                        </LoadingButton>}
                                 </Stack>
                             </Stack>
                         }

@@ -269,7 +269,7 @@ function BoardItem({...props}) {
                                     <>
                                         {!roles.includes('ROLE_SECRETARY') &&
                                             <Tooltip
-                                                title={commonTranslation("config.cancel", {ns: "waitingRoom"})}>
+                                                title={commonTranslation("cancel", {ns: "waitingRoom"})}>
                                                 <IconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                         action: "CANCEL_APPOINTMENT",
@@ -287,7 +287,7 @@ function BoardItem({...props}) {
                                                 </IconButton>
                                             </Tooltip>}
                                         <Tooltip
-                                            title={commonTranslation("config.confirm", {ns: "waitingRoom"})}>
+                                            title={commonTranslation("confirm", {ns: "waitingRoom"})}>
                                             <IconButton
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                     action: "CONFIRM_APPOINTMENT",
@@ -310,7 +310,7 @@ function BoardItem({...props}) {
                                 {quote.content.status === 1 &&
                                     <>
                                         {!roles.includes('ROLE_SECRETARY') &&
-                                            <Tooltip title={commonTranslation("config.start", {ns: "waitingRoom"})}>
+                                            <Tooltip title={commonTranslation("start", {ns: "waitingRoom"})}>
                                                 <IconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                         action: "START_CONSULTATION",
@@ -326,7 +326,7 @@ function BoardItem({...props}) {
                                                 </IconButton>
                                             </Tooltip>}
                                         <Tooltip
-                                            title={commonTranslation("config.add_patient_to_waiting_room", {ns: "waitingRoom"})}>
+                                            title={commonTranslation("add_patient_to_waiting_room", {ns: "waitingRoom"})}>
                                             <IconButton
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                     action: "ENTER_WAITING_ROOM",
@@ -343,7 +343,7 @@ function BoardItem({...props}) {
                                 }
                                 {(quote.content.status === 3) && <>
                                     <Tooltip
-                                        title={commonTranslation("config.next", {ns: "waitingRoom"})}>
+                                        title={commonTranslation("next", {ns: "waitingRoom"})}>
                                         <span>
                                             <IconButton
                                                 onClick={(event) => handleEvent({
@@ -368,7 +368,7 @@ function BoardItem({...props}) {
                                     </Tooltip>
                                     {!roles.includes('ROLE_SECRETARY') &&
                                         <Tooltip
-                                            title={commonTranslation("config.start", {ns: "waitingRoom"})}>
+                                            title={commonTranslation("start", {ns: "waitingRoom"})}>
                                             <span>
                                                 <IconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
@@ -393,7 +393,7 @@ function BoardItem({...props}) {
                                             <IconUrl width={16} height={16} path="ic-edit-file-new"/>
                                         </IconButtonStyled>}
                                         <Tooltip
-                                            title={commonTranslation("config.consultation_pay", {ns: "waitingRoom"})}>
+                                            title={commonTranslation("consultation_pay", {ns: "waitingRoom"})}>
                                             <IconButton
                                                 sx={{
                                                     width: 30,

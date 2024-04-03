@@ -258,9 +258,12 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     if (!token.error) {
+                        const medicalEntity = res?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.medical_entity;
                         Object.assign(res?.data, {
-                            medical_entity: res?.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
-                                entity.is_default)?.medical_entity
+                            medical_entity: {
+                                ...medicalEntity,
+                                ...(res?.data?.medical_entities?.length === 1 && {has_selected_entity: medicalEntity?.uuid})
+                            }
                         });
                         token.data = res?.data;
                     }

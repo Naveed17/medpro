@@ -183,9 +183,9 @@ function AntecedentsCard({...props}) {
                                                     <React.Fragment>
                                                         <Typography fontWeight={"bold"}
                                                                     fontSize={12}>{item?.name}</Typography>
-                                                        <Typography fontSize={12}>Date début
+                                                        <Typography fontSize={12}>Date du début
                                                             : {item?.startDate ? item?.startDate : "-"}</Typography>
-                                                        <Typography fontSize={12}>Date fin
+                                                        <Typography fontSize={12}>Date de la fin
                                                             : {item?.endDate ? item?.endDate : "-"}</Typography>
                                                         {item?.ascendantOf &&
                                                             <Typography fontSize={12}>{t(item?.ascendantOf)}</Typography>}

@@ -11,17 +11,17 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import { CustomIconButton } from "@features/buttons";
-import React, { useState } from "react";
-import { Popover } from "@features/popover";
-import { CalendarContextMenu } from "@features/calendar";
+import {CustomIconButton} from "@features/buttons";
+import React, {useState} from "react";
+import {Popover} from "@features/popover";
+import {CalendarContextMenu} from "@features/calendar";
 import moment from "moment-timezone";
-import { useAppSelector } from "@lib/redux/hooks";
-import { timerSelector } from "@features/card";
-import { prepareContextMenu } from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+import {timerSelector} from "@features/card";
+import {prepareContextMenu} from "@lib/hooks";
 
-function AppointmentListMobile({ ...props }) {
-    const { event, key, OnMenuActions, index, roles } = props;
+function AppointmentListMobile({...props}) {
+    const {event, key, OnMenuActions, index, roles} = props;
     const [openTooltip, setOpenTooltip] = useState(false);
     const theme = useTheme();
 
@@ -39,28 +39,19 @@ function AppointmentListMobile({ ...props }) {
             },
         });
     };
-    const { startTime: initTimer } = useAppSelector(timerSelector);
+    const {startTime: initTimer} = useAppSelector(timerSelector);
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time] = useState<number>(
-        moment()
-            .utc()
+        moment.utc()
             .seconds(parseInt(localInitTimer.format("ss"), 0))
             .diff(localInitTimer, "seconds")
     );
     const [duration] = useState<number>(
-        moment
-            .duration(
-                moment
-                    .utc()
-                    .diff(
-                        moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm")
-                    )
-            )
-            .asMilliseconds()
+        moment.duration(moment.utc().diff(moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds()
     );
     return (
         <Card
-            {...{ key }}
+            {...{key}}
             sx={{
                 width: "100%",
                 ...(["CONFIRMED", "REFUSED", "WAITING_ROOM"].includes(event.status?.key)
@@ -128,7 +119,7 @@ function AppointmentListMobile({ ...props }) {
                                         </Button>
                                     )}
                                     {event?.patient && <Typography
-                                        {...(event.status?.key === "WAITING_ROOM" && { pl: 0.5 })}
+                                        {...(event.status?.key === "WAITING_ROOM" && {pl: 0.5})}
                                         variant="body2"
                                         fontWeight={600}>
                                         {event.patient.firstName} {event.patient.lastName}
@@ -141,12 +132,12 @@ function AppointmentListMobile({ ...props }) {
                                     spacing={0.5}
                                     alignItems={"center"}
                                     width={110}>
-                                    <IconUrl path={"ic-time"} width={14} height={14} />
+                                    <IconUrl path={"ic-time"} width={14} height={14}/>
                                     <Typography
                                         variant="body2"
                                         color={
                                             duration >= -1 &&
-                                                !["ON_GOING", "FINISHED"].includes(event.status?.key)
+                                            !["ON_GOING", "FINISHED"].includes(event.status?.key)
                                                 ? "expire.main"
                                                 : "text.primary"
                                         }
@@ -187,7 +178,7 @@ function AppointmentListMobile({ ...props }) {
                                                 border: `1px solid ${theme.palette.divider}`,
                                                 borderRadius: 1,
                                             }}>
-                                            <PlayCircleIcon fontSize={"small"} />
+                                            <PlayCircleIcon fontSize={"small"}/>
                                         </IconButton>
                                     )}
                                     <IconButton
@@ -231,7 +222,7 @@ function AppointmentListMobile({ ...props }) {
                                             variant="filled"
                                             color={"warning"}
                                             size={"small"}>
-                                            <PlayCircleIcon fontSize={"small"} />
+                                            <PlayCircleIcon fontSize={"small"}/>
                                         </CustomIconButton>
                                     )}
                                 </>
@@ -278,9 +269,9 @@ function AppointmentListMobile({ ...props }) {
                                     button={
                                         <IconButton
                                             onClick={() => setOpenTooltip(true)}
-                                            sx={{ display: "block", ml: "auto" }}
+                                            sx={{display: "block", ml: "auto"}}
                                             size="small">
-                                            <IconUrl path="more-vert" />
+                                            <IconUrl path="more-vert"/>
                                         </IconButton>
                                     }
                                 />

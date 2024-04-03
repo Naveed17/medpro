@@ -30,15 +30,13 @@ function DocumentsTab({...props}) {
 
                     <Box style={{overflowX: "auto", marginBottom: 10}}>
                         <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
-                            {
-                                documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                    <React.Fragment key={`doc-item-${idx}`}>
-                                        <DocumentCard onClick={() => {
-                                            showDoc(card)
-                                        }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
-                                    </React.Fragment>
-                                )
-                            }
+                            {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                                <React.Fragment key={`doc-item-${idx}`}>
+                                    <DocumentCard onClick={() => {
+                                        showDoc(card)
+                                    }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
+                                </React.Fragment>
+                            )}
                         </Stack>
                     </Box>
                 </Stack>

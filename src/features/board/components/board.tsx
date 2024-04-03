@@ -250,7 +250,7 @@ function Board({...props}) {
                                                                             checked={isUnpaidFilter}
                                                                         />
                                                                         <Typography variant={"body2"}
-                                                                                    fontSize={12}>{t("payed")}</Typography>
+                                                                                    fontSize={12}>{t("tabs.payed")}</Typography>
                                                                     </Stack>
                                                                 }
                                                                 {!!columns[index].action && columns[index].action}
