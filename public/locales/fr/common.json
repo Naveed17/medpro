@@ -466,5 +466,9 @@
     "tag": "Tag",
     "search": "Recherche",
     "patientName": "Tapez nom du patient"
-  }
+  },
+  "balance_sheet": "Analyses demandées",
+  "medical-certificate": "Document médical",
+  "medical_imaging_pending": "Imageries demandées",
+  "requestedPrescription": "Ordonnance médicale"
 }

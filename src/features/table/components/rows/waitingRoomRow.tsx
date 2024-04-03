@@ -25,29 +25,23 @@ import IconUrl from "@themes/urlIcon";
 import {getDiffDuration} from "@lib/hooks";
 import TableRowStyled from "../overrides/tableRowStyled";
 import {IconButtonStyled} from "@features/board";
+import {openMenu} from "@features/menu";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
-    const {roles, setLoading} = data;
+    const {roles, setLoading, openMenu} = data;
     const theme = useTheme();
     const {next: is_next} = useAppSelector(dashLayoutSelector);
 
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [actions] = useState<boolean>(false);
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
     }
-
+    console.log("row", row)
     const DialogAction = () => {
         return (
             <DialogActions>
@@ -132,7 +126,6 @@ function WaitingRoomRow({...props}) {
                                     fontWeight={600}
                                     color='text.primary'
                                     sx={{
-
                                         ml: 0.6,
                                         fontSize: 13
                                     }}>
@@ -220,60 +213,11 @@ function WaitingRoomRow({...props}) {
                                     <Stack>
                                         <IconButtonStyled
                                             id="basic-button"
-                                            aria-controls={open ? 'basic-menu' : undefined}
+                                            aria-controls={openMenu ? 'basic-menu' : undefined}
                                             aria-haspopup="true"
-                                            aria-expanded={open ? 'true' : undefined}
-                                            onClick={handleClick}
+                                            aria-expanded={openMenu ? 'true' : undefined}
+                                            onClick={(event)=>  handleEvent({action: "DOCUMENT_MENU", row, event})}
                                             className="btn-doc btn-plus">+2</IconButtonStyled>
-                                        <Menu
-                                            id="basic-menu"
-                                            anchorEl={anchorEl}
-                                            open={open}
-                                            onClose={handleClose}
-                                            MenuListProps={{
-                                                'aria-labelledby': 'basic-button',
-                                                sx: {
-                                                    "& .MuiMenuItem-root": {
-                                                        minWidth: 255,
-                                                        py: 1.2,
-                                                        "&:not(:last-child)": {
-                                                            borderBottom: `1px solid ${theme.palette.divider}`,
-                                                        },
-                                                        "&.Mui-disabled": {
-                                                            border: 'none',
-                                                            mb: 2,
-                                                            opacity: 1
-                                                        }
-                                                    }
-                                                }
-                                            }}
-
-                                        >
-                                            <MenuItem disabled>
-                                                <Typography variant="body2" color='text.primary' fontWeight={600}>
-                                                    {t("table.documents")}
-                                                </Typography>
-                                            </MenuItem>
-                                            {Array.from({length: 5}).map((_, idx) => (
-                                                <MenuItem onClick={handleClose} key={idx}>
-                                                    <ListItemIcon>
-                                                        <IconUrl path="ic-doc-analysis" width={20} height={20}
-                                                                 color={theme.palette.text.primary}/>
-                                                    </ListItemIcon>
-                                                    <ListItemText primary="Analyse"/>
-                                                    <Stack direction='row' alignItems='center' spacing={1}>
-                                                        <IconButton disableRipple size="small">
-                                                            <IconUrl path="ic-voir-new"/>
-                                                        </IconButton>
-                                                        <IconButton disableRipple size="small">
-                                                            <IconUrl path="ic-print-compact"/>
-                                                        </IconButton>
-                                                    </Stack>
-                                                </MenuItem>
-                                            ))}
-
-
-                                        </Menu>
                                     </Stack>
                                 </Stack>
 
