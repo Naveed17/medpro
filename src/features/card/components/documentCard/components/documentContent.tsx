@@ -34,7 +34,7 @@ function DocumentContent({...props}) {
 
                     <Icon path="ic-time" height={11} width={11} color={theme.palette.text.primary}/>
                     <Typography
-                        variant="body2">{moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}</Typography>
+                        variant="body2">{moment.utc(data.createdAt, 'DD-MM-YYYY HH:mm').format('HH:mm')}</Typography>
                 </Stack>
 
             </Stack>
