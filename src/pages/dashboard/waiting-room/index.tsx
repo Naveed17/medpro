@@ -30,7 +30,7 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {ActionMenu, openMenu} from "@features/menu";
+import {ActionMenu} from "@features/menu";
 import {
     prepareContextMenu,
     prepareSearchKeys,

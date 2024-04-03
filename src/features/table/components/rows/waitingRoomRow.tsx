@@ -6,9 +6,8 @@ import {
     TableCell,
     Skeleton,
     Stack,
-    DialogActions, Tooltip, Menu, MenuItem,
-    ListItemIcon,
-    ListItemText
+    DialogActions,
+    Tooltip
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
 import {Dialog} from "@features/dialog";
@@ -25,7 +24,6 @@ import IconUrl from "@themes/urlIcon";
 import {getDiffDuration} from "@lib/hooks";
 import TableRowStyled from "../overrides/tableRowStyled";
 import {IconButtonStyled} from "@features/board";
-import {openMenu} from "@features/menu";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
@@ -216,7 +214,7 @@ function WaitingRoomRow({...props}) {
                                             aria-controls={openMenu ? 'basic-menu' : undefined}
                                             aria-haspopup="true"
                                             aria-expanded={openMenu ? 'true' : undefined}
-                                            onClick={(event)=>  handleEvent({action: "DOCUMENT_MENU", row, event})}
+                                            onClick={(event) => handleEvent({action: "DOCUMENT_MENU", row, event})}
                                             className="btn-doc btn-plus">+2</IconButtonStyled>
                                     </Stack>
                                 </Stack>
