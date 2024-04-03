@@ -7,7 +7,7 @@ import {
     Stack,
     TextField,
     Button,
-  
+
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import React, {useState} from "react";
@@ -90,7 +90,7 @@ function MedicalImagingDrawer({...props}) {
             const form = new FormData();
             form.append("name",  values.name);
             form.append("abbreviation", values.abbreviation || null);
-            form.append("specialities", "test-speciality");
+            form.append("specialities", "");
             if (data) {
                 urlMedicalProfessionalSuffix && triggerMedicalImagingUpdate({
                     method: "PUT",
@@ -188,7 +188,7 @@ function MedicalImagingDrawer({...props}) {
                                         onChange={(e) => setFieldValue("abbreviation",e.target.value)}
                                         helperText={(touched.abbreviation && errors.abbreviation) as any}
                                         error={Boolean(touched.abbreviation && errors.abbreviation)}
-                                        
+
                                     />
                                 </Stack>
                             </Stack>

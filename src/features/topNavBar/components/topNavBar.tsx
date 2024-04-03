@@ -626,12 +626,14 @@ function TopNavBar({...props}) {
                             <Stack direction={isMobile ? "column" : "row"} justifyContent={"space-between"}
                                    sx={{width: "100%"}}>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
-                                    <Button
+                                    <LoadingButton
+                                        loading={loadingReq}
+                                        loadingPosition="start"
                                         variant="text-black"
                                         onClick={handleResetConsultation}
                                         startIcon={<IconUrl path="ic-temps"/>}>
                                         {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.later_on`)}
-                                    </Button>
+                                    </LoadingButton>
                                 </Stack>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
                                     <LoadingButton
