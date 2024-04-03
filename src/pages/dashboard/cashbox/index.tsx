@@ -239,6 +239,13 @@ function Cashbox() {
             label: "date",
             sortable: true,
             align: "left",
+        }, {
+            id: "type",
+            numeric: false,
+            disablePadding: true,
+            label: "type",
+            sortable: true,
+            align: "left",
         },
         ...(mode === "normal" ? [{
             id: "name",

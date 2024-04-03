@@ -140,6 +140,7 @@ function Header({...props}) {
                             {
                                 icon: 'ic-agenda-new',
                                 title: "display_workdays",
+                                note:"",
                                 action: "onDisplayWorkDays"
                             }
                         ]
@@ -150,13 +151,15 @@ function Header({...props}) {
                         list: [
                             {
                                 icon: 'ic-banned',
-                                title: hasBlockedCurrentDay ? "delete_blocked_day" : "add_blocked_day",
+                                title: hasBlockedCurrentDay ? "delete_blocked_day" : "add_blocked_day" ,
+                                note: moment(currentDate.date).format("ddd DD"),
                                 action: hasBlockedCurrentDay ? "onDeleteBlockedDay" : "onAddBlockedDay",
                                 ...(hasBlockedCurrentDay && {note: `${moment(currentDate.date).format("DD")} ${moment(currentDate.date).format("MMMM")}`})
                             },
                             {
                                 icon: 'ic-leave',
                                 title: "add_leave",
+                                note:"",
                                 action: "onAddLeave"
                             }
                         ]
