@@ -327,7 +327,7 @@
       "description": "Vous devez mettre fin, ou mettre en pause la consultation actuelle.",
       "cancel": "Annuler",
       "later_on": "Plus tard",
-      "finish": "Terminer",
+      "finish": "Terminer la consultation",
       "pause": "Mettre en Pause"
     },
     "alert": {
