@@ -323,14 +323,15 @@
       "pause": "Mettre en Pause & Démarrer Nouvelle"
     },
     "manage-consultation-dialog": {
-      "title": "Consultation",
+      "title-pause": "Mettre en pause la consultation",
       "sub-title-pause": "Êtes-vous sûr de mettre en pause la consultation en cours ?",
       "description-pause": "Vous devez mettre en pause la consultation actuelle.",
+      "title-finish": "Terminer la consultation",
       "sub-title-finish": "Êtes-vous sûr de vouloir terminer la consultation en cours ?",
       "description-finish": "Vous devez mettre fin la consultation actuelle.",
       "cancel": "Annuler",
       "later_on": "Plus tard",
-      "finish": "Terminer la consultation",
+      "finish": "Terminer",
       "pause": "Mettre en Pause"
     },
     "alert": {

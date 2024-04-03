@@ -58,11 +58,11 @@ function SwitchConsultationDialog({...props}) {
     return (
         <SwitchConsultationDialogStyled sx={{minHeight: 150}} alignItems={"center"}>
             <Typography sx={{textAlign: "center"}}
-                        variant="subtitle1">{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.sub-title-${dialogAction}`)} </Typography>
+                        variant="subtitle1">{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.sub-title${selectedEvent === null ? `-${dialogAction}` : ""}`)} </Typography>
             <Typography sx={{textAlign: "center"}}
-                        marginTop={2}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description-${dialogAction}`).split(',')[0]},</Typography>
+                        marginTop={2}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description${selectedEvent === null ? `-${dialogAction}` : ""}`).split(',')[0]},</Typography>
             <Typography
-                sx={{textAlign: "center"}}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description-${dialogAction}`).split(',')[1]}</Typography>
+                sx={{textAlign: "center"}}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description${selectedEvent === null ? `-${dialogAction}` : ""}`).split(',')[1]}</Typography>
 
             <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '90%'}}>
                 <Stack direction={isMobile ? "column" : "row"} alignItems={"center"} spacing={1.2}>

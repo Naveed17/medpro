@@ -604,7 +604,7 @@ function TopNavBar({...props}) {
                         }}
                         action={"switch-consultation"}
                         open={switchConsultationDialog}
-                        title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title`)}
+                        title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title${selectedEvent === null ? `-${dialogAction}` : ""}`)}
                         actionDialog={
                             <Stack direction={isMobile ? "column" : "row"} justifyContent={"space-between"}
                                    sx={{width: "100%"}}>
