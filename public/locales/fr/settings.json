@@ -3,12 +3,12 @@
     "parameters": "Paramètres",
     "profile": "Profil",
     "acts": "Actes",
-    "motif": "Motif de consultation",
+    "motif": "Motifs de consultation",
     "consultation": "Fiche consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
     "cabinet": "Cabinet",
-    "horaire": "Horaire",
+    "horaire": "Horaires",
     "conges": "Congés et absences",
     "remplaçants": "Remplaçants",
     "users": "Utilisateurs",
@@ -20,8 +20,8 @@
     "import-data": "Importation",
     "app_lock": "Verrouillage",
     "drugs": "Médicaments",
-    "analysis": "Analyse",
-    "medical_imaging": "Imagerie médicale",
+    "analysis": "Analyses",
+    "medical_imaging": "Imageries médicales",
     "billing": "Billing"
   },
   "profile": {
@@ -182,8 +182,8 @@
       "color": "couleur",
       "save": "Enregistrer",
       "type": "Type du motif",
-      "payed": "Payant",
-      "un_payed": "Non payant"
+      "payed": "Payante",
+      "un_payed": "Non payante"
     },
     "alert": {
       "add": "Ajouter motif de consultation",

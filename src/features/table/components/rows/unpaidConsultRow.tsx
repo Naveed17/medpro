@@ -60,6 +60,10 @@ function UnpaidConsultRow({...props}) {
                         variant="body2">{row.startTime}</Typography>
                 </Stack>
             </TableCell>
+            {/***** consultation type *****/}
+            <TableCell>
+                <Typography color={"primary"} fontSize={13} fontWeight={600}>{row.type.name}</Typography>
+            </TableCell>
             {/***** patient name *****/}
             {!hideName && <TableCell>
                 {row.patient && (
