@@ -99,7 +99,7 @@ function Motif() {
             id: "isEnabled",
             numeric: false,
             disablePadding: false,
-            label: "active",
+            label: "status",
             align: "center",
             sortable: false,
         },

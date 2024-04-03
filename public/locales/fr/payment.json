@@ -168,8 +168,8 @@
     "filterByPeriod": "Filtrer par périodes",
     "date": "Date",
     "date-range": "Périodes",
-    "startDate": "Date début",
-    "endDate": "Date fin"
+    "startDate": "Date du début",
+    "endDate": "Date de la fin"
   },
   "alert": {
     "transaction-deleted": "Transaction a été supprimé"

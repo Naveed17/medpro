@@ -321,9 +321,9 @@
       "type-placeholder": "Saisir le titre du congé",
       "end-after-start-time": "L'heure de fin doit être antérieure à l'heure de début",
       "datetime-required": "La date est obligatoire",
-      "startDate": "Date début",
-      "startDate-placeholder": "Selectionner la Date début",
-      "endDate": "Date fin",
+      "startDate": "Date du début",
+      "startDate-placeholder": "Selectionner la Date du début",
+      "endDate": "Date de la fin",
       "endDate-placeholder": "Sélectionner la date de fin",
       "vacation": {
         "yearly": "Congé annuel",
