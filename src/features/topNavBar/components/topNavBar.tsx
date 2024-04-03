@@ -41,7 +41,6 @@ import {WarningTooltip} from "./warningTooltip";
 import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries, isAppleDevise, isSupported} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
-import CloseIcon from "@mui/icons-material/Close";
 import {resetAppointment} from "@features/tabPanel";
 import {partition} from "lodash";
 import Can from "@features/casl/can";
