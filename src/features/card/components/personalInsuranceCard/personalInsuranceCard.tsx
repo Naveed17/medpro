@@ -403,7 +403,8 @@ function PersonalInsuranceCard({...props}) {
                                                                     }}
                                                                     onClick={() => handleDeleteInsurance(insurance)}
                                                                     size="small">
-                                                                    <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                                                                    <IconUrl color={theme.palette.text.secondary}
+                                                                             path="ic-trash"/>
                                                                 </IconButton>
                                                             </Stack>
                                                         </Grid>}
@@ -435,52 +436,41 @@ function PersonalInsuranceCard({...props}) {
                     open={insuranceDialog}
                     title={t(`config.add-patient.add-insurance`)}
                     actionDialog={
-                        <DialogActions
-                            sx={{
-                                justifyContent: "space-between",
-                                width: "100%",
-                                "& .MuiDialogActions-root": {
-                                    'div': {
-                                        width: "100%",
-                                    }
-                                }
-                            }}>
-                            <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                                {requestAction !== "PUT" && <Button
-                                    onClick={() => {
-                                        handleMultiAddInsurance();
+                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                            {requestAction !== "PUT" && <Button
+                                onClick={() => {
+                                    handleMultiAddInsurance();
+                                }}
+                                startIcon={<AddIcon/>}>
+                                {t("config.add-patient.add-insurance-more")}
+                            </Button>}
+                            <Stack direction={"row"}
+                                   {...(requestAction === "PUT" && {sx: {width: "100%"}})}
+                                   justifyContent={"flex-end"}
+                                   alignItems={"center"}
+                                   spacing={1.2}>
+                                <LoadingButton
+                                    loading={loadingRequest}
+                                    sx={{
+                                        color: theme.palette.grey[600],
                                     }}
-                                    startIcon={<AddIcon/>}>
-                                    {t("config.add-patient.add-insurance-more")}
-                                </Button>}
-                                <Stack direction={"row"}
-                                       {...(requestAction === "PUT" && {sx: {width: "100%"}})}
-                                       justifyContent={"flex-end"}
-                                       alignItems={"center"}
-                                       spacing={1.2}>
-                                    <LoadingButton
-                                        loading={loadingRequest}
-                                        sx={{
-                                            color: theme.palette.grey[600],
-                                        }}
-                                        onClick={handleResetDialogInsurance}
-                                        startIcon={<CloseIcon/>}>
-                                        {t("config.add-patient.cancel")}
-                                    </LoadingButton>
-                                    <LoadingButton
-                                        loading={loadingRequest}
-                                        onClick={() => {
-                                            setInsuranceDialog(false);
-                                            handleUpdatePatient();
-                                        }}
-                                        disabled={!!errors?.insurances || (values.insurances as any[]).filter((insur: InsurancesModel) => !insur.online).length === 0}
-                                        variant="contained"
-                                        startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                                        {t("config.add-patient.register")}
-                                    </LoadingButton>
-                                </Stack>
+                                    onClick={handleResetDialogInsurance}
+                                    startIcon={<CloseIcon/>}>
+                                    {t("config.add-patient.cancel")}
+                                </LoadingButton>
+                                <LoadingButton
+                                    loading={loadingRequest}
+                                    onClick={() => {
+                                        setInsuranceDialog(false);
+                                        handleUpdatePatient();
+                                    }}
+                                    disabled={!!errors?.insurances || (values.insurances as any[]).filter((insur: InsurancesModel) => !insur.online).length === 0}
+                                    variant="contained"
+                                    startIcon={<IconUrl path="iconfinder_save"/>}>
+                                    {t("config.add-patient.register")}
+                                </LoadingButton>
                             </Stack>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
             </Form>
