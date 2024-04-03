@@ -819,7 +819,7 @@ function PlacesDetail() {
                                 </Box>
                             </CardContent>
                         </Card>
-                        <Typography
+                        {/*<Typography
                             textTransform="uppercase"
                             fontWeight={600}
                             marginBottom={2}
@@ -855,7 +855,7 @@ function PlacesDetail() {
                                     </Grid>
                                 </Box>
                             </CardContent>
-                        </Card>
+                        </Card>*/}
 
                         <Typography
                             textTransform="uppercase"

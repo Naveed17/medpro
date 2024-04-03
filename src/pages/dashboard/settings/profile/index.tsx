@@ -286,12 +286,12 @@ function Profile() {
                                                 speciality
                                             )}
                                         </Button>
-                                        <BasicAlert
+                                        {/*<BasicAlert
                                             icon="danger"
                                             data={t("profile.contact")}
                                             color="warning">
                                             info
-                                        </BasicAlert>
+                                        </BasicAlert>*/}
                                     </Stack>
                                 </Stack>
                             </ListItem>

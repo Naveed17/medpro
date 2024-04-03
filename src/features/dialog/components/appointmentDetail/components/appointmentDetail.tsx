@@ -1,21 +1,23 @@
 import React, {useCallback, useEffect, useRef, useState,} from "react";
 import RootStyled from "./overrides/rootStyled";
 import {
-    Chip,
     AppBar,
     Avatar,
     Box,
     Card,
     CardActions,
     CardContent,
+    Chip,
     IconButton,
     Link,
     List,
     ListItem,
+    Skeleton,
     Stack,
     Toolbar,
     Typography,
-    useTheme, useMediaQuery, Skeleton,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
@@ -42,7 +44,6 @@ import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {Label} from "@features/label";
 import {DefaultCountry, MobileContainer} from "@lib/constants";
-import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import {setMessage, setOpenChat} from "@features/chat/actions";
 import {startCase} from "lodash";
 import {configSelector, dashLayoutSelector} from "@features/base";
@@ -308,9 +309,9 @@ function AppointmentDetail({...props}) {
                                                 background: theme.palette.error.lighter
                                             }}>
                                             <Typography onClick={() => setOpenPaymentDialog(true)}
-                                                sx={{
-                                                    fontSize: 10,
-                                                }}>
+                                                        sx={{
+                                                            fontSize: 10,
+                                                        }}>
                                                 {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
                                         </Label>}
                                 </Stack>
@@ -553,7 +554,7 @@ function AppointmentDetail({...props}) {
                 }}
                 open={openPaymentDialog}
                 data={{
-                    patient:appointment?.extendedProps.patient,
+                    patient: appointment?.extendedProps.patient,
                     setOpenPaymentDialog,
                     mutatePatient: () => {
                         trigger({
@@ -562,7 +563,13 @@ function AppointmentDetail({...props}) {
                             },
                             {
                                 onSuccess: (res) => {
-                                    let _appointment:any = {...appointment,extendedProps:{...appointment?.extendedProps,restAmount:res.data.data.rest_amount}}
+                                    let _appointment: any = {
+                                        ...appointment,
+                                        extendedProps: {
+                                            ...appointment?.extendedProps,
+                                            restAmount: res.data.data.rest_amount
+                                        }
+                                    }
                                     dispatch(setSelectedEvent(_appointment));
                                 },
                             }
