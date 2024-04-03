@@ -17,7 +17,7 @@ import {
     Paper, Radio,
     Stack,
     Typography,
-    useMediaQuery, Grid, FormControlLabel, Checkbox
+    useMediaQuery, Grid, FormControlLabel, Checkbox, ListItemIcon, ListItemText, IconButton
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
@@ -133,6 +133,15 @@ function WaitingRoom() {
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
+    const [anchorElMenu, setAnchorElMenu] = React.useState<null | HTMLElement>(null);
+
+    const openMenu = Boolean(anchorElMenu);
+    const documentPreview = [
+        {key: "requestedPrescription", icon: "docs/ic-prescription"},
+        {key: "medical-certificate", icon: "docs/ic-ordonnance"},
+        {key: "balance_sheet", icon: "docs/ic-analyse"},
+        {key: "medical_imaging_pending", icon: "docs/ic-soura"}
+    ];
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
@@ -407,6 +416,9 @@ function WaitingRoom() {
             case "ON_PAY":
                 handleTransactionData();
                 break;
+            case "DOCUMENT_MENU":
+                setAnchorElMenu(data.event.currentTarget)
+                break;
             default:
                 setPopoverActions(CalendarContextMenu.filter(dataFilter => !["onReschedule", "onMove"].includes(dataFilter.action) && !prepareContextMenu(dataFilter.action, {
                     ...data.row,
@@ -599,13 +611,13 @@ function WaitingRoom() {
                                     <Otable
                                         sx={{mt: 2}}
                                         {...{
+                                            openMenu,
                                             doctor_country,
                                             roles,
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
                                         toolbar={
-
                                             <CardHeader
                                                 sx={{
                                                     pt: 0,
@@ -1193,6 +1205,52 @@ function WaitingRoom() {
                     </Stack>
                 }
             />
+
+            <Menu
+                id="basic-menu"
+                anchorEl={anchorElMenu}
+                open={openMenu}
+                onClose={() => setAnchorElMenu(null)}
+                MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                    sx: {
+                        "& .MuiMenuItem-root": {
+                            minWidth: 255,
+                            py: 1.2,
+                            "&:not(:last-child)": {
+                                borderBottom: `1px solid ${theme.palette.divider}`,
+                            },
+                            "&.Mui-disabled": {
+                                border: 'none',
+                                mb: 1,
+                                opacity: 1
+                            }
+                        }
+                    }
+                }}>
+                <MenuItem disabled>
+                    <Typography variant="body2" color='text.primary' fontWeight={600}>
+                        {t("table.documents")}
+                    </Typography>
+                </MenuItem>
+                {documentPreview.map((document, idx) => (
+                    <MenuItem onClick={() => setAnchorElMenu(null)} key={idx}>
+                        <ListItemIcon>
+                            <IconUrl path={document.icon} width={20} height={20}
+                                     color={theme.palette.text.primary}/>
+                        </ListItemIcon>
+                        <ListItemText sx={{mr: 2}} primary={t(document.key, {ns: "common"})}/>
+                        <Stack direction='row' alignItems='center' spacing={1}>
+                            <IconButton disableRipple size="small">
+                                <IconUrl path="ic-voir-new"/>
+                            </IconButton>
+                            <IconButton disableRipple size="small">
+                                <IconUrl path="ic-print-compact"/>
+                            </IconButton>
+                        </Stack>
+                    </MenuItem>
+                ))}
+            </Menu>
         </>
     );
 }
