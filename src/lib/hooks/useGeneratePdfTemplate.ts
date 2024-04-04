@@ -118,8 +118,8 @@ function useGeneratePdfTemplate() {
             })
             // Draw bebe photo
             if (patient?.hasPhoto) {
-                const photoURL = (patient?.hasPhoto as any).url as string;
-                const photoExtension = photoURL.includes(".png") ? "png" : "jpg";
+                const photoURL = (patient?.hasPhoto as any).url?.url as string;
+                const photoExtension = (patient?.hasPhoto as any).extension as string;
                 const photoUrlBytes = await fetch(photoURL, {
                     // Fix CROSS origin issues with no-cache header
                     headers: {
