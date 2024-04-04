@@ -548,7 +548,7 @@ function MainLayout({...props}) {
                     />}
             </Dialog>
 
-            {!isMobile &&  <Draggable bounds="body"><Stack direction={"row"}
+            {!isMobile &&  <Draggable bounds={{bottom:0,right:0}}><Stack direction={"row"}
                     spacing={2}
                     alignItems={'center'}
                     sx={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>

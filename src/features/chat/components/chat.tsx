@@ -300,7 +300,7 @@ const Chat = ({...props}) => {
         setTimeout(() => {
             mutate();
             selectedDiscussion && getMessages(selectedDiscussion);
-        }, 1000)
+        }, 1500)
     }, [messagesRefresh]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
