@@ -382,7 +382,9 @@ const Chat = ({...props}) => {
                                                 WebkitLineClamp: 2,
                                                 WebkitBoxOrient: "vertical",
                                             }}
-                                            color="text.secondary">{disc.lastMessage.replace(/<[^>]+>/g, '').replace(/\&nbsp;/g, '')}</Typography>
+                                            color="text.secondary">
+                                    <div dangerouslySetInnerHTML={{__html: disc.lastMessage}}></div>
+                                    </Typography>
                                 <Typography variant='caption' fontSize={9}
                                             color="text.secondary">{disc.lastMessageTimestamp ? moment.duration(moment().diff(new Date(disc.lastMessageTimestamp))).humanize() : "New"}</Typography>
                             </Stack>
@@ -469,7 +471,7 @@ const Chat = ({...props}) => {
                                                 </Typography>
                                                 <Stack spacing={1}>
                                                     <Typography
-                                                        sx={{display: 'inline', wordWrap: "break-word"}}
+                                                        sx={{display: 'inline', wordWrap: "break-word", textAlign:"left"}}
                                                         component="span"
                                                         color="text.primary">
                                                         <div dangerouslySetInnerHTML={{__html: message.data}}></div>
@@ -571,16 +573,28 @@ const Chat = ({...props}) => {
                 />
             </Drawer>
 
-            <Dialog onClose={() => setOpen(false)} open={open}>
+            <Dialog onClose={() => {
+                setPatients([])
+                setOpen(false)
+            }} open={open}>
                 <DialogContent style={{paddingTop: 20}}>
                     <Stack spacing={1}>
                         <Typography fontSize={11}
                                     color={"grey"}>{t('search')}</Typography>
-                        <TextField placeholder={t('patientName')} onChange={(ev) => {
-                            debouncedOnChange(ev.target.value)
-                        }}/>
-                        {patients.map(patient => (
-                            <Card key={patient.uuid}>
+                        <TextField placeholder={t('patientName')}
+                                   onKeyUp={(ev) => {
+                                       if (ev.code == "Enter" && patients.length > 0) {
+                                           setMessage((prev) => `${prev.substring(0, prev.length - 4)} &lt; <span class="tag" id="${patients[0].uuid}">${patients[0].firstName} ${patients[0].lastName} </span><span class="afterTag">> </span></p>`)
+                                           setPatients([])
+                                           setOpen(false)
+                                       }
+                                   }}
+                                   onChange={(ev) => {
+                                       debouncedOnChange(ev.target.value)
+                                   }}/>
+                        {patients.map((patient, index) => (
+                            <Card key={patient.uuid}
+                                  style={{border: index === 0 ? `1px solid ${theme.palette.primary.main}` : ""}}>
                                 <CardContent>
                                     <Stack style={{cursor: "pointer"}}
                                            onClick={() => {

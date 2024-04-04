@@ -144,7 +144,7 @@ function SecretaryConsultationDialog({...props}) {
         const usr = users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser)
         if (usr.length > 0) {
             setSelectedUser(usr[0].uuid)
-            addDiscussion(usr[0].uuid)
+            addDiscussion(usr[0])
         }
     }, [users]) // eslint-disable-line react-hooks/exhaustive-deps
 
