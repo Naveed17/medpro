@@ -43,6 +43,7 @@ import {chatSelector} from "@features/chat/selectors";
 import {setOpenChat} from "@features/chat/actions";
 import {setStepperIndex} from "@features/stepper";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
+import linkifyHtml from 'linkify-html';
 import PresenceMessage = Types.PresenceMessage;
 
 interface IPatient {
@@ -474,7 +475,7 @@ const Chat = ({...props}) => {
                                                         sx={{display: 'inline', wordWrap: "break-word", textAlign:"left"}}
                                                         component="span"
                                                         color="text.primary">
-                                                        <div dangerouslySetInnerHTML={{__html: message.data}}></div>
+                                                        <div dangerouslySetInnerHTML={{__html: linkifyHtml(message.data)}}></div>
 
                                                     </Typography>
                                                     {/*{message?.from === medicalEntityHasUser ?
