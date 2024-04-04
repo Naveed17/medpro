@@ -391,7 +391,7 @@ function MainLayout({...props}) {
             const payload = JSON.parse(message.data);
             setMessage({user: payload.user, message: payload.message})
             setTimeout(() => setMessage(null), 3000)
-            setHasMessage(true)
+            !openChat && setHasMessage(true)
             dispatch(setMessagesRefresh(payload.message))
         }
     });
