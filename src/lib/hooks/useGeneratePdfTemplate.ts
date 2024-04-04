@@ -5,7 +5,7 @@ import {useCallback} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks/index";
+import {getMimeTypeFromArrayBuffer, useMedicalEntitySuffix} from "@lib/hooks/index";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -119,7 +119,7 @@ function useGeneratePdfTemplate() {
             // Draw bebe photo
             if (patient?.hasPhoto) {
                 const photoURL = (patient?.hasPhoto as any).url?.url as string;
-                const photoExtension = (patient?.hasPhoto as any).extension as string;
+                //const photoExtension = (patient?.hasPhoto as any).extension as string;
                 const photoUrlBytes = await fetch(photoURL, {
                     // Fix CROSS origin issues with no-cache header
                     headers: {
@@ -128,8 +128,10 @@ function useGeneratePdfTemplate() {
                         'Expires': '0'
                     }
                 }).then((res) => res.arrayBuffer());
+                const photoExtension = getMimeTypeFromArrayBuffer(photoUrlBytes);
+
                 try {
-                    const photoUrlImage = await (photoExtension === "png" ? pdfDoc.embedPng(photoUrlBytes) : pdfDoc.embedJpg(photoUrlBytes));
+                    const photoUrlImage = await (photoExtension?.ext === "png" ? pdfDoc.embedPng(photoUrlBytes) : pdfDoc.embedJpg(photoUrlBytes));
                     copiedPages[0].drawImage(photoUrlImage, {
                         x: 64,
                         y: 370,
