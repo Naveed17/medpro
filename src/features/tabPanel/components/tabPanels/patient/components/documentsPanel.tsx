@@ -384,7 +384,6 @@ function DocumentsPanel({...props}) {
 
     const showDoc = (card: any) => {
         if (card.documentType === 'medical-certificate') {
-            setOpenDialog(true);
             setDocument({
                 uuid: card.uuid,
                 certifUuid: card.certificate[0].uuid,
@@ -403,7 +402,6 @@ function DocumentsPanel({...props}) {
             })
             setOpenDialog(true);
         } else {
-            setOpenDialog(true);
             let info = card
             let uuidDoc = "";
             switch (card.documentType) {

@@ -39,7 +39,9 @@ function WaitingRoomRow({...props}) {
         setOpenDialog(false);
         setInfo(null);
     }
-    console.log("row", row)
+
+    const docsCount = Object.entries(row).reduce((docs: number, doc: any) => docs + (["certificate", "prescriptions", "requestedAnalyses", "requestedMedicalImaging"].includes(doc[0]) && doc[1].length > 0 ? 1 : 0), 0)
+
     const DialogAction = () => {
         return (
             <DialogActions>
@@ -202,31 +204,64 @@ function WaitingRoomRow({...props}) {
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
                             {(!roles.includes("ROLE_SECRETARY") && [5].includes(row.status)) &&
                                 <Stack direction='row' alignItems='center' spacing={.5} sx={{mr: '12px !important'}}>
-                                    <IconButtonStyled sx={{width: 30, height: 30}} size={"small"}>
-                                        <IconUrl width={14} height={14} path="ic-doc-analysis"/>
-                                    </IconButtonStyled>
-                                    <IconButtonStyled size={"small"}>
-                                        <IconUrl width={16} height={16} path="ic-doc-ordonance"/>
-                                    </IconButtonStyled>
-                                    <Stack>
+                                    {row.certificate.length > 0 &&
+                                        <Tooltip title={t("medical-certificate", {ns: "common"})}>
+                                            <span>
+                                                <IconButtonStyled
+                                                    onClick={(event) => handleEvent({
+                                                        action: "ON_PREVIEW_DOCUMENT",
+                                                        row: {
+                                                            uuid: row.uuid,
+                                                            doc: row.certificate[0]
+                                                        },
+                                                        event
+                                                    })}
+                                                    size={"small"}>
+                                                    <IconUrl width={18} height={18} path="docs/ic-ordonnance"
+                                                             color={theme.palette.primary.main}/>
+                                                </IconButtonStyled>
+                                            </span>
+                                        </Tooltip>}
+                                    {row.prescriptions.length > 0 &&
+                                        <Tooltip title={t("requestedPrescription", {ns: "common"})}>
+                                            <span>
+                                                <IconButtonStyled
+                                                    size={"small"}
+                                                    onClick={(event) => handleEvent({
+                                                        action: "ON_PREVIEW_DOCUMENT",
+                                                        row: {
+                                                            uuid: row.uuid,
+                                                            doc: row.prescriptions[0]
+                                                        },
+                                                        event
+                                                    })}>
+                                                    <IconUrl width={18} height={18} path="docs/ic-prescription"
+                                                             color={theme.palette.primary.main}/>
+                                                </IconButtonStyled>
+                                            </span>
+                                        </Tooltip>}
+                                    {docsCount > 2 &&
                                         <IconButtonStyled
                                             id="basic-button"
                                             aria-controls={openMenu ? 'basic-menu' : undefined}
                                             aria-haspopup="true"
                                             aria-expanded={openMenu ? 'true' : undefined}
-                                            onClick={(event) => handleEvent({action: "DOCUMENT_MENU", row, event})}
-                                            className="btn-doc btn-plus">+2</IconButtonStyled>
-                                    </Stack>
+                                            onClick={(event) => handleEvent({
+                                                action: "DOCUMENT_MENU",
+                                                row,
+                                                event
+                                            })}
+                                            className="btn-doc btn-plus">{docsCount - 2}</IconButtonStyled>}
                                 </Stack>
 
                             }
                             {(!roles.includes("ROLE_SECRETARY") && [5, 3].includes(row.status)) &&
                                 <Stack direction='row' alignItems="center" spacing={.5}>
-                                    {row.status === 5 &&
+                                    {/* {row.status === 5 &&
                                         <IconButtonStyled>
                                             <IconUrl width={16} height={16} path="ic-edit-file-new"/>
                                         </IconButtonStyled>
-                                    }
+                                    }*/}
                                     <Tooltip title={t("consultation_pay")}>
                                         <span>
                                             <IconButton

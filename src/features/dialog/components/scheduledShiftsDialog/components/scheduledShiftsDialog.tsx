@@ -1,9 +1,9 @@
-import { CustomIconButton } from '@features/buttons';
-import { FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material'
-import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import {CustomIconButton} from '@features/buttons';
+import {FormControlLabel, Stack, Switch, TextField, Typography} from '@mui/material'
+import {LocalizationProvider, TimePicker} from '@mui/x-date-pickers'
+import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import AddIcon from '@mui/icons-material/Add';
-import React, { useState } from 'react'
+import React, {useState} from 'react'
 import IconUrl from '@themes/urlIcon';
 
 function ScheduledShiftsDialog() {
@@ -88,7 +88,6 @@ function ScheduledShiftsDialog() {
             },
         ]
     )
-    console.log(state)
     return (
         <Stack spacing={1}>
             {
@@ -108,10 +107,11 @@ function ScheduledShiftsDialog() {
                                 return innerItem;
                             }))
 
-                        }} />} label={item.day} />
+                        }}/>} label={item.day}/>
                         <Stack component={LocalizationProvider} spacing={1} dateAdapter={AdapterDayjs}>
                             {item.timeShifts.map((shiftItem, ItemIndex) => (
-                                <Stack direction='row' spacing={1} alignItems='center' width={1} key={"shift-" + ItemIndex}>
+                                <Stack direction='row' spacing={1} alignItems='center' width={1}
+                                       key={"shift-" + ItemIndex}>
                                     <TimePicker
                                         components={{
                                             OpenPickerIcon: () => <Typography>From</Typography>
@@ -178,31 +178,34 @@ function ScheduledShiftsDialog() {
                                     {
                                         ItemIndex === 0 ? (
                                             <CustomIconButton color="success"
-                                                onClick={() => {
-                                                    setState(state.map((innerItem, idx) => {
-                                                        if (index === idx) {
-                                                            innerItem.timeShifts.push({ startTime: null, endTime: null });
-                                                        }
-                                                        return innerItem;
-                                                    }))
-                                                }}
+                                                              onClick={() => {
+                                                                  setState(state.map((innerItem, idx) => {
+                                                                      if (index === idx) {
+                                                                          innerItem.timeShifts.push({
+                                                                              startTime: null,
+                                                                              endTime: null
+                                                                          });
+                                                                      }
+                                                                      return innerItem;
+                                                                  }))
+                                                              }}
 
                                             >
-                                                <AddIcon />
+                                                <AddIcon/>
                                             </CustomIconButton>
                                         ) : (
                                             <CustomIconButton color="error"
-                                                onClick={() => {
-                                                    setState(state.map((innerItem, idx) => {
-                                                        if (index === idx) {
-                                                            innerItem.timeShifts.splice(ItemIndex, 1);
-                                                        }
-                                                        return innerItem;
-                                                    }))
-                                                }}
+                                                              onClick={() => {
+                                                                  setState(state.map((innerItem, idx) => {
+                                                                      if (index === idx) {
+                                                                          innerItem.timeShifts.splice(ItemIndex, 1);
+                                                                      }
+                                                                      return innerItem;
+                                                                  }))
+                                                              }}
 
                                             >
-                                                <IconUrl path="ic-delete" color="white" />
+                                                <IconUrl path="ic-delete" color="white"/>
                                             </CustomIconButton>
                                         )
                                     }

@@ -389,9 +389,24 @@ function BoardItem({...props}) {
                                 </>}
                                 {(quote.content.status === 5 && quote?.content.restAmount !== 0) &&
                                     <Stack direction='row' spacing={.5}>
-                                        {!opened && <IconButtonStyled size={"small"}>
-                                            <IconUrl width={16} height={16} path="ic-edit-file-new"/>
-                                        </IconButtonStyled>}
+                                        {(!opened && quote.content.prescriptions.length > 0) &&
+                                            <Tooltip title={commonTranslation("requestedPrescription")}>
+                                                <span>
+                                                    <IconButtonStyled
+                                                        size={"small"}
+                                                        onClick={(event) => handleEvent({
+                                                            action: "ON_PREVIEW_DOCUMENT",
+                                                            row: {
+                                                                uuid: quote.content.uuid,
+                                                                doc: quote.content.prescriptions[0]
+                                                            },
+                                                            event
+                                                        })}>
+                                                        <IconUrl width={18} height={18} path="docs/ic-prescription"
+                                                                 color={theme.palette.primary.main}/>
+                                                    </IconButtonStyled>
+                                                </span>
+                                            </Tooltip>}
                                         <Tooltip
                                             title={commonTranslation("consultation_pay", {ns: "waitingRoom"})}>
                                             <IconButton
