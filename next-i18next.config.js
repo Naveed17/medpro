@@ -20,9 +20,9 @@ module.exports = {
     },
     serializeConfig: false,
     partialBundledLanguages: isBrowser && true,
-    react: { // used only for the lazy reload
+   /* react: { // used only for the lazy reload
         bindI18n: 'languageChanged loaded', useSuspense: false
-    },
+    },*/
     use: isBrowser ? [ChainedBackend] : [],
     /** To avoid issues when deploying to some paas (vercel...) */
     localePath: typeof window === 'undefined' ? require('path').resolve('./public/locales') : '/locales',
