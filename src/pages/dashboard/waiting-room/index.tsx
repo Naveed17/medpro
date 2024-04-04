@@ -134,20 +134,18 @@ function WaitingRoom() {
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | HTMLElement>(null);
+    const [documentsPreview, setDocumentsPreview] = React.useState<any[]>([]);
+    const [openDocPreviewDialog, setOpenDocPreviewDialog] = useState<boolean>(false);
+    const [documentPreview, setDocumentPreview] = useState<any>();
 
     const openMenu = Boolean(anchorElMenu);
-    const documentPreview = [
-        {key: "requestedPrescription", icon: "docs/ic-prescription"},
-        {key: "medical-certificate", icon: "docs/ic-ordonnance"},
-        {key: "balance_sheet", icon: "docs/ic-analyse"},
-        {key: "medical_imaging_pending", icon: "docs/ic-soura"}
-    ];
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
+    const {trigger: triggerPreviewDocument} = useRequestQueryMutation("/agenda/appointment/document/preview");
 
     const {
         data: httpWaitingRoomsResponse,
@@ -384,6 +382,58 @@ function WaitingRoom() {
             columns.find(column => result.destination?.droppableId === column.name)?.id);
     }
 
+    const showDoc = (doc: any) => {
+        if (doc.documentType === 'medical-certificate') {
+            setDocumentPreview({
+                uuid: doc.uuid,
+                certifUuid: doc.certificate[0].uuid,
+                content: doc.certificate[0].content,
+                doctor: doc.name,
+                patient: `${patient?.firstName} ${patient?.lastName}`,
+                days: doc.days,
+                description: doc.description,
+                createdAt: doc.createdAt,
+                name: 'certif',
+                detectedType: doc.type,
+                title: doc.title,
+                type: 'write_certif',
+            })
+            setOpenDocPreviewDialog(true);
+        } else {
+            let info = doc
+            let uuidDoc = "";
+            switch (doc.documentType) {
+                case "prescription":
+                    info = doc.prescription[0].prescription_has_drugs;
+                    uuidDoc = doc.prescription[0].uuid
+                    break;
+                case "requested-analysis":
+                    info = doc.requested_Analyses[0].analyses;
+                    uuidDoc = doc.requested_Analyses[0].uuid;
+                    break;
+                case "requested-medical-imaging":
+                    info = doc.medical_imaging[0]['medical-imaging'];
+                    uuidDoc = doc.medical_imaging[0].uuid;
+                    break;
+            }
+            setDocumentPreview({
+                uuid: doc.uuid,
+                uri: doc.uri,
+                name: doc.title,
+                type: doc.documentType,
+                info: info,
+                uuidDoc: uuidDoc,
+                appUuid: doc.appUuid,
+                description: doc.description,
+                createdAt: doc.createdAt,
+                detectedType: doc.type,
+                patient: `${patient?.firstName} ${patient?.lastName}`,
+                cin: patient?.idCard ? patient?.idCard : ""
+            })
+            setOpenDocPreviewDialog(true);
+        }
+    }
+
     const handleTableActions = (data: any) => {
         setRow(data.row);
         switch (data.action) {
@@ -416,7 +466,35 @@ function WaitingRoom() {
             case "ON_PAY":
                 handleTransactionData();
                 break;
+            case "ON_PREVIEW_DOCUMENT":
+                triggerUploadDocuments({
+                    method: "GET",
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${data.row.uuid}/document/${data.row.doc.uuid}/${router.locale}`,
+                }, {
+                    onSuccess: (result) => {
+                        showDoc((result?.data as HttpResponse)?.data[0])
+                    }
+                });
+                break;
             case "DOCUMENT_MENU":
+                setDocumentsPreview([
+                    ...(data.row.prescriptions?.length > 0 ? [{
+                        key: "requestedPrescription",
+                        icon: "docs/ic-prescription"
+                    }] : []),
+                    ...(data.row.certificate?.length > 0 ? [{
+                        key: "medical-certificate",
+                        icon: "docs/ic-ordonnance"
+                    }] : []),
+                    ...(data.row.requestedAnalyses?.length > 0 ? [{
+                        key: "balance_sheet",
+                        icon: "docs/ic-analyse"
+                    }] : []),
+                    ...(data.row.requestedMedicalImaging?.length > 0 ? [{
+                        key: "medical_imaging_pending",
+                        icon: "docs/ic-soura"
+                    }] : [])
+                ])
                 setAnchorElMenu(data.event.currentTarget)
                 break;
             default:
@@ -1206,6 +1284,26 @@ function WaitingRoom() {
                 }
             />
 
+            <Dialog
+                action={"document_detail"}
+                open={openDocPreviewDialog}
+                data={{
+                    state: documentPreview,
+                    setState: setDocumentPreview,
+                    setOpenDialog: setOpenDocPreviewDialog,
+                    patient,
+                    documentViewIndex: 1,
+                    source: "waiting-room",
+                    setLoadingRequest
+                }}
+                size={"lg"}
+                direction={'ltr'}
+                sx={{p: 0}}
+                title={t("config.doc_detail_title", {ns: "patient"})}
+                onClose={() => setOpenDocPreviewDialog(false)}
+                dialogClose={() => setOpenDocPreviewDialog(false)}
+            />
+
             <Menu
                 id="basic-menu"
                 anchorEl={anchorElMenu}
@@ -1233,7 +1331,7 @@ function WaitingRoom() {
                         {t("table.documents")}
                     </Typography>
                 </MenuItem>
-                {documentPreview.map((document, idx) => (
+                {documentsPreview.map((document, idx) => (
                     <MenuItem onClick={() => setAnchorElMenu(null)} key={idx}>
                         <ListItemIcon>
                             <IconUrl path={document.icon} width={20} height={20}

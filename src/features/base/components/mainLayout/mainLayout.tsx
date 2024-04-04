@@ -391,7 +391,7 @@ function MainLayout({...props}) {
             const payload = JSON.parse(message.data);
             setMessage({user: payload.user, message: payload.message})
             setTimeout(() => setMessage(null), 3000)
-            setHasMessage(true)
+            !openChat && setHasMessage(true)
             dispatch(setMessagesRefresh(payload.message))
         }
     });
@@ -548,7 +548,7 @@ function MainLayout({...props}) {
                     />}
             </Dialog>
 
-            {!isMobile &&  <Draggable bounds="body"><Stack direction={"row"}
+            {!isMobile &&  <Draggable bounds={{bottom:0,right:0}}><Stack direction={"row"}
                     spacing={2}
                     alignItems={'center'}
                     sx={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
@@ -569,7 +569,16 @@ function MainLayout({...props}) {
                             <Typography fontSize={11} color={"#7C878E"}
                                         fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
                         </Stack>
-                        <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
+                        <Typography style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            lineClamp: 1,
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: "vertical",
+                        }}>
+                            <div dangerouslySetInnerHTML={{__html: message.message}}></div>
+                        </Typography>
                     </Stack>
                 </Stack>}
                 <Fab color="info"

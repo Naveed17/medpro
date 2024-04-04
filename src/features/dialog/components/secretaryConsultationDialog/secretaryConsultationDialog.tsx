@@ -144,7 +144,7 @@ function SecretaryConsultationDialog({...props}) {
         const usr = users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser)
         if (usr.length > 0) {
             setSelectedUser(usr[0].uuid)
-            addDiscussion(usr[0].uuid)
+            addDiscussion(usr[0])
         }
     }, [users]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -331,7 +331,7 @@ function SecretaryConsultationDialog({...props}) {
                                     </Stack>
                                     }
                                 </Stack>
-                                <Stack className="instruction-box" spacing={1}>
+                                {users.length > 1 && <Stack className="instruction-box" spacing={1}>
                                     {
                                         !isMobile &&
                                         <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
@@ -454,7 +454,7 @@ function SecretaryConsultationDialog({...props}) {
                                             <Typography>{t("covred")}</Typography>
                                         </Stack>
                                     </Button>
-                                </Stack>
+                                </Stack>}
                             </Stack>
                         </Grid>
                     </Grid>
