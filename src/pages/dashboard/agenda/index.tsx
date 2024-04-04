@@ -752,7 +752,9 @@ function Agenda() {
             router.push({
                 pathname: slugConsultation,
                 query: {inProgress: true}
-            }, slugConsultation, {locale: router.locale})
+            }, slugConsultation, {locale: router.locale}).then(() => {
+                dispatch(openDrawer({type: "view", open: false}));
+            })
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
@@ -1193,7 +1195,7 @@ function Agenda() {
 
                 {(isMobile && view === "listWeek") && <>
                     {sortedData.current?.map((row, index) => (
-                        <Container key={index} sx={{background: theme.palette.background.default}}>
+                        <Container key={index} sx={{background: theme.palette.background.default, minHeight: "100vh"}}>
                             <Typography variant={"body1"}
                                         color="text.primary"
                                         pb={1} pt={2}

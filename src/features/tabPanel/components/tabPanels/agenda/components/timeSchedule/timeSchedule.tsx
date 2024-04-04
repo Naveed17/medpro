@@ -261,7 +261,7 @@ function TimeSchedule({...props}) {
                         <ListItemText primary={
                             <Stack direction={"row"} alignItems={"center"} className="inner-section">
                                 <Typography pr={2} sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
-                                    {t("stepper-1.title")} :
+                                    {t(`stepper-1.${withoutDateTime ? "select-reason" : "title"}`)} :
                                 </Typography>
                                 {recurringDates.length > 0 && <Typography>
                                     {recurringDates[0].date} {recurringDates[0].time}
