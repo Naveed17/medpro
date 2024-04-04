@@ -32,6 +32,7 @@ export * from "./splitLastOccurrence";
 export * from "./generatePdfFromHtml";
 export * from "./shortEnglishHumanizer";
 export * from "./a11yProps";
+export * from "./getMimeTypeFromArrayBuffer";
 export * from "./mergeArrayByKey";
 export * from "./useStopwatch";
 export * from "./prepareContextMenu";
