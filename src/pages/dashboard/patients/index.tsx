@@ -330,12 +330,10 @@ function Patients() {
 
     const searchParams = (new URL(location.href)).searchParams;
     let page = parseInt(searchParams.get("page") || "1");
-    let isNext = parseInt(searchParams.get("previousPage") ?? "1") < page;
 
     const {
         data: httpPatientsResponse,
         fetchNextPage,
-        fetchPreviousPage,
         hasNextPage,
         mutate: mutatePatients,
         isLoading
@@ -612,12 +610,10 @@ function Patients() {
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        //remove query params on load from url
-        //isMobile && router.replace(router.pathname, router.pathname, {shallow: true});
-        //reload resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    // useEffect(() => {
+    //     //reload resources from cdn servers
+    //     i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
+    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);

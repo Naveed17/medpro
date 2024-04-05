@@ -204,6 +204,20 @@ function WaitingRoomRow({...props}) {
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
                             {(!roles.includes("ROLE_SECRETARY") && [5].includes(row.status)) &&
                                 <Stack direction='row' alignItems='center' spacing={.5} sx={{mr: '12px !important'}}>
+                                    <Tooltip title={t("add_prescription", {ns: "common"})}>
+                                            <span>
+                                                <IconButtonStyled
+                                                    size={"small"}
+                                                    onClick={(event) => handleEvent({
+                                                        action: "ON_ADD_DOCUMENT",
+                                                        row,
+                                                        event
+                                                    })}>
+                                                    <IconUrl width={18} height={18} path="add-doc"
+                                                             color={theme.palette.primary.main}/>
+                                                </IconButtonStyled>
+                                            </span>
+                                    </Tooltip>
                                     {row.certificate.length > 0 &&
                                         <Tooltip title={t("medical-certificate", {ns: "common"})}>
                                             <span>
