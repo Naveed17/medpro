@@ -330,12 +330,10 @@ function Patients() {
 
     const searchParams = (new URL(location.href)).searchParams;
     let page = parseInt(searchParams.get("page") || "1");
-    let isNext = parseInt(searchParams.get("previousPage") ?? "1") < page;
 
     const {
         data: httpPatientsResponse,
         fetchNextPage,
-        fetchPreviousPage,
         hasNextPage,
         mutate: mutatePatients,
         isLoading
