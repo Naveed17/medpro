@@ -6,8 +6,6 @@ export const generatePdfFromHtml = async (componentRef: MutableRefObject<any[]>,
     const pdfDoc = await PDFDocument.create();
 
     for (const ref of componentRef?.current) {
-        ref.classList.remove('menuTop')
-        console.log("ref", ref);
         const doc = await generatePDF(() => ref, {
             filename: `report${new Date().toISOString()}.pdf`,
             method: "build",
