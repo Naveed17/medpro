@@ -387,7 +387,7 @@ function ConsultationInProgress() {
         _cards[ind][index].expanded = true;
 
         const _locPosition = JSON.parse(localStorage.getItem("cardPositions") as string)
-        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition,widget: true}))
+        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition, widget: true}))
 
         _cards[ind][index].config = false;
         setCards([..._cards])
@@ -1845,11 +1845,14 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    PaperProps={{
-                        sx: {
-                            overflow: 'hidden'
+                    {...(!["medical_prescription", "medical_prescription_cycle"].includes(info) && {
+                            PaperProps: {
+                                sx: {
+                                    overflow: 'hidden'
+                                }
+                            }
                         }
-                    }}
+                    )}
                     data={{
                         appuuid: app_uuid,
                         patient,
@@ -1890,8 +1893,8 @@ function ConsultationInProgress() {
                         ),
                         sx: {
                             p: 1.5,
-                            overflowX: 'hidden',
-                            overflowY: 'hidden'
+                            /*overflowX: 'hidden',
+                            overflowY: 'hidden'*/
                         }
 
                     })}
