@@ -1559,7 +1559,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         <IconUrl
                                                             width={12}
                                                             height={12}
-                                                            path="ic-edit"
+                                                            path="ic-edit-patient"
                                                         />
                                                     </IconButton>
                                                     <IconButton
@@ -1570,7 +1570,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         className="btn-del"
                                                         disableRipple>
                                                         <IconUrl
-                                                            color="red"
+                                                            color={theme.palette.background.paper}
                                                             width={12}
                                                             height={12}
                                                             path="ic-delete"
