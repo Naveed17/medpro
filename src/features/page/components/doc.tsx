@@ -53,7 +53,7 @@ function Doc({...props}) {
 
                     const child = document.createElement('p');
                     child.append()
-                    elx += `<p>${index + 1} • ${el.standard_drug.commercial_name}</p>`
+                    elx += `<p>${index + 1} • ${el?.drugName ?? ""}</p>`
                     el.cycles.map((cycle: any) => {
                         let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                         if (cycle.duration)
