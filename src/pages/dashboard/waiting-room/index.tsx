@@ -109,7 +109,7 @@ function WaitingRoom() {
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);
-    console.log("selectedDialog", selectedDialog)
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
