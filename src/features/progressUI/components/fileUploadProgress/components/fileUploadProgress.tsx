@@ -17,10 +17,13 @@ function FileUploadProgress({...props}) {
 
     const formatTime = (seconds: any) => [seconds / 60, seconds % 60].map((v) => `0${Math.floor(v)}`.slice(-2)).join(':')
 
-    const {wavesurfer, isReady, isPlaying, currentTime} = useWavesurfer({
+    const {wavesurfer, isPlaying, currentTime} = useWavesurfer({
         container: containerRef,
         url: fileUrl,
-        height: 50
+        height: 50,
+        barWidth: 3,
+        barGap: 3,
+        barRadius: 2
     });
 
     wavesurfer?.on('decode', (duration) => (setDuration(formatTime(duration))));
@@ -47,14 +50,15 @@ function FileUploadProgress({...props}) {
                             onPlayPause();
                         }}>
                         <IconUrl path={isPlaying ? "ic-pause" : "ic-play-audio"}
-                                 color={theme.palette.text.primary} width={20}
-                                 height={20}/>
+                                 color={theme.palette.text.primary} width={18}
+                                 height={18}/>
                     </IconButton>
                     :
                     <Icon path="ic-quote" width={30} height={30}/>
                 }
                 <Box sx={{width: "100%", ml: 1}}>
                     <Typography
+                        {...(file.type.includes("audio") && {className: "audio-title"})}
                         variant="body2"
                         color="text.primary"
                         sx={{
@@ -64,7 +68,7 @@ function FileUploadProgress({...props}) {
                             textTransform: "uppercase",
                         }}>
                         {file.name}
-                        <Typography component='span' variant="body2" color="text.secondary">
+                        <Typography ml={1} component='span' variant="body2" color="text.secondary">
                             {file && parseInt(file.size) / 1000} KB
                         </Typography>
                     </Typography>
