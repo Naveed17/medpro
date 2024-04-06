@@ -345,6 +345,7 @@ function MainLayout({...props}) {
                 }
             } else if ((error as any)?.type === "error") {
                 console.log("eventSource", eventSource.readyState);
+                setTimeout(connectToStream, 1);
             }
         };
 
@@ -548,10 +549,15 @@ function MainLayout({...props}) {
                     />}
             </Dialog>
 
-            {!isMobile &&  <Draggable bounds={{bottom:0,right:0}}><Stack direction={"row"}
-                    spacing={2}
-                    alignItems={'center'}
-                    sx={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
+            {!isMobile && <Draggable bounds={{bottom: 0, right: 0}}><Stack direction={"row"}
+                                                                           spacing={2}
+                                                                           alignItems={'center'}
+                                                                           sx={{
+                                                                               position: "fixed",
+                                                                               bottom: 75,
+                                                                               right: 40,
+                                                                               zIndex: 99
+                                                                           }}>
                 {message && <Stack direction={"row"}
                                    padding={1}
                                    spacing={2}
