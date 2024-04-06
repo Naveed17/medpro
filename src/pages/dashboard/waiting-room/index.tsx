@@ -20,7 +20,7 @@ import {
     useMediaQuery, Grid, FormControlLabel, Checkbox, ListItemIcon, ListItemText, IconButton
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {RoomToolbar} from "@features/toolbar";
+import {consultationSelector, RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -32,12 +32,19 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
 import {ActionMenu} from "@features/menu";
 import {
+    getBirthdayFormat,
     prepareContextMenu,
     prepareSearchKeys,
     useMedicalEntitySuffix,
     useMutateOnGoing
 } from "@lib/hooks";
-import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
+import {
+    Dialog,
+    handleDrawerAction,
+    PatientDetail,
+    preConsultationSelector,
+    QuickAddAppointment
+} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
@@ -72,6 +79,8 @@ import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
 import {AbilityContext} from "@features/casl/can";
 import _ from "lodash";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import AddIcon from "@mui/icons-material/Add";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -99,6 +108,7 @@ function WaitingRoom() {
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
+    const {selectedDialog} = useAppSelector(consultationSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -137,6 +147,10 @@ function WaitingRoom() {
     const [documentsPreview, setDocumentsPreview] = React.useState<any[]>([]);
     const [openDocPreviewDialog, setOpenDocPreviewDialog] = useState<boolean>(false);
     const [documentPreview, setDocumentPreview] = useState<any>();
+    const [openAddPrescriptionDialog, setOpenAddPrescriptionDialog] = useState<boolean>(false);
+    const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
+    const [drugs, setDrugs] = useState<any>([]);
+    const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
 
     const openMenu = Boolean(anchorElMenu);
 
@@ -146,6 +160,7 @@ function WaitingRoom() {
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
     const {trigger: triggerPreviewDocument} = useRequestQueryMutation("/agenda/appointment/document/preview");
+    const {trigger: triggerDrugsManage} = useRequestQueryMutation("/drugs/manage");
 
     const {
         data: httpWaitingRoomsResponse,
@@ -434,6 +449,17 @@ function WaitingRoom() {
         }
     }
 
+    const handleShowPreviewDoc = (uuid: string, appointment: string) => {
+        triggerPreviewDocument({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointment}/document/${uuid}/${router.locale}`,
+        }, {
+            onSuccess: (result) => {
+                showDoc((result?.data as HttpResponse)?.data[0])
+            }
+        });
+    }
+
     const handleTableActions = (data: any) => {
         setRow(data.row);
         switch (data.action) {
@@ -467,31 +493,31 @@ function WaitingRoom() {
                 handleTransactionData();
                 break;
             case "ON_PREVIEW_DOCUMENT":
-                triggerUploadDocuments({
-                    method: "GET",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${data.row.uuid}/document/${data.row.doc.uuid}/${router.locale}`,
-                }, {
-                    onSuccess: (result) => {
-                        showDoc((result?.data as HttpResponse)?.data[0])
-                    }
-                });
+                handleShowPreviewDoc(data.row.doc.uuid, data.row.uuid);
+                break;
+            case "ON_ADD_DOCUMENT":
+                setOpenAddPrescriptionDialog(true);
                 break;
             case "DOCUMENT_MENU":
                 setDocumentsPreview([
                     ...(data.row.prescriptions?.length > 0 ? [{
                         key: "requestedPrescription",
+                        value: "prescriptions",
                         icon: "docs/ic-prescription"
                     }] : []),
                     ...(data.row.certificate?.length > 0 ? [{
                         key: "medical-certificate",
+                        value: "certificate",
                         icon: "docs/ic-ordonnance"
                     }] : []),
                     ...(data.row.requestedAnalyses?.length > 0 ? [{
                         key: "balance_sheet",
+                        value: "requestedAnalyses",
                         icon: "docs/ic-analyse"
                     }] : []),
                     ...(data.row.requestedMedicalImaging?.length > 0 ? [{
                         key: "medical_imaging_pending",
+                        value: "requestedMedicalImaging",
                         icon: "docs/ic-soura"
                     }] : [])
                 ])
@@ -519,6 +545,63 @@ function WaitingRoom() {
             onSuccess: () => {
                 localStorage.removeItem(`Modeldata${row?.uuid}`);
                 setOpenPreConsultationDialog(false);
+            }
+        });
+    }
+
+    const handleSavePrescription = (print: boolean = true) => {
+        setLoadingRequest(true);
+        const form = new FormData();
+        let method = "";
+        let url = ""
+        form.append("globalNote", "");
+        form.append("isOtherProfessional", "false");
+        form.append("drugs", JSON.stringify(drugs));
+        method = "POST"
+        url = `${urlMedicalEntitySuffix}/appointments/${row?.uuid}/prescriptions/${router.locale}`;
+        /* if (selectedDialog && selectedDialog.action.includes("medical_prescription")) {
+             method = "PUT"
+             url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
+         }*/
+
+        triggerDrugsManage({
+            method: method,
+            url: url,
+            data: form
+        }, {
+            onSuccess: (r: any) => {
+                mutateWaitingRoom();
+                if (print) {
+                    const res = r.data.data;
+                    let type = "";
+                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+
+                    setDocumentPreview({
+                        uri: res[1],
+                        name: "prescription",
+                        type: "prescription",
+                        info: res[0].prescription_has_drugs,
+                        uuid: res[0].uuid,
+                        uuidDoc: res[0].uuid,
+                        createdAt: moment().format('DD/MM/YYYY'),
+                        description: "",
+                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                        age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                        print: true
+                    });
+                    setOpenDocPreviewDialog(true);
+                }
+                setPrescription([]);
+                setDrugs([]);
+
+                let pdoc = [...pendingDocuments];
+                pdoc = pdoc.filter((obj) => obj.id !== 2);
+                setPendingDocuments(pdoc);
+            },
+            onSettled: () => {
+                setLoadingRequest(false);
+                setOpenAddPrescriptionDialog(false);
             }
         });
     }
@@ -639,9 +722,9 @@ function WaitingRoom() {
         }
     }, [httpWaitingRoomsResponse, is_next, boardFilterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    // useEffect(() => {
+    //     i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
+    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilter());
@@ -1285,6 +1368,78 @@ function WaitingRoom() {
             />
 
             <Dialog
+                {...{direction}}
+                action={getPrescriptionUI()}
+                open={openAddPrescriptionDialog}
+                data={{
+                    appuuid: row?.uuid,
+                    patient: row?.patient,
+                    state: drugs,
+                    setState: setDrugs,
+                    t,
+                    setPendingDocuments,
+                    pendingDocuments,
+                    setOpenDialog: setOpenAddPrescriptionDialog,
+                    setPrescription
+                }}
+                size={"xl"}
+                sx={{
+                    p: 1.5
+                }}
+                title={t("requestedPrescription", {ns: "common"})}
+                onClose={() => setOpenAddPrescriptionDialog(false)}
+                dialogClose={() => setOpenAddPrescriptionDialog(false)}
+                actionDialog={
+                    <Stack
+                        sx={{width: "100%"}}
+                        direction={{xs: 'column', sm: 'row'}}
+                        justifyContent={"space-between"}>
+
+                        <Button sx={{alignSelf: 'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
+                            dispatch(handleDrawerAction("addDrug"));
+                        }}>
+                            {t("add_drug", {ns: "common"})}
+                        </Button>
+                        <Stack direction={"row"} justifyContent={{xs: 'space-between', sm: 'flex-start'}}
+                               spacing={1.2}
+                               mt={{xs: 1, md: 0}}>
+                            <Button
+                                color={"black"}
+                                variant={"text"}
+                                onClick={() => setOpenAddPrescriptionDialog(false)}
+                                startIcon={<CloseIcon/>}>
+                                {t("cancel", {ns: "common"})}
+                            </Button>
+
+                            <LoadingButton
+                                loading={loadingRequest}
+                                loadingPosition={"start"}
+                                color={"info"}
+                                variant="outlined"
+                                onClick={() => handleSavePrescription(false)}
+                                disabled={drugs?.length === 0}
+                                startIcon={
+                                    <IconUrl
+                                        {...(drugs?.length === 0 && {color: "white"})}
+                                        path={"iconfinder_save"}/>}>
+                                {t("save", {ns: "common"})}
+                            </LoadingButton>
+                            <LoadingButton
+                                loading={loadingRequest}
+                                loadingPosition={"start"}
+                                variant="contained"
+                                sx={{width: {xs: 1, sm: 'auto'}}}
+                                onClick={() => handleSavePrescription()}
+                                disabled={drugs?.length === 0}
+                                startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
+                                {t("save_print", {ns: "common"})}
+                            </LoadingButton>
+                        </Stack>
+                    </Stack>}
+
+            />
+
+            <Dialog
                 action={"document_detail"}
                 open={openDocPreviewDialog}
                 data={{
@@ -1332,25 +1487,32 @@ function WaitingRoom() {
                     </Typography>
                 </MenuItem>
                 {documentsPreview.map((document, idx) => (
-                    <MenuItem onClick={() => setAnchorElMenu(null)} key={idx}>
+                    <MenuItem onClick={event => {
+                        event.stopPropagation();
+                        if (row) {
+                            const docs = row[document.value as keyof typeof row] as any[];
+                            handleShowPreviewDoc(docs[0]?.uuid, row.uuid);
+                        }
+                        setAnchorElMenu(null)
+                    }} key={idx}>
                         <ListItemIcon>
                             <IconUrl path={document.icon} width={20} height={20}
                                      color={theme.palette.text.primary}/>
                         </ListItemIcon>
                         <ListItemText sx={{mr: 2}} primary={t(document.key, {ns: "common"})}/>
                         <Stack direction='row' alignItems='center' spacing={1}>
-                            <IconButton disableRipple size="small">
+                            <IconButton
+                                disableRipple
+                                size="small">
                                 <IconUrl path="ic-voir-new"/>
-                            </IconButton>
-                            <IconButton disableRipple size="small">
-                                <IconUrl path="ic-print-compact"/>
                             </IconButton>
                         </Stack>
                     </MenuItem>
                 ))}
             </Menu>
         </>
-    );
+    )
+        ;
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({

@@ -2,7 +2,6 @@ import React, {useEffect} from "react";
 import {
     Avatar,
     Badge,
-    Button,
     IconButton,
     MenuItem,
     Stack,
@@ -15,7 +14,6 @@ import {
     Zoom,
 } from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
-import AddIcon from "@mui/icons-material/Add";
 import StyledMenu from "./overrides/menuStyle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {documentButtonList} from "@features/toolbar/components/appToolbar/config";

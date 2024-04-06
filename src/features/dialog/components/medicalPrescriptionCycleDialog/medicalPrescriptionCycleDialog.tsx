@@ -520,7 +520,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
             uuid: "",
             appUuid: ""
         }))
-
     }
 
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
@@ -1488,10 +1487,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         id="nested-list-subheader">
                                                         {t("drug_list", {ns: "consultation"})}
                                                     </ListSubheader>
-                                                    <IconButton onClick={showPreview} className="btn-list-action"
-                                                                sx={{"&.btn-list-action": {px: .8}}}>
-                                                        <IconUrl path="ic-eye-scan" width={16} height={16}/>
-                                                    </IconButton>
+                                                    {!router.pathname.includes("waiting-room") &&
+                                                        <IconButton onClick={showPreview} className="btn-list-action"
+                                                                    sx={{"&.btn-list-action": {px: .8}}}>
+                                                            <IconUrl path="ic-eye-scan" width={16} height={16}/>
+                                                        </IconButton>}
                                                 </Stack>
                                             }>
                                             {drugs?.map((drug: DrugCycleModel, index: number) => (
@@ -1559,7 +1559,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         <IconUrl
                                                             width={12}
                                                             height={12}
-                                                            path="ic-edit"
+                                                            path="ic-edit-patient"
                                                         />
                                                     </IconButton>
                                                     <IconButton
@@ -1570,7 +1570,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         className="btn-del"
                                                         disableRipple>
                                                         <IconUrl
-                                                            color="red"
+                                                            color={theme.palette.background.paper}
                                                             width={12}
                                                             height={12}
                                                             path="ic-delete"
