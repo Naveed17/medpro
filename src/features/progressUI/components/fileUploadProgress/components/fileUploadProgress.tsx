@@ -17,7 +17,7 @@ function FileUploadProgress({...props}) {
 
     const formatTime = (seconds: any) => [seconds / 60, seconds % 60].map((v) => `0${Math.floor(v)}`.slice(-2)).join(':')
 
-    const {wavesurfer, isReady, isPlaying, currentTime} = useWavesurfer({
+    const {wavesurfer, isPlaying, currentTime} = useWavesurfer({
         container: containerRef,
         url: fileUrl,
         height: 50,
