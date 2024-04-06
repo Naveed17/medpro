@@ -256,7 +256,7 @@ function AddDocumentDialog({...props}) {
                                     id={"label"}
                                     color="text.secondary"
                                     variant="body2"
-                                    fontWeight={400}>
+                                    fontWeight={600}>
                                     {t("name_of_the_document")}
                                 </Typography>}
 
