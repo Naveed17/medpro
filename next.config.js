@@ -1,3 +1,5 @@
+process.env.I18NEXT_DEFAULT_CONFIG_PATH = './next-i18next.config.cjs'
+
 import {withSentryConfig} from "@sentry/nextjs";
 import withSerwistInit from "@serwist/next";
 import NextBundleAnalyzer from "@next/bundle-analyzer";
