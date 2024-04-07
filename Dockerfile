@@ -20,7 +20,7 @@ COPY --chown=node:node . "${APP_ROOT}/"
 RUN set -xe; \
   npm run build -- --no-lint
 
-COPY --chown=node:node postinstall.js  $"{APP_ROOT}"/postinstall.js
+COPY --chown=node:node postinstall.cjs  $"{APP_ROOT}"/postinstall.cjs
 RUN npm run tinymce
 FROM wodby/node:20 AS runner
 
