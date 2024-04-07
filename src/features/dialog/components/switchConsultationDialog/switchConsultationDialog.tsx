@@ -60,7 +60,7 @@ function SwitchConsultationDialog({...props}) {
             <Typography sx={{textAlign: "center"}}
                         variant="subtitle1">{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.sub-title${selectedEvent === null ? `-${dialogAction}` : ""}`)} </Typography>
             <Typography sx={{textAlign: "center"}}
-                        marginTop={2}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description${selectedEvent === null ? `-${dialogAction}` : ""}`).split(',')[0]},</Typography>
+                        marginTop={2}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description${selectedEvent === null ? `-${dialogAction}` : ""}`).split(',')[0]}</Typography>
             <Typography
                 sx={{textAlign: "center"}}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description${selectedEvent === null ? `-${dialogAction}` : ""}`).split(',')[1]}</Typography>
 
