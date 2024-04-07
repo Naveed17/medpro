@@ -43,8 +43,7 @@ import {
     useMutateOnGoing,
     useInvalidateQueries,
     isAppleDevise,
-    isSupported,
-    capitalizeFirst
+    isSupported
 } from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
