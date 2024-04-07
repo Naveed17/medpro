@@ -1,6 +1,6 @@
 import {PrecacheController, PrecacheEntry} from "@serwist/precaching";
 import {Serwist} from "@serwist/sw";
-import {defaultCache, PAGES_CACHE_NAME} from "@serwist/next/worker";
+import {defaultCache} from "@serwist/next/worker";
 
 declare const self: ServiceWorkerGlobalScope & {
     // Change this attribute's name to your `injectionPoint`.
@@ -22,5 +22,5 @@ serwist.install({
     clientsClaim: true,
     navigationPreload: false,
     disableDevLogs: true,
-    runtimeCaching: defaultCache
+    runtimeCaching: process.env.NODE_ENV === "development" ? undefined : defaultCache
 });
