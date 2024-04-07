@@ -1,5 +1,4 @@
 import {GetStaticProps, GetStaticPaths} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState, memo, useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
@@ -51,6 +50,7 @@ import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {useCashBox} from "@lib/hooks/rest";
 import {NoDataCard} from "@features/card";
 import {FacebookCircularProgress} from "@features/progressUI";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -918,7 +918,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(locale as string, [
+            ...(await getServerTranslations(locale as string, [
                 "common",
                 "menu",
                 "patient",
