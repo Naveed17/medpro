@@ -28,7 +28,6 @@ import {
 
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
-import TimePicker from "@themes/overrides/TimePicker";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import dynamic from "next/dynamic";
@@ -38,7 +37,6 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
-import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CountrySelect} from "@features/countrySelect";
@@ -53,6 +51,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import {Dialog, resetOpeningData} from "@features/dialog";
 import {dialogOpeningHoursSelector} from "@features/dialog/components/openingHoursDialog";
 import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import {LocalizationProvider, TimePicker} from "@mui/x-date-pickers";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {LocaleFnsProvider} from "@lib/localization";
+import CustomTimePicker from "../../../../features/customTimePicker/customTimePicker";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -977,7 +979,7 @@ function PlacesDetail() {
                                                             )}
                                                             {hour && (
                                                                 <Grid item lg={4} md={6} sm={12} xs={12}>
-                                                                    <TimePicker
+                                                                    <CustomTimePicker
                                                                         defaultValue={[
                                                                             hour.start_time
                                                                                 ? new Date(
@@ -989,8 +991,8 @@ function PlacesDetail() {
                                                                                 : "",
                                                                         ]}
                                                                         onChange={(
-                                                                            start: DateTime,
-                                                                            end: DateTime
+                                                                            start: any,
+                                                                            end: any
                                                                         ) => {
                                                                             if (
                                                                                 hour.start_time !==
