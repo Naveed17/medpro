@@ -22,6 +22,7 @@ RUN set -xe; \
 
 COPY --chown=node:node postinstall.cjs  $"{APP_ROOT}"/postinstall.cjs
 RUN npm run tinymce
+
 FROM wodby/node:20 AS runner
 
 ENV NODE_ENV production
