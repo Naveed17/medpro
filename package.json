@@ -14,7 +14,7 @@
     "prod:up": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --remove-orphans",
     "prod:run": "next build && next start",
     "lint": "next lint",
-    "tinymce": "node ./postinstall.js"
+    "tinymce": "node postinstall.cjs"
   },
   "dependencies": {
     "@casl/ability": "^6.5.0",
