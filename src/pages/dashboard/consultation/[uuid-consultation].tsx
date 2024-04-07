@@ -1,6 +1,5 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Avatar,
@@ -94,6 +93,7 @@ import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
 import {useChannel} from "ably/react";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -2329,7 +2329,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(locale as string, [
+            ...(await getServerTranslations(locale as string, [
                 "consultation",
                 "menu",
                 "common"
