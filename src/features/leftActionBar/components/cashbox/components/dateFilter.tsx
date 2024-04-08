@@ -1,10 +1,9 @@
-import {Box, Checkbox, Collapse, FormControlLabel, Stack, TextField, Typography} from "@mui/material";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
-import React from "react";
+import {Box, Checkbox, Collapse, FormControlLabel} from "@mui/material";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import moment from "moment/moment";
 import {useAppDispatch} from "@lib/redux/hooks";
+import Datepicker from "react-tailwindcss-datepicker";
 
 function DateFilter({...props}) {
 
@@ -23,95 +22,65 @@ function DateFilter({...props}) {
     const dispatch = useAppDispatch();
     const {t} = useTranslation('payment', {keyPrefix: 'filter'});
 
+    const [isActive, setIsActive] = useState(byPeriod);
+    const [value, setValue] = useState({
+        startDate: startDate,
+        endDate: endDate
+    });
+
+    const handleValueChange = (newValue: any) => {
+        console.log("newValue:", newValue);
+        setValue(newValue);
+        setStartDate(moment(newValue.startDate, "YYYY-MM-DD").toDate())
+        setEndDate(moment(newValue.endDate, "YYYY-MM-DD").toDate())
+        dispatch(setFilterCB({
+            ...filterCB,
+            start_date: moment(newValue.startDate, "YYYY-MM-DD").format('DD-MM-yyyy'),
+            end_date: moment(newValue.endDate, "YYYY-MM-DD").format('DD-MM-yyyy')
+        }));
+    }
+
+    useEffect(() => {
+        setIsActive(byPeriod)
+    }, [byPeriod]);
+
+    console.log("filterCB", filterCB);
     return (
         <Box>
-            {/*<FormControlLabel
-                label={`${t('filterByDate')}`}
-                control={
-                    <Checkbox
-                        checked={filterDate}
-                        onChange={() => {
-                            if (filterDate) {
-                                setByPeriod(false);
-                                setStartDate(currentDate.date)
-                                setEndDate(new Date(currentDate.date))
-                            } else {
-                                dispatch(setFilterCB({
-                                    ...filterCB,
-                                    start_date: moment(currentDate.date).format('DD/MM/yyyy'),
-                                    end_date: moment(currentDate.date).format('DD/MM/yyyy')
-                                }));
-                            }
-                            setFilterDate(!filterDate);
-                        }}
-                    />
-                }
-            />*/}
 
             <FormControlLabel
                 label={`${t('filterByPeriod')}`}
                 disabled={!filterDate}
                 control={
                     <Checkbox
-                        checked={byPeriod}
+                        checked={isActive}
                         onChange={() => {
-                            if (!byPeriod) {
+                            if (!isActive) {
                                 dispatch(setFilterCB({
                                     ...filterCB,
-                                    start_date: moment(startDate).format('DD/MM/yyyy'),
-                                    end_date: moment(endDate).format('DD/MM/yyyy')
+                                    start_date: moment(startDate).format('DD-MM-yyyy'),
+                                    end_date: moment(endDate).format('DD-MM-yyyy')
                                 }));
                             } else {
                                 dispatch(setFilterCB({
                                     ...filterCB,
-                                    start_date: moment(currentDate.date).format('DD/MM/yyyy'),
-                                    end_date: moment(currentDate.date).format('DD/MM/yyyy')
+                                    start_date: moment(currentDate.date).format('DD-MM-yyyy'),
+                                    end_date: moment(currentDate.date).format('DD-MM-yyyy')
                                 }));
                             }
-                            setByPeriod(!byPeriod);
+                            setIsActive(!isActive);
+                            setByPeriod(!isActive);
                         }}
                     />
                 }
             />
 
-            <Collapse in={byPeriod && filterDate} timeout="auto" unmountOnExit>
-                <Stack p={1} spacing={2}>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            renderInput={(props) => <TextField {...props} />}
-                            label={t('startDate')}
-                            inputFormat={"dd/MM/yyyy"}
-                            value={startDate}
-                            onChange={(newValue) => {
-                                setStartDate(newValue);
-                                if (moment(newValue).format('DD/MM/yyyy').length == 10 && moment(newValue).isValid()) {
-                                    dispatch(setFilterCB({
-                                        ...filterCB,
-                                        start_date: moment(newValue).format('DD/MM/yyyy')
-                                    }));
-                                }
-                            }}
-                        />
-                    </LocalizationProvider>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            renderInput={(props) => <TextField {...props} />}
-                            label={t('endDate')}
-                            inputFormat={"dd/MM/yyyy"}
-                            value={endDate}
-                            onChange={(newValue) => {
-                                setEndDate(newValue);
-                                if (moment(newValue).format('DD/MM/yyyy').length == 10 && moment(newValue).isValid()) {
-                                    dispatch(setFilterCB({
-                                        ...filterCB,
-                                        end_date: moment(newValue).format('DD/MM/yyyy')
-                                    }));
-                                }
-                            }}
-                        />
-                    </LocalizationProvider>
-                    {moment(startDate).diff(endDate) > 0 && <Typography>start date inf end date</Typography>}
-                </Stack>
+            <Collapse in={isActive && filterDate} timeout="auto" unmountOnExit>
+                <Datepicker
+                    value={value as any}
+                    displayFormat={"DD/MM/YYYY"}
+                    onChange={handleValueChange}
+                />
             </Collapse>
         </Box>
     )
