@@ -31,6 +31,9 @@ const CipCardStyled = styled(Card)(({theme}) => ({
     "& .round-avatar": {
         borderRadius: 20,
         border: `2px solid ${theme.palette.background.paper}`
+    },
+    "& .cip-avatar-mobile": {
+        marginLeft: 0
     }
 }));
 export default CipCardStyled
