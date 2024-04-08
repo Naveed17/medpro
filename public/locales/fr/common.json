@@ -468,7 +468,10 @@
     "chooseUser2": "et entamez une conversation.",
     "tag": "Tag",
     "search": "Recherche",
-    "patientName": "Tapez nom du patient"
+    "patientName": "Tapez nom du patient",
+    "payment_dialog_title": "Paiement",
+    "pay": "Paiement",
+    "planif": "Planifier un RDV"
   },
   "balance_sheet": "Analyses demandées",
   "medical-certificate": "Document médical",

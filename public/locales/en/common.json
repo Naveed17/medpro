@@ -512,6 +512,9 @@
     "chooseUser2": "and start a conversation.",
     "tag": "Tag",
     "search": "Search",
-    "patientName": "Patient name"
+    "patientName": "Patient name",
+    "payment_dialog_title": "Payment",
+    "pay": "Payment",
+    "planif": "Schedule"
   }
 }
