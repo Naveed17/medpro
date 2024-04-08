@@ -27,6 +27,8 @@ function Doc({...props}) {
         setOnResize,
         urlMedicalProfessionalSuffix,
         docs,
+        editMode = true,
+        downloadMode = false,
         setDocs
     } = props
     const {data: session} = useSession();
@@ -235,6 +237,7 @@ function Doc({...props}) {
                         header,
                         setHeader,
                         state,
+                        editMode,downloadMode,
                         urlMedicalProfessionalSuffix,
                         docs, setDocs
                     }}/>

@@ -8,6 +8,7 @@
     "day": "jour(s)",
     "month": "mois",
     "years": "Ans",
+    "payment_dialog_title": "Paiment",
     "week": "semaine(s)",
     "start": "Début",
     "end": "Fin",
@@ -90,8 +91,8 @@
     "askRemove": "Vous voulez supprimer",
     "doc_detail_title": "Document",
     "rest": "Solde:",
-    "wallet": "Avance",
-    "credit": "Crédit"
+    "wallet": "Crédit",
+    "credit": "Débit"
   },
   "end of consultation": "fin de la consultation",
   "write": "Veuillez rédiger",
@@ -141,6 +142,7 @@
     "recent-search-balance-sheet": "Sélectionner le bilan demandée",
     "toolbar": "barre d'outils",
     "cfiche": "Fiche",
+    "editMode": "Mode édition",
     "patient-fiche": "Ouvrir la fiche de patient",
     "reason_for_consultation": "Motif",
     "insurance_document_print": "Documents assurance",
