@@ -1,5 +1,5 @@
 import {styled} from '@mui/material/styles'
-import {Card, Stack} from "@mui/material";
+import {Card} from "@mui/material";
 
 const CipCardStyled = styled(Card)(({theme}) => ({
     scale: "0.9",
