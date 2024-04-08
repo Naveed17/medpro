@@ -39,7 +39,17 @@ const PageStyled = styled(Box)(({theme}) => ({
         '& .content': {
             //padding: 10,
             overflow: "hidden",
-            margin: "0 10mm"
+            margin: "0 10mm",
+            p:{
+                margin:'14px 0'
+            }
+        },
+        '& .contentPis': {
+            p:{
+                margin:'14px 0'
+            },
+            margin: "0 10mm",
+            marginTop:14
         },
         "& .selected": {
             border: `2px dashed ${theme.palette.primary.main}`,
