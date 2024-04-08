@@ -48,8 +48,8 @@ function Cashbox() {
         });
         if (boxes !== '') {
             const newFilter = {
-                start_date: filterDate ? !byPeriod ? moment(currentDate.date).format("DD-MM-YYYY") : moment(startDate).format('DD/MM/yyyy') : "",
-                end_date: filterDate ? !byPeriod ? moment(currentDate.date).format("DD-MM-YYYY") : moment(endDate).format('DD/MM/yyyy') : "",
+                start_date: filterDate ? !byPeriod ? moment(currentDate.date).format("DD-MM-YYYY") : moment(startDate).format('DD-MM-YYYY') : "",
+                end_date: filterDate ? !byPeriod ? moment(currentDate.date).format("DD-MM-YYYY") : moment(endDate).format('DD-MM-YYYY') : "",
                 cashboxes: boxes
             }
             if (JSON.stringify(newFilter) !== JSON.stringify(filterCB))
@@ -164,7 +164,7 @@ function Cashbox() {
                 ,
             }] : [])
         ])
-    }, [selectedTab,filterCB]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [selectedTab, filterCB]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <BoxStyled className="container-filter">
@@ -180,8 +180,8 @@ function Cashbox() {
 
             <Accordion
                 translate={{
-                    t: t,
-                    ready: ready,
+                    t,
+                    ready
                 }}
                 defaultValue={""}
                 data={dataCashBox}

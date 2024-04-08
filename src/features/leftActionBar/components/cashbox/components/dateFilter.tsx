@@ -29,22 +29,22 @@ function DateFilter({...props}) {
     });
 
     const handleValueChange = (newValue: any) => {
-        console.log("newValue:", newValue);
         setValue(newValue);
-        setStartDate(moment(newValue.startDate, "YYYY-MM-DD").toDate())
-        setEndDate(moment(newValue.endDate, "YYYY-MM-DD").toDate())
-        dispatch(setFilterCB({
-            ...filterCB,
-            start_date: moment(newValue.startDate, "YYYY-MM-DD").format('DD-MM-yyyy'),
-            end_date: moment(newValue.endDate, "YYYY-MM-DD").format('DD-MM-yyyy')
-        }));
+        if (newValue.startDate && newValue.endDate) {
+            setStartDate(moment(newValue.startDate, "YYYY-MM-DD").toDate())
+            setEndDate(moment(newValue.endDate, "YYYY-MM-DD").toDate())
+            dispatch(setFilterCB({
+                ...filterCB,
+                start_date: moment(newValue.startDate, "YYYY-MM-DD").format('DD-MM-YYYY'),
+                end_date: moment(newValue.endDate, "YYYY-MM-DD").format('DD-MM-YYYY')
+            }));
+        }
     }
 
     useEffect(() => {
         setIsActive(byPeriod)
     }, [byPeriod]);
 
-    console.log("filterCB", filterCB);
     return (
         <Box>
 
@@ -58,14 +58,14 @@ function DateFilter({...props}) {
                             if (!isActive) {
                                 dispatch(setFilterCB({
                                     ...filterCB,
-                                    start_date: moment(startDate).format('DD-MM-yyyy'),
-                                    end_date: moment(endDate).format('DD-MM-yyyy')
+                                    start_date: moment(startDate).format('DD-MM-YYYY'),
+                                    end_date: moment(endDate).format('DD-MM-YYYY')
                                 }));
                             } else {
                                 dispatch(setFilterCB({
                                     ...filterCB,
-                                    start_date: moment(currentDate.date).format('DD-MM-yyyy'),
-                                    end_date: moment(currentDate.date).format('DD-MM-yyyy')
+                                    start_date: moment(currentDate.date).format('DD-MM-YYYY'),
+                                    end_date: moment(currentDate.date).format('DD-MM-YYYY')
                                 }));
                             }
                             setIsActive(!isActive);
