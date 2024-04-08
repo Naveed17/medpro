@@ -119,7 +119,6 @@ function MainLayout({...props}) {
     const handleBroadcastMessages = (message: any) => {
         const data = isObject(message.data.details) ? message.data.details : JSON.parse(message.data.details);
         const fcmSession = data.body?.fcm_session ?? "";
-        console.log("message.data.root", message.data.root, fcmSession !== jti)
         if (fcmSession !== jti) {
             if (data.type === "no_action") {
                 if (data.mode === "foreground") {
