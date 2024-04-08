@@ -1812,7 +1812,6 @@ function ConsultationInProgress() {
                 open={openSecDialog}
                 data={{
                     app_uuid,
-                    agenda: agenda?.uuid,
                     patient: {
                         uuid: sheet?.patient,
                         ...patient
