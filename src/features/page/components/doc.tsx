@@ -128,7 +128,6 @@ function Doc({...props}) {
     }
 
     useEffect(() => {
-        console.log(state)
         if (state) {
             if (state.info)
                 createPageContent()
