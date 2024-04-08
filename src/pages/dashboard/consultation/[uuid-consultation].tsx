@@ -430,11 +430,11 @@ function ConsultationInProgress() {
                     uuidDoc = card.prescription[0].uuid;
                     break;
                 case "requested-analysis":
-                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
+                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.requested_analyses_has_analyses : [];
                     uuidDoc = card.requested_Analyses[0].uuid;
                     break;
                 case "requested-medical-imaging":
-                    info = card.medical_imaging[0]["medical-imaging"];
+                    info = card.medical_imaging[0]["requested_medical_imaging_has_medical_imaging"];
                     uuidDoc = card.medical_imaging[0].uuid;
                     break;
             }

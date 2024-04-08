@@ -10,12 +10,13 @@ import {useQRCode} from 'next-qrcode';
 import {UploadFile} from "@features/uploadFile";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
+import html2canvas from "html2canvas";
 
 function Page({...props}) {
 
     const {
         data, setData, id = 0, setOnResize, date, header, setHeader, setValue,
-        state, componentRef,
+        state, componentRef, editMode, downloadMode,
         urlMedicalProfessionalSuffix, docs, setDocs
     } = props
     const {Canvas} = useQRCode();
@@ -39,12 +40,6 @@ function Page({...props}) {
         }
         return -1 * _margin
     }
-
-    useEffect(() => {
-        setTimeout(() => {
-            setLoading(false)
-        }, 2000)
-    }, [])
 
     const getFile = (uuid: string) => {
         const _file = docs?.find((doc: { uuid: string }) => doc.uuid === uuid)
@@ -83,6 +78,43 @@ function Page({...props}) {
         else
             return data.content[pos]
     }
+
+    useEffect(() => {
+        setTimeout(() => {
+            setLoading(false)
+        }, 2000)
+    }, [])
+
+    useEffect(() => {
+        let htmlContent = document.getElementById(`content${id}`);
+
+        if (downloadMode) {
+
+            if (htmlContent !== null) {
+                htmlContent.style.visibility = "visible"
+
+                let targetCanvas = document.getElementById(`canvas${id}`) as HTMLCanvasElement;
+                let targetCtx = targetCanvas?.getContext('2d');
+
+                if (targetCanvas)
+                    html2canvas(htmlContent).then(function (canvas) {
+                        // Define the region you want to capture
+                        let width = htmlContent?.clientWidth || 0;
+                        let height = htmlContent?.clientHeight || 0;
+                        targetCanvas.width = width
+                        targetCanvas.height = height
+                        //const htmlHeight = htmlContent?.scrollHeight || 0
+                        targetCtx?.setTransform(1, 0, 0, 1, 0, 0);
+                        targetCtx && targetCtx.drawImage(canvas, 0, 0, width, height);
+                        //targetCtx && targetCtx.drawImage(canvas, 0, 0, width, htmlHeight, 0, -1*getMarginTop(), width, height);
+
+                        if (htmlContent)
+                            htmlContent.style.visibility = "hidden"
+                    });
+            }
+        } else if (htmlContent)
+            htmlContent.style.visibility = "visible"
+    }, [downloadMode])// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (selectedElement !== "") {
@@ -207,7 +239,8 @@ function Page({...props}) {
                             style={{
                                 transform: `translate(${data.header.x}px, ${data.header.y}px)`,
                                 width: `${data.header.width ? data.header.width + "px" : "fit-content"}`,
-                                height: `fit-content`
+                                height: `fit-content`,
+                                ...(!editMode && {border: 0})
                             }}
                             bounds={"parent"}
                             enable={{
@@ -230,7 +263,7 @@ function Page({...props}) {
                                     <DocHeader data={header}/>}
                             </div>
 
-                            <div className={"menuTop"}>
+                            {editMode && <div className={"menuTop"}>
                                 <div className={"btnMenu"} onClick={() => {
                                     data.header.show = false;
                                     setData({...data})
@@ -244,7 +277,7 @@ function Page({...props}) {
                                      }}>
                                     <Icon path={selectedElement !== "header" ? "ic-edit-patient" : "ic-check"}/>
                                 </div>
-                            </div>
+                            </div>}
                         </Resizable>}
 
                     {/*Title*/}
@@ -257,7 +290,8 @@ function Page({...props}) {
                         style={{
                             transform: `translate(${data.title.x}px, ${data.title.y}px)`,
                             width: `${data.title.width ? data.title.width + "px" : "fit-content"}`,
-                            height: `fit-content`
+                            height: `fit-content`,
+                            ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
                         enable={{
@@ -279,7 +313,7 @@ function Page({...props}) {
                         }}>
                             {data.title.content}
                         </div>
-                        <div className={"menuTop"}>
+                        {editMode && <div className={"menuTop"}>
                             <div className={"btnMenu"}
                                  onClick={() => {
                                      data.title.show = false;
@@ -301,7 +335,7 @@ function Page({...props}) {
                                     <Icon path={"ic-check"}/> :
                                     <Icon path={"text-selection"} width={20} height={20}/>}
                             </div>
-                        </div>
+                        </div>}
                     </Resizable>}
                     {/*Date*/}
                     {data.date.show && id == 0 && <Resizable
@@ -313,7 +347,8 @@ function Page({...props}) {
                         style={{
                             transform: `translate(${data.date.x}px, ${data.date.y}px)`,
                             width: `${data.date.width ? data.date.width + "px" : "fit-content"}`,
-                            height: `fit-content`
+                            height: `fit-content`,
+                            ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
                         enable={{
@@ -335,7 +370,7 @@ function Page({...props}) {
                         }}>
                             {data.date.prefix} {date ? date : data.date.content}
                         </div>
-                        <div className={"menuTop"}>
+                        {editMode && <div className={"menuTop"}>
                             <div className={"btnMenu"}
                                  onClick={() => {
                                      data.date.show = false;
@@ -358,7 +393,7 @@ function Page({...props}) {
                                 <Icon path={selectedElement !== "date" ? "text-selection" : "ic-check"} width={20}
                                       height={20}/>
                             </div>
-                        </div>
+                        </div>}
                     </Resizable>}
                     {/*patient*/}
                     {data.patient.show && id == 0 && <Resizable
@@ -370,7 +405,8 @@ function Page({...props}) {
                         style={{
                             transform: `translate(${data.patient.x}px, ${data.patient.y}px)`,
                             width: `${data.patient.width ? data.patient.width + "px" : "fit-content"}`,
-                            height: `fit-content`
+                            height: `fit-content`,
+                            ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
                         enable={{
@@ -392,7 +428,7 @@ function Page({...props}) {
                         }}>
                             {data.patient.prefix} {data.patient.content}
                         </div>
-                        <div className={"menuTop"}>
+                        {editMode && <div className={"menuTop"}>
                             <div className={"btnMenu"}
                                  onClick={() => {
                                      data.patient.show = false;
@@ -415,7 +451,7 @@ function Page({...props}) {
                                 <Icon path={selectedElement !== "patient" ? "text-selection" : "ic-check"} width={20}
                                       height={20}/>
                             </div>
-                        </div>
+                        </div>}
                     </Resizable>}
                     {/*Cin*/}
                     {data.cin?.show && id == 0 && <Resizable
@@ -427,7 +463,8 @@ function Page({...props}) {
                         style={{
                             transform: `translate(${data.cin?.x}px, ${data.cin?.y}px)`,
                             width: `${data.cin?.width ? data.cin?.width + "px" : "fit-content"}`,
-                            height: `fit-content`
+                            height: `fit-content`,
+                            ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
                         enable={{
@@ -450,7 +487,7 @@ function Page({...props}) {
                         }}>
                             {data.cin?.prefix} {data.cin?.content}
                         </div>
-                        <div className={"menuTop"}>
+                        {editMode && <div className={"menuTop"}>
                             <div className={"btnMenu"}
                                  onClick={() => {
                                      data.cin.show = false;
@@ -465,7 +502,7 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={selectedElement !== "cin" ? "ic-edit-patient" : "ic-check"}/>
                             </div>
-                        </div>
+                        </div>}
                     </Resizable>}
 
                     {/*Age*/}
@@ -478,7 +515,8 @@ function Page({...props}) {
                         style={{
                             transform: `translate(${data.age?.x}px, ${data.age?.y}px)`,
                             width: `${data.age?.width ? data.age?.width + "px" : "fit-content"}`,
-                            height: `fit-content`
+                            height: `fit-content`,
+                            ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
                         enable={{
@@ -500,7 +538,7 @@ function Page({...props}) {
                         }}>
                             {data.age?.prefix} {data.age?.content}
                         </div>
-                        <div className={"menuTop"}>
+                        {editMode && <div className={"menuTop"}>
                             <div className={"btnMenu"}
                                  onClick={() => {
                                      data.age.show = false;
@@ -515,7 +553,7 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={selectedElement !== "age" ? "ic-edit-patient" : "ic-check"}/>
                             </div>
-                        </div>
+                        </div>}
                     </Resizable>}
 
                     {
@@ -531,6 +569,7 @@ function Page({...props}) {
                                     transform: `translate(${other.x}px, ${other.y}px)`,
                                     width: `${other.width ? other.width + "px" : "fit-content"}`,
                                     height: `${other.height ? other.height + "px" : "fit-content"}`,
+                                    ...(!editMode && {border: 0})
                                 }}
                                 bounds={"parent"}
                                 enable={{
@@ -590,7 +629,7 @@ function Page({...props}) {
                                         }}
                                     />
                                 </div>}
-                                <div className={"menuTop"}>
+                                {editMode && <div className={"menuTop"}>
                                     <div className={"btnMenu"}
                                          onClick={() => {
                                              data.other.splice(index, 1)
@@ -625,20 +664,24 @@ function Page({...props}) {
                                             <Icon path={"ic-check"}/> :
                                             <Icon path={"text-selection"} width={20} height={20}/>}
                                     </div>
-                                </div>
+                                </div>}
                             </Resizable>
                         ))
                     }
 
 
                     {/*Content*/}
+
+
                     <Resizable
-                        className={`${selectedElement === `content${id}` ? "selected" : "notSelected"} content resizable content${id}`}
+                        className={`${selectedElement === `content${id}` ? "selected" : "notSelected"} ${downloadMode ? "contentPis" : "content"} resizable content${id}`}
                         style={{
                             paddingLeft: 15, paddingRight: 15,
                             transform: `translate(${getPosition(id, "x")}px, ${getPosition(id, "y")}px)`,
                             width: `${data.content.width ? data.content.width + "px" : "90%"}`,
-                            height: `${data.content.maxHeight}px`
+                            height: `${data.content.maxHeight}px`,
+                            ...(!editMode && {border: 0})
+
                         }}
                         bounds={"parent"}
                         enable={{
@@ -675,11 +718,12 @@ function Page({...props}) {
                             setBlockDrag(false)
                             setOnResize(true);
                         }}>
+                        {downloadMode && <canvas id={`canvas${id}`}/>}
                         <div
                             id={`content${id}`}
                             style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
                             dangerouslySetInnerHTML={{__html: data.content.content}}/>
-                        <div className={"menuTop"} style={{top: 0}}>
+                        {editMode && <div className={"menuTop"} style={{top: 0}}>
                             {state && <div className={"btnMenu"}>
                                 <div onClick={() => {
                                     setValue("content")
@@ -698,7 +742,7 @@ function Page({...props}) {
                                         <Icon path={"text-selection"} width={20} height={20}/>}
                                 </div>
                             </div>
-                        </div>
+                        </div>}
                     </Resizable>
 
                     {/*footer*/}
@@ -712,6 +756,7 @@ function Page({...props}) {
                             transform: `translate(${data.footer.x}px, ${data.footer.y}px)`,
                             width: `${data.footer.width ? data.footer.width + "px" : "fit-content"}`,
                             height: `${data.footer.height ? data.footer.height + "px" : "fit-content"}`,
+                            ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
                         enable={{
@@ -728,14 +773,13 @@ function Page({...props}) {
                             setData({...data})
                             setBlockDrag(false)
                         }}>
-
                         <div id={`patient${id}`} onClick={(ev) => {
                             ev.stopPropagation()
                             setSelectedElement("footer")
                         }}>
                             <div id={"footer"} className={"footer-st"}/>
                         </div>
-                        <div className={"menuTop"}>
+                        {editMode && <div className={"menuTop"}>
                             <div className={"btnMenu"}
                                  onClick={() => {
                                      data.footer.show = false;
@@ -759,7 +803,7 @@ function Page({...props}) {
                                     <Icon path={"ic-check"}/> :
                                     <Icon path={"text-selection"} width={20} height={20}/>}
                             </div>
-                        </div>
+                        </div>}
                     </Resizable>}
                 </div>
             </div>
