@@ -1,6 +1,5 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Avatar,
@@ -94,6 +93,7 @@ import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
 import {useChannel} from "ably/react";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -387,7 +387,7 @@ function ConsultationInProgress() {
         _cards[ind][index].expanded = true;
 
         const _locPosition = JSON.parse(localStorage.getItem("cardPositions") as string)
-        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition,widget: true}))
+        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition, widget: true}))
 
         _cards[ind][index].config = false;
         setCards([..._cards])
@@ -1845,11 +1845,14 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    PaperProps={{
-                        sx: {
-                            overflow: 'hidden'
+                    {...(!["medical_prescription", "medical_prescription_cycle"].includes(info) && {
+                            PaperProps: {
+                                sx: {
+                                    overflow: 'hidden'
+                                }
+                            }
                         }
-                    }}
+                    )}
                     data={{
                         appuuid: app_uuid,
                         patient,
@@ -1890,8 +1893,8 @@ function ConsultationInProgress() {
                         ),
                         sx: {
                             p: 1.5,
-                            overflowX: 'hidden',
-                            overflowY: 'hidden'
+                            /*overflowX: 'hidden',
+                            overflowY: 'hidden'*/
                         }
 
                     })}
@@ -2326,7 +2329,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(locale as string, [
+            ...(await getServerTranslations(locale as string, [
                 "consultation",
                 "menu",
                 "common"

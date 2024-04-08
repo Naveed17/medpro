@@ -43,8 +43,7 @@ import {
     useMutateOnGoing,
     useInvalidateQueries,
     isAppleDevise,
-    isSupported,
-    capitalizeFirst
+    isSupported
 } from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
@@ -327,6 +326,7 @@ function TopNavBar({...props}) {
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
         window.addEventListener("beforeinstallprompt", (e) => {
+            console.log("beforeinstallprompt", e)
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
             // Stash the event so it can be triggered later.

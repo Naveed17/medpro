@@ -1,18 +1,26 @@
-const {i18n} = require("./next-i18next.config");
-const {withSentryConfig} = require('@sentry/nextjs');
+process.env.I18NEXT_DEFAULT_CONFIG_PATH = './next-i18next.config.cjs'
+
+import {withSentryConfig} from "@sentry/nextjs";
+import withSerwistInit from "@serwist/next";
+import NextBundleAnalyzer from "@next/bundle-analyzer";
+
 const plugins = [];
 
-const withPWA = require("next-pwa")({
-    dest: "public",
-    register: true,
-    maximumFileSizeToCacheInBytes: 33000000,
-    disable: process.env.NODE_ENV === 'development',
-    skipWaiting: true
+const withPWA = withSerwistInit({
+    // Note: This is only an example. If you use Pages Router,
+    // use something else that works, such as "service-worker/index.ts".
+    cacheOnNavigation: true,
+    swSrc: "service-worker/index.ts",
+    swDest: "public/sw.js",
+    maximumFileSizeToCacheInBytes: 10000000,
+    reloadOnOnline: true,
+    disable: process.env.NODE_ENV === "development", // to disable pwa in development
 });
 plugins.push(withPWA);
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+const withBundleAnalyzer = NextBundleAnalyzer({
     enabled: process.env.ANALYZE === 'true',
+    openAnalyzer: false
 });
 
 plugins.push(withBundleAnalyzer);
@@ -21,7 +29,9 @@ plugins.push(withBundleAnalyzer);
  */
 const nextConfig = {
     output: 'standalone',
-    i18n,
+    i18n: {
+        locales: ["fr", "en", "ar"], defaultLocale: "fr"
+    },
     experimental: {
         nextScriptWorkers: false
     },
@@ -59,7 +69,7 @@ const nextConfig = {
     }
 }
 
-moduleExports = () => plugins.reduce((acc, next) => next(acc), nextConfig)
+const moduleExports = async () => plugins.reduce((acc, next) => next(acc), nextConfig)
 
 const sentryWebpackPluginOptions = {
     // Additional config options for the Sentry Webpack plugin. Keep in mind that
@@ -75,4 +85,4 @@ const sentryWebpackPluginOptions = {
 
 // Make sure adding Sentry options is the last code to run before exporting, to
 // ensure that your source maps include changes from all other Webpack plugins
-module.exports = withSentryConfig(moduleExports, sentryWebpackPluginOptions);
+export default withSentryConfig(moduleExports, sentryWebpackPluginOptions);

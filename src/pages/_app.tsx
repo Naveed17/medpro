@@ -38,7 +38,7 @@ const AblyClient = dynamic(
         ssr: false, // this ensures that server side rendering is never used for this component
     },
 );
-import nextI18NextConfig from '../../next-i18next.config.js';
+import nextI18NextConfig from '../../next-i18next.config.cjs';
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
