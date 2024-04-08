@@ -119,6 +119,7 @@ function MainLayout({...props}) {
     const handleBroadcastMessages = (message: any) => {
         const data = isObject(message.data.details) ? message.data.details : JSON.parse(message.data.details);
         const fcmSession = data.body?.fcm_session ?? "";
+        console.log("message.data.root", message.data.root, fcmSession !== jti)
         if (fcmSession !== jti) {
             if (data.type === "no_action") {
                 if (data.mode === "foreground") {
@@ -144,7 +145,7 @@ function MainLayout({...props}) {
             } else if (data.type === "session") {
                 // Update session permissions feature
                 update({[message.data.root]: data.body});
-            } else if (slugFeature === message.data.root) {
+            } else if ([slugFeature, "documents"].includes(message.data.root)) {
                 switch (message.data.root) {
                     case "agenda":
                         dispatch(setLastUpdate(data));
@@ -186,7 +187,10 @@ function MainLayout({...props}) {
                     case "documents":
                         // Mutate Speech to text Documents
                         enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
-                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
+                        medicalEntityHasUser && invalidateQueries([
+                            ...(data.body.appointment ? [`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`] : []),
+                            ...(data.body.patient ? [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.body.patient}/documents/${router.locale}`] : [])
+                        ]);
                         break;
                     default:
                         // Mutate dynamic requests
