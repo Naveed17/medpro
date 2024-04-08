@@ -14,6 +14,9 @@ export const generatePdfFromHtml = async (componentRef: MutableRefObject<any[]>,
                 mimeType: 'image/png',
                 qualityRatio: 1
             },
+            page: {
+                // format: 'A5',
+            },
             overrides: {
                 // see https://artskydj.github.io/jsPDF/docs/jsPDF.html for more options
                 pdf: {
