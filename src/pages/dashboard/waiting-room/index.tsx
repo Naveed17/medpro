@@ -20,7 +20,7 @@ import {
     useMediaQuery, Grid, FormControlLabel, Checkbox, ListItemIcon, ListItemText, IconButton, Zoom, Fab
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {consultationSelector, RoomToolbar} from "@features/toolbar";
+import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
