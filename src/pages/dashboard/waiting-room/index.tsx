@@ -151,7 +151,7 @@ function WaitingRoom() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [drugs, setDrugs] = useState<any>([]);
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
-    console.log('tabIndex', tabIndex);
+
     const openMenu = Boolean(anchorElMenu);
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
