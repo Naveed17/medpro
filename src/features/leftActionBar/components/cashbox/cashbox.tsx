@@ -164,7 +164,7 @@ function Cashbox() {
                 ,
             }] : [])
         ])
-    }, [selectedTab]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [selectedTab,filterCB]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <BoxStyled className="container-filter">

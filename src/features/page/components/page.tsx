@@ -103,7 +103,6 @@ function Page({...props}) {
                         let height = htmlContent?.clientHeight || 0;
                         targetCanvas.width = width
                         targetCanvas.height = height
-                        console.log(htmlContent?.scrollHeight,htmlContent?.scrollWidth)
                         //const htmlHeight = htmlContent?.scrollHeight || 0
                         targetCtx?.setTransform(1, 0, 0, 1, 0, 0);
                         targetCtx && targetCtx.drawImage(canvas, 0, 0, width, height);

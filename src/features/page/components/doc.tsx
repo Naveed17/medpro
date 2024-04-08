@@ -75,7 +75,7 @@ function Doc({...props}) {
                 const value = `<p>Prière de faire les explorations biologiques suivantes à ${state.patient} :</p>`
                 elx += value
                 state.info.map((el: any) => {
-                    elx += `<p>• ${el.analysis.name}</p>`
+                    elx += `<p>• ${el.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
 
@@ -85,7 +85,7 @@ function Doc({...props}) {
                 const val = `<p>Prière de faire les explorations radiologiques suivantes à ${state.patient} :</p>`
                 elx += val
                 state.info.map((el: any) => {
-                    elx += `<p>• ${el['medical-imaging']?.name}</p>`
+                    elx += `<p>• ${el?.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
 
@@ -151,8 +151,8 @@ function Doc({...props}) {
             data.title.content = title;
             setData({...data})
         }
-            if(state && state.title)
-                data.title.content = state.title
+        if (state && state.title)
+            data.title.content = state.title
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [title])
 
@@ -237,7 +237,7 @@ function Doc({...props}) {
                         header,
                         setHeader,
                         state,
-                        editMode,downloadMode,
+                        editMode, downloadMode,
                         urlMedicalProfessionalSuffix,
                         docs, setDocs
                     }}/>
@@ -258,20 +258,20 @@ function Doc({...props}) {
                 {data[value] ? value === "patient" || value === "date" ? <Stack spacing={1} p={2}>
                     <Typography fontSize={12}>Prefix</Typography>
                     <TextField
-                    value={data[value].prefix}
-                    onChange={(event) => {
-                        data[value].prefix = event.target.value
-                        setData({...data})
-                    }}
-                />
-                </Stack>:<Editor
+                        value={data[value].prefix}
+                        onChange={(event) => {
+                            data[value].prefix = event.target.value
+                            setData({...data})
+                        }}
+                    />
+                </Stack> : <Editor
                     value={data[value].content}
                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                     onEditorChange={(event) => {
                         data[value].content = event
                         setData({...data})
                     }}
-                    init={editorInit}/>: null}
+                    init={editorInit}/> : null}
 
                 {value.includes("other") && <Editor
                     value={data["other"][value.replace("other", "")].content}
