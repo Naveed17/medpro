@@ -1,5 +1,5 @@
 import {styled} from '@mui/material/styles'
-import {Card, Stack} from "@mui/material";
+import {Card} from "@mui/material";
 
 const CipCardStyled = styled(Card)(({theme}) => ({
     scale: "0.9",
@@ -31,6 +31,9 @@ const CipCardStyled = styled(Card)(({theme}) => ({
     "& .round-avatar": {
         borderRadius: 20,
         border: `2px solid ${theme.palette.background.paper}`
+    },
+    "& .cip-avatar-mobile": {
+        marginLeft: 0
     }
 }));
 export default CipCardStyled

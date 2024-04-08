@@ -42,6 +42,7 @@ import {Dialog} from "@features/dialog";
 import CheckIcon from "@mui/icons-material/Check";
 import MenuItem from "@mui/material/MenuItem";
 import useUsers from "@lib/hooks/rest/useUsers";
+import {agendaSelector} from "@features/calendar";
 
 const limit = 255;
 
@@ -49,7 +50,6 @@ function SecretaryConsultationDialog({...props}) {
     const {
         data: {
             app_uuid,
-            agenda,
             patient,
             t,
             setTransactions,
@@ -73,11 +73,14 @@ function SecretaryConsultationDialog({...props}) {
     const router = useRouter();
     const theme = useTheme() as Theme;
     const {users} = useUsers();
-
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {direction} = useAppSelector(configSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
+
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
@@ -92,12 +95,10 @@ function SecretaryConsultationDialog({...props}) {
     const devise = doctor_country.currency?.name;
     const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
-    const {direction} = useAppSelector(configSelector);
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {data: httpAppointmentTransactions} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/transactions/${router.locale}`
     });
 
     const resetDialog = () => {

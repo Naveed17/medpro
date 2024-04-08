@@ -489,13 +489,13 @@ function TopNavBar({...props}) {
                                         }}>
                                         <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
                                             <Typography
-                                                className={"timer-text"}
+                                                className={"timer-text ellipsis"}
                                                 fontWeight={800}>
                                                 {next.patient}
                                             </Typography>
-                                            <Label color="primary" variant="filled">
+                                            {!isMobile && <Label color="primary" variant="filled">
                                                 {commonTranslation("pending")}
-                                            </Label>
+                                            </Label>}
                                             <IconButton
                                                 onClick={(event) => {
                                                     event.stopPropagation();
@@ -544,7 +544,7 @@ function TopNavBar({...props}) {
                                     {commonTranslation("install_app")}
                                 </Button>
                             }
-                            {topBar.map((item, index) => (
+                            {!isMobile && topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={notificationsCount}
                                     className="custom-badge"
