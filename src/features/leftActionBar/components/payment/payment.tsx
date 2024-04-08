@@ -24,7 +24,7 @@ function Payment() {
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
-    const accordionData = [
+    const [accordionData, setAccordionData] = useState([
         {
             heading: {
                 id: "insurance",
@@ -55,7 +55,7 @@ function Payment() {
                     }}/>
             ),
         }
-    ];
+    ]);
 
     const hours = agendaConfig?.openingHours[0];
 
@@ -87,8 +87,7 @@ function Payment() {
                     ready: ready,
                 }}
                 data={accordionData}
-                setData={() => {
-                }}
+                setData={setAccordionData}
             />
         </BoxStyled>
     )

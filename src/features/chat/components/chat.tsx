@@ -163,8 +163,8 @@ const Chat = ({...props}) => {
                 const button1 = document.createElement("button");
                 const button2 = document.createElement("button");
                 // Set the text for the buttons
-                button1.textContent = "Paiement";
-                button2.textContent = "Planifier un RDV";
+                button1.textContent = t("pay");
+                button2.textContent = t("planif");
                 button1.className = "btn1"
                 button2.className = "btn2"
 
@@ -639,7 +639,7 @@ const Chat = ({...props}) => {
                 }}
                 size={"lg"}
                 fullWidth
-                title={"translationCommon.payment_dialog_title"}
+                title={t("payment_dialog_title")}
                 dialogClose={() => setOpenPaymentDialog(false)}
             />
         </ChatStyled>

@@ -54,18 +54,13 @@ function CipCard({...props}) {
 
                 <Avatar
                     alt="button avatar"
-                    {...((!isMobile && !roles.includes('ROLE_SECRETARY') && !isWindowMax) && {
-                        onClick: (event: any) => {
-                            event.stopPropagation();
-                            dispatch(setSelectedEvent(null));
-                            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-                        }
-                    })}
+                    {...(isMobile && {className: "cip-avatar-mobile"})}
                     sx={{
                         height: 28,
                         py: 1,
+
                         borderRadius: 3,
-                        minWidth: 80,
+                        minWidth: isMobile ? "auto" : 80,
                         color: theme.palette.warning.contrastText,
                         bgcolor: theme.palette.warning.main
                     }}>

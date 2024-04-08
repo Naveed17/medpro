@@ -10,6 +10,7 @@
     "years": "Years",
     "week": "week(s)",
     "months": "Months",
+    "payment_dialog_title": "Payment",
     "start": "Start",
     "end": "End",
     "days": "Days",
@@ -90,8 +91,8 @@
     "askRemove": "Do you want to delete",
     "doc_detail_title": "Document",
     "rest": "Sold:",
-    "wallet": "Wallet",
-    "credit": "Credit"
+    "wallet": "Credit",
+    "credit": "Speed"
   },
   "end of consultation": "End of Consultation",
   "write": "Please write",
@@ -140,6 +141,7 @@
     "recent-search-balance-sheet": "Select the requested balance sheet",
     "saveAsModel": "Save as model",
     "receiver": "Receiver",
+    "editMode": "Edit mode",
     "subject": "Subject",
     "sendEmailWithsuccess": "Send with success",
     "content": "Content",

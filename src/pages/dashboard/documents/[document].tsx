@@ -4,11 +4,9 @@ import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
 import {Box, Button, Drawer, IconButton, Stack, Toolbar, Typography} from "@mui/material";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useTranslation} from "next-i18next";
-
 import {SubFooter} from "@features/subFooter";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
@@ -48,6 +46,7 @@ const headCells: readonly HeadCell[] = [
 ]
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 function Document() {
     const router = useRouter();
@@ -280,7 +279,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
         props: {
             dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs"])),
+            ...(await getServerTranslations(locale as string, ["menu", "common", "docs"])),
         },
     };
 }

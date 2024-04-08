@@ -43,8 +43,7 @@ import {
     useMutateOnGoing,
     useInvalidateQueries,
     isAppleDevise,
-    isSupported,
-    capitalizeFirst
+    isSupported
 } from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
@@ -52,6 +51,7 @@ import {resetAppointment} from "@features/tabPanel";
 import {partition} from "lodash";
 import Can from "@features/casl/can";
 import {Label} from "@features/label";
+import {useChannel} from "ably/react";
 
 let deferredPrompt: any;
 
@@ -67,7 +67,6 @@ function TopNavBar({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -83,13 +82,18 @@ function TopNavBar({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
     const {switchConsultationDialog, action: dialogAction} = useAppSelector(navBarSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const {channel} = useChannel(medical_entity?.uuid);
 
     const {trigger: triggerAppointmentUpdate} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("/agenda/appointment/edit");
+
+    const general_information = (user as UserDataResponse).general_information;
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -101,6 +105,9 @@ function TopNavBar({...props}) {
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [selectedUser, setSelectedUser] = useState("");
+    const [selectedDiscussion, setSelectedDiscussion] = useState("");
+    const [instruction, setInstruction] = useState("");
 
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
@@ -212,8 +219,22 @@ function TopNavBar({...props}) {
         });
     }
 
+    const sendMsg = () => {
+        const msg = `<div class="rdv" patient="${event?.extendedProps.patient?.uuid}" fn="${event?.extendedProps.patient?.firstName}" ln="${event?.extendedProps.patient?.lastName}"> &lt; <span class="tag" id="${event?.extendedProps.patient?.uuid}">${event?.extendedProps.patient?.firstName} ${event?.extendedProps.patient?.lastName} </span><span class="afterTag">> ${instruction} </span></div>`;
+
+        channel.publish(selectedDiscussion, JSON.stringify({
+            message: msg,
+            from: medicalEntityHasUser,
+            to: selectedUser,
+            user: `${general_information.firstName} ${general_information.lastName}`
+        }))
+    }
+
     const handleSaveStartConsultation = () => {
         setLoadingReq(true);
+
+        if (instruction)
+            sendMsg()
         const form = new FormData();
         form.append("status", "5");
         form.append("action", "end_consultation");
@@ -221,7 +242,7 @@ function TopNavBar({...props}) {
         form.append("content", JSON.stringify({
             fees: event?.extendedProps.total,
             restAmount: event?.extendedProps.restAmount,
-            instruction: "",
+            instruction,
             control: true,
             edited: false,
             payed: true,
@@ -243,7 +264,7 @@ function TopNavBar({...props}) {
                 dispatch(resetTimer());
                 dispatch(resetAppointment());
                 dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
-
+                setInstruction("")
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
@@ -327,6 +348,7 @@ function TopNavBar({...props}) {
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
         window.addEventListener("beforeinstallprompt", (e) => {
+            console.log("beforeinstallprompt", e)
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
             // Stash the event so it can be triggered later.
@@ -467,13 +489,13 @@ function TopNavBar({...props}) {
                                         }}>
                                         <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
                                             <Typography
-                                                className={"timer-text"}
+                                                className={"timer-text ellipsis"}
                                                 fontWeight={800}>
                                                 {next.patient}
                                             </Typography>
-                                            <Label color="primary" variant="filled">
+                                            {!isMobile && <Label color="primary" variant="filled">
                                                 {commonTranslation("pending")}
-                                            </Label>
+                                            </Label>}
                                             <IconButton
                                                 onClick={(event) => {
                                                     event.stopPropagation();
@@ -522,7 +544,7 @@ function TopNavBar({...props}) {
                                     {commonTranslation("install_app")}
                                 </Button>
                             }
-                            {topBar.map((item, index) => (
+                            {!isMobile && topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={notificationsCount}
                                     className="custom-badge"
@@ -600,6 +622,10 @@ function TopNavBar({...props}) {
                             direction
                         }}
                         data={{
+                            instruction, setInstruction,
+                            general_information,medicalEntityHasUser,
+                            selectedUser, setSelectedUser,
+                            setSelectedDiscussion,
                             setOpenPaymentDialog
                         }}
                         action={"switch-consultation"}

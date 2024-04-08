@@ -1,6 +1,5 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Avatar,
@@ -94,6 +93,7 @@ import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
 import {useChannel} from "ably/react";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -430,11 +430,11 @@ function ConsultationInProgress() {
                     uuidDoc = card.prescription[0].uuid;
                     break;
                 case "requested-analysis":
-                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
+                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.requested_analyses_has_analyses : [];
                     uuidDoc = card.requested_Analyses[0].uuid;
                     break;
                 case "requested-medical-imaging":
-                    info = card.medical_imaging[0]["medical-imaging"];
+                    info = card.medical_imaging[0]["requested_medical_imaging_has_medical_imaging"];
                     uuidDoc = card.medical_imaging[0].uuid;
                     break;
             }
@@ -1812,7 +1812,6 @@ function ConsultationInProgress() {
                 open={openSecDialog}
                 data={{
                     app_uuid,
-                    agenda: agenda?.uuid,
                     patient: {
                         uuid: sheet?.patient,
                         ...patient
@@ -2329,7 +2328,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(locale as string, [
+            ...(await getServerTranslations(locale as string, [
                 "consultation",
                 "menu",
                 "common"

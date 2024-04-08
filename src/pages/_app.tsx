@@ -9,7 +9,8 @@ import "@styles/globals.scss";
 import 'react-medium-image-zoom/dist/styles.css';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
-import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-date-range/dist/theme/default.css'; // theme css file
+import '../styles/datepicker.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -38,7 +39,7 @@ const AblyClient = dynamic(
         ssr: false, // this ensures that server side rendering is never used for this component
     },
 );
-import nextI18NextConfig from '../../next-i18next.config.js';
+import nextI18NextConfig from '../../next-i18next.config.cjs';
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;

@@ -44,12 +44,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {
-    downloadFileAsPdf,
-    generatePdfFromHtml,
-    useMedicalEntitySuffix,
-    useMedicalProfessionalSuffix
-} from "@lib/hooks";
+import {downloadFileAsPdf, generatePdfFromHtml, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
@@ -126,6 +121,8 @@ function DocumentDetailDialog({...props}) {
     const [isPrinting, setIsPrinting] = useState(false);
     const [onReSize, setOnResize] = useState(true)
     const [pdfUrl, setPdfUrl] = useState('');
+    const [editMode, setEditMode] = useState(false);
+    const [downloadMode, setDownloadMode] = useState(false);
 
     const {direction} = useAppSelector(configSelector);
 
@@ -152,7 +149,7 @@ function DocumentDetailDialog({...props}) {
         name2: t(state?.type),
         data: props,
     }
-    const actionButtons = [
+    const actionButtons: any[] = [
         {
             title: 'print',
             icon: "menu/ic-print",
@@ -181,16 +178,21 @@ function DocumentDetailDialog({...props}) {
             icon: "ic-trash",
             disabled: !state?.uuid
         },
-        {
+        ...(data.isNew ? [{
+            title: 'editMode',
+            icon: `text-selection`,
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        }] : []),
+        ...(!data.isNew ? [{
             title: data.header.show ? 'hide' : 'show',
             icon: `menu/${!data.header.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
-        },
-        {
+        }] : []),
+        ...(!data.isNew ? [{
             title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
             icon: `menu/${!data.header.page ? 'ic-open-eye' : 'ic-eye-closed'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
-        },
+        }] : []),
         {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: `menu/${!data.title.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
@@ -201,7 +203,7 @@ function DocumentDetailDialog({...props}) {
             icon: `menu/${data.patient.show ? 'ic-cancel-patient' : 'ic-user'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         }
-    ];
+    ]
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -363,13 +365,18 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "download":
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew);
+                    setEditMode(false)
+                    setDownloadMode(true);
+                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew,setDownloadMode);
                 } else {
                     downloadFileFromUrl(file.url, `${state?.type} ${state?.patient}`);
                 }
                 break;
             case "settings":
                 setOpenAlert(true)
+                break;
+            case "editMode":
+                setEditMode(prev => !prev)
                 break;
             default:
                 break;
@@ -619,6 +626,7 @@ function DocumentDetailDialog({...props}) {
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
                         docs: urls,
+                        editMode, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,

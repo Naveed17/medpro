@@ -144,7 +144,7 @@ function MainLayout({...props}) {
             } else if (data.type === "session") {
                 // Update session permissions feature
                 update({[message.data.root]: data.body});
-            } else if (slugFeature === message.data.root) {
+            } else if ([slugFeature, "documents"].includes(message.data.root)) {
                 switch (message.data.root) {
                     case "agenda":
                         dispatch(setLastUpdate(data));
@@ -186,7 +186,10 @@ function MainLayout({...props}) {
                     case "documents":
                         // Mutate Speech to text Documents
                         enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
-                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
+                        medicalEntityHasUser && invalidateQueries([
+                            ...(data.body.appointment ? [`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`] : []),
+                            ...(data.body.patient ? [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.body.patient}/documents/${router.locale}`] : [])
+                        ]);
                         break;
                     default:
                         // Mutate dynamic requests

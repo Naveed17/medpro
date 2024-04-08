@@ -1,5 +1,4 @@
 import {GetStaticPaths, GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
@@ -32,7 +31,6 @@ import {
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
-
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
@@ -60,6 +58,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 function DocsConfig() {
     const router = useRouter();
@@ -854,7 +853,7 @@ function DocsConfig() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, [
+        ...(await getServerTranslations(context.locale as string, [
             "common",
             "menu",
             "patient",

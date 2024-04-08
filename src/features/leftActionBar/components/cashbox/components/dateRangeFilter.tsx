@@ -1,16 +1,16 @@
-import React, {useState} from "react";
 import {Box, Popover, FormControl, TextField, Button, Stack} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {DateRange} from 'react-date-range';
 import moment from "moment-timezone";
+import {useState} from "react";
 
 function DateRangeFilter({...props}) {
     const {t, OnSearch} = props;
 
     const {query: filterData} = useAppSelector(leftActionBarSelector);
 
-    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [queryState, setQueryState] = useState<any>({
         dates: [{
             startDate: filterData?.payment?.dates ? filterData.payment.dates[0].startDate : new Date(),
@@ -93,8 +93,7 @@ function DateRangeFilter({...props}) {
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'left',
-                }}
-            >
+                }}>
                 <DateRange
                     onChange={item => handleDateRangeChange([item.selection])}
                     moveRangeOnFirstSelection={false}

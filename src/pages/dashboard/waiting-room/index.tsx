@@ -17,10 +17,10 @@ import {
     Paper, Radio,
     Stack,
     Typography,
-    useMediaQuery, Grid, FormControlLabel, Checkbox, ListItemIcon, ListItemText, IconButton
+    useMediaQuery, Grid, FormControlLabel, Checkbox, ListItemIcon, ListItemText, IconButton, Zoom, Fab
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {consultationSelector, RoomToolbar} from "@features/toolbar";
+import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -81,6 +81,7 @@ import {AbilityContext} from "@features/casl/can";
 import _ from "lodash";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import AddIcon from "@mui/icons-material/Add";
+import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -108,7 +109,6 @@ function WaitingRoom() {
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
-    const {selectedDialog} = useAppSelector(consultationSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -153,6 +153,10 @@ function WaitingRoom() {
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
 
     const openMenu = Boolean(anchorElMenu);
+    const transitionDuration = {
+        enter: theme.transitions.duration.enteringScreen,
+        exit: theme.transitions.duration.leavingScreen,
+    };
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
@@ -1050,6 +1054,29 @@ function WaitingRoom() {
                         ))}
                     </ActionMenu>
 
+                    {(isMobile && [1, 2].includes(tabIndex)) && (
+                        <Zoom
+                            in={!loading}
+                            timeout={transitionDuration}
+                            style={{
+                                transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                            }}
+                            unmountOnExit>
+                            <Fab color="primary" aria-label="add"
+                                 onClick={() => {
+                                     setWithoutDateTime(false);
+                                     setQuickAddAppointment(true);
+                                     setTimeout(() => setQuickAddAppointmentTab(tabIndex === 1 ? 1 : 3));
+                                 }}
+                                 sx={{
+                                     position: "fixed",
+                                     bottom: 16,
+                                     right: 16
+                                 }}>
+                                <SpeedDialIcon/>
+                            </Fab>
+                        </Zoom>
+                    )}
                     <Menu
                         id="sort-menu"
                         {...{anchorEl}}

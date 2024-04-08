@@ -50,6 +50,7 @@ yarn-error.log*
 
 # pwa
 /public/sw.*
+/public/swe-worker-*
 /public/workbox-*
 
 /public/tinymce/
