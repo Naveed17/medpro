@@ -151,7 +151,9 @@ function Statistics() {
             let horaires: any = {}
             Object.entries(days).forEach(
                 day => {
-                    horaires[day[0]] = statsPerPeriod.common_start_time[day[1]] ? convertDurationToMin(statsPerPeriod.common_start_time[day[1]], statsPerPeriod.common_end_time[day[1]]) : 0
+                    if (statsPerPeriod.common_start_time && statsPerPeriod.common_end_time) {
+                        horaires[day[0]] = statsPerPeriod.common_start_time[day[1]] ? convertDurationToMin(statsPerPeriod.common_start_time[day[1]], statsPerPeriod.common_end_time[day[1]]) : 0
+                    }
                 })
             setHoraires(horaires)
         }
