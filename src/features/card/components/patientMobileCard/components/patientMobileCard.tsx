@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import RootStyled from "./overrides/rootStyled";
 // next-i18next
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 // material
 import {
     Avatar,
@@ -17,39 +17,48 @@ import {
     Tooltip,
     Typography,
 } from "@mui/material";
-import {useTheme} from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
-import {useAppDispatch} from "@lib/redux/hooks";
-import {onOpenPatientDrawer} from "@features/table";
-import {useProfilePhoto} from "@lib/hooks/rest";
+import { useAppDispatch } from "@lib/redux/hooks";
+import { onOpenPatientDrawer } from "@features/table";
+import { useProfilePhoto } from "@lib/hooks/rest";
 
-import {SelectCheckboxCard} from "@features/selectCheckboxCard";
-import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
-import {setMoveDateTime} from "@features/dialog";
-import {ImageHandler} from "@features/image";
-import {SmallAvatar} from "@features/avatar";
+import { SelectCheckboxCard } from "@features/selectCheckboxCard";
+import { AppointmentStatus, setSelectedEvent } from "@features/calendar";
+import { setMoveDateTime } from "@features/dialog";
+import { ImageHandler } from "@features/image";
+import { SmallAvatar } from "@features/avatar";
 
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingScreen } from "@features/loadingScreen";
+import { CustomIconButton } from "@features/buttons";
+import { motion, useAnimationControls } from "framer-motion";
+const spring = {
+    type: "spring",
+    stiffness: 260,
+    damping: 20,
+    layout: { duration: 0.175 }
+};
 
-const CardSection = ({...props}) => {
-    const {data, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances} = props;
-    const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
+const CardSection = ({ ...props }) => {
+    const { data, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances, theme } = props;
+    const { patientPhoto } = useProfilePhoto({ patientId: data?.uuid, hasPhoto: data?.hasPhoto });
+    const [isRec, setIsRec] = useState(false);
     return (
         <Paper className="card-main">
-            <Stack direction='row' spacing={1} alignItems='center'>
-                <SelectCheckboxCard row={data} isSmall/>
+            <Stack direction='row' spacing={1} alignItems='flex-start'>
                 <Grid container>
                     <Grid item xs={12} onClick={() => onOpenPatientDetails(data)}>
                         {loading ? (
-                            <Skeleton variant="text" width={140}/>
+                            <Skeleton variant="text" width={140} />
                         ) : (
                             <Stack direction={"row"} justifyContent={"space-between"} alignItems='flex-start'>
-                                <Stack direction={"row"} spacing={1.2}>
+                                <Stack direction={"row"} spacing={1.2} alignItems='center'>
+                                    <SelectCheckboxCard row={data} isSmall />
                                     <Badge
                                         overlap="circular"
-                                        anchorOrigin={{vertical: "bottom", horizontal: "right"}}
+                                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                                         {...(data.nationality?.code && {
                                             badgeContent: (
                                                 <Tooltip title={data.nationality.nationality}>
@@ -66,7 +75,7 @@ const CardSection = ({...props}) => {
                                             ),
                                         })}>
                                         <Avatar
-                                            {...(data.hasPhoto && {className: "zoom"})}
+                                            {...(data.hasPhoto && { className: "zoom" })}
                                             src={
                                                 patientPhoto
                                                     ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
@@ -82,54 +91,33 @@ const CardSection = ({...props}) => {
                                                 height: 36,
                                                 borderRadius: 1,
                                             }}>
-                                            <IconUrl width={"36"} height={"36"} path="men-avatar"/>
+                                            <IconUrl width={"36"} height={"36"} path="men-avatar" />
                                         </Avatar>
                                     </Badge>
                                     <Stack direction={"column"} alignItems='flex-start'>
                                         <Typography
                                             className="ellipsis"
-                                            fontWeight={600}
+                                            fontWeight={500}
                                             color={'primary'}
                                             maxWidth={100}
                                             component="div">
                                             {data.firstName} {data.lastName}
                                         </Typography>
-                                        <Stack direction={"row"} alignItems={"center"}>
-                                            <IconUrl
-                                                path="ic-anniverssaire-2"
-                                                className="d-inline-block mr-1"
-                                            />
-                                            <Typography variant={"caption"}>
-                                                {data.birthdate} - {" "}
-                                                {data.birthdate && moment().diff(moment(data.birthdate, "DD-MM-YYYY"), "years") + " ans"}
-                                            </Typography>
+                                        <Stack direction='row' alignItems='center' spacing={.5}>
+                                            <IconUrl path="ic-outline-document-text" width={16} height={16}
+                                                color={theme.palette.text.secondary} />
+                                            <Tooltip title={data.fiche_id}>
+                                                <Typography
+                                                    variant="body2"
+                                                    className={"ellipsis"}
+                                                    color='text.secondary'
+                                                    maxWidth={140}>
+                                                    {`N°${data.fiche_id}`}
+                                                </Typography>
+                                            </Tooltip>
                                         </Stack>
                                     </Stack>
                                 </Stack>
-                                {loading ? <Skeleton variant="text"/> : (
-                                    <Stack direction={"row"} alignItems={"center"} ml={1}>
-                                        {data.insurances?.length > 0 ?
-                                            <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}
-                                                         max={3}>
-                                                {data.insurances.map((insuranceItem: any, index: number) =>
-                                                    <Tooltip key={index} title={insuranceItem?.insurance.name}>
-                                                        <Avatar variant={"circular"}>
-                                                            {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
-                                                                <ImageHandler
-                                                                    alt={insuranceItem?.name}
-                                                                    src={insurances.find(
-                                                                        (insurance: any) =>
-                                                                            insurance.uuid ===
-                                                                            insuranceItem?.insurance.uuid
-                                                                    ).logoUrl.url}
-                                                                />}
-                                                        </Avatar>
-                                                    </Tooltip>
-                                                )}
-                                            </AvatarGroup>
-                                            : ""}
-                                    </Stack>
-                                ) || "-"}
                                 {!loading && (
                                     <IconButton
                                         size="small"
@@ -137,7 +125,7 @@ const CardSection = ({...props}) => {
                                         LinkComponent="a"
                                         href={`tel:${data?.contact[0]?.code}${data?.contact[0]?.value}`}
                                         onClick={(event) => event.stopPropagation()}>
-                                        <IconUrl path="ic-tel"/>
+                                        <IconUrl path="ic-filled-call" width={16} height={16} />
                                     </IconButton>
                                 )}
                             </Stack>
@@ -146,9 +134,28 @@ const CardSection = ({...props}) => {
                         <Box
                             className="border-left-sec"
                         >
-                            <Stack alignItems='flex-start'>
+
+                            <Stack alignItems='flex-start' spacing={.5}>
+                                {!loading && !data.isParent && (
+                                    <Typography
+                                        sx={{
+                                            ml: data.nextAppointment?.dayDate ? 3.125 : 0,
+                                        }}
+                                        display="inline"
+                                        variant="body2"
+                                        color="text.primary"
+                                        className="date-time-text"
+                                        fontWeight={600}
+                                        component="div">
+                                        <IconUrl path="ic-agenda-jour" />
+                                        {data.previousAppointments?.dayDate || "-"}
+                                        <IconUrl path="ic-time" />
+                                        {data.previousAppointments?.startTime || "-"}
+                                    </Typography>
+                                )}
+
                                 {loading ? (
-                                    <Skeleton variant="text" width={140}/>
+                                    <Skeleton variant="text" width={140} />
                                 ) : data.nextAppointment?.dayDate ? (
                                     <Stack
                                         direction={"row"}
@@ -159,6 +166,7 @@ const CardSection = ({...props}) => {
 
                                             }
                                         }}>
+
                                         <IconButton
                                             onClick={event => {
                                                 event.stopPropagation();
@@ -185,9 +193,9 @@ const CardSection = ({...props}) => {
                                                 handleEvent("APPOINTMENT_MOVE", appointment);
                                             }}
                                             size="small"
-                                            sx={{mt: -0.2}}
+                                            sx={{ mt: -0.2 }}
                                         >
-                                            <IconUrl path="ic-historique" width={14} height={14}/>
+                                            <IconUrl path="ic-historique" width={14} height={14} />
                                         </IconButton>
 
                                         <Box>
@@ -198,45 +206,57 @@ const CardSection = ({...props}) => {
                                                 className="date-time-text"
                                                 fontWeight={600}
                                                 component="div">
-                                                <IconUrl path="ic-agenda-jour"/>
+                                                <IconUrl path="ic-agenda-jour" />
                                                 {data.nextAppointment?.dayDate}
-                                                <IconUrl path="ic-time"/>
+                                                <IconUrl path="ic-time" />
                                                 {data.nextAppointment?.startTime}
                                             </Typography>
                                         </Box>
                                     </Stack>
                                 ) : (
-                                    <Button
-                                        onClick={event => {
-                                            event.stopPropagation();
-                                            handleEvent("ADD_APPOINTMENT", data);
-                                        }}
-                                        variant="text"
-                                        size="small"
-                                        color="primary"
-                                        startIcon={<IconUrl path="ic-agenda-+" width={12} height={12}/>}
-                                        sx={{position: "relative", justifyContent: "flex-start",}}
-                                    >
-                                        {t("config.table.add-appointment")}
-                                    </Button>
+                                    <Stack direction='row' spacing={.5}>
+                                        <Button
+                                            component={motion.button} layout transition={spring}
+                                            onClick={event => {
+                                                event.stopPropagation();
+                                                handleEvent("ADD_APPOINTMENT", data);
+                                            }}
+                                            variant="contained"
+                                            initial={{ x: 0, opacity: 1 }}
+                                            animate={{ x: isRec ? [100, 0] : 0, opacity: [0, 1] }}
+                                            color="primary"
+                                            startIcon={<IconUrl path="ic-agenda-+" width={12} height={12} />}
+                                            sx={{
+                                                position: "relative", px: 1.5, justifyContent: "flex-start", ...(isRec && {
+                                                    minWidth: 40,
+                                                    justifyContent: 'center',
+                                                    span: {
+                                                        margin: 0
+                                                    }
+                                                })
+                                            }}
+                                        >
+                                            {!isRec && t("config.table.add-appointment")}
+                                        </Button>
+                                        <CustomIconButton component={motion.button} layout
+                                            initial={{ x: 0, opacity: 1 }}
+                                            animate={{ x: isRec ? [-100, 0] : 0, opacity: [0, 1] }}
+                                            transition={spring} sx={{ minWidth: isRec ? 120 : 40 }} color="error" onClick={(ev: any) => {
+                                                ev.stopPropagation(); setIsRec(!isRec);
+
+                                            }}>
+                                            <IconUrl path="ic-filled-record-circle" />
+                                            {isRec && <Typography variant="caption" color="common.white" sx={{ ml: .5 }}>00:00:51</Typography>}
+                                        </CustomIconButton>
+                                        <CustomIconButton component={motion.button} layout
+                                            initial={{ x: 0, opacity: 1 }}
+                                            animate={{ x: isRec ? [-100, 0] : 0, opacity: [0, 1] }}
+                                            transition={spring} sx={{ minWidth: 40, fontSize: 14 }} color="back" onClick={(ev: any) => ev.stopPropagation()}>
+                                            <IconUrl path="ic-outline-document-upload" />
+                                        </CustomIconButton>
+                                    </Stack>
                                 )}
-                                {!loading && !data.isParent && (
-                                    <Typography
-                                        sx={{
-                                            ml: data.nextAppointment?.dayDate ? 3.125 : 0,
-                                        }}
-                                        display="inline"
-                                        variant="body2"
-                                        color="text.primary"
-                                        className="date-time-text"
-                                        fontWeight={600}
-                                        component="div">
-                                        <IconUrl path="ic-agenda-jour"/>
-                                        {data.previousAppointments?.dayDate || "-"}
-                                        <IconUrl path="ic-time"/>
-                                        {data.previousAppointments?.startTime || "-"}
-                                    </Typography>
-                                )}
+
                             </Stack>
 
 
@@ -248,11 +268,11 @@ const CardSection = ({...props}) => {
     );
 };
 
-function PatientMobileCard({...props}) {
-    const {PatientData, handleEvent, loading, insurances} = props;
+function PatientMobileCard({ ...props }) {
+    const { PatientData, handleEvent, loading, insurances } = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {t, ready} = useTranslation("patient");
+    const { t, ready } = useTranslation("patient");
 
     if (!ready)
         return (
@@ -267,7 +287,7 @@ function PatientMobileCard({...props}) {
             {(loading ? Array.from(new Array(5)) : PatientData)?.map(
                 (data: any, index: number) => (
                     <CardSection
-                        {...{data, theme, loading, t, handleEvent, dispatch, insurances}}
+                        {...{ data, theme, loading, t, handleEvent, dispatch, insurances }}
                         key={index}
                         onOpenPatientDetails={(data: PatientModel) => {
                             dispatch(
