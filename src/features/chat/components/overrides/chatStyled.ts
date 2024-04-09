@@ -141,6 +141,8 @@ const ChatStyled = styled("div")(({theme}) => ({
         textDecoration: "underline"
     },
     ".btn1": {
+        fontSize: 12,
+        padding: 3,
         height: 32,
         backgroundColor: theme.palette.primary.main,
         borderRadius: 8,
@@ -148,6 +150,8 @@ const ChatStyled = styled("div")(({theme}) => ({
         color: "white"
     },
     ".btn2": {
+        fontSize: 12,
+        padding: 3,
         height: 32,
         backgroundColor: "#C5E5F9",
         borderRadius: 8,
