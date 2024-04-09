@@ -28,7 +28,7 @@ function CarouselItem({item, isActive}: any) {
             </Grid>
             <Grid item xs={12} md={6}>
                 <motion.div variants={varFadeInLeft}>
-                    <Box maxWidth={1} component='img' src={`/static/icons/features/${item.img}.svg`}/>
+                    <Box maxWidth={1} component='img' src={`/static/icons/features/${item.img}.png`}/>
                 </motion.div>
             </Grid>
         </Grid>
