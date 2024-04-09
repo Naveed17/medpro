@@ -20,7 +20,7 @@ serwist.install({
     cleanupOutdatedCaches: true,
     skipWaiting: true,
     clientsClaim: true,
-    navigationPreload: false,
+    navigationPreload: true,
     disableDevLogs: true,
     runtimeCaching: process.env.NODE_ENV === "development" ? undefined : defaultCache
 });
