@@ -14,7 +14,7 @@ const withPWA = withSerwistInit({
     swDest: "public/sw.js",
     maximumFileSizeToCacheInBytes: 10000000,
     reloadOnOnline: true,
-    disable: process.env.NODE_ENV === "development", // to disable pwa in development
+    disable: true //process.env.NODE_ENV === "development", // to disable pwa in development
 });
 plugins.push(withPWA);
 
