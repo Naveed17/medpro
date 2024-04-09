@@ -602,7 +602,7 @@
         "holidays": "Congé et absence",
         "users": "Utilisateur",
         "data": "Importation",
-        "insurance_agreement": "Insurance/Agreements"
+        "insurance-agreement": "Insurance/Agreements"
       },
       "newCash": "Créer caisse",
       "name-cashBox": "Nom du caisse",
