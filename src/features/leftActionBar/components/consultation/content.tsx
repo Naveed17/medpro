@@ -745,12 +745,12 @@ const Content = ({...props}) => {
                                 </p>
                                 <Stack spacing={2} alignItems="flex-start">
                                     <List dense>
-                                        {ri["medical-imaging"]?.map((list: any, index: number) => (
+                                        {ri["requested_medical_imaging_has_medical_imaging"]?.map((list: any, index: number) => (
                                             <ListItem className={'ant-item'} style={{paddingLeft: 10, paddingRight: 10}}
                                                       key={index}>
 
                                                 <Typography variant="body2">
-                                                    {list["medical-imaging"]?.name}
+                                                    {list?.name}
                                                 </Typography>
                                             </ListItem>
                                         ))}
