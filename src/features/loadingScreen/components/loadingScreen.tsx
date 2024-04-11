@@ -128,7 +128,6 @@ function LoadingScreen({...props}) {
                             onClick={() => {
                                 if (process.env.NODE_ENV !== "development") {
                                     clearBrowserCache().then(() => router.reload());
-                                    router.replace("/dashboard/agenda");
                                 }
                                 if (OnClick) {
                                     OnClick(color);
