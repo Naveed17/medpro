@@ -273,7 +273,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             // Return previous token if the access token has not expired yet
-            if (Date.now() < (token as any).accessTokenExpired) {
+            if (Date.now() < (token as any).accessTokenExpired && session?.refreshAccessToken === undefined) {
                 return token;
             }
 

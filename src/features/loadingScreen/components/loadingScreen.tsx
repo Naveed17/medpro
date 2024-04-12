@@ -15,6 +15,7 @@ import MedProIcon from "@themes/overrides/icons/MedProIcon";
 import {useRouter} from "next/router";
 import {PaletteColor} from "@mui/material/styles";
 import {clearBrowserCache} from "@lib/hooks";
+import {useSession} from "next-auth/react";
 
 const icons = [
     "ic-doctor",
@@ -34,6 +35,7 @@ function LoadingScreen({...props}) {
     } = props;
     const router = useRouter();
     const theme = useTheme();
+    const {update} = useSession();
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("sm")
     );
@@ -127,7 +129,7 @@ function LoadingScreen({...props}) {
                         <Button
                             onClick={() => {
                                 if (process.env.NODE_ENV !== "development") {
-                                    clearBrowserCache().then(() => router.reload());
+                                    clearBrowserCache().then(() => update({refresh: true}));
                                 }
                                 if (OnClick) {
                                     OnClick(color);
