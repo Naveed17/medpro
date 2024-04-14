@@ -127,7 +127,7 @@
     "sass": "^1.71.0",
     "sharp": "^0.32.6",
     "slick-carousel": "^1.8.1",
-    "smartlook-client": "^8.2.0",
+    "smartlook-client": "^9.0.0",
     "stylis": "^4.3.0",
     "stylis-plugin-rtl": "^2.1.1",
     "tinymce": "^7.0.0",
