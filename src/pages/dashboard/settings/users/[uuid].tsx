@@ -97,42 +97,44 @@ function ModifyUser() {
     const features = (userData as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features ?? [];
     const readOnly = user?.ssoId !== currentUser
 
-    const validationSchema = Yup.object().shape({
-        name: Yup.string()
-            .min(3, t("users.ntc"))
-            .max(50, t("users.ntl"))
-            .required(t("users.nameReq")),
-        email: Yup.string()
-            .email(t("users.mailInvalid"))
-            .required(t("users.mailReq")),
-        birthdate: Yup.string().nullable(),
-        firstName: Yup.string().required(),
-        lastName: Yup.string().required(),
-        phones: Yup.array().of(
-            Yup.object().shape({
-                dial: Yup.object().shape({
-                    code: Yup.string(),
-                    label: Yup.string(),
-                    phone: Yup.string(),
-                }),
-                phone: Yup.string()
-                    .test({
-                        name: "is-phone",
-                        message: t("telephone-error"),
-                        test: (value) => {
-                            return value ? isValidPhoneNumber(value) : false
-                        }
-                    })
-            })
-        ),
-        oldPassword: Yup.string().when('password', {
-            is: (val: string) => val && val.length > 0,
-            then: (schema) => schema.required(t("password-error"))
-        }),
-        password: Yup.string(),
-        confirmPassword: Yup.string().when('password', (password, field) =>
-            password ? field.oneOf([Yup.ref('password')]) : field),
-    });
+    const validationSchema = [
+        Yup.object().shape({
+            name: Yup.string()
+                .min(3, t("users.ntc"))
+                .max(50, t("users.ntl"))
+                .required(t("users.nameReq")),
+            email: Yup.string()
+                .email(t("users.mailInvalid"))
+                .required(t("users.mailReq")),
+            birthdate: Yup.string().nullable(),
+            firstName: Yup.string().required(),
+            lastName: Yup.string().required(),
+            phones: Yup.array().of(
+                Yup.object().shape({
+                    dial: Yup.object().shape({
+                        code: Yup.string(),
+                        label: Yup.string(),
+                        phone: Yup.string(),
+                    }),
+                    phone: Yup.string()
+                        .test({
+                            name: "is-phone",
+                            message: t("telephone-error"),
+                            test: (value) => {
+                                return value ? isValidPhoneNumber(value) : false
+                            }
+                        })
+                })
+            ),
+            oldPassword: Yup.string().when('password', {
+                is: (val: string) => val && val.length > 0,
+                then: (schema) => schema.required(t("password-error"))
+            }),
+            password: Yup.string(),
+            confirmPassword: Yup.string().when('password', (password, field) =>
+                password ? field.oneOf([Yup.ref('password')]) : field),
+        })
+    ];
 
     const handleChangeTabs = (event: React.SyntheticEvent, newValue: number) => {
         setTabIndex(newValue);
@@ -180,7 +182,7 @@ function ModifyUser() {
             confirmPassword: "",
             roles: initData()
         },
-        validationSchema,
+        validationSchema: validationSchema[tabIndex],
         onSubmit: async (values) => {
             setLoading(true);
             const form = new FormData();
