@@ -17,7 +17,7 @@ export const PhoneRegExp =
 
 export const DefaultCountry = countries.find(country => country.code === process.env.NEXT_PUBLIC_COUNTRY) as CountryModel;
 
-export const EnvPattern = ["localhost", "develop", "master"];
+export const EnvPattern = ["localhost", "develop", "master", "preview"];
 
 export const SubMotifCard = [
     {
