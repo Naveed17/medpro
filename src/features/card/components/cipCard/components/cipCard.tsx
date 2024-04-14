@@ -12,6 +12,7 @@ import {setSelectedEvent} from "@features/calendar";
 import {MobileContainer} from "@lib/constants";
 import {minMaxWindowSelector} from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
+import Can from "@features/casl/can";
 
 function CipCard({...props}) {
     const {openPatientDialog} = props;
@@ -77,43 +78,45 @@ function CipCard({...props}) {
                 </Avatar>
 
                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                    <Fab color="error"
-                         aria-label="finish consultation"
-                         onClick={event => {
-                             event.stopPropagation();
-                             dispatch(setSelectedEvent(null));
-                             dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-                             dispatch(setDialogAction("finish"));
-                         }}
-                         size={"small"}
-                         sx={{
-                             boxShadow: "none",
-                             minHeight: 20,
-                             height: 36,
-                             width: 36
-                         }}>
-                        <IconUrl path={"ic-stop-record"} color={"white"}/>
-                    </Fab>
-
-                    <Fab color="default"
-                         aria-label="finish consultation"
-                         onClick={event => {
-                             event.stopPropagation();
-                             dispatch(setSelectedEvent(null));
-                             dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-                             dispatch(setDialogAction("pause"));
-                         }}
-                         size={"small"}
-                         sx={{
-                             boxShadow: "none",
-                             minHeight: 20,
-                             height: 36,
-                             width: 36
-                         }}>
-                        <IconUrl path={"ic-pause"} color={"white"}/>
-                    </Fab>
+                    <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
+                        <Fab color="default"
+                             aria-label="finish consultation"
+                             onClick={event => {
+                                 event.stopPropagation();
+                                 dispatch(setSelectedEvent(null));
+                                 dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                                 dispatch(setDialogAction("pause"));
+                             }}
+                             size={"small"}
+                             sx={{
+                                 boxShadow: "none",
+                                 minHeight: 20,
+                                 height: 36,
+                                 width: 36
+                             }}>
+                            <IconUrl path={"ic-pause"} color={"white"}/>
+                        </Fab>
+                    </Can>
+                    <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
+                        <Fab color="error"
+                             aria-label="finish consultation"
+                             onClick={event => {
+                                 event.stopPropagation();
+                                 dispatch(setSelectedEvent(null));
+                                 dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                                 dispatch(setDialogAction("finish"));
+                             }}
+                             size={"small"}
+                             sx={{
+                                 boxShadow: "none",
+                                 minHeight: 20,
+                                 height: 36,
+                                 width: 36
+                             }}>
+                            <IconUrl path={"ic-stop-record"} color={"white"}/>
+                        </Fab>
+                    </Can>
                 </Stack>
-
             </Stack>
         </CipCardStyled>
     )
