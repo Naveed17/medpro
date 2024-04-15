@@ -1,8 +1,9 @@
-import {Box, Popover, FormControl, TextField, Button, Stack} from "@mui/material";
+import {Box, Popover, FormControl, Button, Stack} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {DateRange} from 'react-date-range';
 import moment from "moment-timezone";
+import Datepicker from "react-tailwindcss-datepicker";
 import {useState} from "react";
 
 function DateRangeFilter({...props}) {
@@ -70,14 +71,13 @@ function DateRangeFilter({...props}) {
     return (
         <Box>
             <FormControl fullWidth aria-describedby={id}>
-                <TextField
-                    sx={{
-                        "& .MuiInputBase-input": {
-                            textAlign: "center"
-                        }
-                    }}
-                    value={`${queryState.dates[0]?.startDate ? moment(queryState.dates[0].startDate).format('DD/MM/YYYY') : ""} — ${queryState.dates[0]?.endDate ? moment(queryState.dates[0].endDate).format('DD/MM/YYYY') : ""}`}
-                    onClick={handleClick}
+                <Datepicker
+                    value={{
+                        startDate: queryState.dates[0]?.startDate ? moment(queryState.dates[0].startDate) : moment().toDate(),
+                        endDate: queryState.dates[0]?.endDate ? moment(queryState.dates[0].endDate) : moment().toDate()
+                    } as any}
+                    displayFormat={"DD/MM/YYYY"}
+                    onChange={item => console.log(item)}
                 />
             </FormControl>
             <Button

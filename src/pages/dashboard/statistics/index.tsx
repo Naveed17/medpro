@@ -1110,7 +1110,7 @@ function Statistics() {
                                                     <Stack direction={"row"} spacing={1} alignItems={"flex-end"}>
                                                         <Typography lineHeight={1} fontWeight={600} fontSize={24}
                                                                     variant="subtitle1">
-                                                            --
+                                                            {statsPerPeriod["waiting_time"] ?? "--"}
                                                         </Typography>
                                                         <Typography variant="caption">
                                                             min

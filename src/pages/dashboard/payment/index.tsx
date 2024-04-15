@@ -20,10 +20,10 @@ import {useTranslation} from "next-i18next";
 import {PatientDetail} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NoDataCard, PaymentMobileCard, setTimer} from "@features/card";
+import {NoDataCard, PaymentMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
+import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
@@ -35,7 +35,7 @@ import {leftActionBarSelector, PaymentFilter} from "@features/leftActionBar";
 import {DefaultCountry} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {DrawerBottom} from "@features/drawerBottom";
-import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 
 interface HeadCell {
@@ -120,7 +120,6 @@ function Payment() {
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
-    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t, i18n} = useTranslation(["payment", "common"]);
@@ -153,7 +152,6 @@ function Payment() {
     const [isChecked, setIsChecked] = useState(localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo);
     const [openInfo, setOpenInfo] = React.useState(false);
 
-    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerCashbox} = useRequestQueryMutation("/payment/cashbox");
 
 
@@ -420,8 +418,7 @@ function Payment() {
                 open={openInfo}
                 scroll={'paper'}
                 aria-labelledby="scroll-dialog-title"
-                aria-describedby="scroll-dialog-description"
-            >
+                aria-describedby="scroll-dialog-description">
                 <DialogTitle id="scroll-dialog-title">Beta version</DialogTitle>
                 <DialogContent dividers={true}>
                     <DialogContentText
