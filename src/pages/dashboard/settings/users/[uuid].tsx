@@ -173,7 +173,7 @@ function ModifyUser() {
             admin: user?.admin || false,
             consultation_fees: user?.ConsultationFees || "",
             birthdate: user?.birthDate || null,
-            firstName: user?.FirstName || " ",
+            firstName: user?.firstName || " ",
             lastName: user?.lastName || " ",
             phones: [],
             profile: user?.profile?.uuid || "",

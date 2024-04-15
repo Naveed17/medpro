@@ -37,7 +37,7 @@ function StaffMobileCard({ ...props }) {
                                                 <IconUrl width={"36"} height={"36"} path="men-avatar" />
                                             </Avatar>
                                             <Typography variant="body1" fontWeight={700} color="primary">
-                                                {row.FirstName} {row.lastName}
+                                                {row.firstName} {row.lastName}
                                             </Typography>
                                         </Stack>
                                     </ConditionalWrapper>

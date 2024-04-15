@@ -55,7 +55,7 @@ function RestPasswordDialog({ ...props }) {
     const dispatch = useAppDispatch()
     const [rows, setRows] = useState([{
         uuid: 1,
-        FirstName: "Jhon",
+        firstName: "Jhon",
         lastName: "Doe",
         hasPhoto: false
     }]);
