@@ -2,7 +2,7 @@
 import {
     ActionBarState,
     BoxStyled,
-    DateRangeFilterCashbox,
+    DateRangeFilter,
     InsuranceFilterCashbox,
     setFilterPayment
 } from "@features/leftActionBar";
@@ -23,14 +23,13 @@ function Payment() {
     const [accordionData, setAccordionData] = useState([
         {
             heading: {
-                id: "insurance",
-                icon: "ic-assurance",
-                title: "insurance",
+                id: "date-range",
+                icon: "ic-agenda-jour",
+                title: "date-range",
             },
             expanded: true,
             children: (
-                <InsuranceFilterCashbox
-                    {...{t}}
+                <DateRangeFilter
                     OnSearch={(data: { query: ActionBarState }) => {
                         dispatch(setFilterPayment(data.query));
                     }}/>
@@ -38,13 +37,13 @@ function Payment() {
         },
         {
             heading: {
-                id: "date-range",
-                icon: "ic-agenda-jour",
-                title: "date-range",
+                id: "insurance",
+                icon: "ic-assurance",
+                title: "insurance",
             },
             expanded: true,
             children: (
-                <DateRangeFilterCashbox
+                <InsuranceFilterCashbox
                     {...{t}}
                     OnSearch={(data: { query: ActionBarState }) => {
                         dispatch(setFilterPayment(data.query));
@@ -79,8 +78,8 @@ function Payment() {
 
             <Accordion
                 translate={{
-                    t: t,
-                    ready: ready,
+                    t,
+                    ready
                 }}
                 data={accordionData}
                 setData={setAccordionData}

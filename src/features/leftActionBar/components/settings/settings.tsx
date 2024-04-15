@@ -20,6 +20,7 @@ import IconUrl from "@themes/urlIcon";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import Can from "@features/casl/can";
 
 function Settings() {
     const {data: session} = useSession();
@@ -43,29 +44,32 @@ function Settings() {
                 <nav aria-label="main mailbox folders">
                     <List>
                         {settingsData[hasAdminAccess ? "admin" : "dashboard"].map((item: any) => (
-                            <ListItem
-                                {...(item.fill !== "default" && {
-                                    sx: {
-                                        "& .MuiListItemIcon-root svg path": {
-                                            fill: (theme) => theme.palette.primary.main
+                            <Can key={item.name} I={"read"} a={"settings"}
+                                 field={`settings__${item.href.split('/')[3]}__show` as any}>
+                                <ListItem
+                                    {...(item.fill !== "default" && {
+                                        sx: {
+                                            "& .MuiListItemIcon-root svg path": {
+                                                fill: (theme) => theme.palette.primary.main
+                                            }
                                         }
+                                    })
                                     }
-                                })
-                                }
-                                key={item.name}
-                                {...(item.disable && {sx: {display: "none"}})}
-                                className={router.pathname.includes(item.href) ? 'active' : ''}
-                                disablePadding>
-                                <ListItemButton
-                                    onClick={() => router.push(`${item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`)}
-                                    disabled={item.disable}
-                                    disableRipple>
-                                    <ListItemIcon>
-                                        <IconUrl width={20} height={20} path={item.icon}/>
-                                    </ListItemIcon>
-                                    <ListItemText primary={t('menu.' + item.name)}/>
-                                </ListItemButton>
-                            </ListItem>
+                                    key={item.name}
+                                    {...(item.disable && {sx: {display: "none"}})}
+                                    className={router.pathname.includes(item.href) ? 'active' : ''}
+                                    disablePadding>
+                                    <ListItemButton
+                                        onClick={() => router.push(`${item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`)}
+                                        disabled={item.disable}
+                                        disableRipple>
+                                        <ListItemIcon>
+                                            <IconUrl width={20} height={20} path={item.icon}/>
+                                        </ListItemIcon>
+                                        <ListItemText primary={t('menu.' + item.name)}/>
+                                    </ListItemButton>
+                                </ListItem>
+                            </Can>
                         ))}
                     </List>
                 </nav>

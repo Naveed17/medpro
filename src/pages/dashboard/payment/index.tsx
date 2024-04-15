@@ -283,7 +283,8 @@ function Payment() {
                     py={1}
                     alignItems={{xs: "flex-start", md: "center"}}>
                     <Typography>
-                        <b>Le {moment(day, "DD-MM-YYYY").format("DD MMMM YYYY")}</b>
+                        {!filterData?.payment?.dates ? <b>Le {moment(day, "DD-MM-YYYY").format("DD MMMM YYYY")}</b> :
+                            <b> Du {moment(filterData?.payment?.dates[0].startDate, "YYYY-MM-DD").format("DD MMMM YYYY")} à {moment(filterData?.payment?.dates[0].endDate, "YYYY-MM-DD").format("DD MMMM YYYY")}</b>}
                     </Typography>
                     <Stack
                         direction={{xs: "column", md: "row"}}
