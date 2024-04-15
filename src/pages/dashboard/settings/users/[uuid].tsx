@@ -241,7 +241,7 @@ function ModifyUser() {
                         type: selectedFeature
                     }));
                 }
-                console.log("permissions", permissions.length)
+
                 triggerUserUpdate({
                     method: feature?.profile || permissions.length === 0 ? "PUT" : "POST",
                     url: `${urlMedicalEntitySuffix}/features/${selectedFeature}/profiles${feature?.profile ? `/${feature?.profile}` : ""}/${router.locale}`,
