@@ -226,7 +226,10 @@ function DocsConfig() {
     const handleDrop = React.useCallback((acceptedFiles: File[]) => {
             let reader = new FileReader();
             reader.onload = (ev) => {
-                data.background.content.url = (ev.target?.result as string)
+                if (data.background.content.url)
+                    data.background.content.url = (ev.target?.result as string)
+                else
+                    data.background.content = {url: ev.target?.result as string}
                 data.background.show = true;
                 setData({...data})
             }
