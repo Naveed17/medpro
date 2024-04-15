@@ -53,7 +53,7 @@ function RestPasswordDialog({...props}) {
     const {currentStep} = useAppSelector(stepperSelector);
 
     const dispatch = useAppDispatch()
-    const [rows, setRows] = useState([{
+    const [rows] = useState([{
         uuid: 1,
         firstName: "Jhon",
         lastName: "Doe",
