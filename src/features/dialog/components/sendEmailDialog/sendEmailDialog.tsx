@@ -19,9 +19,10 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 function SendEmailDialog({...props}) {
     const {preview, patient, t, title, handleSendEmail, loading} = props.data;
-
+    console.log("preview", preview);
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
+    const [loadingReq, setLoadingReq] = useState<boolean>(true);
 
     const validationSchema = Yup.object().shape({
         receiver: Yup.string().email(t("error.mailInvalid")).required(t("error.receiver")),
@@ -49,6 +50,7 @@ function SendEmailDialog({...props}) {
 
     const onDocumentLoadSuccess = ({numPages}: { numPages: number }) => {
         setNumPages(numPages);
+        setLoadingReq(false);
     }
 
     const changePage = (offset: number) => {
@@ -75,7 +77,11 @@ function SendEmailDialog({...props}) {
                         mt: 2
                     }}>
                     <Box
-                        sx={{scale: preview.type.includes("image") ? "1" : "0.4", transformOrigin: "top left", height: 340}}>
+                        sx={{
+                            scale: preview.type.includes("image") ? "1" : "0.4",
+                            transformOrigin: "top left",
+                            height: 340
+                        }}>
                         {preview.type.includes("image") ?
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -144,7 +150,7 @@ function SendEmailDialog({...props}) {
 
             <CardActions>
                 <LoadingButton
-                    {...{loading}}
+                    loading={loadingReq}
                     loadingPosition={"start"}
                     disabled={!isValid}
                     sx={{marginLeft: 'auto'}}

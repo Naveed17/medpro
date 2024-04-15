@@ -226,7 +226,9 @@ function ModifyUser() {
                     }
                 });
             } else {
-                const feature = selectedFeatureEntity ? values.roles[selectedFeature].find((feature: FeatureModel) => feature.featureEntity?.uuid === selectedFeatureEntity.uuid) : values.roles[selectedFeature][0];
+                const featureIndex = selectedFeatureEntity ? values.roles[selectedFeature].findIndex((feature: FeatureModel) => feature.featureEntity?.uuid === selectedFeatureEntity.uuid) : 0;
+                const feature = values.roles[selectedFeature][featureIndex];
+                console.log("feature", feature)
                 const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                     [...(permissions ?? []),
                         ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
@@ -239,14 +241,16 @@ function ModifyUser() {
                         type: selectedFeature
                     }));
                 }
-
+                console.log("permissions", permissions.length)
                 triggerUserUpdate({
-                    method: feature?.profile ? "PUT" : "POST",
+                    method: feature?.profile || permissions.length === 0 ? "PUT" : "POST",
                     url: `${urlMedicalEntitySuffix}/features/${selectedFeature}/profiles${feature?.profile ? `/${feature?.profile}` : ""}/${router.locale}`,
                     data: form
                 }, {
-                    onSuccess: () => {
+                    onSuccess: (result) => {
+                        const profileUuid = (result?.data as HttpResponse)?.data?.uuid;
                         enqueueSnackbar(t(`users.alert.updated-role`), {variant: "success"});
+                        setFieldValue(`roles[${selectedFeature}][${featureIndex}].profile`, profileUuid ?? null);
                         setLoading(false);
                     },
                     onError: () => {
