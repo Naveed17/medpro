@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import RootStyled from "./overrides/rootStyled";
 // next-i18next
 import {useTranslation} from "next-i18next";
 // material
 import {
     Avatar,
-    AvatarGroup,
     Badge,
     Box,
     Button,
@@ -28,12 +27,12 @@ import {useProfilePhoto} from "@lib/hooks/rest";
 import {SelectCheckboxCard} from "@features/selectCheckboxCard";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
-import {ImageHandler} from "@features/image";
 import {SmallAvatar} from "@features/avatar";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {CustomIconButton} from "@features/buttons";
-import {motion, useAnimationControls} from "framer-motion";
+import {motion} from "framer-motion";
+import {setOpenUploadDialog} from "@features/tabPanel";
 
 const spring = {
     type: "spring",
@@ -43,9 +42,10 @@ const spring = {
 };
 
 const CardSection = ({...props}) => {
-    const {data, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances, theme} = props;
+    const {data, onOpenPatientDetails, loading, handleEvent, t, dispatch, theme} = props;
     const {patientPhoto} = useProfilePhoto({patientId: data?.uuid, hasPhoto: data?.hasPhoto});
     const [isRec, setIsRec] = useState(false);
+
     return (
         <Paper className="card-main">
             <Stack direction='row' spacing={1} alignItems='flex-start'>
@@ -168,51 +168,67 @@ const CardSection = ({...props}) => {
                                             }
                                         }}>
 
-                                        <IconButton
-                                            onClick={event => {
-                                                event.stopPropagation();
-                                                const appointment = {
-                                                    title: `${data.lastName}  ${data.firstName}`,
-                                                    publicId: data.nextAppointment.uuid,
-                                                    extendedProps: {
-                                                        time: moment(`${data.nextAppointment.dayDate} ${data.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
-                                                        patient: data,
-                                                        motif: data.nextAppointment.consultationReasons,
-                                                        description: "",
-                                                        dur: data.nextAppointment.duration,
-                                                        status: AppointmentStatus[data.nextAppointment.status]
-                                                    }
-                                                }
-                                                dispatch(setSelectedEvent(appointment as any));
-                                                const newDate = moment(appointment?.extendedProps.time);
-                                                dispatch(setMoveDateTime({
-                                                    date: newDate,
-                                                    time: newDate.format("HH:mm"),
-                                                    action: "move",
-                                                    selected: false
-                                                }));
-                                                handleEvent("APPOINTMENT_MOVE", appointment);
-                                            }}
-                                            size="small"
-                                            sx={{mt: -0.2}}
-                                        >
-                                            <IconUrl path="ic-historique" width={14} height={14}/>
-                                        </IconButton>
 
-                                        <Box>
-                                            <Typography
-                                                display="inline"
-                                                variant="body2"
-                                                color="text.primary"
-                                                className="date-time-text"
-                                                fontWeight={600}
-                                                component="div">
-                                                <IconUrl path="ic-agenda-jour"/>
-                                                {data.nextAppointment?.dayDate}
-                                                <IconUrl path="ic-time"/>
-                                                {data.nextAppointment?.startTime}
-                                            </Typography>
-                                        </Box>
+                                        <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <IconButton
+                                                    onClick={event => {
+                                                        event.stopPropagation();
+                                                        const appointment = {
+                                                            title: `${data.lastName}  ${data.firstName}`,
+                                                            publicId: data.nextAppointment.uuid,
+                                                            extendedProps: {
+                                                                time: moment(`${data.nextAppointment.dayDate} ${data.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
+                                                                patient: data,
+                                                                motif: data.nextAppointment.consultationReasons,
+                                                                description: "",
+                                                                dur: data.nextAppointment.duration,
+                                                                status: AppointmentStatus[data.nextAppointment.status]
+                                                            }
+                                                        }
+                                                        dispatch(setSelectedEvent(appointment as any));
+                                                        const newDate = moment(appointment?.extendedProps.time);
+                                                        dispatch(setMoveDateTime({
+                                                            date: newDate,
+                                                            time: newDate.format("HH:mm"),
+                                                            action: "move",
+                                                            selected: false
+                                                        }));
+                                                        handleEvent("APPOINTMENT_MOVE", appointment);
+                                                    }}
+                                                    size="small">
+                                                    <IconUrl path="ic-historique" width={14} height={14}/>
+                                                </IconButton>
+                                                <Typography
+                                                    display="inline"
+                                                    variant="body2"
+                                                    color="text.primary"
+                                                    className="date-time-text"
+                                                    fontWeight={600}
+                                                    component="div">
+                                                    <IconUrl path="ic-agenda-jour"/>
+                                                    {data.nextAppointment?.dayDate}
+                                                    <IconUrl path="ic-time"/>
+                                                    {data.nextAppointment?.startTime}
+                                                </Typography>
+                                            </Stack>
+
+                                            <CustomIconButton
+                                                component={motion.button} layout
+                                                initial={{x: 0, opacity: 1}}
+                                                animate={{x: isRec ? [-100, 0] : 0, opacity: [0, 1]}}
+                                                transition={spring} sx={{minWidth: 40, fontSize: 14}}
+                                                color="back"
+                                                onClick={(ev: any) => {
+                                                    ev.stopPropagation();
+                                                    dispatch(onOpenPatientDrawer({patientId: data?.uuid}));
+                                                    dispatch(setOpenUploadDialog(true));
+                                                }}>
+                                                <IconUrl path="ic-outline-document-upload" width={18} height={18}/>
+                                            </CustomIconButton>
+                                        </Stack>
+
+
                                     </Stack>
                                 ) : (
                                     <Stack direction='row' spacing={.5}>
@@ -226,7 +242,7 @@ const CardSection = ({...props}) => {
                                             initial={{x: 0, opacity: 1}}
                                             animate={{x: isRec ? [100, 0] : 0, opacity: [0, 1]}}
                                             color="primary"
-                                            startIcon={<IconUrl path="ic-agenda-+" width={12} height={12}/>}
+                                            startIcon={<IconUrl path="ic-agenda-+" width={16} height={16}/>}
                                             sx={{
                                                 position: "relative",
                                                 px: 1.5,
@@ -241,25 +257,29 @@ const CardSection = ({...props}) => {
                                             }}>
                                             {!isRec && t("config.table.add-appointment")}
                                         </Button>
-                                        <CustomIconButton component={motion.button} layout
+                                        {/* <CustomIconButton component={motion.button} layout
                                                           initial={{x: 0, opacity: 1}}
                                                           animate={{x: isRec ? [-100, 0] : 0, opacity: [0, 1]}}
                                                           transition={spring} sx={{minWidth: isRec ? 120 : 40}}
                                                           color="error" onClick={(ev: any) => {
                                             ev.stopPropagation();
                                             setIsRec(!isRec);
-
                                         }}>
                                             <IconUrl path="ic-filled-record-circle"/>
                                             {isRec && <Typography variant="caption" color="common.white"
                                                                   sx={{ml: .5}}>00:00:51</Typography>}
-                                        </CustomIconButton>
-                                        <CustomIconButton component={motion.button} layout
-                                                          initial={{x: 0, opacity: 1}}
-                                                          animate={{x: isRec ? [-100, 0] : 0, opacity: [0, 1]}}
-                                                          transition={spring} sx={{minWidth: 40, fontSize: 14}}
-                                                          color="back" onClick={(ev: any) => ev.stopPropagation()}>
-                                            <IconUrl path="ic-outline-document-upload"/>
+                                        </CustomIconButton>*/}
+                                        <CustomIconButton
+                                            component={motion.button} layout
+                                            initial={{x: 0, opacity: 1}}
+                                            animate={{x: isRec ? [-100, 0] : 0, opacity: [0, 1]}}
+                                            transition={spring} sx={{minWidth: 40, fontSize: 14}}
+                                            color="back"
+                                            onClick={(ev: any) => {
+                                                ev.stopPropagation();
+                                                dispatch(setOpenUploadDialog(true));
+                                            }}>
+                                            <IconUrl path="ic-outline-document-upload" width={18} height={18}/>
                                         </CustomIconButton>
                                     </Stack>
                                 )}
