@@ -709,7 +709,7 @@ function Statistics() {
                                                     <Stack>
                                                         <Typography fontWeight={700} color='primary' fontSize={28}
                                                                     variant="subtitle1">
-                                                            {Math.round(patientPerGender[0]?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
+                                                            {Math.round(patientPerGender.find(gender => gender.key === "m")?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
                                                             <Typography fontSize={12} fontWeight={500}
                                                                         variant="caption">
                                                                 %
@@ -722,7 +722,7 @@ function Statistics() {
                                                     <Stack pl={2} ml={2} borderLeft={1.5} borderColor={'divider'}>
                                                         <Typography fontWeight={700} color='warning.main' fontSize={28}
                                                                     variant="subtitle1">
-                                                            {Math.round(patientPerGender[1]?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val?.doc_count, 0)) * 100) || "__"}
+                                                            {Math.round(patientPerGender.find(gender => gender.key === "f")?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val?.doc_count, 0)) * 100) || "__"}
                                                             <Typography fontSize={12} fontWeight={500}
                                                                         variant="caption">
                                                                 %
@@ -1257,7 +1257,7 @@ function Statistics() {
                                                 <Stack pb={1}>
                                                     <Typography fontWeight={700} color='warning.main' fontSize={28}
                                                                 variant="subtitle1">
-                                                        {Math.round(patientPerGender[0]?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
+                                                        {Math.round(patientPerGender.find(gender => gender.key === "m")?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
                                                         <Typography fontSize={12} fontWeight={500} variant="caption">
                                                             %
                                                         </Typography>
@@ -1269,7 +1269,7 @@ function Statistics() {
                                                 <Stack borderTop={1.5} borderColor={'divider'}>
                                                     <Typography fontWeight={700} color='primary' fontSize={28}
                                                                 variant="subtitle1">
-                                                        {Math.round(patientPerGender[1]?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
+                                                        {Math.round(patientPerGender.find(gender => gender.key === "f")?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
                                                         <Typography fontSize={12} fontWeight={500} variant="caption">
                                                             %
                                                         </Typography>
