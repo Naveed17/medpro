@@ -1,13 +1,12 @@
-import React from 'react'
 import CardStyled from './overrides/cardStyle'
-import { Avatar, Badge, Box, CardContent, IconButton, Skeleton, Stack, Typography, useTheme } from '@mui/material'
-import { ConditionalWrapper } from '@lib/hooks';
+import {Avatar, Badge, CardContent, IconButton, Skeleton, Stack, Typography, useTheme} from '@mui/material'
+import {ConditionalWrapper} from '@lib/hooks';
 import Zoom from "react-medium-image-zoom";
 import IconUrl from '@themes/urlIcon';
 import Can from "@features/casl/can";
-import { Label } from '@features/label';
-function StaffMobileCard({ ...props }) {
-    const { row, t, handleEvent } = props;
+
+function StaffMobileCard({...props}) {
+    const {row, t, handleEvent} = props;
     const theme = useTheme()
     return (
         <CardStyled>
@@ -18,13 +17,13 @@ function StaffMobileCard({ ...props }) {
                             <>
                                 <Badge
                                     overlap="circular"
-                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+                                    anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}>
                                     <ConditionalWrapper
                                         condition={row.hasPhoto}
                                         wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                         <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                             <Avatar
-                                                {...(row.hasPhoto && { className: "zoom" })}
+                                                {...(row.hasPhoto && {className: "zoom"})}
                                                 src={"/static/icons/men-avatar.svg"}
                                                 sx={{
                                                     "& .injected-svg": {
@@ -34,10 +33,10 @@ function StaffMobileCard({ ...props }) {
                                                     height: 36,
                                                     borderRadius: 1
                                                 }}>
-                                                <IconUrl width={"36"} height={"36"} path="men-avatar" />
+                                                <IconUrl width={"36"} height={"36"} path="men-avatar"/>
                                             </Avatar>
                                             <Typography variant="body1" fontWeight={700} color="primary">
-                                                {row.FirstName} {row.lastName}
+                                                {row.firstName} {row.lastName}
                                             </Typography>
                                         </Stack>
                                     </ConditionalWrapper>
@@ -46,7 +45,7 @@ function StaffMobileCard({ ...props }) {
                             </>
                         ) : (
                             <Stack>
-                                <Skeleton variant="text" width={100} />
+                                <Skeleton variant="text" width={100}/>
                             </Stack>
                         )}
 
@@ -61,7 +60,7 @@ function StaffMobileCard({ ...props }) {
                                         size="small"
                                         color="primary"
                                         className="btn-edit">
-                                        <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient" />
+                                        <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                     </IconButton>
                                 </Can>
                                 <Can I={"manage"} a={"settings"} field={"settings__users__delete"}>
@@ -73,13 +72,13 @@ function StaffMobileCard({ ...props }) {
                                             handleEvent("DELETE_DOCTOR", row)
                                         }}
                                         sx={{
-                                            ml: { md: 1 },
+                                            ml: {md: 1},
                                             '& .react-svg svg': {
                                                 width: 20,
                                                 height: 20
                                             }
                                         }}>
-                                        <IconUrl color={theme.palette.text.secondary} path="ic-trash" />
+                                        <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
                                     </IconButton>
                                 </Can>
                             </Stack>
@@ -90,15 +89,16 @@ function StaffMobileCard({ ...props }) {
                                 ml="auto"
                                 alignItems="center"
                                 justifyContent="flex-end">
-                                <Skeleton variant="text" width={25} height={40} />
-                                <Skeleton variant="text" width={25} height={40} />
+                                <Skeleton variant="text" width={25} height={40}/>
+                                <Skeleton variant="text" width={25} height={40}/>
                             </Stack>
                         )}
 
                     </Stack>
                     <Stack className='row'>
                         <Stack direction='row' alignItems='center' spacing={2}>
-                            <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.department")} :</Typography>
+                            <Typography variant='body2' color="textSecondary"
+                                        fontWeight={500}>{t("table.department")} :</Typography>
                             {row ? (
                                 <>
                                     <Typography
@@ -111,11 +111,12 @@ function StaffMobileCard({ ...props }) {
                                     </Typography>
                                 </>
                             ) : (
-                                <Skeleton variant="text" width={100} />
+                                <Skeleton variant="text" width={100}/>
                             )}
                         </Stack>
                         <Stack direction='row' alignItems='center' spacing={2}>
-                            <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.function")} :</Typography>
+                            <Typography variant='body2' color="textSecondary"
+                                        fontWeight={500}>{t("table.function")} :</Typography>
                             {row ? (
                                 <>
                                     <Typography
@@ -129,12 +130,13 @@ function StaffMobileCard({ ...props }) {
                                 </>
                             ) : (
                                 <Stack alignItems="center">
-                                    <Skeleton variant="text" width={100} />
+                                    <Skeleton variant="text" width={100}/>
                                 </Stack>
                             )}
                         </Stack>
                         <Stack direction='row' alignItems='center' spacing={2}>
-                            <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.contact")} :</Typography>
+                            <Typography variant='body2' color="textSecondary"
+                                        fontWeight={500}>{t("table.contact")} :</Typography>
                             <Typography
                                 textAlign={"center"}
                                 variant="body1"
@@ -145,7 +147,8 @@ function StaffMobileCard({ ...props }) {
                             </Typography>
                         </Stack>
                         <Stack direction='row' alignItems='center' spacing={2}>
-                            <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.email")} :</Typography>
+                            <Typography variant='body2' color="textSecondary"
+                                        fontWeight={500}>{t("table.email")} :</Typography>
                             <Typography
                                 textAlign={"center"}
                                 variant="body1"
@@ -157,7 +160,8 @@ function StaffMobileCard({ ...props }) {
                         </Stack>
                     </Stack>
                     <Stack direction='row' alignItems='center' spacing={2}>
-                        <Typography variant='body2' color="textSecondary" fontWeight={500}>{t("table.join-date")} :</Typography>
+                        <Typography variant='body2' color="textSecondary"
+                                    fontWeight={500}>{t("table.join-date")} :</Typography>
                         <Typography
                             textAlign={"center"}
                             variant="body1"

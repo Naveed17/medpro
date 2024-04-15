@@ -42,12 +42,11 @@ function useGeneratePdfTemplate() {
         ApexCharts.exec("chart-growth", "dataURI").then(async ({imgURI}: any) => {
             const chartGrowthBytes = await fetch(imgURI).then((res) => res.arrayBuffer())
             const chartGrowth = await pdfDoc.embedPng(chartGrowthBytes);
-            const chartGrowthDims = chartGrowth.scale(0.35);
             copiedPages[0].drawImage(chartGrowth, {
                 x: 420,
                 y: 68,
-                width: chartGrowthDims.width,
-                height: chartGrowthDims.height,
+                width: 370,
+                height: 226
             })
             // draw bebe coordination
             copiedPages[0].drawText('Je m\'appelle', {

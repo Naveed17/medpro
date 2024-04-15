@@ -34,7 +34,7 @@ function UserRow({...props}) {
                 {row ? (
                     <>
                         <Typography variant="body1" fontWeight={700} color="text.primary">
-                            {row.FirstName} {row.lastName}
+                            {row.firstName} {row.lastName}
                         </Typography>
                         {row.email}
                     </>

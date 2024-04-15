@@ -183,7 +183,6 @@ function Cashbox() {
                     t,
                     ready
                 }}
-                defaultValue={""}
                 data={dataCashBox}
                 setData={setDataCashBox}
             />

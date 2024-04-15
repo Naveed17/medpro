@@ -347,7 +347,6 @@ function MainLayout({...props}) {
                     setTimeout(connectToStream, 1);
                 }
             } else if ((error as any)?.type === "error") {
-                console.log("eventSource", eventSource.readyState);
                 setTimeout(connectToStream, 1);
             }
         };

@@ -32,7 +32,7 @@ const INFO = {
 
 const SUCCESS = {
   lighter: "#E9FCD4",
-  light: "#AAF27F",
+  light: "#2DBD1F",
   main: "#1BC47D",
   dark: "#28C76F",
   darker: "#138958",

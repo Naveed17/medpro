@@ -47,7 +47,6 @@ function DateFilter({...props}) {
 
     return (
         <Box>
-
             <FormControlLabel
                 label={`${t('filterByPeriod')}`}
                 disabled={!filterDate}

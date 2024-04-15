@@ -1,17 +1,19 @@
 import {Otable} from "@features/table";
 import {TableHead} from "@features/calendar";
-import React, {MutableRefObject, useEffect, useRef} from "react";
+import React, {useEffect, useState} from "react";
 import usePendingAppointment from "@lib/hooks/rest/usePendingAppointment";
 import {appointmentGroupByDate, appointmentPrepareEvent} from "@lib/hooks";
 
 function PendingAppointmentDialog({...props}) {
     const {t, handleTableEvent} = props.data;
-    const {pendingAppointments} = usePendingAppointment()
-    let pendingEvents: MutableRefObject<EventModal[]> = useRef([]);
+    const {pendingAppointments} = usePendingAppointment();
+    const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>([]);
 
     useEffect(() => {
-        pendingEvents.current = [];
-        pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
+        if (pendingAppointments.length > 0) {
+            const pendingApps = pendingAppointments?.map(event => appointmentPrepareEvent(event, false, []));
+            setEventGroupByDay(appointmentGroupByDate(pendingApps));
+        }
     }, [pendingAppointments]);
 
     return (
@@ -20,7 +22,7 @@ function PendingAppointmentDialog({...props}) {
             maxHeight={`calc(100vh - 180px)`}
             headers={TableHead.filter((head: any) => head.id !== "motif")}
             handleEvent={handleTableEvent}
-            rows={appointmentGroupByDate(pendingEvents.current)}
+            rows={eventGroupByDay}
             from={"calendar"}
         />
     )
