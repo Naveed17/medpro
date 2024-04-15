@@ -16,7 +16,7 @@ function Page({...props}) {
 
     const {
         data, setData, id = 0, setOnResize, date, header, setHeader, setValue,
-        state, componentRef, editMode, downloadMode,
+        state, componentRef, editMode, downloadMode,bg2ePage,
         urlMedicalProfessionalSuffix, docs, setDocs
     } = props
     const {Canvas} = useQRCode();
@@ -220,7 +220,7 @@ function Page({...props}) {
             <div className={"dropzone"} id="inner-dropzone">
                 <div id={`page${id}`}
                      style={{
-                         ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
+                         ...(data.background.show && data.background.content !== ''  && backgroundImg && (id=== 0 || bg2ePage) && {
                              backgroundImage: `url(${backgroundImg})`,
                              backgroundRepeat: "no-repeat",
                              backgroundSize: "100% 100%"
@@ -671,7 +671,6 @@ function Page({...props}) {
 
 
                     {/*Content*/}
-
 
                     <Resizable
                         className={`${selectedElement === `content${id}` ? "selected" : "notSelected"} ${downloadMode ? "contentPis" : "content"} resizable content${id}`}

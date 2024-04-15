@@ -6,6 +6,12 @@ const AppToolbarStyled = styled(Stack)(({theme}) => ({
         color: theme.palette.grey[700] + ' !important',
         '&.Mui-selected': {
             color: theme.palette.primary.main + ' !important',
+        },
+        [theme.breakpoints.down("sm")]:{
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1),
+        minWidth:50,
+        flex:1
         }
     },
     ".action-button": {
