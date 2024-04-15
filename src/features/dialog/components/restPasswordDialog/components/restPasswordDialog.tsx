@@ -1,13 +1,12 @@
-import { Stepper, stepperSelector, setStepperIndex } from '@features/stepper';
-import { Otable } from '@features/table';
-import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
-import { Box, Button, Checkbox, DialogActions, DialogContent, FormControlLabel, Paper, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material'
-import IconUrl from '@themes/urlIcon';
-import { FormikProvider, useFormik, Form } from 'formik';
+import {Stepper, stepperSelector, setStepperIndex} from '@features/stepper';
+import {Otable} from '@features/table';
+import {useAppDispatch, useAppSelector} from '@lib/redux/hooks';
+import {Box, Button, DialogActions, DialogContent, Paper, Stack} from '@mui/material'
+import {FormikProvider, useFormik, Form} from 'formik';
 import * as Yup from 'yup';
-import React, { useState } from 'react'
+import React, {useState} from 'react'
 import Step1 from './step1';
-import { TabPanel } from '@features/tabPanel';
+import {TabPanel} from '@features/tabPanel';
 import Step2 from './step2';
 import Step3 from './step3';
 
@@ -48,9 +47,10 @@ const TableHead = [
         sortable: false,
     },
 ];
-function RestPasswordDialog({ ...props }) {
-    const { data: { t, theme, handleClose } } = props;
-    const { currentStep } = useAppSelector(stepperSelector);
+
+function RestPasswordDialog({...props}) {
+    const {data: {t, theme, handleClose}} = props;
+    const {currentStep} = useAppSelector(stepperSelector);
 
     const dispatch = useAppDispatch()
     const [rows, setRows] = useState([{
@@ -77,7 +77,7 @@ function RestPasswordDialog({ ...props }) {
             email_the_pass: "",
             resetPassword: ""
         },
-        onSubmit: async (values) => {
+        onSubmit: async () => {
             if (currentStep === stepperData.length - 1) {
                 dispatch(setStepperIndex(0));
                 handleClose();
@@ -88,7 +88,7 @@ function RestPasswordDialog({ ...props }) {
         },
         validationSchema,
     })
-    const { values, handleSubmit, setFieldValue, getFieldProps, errors, touched } = formik;
+    const {handleSubmit, setFieldValue} = formik;
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFieldValue("password_type", (event.target as HTMLInputElement).value);
     };
@@ -104,13 +104,13 @@ function RestPasswordDialog({ ...props }) {
                 }}
             >
                 <Stepper
-                    {...{ stepperData }}
+                    {...{stepperData}}
                     t={t}
                     minWidth={662}
                     padding={0}
                 />
             </Paper>
-            <DialogContent sx={{ pb: 0 }}>
+            <DialogContent sx={{pb: 0}}>
                 <Stack spacing={2}>
                     {
                         currentStep !== 2 && <Otable
@@ -123,22 +123,22 @@ function RestPasswordDialog({ ...props }) {
                     <FormikProvider value={formik}>
                         <Stack component={Form} spacing={2} autoComplete="off" noValidate onSubmit={handleSubmit}>
                             <TabPanel value={currentStep} index={0} padding={.3}>
-                                <Step1 {...{ formik, t, theme, handleChange }} />
+                                <Step1 {...{formik, t, theme, handleChange}} />
                             </TabPanel>
                             <TabPanel value={currentStep} index={1} padding={.3}>
-                                <Step2 {...{ formik, t, theme }} />
+                                <Step2 {...{formik, t, theme}} />
                             </TabPanel>
                             <TabPanel value={currentStep} index={2} padding={.3}>
-                                <Step3 {...{ t }} />
+                                <Step3 {...{t}} />
                             </TabPanel>
                             <Box>
-                                <DialogActions sx={{ mx: -3, boxShadow: "0px -1px 1px 0px rgba(0, 150, 214, 0.45)" }}>
+                                <DialogActions sx={{mx: -3, boxShadow: "0px -1px 1px 0px rgba(0, 150, 214, 0.45)"}}>
                                     <Button
                                         onClick={() => {
                                             dispatch(setStepperIndex(0));
                                             handleClose()
                                         }}
-                                        variant='text-black' sx={{ mr: 'auto' }}>
+                                        variant='text-black' sx={{mr: 'auto'}}>
                                         {t("dialog.cancel")}
                                     </Button>
                                     <Button variant='contained' type='submit'>
