@@ -72,9 +72,9 @@ function NotificationPopover({...props}) {
     const [pendingAppointments] = useState<any[]>([...localPendingAppointments.map(appointment => ({
         ...appointment,
         dur: appointment.duration,
-        avatar: `${appointment.patient.firstName.charAt(0).toUpperCase()}${appointment.patient.lastName.charAt(0).toUpperCase()}`,
+        avatar: `${appointment.patient.firstName?.charAt(0).toUpperCase()}${appointment.patient?.lastName.charAt(0).toUpperCase()}`,
         duration: appointment.createdAt && getDiffDuration(appointment.createdAt),
-        title: `${appointment.patient.firstName} ${appointment.patient.lastName} ${t("request-appointment")} ${appointment.dayDate} ${appointment.startTime}`,
+        title: `${appointment.patient?.firstName} ${appointment.patient?.lastName} ${t("request-appointment")} ${appointment.dayDate} ${appointment.startTime}`,
         icon: <EventIcon/>,
         buttons: [
             {text: t("dialogs.move-dialog.confirm"), color: "success", action: "onConfirm"},
@@ -93,7 +93,7 @@ function NotificationPopover({...props}) {
         ...pendingAppointments
         , ...(localNotifications ? localNotifications.map(data => ({
             ...(data?.appointment ?? data),
-            avatar: `${data.appointment?.patient.firstName.charAt(0).toUpperCase()}${data.appointment?.patient.lastName.charAt(0).toUpperCase()}`,
+            avatar: `${data.appointment?.patient.firstName?.charAt(0).toUpperCase()}${data.appointment?.patient.lastName?.charAt(0).toUpperCase()}`,
             title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
             icon: <EventIcon/>,
             buttons: [

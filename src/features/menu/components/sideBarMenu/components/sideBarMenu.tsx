@@ -214,7 +214,7 @@ function SideBarMenu({children}: LayoutProps) {
                         </Hidden>
                     </ListItem>
                 </Can>
-                <Badge
+               {/* <Badge
                     className={"custom-Badge"}
                     color={"error"} badgeContent={"N"}>
                     <ListItem
@@ -228,7 +228,7 @@ function SideBarMenu({children}: LayoutProps) {
                             <ListItemText primary={t("main-menu.features")}/>
                         </Hidden>
                     </ListItem>
-                </Badge>
+                </Badge>*/}
                 <Hidden smUp>
                     <ListItem onClick={() => handleLogout()}>
                         <ListItemIcon>

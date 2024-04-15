@@ -44,7 +44,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {downloadFileAsPdf, generatePdfFromHtml, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {
+    downloadFileAsPdf,
+    generatePdfFromHtml,
+    getMimeTypeFromArrayBuffer,
+    useMedicalEntitySuffix,
+    useMedicalProfessionalSuffix
+} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
@@ -274,14 +280,17 @@ function DocumentDetailDialog({...props}) {
                     const file = await generatePdfFromHtml(componentRef, "blob");
                     setPreviewDoc(file);
                 } else {
-                    const fileType = ["png", "jpeg", "jpg"].includes(file.url.split('.').pop().split(/\#|\?/)[0]) ? 'image/png' : 'application/pdf';
-                    fetch(file.url).then(response => {
-                        response.blob().then(blob => {
-                            const file = new File([new Blob([blob])], `report${new Date().toISOString()}`
-                                , {type: fileType})
-                            setPreviewDoc(file);
-                        })
-                    })
+                    const photoUrlBytes = await fetch(file.url, {
+                        // Fix CROSS origin issues with no-cache header
+                        headers: {
+                            'Cache-Control': 'no-cache, no-store, must-revalidate',
+                            'Pragma': 'no-cache',
+                            'Expires': '0'
+                        }
+                    }).then((res) => res.arrayBuffer());
+                    const photoExtension = getMimeTypeFromArrayBuffer(photoUrlBytes);
+                    const fileData = new File([new Blob([photoUrlBytes])], `report${new Date().toISOString()}`, {type: photoExtension?.type})
+                    setPreviewDoc(fileData);
                 }
                 break;
             case "delete":
@@ -373,7 +382,7 @@ function DocumentDetailDialog({...props}) {
                 if (generatedDocs.some(doc => doc == state?.type)) {
                     setEditMode(false)
                     setDownloadMode(true);
-                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew,setDownloadMode);
+                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew, setDownloadMode);
                 } else {
                     downloadFileFromUrl(file.url, `${state?.type} ${state?.patient}`);
                 }
