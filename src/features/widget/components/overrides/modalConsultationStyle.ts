@@ -29,7 +29,7 @@ const ConsultationModalStyled = styled("div")(({ theme }) => ({
         paddingTop: theme.spacing(1),
         overflowX:"hidden",
         ".fieldset-body": {
-            margin: 0,
+            margin:"5px 15px",
         },
         ".menu-list": {
             position: "absolute",

@@ -128,6 +128,7 @@ function DocumentDetailDialog({...props}) {
     const [onReSize, setOnResize] = useState(true)
     const [pdfUrl, setPdfUrl] = useState('');
     const [editMode, setEditMode] = useState(false);
+    const [bg2ePage, setBg2ePage] = useState(true);
     const [downloadMode, setDownloadMode] = useState(false);
 
     const {direction} = useAppSelector(configSelector);
@@ -187,6 +188,11 @@ function DocumentDetailDialog({...props}) {
         ...(data.isNew ? [{
             title: 'editMode',
             icon: `text-selection`,
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        }] : []),
+        ...(data.isNew ? [{
+            title: 'bg2ePage',
+            icon: `menu/${bg2ePage ?'ic-eye-closed':'ic-open-eye'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         }] : []),
         ...(!data.isNew ? [{
@@ -386,6 +392,9 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "editMode":
                 setEditMode(prev => !prev)
+                break;
+                case "bg2ePage":
+                setBg2ePage(prev => !prev)
                 break;
             default:
                 break;
@@ -635,7 +644,7 @@ function DocumentDetailDialog({...props}) {
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
                         docs: urls,
-                        editMode, downloadMode,
+                        editMode,bg2ePage, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
@@ -987,6 +996,7 @@ function DocumentDetailDialog({...props}) {
                         control={
                             <Checkbox checked={selectedTemplate === doc.uuid}
                                       onChange={() => {
+                                          //PATCH
                                           setSelectedTemplate(doc.uuid)
                                       }} name={doc.uuid}/>
                         }

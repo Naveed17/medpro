@@ -918,7 +918,7 @@ function ConsultationInProgress() {
                                 type: "requested-analysis",
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
-                                info: res[0].analyses,
+                                info: res[0]["requested_analyses_has_analyses"],
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
                                 age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
                                 print: true
@@ -960,7 +960,7 @@ function ConsultationInProgress() {
                                 uri: res[1],
                                 name: "requested-medical-imaging",
                                 type: "requested-medical-imaging",
-                                info: res[0]["medical-imaging"],
+                                info: res[0]["requested_medical_imaging_has_medical_imaging"],
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
                                 description: "",

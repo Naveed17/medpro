@@ -28,6 +28,7 @@ function Doc({...props}) {
         urlMedicalProfessionalSuffix,
         docs,
         editMode = true,
+        bg2ePage = true,
         downloadMode = false,
         setDocs
     } = props
@@ -237,6 +238,7 @@ function Doc({...props}) {
                         header,
                         setHeader,
                         state,
+                        bg2ePage,
                         editMode, downloadMode,
                         urlMedicalProfessionalSuffix,
                         docs, setDocs
