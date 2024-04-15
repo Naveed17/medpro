@@ -227,6 +227,7 @@ function ModifyUser() {
                 });
             } else {
                 const feature = selectedFeatureEntity ? values.roles[selectedFeature].find((feature: FeatureModel) => feature.featureEntity?.uuid === selectedFeatureEntity.uuid) : values.roles[selectedFeature][0];
+                console.log("feature", feature);
                 const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                     [...(permissions ?? []),
                         ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];

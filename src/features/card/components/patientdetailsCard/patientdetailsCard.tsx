@@ -73,7 +73,7 @@ function PatientDetailsCard({ ...props }) {
                 url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""),
                 file: ""
             },
-            name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
+            name: !loading ? `${patient.firstName?.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
         onSubmit: () => {
