@@ -220,7 +220,7 @@ function Page({...props}) {
             <div className={"dropzone"} id="inner-dropzone">
                 <div id={`page${id}`}
                      style={{
-                         ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
+                         ...(data.background.show && data.background.content !== ''  && backgroundImg && {
                              backgroundImage: `url(${backgroundImg})`,
                              backgroundRepeat: "no-repeat",
                              backgroundSize: "100% 100%"
