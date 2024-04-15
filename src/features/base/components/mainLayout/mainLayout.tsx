@@ -341,6 +341,7 @@ function MainLayout({...props}) {
         // So that it attempts to connect again
         eventSource.onerror = (error) => {
             eventSource.close();
+            console.log("error", error);
             if ((error as any)?.data) {
                 const errorData = (error as any).data && JSON.parse((error as any)?.data);
                 if (![404, 500, 502, 503, 504].includes(errorData?.status)) {
