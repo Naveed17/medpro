@@ -130,6 +130,11 @@ function Statistics() {
         {value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
         {value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM"}
     ];
+    const genders = {
+        "f": "female",
+        "m": "male",
+        "u": "other"
+    }
 
     const convertDurationToMin = (startTime: string, endTime: string) => {
         const duration = getDiffDuration(`${moment().format("DD-MM-YYY")} ${startTime}`, 1, false, `${moment().format("DD-MM-YYY")} ${endTime}`);
@@ -677,7 +682,7 @@ function Statistics() {
                                                         }
                                                         options={
                                                             merge(ChartsOption(), {
-                                                                labels: [t('male'), t('female'), t('other')],
+                                                                labels: patientPerGender.map(gender => t(genders[gender.key as keyof typeof genders])),
                                                                 legend: {
                                                                     show: false
                                                                 },
@@ -1110,7 +1115,7 @@ function Statistics() {
                                                     <Stack direction={"row"} spacing={1} alignItems={"flex-end"}>
                                                         <Typography lineHeight={1} fontWeight={600} fontSize={24}
                                                                     variant="subtitle1">
-                                                            {statsPerPeriod["waiting_time"] ?? "--"}
+                                                            {statsPerPeriod ? statsPerPeriod["waiting_time"] : "--"}
                                                         </Typography>
                                                         <Typography variant="caption">
                                                             min
@@ -1282,7 +1287,7 @@ function Statistics() {
                                                     }
                                                     options={
                                                         merge(ChartsOption(), {
-                                                            labels: [t('male'), t('female'), t('other')],
+                                                            labels: patientPerGender.map(gender => t(genders[gender.key as keyof typeof genders])),
                                                             legend: {
                                                                 show: false
                                                             },

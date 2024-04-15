@@ -19,7 +19,6 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 function SendEmailDialog({...props}) {
     const {preview, patient, t, title, handleSendEmail, loading} = props.data;
-    console.log("preview", preview);
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [loadingReq, setLoadingReq] = useState<boolean>(true);
@@ -150,7 +149,7 @@ function SendEmailDialog({...props}) {
 
             <CardActions>
                 <LoadingButton
-                    loading={loadingReq}
+                    {...(!preview?.type.includes("image") && {loading: loadingReq})}
                     loadingPosition={"start"}
                     disabled={!isValid}
                     sx={{marginLeft: 'auto'}}
