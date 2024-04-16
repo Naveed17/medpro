@@ -10,7 +10,7 @@ import {
     Stack,
     Typography,
     useTheme,
-    alpha, styled as MuiStyled
+    alpha, styled as MuiStyled, Tooltip
 } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
@@ -27,6 +27,7 @@ import Icon from "@themes/urlIcon";
 import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import {Label} from "@features/label";
 import {useTranslation} from "next-i18next";
+import {IconButtonStyled} from "@features/board";
 
 const imageSize: number = 40;
 
@@ -289,9 +290,24 @@ function WaitingRoomMobileCard({...props}) {
                                        color={quote?.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.restAmount === 0 ? "paid" : "not-payed")}</Label>
                             }
                             {(quote.status === 5 && quote?.restAmount !== 0) && <Stack direction='row' spacing={.5}>
-                                <DocButton>
-                                    <IconUrl path="ic-edit-file-new" width={9} height={9}/>
-                                </DocButton>
+                                {(quote?.prescriptions.length > 0) &&
+                                    <Tooltip title={commonTranslation("requestedPrescription")}>
+                                                <span>
+                                                    <IconButtonStyled
+                                                        size={"small"}
+                                                        onClick={(event) => handleEvent({
+                                                            action: "ON_PREVIEW_DOCUMENT",
+                                                            row: {
+                                                                uuid: quote.uuid,
+                                                                doc: quote.prescriptions[0]
+                                                            },
+                                                            event
+                                                        })}>
+                                                        <IconUrl width={18} height={18} path="docs/ic-prescription"
+                                                                 color={theme.palette.primary.main}/>
+                                                    </IconButtonStyled>
+                                                </span>
+                                    </Tooltip>}
                                 <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                         action: "ON_PAY",
