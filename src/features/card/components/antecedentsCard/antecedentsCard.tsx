@@ -14,7 +14,7 @@ import {openDrawer} from "@features/calendar";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
 import {useAntecedentTypes} from "@lib/hooks/rest";
 
@@ -44,6 +44,7 @@ function AntecedentsCard({...props}) {
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
     const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/patient/antecedent");
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const handleClickDialog = () => {
         setOpenDialog(true);
@@ -75,6 +76,9 @@ function AntecedentsCard({...props}) {
                 setInfo("");
                 setInfoDynamic("");
                 mutateAntecedents();
+                const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`;
+                invalidateQueries([url])
+
             }
         });
     };
