@@ -380,8 +380,7 @@ const Chat = ({...props}) => {
                                                 textOverflow: "ellipsis",
                                                 display: "-webkit-box",
                                                 lineClamp: 2,
-                                                WebkitLineClamp: 2,
-                                                WebkitBoxOrient: "vertical",
+                                                boxOrient: "vertical",
                                             }}
                                             color="text.secondary">
                                     <div dangerouslySetInnerHTML={{__html: disc.lastMessage}}></div>

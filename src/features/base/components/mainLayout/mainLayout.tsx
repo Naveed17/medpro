@@ -582,8 +582,7 @@ function MainLayout({...props}) {
                             textOverflow: "ellipsis",
                             display: "-webkit-box",
                             lineClamp: 1,
-                            WebkitLineClamp: 1,
-                            WebkitBoxOrient: "vertical",
+                            boxOrient: "vertical",
                         }}>
                             <div dangerouslySetInnerHTML={{__html: message.message}}></div>
                         </Typography>

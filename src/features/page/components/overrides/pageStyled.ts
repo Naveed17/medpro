@@ -10,6 +10,7 @@ const PageStyled = styled(Box)(({theme}) => ({
             boxShadow: "0 0 6px #ccc",
             background: "white",
             marginBottom: 10,
+            position:"relative",
             border: "2px solid white"
         },
         '& .a4': {
