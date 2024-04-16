@@ -394,7 +394,6 @@ function ConsultationInProgress() {
     };
 
     const showDoc = (card: any, print?: boolean) => {
-
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
@@ -417,7 +416,7 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 name: "certif",
                 type: "write_certif",
-                documentHeader: card.certificate[0].documentHeader,
+                documentHeader: card.header ? card.header : card.certificate[0].documentHeader,
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient
             });
@@ -449,6 +448,7 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
                 uuidDoc: uuidDoc,
+                documentHeader: card.header ? card.header : null,
                 patient: `${type} ${patient?.firstName
                     } ${patient?.lastName}`,
                 cin: patient?.idCard ? patient?.idCard : "",
@@ -1944,10 +1944,10 @@ function ConsultationInProgress() {
                                             color={"info"}
                                             variant="outlined"
                                             onClick={() => handleSaveDialog(false)}
-                                            disabled={info.includes("medical_prescription") && state?.length === 0}
+                                            disabled={state?.length === 0}
                                             startIcon={
                                                 <IconUrl
-                                                    {...(info.includes("medical_prescription") && state?.length === 0 && { color: "white" })}
+                                                    {...(state?.length === 0 && { color: "white" })}
                                                     path={"iconfinder_save"} />}>
                                             {t("consultationIP.save")}
                                         </Button>
@@ -1955,7 +1955,7 @@ function ConsultationInProgress() {
                                             variant="contained"
                                             sx={{ width: { xs: 1, sm: 'auto' } }}
                                             onClick={() => handleSaveDialog()}
-                                            disabled={info.includes("medical_prescription") && state?.length === 0}
+                                            disabled={state?.length === 0}
                                             startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"} />}>
                                             {t("consultationIP.save_print")}
                                         </Button>}

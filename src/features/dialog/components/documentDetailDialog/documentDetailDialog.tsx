@@ -126,7 +126,6 @@ function DocumentDetailDialog({...props}) {
     const [previewDoc, setPreviewDoc] = useState<any>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [onReSize, setOnResize] = useState(true)
-    const [pdfUrl, setPdfUrl] = useState('');
     const [editMode, setEditMode] = useState(false);
     const [bg2ePage, setBg2ePage] = useState(true);
     const [downloadMode, setDownloadMode] = useState(false);
@@ -192,7 +191,7 @@ function DocumentDetailDialog({...props}) {
         }] : []),
         ...(data.isNew ? [{
             title: 'bg2ePage',
-            icon: `menu/${bg2ePage ?'ic-eye-closed':'ic-open-eye'}`,
+            icon: `menu/${bg2ePage ? 'ic-eye-closed' : 'ic-open-eye'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         }] : []),
         ...(!data.isNew ? [{
@@ -275,9 +274,11 @@ function DocumentDetailDialog({...props}) {
                 handlePrint();
                 break;
             case "email":
+                setDownloadMode(true);
                 setSendEmailDrawer(true);
                 if (generatedDocs.some(doc => doc == state?.type)) {
                     const file = await generatePdfFromHtml(componentRef, "blob");
+                    setDownloadMode(false);
                     setPreviewDoc(file);
                 } else {
                     const photoUrlBytes = await fetch(file.url, {
@@ -393,7 +394,7 @@ function DocumentDetailDialog({...props}) {
             case "editMode":
                 setEditMode(prev => !prev)
                 break;
-                case "bg2ePage":
+            case "bg2ePage":
                 setBg2ePage(prev => !prev)
                 break;
             default:
@@ -503,24 +504,6 @@ function DocumentDetailDialog({...props}) {
         });
     }
 
-    /* const convertToPdf = async (htmlContent) => {
-         const response = await fetch('/api/convertToPdf', {
-             method: 'POST',
-             headers: {
-                 'Content-Type': 'application/json',
-             },
-             body: JSON.stringify({ htmlContent }),
-         });
-         if (response.ok) {
-             const pdfBlob = await response.blob();
-             const pdfUrl = URL.createObjectURL(pdfBlob);
-             setPdfUrl(pdfUrl);
-         } else {
-             console.error('Failed to convert HTML to PDF');
-         }
-     };
-
- */
     useEffect(() => {
         setIsImg(state?.detectedType?.split('/')[0] === 'image')
         setFile(state?.uri)
@@ -537,7 +520,6 @@ function DocumentDetailDialog({...props}) {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
-
             if (docInfo.length === 0) {
                 setLoading(false)
             } else {
@@ -626,7 +608,7 @@ function DocumentDetailDialog({...props}) {
                 }
                 setTimeout(() => {
                     setLoading(false)
-                }, 1000)
+                }, 2000)
             }
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -644,7 +626,7 @@ function DocumentDetailDialog({...props}) {
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
                         docs: urls,
-                        editMode,bg2ePage, downloadMode,
+                        editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
@@ -719,11 +701,7 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
-                        {pdfUrl && (
-                            <a href={pdfUrl} download="converted.pdf">
-                                Download PDF
-                            </a>
-                        )}
+
                         {!multiMedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
@@ -997,6 +975,7 @@ function DocumentDetailDialog({...props}) {
                             <Checkbox checked={selectedTemplate === doc.uuid}
                                       onChange={() => {
                                           //PATCH
+                                          editDoc("header", doc.uuid)
                                           setSelectedTemplate(doc.uuid)
                                       }} name={doc.uuid}/>
                         }
