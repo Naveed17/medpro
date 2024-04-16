@@ -86,11 +86,11 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
+        ...(medicalEntityHasUser && {variables: {query: '?sort=false'}})
     });
 
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data.sort((a:{name:string}, b:{name:string}) => a.name.localeCompare(b.name))
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data
 
     const formik = useFormik({
         enableReinitialize: true,

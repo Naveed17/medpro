@@ -75,7 +75,6 @@ function Consultation() {
     const [moreNote, setMoreNote] = useState(false);
     const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
-    const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     const [oldNote, setOldNote] = useState("");
     const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
@@ -140,44 +139,51 @@ function Consultation() {
                     id: 1,
                     title: "treatment_in_progress",
                     icon: "docs/ic-prescription",
-                    badge: patient?.treatments
+                    badge: patient?.treatments,
+                    opened: false
                 },
                 {
                     id: 6,
                     title: "riskFactory",
                     icon: "ic-recherche",
-                    badge: patient?.antecedents.way_of_life
+                    badge: patient?.antecedents.way_of_life,
+                    opened: patient?.antecedents.way_of_life > 0
                 },
                 {
                     id: 7,
                     title: "allergic",
                     icon: "allergies",
-                    badge: patient?.antecedents.allergic
+                    badge: patient?.antecedents.allergic,
+                    opened: patient?.antecedents.allergic > 0
                 },
                 {
                     id: 4,
                     title: "antecedent",
                     icon: "docs/antecedent",
-                    badge: nb
+                    badge: nb,
+                    opened: nb > 0
                 },
                 {
                     id: 9,
                     title: "balance_sheet",
                     icon: "docs/ic-analyse",
-                    badge: patient?.requestedAnalyses
+                    badge: patient?.requestedAnalyses,
+                    opened: false
                 },
                 {
                     id: 5,
                     title: "medical_imaging_pending",
                     icon: "docs/ic-soura",
-                    badge: patient?.requestedImaging
+                    badge: patient?.requestedImaging,
+                    opened: false
                 },
                 {
                     id: 8,
                     title: "documents",
                     icon: "ic-quote",
-                    badge: patient?.documents
-                },
+                    badge: patient?.documents,
+                    opened: false
+                }
             ]);
         }
     }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -475,7 +481,10 @@ function Consultation() {
                         <React.Fragment key={`list-item-${idx}`}>
                             <ListItem
                                 className="list-parent"
-                                onClick={() => setCollapse(collapse === col.id ? "" : col.id)}>
+                                onClick={() => {
+                                    col.opened = !col.opened
+                                    setCollapseData([...collapseData])
+                                }}>
                                 <ListItemIcon>
                                     <Icon path={col.icon}/>
                                 </ListItemIcon>
@@ -497,9 +506,9 @@ function Consultation() {
                                 </Stack>
                             </ListItem>
                             <ListItem sx={{p: 0}}>
-                                <Collapse in={collapse === col.id} sx={{width: 1}}>
+                                <Collapse in={col.opened} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        {collapse === col.id && <Content  {...{
+                                        {col.opened && <Content  {...{
                                             id: col.id,
                                             url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`,
                                             patient
