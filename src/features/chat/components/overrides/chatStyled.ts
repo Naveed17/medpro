@@ -8,7 +8,7 @@ const ChatStyled = styled("div")(({theme}) => ({
     },
     ".user-wrapper": {
         flex: 1,
-        height: 'calc(100vh - 3px)',
+        height: '100vh',
         overflow: 'auto',
         border: 0,
         borderRadius: "6px 0 0 6px",
@@ -24,7 +24,6 @@ const ChatStyled = styled("div")(({theme}) => ({
         },
         [theme.breakpoints.down("md")]: {
             border: 0,
-            height: 400,
         },
     },
     '.chat-wrapper': {
@@ -98,7 +97,10 @@ const ChatStyled = styled("div")(({theme}) => ({
                     maxWidth: '90%',
                 }
 
-            }
+            },
+              [theme.breakpoints.down("md")]: {
+                    height: 'calc(100vh - 230px)',
+                }
         }
     },
     '.no-chat': {
