@@ -191,7 +191,7 @@ function DocumentDetailDialog({...props}) {
         }] : []),
         ...(data.isNew ? [{
             title: 'bg2ePage',
-            icon: `menu/${bg2ePage ?'ic-eye-closed':'ic-open-eye'}`,
+            icon: `menu/${bg2ePage ? 'ic-eye-closed' : 'ic-open-eye'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         }] : []),
         ...(!data.isNew ? [{
@@ -274,9 +274,11 @@ function DocumentDetailDialog({...props}) {
                 handlePrint();
                 break;
             case "email":
+                setDownloadMode(true);
                 setSendEmailDrawer(true);
                 if (generatedDocs.some(doc => doc == state?.type)) {
                     const file = await generatePdfFromHtml(componentRef, "blob");
+                    setDownloadMode(false);
                     setPreviewDoc(file);
                 } else {
                     const photoUrlBytes = await fetch(file.url, {
@@ -392,7 +394,7 @@ function DocumentDetailDialog({...props}) {
             case "editMode":
                 setEditMode(prev => !prev)
                 break;
-                case "bg2ePage":
+            case "bg2ePage":
                 setBg2ePage(prev => !prev)
                 break;
             default:
@@ -607,7 +609,7 @@ function DocumentDetailDialog({...props}) {
                 }
                 setTimeout(() => {
                     setLoading(false)
-                }, 1000)
+                }, 2000)
             }
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -625,7 +627,7 @@ function DocumentDetailDialog({...props}) {
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
                         docs: urls,
-                        editMode,bg2ePage, downloadMode,
+                        editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
@@ -974,7 +976,7 @@ function DocumentDetailDialog({...props}) {
                             <Checkbox checked={selectedTemplate === doc.uuid}
                                       onChange={() => {
                                           //PATCH
-                                          editDoc("header",doc.uuid)
+                                          editDoc("header", doc.uuid)
                                           setSelectedTemplate(doc.uuid)
                                       }} name={doc.uuid}/>
                         }

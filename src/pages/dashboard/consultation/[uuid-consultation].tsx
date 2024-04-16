@@ -1946,10 +1946,10 @@ function ConsultationInProgress() {
                                             color={"info"}
                                             variant="outlined"
                                             onClick={() => handleSaveDialog(false)}
-                                            disabled={info.includes("medical_prescription") && state?.length === 0}
+                                            disabled={state?.length === 0}
                                             startIcon={
                                                 <IconUrl
-                                                    {...(info.includes("medical_prescription") && state?.length === 0 && { color: "white" })}
+                                                    {...(state?.length === 0 && { color: "white" })}
                                                     path={"iconfinder_save"} />}>
                                             {t("consultationIP.save")}
                                         </Button>
@@ -1957,7 +1957,7 @@ function ConsultationInProgress() {
                                             variant="contained"
                                             sx={{ width: { xs: 1, sm: 'auto' } }}
                                             onClick={() => handleSaveDialog()}
-                                            disabled={info.includes("medical_prescription") && state?.length === 0}
+                                            disabled={state?.length === 0}
                                             startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"} />}>
                                             {t("consultationIP.save_print")}
                                         </Button>}
