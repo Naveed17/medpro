@@ -326,7 +326,7 @@ const Chat = ({ ...props }) => {
                         })}
 
                         component={Stack} spacing={2}>
-                        <Stack direction={"row"} spacing={1} justifyContent={"space-between"} alignItems={"center"}>
+                        <Stack direction={"row"} spacing={1} justifyContent={"space-between"} alignItems={"center"} position='sticky' sx={{ top: -16, transition: 'all .5s' }} bgcolor={theme.palette.background.default} minHeight={56}>
                             <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                 <IconUrl path={"chat"} width={20} height={20} />
                                 <Typography fontWeight={"bold"}>Chat</Typography>
@@ -417,7 +417,7 @@ const Chat = ({ ...props }) => {
                 <Grid item xs={12} md={8}>
                     <Paper className='chat-wrapper'>
                         {
-                            isMobile && <Stack direction={"row"} spacing={1} justifyContent={"space-between"} alignItems={"center"}>
+                            isMobile && <Stack direction={"row"} spacing={1} justifyContent={"space-between"} alignItems={"center"} position='sticky' sx={{ top: -16, transition: 'all .5s' }} bgcolor={theme.palette.background.default} minHeight={56}>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                     <IconUrl path={"chat"} width={20} height={20} />
                                     <Typography fontWeight={"bold"}>Chat</Typography>
@@ -626,7 +626,7 @@ const Chat = ({ ...props }) => {
                 title={t("payment_dialog_title")}
                 dialogClose={() => setOpenPaymentDialog(false)}
             />
-        </ChatStyled>
+        </ChatStyled >
     );
 }
 

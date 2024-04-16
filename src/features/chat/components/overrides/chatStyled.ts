@@ -97,7 +97,10 @@ const ChatStyled = styled("div")(({theme}) => ({
                     maxWidth: '90%',
                 }
 
-            }
+            },
+              [theme.breakpoints.down("md")]: {
+                    height: 'calc(100vh - 230px)',
+                }
         }
     },
     '.no-chat': {
