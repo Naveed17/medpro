@@ -505,6 +505,13 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={"ic-delete"}/>
                             </div>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("cin")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "cin" ? theme.palette.success.main : theme.palette.info.main}}
                                  onClick={() => {
@@ -557,6 +564,13 @@ function Page({...props}) {
                                      setData({...data})
                                  }}>
                                 <Icon path={"ic-delete"}/>
+                            </div>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("age")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
                             </div>
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "age" ? theme.palette.success.main : theme.palette.info.main}}

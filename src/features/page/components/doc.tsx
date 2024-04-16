@@ -257,7 +257,7 @@ function Doc({...props}) {
                     onClose={() => {
                         setValue("")
                     }}>
-                {data[value] ? value === "patient" || value === "date" ? <Stack spacing={1} p={2}>
+                {data[value] ? ["patient","date","cin","age"].includes(value) ? <Stack spacing={1} p={2}>
                     <Typography fontSize={12}>Prefix</Typography>
                     <TextField
                         value={data[value].prefix}
