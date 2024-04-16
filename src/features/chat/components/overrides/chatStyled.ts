@@ -24,7 +24,6 @@ const ChatStyled = styled("div")(({theme}) => ({
         },
         [theme.breakpoints.down("md")]: {
             border: 0,
-            height: 400,
         },
     },
     '.chat-wrapper': {
