@@ -143,7 +143,7 @@ function EditMotifDialog({ ...props }) {
             } else {
                 medicalEntityHasUser && triggerMotifAdd({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/fr`,
                     data: form
                 }, {
                     onSuccess: () => {
