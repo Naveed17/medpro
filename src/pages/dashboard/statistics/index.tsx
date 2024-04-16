@@ -447,8 +447,9 @@ function Statistics() {
                                                                 </Typography>
 
                                                                 <Stack direction={"row"}>
-                                                                    <IconUrl path={"ic-up-right"}
-                                                                             color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
+                                                                    <IconUrl
+                                                                        path={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "ic-down-left" : "ic-up-right") : "ic-up-right"}
+                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
                                                                     <Typography fontWeight={700} fontSize={14}
                                                                                 color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
                                                                                 variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
@@ -1095,9 +1096,11 @@ function Statistics() {
                                                         </Typography>
 
                                                         <Stack direction={"row"}>
-                                                            <IconUrl path={"ic-up-right"}/>
+                                                            <IconUrl
+                                                                path={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "ic-down-left" : "ic-up-right") : "ic-up-right"}
+                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
                                                             <Typography fontWeight={700} fontSize={14}
-                                                                        color="success.main"
+                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
                                                                         variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
                                                         </Stack>
                                                     </Stack>
