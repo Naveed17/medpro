@@ -36,7 +36,7 @@ function UserRow({...props}) {
                         <Typography variant="body1" fontWeight={700} color="text.primary">
                             {row.firstName} {row.lastName}
                         </Typography>
-                        {row.email}
+                        <span onClick={event => event.stopPropagation()}>{row.email}</span>
                     </>
                 ) : (
                     <Stack>
