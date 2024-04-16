@@ -238,6 +238,8 @@ function Page({...props}) {
                             className={`${selectedElement === "header" ? "selected" : "notSelected"} header`}
                             style={{
                                 transform: `translate(${data.header.x}px, ${data.header.y}px)`,
+                                position:"absolute",
+                                zIndex:98,
                                 width: `${data.header.width ? data.header.width + "px" : "fit-content"}`,
                                 height: `fit-content`,
                                 ...(!editMode && {border: 0})
@@ -291,6 +293,8 @@ function Page({...props}) {
                             transform: `translate(${data.title.x}px, ${data.title.y}px)`,
                             width: `${data.title.width ? data.title.width + "px" : "fit-content"}`,
                             height: `fit-content`,
+                            position:"absolute",
+                            zIndex:99,
                             ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
@@ -348,6 +352,8 @@ function Page({...props}) {
                             transform: `translate(${data.date.x}px, ${data.date.y}px)`,
                             width: `${data.date.width ? data.date.width + "px" : "fit-content"}`,
                             height: `fit-content`,
+                            position:"absolute",
+                            zIndex:99,
                             ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
@@ -406,6 +412,8 @@ function Page({...props}) {
                             transform: `translate(${data.patient.x}px, ${data.patient.y}px)`,
                             width: `${data.patient.width ? data.patient.width + "px" : "fit-content"}`,
                             height: `fit-content`,
+                            position:"absolute",
+                            zIndex:99,
                             ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
@@ -464,6 +472,8 @@ function Page({...props}) {
                             transform: `translate(${data.cin?.x}px, ${data.cin?.y}px)`,
                             width: `${data.cin?.width ? data.cin?.width + "px" : "fit-content"}`,
                             height: `fit-content`,
+                            position:"absolute",
+                            zIndex:99,
                             ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
@@ -516,6 +526,8 @@ function Page({...props}) {
                             transform: `translate(${data.age?.x}px, ${data.age?.y}px)`,
                             width: `${data.age?.width ? data.age?.width + "px" : "fit-content"}`,
                             height: `fit-content`,
+                            position:"absolute",
+                            zIndex:99,
                             ...(!editMode && {border: 0})
                         }}
                         bounds={"parent"}
@@ -567,6 +579,8 @@ function Page({...props}) {
                                 className={`${selectedElement === `other${index}` ? "selected" : "notSelected"} other${index}`}
                                 style={{
                                     transform: `translate(${other.x}px, ${other.y}px)`,
+                                    position:"absolute",
+                                    zIndex:99,
                                     width: `${other.width ? other.width + "px" : "fit-content"}`,
                                     height: `${other.height ? other.height + "px" : "fit-content"}`,
                                     ...(!editMode && {border: 0})
@@ -753,6 +767,8 @@ function Page({...props}) {
                         className={`${selectedElement === "footer" ? "selected" : "notSelected"} footer`}
                         style={{
                             transform: `translate(${data.footer.x}px, ${data.footer.y}px)`,
+                            position:"absolute",
+                            zIndex:98,
                             width: `${data.footer.width ? data.footer.width + "px" : "fit-content"}`,
                             height: `${data.footer.height ? data.footer.height + "px" : "fit-content"}`,
                             ...(!editMode && {border: 0})

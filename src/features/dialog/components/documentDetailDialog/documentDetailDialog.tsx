@@ -520,7 +520,6 @@ function DocumentDetailDialog({...props}) {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
-            console.log(state)
             if (docInfo.length === 0) {
                 setLoading(false)
             } else {

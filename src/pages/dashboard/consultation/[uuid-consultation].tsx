@@ -394,8 +394,6 @@ function ConsultationInProgress() {
     };
 
     const showDoc = (card: any, print?: boolean) => {
-
-        console.log(card)
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
