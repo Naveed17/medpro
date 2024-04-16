@@ -48,6 +48,7 @@ function SelectCheckboxCard({...props}) {
             inputProps={{
                 "aria-labelledby": row.uuid,
             }}
+            onClick={e => e.stopPropagation()}
             onChange={(ev) => {
                 ev.stopPropagation();
                 handleChange(row.uuid);

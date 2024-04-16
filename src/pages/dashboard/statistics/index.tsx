@@ -9,7 +9,7 @@ import {
     Avatar,
     Box,
     Card,
-    CardContent,
+    CardContent, Divider,
     Grid,
     List,
     ListItem,
@@ -47,6 +47,7 @@ import {useCountries} from "@lib/hooks/rest";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {height} from "@mui/system";
 
 function Statistics() {
     const theme = useTheme();
@@ -125,6 +126,7 @@ function Statistics() {
         ...location,
         ...countries.find(country => country.uuid === location.key)
     })) : []) as any[];
+    const patientPerIncreasePercentage = increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])
     const VIEW_OPTIONS = [
         {value: "day", label: "Day", text: "Jour", icon: TodayIcon, format: "D"},
         {value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
@@ -445,9 +447,11 @@ function Statistics() {
                                                                 </Typography>
 
                                                                 <Stack direction={"row"}>
-                                                                    <IconUrl path={"ic-up-right"}/>
+                                                                    <IconUrl
+                                                                        path={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "ic-down-left" : "ic-up-right") : "ic-up-right"}
+                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
                                                                     <Typography fontWeight={700} fontSize={14}
-                                                                                color="success.main"
+                                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
                                                                                 variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
                                                                 </Stack>
                                                             </Stack>
@@ -690,10 +694,8 @@ function Statistics() {
                                                                     pie: {
                                                                         donut: {
                                                                             labels: {
-                                                                                show: false,
-
+                                                                                show: false
                                                                             },
-
                                                                         }
                                                                     },
                                                                 },
@@ -706,32 +708,28 @@ function Statistics() {
                                                 </ChartStyled>
                                                 <Stack direction='row' alignItems='center' justifyContent='center'
                                                        mt={2}>
-                                                    <Stack>
-                                                        <Typography fontWeight={700} color='primary' fontSize={28}
-                                                                    variant="subtitle1">
-                                                            {Math.round(patientPerGender[0]?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
-                                                            <Typography fontSize={12} fontWeight={500}
-                                                                        variant="caption">
-                                                                %
-                                                            </Typography>
-                                                        </Typography>
-                                                        <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                            {t("male")}
-                                                        </Typography>
-                                                    </Stack>
-                                                    <Stack pl={2} ml={2} borderLeft={1.5} borderColor={'divider'}>
-                                                        <Typography fontWeight={700} color='warning.main' fontSize={28}
-                                                                    variant="subtitle1">
-                                                            {Math.round(patientPerGender[1]?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val?.doc_count, 0)) * 100) || "__"}
-                                                            <Typography fontSize={12} fontWeight={500}
-                                                                        variant="caption">
-                                                                %
-                                                            </Typography>
-                                                        </Typography>
-                                                        <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                            {t("female")}
-                                                        </Typography>
-                                                    </Stack>
+                                                    {patientPerGender.map((gender, index) => gender.key !== "u" &&
+                                                        <>
+                                                            <Stack key={gender.key}>
+                                                                <Typography fontWeight={700}
+                                                                            color={index === 0 ? 'primary' : 'warning.main'}
+                                                                            fontSize={28}
+                                                                            variant="subtitle1">
+                                                                    {Math.round(gender?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
+                                                                    <Typography fontSize={12} fontWeight={500}
+                                                                                variant="caption">
+                                                                        %
+                                                                    </Typography>
+                                                                </Typography>
+                                                                <Typography fontSize={12} fontWeight={500}
+                                                                            variant="body2">
+                                                                    {t(genders[gender.key as keyof typeof genders])}
+                                                                </Typography>
+                                                            </Stack>
+                                                            {index === 0 && <Divider orientation={"vertical"}
+                                                                                     sx={{height: 50, mx: 2}}/>}
+                                                        </>
+                                                    )}
                                                 </Stack>
                                             </CardContent>
                                         </Card>
@@ -1098,9 +1096,11 @@ function Statistics() {
                                                         </Typography>
 
                                                         <Stack direction={"row"}>
-                                                            <IconUrl path={"ic-up-right"}/>
+                                                            <IconUrl
+                                                                path={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "ic-down-left" : "ic-up-right") : "ic-up-right"}
+                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
                                                             <Typography fontWeight={700} fontSize={14}
-                                                                        color="success.main"
+                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
                                                                         variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
                                                         </Stack>
                                                     </Stack>
@@ -1254,30 +1254,29 @@ function Statistics() {
                                                     fontWeight={700}>{t("patient_by_gender")}</Typography>
                                         <Stack direction='row' alignItems='center'>
                                             <Stack width={"33%"}>
-                                                <Stack pb={1}>
-                                                    <Typography fontWeight={700} color='warning.main' fontSize={28}
-                                                                variant="subtitle1">
-                                                        {Math.round(patientPerGender[0]?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
-                                                        <Typography fontSize={12} fontWeight={500} variant="caption">
-                                                            %
-                                                        </Typography>
-                                                    </Typography>
-                                                    <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                        {t("male")}
-                                                    </Typography>
-                                                </Stack>
-                                                <Stack borderTop={1.5} borderColor={'divider'}>
-                                                    <Typography fontWeight={700} color='primary' fontSize={28}
-                                                                variant="subtitle1">
-                                                        {Math.round(patientPerGender[1]?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
-                                                        <Typography fontSize={12} fontWeight={500} variant="caption">
-                                                            %
-                                                        </Typography>
-                                                    </Typography>
-                                                    <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                        {t("female")}
-                                                    </Typography>
-                                                </Stack>
+                                                {patientPerGender.map((gender, index) => gender.key !== "u" &&
+                                                    <>
+                                                        <Stack key={gender.key}>
+                                                            <Typography fontWeight={700}
+                                                                        color={index === 0 ? 'primary' : 'warning.main'}
+                                                                        fontSize={28}
+                                                                        variant="subtitle1">
+                                                                {Math.round(gender?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
+                                                                <Typography fontSize={12} fontWeight={500}
+                                                                            variant="caption">
+                                                                    %
+                                                                </Typography>
+                                                            </Typography>
+                                                            <Typography fontSize={12} fontWeight={500}
+                                                                        variant="body2">
+                                                                {t(genders[gender.key as keyof typeof genders])}
+                                                            </Typography>
+                                                        </Stack>
+                                                        {index === 0 && <Divider
+                                                            orientation={"horizontal"}
+                                                            sx={{width: 100, my: 2}}/>}
+                                                    </>
+                                                )}
                                             </Stack>
                                             <ChartStyled>
                                                 <Chart

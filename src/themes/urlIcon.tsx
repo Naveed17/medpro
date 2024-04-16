@@ -10,7 +10,7 @@ function IconUrl({...props}) {
                                   beforeInjection: ((svg) => {
                                       if (color) {
                                           // Modify the first `g` element within the SVG.
-                                          const firstGElement = svg.querySelectorAll('path');
+                                          const firstGElement = svg.querySelectorAll('path, rect');
                                           firstGElement.forEach(path => path.setAttribute('fill', color as string))
                                       }
 
