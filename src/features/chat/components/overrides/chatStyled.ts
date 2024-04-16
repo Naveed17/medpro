@@ -8,7 +8,7 @@ const ChatStyled = styled("div")(({theme}) => ({
     },
     ".user-wrapper": {
         flex: 1,
-        height: 'calc(100vh - 3px)',
+        height: '100vh',
         overflow: 'auto',
         border: 0,
         borderRadius: "6px 0 0 6px",
