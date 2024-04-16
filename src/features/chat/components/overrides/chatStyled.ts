@@ -166,6 +166,9 @@ const ChatStyled = styled("div")(({theme}) => ({
         display: "flex",
         justifyContent: "flex-end",
         marginTop: 8
+    },
+    ".tox .tox-edit-area::before": {
+        border: "none"
     }
 }));
 
