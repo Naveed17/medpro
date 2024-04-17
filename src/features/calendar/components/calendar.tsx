@@ -120,8 +120,8 @@ function Calendar({...props}) {
         OnAddAbsence(currentDate);
     }, [OnAddAbsence]);
 
-    const handleDeleteAbsence = useCallback((currentDate: Date) => {
-        OnDeleteAbsence(currentDate);
+    const handleDeleteAbsence = useCallback((currentDate: Date, deleteDay: boolean) => {
+        OnDeleteAbsence(currentDate, deleteDay);
     }, [OnDeleteAbsence]);
 
     const handleRangeChange = useCallback((event: DatesSetArg) => {
@@ -395,9 +395,10 @@ function Calendar({...props}) {
                                         hiddenDays,
                                         setHiddenDays,
                                         OnAddAbsence: () => handleAddAbsence(currentDate.date),
-                                        OnDeleteAbsence: () => {
-                                            const day: any = absences.filter((absence: any) => moment(absence.start).isSame(currentDate.date) && moment(absence.end).format('HH:mm') === '23:59')
-                                            handleDeleteAbsence(day[0].uuid);
+                                        OnDeleteAbsence: (duration: any) => {
+                                            const day: any = absences.find((absence: any) => moment(currentDate.date).isBetween(moment(absence.start), moment(absence.end), "minutes", '[]'));
+                                            const deleteCurrentDayOnly = duration.days > 1 || (duration.days === 1 && duration.hours >= 1);
+                                            handleDeleteAbsence(day?.uuid, deleteCurrentDayOnly);
                                         }
                                     })
                                 }}

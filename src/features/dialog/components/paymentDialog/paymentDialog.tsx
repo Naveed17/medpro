@@ -580,7 +580,7 @@ function PaymentDialog({...props}) {
                        backgroundColor: "white",
                        padding: "15px 0"
                    }}
-                   justifyContent={"flex-end"} spacing={1}>
+                   justifyContent={"space-between"} spacing={1}>
                 <Button variant={"text-black"} onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
                 {!(getTotalPayments() == 0) ?
                     <Button

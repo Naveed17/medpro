@@ -691,7 +691,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     })}
                                                                     value={option.uuid}>
                                                                     {!option.uuid && <AddOutlinedIcon/>}
-                                                                    {option.commercial_name}
+                                                                    {option.commercial_name} {option?.form?.name}
                                                                 </MenuItem>
                                                             </Stack>
                                                         )}

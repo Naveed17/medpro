@@ -444,11 +444,14 @@ function Agenda() {
         });
     }
 
-    const handleDeleteAbsence = (uuid: string) => {
+    const handleDeleteAbsence = (uuid: string, deleteDayOnly: boolean) => {
         setLoadingRequest(true);
+        const form = new FormData();
+        deleteDayOnly && form.append("day", moment(currentDate.date).format("DD"));
         triggerDeleteAbsence({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences/${uuid}`,
+            ...(deleteDayOnly && {data: form})
         }, {
             onSuccess: () => refreshData(),
             onSettled: () => setLoadingRequest(false)
