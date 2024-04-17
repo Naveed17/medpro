@@ -317,6 +317,10 @@ fieldset {
   overflow-y: scroll
 }
 
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none
+}
+
 .portraitA5 {
   width: 148mm;
   height: 208mm;

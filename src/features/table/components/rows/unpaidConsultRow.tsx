@@ -42,9 +42,7 @@ function UnpaidConsultRow({...props}) {
                 <Stack
                     direction="row"
                     alignItems="center"
-                    onClick={() => {
-                        router.replace(`/dashboard/consultation/${row.uuid}`)
-                    }}
+                    onClick={() => router.replace(`/dashboard/consultation/${row.uuid}`)}
                     spacing={.5}>
                     <Icon path="ic-agenda-jour" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography variant="body2" fontSize={13}
@@ -61,7 +59,7 @@ function UnpaidConsultRow({...props}) {
                 </Stack>
             </TableCell>
             {/***** consultation type *****/}
-            <TableCell>
+            <TableCell onClick={() => router.replace(`/dashboard/consultation/${row.uuid}`)}>
                 <Typography color={"primary"} fontSize={13} fontWeight={600}>{row.type.name}</Typography>
             </TableCell>
             {/***** patient name *****/}
@@ -108,7 +106,9 @@ function UnpaidConsultRow({...props}) {
             </TableCell>
             {/***** Total *****/}
             <TableCell align={"center"}>
-                <Typography color='secondary' fontWeight={700}>
+                <Typography color='secondary'
+                            onClick={() => router.replace(`/dashboard/consultation/${row.uuid}?tab=medical_procedures`)}
+                            fontWeight={700}>
                     {_fees} {devise}
                 </Typography>
             </TableCell>

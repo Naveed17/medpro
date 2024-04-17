@@ -569,7 +569,8 @@
     "created-at": "Crée le",
     "send_the_link": "Envoyer le lien du questionnaire",
     "date_of_appointment": "Date du rendez-vous",
-    "see_details": "Voir détails"
+    "see_details": "Voir détails",
+    "#": "#"
   },
   "tracking_data": "Données de suivi",
   "exempleFees": "Exemple: Suivi ...",

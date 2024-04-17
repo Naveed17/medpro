@@ -103,10 +103,7 @@ function BalanceSheetPendingDialog({...props}) {
                         />
                     </Card>
                 ))}
-            {/*
-                </Grid>
-            </Grid>
-*/}
+
             <Dialog action={"add_a_document"}
                     open={openDialog}
                     data={files}
