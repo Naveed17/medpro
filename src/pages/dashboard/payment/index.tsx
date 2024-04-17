@@ -36,7 +36,7 @@ import {DefaultCountry} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {DrawerBottom} from "@features/drawerBottom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useInsurances} from "@lib/hooks/rest";
+import {useInsurances, useSendNotification} from "@lib/hooks/rest";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -120,6 +120,7 @@ function Payment() {
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {t, i18n} = useTranslation(["payment", "common"]);
@@ -327,6 +328,12 @@ function Payment() {
                                                 dispatch(setOngoing({newCashBox: !isChecked}));
                                                 localStorage.setItem('newCashbox', !isChecked ? '1' : '0')
                                                 setIsChecked(!isChecked);
+                                                triggerNotificationPush({
+                                                    action: "push",
+                                                    root: "cash-box-switcher",
+                                                    message: " ",
+                                                    content: JSON.stringify({newCashBox: !isChecked})
+                                                });
                                             }
                                         }
                                     );

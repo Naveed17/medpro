@@ -104,6 +104,7 @@ function MainLayout({...props}) {
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
     const slugFeature = router.pathname.split('/')[2];
+    const extraPaths = ["documents", "cash-box-switcher"];
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const ability = buildAbilityFor(features ?? [], permissions);
@@ -144,7 +145,7 @@ function MainLayout({...props}) {
             } else if (data.type === "session") {
                 // Update session permissions feature
                 update({[message.data.root]: data.body});
-            } else if ([slugFeature, "documents"].includes(message.data.root)) {
+            } else if ([slugFeature, ...extraPaths].includes(message.data.root)) {
                 switch (message.data.root) {
                     case "agenda":
                         dispatch(setLastUpdate(data));
@@ -190,6 +191,10 @@ function MainLayout({...props}) {
                             ...(data.body.appointment ? [`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`] : []),
                             ...(data.body.patient ? [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.body.patient}/documents/${router.locale}`] : [])
                         ]);
+                        break;
+                    case "cash-box-switcher":
+                        localStorage.setItem("newCashbox", data.body.newCashBox ? "1" : "0");
+                        dispatch(setOngoing({newCashBox: data.body.newCashBox}));
                         break;
                     default:
                         // Mutate dynamic requests
