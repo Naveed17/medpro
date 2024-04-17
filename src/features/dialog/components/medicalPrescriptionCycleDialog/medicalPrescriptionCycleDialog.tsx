@@ -14,8 +14,10 @@ import {
     FormControlLabel,
     FormHelperText,
     Grid,
-    IconButton, InputBase,
-    List, ListItem,
+    IconButton,
+    InputBase,
+    List,
+    ListItem,
     ListItemButton,
     ListItemText,
     ListSubheader,
@@ -26,9 +28,11 @@ import {
     Tab,
     Tabs,
     TextField,
-    Theme, Tooltip,
+    Theme,
+    Tooltip,
     Typography,
-    useMediaQuery, useTheme,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {Form, FormikProvider, useFormik} from "formik";
 import React, {useEffect, useRef, useState} from "react";
@@ -58,7 +62,8 @@ import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
 import {
-    a11yProps, ConditionalWrapper,
+    a11yProps,
+    ConditionalWrapper,
     getBirthdayFormat,
     prescriptionPreviewDosage,
     useLastPrescription,
@@ -498,13 +503,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const showPreview = () => {
         let pdoc = [...pendingDocuments]
-        pdoc.push({
-            id: 2,
-            name: "requestedPrescription",
-            status: "in_progress",
-            icon: "ic-traitement",
-            state: drugs
-        })
+        if (!pdoc.find(doc => doc.id === 2)) {
+            pdoc.push({
+                id: 2,
+                name: "requestedPrescription",
+                status: "in_progress",
+                icon: "ic-traitement",
+                state: drugs
+            })
+        }
         setPendingDocuments(pdoc);
         setPrescription(drugs)
         dispatch(SetSelectedDialog({
@@ -515,7 +522,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 createdAt: moment().format('DD/MM/YYYY'),
                 patient: `${patient.firstName} ${patient.lastName}`,
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                info: drugs,
+                info: drugs.map((drug: any) => ({...drug, drugName: drug.name})),
             },
             uuid: "",
             appUuid: ""
