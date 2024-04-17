@@ -199,7 +199,7 @@ function ConsultationInProgress() {
     ];
     const isAddAppointment = false;
 
-    const [selectedTab, setSelectedTab] = useState<string>("consultation_form");
+    const [selectedTab, setSelectedTab] = useState<string>(router.query["tab"] ? router.query["tab"] : "consultation_form");
     const [changes, setChanges] = useState([
         { name: "patientInfo", txt: "patientInfo", icon: "docs/ic-note", checked: false },
         { name: "fiche", txt: "fiche", icon: "ic-text", checked: false },
@@ -1421,208 +1421,210 @@ function ConsultationInProgress() {
 
 
             {<HistoryAppointementContainer {...{ isHistory, loading }}>
-                <Box style={{ paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : "" }}
-                    id={"container-tab"}
-                    className="container-scroll">
-                    <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
-                        <HistoryTab
-                            {...{
-                                patient: {
-                                    uuid: sheet?.patient,
-                                    ...patient
-                                },
-                                dispatch,
-                                t,
-                                session,
-                                acts,
-                                direction,
-                                mutate: mutatePatient,
-                                setOpenDialog,
-                                showDoc,
-                                setState,
-                                setInfo,
-                                router,
-                                modelData: sheetModal?.data,
-                                date: sheet?.date,
-                                setIsViewerOpen,
-                                setSelectedTab,
-                                appuuid: app_uuid,
-                                trigger: triggerAppointmentEdit
-                            }}
-                        />
-                    </TabPanel>
-                    <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        {sheetExam && fullOb && <Card><MyCardStyled style={{ border: 0 }}>
-                            <ConsultationDetailCard
+                <Grid container>
+                    <Grid item md={showDocument ? 10 : 12}>
+                    <Box style={{ paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : "" }}
+                         id={"container-tab"}
+                         className="container-scroll scrollbar-hidden">
+                        <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
+                            <HistoryTab
                                 {...{
-                                    changes,
-                                    setChanges,
-                                    app_uuid,
-                                    exam: sheetExam,
-                                    hasDataHistory,
-                                    seeHistory,
-                                    closed: closeExam,
-                                    setCloseExam,
-                                    isClose,
-                                    agenda,
-                                    mutateSheetData,
-                                    fullOb, setFullOb,
-                                    trigger: triggerAppointmentEdit,
-                                    loading
+                                    patient: {
+                                        uuid: sheet?.patient,
+                                        ...patient
+                                    },
+                                    dispatch,
+                                    t,
+                                    session,
+                                    acts,
+                                    direction,
+                                    mutate: mutatePatient,
+                                    setOpenDialog,
+                                    showDoc,
+                                    setState,
+                                    setInfo,
+                                    router,
+                                    modelData: sheetModal?.data,
+                                    date: sheet?.date,
+                                    setIsViewerOpen,
+                                    setSelectedTab,
+                                    appuuid: app_uuid,
+                                    trigger: triggerAppointmentEdit
                                 }}
-                                handleClosePanel={(v: boolean) => setCloseExam(v)}
                             />
-                        </MyCardStyled></Card>
-                        }
-                        {!fullOb && <Grid container spacing={0}>
-                            {!isMobile && <Grid item md={showDocument ? 10 : 12}>
-                                <ConsultationCard {...{
-                                    cards,
-                                    setCards,
-                                    onDragEnd,
-                                    getListStyle,
-                                    getItemStyle,
-                                    selectedModel,
-                                    sheetExam,
-                                    closeExam,
-                                    theme,
-                                    sheet,
-                                    changes,
-                                    setChanges,
-                                    setIsClose,
-                                    app_uuid,
-                                    mutateSheetData,
-                                    hasDataHistory,
-                                    seeHistory,
-                                    setCloseExam,
-                                    dispatch,
-                                    printGlasses,
-                                    isClose,
-                                    session,
-                                    changeModel,
-                                    acts,
-                                    loading,
-                                    urlMedicalEntitySuffix,
-                                    direction,
-                                    setOpenDialog,
-                                    showDoc,
-                                    sheetModal,
-                                    setState,
-                                    mutatePatient,
-                                    setInfo,
-                                    setSelectedModel,
-                                    router,
-                                    setActs,
-                                    previousData,
-                                    setIsViewerOpen,
-                                    setSelectedTab,
-                                    models,
-                                    t,
-                                    triggerAppointmentEdit,
-                                    agenda,
-                                    fullOb,
-                                    setFullOb,
-                                    patient
-                                }} />
+                        </TabPanel>
+                        <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
+                            {sheetExam && fullOb && <Card><MyCardStyled style={{ border: 0 }}>
+                                <ConsultationDetailCard
+                                    {...{
+                                        changes,
+                                        setChanges,
+                                        app_uuid,
+                                        exam: sheetExam,
+                                        hasDataHistory,
+                                        seeHistory,
+                                        closed: closeExam,
+                                        setCloseExam,
+                                        isClose,
+                                        agenda,
+                                        mutateSheetData,
+                                        fullOb, setFullOb,
+                                        trigger: triggerAppointmentEdit,
+                                        loading
+                                    }}
+                                    handleClosePanel={(v: boolean) => setCloseExam(v)}
+                                />
+                            </MyCardStyled></Card>
+                            }
+                            {!fullOb && <Grid container spacing={0}>
+                                {!isMobile &&
+                                    <ConsultationCard {...{
+                                        cards,
+                                        setCards,
+                                        onDragEnd,
+                                        getListStyle,
+                                        getItemStyle,
+                                        selectedModel,
+                                        sheetExam,
+                                        closeExam,
+                                        theme,
+                                        sheet,
+                                        changes,
+                                        setChanges,
+                                        setIsClose,
+                                        app_uuid,
+                                        mutateSheetData,
+                                        hasDataHistory,
+                                        seeHistory,
+                                        setCloseExam,
+                                        dispatch,
+                                        printGlasses,
+                                        isClose,
+                                        session,
+                                        changeModel,
+                                        acts,
+                                        loading,
+                                        urlMedicalEntitySuffix,
+                                        direction,
+                                        setOpenDialog,
+                                        showDoc,
+                                        sheetModal,
+                                        setState,
+                                        mutatePatient,
+                                        setInfo,
+                                        setSelectedModel,
+                                        router,
+                                        setActs,
+                                        previousData,
+                                        setIsViewerOpen,
+                                        setSelectedTab,
+                                        models,
+                                        t,
+                                        triggerAppointmentEdit,
+                                        agenda,
+                                        fullOb,
+                                        setFullOb,
+                                        patient
+                                    }} />}
+                                {isMobile && <Grid item xs={12}>
+                                    <ConsultationCard {...{
+                                        cards: mobileCards,
+                                        setCards: setMobileCards,
+                                        onDragEnd,
+                                        getListStyle,
+                                        getItemStyle,
+                                        selectedModel,
+                                        sheetExam,
+                                        closeExam,
+                                        theme,
+                                        sheet,
+                                        changes,
+                                        setChanges,
+                                        setIsClose,
+                                        app_uuid,
+                                        mutateSheetData,
+                                        hasDataHistory,
+                                        seeHistory,
+                                        setCloseExam,
+                                        dispatch,
+                                        printGlasses,
+                                        isClose,
+                                        session,
+                                        changeModel,
+                                        acts,
+                                        loading,
+                                        urlMedicalEntitySuffix,
+                                        direction,
+                                        setOpenDialog,
+                                        showDoc,
+                                        sheetModal,
+                                        setState,
+                                        mutatePatient,
+                                        setInfo,
+                                        setSelectedModel,
+                                        router,
+                                        setActs,
+                                        previousData,
+                                        setIsViewerOpen,
+                                        setSelectedTab,
+                                        models,
+                                        t,
+                                        triggerAppointmentEdit,
+                                        agenda,
+                                        fullOb,
+                                        setFullOb,
+                                        patient
+                                    }} />
+                                </Grid>}
                             </Grid>}
-                            <Grid item md={showDocument ? 2 : 0}>
-                                {showDocument && <DocumentPreview {...{
-                                    allDocs: changes.filter(ch => ch.index !== undefined && !ch.checked),
+                        </TabPanel>
+                        <TabPanel padding={1} value={selectedTab} index={"documents"}>
+                            <LinearProgress sx={{
+                                marginTop: '-0.5rem',
+                                visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
+                            }} color="warning" />
+                            <DocumentsTab
+                                {...{
                                     documents,
-                                    showDocument,
-                                    showDoc,
-                                    theme,
-                                    showPreview,
-                                    t,
-                                }} />}
-                            </Grid>
-                            {isMobile && <Grid item xs={12}>
-                                <ConsultationCard {...{
-                                    cards: mobileCards,
-                                    setCards: setMobileCards,
-                                    onDragEnd,
-                                    getListStyle,
-                                    getItemStyle,
-                                    selectedModel,
-                                    sheetExam,
-                                    closeExam,
-                                    theme,
-                                    sheet,
-                                    changes,
-                                    setChanges,
-                                    setIsClose,
-                                    app_uuid,
+                                    mutateDoc,
                                     mutateSheetData,
-                                    hasDataHistory,
-                                    seeHistory,
-                                    setCloseExam,
-                                    dispatch,
-                                    printGlasses,
-                                    isClose,
-                                    session,
-                                    changeModel,
-                                    acts,
-                                    loading,
-                                    urlMedicalEntitySuffix,
-                                    direction,
-                                    setOpenDialog,
+                                    setSelectedAudio,
+                                    setDeleteAudio,
                                     showDoc,
-                                    sheetModal,
-                                    setState,
-                                    mutatePatient,
-                                    setInfo,
-                                    setSelectedModel,
                                     router,
-                                    setActs,
-                                    previousData,
-                                    setIsViewerOpen,
-                                    setSelectedTab,
-                                    models,
-                                    t,
-                                    triggerAppointmentEdit,
-                                    agenda,
-                                    fullOb,
-                                    setFullOb,
-                                    patient
-                                }} />
-                            </Grid>}
-                        </Grid>}
-                    </TabPanel>
-                    <TabPanel padding={1} value={selectedTab} index={"documents"}>
-                        <LinearProgress sx={{
-                            marginTop: '-0.5rem',
-                            visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
-                        }} color="warning" />
-                        <DocumentsTab
-                            {...{
-                                documents,
-                                mutateDoc,
-                                mutateSheetData,
-                                setSelectedAudio,
-                                setDeleteAudio,
-                                showDoc,
-                                router,
+                                    t
+                                }}></DocumentsTab>
+                        </TabPanel>
+                        <TabPanel padding={1} value={selectedTab} index={"medical_procedures"}>
+                            <FeesTab {...{
+                                acts,
+                                setActs,
+                                mpActs,
+                                status: sheet?.status,
+                                urlMedicalEntitySuffix,
+                                agenda: agenda?.uuid,
+                                app_uuid,
+                                total,
+                                setTotal,
+                                devise,
+                                mutatePatient,
                                 t
-                            }}></DocumentsTab>
-                    </TabPanel>
-                    <TabPanel padding={1} value={selectedTab} index={"medical_procedures"}>
-                        <FeesTab {...{
-                            acts,
-                            setActs,
-                            mpActs,
-                            status: sheet?.status,
-                            urlMedicalEntitySuffix,
-                            agenda: agenda?.uuid,
-                            app_uuid,
-                            total,
-                            setTotal,
-                            devise,
-                            mutatePatient,
-                            t
-                        }} />
-                    </TabPanel>
-                </Box>
-
+                            }} />
+                        </TabPanel>
+                    </Box>
+                </Grid>
+                    <Grid item md={showDocument ? 2 : 0} padding={1}>
+                        {showDocument && <DocumentPreview {...{
+                            allDocs: changes.filter(ch => ch.index !== undefined && !ch.checked),
+                            documents,
+                            showDocument,
+                            showDoc,
+                            theme,
+                            showPreview,
+                            t,
+                        }} />}
+                </Grid>
+                </Grid>
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}
                     open={filterdrawer}
