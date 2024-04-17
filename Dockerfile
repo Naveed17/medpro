@@ -17,14 +17,19 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 COPY --chown=node:node --from=dev "${APP_ROOT}/node_modules" "${APP_ROOT}/node_modules"
 COPY --chown=node:node . "${APP_ROOT}/"
+
+ENV NEXT_SHARP_PATH=${APP_ROOT}/node_modules/sharp
+
 RUN set -xe; \
   npm run build -- --no-lint
 
-COPY --chown=node:node postinstall.js  $"{APP_ROOT}"/postinstall.js
+COPY --chown=node:node postinstall.cjs  $"{APP_ROOT}"/postinstall.cjs
 RUN npm run tinymce
+
 FROM wodby/node:20 AS runner
 
 ENV NODE_ENV production
+ENV NEXT_SHARP_PATH=${APP_ROOT}/node_modules/sharp
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Automatically leverage output traces to reduce image size

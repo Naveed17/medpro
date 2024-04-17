@@ -27,6 +27,9 @@ function Doc({...props}) {
         setOnResize,
         urlMedicalProfessionalSuffix,
         docs,
+        editMode = true,
+        bg2ePage = true,
+        downloadMode = false,
         setDocs
     } = props
     const {data: session} = useSession();
@@ -53,7 +56,7 @@ function Doc({...props}) {
 
                     const child = document.createElement('p');
                     child.append()
-                    elx += `<p>${index + 1} • ${el.standard_drug.commercial_name}</p>`
+                    elx += `<p>${index + 1} • ${el?.drugName ?? ""}</p>`
                     el.cycles.map((cycle: any) => {
                         let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                         if (cycle.duration)
@@ -73,7 +76,7 @@ function Doc({...props}) {
                 const value = `<p>Prière de faire les explorations biologiques suivantes à ${state.patient} :</p>`
                 elx += value
                 state.info.map((el: any) => {
-                    elx += `<p>• ${el.analysis.name}</p>`
+                    elx += `<p>• ${el.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
 
@@ -83,7 +86,7 @@ function Doc({...props}) {
                 const val = `<p>Prière de faire les explorations radiologiques suivantes à ${state.patient} :</p>`
                 elx += val
                 state.info.map((el: any) => {
-                    elx += `<p>• ${el['medical-imaging']?.name}</p>`
+                    elx += `<p>• ${el?.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
 
@@ -149,8 +152,8 @@ function Doc({...props}) {
             data.title.content = title;
             setData({...data})
         }
-            if(state && state.title)
-                data.title.content = state.title
+        if (state && state.title)
+            data.title.content = state.title
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [title])
 
@@ -235,6 +238,8 @@ function Doc({...props}) {
                         header,
                         setHeader,
                         state,
+                        bg2ePage,
+                        editMode, downloadMode,
                         urlMedicalProfessionalSuffix,
                         docs, setDocs
                     }}/>
@@ -252,23 +257,23 @@ function Doc({...props}) {
                     onClose={() => {
                         setValue("")
                     }}>
-                {data[value] ? value === "patient" || value === "date" ? <Stack spacing={1} p={2}>
+                {data[value] ? ["patient","date","cin","age"].includes(value) ? <Stack spacing={1} p={2}>
                     <Typography fontSize={12}>Prefix</Typography>
                     <TextField
-                    value={data[value].prefix}
-                    onChange={(event) => {
-                        data[value].prefix = event.target.value
-                        setData({...data})
-                    }}
-                />
-                </Stack>:<Editor
+                        value={data[value].prefix}
+                        onChange={(event) => {
+                            data[value].prefix = event.target.value
+                            setData({...data})
+                        }}
+                    />
+                </Stack> : <Editor
                     value={data[value].content}
                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                     onEditorChange={(event) => {
                         data[value].content = event
                         setData({...data})
                     }}
-                    init={editorInit}/>: null}
+                    init={editorInit}/> : null}
 
                 {value.includes("other") && <Editor
                     value={data["other"][value.replace("other", "")].content}

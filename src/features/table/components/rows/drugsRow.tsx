@@ -73,12 +73,13 @@ function Drugs({...props}) {
                         <Can I={"manage"} a={"settings"} field={"settings__drugs__update"}>
                             <IconButton
                                 size="small"
+                                className="btn-edit"
                                 sx={{mr: {md: 1}}}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleEvent({action: "EDIT_DRUGS", row, e});
                                 }}>
-                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                             </IconButton>
                         </Can>
                         <Can I={"manage"} a={"settings"} field={"settings__drugs__delete"}>
@@ -95,7 +96,7 @@ function Drugs({...props}) {
                                     e.stopPropagation();
                                     handleEvent({action: "DELETE_DRUGS", row, e});
                                 }}>
-                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
                             </IconButton>
                         </Can>
                     </Stack>

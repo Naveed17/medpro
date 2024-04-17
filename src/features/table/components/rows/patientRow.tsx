@@ -175,9 +175,7 @@ function PatientRow({...props}) {
                                             <Stack direction='row' alignItems='center'>
                                                 <IconUrl path="ic-folder" width={16} height={16}
                                                          color={theme.palette.text.secondary}/>
-                                                <Tooltip
-                                                    title={row.fiche_id}
-                                                >
+                                                <Tooltip title={row.fiche_id}>
                                                     <Typography
                                                         variant="body2"
                                                         className={"ellipsis"}
@@ -438,11 +436,34 @@ function PatientRow({...props}) {
                             <Skeleton variant="text" width={60}/>
                         </>
                     ) : (
-                        <>
+                        <Stack spacing={1} direction='row' alignItems='center' justifyContent='flex-end'>
+                            <Can I={"manage"} a={"patients"} field={"patients__patient__update"}>
+                                <Tooltip title={t('popover-action.view_patient_data')}>
+                                    <IconButton
+                                        disabled={loading}
+                                        className="btn-edit"
+                                        onClick={event => {
+                                            event.stopPropagation();
+                                            handleEvent("EDIT", row, event);
+                                        }}
+                                        size="small"
+                                        sx={{mt: .2}}>
+                                        <IconUrl path="ic-edit-patient" width={16} height={16}
+                                                 color={theme.palette.text.secondary}/>
+                                    </IconButton>
+                                </Tooltip>
+                            </Can>
                             <Can I={"manage"} a={"patients"} field={"patients__patient__delete"}>
                                 <Tooltip title={t('popover-action.delete_patient_data')}>
                                     <IconButton
                                         disabled={loading}
+                                        sx={{
+                                            mr: { md: 1 },
+                                            '& .react-svg svg': {
+                                                width: 20,
+                                                height: 20
+                                            }
+                                        }}
                                         onClick={event => {
                                             event.stopPropagation();
                                             handleEvent("DELETE", row, event);
@@ -452,22 +473,7 @@ function PatientRow({...props}) {
                                     </IconButton>
                                 </Tooltip>
                             </Can>
-                            <Can I={"manage"} a={"patients"} field={"patients__patient__update"}>
-                                <Tooltip title={t('popover-action.view_patient_data')}>
-                                    <IconButton
-                                        disabled={loading}
-                                        onClick={event => {
-                                            event.stopPropagation();
-                                            handleEvent("EDIT", row, event);
-                                        }}
-                                        size="small"
-                                        sx={{mt: .2}}>
-                                        <IconUrl path="ic-edit-pen" width={20} height={20}
-                                                 color={theme.palette.text.secondary}/>
-                                    </IconButton>
-                                </Tooltip>
-                            </Can>
-                        </>
+                        </Stack>
                     )}
                 </Stack>
             </TableCell>

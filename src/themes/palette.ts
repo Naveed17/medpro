@@ -32,7 +32,7 @@ const INFO = {
 
 const SUCCESS = {
   lighter: "#E9FCD4",
-  light: "#AAF27F",
+  light: "#2DBD1F",
   main: "#1BC47D",
   dark: "#28C76F",
   darker: "#138958",
@@ -115,6 +115,9 @@ export const GREY = {
   B901: "#7E8299",
   B902: "#FAFAFA",
   B903: "#828282",
+  B904: "#B5B5C3",
+  B905: "#E6E6E6",
+  B906:"#EBEDF3",
   500_8: alpha("#919EAB", 0.08),
   500_12: alpha("#919EAB", 0.12),
   500_16: alpha("#919EAB", 0.16),

@@ -3,7 +3,7 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {ActionMenu} from "@features/menu";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import {capitalizeFirst} from "@lib/hooks";
+import {capitalizeFirst, getDiffDuration} from "@lib/hooks";
 import {BadgeStyled, openDrawer} from "@features/calendar";
 import {setAbsenceData} from "@features/drawer";
 
@@ -26,7 +26,8 @@ function Header({...props}) {
     } = props;
     const date = moment(event.date.toLocaleDateString("fr"), "DD/MM/YYYY");
     const hasBlockedDay = absences.filter((absence: any) => moment(absence.start).isSame(event.date) && moment(absence.end).format('HH:mm') === '23:59')?.length > 0;
-    const hasBlockedCurrentDay = absences.filter((absence: any) => moment(absence.start).isSame(currentDate.date) && moment(absence.end).format('HH:mm') === '23:59')?.length > 0;
+    const absencesDay = absences.find((absence: any) => moment(currentDate.date).isBetween(moment(absence.start), moment(absence.end), "minutes", '[]'));
+    const hasBlockedCurrentDay = !!absencesDay;
 
     const handleCloseMenu = () => {
         setContextMenuHeader(null);
@@ -43,7 +44,8 @@ function Header({...props}) {
                 OnAddAbsence();
                 break;
             case "onDeleteBlockedDay":
-                OnDeleteAbsence();
+                const duration = moment(absencesDay.start).preciseDiff(moment(absencesDay.end), true)
+                OnDeleteAbsence(duration);
                 break;
             case "onAddLeave":
                 dispatch(setAbsenceData({
@@ -140,6 +142,7 @@ function Header({...props}) {
                             {
                                 icon: 'ic-agenda-new',
                                 title: "display_workdays",
+                                note: "",
                                 action: "onDisplayWorkDays"
                             }
                         ]
@@ -151,12 +154,14 @@ function Header({...props}) {
                             {
                                 icon: 'ic-banned',
                                 title: hasBlockedCurrentDay ? "delete_blocked_day" : "add_blocked_day",
+                                note: moment(currentDate.date).format("ddd DD"),
                                 action: hasBlockedCurrentDay ? "onDeleteBlockedDay" : "onAddBlockedDay",
                                 ...(hasBlockedCurrentDay && {note: `${moment(currentDate.date).format("DD")} ${moment(currentDate.date).format("MMMM")}`})
                             },
                             {
                                 icon: 'ic-leave',
                                 title: "add_leave",
+                                note: "",
                                 action: "onAddLeave"
                             }
                         ]

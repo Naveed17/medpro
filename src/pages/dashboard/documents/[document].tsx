@@ -1,14 +1,12 @@
 import {GetStaticPaths, GetStaticProps} from "next";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
 import {Box, Button, Drawer, IconButton, Stack, Toolbar, Typography} from "@mui/material";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useTranslation} from "next-i18next";
-
 import {SubFooter} from "@features/subFooter";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
@@ -48,6 +46,7 @@ const headCells: readonly HeadCell[] = [
 ]
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 function Document() {
     const router = useRouter();
@@ -55,7 +54,7 @@ function Document() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation("docs");
+    const {t, ready, i18n} = useTranslation("docs");
     const ocrData = useAppSelector(ocrDocumentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {patient} = useAppSelector(appointmentSelector);
@@ -102,6 +101,11 @@ function Document() {
         dispatch(resetAppointment());
         dispatch(resetOcrData());
     });
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["docs"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -275,7 +279,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
         props: {
             dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs", "agenda", "patient"])),
+            ...(await getServerTranslations(locale as string, ["menu", "common", "docs"])),
         },
     };
 }

@@ -353,17 +353,18 @@ function PatientDetail({...props}) {
         }] : []),
         ...(ability.can('manage', 'patients', 'patients__patient__details__documents') ? [{
             title: "tabs.documents",
-            children: <DocumentsPanel {...{
-                roles,
-                documentViewIndex,
-                patient, patientId,
-                setOpenUploadDialog: (ev: boolean) => {
-                    dispatch(setOpenUploadDialog(ev))
-                },
-                mutatePatientDetails,
-                loadingRequest,
-                setLoadingRequest
-            }} />
+            children: <DocumentsPanel
+                {...{
+                    roles,
+                    documentViewIndex,
+                    patient,
+                    patientId,
+                    handleTabChange: (index: number) => setDocumentViewIndex(index),
+                    setOpenUploadDialog: (ev: boolean) => dispatch(setOpenUploadDialog(ev)),
+                    mutatePatientDetails,
+                    loadingRequest,
+                    setLoadingRequest
+                }} />
         }] : []),
         ...(isBeta && ability.can('manage', 'patients', 'patients__patient__details__payment') ? [{
             title: "tabs.transactions",
@@ -630,8 +631,10 @@ function PatientDetail({...props}) {
                             dispatch(setOpenUploadDialog(false));
                         }}
                         actionDialog={
-                            <DialogActions>
+                            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
+                                   width={"100%"}>
                                 <Button
+                                    variant={"text-black"}
                                     onClick={() => {
                                         dispatch(setOpenUploadDialog(false));
                                     }}
@@ -645,10 +648,10 @@ function PatientDetail({...props}) {
                                         dispatch(setOpenUploadDialog(false));
                                         handleUploadDocuments();
                                     }}
-                                    startIcon={<SaveRoundedIcon/>}>
+                                    startIcon={<IconUrl path="iconfinder_save"/>}>
                                     {t("add-patient.register")}
                                 </Button>
-                            </DialogActions>
+                            </Stack>
                         }
                     />
                 </PatientDetailStyled>

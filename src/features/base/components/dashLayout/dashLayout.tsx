@@ -6,7 +6,7 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {configSelector, dashLayoutState, setOngoing, PageTransition} from "@features/base";
+import {configSelector, dashLayoutState, setOngoing, PageTransition, PageTransitionRef} from "@features/base";
 import {
     Box,
     Button,
@@ -26,8 +26,13 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
-import {checkNotification, increaseNumberInString, useMedicalEntitySuffix} from "@lib/hooks";
-import {isAppleDevise} from "@lib/hooks/isAppleDevise";
+import {
+    checkNotification,
+    increaseNumberInString,
+    useMedicalEntitySuffix,
+    isAppleDevise,
+    isSupported, groupPermissionsByFeature
+} from "@lib/hooks";
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -42,8 +47,6 @@ import {useFeaturePermissions} from "@lib/hooks/rest";
 import {setPermissions} from "@features/casl";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
-
-type PageTransitionRef = React.ForwardedRef<HTMLDivElement>
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -73,7 +76,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const isSupported = () => 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
+
     const permission = !isAppleDevise() && isSupported() ? checkNotification() : false; // Check notification permission
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
     // Get current root feature
@@ -227,7 +230,11 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaPermissionsModel[];
             const defaultAgenda = agendasData.reduce((agendas: AgendaPermissionsModel, agendaPermission: AgendaPermissionsModel) => ({...(agendas ?? {}), ...(agendaPermission.agenda?.isDefault ? agendaPermission : {})}), {});
             if (defaultAgenda?.permissions) {
-                dispatch(setPermissions({"agenda": defaultAgenda?.permissions.map(permission => permission?.slug)}));
+                const groupedPermissions = groupPermissionsByFeature(defaultAgenda?.permissions);
+                dispatch(setPermissions({
+                    "agenda": groupedPermissions[0]?.children.map((permission: PermissionModel) => permission?.slug),
+                    "consultation": groupedPermissions[1]?.children.map((permission: PermissionModel) => permission?.slug)
+                }));
             }
             if (defaultAgenda?.agenda) {
                 const agenda = defaultAgenda?.agenda;
@@ -308,13 +315,15 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         }
     }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        if (!localStorage.getItem("new-features")) {
-            setTimeout(() => {
-                dispatch(openNewFeaturesDialog(true));
-            }, 3000);
-        }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    /*
+        useEffect(() => {
+            if (!localStorage.getItem("new-features")) {
+                setTimeout(() => {
+                    dispatch(openNewFeaturesDialog(true));
+                }, 3000);
+            }
+        }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    */
 
     return (
         <SideBarMenu>

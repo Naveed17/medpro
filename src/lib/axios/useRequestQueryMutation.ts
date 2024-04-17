@@ -18,7 +18,7 @@ function useRequestQueryMutation<Data = unknown, Error = unknown>(key?: string) 
         }!).catch(async (error) => {
             const originalRequest = error.config;
             if (error.response?.status === 401 && !originalRequest._retry) {
-                const refresh = await update();
+                const refresh = await update({refreshAccessToken: true});
                 originalRequest._retry = true;
                 originalRequest.headers.Authorization = `Bearer ${refresh?.accessToken}`;
                 return instanceAxios(originalRequest);

@@ -1,16 +1,17 @@
 import {styled} from "@mui/material/styles";
 import {Box} from "@mui/material";
 
-const PHEIGHT_A4 = "297mm !important";
+const PHEIGHT_A4 = "11.7in !important";
 const PWIDTH_A5 = "148mm !important"
 const PHEIGHT_A5 = "210mm !important"
-const PWIDTH_A4 = "210mm !important";
+const PWIDTH_A4 = "8.3in !important";
 const PageStyled = styled(Box)(({theme}) => ({
         '& .page': {
             boxShadow: "0 0 6px #ccc",
             background: "white",
             marginBottom: 10,
-            border:"2px solid white"
+            position:"relative",
+            border: "2px solid white"
         },
         '& .a4': {
             width: PWIDTH_A4,
@@ -39,7 +40,17 @@ const PageStyled = styled(Box)(({theme}) => ({
         '& .content': {
             //padding: 10,
             overflow: "hidden",
-            margin: "0 10mm"
+            margin: "0 10mm",
+            p:{
+                margin:'14px 0'
+            }
+        },
+        '& .contentPis': {
+            p:{
+                margin:'14px 0'
+            },
+            margin: "0 10mm",
+            marginTop:14
         },
         "& .selected": {
             border: `2px dashed ${theme.palette.primary.main}`,
@@ -73,7 +84,7 @@ const PageStyled = styled(Box)(({theme}) => ({
             "& .notSelected": {
                 borderColor: "white"
             },
-            "& .selected":{borderColor:"white"},
+            "& .selected": {borderColor: "white"},
             "& .menuTop": {
                 visibility: "hidden"
             },
@@ -122,8 +133,8 @@ const PageStyled = styled(Box)(({theme}) => ({
         },
 
         "& .drag-drop": {
-            height:10,
-            widget:10,
+            height: 10,
+            widget: 10,
         },
 
         "& .can-drop": {

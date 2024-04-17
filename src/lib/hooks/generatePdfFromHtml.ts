@@ -8,7 +8,25 @@ export const generatePdfFromHtml = async (componentRef: MutableRefObject<any[]>,
     for (const ref of componentRef?.current) {
         const doc = await generatePDF(() => ref, {
             filename: `report${new Date().toISOString()}.pdf`,
-            method: "build"
+            method: "build",
+            canvas: {
+                // default is 'image/jpeg' for better size performance
+                mimeType: 'image/png',
+                qualityRatio: 1
+            },
+            page: {
+                // format: 'A5',
+            },
+            overrides: {
+                // see https://artskydj.github.io/jsPDF/docs/jsPDF.html for more options
+                pdf: {
+                    compress: true
+                },
+                // see https://html2canvas.hertzen.com/configuration for more options
+                canvas: {
+                    useCORS: true
+                }
+            }
         });
         const docData = await PDFDocument?.load(doc?.output("arraybuffer"));
         const [docPage] = await pdfDoc.copyPages(docData, [0]);

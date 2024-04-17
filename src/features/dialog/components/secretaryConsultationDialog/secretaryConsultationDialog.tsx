@@ -42,6 +42,7 @@ import {Dialog} from "@features/dialog";
 import CheckIcon from "@mui/icons-material/Check";
 import MenuItem from "@mui/material/MenuItem";
 import useUsers from "@lib/hooks/rest/useUsers";
+import {agendaSelector} from "@features/calendar";
 
 const limit = 255;
 
@@ -49,7 +50,6 @@ function SecretaryConsultationDialog({...props}) {
     const {
         data: {
             app_uuid,
-            agenda,
             patient,
             t,
             setTransactions,
@@ -73,11 +73,14 @@ function SecretaryConsultationDialog({...props}) {
     const router = useRouter();
     const theme = useTheme() as Theme;
     const {users} = useUsers();
-
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {direction} = useAppSelector(configSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
+
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
@@ -92,12 +95,10 @@ function SecretaryConsultationDialog({...props}) {
     const devise = doctor_country.currency?.name;
     const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
-    const {direction} = useAppSelector(configSelector);
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {data: httpAppointmentTransactions} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/transactions/${router.locale}`
     });
 
     const resetDialog = () => {
@@ -144,7 +145,7 @@ function SecretaryConsultationDialog({...props}) {
         const usr = users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser)
         if (usr.length > 0) {
             setSelectedUser(usr[0].uuid)
-            addDiscussion(usr[0].uuid)
+            addDiscussion(usr[0])
         }
     }, [users]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -331,7 +332,7 @@ function SecretaryConsultationDialog({...props}) {
                                     </Stack>
                                     }
                                 </Stack>
-                                <Stack className="instruction-box" spacing={1}>
+                                {users.length > 1 && <Stack className="instruction-box" spacing={1}>
                                     {
                                         !isMobile &&
                                         <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
@@ -454,7 +455,7 @@ function SecretaryConsultationDialog({...props}) {
                                             <Typography>{t("covred")}</Typography>
                                         </Stack>
                                     </Button>
-                                </Stack>
+                                </Stack>}
                             </Stack>
                         </Grid>
                     </Grid>

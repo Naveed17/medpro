@@ -5,3 +5,6 @@ export * from "./patientDetailsToolbar";
 export * from './consultationIPToolbar';
 export * from './statsToolbar';
 export * from './docsToolbar';
+export * from './doctorToolbar';
+export * from './staffToolbar';
+export * from './departmentToolbar';

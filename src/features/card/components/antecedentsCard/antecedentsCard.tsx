@@ -2,7 +2,7 @@
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 // material
-import {Button, DialogActions, Grid, Paper, Skeleton, Typography,} from "@mui/material";
+import {Button, Grid, Paper, Skeleton, Stack, Typography} from "@mui/material";
 // ____________________________________
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -14,7 +14,7 @@ import {openDrawer} from "@features/calendar";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
 import {useAntecedentTypes} from "@lib/hooks/rest";
 
@@ -44,6 +44,7 @@ function AntecedentsCard({...props}) {
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
     const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/patient/antecedent");
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const handleClickDialog = () => {
         setOpenDialog(true);
@@ -75,6 +76,9 @@ function AntecedentsCard({...props}) {
                 setInfo("");
                 setInfoDynamic("");
                 mutateAntecedents();
+                const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`;
+                invalidateQueries([url])
+
             }
         });
     };
@@ -183,9 +187,9 @@ function AntecedentsCard({...props}) {
                                                     <React.Fragment>
                                                         <Typography fontWeight={"bold"}
                                                                     fontSize={12}>{item?.name}</Typography>
-                                                        <Typography fontSize={12}>Date début
+                                                        <Typography fontSize={12}>Date du début
                                                             : {item?.startDate ? item?.startDate : "-"}</Typography>
-                                                        <Typography fontSize={12}>Date fin
+                                                        <Typography fontSize={12}>Date de la fin
                                                             : {item?.endDate ? item?.endDate : "-"}</Typography>
                                                         {item?.ascendantOf &&
                                                             <Typography fontSize={12}>{t(item?.ascendantOf)}</Typography>}
@@ -256,8 +260,9 @@ function AntecedentsCard({...props}) {
                         setInfoDynamic("");
                     }}
                     actionDialog={
-                        <DialogActions>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
                             <Button
+                                variant={"text-black"}
                                 onClick={() => {
                                     setOpenDialog(false);
                                     setInfo("");
@@ -268,11 +273,10 @@ function AntecedentsCard({...props}) {
                             </Button>
                             <Button
                                 variant="contained"
-                                onClick={handleCloseDialog}
-                                startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                onClick={handleCloseDialog}>
                                 {t("register")}
                             </Button>
-                        </DialogActions>
+                        </Stack>
                     }
                 />
             )}

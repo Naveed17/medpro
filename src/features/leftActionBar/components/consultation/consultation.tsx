@@ -36,7 +36,7 @@ import {useSpeechRecognition} from "react-speech-recognition";
 import {capitalizeFirst, getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {useInsurances, useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import Content from "@features/leftActionBar/components/consultation/content";
@@ -47,6 +47,7 @@ import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Label} from "@features/label";
 import {setMessage, setOpenChat} from "@features/chat/actions";
+import {Dialog} from "@features/dialog";
 
 function Consultation() {
     const dispatch = useAppDispatch();
@@ -66,6 +67,7 @@ function Consultation() {
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [loading, setLoading] = useState<boolean>(true);
     const [note, setNote] = useState("");
@@ -73,9 +75,9 @@ function Consultation() {
     const [moreNote, setMoreNote] = useState(false);
     const [isLong, setIsLong] = useState(false);
     const [collapseData, setCollapseData] = useState<any[]>([]);
-    const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     const [oldNote, setOldNote] = useState("");
+    const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
@@ -86,7 +88,7 @@ function Consultation() {
 
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
-    const editPatientInfo = (val:string) => {
+    const editPatientInfo = (val: string) => {
         const params = new FormData();
         if (patient && medicalEntityHasUser) {
             const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`;
@@ -137,44 +139,51 @@ function Consultation() {
                     id: 1,
                     title: "treatment_in_progress",
                     icon: "docs/ic-prescription",
-                    badge: patient?.treatments
+                    badge: patient?.treatments,
+                    opened: false
                 },
                 {
                     id: 6,
                     title: "riskFactory",
                     icon: "ic-recherche",
-                    badge: patient?.antecedents.way_of_life
+                    badge: patient?.antecedents.way_of_life,
+                    opened: patient?.antecedents.way_of_life > 0
                 },
                 {
                     id: 7,
                     title: "allergic",
                     icon: "allergies",
-                    badge: patient?.antecedents.allergic
+                    badge: patient?.antecedents.allergic,
+                    opened: patient?.antecedents.allergic > 0
                 },
                 {
                     id: 4,
                     title: "antecedent",
                     icon: "docs/antecedent",
-                    badge: nb
+                    badge: nb,
+                    opened: nb > 0
                 },
                 {
                     id: 9,
                     title: "balance_sheet",
                     icon: "docs/ic-analyse",
-                    badge: patient?.requestedAnalyses
+                    badge: patient?.requestedAnalyses,
+                    opened: false
                 },
                 {
                     id: 5,
                     title: "medical_imaging_pending",
                     icon: "docs/ic-soura",
-                    badge: patient?.requestedImaging
+                    badge: patient?.requestedImaging,
+                    opened: false
                 },
                 {
                     id: 8,
                     title: "documents",
                     icon: "ic-quote",
-                    badge: patient?.documents
-                },
+                    badge: patient?.documents,
+                    opened: false
+                }
             ]);
         }
     }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -302,7 +311,7 @@ function Consultation() {
                                     borderRadius: 8
                                 }} onClick={() => {
                                     dispatch(setOpenChat(true))
-                                    dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                                    dispatch(setMessage(`&lt; <span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">> </span>`))
                                 }}>
                                     <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                                 </IconButton>}
@@ -311,27 +320,27 @@ function Consultation() {
 
                     </Box>
 
-                    <Stack direction={"row"} spacing={1} sx={{position: "absolute", top: 20, right: 10}}>
+                    {!loading && <Stack direction={"row"} spacing={1} sx={{position: "absolute", top: 20, right: 10}}>
                         <IconButton
                             size={"small"}
                             onClick={() => {
                                 dispatch(setOpenChat(true))
-                                dispatch(setMessage(`<span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">, </span>`))
+                                dispatch(setMessage(`&lt; <span class="tag" id="${patient?.uuid}">${patient?.firstName} ${patient?.lastName} </span><span class="afterTag">> </span>`))
                             }}>
                             <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20} height={20}/>
                         </IconButton>
 
                         <IconButton
                             size={"small"}
-                            onClick={() => {dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));}}
-                            >
-                            <Icon path={"ic-edit-patient"}/>
+                            onClick={() => dispatch(onOpenPatientDrawer({patientId: patient?.uuid}))}
+                            className="btn-edit">
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                         </IconButton>
-                    </Stack>
+                    </Stack>}
                 </Stack>
                 {isBeta && patient &&
                     <Stack direction={"row"} p={1} spacing={1} onClick={() => {
-                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                        setOpenPaymentDialog(true)
                     }}>
                         {patient.wallet > 0 && <Label variant='filled'
                                                       sx={{
@@ -452,7 +461,7 @@ function Consultation() {
                                         setNote,
                                         setIsNote,
                                         editPatientInfo,
-                                        t,isNote,
+                                        t, isNote,
                                         resetTranscript,
                                         setIsStarted,
                                         listening,
@@ -472,7 +481,10 @@ function Consultation() {
                         <React.Fragment key={`list-item-${idx}`}>
                             <ListItem
                                 className="list-parent"
-                                onClick={() => setCollapse(collapse === col.id ? "" : col.id)}>
+                                onClick={() => {
+                                    col.opened = !col.opened
+                                    setCollapseData([...collapseData])
+                                }}>
                                 <ListItemIcon>
                                     <Icon path={col.icon}/>
                                 </ListItemIcon>
@@ -494,9 +506,9 @@ function Consultation() {
                                 </Stack>
                             </ListItem>
                             <ListItem sx={{p: 0}}>
-                                <Collapse in={collapse === col.id} sx={{width: 1}}>
+                                <Collapse in={col.opened} sx={{width: 1}}>
                                     <Box px={1.5}>
-                                        {collapse === col.id && <Content  {...{
+                                        {col.opened && <Content  {...{
                                             id: col.id,
                                             url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`,
                                             patient
@@ -508,6 +520,31 @@ function Consultation() {
                     ))}
                 </List>
             </Stack>
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient,
+                    setOpenPaymentDialog,
+                    mutatePatient: () => {
+                        const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`;
+                        invalidateQueries([url])
+                    }
+                }}
+                size={"lg"}
+                fullWidth
+                title={t("payment_dialog_title", {ns: "payment"})}
+                dialogClose={() => {
+                    setOpenPaymentDialog(false)
+                }}
+            />
         </ConsultationStyled>
     );
 }

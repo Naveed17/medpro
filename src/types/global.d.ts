@@ -1,7 +1,7 @@
-import { CustomShadowType } from "@themes/shadows";
+import {CustomShadowType} from "@themes/shadows";
 import React from "react";
-import { PaletteColor } from "@mui/material";
-import { DateClickArg } from "@fullcalendar/interaction";
+import {PaletteColor} from "@mui/material";
+import {DateClickArg} from "@fullcalendar/interaction";
 
 declare global {
     type LayoutProps = {
@@ -105,6 +105,10 @@ declare module "@mui/material" {
         B900: string;
         B901: string;
         B902: string;
+        B903: string;
+        B904: string;
+        B905: string;
+        B906: string;
     }
 
     interface PaletteColor {
@@ -151,4 +155,23 @@ declare module "@emotion/styled/types" {
     }
 }
 
-declare module "@pqina/flip" {}
+declare module "@pqina/flip" {
+}
+
+declare module "moment" {
+    interface PreciseRangeValueObject {
+        years: number;
+        months: number;
+        days: number;
+        hours: number;
+        minutes: number;
+        seconds: number;
+        firstDateWasLater: boolean;
+    }
+
+    interface Moment {
+        preciseDiff(d2: Moment, returnValueObject?: false): string;
+
+        preciseDiff(d2: Moment, returnValueObject: true): PreciseRangeValueObject;
+    }
+}

@@ -8,7 +8,7 @@ const ChatStyled = styled("div")(({theme}) => ({
     },
     ".user-wrapper": {
         flex: 1,
-        height: 'calc(100vh - 3px)',
+        height: '100vh',
         overflow: 'auto',
         border: 0,
         borderRadius: "6px 0 0 6px",
@@ -24,7 +24,6 @@ const ChatStyled = styled("div")(({theme}) => ({
         },
         [theme.breakpoints.down("md")]: {
             border: 0,
-            height: 400,
         },
     },
     '.chat-wrapper': {
@@ -98,7 +97,10 @@ const ChatStyled = styled("div")(({theme}) => ({
                     maxWidth: '90%',
                 }
 
-            }
+            },
+              [theme.breakpoints.down("md")]: {
+                    height: 'calc(100vh - 230px)',
+                }
         }
     },
     '.no-chat': {
@@ -141,6 +143,8 @@ const ChatStyled = styled("div")(({theme}) => ({
         textDecoration: "underline"
     },
     ".btn1": {
+        fontSize: 12,
+        padding: 3,
         height: 32,
         backgroundColor: theme.palette.primary.main,
         borderRadius: 8,
@@ -148,6 +152,8 @@ const ChatStyled = styled("div")(({theme}) => ({
         color: "white"
     },
     ".btn2": {
+        fontSize: 12,
+        padding: 3,
         height: 32,
         backgroundColor: "#C5E5F9",
         borderRadius: 8,
@@ -160,6 +166,9 @@ const ChatStyled = styled("div")(({theme}) => ({
         display: "flex",
         justifyContent: "flex-end",
         marginTop: 8
+    },
+    ".tox .tox-edit-area::before": {
+        border: "none"
     }
 }));
 

@@ -24,8 +24,8 @@
   "deleted-patient": "Deleted patient",
   "search": "Search",
   "stats": "Statistics",
-  "wallet": "Wallet",
-  "credit": "Credit",
+  "wallet": "Credit",
+  "credit": "Speed",
   "settings": "Settings",
   "duplication": "Duplication",
   "unpaid": "Unpaid",
@@ -188,7 +188,7 @@
   "acts-consultation-placeholder": "Choose your act for consultation",
   "disease-placeholder": "Enter your disease",
   "consultation_type": "Consultation Type",
-  "appintment_date": "Appointment Date",
+  "appointment_date": "Appointment Date",
   "start_the_consultation": "Start the consultation",
   "pre_consultation_data": "Fill in the pre-consultation data",
   "pre_consultation_dialog_title": "Fill in the pre-consultation data",
@@ -512,6 +512,9 @@
     "chooseUser2": "and start a conversation.",
     "tag": "Tag",
     "search": "Search",
-    "patientName": "Patient name"
+    "patientName": "Patient name",
+    "payment_dialog_title": "Payment",
+    "pay": "Payment",
+    "planif": "Schedule"
   }
 }

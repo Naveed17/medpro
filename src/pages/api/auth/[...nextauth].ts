@@ -206,7 +206,8 @@ export const authOptions: NextAuthOptions = {
                             ...updatedToken.data,
                             medical_entity: {
                                 ...updatedToken.data?.medical_entities[medical_entity_index].medical_entity,
-                                has_selected_entity: !session?.reset
+                                has_selected_entity: !session?.reset,
+                                root: session?.root ?? ""
                             },
                             medical_entities: updatedToken.data?.medical_entities?.map((medical_entity_data: any) => ({
                                 ...medical_entity_data,
@@ -257,9 +258,12 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     if (!token.error) {
+                        const medicalEntity = res?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.medical_entity;
                         Object.assign(res?.data, {
-                            medical_entity: res?.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
-                                entity.is_default)?.medical_entity
+                            medical_entity: {
+                                ...medicalEntity,
+                                ...(res?.data?.medical_entities?.length === 1 && {has_selected_entity: medicalEntity?.uuid})
+                            }
                         });
                         token.data = res?.data;
                     }
@@ -269,7 +273,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             // Return previous token if the access token has not expired yet
-            if (Date.now() < (token as any).accessTokenExpired) {
+            if (Date.now() < (token as any).accessTokenExpired && session?.refreshAccessToken === undefined) {
                 return token;
             }
 

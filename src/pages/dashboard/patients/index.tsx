@@ -18,7 +18,7 @@ import {
     Zoom,
     Fab,
     Checkbox,
-    FormControlLabel, MenuItem, LinearProgress
+    FormControlLabel, MenuItem, LinearProgress, Card, Grid, InputAdornment
 } from "@mui/material";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -34,15 +34,16 @@ import {NoDataCard, PatientMobileCard} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRequestInfiniteQuery, useRequestQueryMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
+    addPatientSelector,
     AddPatientStep1,
     AddPatientStep2,
     AddPatientStep3, appointmentSelector,
     onResetPatient, resetSubmitAppointment,
-    setAppointmentPatient,
+    setAppointmentPatient, setOpenUploadDialog,
 } from "@features/tabPanel";
 import {
     AppointmentDetail,
@@ -75,7 +76,7 @@ import {
 } from "@features/leftActionBar";
 import {selectCheckboxActionSelector, onSelectCheckbox} from 'src/features/selectCheckboxCard'
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import {useInsurances} from "@lib/hooks/rest";
+import {useInsurances, useSendNotification} from "@lib/hooks/rest";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {MobileContainer as MobileWidth} from "@lib/constants";
@@ -88,6 +89,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {CustomIconButton} from "@features/buttons";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -161,9 +163,11 @@ function Patients() {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
+    const {trigger: triggerNotificationPush} = useSendNotification();
+
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {t, ready, i18n} = useTranslation("patient", {keyPrefix: "config"});
     const {tableState: {patientId, rowsSelected}} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer, config: agendaConfig} = useAppSelector(agendaSelector);
@@ -171,8 +175,10 @@ function Patients() {
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {openUploadDialog} = useAppSelector(addPatientSelector);
 
     const {data: user} = session as Session;
+    const {jti} = session?.user as any;
     const roles = (user as UserDataResponse)?.general_information.roles;
 
     // state hook for details drawer
@@ -186,6 +192,24 @@ function Patients() {
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+    const [deletePatientOptions, setDeletePatientOptions] = useState<any[]>([
+        {
+            key: "delete-all",
+            selected: false
+        },
+        {
+            key: "delete-appointment",
+            selected: false
+        },
+        {
+            key: "delete-appointment-data",
+            selected: false
+        },
+        {
+            key: "delete-transaction",
+            selected: false
+        }
+    ]);
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
@@ -303,26 +327,34 @@ function Patients() {
             ),
         },
     ]);
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [loadingFiles, setLoadingFiles] = useState(true);
+
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
 
     const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/patient/appointment/update");
     const {trigger: triggerDeletePatient} = useRequestQueryMutation("/patient/delete");
     const {trigger: triggerCheckDuplication} = useRequestQueryMutation("/patient/duplication/check");
+    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/patient/documents");
 
-    let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+    const searchParams = (new URL(location.href)).searchParams;
+    let page = parseInt(searchParams.get("page") || "1");
 
     const {
         data: httpPatientsResponse,
+        fetchNextPage,
+        hasNextPage,
         mutate: mutatePatients,
         isLoading
-    } = useRequestQuery(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}`
-    } : null, {
-        ...ReactQueryNoValidateConfig,
-        ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=10&withPagination=true${router.query.params ?? localFilter}`}})
-    });
+    } = useRequestInfiniteQuery(medicalEntityHasUser ? {
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}`,
+        } : null,
+        {
+            ...ReactQueryNoValidateConfig,
+            ...(medicalEntityHasUser && {variables: {query: `?${!isMobile ? `page=${page}&` : ""}limit=10&withPagination=true${router.query.params ?? localFilter}`}})
+        });
 
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
         setLoadingRequest(true);
@@ -382,10 +414,9 @@ function Patients() {
                 if ((result?.data as HttpResponse).status === "success") {
                     enqueueSnackbar(
                         t(
-                            `dialogs.move-dialog.${
-                                !event.extendedProps.onDurationChanged
-                                    ? "alert-msg"
-                                    : "alert-msg-duration"
+                            `dialogs.move-dialog.${!event.extendedProps.onDurationChanged
+                                ? "alert-msg"
+                                : "alert-msg-duration"
                             }`
                         ),
                         {variant: "success"}
@@ -399,9 +430,7 @@ function Patients() {
     };
 
     const onConsultationView = (event: EventDef) => {
-        const slugConsultation = `/dashboard/consultation/${
-            event?.publicId ? event?.publicId : (event as any)?.id
-        }`;
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     };
 
@@ -489,6 +518,9 @@ function Patients() {
             case "DUPLICATION_CHECK":
                 checkDuplications(event, setLoadingRequest);
                 break;
+            case "IMPORT-DOCUMENT":
+                dispatch(setOpenUploadDialog(true));
+                break;
         }
     }
 
@@ -506,9 +538,12 @@ function Patients() {
 
     const handleDeletePatient = () => {
         setLoadingRequest(true);
+        const params = new FormData();
+        params.append("type", deletePatientOptions.reduce((options, option) => [...(options ?? []), ...(option.selected ? [option.key] : [])], []).join(","));
         medicalEntityHasUser && triggerDeletePatient({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient?.uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient?.uuid}/${router.locale}`,
+            data: params
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);
@@ -531,6 +566,33 @@ function Patients() {
 
     };
 
+    const handleUploadDocuments = () => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        documentConfig.files.map((file: any) => {
+            params.append(`document[${file.type}][]`, file.file, file.name);
+        });
+        medicalEntityHasUser && triggerUploadDocuments({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: () => {
+                const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`;
+                triggerNotificationPush({
+                    action: "push",
+                    root: "all",
+                    message: " ",
+                    content: JSON.stringify({
+                        mutate: mutateUrl,
+                        fcm_session: jti
+                    })
+                });
+            },
+            onSettled: () => setLoadingRequest(false)
+        });
+    }
+
     const OnMenuActions = (action: string) => {
         handleCloseMenu();
         switch (action) {
@@ -552,6 +614,8 @@ function Patients() {
                 break;
         }
     }
+    const currentPageParams = httpPatientsResponse?.pageParams.findIndex(pageIndex => pageIndex === page) ?? 0;
+    const currentPage = httpPatientsResponse?.pages[currentPageParams === -1 ? 0 : currentPageParams]?.data.data as PaginationModel ?? null;
 
     useLeavePageConfirm((path: string) => {
         if (!path.includes("/dashboard/patient")) {
@@ -565,12 +629,8 @@ function Patients() {
 
     useEffect(() => {
         if (httpPatientsResponse) {
-            const patientsResponse = (httpPatientsResponse as HttpResponse)?.data?.list ?? [];
-            if (isMobile && localFilter?.length > 0) {
-                setRows(patientsResponse)
-            } else {
-                setRows((prev) => [...prev, ...patientsResponse]);
-            }
+            const patientsResponse = httpPatientsResponse.pages.reduce((pages: any[], page: any) => [...(pages ?? []), ...(page.data?.data?.list ?? [])], []) ?? [];
+            setRows(patientsResponse);
         }
     }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -589,12 +649,11 @@ function Patients() {
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        //remove query params on load from url
-        isMobile && router.replace(router.pathname, undefined, {shallow: true});
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    // useEffect(() => {
+    //     //reload resources from cdn servers
+    //     i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
+    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const patientData = (httpPatientsResponse as HttpResponse)?.data ?? []
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -621,10 +680,15 @@ function Patients() {
                             onChange={(e) => onFilterPatient(e.target.value)}
                             fullWidth
                             placeholder={t("filter.search")}
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start">
+                                    <IconUrl path="ic-outline-search-normal"/>
+                                </InputAdornment>,
+                            }}
                         />
-                        <IconButton disableRipple onClick={handleClickOpen}>
-                            <IconUrl path="ic-setting-grey"/>
-                        </IconButton>
+                        <CustomIconButton sx={{minWidth: 38}} color="back" onClick={handleClickOpen}>
+                            <IconUrl path="ic-filter-outlined"/>
+                        </CustomIconButton>
                     </Stack>
                 )}
             </SubHeader>
@@ -637,9 +701,9 @@ function Patients() {
                         {...{t, insurances, mutatePatient: mutatePatients}}
                         headers={headCells}
                         handleEvent={handleTableActions}
-                        rows={patientData?.list ?? []}
-                        total={patientData?.total ?? 0}
-                        totalPages={patientData?.totalPages ?? 1}
+                        rows={currentPage?.list ?? []}
+                        total={currentPage?.total ?? 0}
+                        totalPages={currentPage?.totalPages ?? 1}
                         from={"patient"}
                         pagination
                         loading={!Boolean(httpPatientsResponse)}
@@ -685,25 +749,22 @@ function Patients() {
                         {...{insurances}}
 
                     />
-                    {rows.length === 10 &&
+                    {hasNextPage &&
                         <Stack alignItems='center'>
                             <LoadingButton
                                 loading={isLoading}
                                 loadingPosition={"start"}
                                 startIcon={<RefreshIcon/>}
                                 onClick={() => {
-                                    router.push({
-                                        query: {page: ++page}
-                                    })
-                                }}
-                            >
+                                    fetchNextPage();
+                                }}>
                                 {t("load-more")}
                             </LoadingButton>
                         </Stack>
                     }
                 </MobileContainer>
 
-                {patientData?.list?.length === 0 && <NoDataCard
+                {currentPage?.list?.length === 0 && <NoDataCard
                     t={t}
                     ns={"patient"}
                     data={{
@@ -789,13 +850,59 @@ function Patients() {
                 contrastText={theme.palette.error.contrastText}
                 {...(!loadingRequest && {dialogClose: () => setDeleteDialog(false)})}
                 sx={{direction: direction}}
+                size={"md"}
                 action={() => {
                     return (
-                        <Box sx={{minHeight: 150}}>
+                        <Box>
                             <Typography sx={{textAlign: "center"}}
                                         variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`)} </Typography>
                             <Typography sx={{textAlign: "center"}}
                                         margin={2}>{t(`dialogs.delete-dialog.description`)}</Typography>
+
+                            <Grid container spacing={1}>
+                                {deletePatientOptions.map((option: any, index: number) =>
+                                    <Grid key={option.key} item md={6} xs={12}>
+                                        <Card
+                                            sx={{
+                                                padding: 1,
+                                                ml: 2,
+                                                borderRadius: 1.4,
+                                                "& .MuiTypography-root": {
+                                                    fontSize: 14, fontWeight: "bold"
+                                                },
+                                                "& .MuiFormControlLabel-root": {
+                                                    ml: 1,
+                                                    width: "100%"
+                                                }
+                                            }}>
+                                            <FormControlLabel
+                                                label={t(`dialogs.delete-dialog.${option.key}`)}
+                                                checked={option.selected}
+                                                control={
+                                                    <Checkbox
+                                                        onChange={(event) => {
+                                                            if (index === 0 && event.target.checked) {
+                                                                setDeletePatientOptions(deletePatientOptions.map(option => ({
+                                                                    ...option,
+                                                                    selected: true
+                                                                })));
+                                                            } else {
+                                                                setDeletePatientOptions([
+                                                                    ...deletePatientOptions.slice(0, index),
+                                                                    {
+                                                                        ...deletePatientOptions[index],
+                                                                        selected: event.target.checked
+                                                                    },
+                                                                    ...deletePatientOptions.slice(index + 1)
+                                                                ])
+                                                            }
+                                                        }}
+                                                    />
+                                                }
+                                            />
+                                        </Card>
+                                    </Grid>)}
+                            </Grid>
                         </Box>)
                 }}
                 open={deleteDialog}
@@ -805,8 +912,7 @@ function Patients() {
                         <Button
                             variant="text-primary"
                             onClick={() => setDeleteDialog(false)}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t(`dialogs.delete-dialog.cancel`)}
                         </Button>
                         <LoadingButton
@@ -815,11 +921,58 @@ function Patients() {
                             variant="contained"
                             onClick={handleDeletePatient}
                             color={"error"}
-                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
-                        >
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="ic-trash"></Icon>}>
                             {t(`dialogs.delete-dialog.confirm`)}
                         </LoadingButton>
                     </>
+                }
+            />
+
+            <Dialog
+                action={"add_a_document"}
+                open={openUploadDialog}
+                data={{
+                    t,
+                    state: documentConfig,
+                    setState: setDocumentConfig,
+                    handleUpdateFiles: (files: any[]) => {
+                        if (files.length > 0) {
+                            setLoadingFiles(false);
+                        }
+                    }
+                }}
+                size={"md"}
+                direction={"ltr"}
+                sx={{minHeight: 400}}
+                title={t("doc_detail_title")}
+                dialogClose={() => {
+                    dispatch(setOpenUploadDialog(false));
+                }}
+                onClose={() => {
+                    dispatch(setOpenUploadDialog(false));
+                }}
+                actionDialog={
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
+                           width={"100%"}>
+                        <Button
+                            variant={"text-black"}
+                            onClick={() => {
+                                dispatch(setOpenUploadDialog(false));
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("add-patient.cancel")}
+                        </Button>
+                        <Button
+                            disabled={loadingFiles}
+                            variant="contained"
+                            onClick={() => {
+                                dispatch(setOpenUploadDialog(false));
+                                handleUploadDocuments();
+                            }}
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
+                            {t("add-patient.register")}
+                        </Button>
+                    </Stack>
                 }
             />
 
@@ -838,10 +991,9 @@ function Patients() {
                             <Box sx={{minHeight: 150}}>
                                 <Typography sx={{textAlign: "center"}} variant="subtitle1">
                                     {t(
-                                        `dialogs.move-dialog.${
-                                            !appointmentMoveData?.extendedProps.onDurationChanged
-                                                ? "sub-title"
-                                                : "sub-title-duration"
+                                        `dialogs.move-dialog.${!appointmentMoveData?.extendedProps.onDurationChanged
+                                            ? "sub-title"
+                                            : "sub-title-duration"
                                         }`
                                     )}
                                 </Typography>
@@ -1042,11 +1194,8 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             fallback: false,
             ...(await serverSideTranslations(locale as string, [
                 "patient",
-                "agenda",
-                "consultation",
                 "menu",
-                "common",
-                'payment'
+                "common"
             ])),
         },
     }

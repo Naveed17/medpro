@@ -34,6 +34,7 @@ $very-light-gray: #f2f2f2;
 
 // font base url
 $poppins-font-path: "/static/fonts/Poppins/";
+$kidsBoys-font-path: "/static/fonts/KidsBoys/";
 
 // Poppins
 
@@ -71,4 +72,12 @@ $poppins-font-path: "/static/fonts/Poppins/";
   src: url("#{$poppins-font-path}Poppins-ExtraBold.ttf");
   font-family: "Poppins-ExtraBold";
   font-display: swap;
+}
+
+//kidsBoys
+
+@font-face {
+  src: url("#{$kidsBoys-font-path}KidsBoys.ttf");
+  font-family: "KidsBoys";
+  font-display: auto;
 }

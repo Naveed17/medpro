@@ -20,10 +20,10 @@ import {useTranslation} from "next-i18next";
 import {PatientDetail} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NoDataCard, PaymentMobileCard, setTimer} from "@features/card";
+import {NoDataCard, PaymentMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {agendaSelector, openDrawer, setCurrentDate} from "@features/calendar";
+import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
@@ -35,8 +35,8 @@ import {leftActionBarSelector, PaymentFilter} from "@features/leftActionBar";
 import {DefaultCountry} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {DrawerBottom} from "@features/drawerBottom";
-import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
-import {useInsurances} from "@lib/hooks/rest";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInsurances, useSendNotification} from "@lib/hooks/rest";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -120,10 +120,10 @@ function Payment() {
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
-    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const {tableState} = useAppSelector(tableActionSelector);
-    const {t} = useTranslation(["payment", "common"]);
+    const {t, i18n} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
@@ -153,7 +153,6 @@ function Payment() {
     const [isChecked, setIsChecked] = useState(localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo);
     const [openInfo, setOpenInfo] = React.useState(false);
 
-    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerCashbox} = useRequestQueryMutation("/payment/cashbox");
 
 
@@ -270,6 +269,11 @@ function Payment() {
         setTotal(total);
     }, [filtredRows]);
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <>
             <SubHeader>
@@ -280,7 +284,8 @@ function Payment() {
                     py={1}
                     alignItems={{xs: "flex-start", md: "center"}}>
                     <Typography>
-                        <b>Le {moment(day, "DD-MM-YYYY").format("DD MMMM YYYY")}</b>
+                        {!filterData?.payment?.dates ? <b>Le {moment(day, "DD-MM-YYYY").format("DD MMMM YYYY")}</b> :
+                            <b> Du {moment(filterData?.payment?.dates[0].startDate, "YYYY-MM-DD").format("DD MMMM YYYY")} à {moment(filterData?.payment?.dates[0].endDate, "YYYY-MM-DD").format("DD MMMM YYYY")}</b>}
                     </Typography>
                     <Stack
                         direction={{xs: "column", md: "row"}}
@@ -323,6 +328,12 @@ function Payment() {
                                                 dispatch(setOngoing({newCashBox: !isChecked}));
                                                 localStorage.setItem('newCashbox', !isChecked ? '1' : '0')
                                                 setIsChecked(!isChecked);
+                                                triggerNotificationPush({
+                                                    action: "push",
+                                                    root: "cash-box-switcher",
+                                                    message: " ",
+                                                    content: JSON.stringify({newCashBox: !isChecked})
+                                                });
                                             }
                                         }
                                     );
@@ -415,8 +426,7 @@ function Payment() {
                 open={openInfo}
                 scroll={'paper'}
                 aria-labelledby="scroll-dialog-title"
-                aria-describedby="scroll-dialog-description"
-            >
+                aria-describedby="scroll-dialog-description">
                 <DialogTitle id="scroll-dialog-title">Beta version</DialogTitle>
                 <DialogContent dividers={true}>
                     <DialogContentText
@@ -451,9 +461,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
             fallback: false,
             ...(await serverSideTranslations(context.locale as string, [
                 "common",
-                "menu",
-                "consultation",
-                "patient",
                 "payment",
             ])),
         },

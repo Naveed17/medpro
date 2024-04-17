@@ -1,6 +1,7 @@
 [
   {
     "unit": "Gélule",
+    "multiple": true,
     "forms": [
       {
         "form": "Gélule",
@@ -50,10 +51,6 @@
       },
       {
         "form": "Dispositif trans-dermique",
-        "unit": "Application"
-      },
-      {
-        "form": "Poudre pour inhalation buccale",
         "unit": "Application"
       },
       {
@@ -175,7 +172,59 @@
     ]
   },
   {
+    "unit": "Inhalation",
+    "multiple": true,
+    "forms": [
+      {
+        "form": "Comprimé pour inhalation",
+        "unit": "Inhalation"
+      },
+      {
+        "form": "Suspension pour inhalation",
+        "unit": "Inhalation"
+      },
+      {
+        "form": "Liquide volatil pour inhalation",
+        "unit": "Inhalation"
+      },
+      {
+        "form": "Poudre pour inhalation buccale",
+        "unit": "Inhalation"
+      },
+      {
+        "form": "Liquide pour inhalation",
+        "unit": "Inhalation"
+      }
+    ]
+  },
+  {
+    "unit": "Comprimé dispersible",
+    "forms": [
+      {
+        "form": "Comprimé dispersible",
+        "unit": "Comprimé dispersible"
+      },
+      {
+        "form": "Comprimé sécable dispersible",
+        "unit": "Comprimé dispersible"
+      },
+      {
+        "form": "Comprimé orodispersible",
+        "unit": "Comprimé dispersible"
+      },
+      {
+        "form": "Comprimé dispersible sécable",
+        "unit": "Comprimé dispersible"
+      },
+      {
+        "form": "Comprimé orodispersible sécable",
+        "unit": "Comprimé dispersible"
+      }
+    ]
+  },
+  {
     "unit": "Comprimé",
+    "multiple": true,
     "forms": [
       {
         "form": "Comprimé",
@@ -210,15 +259,7 @@
         "unit": "Comprimé"
       },
       {
-        "form": "Comprime dispersible",
-        "unit": "Comprimé"
-      },
-      {
         "form": "Comprime enrobé",
-        "unit": "Comprimé"
-      },
-      {
-        "form": "Comprimé orodispersible",
         "unit": "Comprimé"
       },
       {
@@ -227,10 +268,6 @@
       },
       {
         "form": "Comprime gastro-resistant",
-        "unit": "Comprimé"
-      },
-      {
-        "form": "Comprimé sécable dispersible",
         "unit": "Comprimé"
       },
       {
@@ -294,27 +331,11 @@
         "unit": "Comprimé"
       },
       {
-        "form": "Comprimé pour inhalation",
-        "unit": "Comprimé"
-      },
-      {
         "form": "Comprimé Sécable à Libration Modifieé",
         "unit": "Comprimé"
       },
       {
-        "form": "Comprimé dispersible sécable",
-        "unit": "Comprimé"
-      },
-      {
-        "form": "Comprimé dispersible  sécable",
-        "unit": "Comprimé"
-      },
-      {
         "form": "Comprimé Effervecent Sécable",
-        "unit": "Comprimé"
-      },
-      {
-        "form": "Comprimé orodispersible sécable",
         "unit": "Comprimé"
       }
     ]
@@ -416,6 +437,7 @@
   },
   {
     "unit": "Gélules",
+    "multiple": true,
     "forms": [
       {
         "form": "Gélule  gastrorésistante",
@@ -450,30 +472,30 @@
     ]
   },
   {
-    "unit": "Cuiére C",
+    "unit": "Cuillère C",
     "multiple": true,
     "forms": [
       {
         "form": "Sirop",
-        "unit": "Cuiére C"
+        "unit": "Cuillère C"
       },
       {
         "form": "Suspension buvable",
-        "unit": "Cuiére C"
+        "unit": "Cuillère C"
       }
     ]
   },
   {
-    "unit": "Cuiére S",
+    "unit": "Cuillère S",
     "multiple": true,
     "forms": [
       {
         "form": "Sirop",
-        "unit": "Cuiére S"
+        "unit": "Cuillère S"
       },
       {
         "form": "Suspension buvable",
-        "unit": "Cuiére S"
+        "unit": "Cuillère S"
       }
     ]
   },
@@ -586,6 +608,7 @@
   },
   {
     "unit": "Gouttes",
+    "multiple": true,
     "forms": [
       {
         "form": "Gouttes buvables",
@@ -659,6 +682,7 @@
   },
   {
     "unit": "Pulvérisateur",
+    "multiple": true,
     "forms": [
       {
         "form": "Solution pour pulverisation nasale",
@@ -675,10 +699,6 @@
     "forms": [
       {
         "form": "Aérosol",
-        "unit": "Bouffée"
-      },
-      {
-        "form": "Suspension pour inhalation",
         "unit": "Bouffée"
       }
     ]
@@ -775,14 +795,6 @@
     "forms": [
       {
         "form": "Suspension pour administration intravesicale",
-        "unit": "flacon"
-      },
-      {
-        "form": "Liquide volatil pour inhalation",
-        "unit": "flacon"
-      },
-      {
-        "form": "Liquide pour inhalation",
         "unit": "flacon"
       }
     ]

@@ -3,56 +3,87 @@
     "parameters": "Paramètres",
     "profile": "Profil",
     "acts": "Actes",
-    "motif": "Motif de consultation",
+    "motif": "Motifs de consultation",
     "consultation": "Fiche consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
     "cabinet": "Cabinet",
-    "horaire": "Horaire",
+    "horaire": "Horaires",
     "conges": "Congés et absences",
     "remplaçants": "Remplaçants",
     "users": "Utilisateurs",
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
-    "type": "Types de consultation",
+    "type": "Types des consultations",
     "actfees": "Honoraires",
     "configdoc": "Documents",
     "import-data": "Importation",
     "app_lock": "Verrouillage",
     "drugs": "Médicaments",
-    "analysis": "Analyse",
-    "medical_imaging": "Imagerie médicale"
+    "analysis": "Analyses",
+    "medical_imaging": "Imageries médicales",
+    "billing": "Billing"
   },
   "profile": {
-    "specialities": "Spécialités",
+    "upload-logo": "Télécharger le logo",
+    "specialities": "Spécialité",
+    "organization": "Organisation name",
+    "organization-placeholder": "Saisir le nom de l'organisation",
     "sms-rappel": "SMS de rappel",
     "sms-rappel-send": "Activer le rappel par SMS",
-    "qualification": "Qualification professionnelle",
-    "assurence": "Assurance maladie",
-    "regMode": "Modes de règlement",
+    "qualification": "Qualifications professionnelles",
+    "assurence": "Assurances maladies",
+    "regMode": "Moodes des règlements",
     "langues": "Langues parlées",
+    "region": "Ville",
+    "region-error": "La ville du pays est obligatoire",
+    "country": "Pays",
+    "country-placeholder": "pays",
+    "region-placeholder": "Ville",
+    "zip": "Code postal",
+    "address": "Adresse",
+    "address-placeholder": "Entrez l'adresse",
+    "address-group": "Adresse du patient",
     "actes": "Actes principaux",
     "actesSec": "Actes Secondaries",
+    "contact-info": "Contact Information",
+    "contact-number": "Téléphone Mobile",
+    "email": "Email Address",
+    "email-placeholder": "Saisir l'adresse e-mail",
+    "organization-locale": "Lieu de l'organisation",
     "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 28 916 800",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "listQ": "liste des qualifications professionnelles",
-    "title": "Titre",
+    "title": "Profile",
     "alertQ": "Parce que la confidentialité de vos informations est importante, nous n'afficherons pas vos documents dans votre profil public.Les données qu'ils contiennent seront extraites et converties en texte.",
     "drop": "Cliquez ou déposez les fichiers",
     "noInsurance": "Aucune assurance sélectionnée",
     "noPaymentMean": "Aucun moyen de paiement sélectionné",
-    "noQualification": "Aucune qualification sélectionnée",
+    "noQualification": "Aucune qualification n'est sélectionnée",
     "noLanguage": "Aucune langue sélectionnée",
-    "noActes": "Aucun acte sélectionné"
+    "noActes": "Aucun acte n'est sélectionné",
+    "contact_info": "Informations sur les contacts",
+    "full_name": "Nom et prénom",
+    "cin": "CIN",
+    "birthdate": "Date de naissance",
+    "mobile": "Mobile",
+    "org_location": "Localisation de l'organisation",
+    "time_and_agenda_title": "Réglages de l'heure et du calendrier",
+    "time_zone": "Fuseau horaire",
+    "time_format": "Format de l'heure",
+    "week_start": "Début de la semaine",
+    "lang": "Langue",
+    "password": "Mot de passe",
+    "change_password": "Modifier le mot de passe"
   },
   "dialogs": {
-    "search_lang": "Commencez à taper pour rechercher les langues",
+    "search_lang": "Commencez à taper pour chercher une langue",
     "search_assurance": "Chercher une assurance...",
     "titles": {
       "qualification": "Modifier qualification professionnelle",
-      "assurance": "Modifier assurance maladie",
-      "mode": "Modifier modes de règlement",
+      "assurance": "Modifier l'assurance maladie",
+      "mode": "Modifier les modes de règlement",
       "langues": "Modifier langues parlées"
     }
   },
@@ -61,7 +92,7 @@
     "main": "Vos actes principaux",
     "secondary": "Vos actes secondaires",
     "suggestion": "Actes suggérés",
-    "typing": "Commencer à taper pour rechercher des actes",
+    "typing": "Commencer à taper pour chercher un acte",
     "max": "Max 10 Actes",
     "path": "Paramètres > Actes"
   },
@@ -98,14 +129,14 @@
       }
     },
     "dialog": {
-      "add": "Ajouter motif de consultation",
-      "update": "Modifier motif de consultation",
+      "add": "Ajouter motif de la consultation",
+      "update": "Modifier motif de la consultation",
       "enligne": "En ligne ( Consultation vidéo )",
       "cabinet": "En cabinet",
       "domicile": "À domicile",
       "pro": "Dédié au professionnels de santé",
-      "info": "Information du motif",
-      "nom": "Nom motif de consultation",
+      "info": "Information relatives au motif",
+      "nom": "Nom du motif de la consultation",
       "type": "Type du motif ",
       "tapez": "Tapez le nom du motif",
       "duree": "Durée",
@@ -121,7 +152,7 @@
   "motifType": {
     "config": {
       "add": "Ajouter",
-      "path": "Paramètres > Types de consultation",
+      "path": "Paramètres > Types des consultations",
       "table": {
         "name": "Nom",
         "action": "Action",
@@ -151,8 +182,8 @@
       "color": "couleur",
       "save": "Enregistrer",
       "type": "Type du motif",
-      "payed": "Payant",
-      "un_payed": "Non payant"
+      "payed": "Payante",
+      "un_payed": "Non payante"
     },
     "alert": {
       "add": "Ajouter motif de consultation",
@@ -310,13 +341,13 @@
     "new": {
       "path": "Paramètres > Lieux de consultation > Ajouter",
       "telephone-error": "Le numéro de téléphone est obligatoire",
-      "name": "Nom du lieu",
+      "name": "Raison sociale",
       "adress": "Adresse",
       "postal": "Code postal",
       "ville": "Ville",
       "city": "Gouvernorat",
-      "lieu": "Lieu",
-      "info": "Information pratique",
+      "lieu": "Plan d'accès",
+      "info": "Informations pratiques",
       "number": "Numéro",
       "hide": "Masqué",
       "addNumber": "Ajouter un numéro",
@@ -328,9 +359,9 @@
       "writePostal": "Tapez ici code postal",
       "horaire": "Horaire d'ouverture",
       "date-range": "Périodes",
-      "startDate": "Date début",
+      "startDate": "Date du début",
       "date-error": "la date de fin doit être ultérieure à la date de début",
-      "endDate": "Date fin",
+      "endDate": "Date de la fin",
       "add-horaire": "Ajouter un nouvel horaire d'ouverture",
       "permissions": "Droit d'accés",
       "user": "Utilisateur",
@@ -338,8 +369,8 @@
       "add": "Ajouter",
       "remove": "Supprimer",
       "adreq": "Adresse est obligatoire",
-      "emsc": "em seance",
-      "firstsc": "1er seance",
+      "emsc": "ème seance",
+      "firstsc": "1ère seance",
       "hours-schedule-name": "Nom de l'horaire d'ouverture",
       "hours-schedule-slots": "Tapez ici le nom de l'horaire d'ouverture",
       "add-timeshedule": "Ajouter des heures d'ouverture",
@@ -424,14 +455,14 @@
   },
   "holidays": {
     "start": "Date debut",
-    "end": "Date fin",
+    "end": "Date de la fin",
     "praticien": "praticien",
     "config": {
       "path": "Paramètres > Congé et Absences",
       "add": "Ajouter",
       "table": {
         "start": "Date debut",
-        "end": "Date fin",
+        "end": "Date de la fin",
         "name": "Nom",
         "praticien": "praticien",
         "action": "action",
@@ -451,8 +482,12 @@
           "sub-title": "Liste des congés et absences proches",
           "description": "Titre du congé",
           "type-placeholder": "Saisir le titre du congé",
-          "startDate": "Date début",
-          "endDate": "Date fin",
+          "end-after-start-time": "L'heure de fin doit être antérieure à l'heure de début",
+          "datetime-required": "La date est obligatoire",
+          "startDate": "Date du début",
+          "startDate-placeholder": "Selectionner la Date du début",
+          "endDate": "Date de la fin",
+          "endDate-placeholder": "Sélectionner la date de fin",
           "vacation": {
             "yearly": "Congé annuel",
             "sick": "Congé de maladie",
@@ -492,6 +527,7 @@
     "path_new": "Paramètres > Utilisateurs > Ajouter",
     "path_update": "Paramètres > Utilisateurs > Modifier",
     "user": "Utilisateur",
+    "contact": "Contact Information",
     "pro": "C'est un professionnel ?",
     "mail": "Adresse mail",
     "feature": "Fonctionnalité",
@@ -528,8 +564,26 @@
     "confirm_password": "confirmer le mot de passe",
     "profile": "Profil",
     "add_new_feature_profile": "Ajouter un nouveau profil de fonctionnalité",
+    "time-settings": "Paramètres de l'heure et du calendrier",
     "config": {
       "add": "Ajouter",
+      "users": "Utilisateurs",
+      "nurse": "Infirmière",
+      "secretary": "Secrétaire",
+      "accountant": "Comptable",
+      "add_user": "Ajouter un utilisateur",
+      "department": "Departement",
+      "department-placeholder": "Tapez le nom du departement",
+      "no-department-placeholder": "Aucun département trouvé",
+      "assigned-to": "Affecté à",
+      "assigned-to-placeholder": "Tapez le nom du médecin",
+      "no-assigned-to-placeholder": "Aucun médecin n'a été trouvé",
+      "auto-password": "Génération automatique du mot de passe",
+      "un-assign": "Désassigner",
+      "select-all": "Sélectionner tout",
+      "personal-info": "Paramètres de l'utilisateur",
+      "manual-password": "Laissez-moi créer le mot de passe",
+      "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
       "features": {
         "appointment": "Rendez-vous",
         "patient": "Patient",
@@ -537,17 +591,18 @@
         "transaction": "Transaction",
         "places": "Horaire",
         "consultation": "Fiche consultation",
-        "actfees": "Honoraire",
-        "motif": "Motif de consultation",
-        "patient-file-templates": "Fiche consultation",
+        "actfees": "Honoraires",
+        "motif": "Motifs de consultation",
+        "patient-file-templates": "Fiches consultation",
         "templates": "Documents",
-        "consultation-type": "Types de consultation",
+        "consultation-type": "Types des consultations",
         "drugs": "Médicaments",
-        "analysis": "Analyse",
-        "medical-imaging": "Imagerie médicale",
+        "analysis": "Analyses",
+        "medical-imaging": "Imageries médicales",
         "holidays": "Congé et absence",
         "users": "Utilisateur",
-        "data": "Importation"
+        "data": "Importation",
+        "insurance-agreement": "Insurance/Agreements"
       },
       "newCash": "Créer caisse",
       "name-cashBox": "Nom du caisse",
@@ -574,6 +629,7 @@
       "roles": "Rôles",
       "role_name": "Nom du rôle",
       "cancel": "Annuler",
+      "return": "Retour à la page utilisateur",
       "save": "Enregistrer",
       "settings": "Paramètres",
       "cashbox": "Caisse",
@@ -583,15 +639,18 @@
         "delete-profile-desc": "Voulez-vous supprimer le profil ?",
         "delete-user-desc": "Voulez-vous supprimer le utilisateur ?",
         "ntc": "Nom est trop court",
+        "info": "Informations",
         "delete": "Supprimer",
         "cancel": "Annuler",
         "back": "Retour",
         "add_user": "Ajouter un utilisateur",
         "user": "Utilisateur",
         "role_permissions": "Rôle & Autorisations",
+        "role_assignments": "Rôle & affectation",
         "end": "Fin",
-        "family_name": "Nom de famille",
+        "user_name": "Nom d'utilisateur",
         "first_name": "Prénom",
+        "last_name": "Nom",
         "phone": "Téléphone Mobile",
         "email": "Adresse mail",
         "password": "Mot de passe",
@@ -616,6 +675,10 @@
           "title": "Ajouter votre premier profil",
           "description": "Gérez votre accès et créez votre premier profil",
           "button-text": "Ajouter un profil"
+        },
+        "permissions": {
+          "title": "Veuillez sélectionner les fonctionnalités et les autorisations",
+          "description": "Gérez votre accès et créez votre premier profil"
         }
       },
       "table": {
@@ -639,7 +702,7 @@
       },
       "alert": {
         "add_user_success": "Ajouter un utilisateur avec succès",
-        "went_wrong": "Quelque chose n'a pas fonctionné"
+        "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment "
       }
     },
     "dialog": {
@@ -656,7 +719,7 @@
     "alert": {
       "success": "l'utilisateur a été ajouté avec succès",
       "updated-role": "Le profil a été mis à jour avec succès",
-      "went_wrong": "Quelque chose n'a pas fonctionné",
+      "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment",
       "update": "l'utilisateur a été mis à jour avec succès"
     }
   },
@@ -699,7 +762,7 @@
     "table": {
       "actions": "Actions",
       "name": "Designation",
-      "code": "Code acte",
+      "code": "Code de l'acte",
       "contribution": "Cotation",
       "amount": "Montant",
       "btn_action_text": "Assurances/Conventions",
@@ -781,6 +844,9 @@
       "empty": ""
     },
     "add": "Importer",
+    "export": "Exporter les données",
+    "export-data": "Exportation",
+    "import-data": "Importation",
     "path": "Paramètres > Importation de données",
     "path-import": "Paramètres > Importation de données > Nouveau",
     "title": "Données",
@@ -797,7 +863,8 @@
     "load-file": "Charger le fichier",
     "load-data": "importer les données",
     "alert": {
-      "delete-import": "L'importation de données a été réinitialisée avec succès."
+      "delete-import": "L'importation de données a été réinitialisée avec succès.",
+      "export": "La demande exportation de données a été effectué avec succès."
     },
     "dialogs": {
       "duplication-dialog": {
@@ -848,6 +915,7 @@
     "table": {
       "name": "Nom",
       "source": "Source de l'export",
+      "type": "Type",
       "status": "statut",
       "action": "Action",
       "reset": "Réinitialiser"
@@ -885,6 +953,7 @@
       "table": {
         "name": "Nom",
         "active": "Active",
+        "status": "Statut",
         "action": "Action"
       },
       "dialog": {
@@ -991,6 +1060,31 @@
       "change": "Le changement de format de page",
       "reset": "entraînera la suppression des configurations existantes",
       "doc": "document"
+    }
+  },
+  "billing": {
+    "config": {
+      "users": "Utilisateurs",
+      "add_user": "Ajouter un utilisateur",
+      "plan_details": "Détails du plan",
+      "upgrade": "Mise à niveau",
+      "plan": "Plan",
+      "medical_group_practice": "Cabinet médical de groupe",
+      "doctors": "Médecins",
+      "doctors_users": "Médecins utilisateurs",
+      "of": "de",
+      "next_payment": "Paiement suivant",
+      "staff": "Personnel",
+      "staff_users": "Utilisateurs personnels",
+      "table": {
+        "table_heading": "Historique de la facturation",
+        "date": "Date",
+        "invoice_no": "N° de la facture",
+        "description": "Description",
+        "amount": "Montant",
+        "status": "Statut",
+        "paid": "Payé"
+      }
     }
   }
 }

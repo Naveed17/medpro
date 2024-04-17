@@ -14,8 +14,10 @@ import {
     FormControlLabel,
     FormHelperText,
     Grid,
-    IconButton, InputBase,
-    List, ListItem,
+    IconButton,
+    InputBase,
+    List,
+    ListItem,
     ListItemButton,
     ListItemText,
     ListSubheader,
@@ -26,9 +28,11 @@ import {
     Tab,
     Tabs,
     TextField,
-    Theme, Tooltip,
+    Theme,
+    Tooltip,
     Typography,
-    useMediaQuery, useTheme,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {Form, FormikProvider, useFormik} from "formik";
 import React, {useEffect, useRef, useState} from "react";
@@ -58,7 +62,8 @@ import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
 import {
-    a11yProps, ConditionalWrapper,
+    a11yProps,
+    ConditionalWrapper,
     getBirthdayFormat,
     prescriptionPreviewDosage,
     useLastPrescription,
@@ -498,13 +503,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const showPreview = () => {
         let pdoc = [...pendingDocuments]
-        pdoc.push({
-            id: 2,
-            name: "requestedPrescription",
-            status: "in_progress",
-            icon: "ic-traitement",
-            state: drugs
-        })
+        if (!pdoc.find(doc => doc.id === 2)) {
+            pdoc.push({
+                id: 2,
+                name: "requestedPrescription",
+                status: "in_progress",
+                icon: "ic-traitement",
+                state: drugs
+            })
+        }
         setPendingDocuments(pdoc);
         setPrescription(drugs)
         dispatch(SetSelectedDialog({
@@ -515,12 +522,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 createdAt: moment().format('DD/MM/YYYY'),
                 patient: `${patient.firstName} ${patient.lastName}`,
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                info: drugs,
+                info: drugs.map((drug: any) => ({...drug, drugName: drug.name})),
             },
             uuid: "",
             appUuid: ""
         }))
-
     }
 
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
@@ -685,7 +691,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     })}
                                                                     value={option.uuid}>
                                                                     {!option.uuid && <AddOutlinedIcon/>}
-                                                                    {option.commercial_name}
+                                                                    {option.commercial_name} {option?.form?.name}
                                                                 </MenuItem>
                                                             </Stack>
                                                         )}
@@ -1340,7 +1346,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 {t("cycle", {ns: "consultation"})}
                                             </Button>
 
-                                            <ConditionalWrapper
+                                            {drugs[idx]?.drugUuid && <ConditionalWrapper
                                                 condition={drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length > 0)}
                                                 wrapper={(children: any) => <Tooltip
                                                     title={t("add-dosage-model", {ns: "consultation"})}>{children}</Tooltip>}>
@@ -1364,7 +1370,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                              {...(drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length > 0) && {color: theme.palette.text.primary})}
                                                              path={"dosage-model"}/>
                                                 </IconButton>
-                                            </ConditionalWrapper>
+                                            </ConditionalWrapper>}
                                         </Stack>
 
                                     </Paper>
@@ -1488,10 +1494,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         id="nested-list-subheader">
                                                         {t("drug_list", {ns: "consultation"})}
                                                     </ListSubheader>
-                                                    <IconButton onClick={showPreview} className="btn-list-action"
-                                                                sx={{"&.btn-list-action": {px: .8}}}>
-                                                        <IconUrl path="ic-eye-scan" width={16} height={16}/>
-                                                    </IconButton>
+                                                    {!router.pathname.includes("waiting-room") &&
+                                                        <IconButton onClick={showPreview} className="btn-list-action"
+                                                                    sx={{"&.btn-list-action": {px: .8}}}>
+                                                            <IconUrl path="ic-eye-scan" width={16} height={16}/>
+                                                        </IconButton>}
                                                 </Stack>
                                             }>
                                             {drugs?.map((drug: DrugCycleModel, index: number) => (
@@ -1559,7 +1566,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         <IconUrl
                                                             width={12}
                                                             height={12}
-                                                            path="ic-edit"
+                                                            path="ic-edit-patient"
                                                         />
                                                     </IconButton>
                                                     <IconButton
@@ -1570,7 +1577,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         className="btn-del"
                                                         disableRipple>
                                                         <IconUrl
-                                                            color="red"
+                                                            color={theme.palette.background.paper}
                                                             width={12}
                                                             height={12}
                                                             path="ic-delete"

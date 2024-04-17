@@ -39,7 +39,7 @@ import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import dynamic from "next/dynamic";
-import {unsubscribeTopic} from "@lib/hooks";
+import {ConditionalWrapper, unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
@@ -49,7 +49,7 @@ import Can from "@features/casl/can";
 import {minMaxWindowSelector} from "@features/buttons";
 import NewFeatureIcon from "@themes/overrides/icons/newFeatureIcon";
 
-const {sidebarItems} = siteHeader;
+const {sidebarItems, adminSidebarItems} = siteHeader;
 
 const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
@@ -62,6 +62,7 @@ function SideBarMenu({children}: LayoutProps) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
+    const hasAdminAccess = router.pathname.includes("/admin");
 
     const {t, ready} = useTranslation("menu");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
@@ -69,7 +70,7 @@ function SideBarMenu({children}: LayoutProps) {
     const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
 
     let container: any = useRef<HTMLDivElement>(null);
-    const [menuItems, setMenuItems] = useState(sidebarItems);
+    const [menuItems, setMenuItems] = useState(router.pathname.includes("/admin") ? adminSidebarItems : sidebarItems);
 
     const handleRouting = (path: string) => {
         // Always do navigations after the first render
@@ -90,7 +91,7 @@ function SideBarMenu({children}: LayoutProps) {
     };
 
     const handleSettingRoute = () => {
-        router.push("/dashboard/settings");
+        router.push(`/${hasAdminAccess ? "admin" : "dashboard"}/settings`);
         dispatch(toggleMobileBar(true));
     }
 
@@ -113,15 +114,21 @@ function SideBarMenu({children}: LayoutProps) {
                 onMouseLeave={() => setCurrentIndex(null)}
                 sx={{overflow: 'hidden', px: 1.5}}>
                 {menuItems?.map((item, i) => (
-                    <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
-                        <Hidden key={item.name} smUp={item.name === "wallet"}>
+                    <ConditionalWrapper
+                        key={item.name}
+                        condition={!hasAdminAccess}
+                        wrapper={(children: any) =>
+                            <Can key={item.name} I={"read"} a={item.slug as any}>
+                                {children}
+                            </Can>}>
+                        <Hidden smUp={item.name === "wallet"}>
                             <a onClick={() => handleRouting(item.href)}>
                                 <ListItem
                                     sx={{
                                         margin: "0.5rem 0",
                                         cursor: 'pointer'
                                     }}
-                                    className={router.pathname === item.href ? "active" : ""}>
+                                    className={router.pathname.includes(item.href) ? "active" : ""}>
                                     <Badge
                                         anchorOrigin={{
                                             vertical: "bottom",
@@ -167,17 +174,17 @@ function SideBarMenu({children}: LayoutProps) {
                                 </ListItem>
                             </a>
                         </Hidden>
-                    </Can>
+                    </ConditionalWrapper>
                 ))}
             </List>
             <List className="list-bottom">
-                <Can I={"read"} a={"statistics"}>
+                {!hasAdminAccess && <Can I={"read"} a={"statistics"}>
                     <ListItem
-                        onClick={() => handleRouting("/dashboard/statistics")}
+                        onClick={() => handleRouting(`/${hasAdminAccess ? "admin" : "dashboard"}/statistics`)}
                         disableRipple
                         button
                         className={
-                            router.pathname.startsWith("/dashboard/statistics")
+                            router.pathname.startsWith(`/${hasAdminAccess ? "admin" : "dashboard"}/statistics`)
                                 ? "active mt-2"
                                 : "mt-2"
                         }>
@@ -185,17 +192,17 @@ function SideBarMenu({children}: LayoutProps) {
                             <StatsIcon/>
                         </ListItemIcon>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "stats")}/>
+                            <ListItemText primary={t("main-menu.statistics")}/>
                         </Hidden>
                     </ListItem>
-                </Can>
+                </Can>}
                 <Can I={"read"} a={"settings"}>
                     <ListItem
                         onClick={handleSettingRoute}
                         disableRipple
                         button
                         className={
-                            router.pathname.startsWith("/dashboard/settings")
+                            router.pathname.startsWith(`/${hasAdminAccess ? "admin" : "dashboard"}/settings`)
                                 ? "active mt-2"
                                 : "mt-2"
                         }>
@@ -203,11 +210,11 @@ function SideBarMenu({children}: LayoutProps) {
                             <SettingsIcon/>
                         </ListItemIcon>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "settings")}/>
+                            <ListItemText primary={t("main-menu.settings")}/>
                         </Hidden>
                     </ListItem>
                 </Can>
-                <Badge
+               {/* <Badge
                     className={"custom-Badge"}
                     color={"error"} badgeContent={"N"}>
                     <ListItem
@@ -218,10 +225,10 @@ function SideBarMenu({children}: LayoutProps) {
                             <NewFeatureIcon/>
                         </ListItemIcon>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "settings")}/>
+                            <ListItemText primary={t("main-menu.features")}/>
                         </Hidden>
                     </ListItem>
-                </Badge>
+                </Badge>*/}
                 <Hidden smUp>
                     <ListItem onClick={() => handleLogout()}>
                         <ListItemIcon>
@@ -239,20 +246,28 @@ function SideBarMenu({children}: LayoutProps) {
     });
 
     useEffect(() => {
-        let demo = user.medical_entity.hasDemo;
-        if (localStorage.getItem("newCashbox")) {
-            demo = localStorage.getItem("newCashbox") === "1";
+        const paymentPageIndex = menuItems.findIndex(item => item.icon === "ic-payment");
+        if (paymentPageIndex !== -1) {
+            let demo = user.medical_entity.hasDemo;
+            if (localStorage.getItem("newCashbox")) {
+                demo = localStorage.getItem("newCashbox") === "1";
+            }
+            menuItems[paymentPageIndex].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
+            setMenuItems([...menuItems]);
         }
-        menuItems[3].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
-        setMenuItems([...menuItems]);
     }, [newCashBox]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setMenuItems([
-            {...menuItems[0], badge: nb_appointment},
-            {...menuItems[1], badge: waiting_room},
-            ...menuItems.slice(2),
-        ]);
+        let menus = [...menuItems];
+        const agendaPageIndex = menuItems.findIndex(item => item.icon === "ic-agenda");
+        if (agendaPageIndex !== -1) {
+            menus[agendaPageIndex] = {...menus[agendaPageIndex], badge: nb_appointment}
+        }
+        const waitingRoomPageIndex = menuItems.findIndex(item => item.icon === "ic-salle-sidenav");
+        if (waitingRoomPageIndex !== -1) {
+            menus[waitingRoomPageIndex] = {...menus[waitingRoomPageIndex], badge: waiting_room}
+        }
+        (agendaPageIndex !== -1 || waitingRoomPageIndex !== -1) && setMenuItems(menus);
     }, [nb_appointment, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;

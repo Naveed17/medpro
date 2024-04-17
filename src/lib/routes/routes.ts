@@ -4,5 +4,6 @@ export function path(root: string, sublink: string) {
 
 export const ROOTS = {
     app: '/dashboard',
-    home: '/'
+    home: '/',
+    admin: '/admin',
 };

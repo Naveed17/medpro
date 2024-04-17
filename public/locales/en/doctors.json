@@ -1,0 +1,28 @@
+{
+  "config": {
+    "sub-header": {
+      "title": "Doctors list",
+      "add-doctor": "Invite"
+    },
+    "filter": {
+      "title": "Filter",
+      "doctors": "Doctor",
+      "search": "Last & first name/Tel/File no.",
+      "birthdate": "Date of birth",
+      "gender": "Genre",
+      "male": "Male",
+      "female": "Female",
+      "name": "Search",
+      "phone": "Phone number"
+    },
+    "table": {
+      "empty": "",
+      "name": "Nom",
+      "department": "Department",
+      "speciality": "Specialization",
+      "contact": "Contact",
+      "status": "Statut",
+      "join-date": "Joining date"
+    }
+  }
+}

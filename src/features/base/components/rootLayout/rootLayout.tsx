@@ -18,15 +18,13 @@ function RootLayout({children}: LayoutProps) {
     if (typeof window !== "undefined") {
         const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
         //init remote config
-        const smartlookClientInit = localStorage.getItem("smartlook-client");
         const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
         remoteConfig.settings.minimumFetchIntervalMillis = 600000;
-        if (prodEnv && remoteConfig && smartlookClientInit === null) {
+        if (prodEnv && remoteConfig && !smartlookClient.initialized()) {
             fetchAndActivate(remoteConfig).then(() => {
                 const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
                 if (config.smartlook && config.countries?.includes(process.env.NEXT_PUBLIC_COUNTRY?.toLowerCase())) {
                     // init smartlook client
-                    localStorage.setItem('smartlook-client', "true");
                     smartlookClient.init('8ffbddca1e49f6d7c5836891cc9c1e8c20c1c79a', {region: 'eu'});
                 }
             });

@@ -3,7 +3,26 @@ import TableRow from "@mui/material/TableRow";
 
 const TableRowStyled = styled(TableRow)<any>(
     ({theme, styleprops, ...rest}) => ({
+        "& .btn-edit": {
+            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: 8,
+            padding: theme.spacing(.8),
+        },
+        ".btn-doc":{
+            border: `1px solid ${theme.palette.divider}`,
+            background: theme.palette.background.default,
+            borderRadius: 8,
+            padding: theme.spacing(1.2),
+            "&.btn-plus":{
+                background: theme.palette.primary.main,
+                borderColor:theme.palette.primary.main,
+                fontSize:9,
+                color:theme.palette.common.white,
+            }
+            
+        },
         "& .MuiTableCell-root": {
+            cursor: "pointer",
             div: {
                 color: "black",
             },
@@ -296,18 +315,18 @@ const TableRowStyled = styled(TableRow)<any>(
                 },
             },
         },
-        "&.user-row":{
-            ".role-select":{
-                ".MuiOutlinedInput-root":{
+        "&.user-row": {
+            ".role-select": {
+                ".MuiOutlinedInput-root": {
                     backgroundColor: 'transparent',
-                    fontSize:13,
-                    fontWeight:700
+                    fontSize: 13,
+                    fontWeight: 700
                 },
-                fieldset: { border: 'none !important',boxShadow:'none !important' },
+                fieldset: {border: 'none !important', boxShadow: 'none !important'},
             },
-            ".btn-edit":{
-                border:`1px solid ${theme.palette.divider}`,
-                padding:theme.spacing(1),
+            ".btn-edit": {
+                border: `1px solid ${theme.palette.divider}`,
+                padding: theme.spacing(.8),
             }
         }
     })

@@ -42,21 +42,12 @@ function AppointmentListMobile({...props}) {
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time] = useState<number>(
-        moment()
-            .utc()
+        moment.utc()
             .seconds(parseInt(localInitTimer.format("ss"), 0))
             .diff(localInitTimer, "seconds")
     );
     const [duration] = useState<number>(
-        moment
-            .duration(
-                moment
-                    .utc()
-                    .diff(
-                        moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm")
-                    )
-            )
-            .asMilliseconds()
+        moment.duration(moment.utc().diff(moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds()
     );
     return (
         <Card
@@ -81,9 +72,11 @@ function AppointmentListMobile({...props}) {
             <CardContent
                 sx={{
                     p: 1,
-                    "&:last-child": {
-                        paddingBottom: 1,
-                    },
+                    "&.MuiCardContent-root": {
+                        "&:last-child": {
+                            paddingBottom: 1,
+                        }
+                    }
                 }}>
                 <Stack
                     direction="row"

@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout, dashLayoutSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
@@ -15,8 +15,6 @@ import {
     DialogTitle,
     Dialog,
     Theme,
-    Tabs,
-    Tab,
     MenuItem,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
@@ -39,7 +37,6 @@ import {useSendNotification} from "@lib/hooks/rest";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {Redirect} from "@features/redirect";
-import {TabPanel, UsersTabs} from "@features/tabPanel";
 import {ActionMenu} from "@features/menu";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
@@ -74,14 +71,6 @@ const headCells = [
         sortable: true,
     },
     {
-        id: "role",
-        numeric: false,
-        disablePadding: false,
-        label: "role",
-        align: "center",
-        sortable: true,
-    },
-    {
         id: "status",
         numeric: false,
         disablePadding: false,
@@ -107,13 +96,6 @@ const headCells = [
     },
 ];
 
-function a11yProps(index: number) {
-    return {
-        id: `simple-tab-${index}`,
-        'aria-controls': `simple-tabpanel-${index}`,
-    };
-}
-
 function Users() {
     const router = useRouter();
     const {data: session} = useSession();
@@ -122,7 +104,7 @@ function Users() {
     const {trigger: triggerNotificationPush} = useSendNotification();
     const dispatch = useAppDispatch();
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "users.config"});
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {currentStep} = useAppSelector(stepperSelector);
@@ -131,7 +113,7 @@ function Users() {
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [deleteActionDialog, setDeleteActionDialog] = useState("user");
     const [loading, setLoading] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<any>("");
+    const [selectedUser, setSelectedUser] = useState<any>(null);
     const [selectedProfile, setSelectedProfile] = useState<any>("");
     const [open, setOpen] = useState(false);
     const [contextMenu, setContextMenu] = useState<{
@@ -153,13 +135,7 @@ function Users() {
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
     }, {refetchOnWindowFocus: false});
 
-    const {data: httpProfilesResponse, mutate: mutateProfiles} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
-    }, {refetchOnWindowFocus: false});
-
     const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
-    const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
     const popoverActions = [{
         icon: <IconUrl path="ic-trash" color="white"/>,
         title: "delete-role",
@@ -191,22 +167,6 @@ function Users() {
                 }
             }
         });
-    }
-
-    const handleChangeTabs = (event: React.SyntheticEvent, newValue: number) => {
-        setTabValue(newValue);
-    }
-
-    const handleContextMenu = (event: MouseEvent, profile: any) => {
-        event.preventDefault();
-        setSelectedProfile(profile);
-        setContextMenu(
-            contextMenu === null
-                ? {
-                    mouseX: event.clientX + 2,
-                    mouseY: event.clientY - 6,
-                } : null,
-        );
     }
 
     const handleClose = () => {
@@ -269,7 +229,6 @@ function Users() {
             onSuccess: () => {
                 setLoading(false);
                 setDeleteDialog(false);
-                mutateProfiles();
             }
         })
     }
@@ -287,6 +246,19 @@ function Users() {
         }
     }
 
+    const handleTableEvent = (action: string, data: any) => {
+        switch (action) {
+            case "onUserDetail":
+                router.push(`/dashboard/settings/users/${data.ssoId}`);
+                break;
+        }
+    }
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     if (roles.includes('ROLE_SECRETARY')) {
@@ -297,10 +269,7 @@ function Users() {
         <>
             <SubHeader sx={{borderBottom: 1, borderColor: 'divider'}}>
                 <Stack direction="row" alignItems="center" mt={2} justifyContent="space-between" width={1}>
-                    <Tabs value={tabvalue} onChange={handleChangeTabs} aria-label="">
-                        <Tab disableRipple label={t("all_users")} {...a11yProps(0)} />
-                        <Tab disableRipple label={t("roles_permissons")} {...a11yProps(1)} />
-                    </Tabs>
+                    <Typography color="text.primary">{t("path")}</Typography>
                     <Can I={"manage"} a={"settings"} field={"settings__users__create"}>
                         {tabvalue === 0 &&
                             <CustomIconButton
@@ -319,35 +288,31 @@ function Users() {
                 </Stack>
             </SubHeader>
             <Box className="container">
-                <TabPanel value={tabvalue} index={0} padding={0}>
-                    {users && users.length > 0 ? (
-                        <>
-                            <DesktopContainer>
-                                <Otable
-                                    headers={headCells}
-                                    rows={users}
-                                    from={"users"}
-                                    {...{t, currentUser, profiles, handleChange}}
-                                    edit={onDelete}
-                                />
-                            </DesktopContainer>
-                            <MobileContainer>
-                                <Stack spacing={1}>
-                                    {users.map((user) => (
-                                        <React.Fragment key={user.uuid}>
-                                            <UserMobileCard data={user} t={t}/>
-                                        </React.Fragment>
-                                    ))}
-                                </Stack>
-                            </MobileContainer>
-                        </>
-                    ) : (
-                        <NoDataCard t={t} ns={"settings"} data={CardData}/>
-                    )}
-                </TabPanel>
-                <TabPanel value={tabvalue} index={1} padding={0}>
-                    <UsersTabs {...{profiles, t, handleContextMenu}} />
-                </TabPanel>
+                {users && users.length > 0 ? (
+                    <>
+                        <DesktopContainer>
+                            <Otable
+                                headers={headCells}
+                                handleEvent={(action: string, eventData: EventModal) => handleTableEvent(action, eventData)}
+                                rows={users}
+                                from={"users"}
+                                {...{t, currentUser, handleChange}}
+                                edit={onDelete}
+                            />
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={1}>
+                                {users.map((user) => (
+                                    <React.Fragment key={user.uuid}>
+                                        <UserMobileCard data={user} t={t}/>
+                                    </React.Fragment>
+                                ))}
+                            </Stack>
+                        </MobileContainer>
+                    </>
+                ) : (
+                    <NoDataCard t={t} ns={"settings"} data={CardData}/>
+                )}
             </Box>
             <Drawer
                 PaperProps={{
@@ -431,7 +396,7 @@ function Users() {
                 open={newUserDialog}
                 onClose={handleCloseNewUserDialog}>
                 <NewUserDialog
-                    {...{t, profiles}}
+                    {...{t}}
                     onNextPreviStep={handleNextPreviStep}
                     onClose={handleCloseNewUserDialog}/>
             </Dialog>
@@ -445,8 +410,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

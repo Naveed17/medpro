@@ -2,20 +2,16 @@
 import {
     ActionBarState,
     BoxStyled,
-    DateRangeFilterCashbox,
+    DateRangeFilter,
     InsuranceFilterCashbox,
     setFilterPayment
 } from "@features/leftActionBar";
-import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, DayOfWeek, setCurrentDate} from "@features/calendar";
+import {agendaSelector, CalendarPickers, DayOfWeek, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
 import {useTranslation} from "next-i18next";
-
-const CalendarPickers = dynamic(() =>
-    import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Payment() {
     const dispatch = useAppDispatch();
@@ -24,7 +20,21 @@ function Payment() {
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
-    const accordionData = [
+    const [accordionData, setAccordionData] = useState([
+        {
+            heading: {
+                id: "date-range",
+                icon: "ic-agenda-jour",
+                title: "date-range",
+            },
+            expanded: true,
+            children: (
+                <DateRangeFilter
+                    OnSearch={(data: { query: ActionBarState }) => {
+                        dispatch(setFilterPayment(data.query));
+                    }}/>
+            ),
+        },
         {
             heading: {
                 id: "insurance",
@@ -39,23 +49,8 @@ function Payment() {
                         dispatch(setFilterPayment(data.query));
                     }}/>
             ),
-        },
-        {
-            heading: {
-                id: "date-range",
-                icon: "ic-agenda-jour",
-                title: "date-range",
-            },
-            expanded: true,
-            children: (
-                <DateRangeFilterCashbox
-                    {...{t}}
-                    OnSearch={(data: { query: ActionBarState }) => {
-                        dispatch(setFilterPayment(data.query));
-                    }}/>
-            ),
         }
-    ];
+    ]);
 
     const hours = agendaConfig?.openingHours[0];
 
@@ -83,12 +78,11 @@ function Payment() {
 
             <Accordion
                 translate={{
-                    t: t,
-                    ready: ready,
+                    t,
+                    ready
                 }}
                 data={accordionData}
-                setData={() => {
-                }}
+                setData={setAccordionData}
             />
         </BoxStyled>
     )

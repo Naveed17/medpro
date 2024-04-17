@@ -9,7 +9,7 @@ import {
     ListItemIcon,
     Stack,
     TextField,
-    Typography,
+    Typography, useTheme,
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment/moment";
@@ -22,7 +22,12 @@ import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {Dialog} from "@features/dialog";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import {useTranslation} from "next-i18next";
+import {agendaSelector} from "@features/calendar";
 
 function HistoryContainer({...props}) {
     const {
@@ -43,23 +48,28 @@ function HistoryContainer({...props}) {
         medical_entity
     } = props;
     const router = useRouter();
+    const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
+    const {t: commonTranslation} = useTranslation("common");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const [collapse, setCollapse] = useState<any>("");
     const [selected, setSelected] = useState<string>('')
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
+    const [loadingReq, setLoadingReq] = useState<boolean>(false);
 
     const {trigger: triggerRaEdit} = useRequestQueryMutation("/RA/edit");
+    const {trigger: deleteAppointmentData} = useRequestQueryMutation("/agenda/delete/appointment/data");
 
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
     const {selectedApp} = useAppSelector(consultationSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const printFees = (app: any) => {
-
         let type = "";
         if (!(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
@@ -86,9 +96,30 @@ function HistoryContainer({...props}) {
             consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
             patient: `${type} ${patient.firstName} ${patient.lastName}`,
-            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t): ""
+            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : ""
         });
         setOpenDialog(true);
+    }
+
+    const handleDeleteAppointment = () => {
+        setLoadingReq(true);
+        const params = new FormData();
+        params.append("type", "delete-appointment-data");
+
+        deleteAppointmentData({
+            method: "DELETE",
+            data: params,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app.appointment.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                if (medicalEntityHasUser) {
+                    invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/appointments/history/${router.locale}`])
+                }
+                setDeleteDialog(false);
+            },
+            onSettled: () => setLoadingReq(false)
+        });
     }
 
     const editReqSheet = (apps: {
@@ -138,7 +169,15 @@ function HistoryContainer({...props}) {
             open={app.appointment.uuid === selectedApp}
             key={`${app.appointment.uuid}timeline`}>
             <PatientHistoryCard
-                {...{selectedApp, t, appuuid, dispatch, closePatientDialog, setSelectedTab}}
+                {...{
+                    selectedApp,
+                    t,
+                    appuuid,
+                    dispatch,
+                    closePatientDialog,
+                    setSelectedTab,
+                    handleDeleteApp: () => setDeleteDialog(true)
+                }}
                 key={app.appointment.uuid}
                 keyID={app.appointment.uuid}
                 data={app}>
@@ -335,7 +374,7 @@ function HistoryContainer({...props}) {
                                                         app?.appointment.requestedImaging && Object.keys(app?.appointment.requestedImaging)
                                                             .length > 0 ? <>
                                                             {
-                                                                app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
+                                                                app?.appointment.requestedImaging["medical-imaging"]?.map((rs: any, idx: number) => (
                                                                     <Box key={`req-sheet-imgx-${idx}`}
                                                                          className={"boxHisto"}>
                                                                         <Typography
@@ -475,8 +514,10 @@ function HistoryContainer({...props}) {
                                                                     onClick={() => {
                                                                         printFees(app)
                                                                     }}
-                                                                    startIcon={<IconUrl
-                                                                        path="ic-imprime"/>}>
+                                                                    startIcon={<IconUrl color={theme.palette.text.primary}
+                                                                                        width={16}
+                                                                                        height={16}
+                                                                                        path="menu/ic-print"/>}>
                                                                     {t("consultationIP.print")}
                                                                 </Button>
                                                             </Stack>
@@ -492,6 +533,47 @@ function HistoryContainer({...props}) {
                     </Stack>
                 </Collapse>
             </PatientHistoryCard>
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteDialog(false)}
+                sx={{
+                    direction
+                }}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{commonTranslation(`dialogs.delete-dialog.sub-title-data`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{commonTranslation(`dialogs.delete-dialog.description-data`)}</Typography>
+                        </Box>)
+                }}
+                open={deleteDialog}
+                title={commonTranslation(`dialogs.delete-dialog.title-data`)}
+                actionDialog={
+                    <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant="text-black"
+                            onClick={() => setDeleteDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {commonTranslation(`dialogs.delete-dialog.cancel`)}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingReq}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={() => handleDeleteAppointment()}
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                path="ic-trash"></IconUrl>}>
+                            {commonTranslation(`dialogs.delete-dialog.confirm`)}
+                        </LoadingButton>
+                    </Stack>
+                }
+            />
+
         </PatientHistoryStaticCard>
     );
 }

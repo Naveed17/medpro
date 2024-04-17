@@ -1,9 +1,11 @@
 {
-  "patientSpace": "Espace patient",
-  "lang": "Langue",
+  "patientSpace": "Patient space",
+  "lang": "Language",
   "main-menu": {
     "agenda": "Agenda",
-    "waiting-room": "Salle d'attente",
+    "doctors": "Doctors",
+    "staff": "Staff",
+    "waiting-room": "Waiting room",
     "patient": "Patients",
     "message": "Message",
     "articles": "Articles",
@@ -11,23 +13,23 @@
     "documents": "Document",
     "shop": "Shop",
     "wallet": "My Wallet",
-    "statistics": "Statistiques",
-    "settings": "Paramètres",
-    "logout": "Se déconnecter",
-    "cashbox": "Caisse",
-    "inventory": "Inventaire",
+    "statistics": "Statistics",
+    "settings": "Settings",
+    "logout": "Logout",
+    "cashbox": "Cashbox",
+    "inventory": "Inventory",
     "consultation": "Consultation"
   },
   "doctor-dropdown": {
-    "news": "Fil d'actualité",
-    "messages": "Mes messages",
-    "questions": "Questions médicales",
-    "articles": "Magazine Médical",
-    "wallet": "Mes services",
-    "settings": "Paramètres",
-    "statistics": "Statistiques",
-    "switch-agenda": "Réinitialiser agenda",
-    "switch-account": "Changer de compte",
-    "logout": "Se déconnecter"
+    "news": "News",
+    "messages": "Messages",
+    "questions": "Questions",
+    "articles": "Articles",
+    "wallet": "Wallet",
+    "settings": "Settings",
+    "statistics": "Statistics",
+    "switch-agenda": "Switch agenda",
+    "switch-account": "Switch account",
+    "logout": "Logout"
   }
 }

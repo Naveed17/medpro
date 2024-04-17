@@ -23,12 +23,14 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
-import {AppointmentStatus} from "@features/calendar";
+import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
 import {getDiffDuration} from "@lib/hooks";
 import {Label} from "@features/label";
+import {sideBarSelector} from "@features/menu";
+import {IconButtonStyled} from "@features/board";
 
 const imageSize: number = 40;
 
@@ -89,6 +91,8 @@ function BoardItem({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {mode} = useAppSelector(agendaSelector);
+    const {opened} = useAppSelector(sideBarSelector);
 
     const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
@@ -181,6 +185,10 @@ function BoardItem({...props}) {
                                         variant={"contained"}
                                         size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
                                     <Typography
+                                        {...(mode !== "normal" && {
+                                            className: "blur-text",
+                                            sx: {overflow: "hidden", lineHeight: 1}
+                                        })}
                                         {...(quote.content.status === 3 && {pl: 1})}
                                         variant='body2' fontWeight={600}>
                                         {quote.content.patient.firstName} {quote.content.patient.lastName}
@@ -221,7 +229,7 @@ function BoardItem({...props}) {
                                             </Stack>
                                         }
 
-                                        {![4, 5].includes(quote.content.status) &&
+                                        {![1, 4, 5].includes(quote.content.status) &&
                                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                                                 {quote.content?.estimatedStartTime &&
                                                     <Stack direction={"row"} spacing={.5} alignItems={"center"}>
@@ -246,7 +254,11 @@ function BoardItem({...props}) {
                                     </Stack>
                                     {quote.content.status === 5 &&
                                         <Label
-                                            color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                                            {...(opened && {sx: {maxWidth: 100}})}
+                                            color={quote?.content.appointmentRestAmount == 0 ? "success" : quote?.content.fees - quote?.content.appointmentRestAmount === 0 ? "error" : "warning"}>
+                                            <Typography fontSize={10}
+                                                        className={"ellipsis"}>{commonTranslation(quote?.content.appointmentRestAmount == 0 ? "paid" : quote?.content.fees - quote?.content.appointmentRestAmount === 0 ? "unpaid" : "partially")}</Typography>
+                                        </Label>
                                     }
                                 </Stack>
                             </Stack>
@@ -257,7 +269,7 @@ function BoardItem({...props}) {
                                     <>
                                         {!roles.includes('ROLE_SECRETARY') &&
                                             <Tooltip
-                                                title={commonTranslation("config.cancel", {ns: "waitingRoom"})}>
+                                                title={commonTranslation("cancel", {ns: "waitingRoom"})}>
                                                 <IconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                         action: "CANCEL_APPOINTMENT",
@@ -275,7 +287,7 @@ function BoardItem({...props}) {
                                                 </IconButton>
                                             </Tooltip>}
                                         <Tooltip
-                                            title={commonTranslation("config.confirm", {ns: "waitingRoom"})}>
+                                            title={commonTranslation("confirm", {ns: "waitingRoom"})}>
                                             <IconButton
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                     action: "CONFIRM_APPOINTMENT",
@@ -298,7 +310,7 @@ function BoardItem({...props}) {
                                 {quote.content.status === 1 &&
                                     <>
                                         {!roles.includes('ROLE_SECRETARY') &&
-                                            <Tooltip title={commonTranslation("config.start", {ns: "waitingRoom"})}>
+                                            <Tooltip title={commonTranslation("start", {ns: "waitingRoom"})}>
                                                 <IconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                         action: "START_CONSULTATION",
@@ -314,7 +326,7 @@ function BoardItem({...props}) {
                                                 </IconButton>
                                             </Tooltip>}
                                         <Tooltip
-                                            title={commonTranslation("config.add_patient_to_waiting_room", {ns: "waitingRoom"})}>
+                                            title={commonTranslation("add_patient_to_waiting_room", {ns: "waitingRoom"})}>
                                             <IconButton
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                     action: "ENTER_WAITING_ROOM",
@@ -331,7 +343,7 @@ function BoardItem({...props}) {
                                 }
                                 {(quote.content.status === 3) && <>
                                     <Tooltip
-                                        title={commonTranslation("config.next", {ns: "waitingRoom"})}>
+                                        title={commonTranslation("next", {ns: "waitingRoom"})}>
                                         <span>
                                             <IconButton
                                                 onClick={(event) => handleEvent({
@@ -356,7 +368,7 @@ function BoardItem({...props}) {
                                     </Tooltip>
                                     {!roles.includes('ROLE_SECRETARY') &&
                                         <Tooltip
-                                            title={commonTranslation("config.start", {ns: "waitingRoom"})}>
+                                            title={commonTranslation("start", {ns: "waitingRoom"})}>
                                             <span>
                                                 <IconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
@@ -368,33 +380,54 @@ function BoardItem({...props}) {
                                                     sx={{
                                                         p: .85,
                                                         border: `1px solid ${theme.palette.divider}`,
-                                                        borderRadius: 1,
-                                                        ...(is_next && {
-                                                            background: theme.palette.primary.main,
-                                                            border: "none"
-                                                        }),
+                                                        borderRadius: 1
                                                     }}>
                                                     <IconUrl path={"ic-play-audio-black"}/>
                                                 </IconButton>
                                             </span>
                                         </Tooltip>}
                                 </>}
-                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) && <>
-                                    <Tooltip
-                                        title={commonTranslation("config.consultation_pay", {ns: "waitingRoom"})}>
-                                        <IconButton
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "ON_PAY",
-                                                row: quote.content,
-                                                event
-                                            })}
-                                            size={"small"}
-                                            disableFocusRipple
-                                            sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}>
-                                            <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
-                                        </IconButton>
-                                    </Tooltip>
-                                </>}
+                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) &&
+                                    <Stack direction='row' spacing={.5}>
+                                        {(!opened && quote.content.prescriptions.length > 0) &&
+                                            <Tooltip title={commonTranslation("requestedPrescription")}>
+                                                <span>
+                                                    <IconButtonStyled
+                                                        size={"small"}
+                                                        onClick={(event) => handleEvent({
+                                                            action: "ON_PREVIEW_DOCUMENT",
+                                                            row: {
+                                                                uuid: quote.content.uuid,
+                                                                doc: quote.content.prescriptions[0]
+                                                            },
+                                                            event
+                                                        })}>
+                                                        <IconUrl width={18} height={18} path="docs/ic-prescription"
+                                                                 color={theme.palette.primary.main}/>
+                                                    </IconButtonStyled>
+                                                </span>
+                                            </Tooltip>}
+                                        <Tooltip
+                                            title={commonTranslation("consultation_pay", {ns: "waitingRoom"})}>
+                                            <IconButton
+                                                sx={{
+                                                    width: 30,
+                                                    height: 30,
+                                                    background: theme.palette.primary.main,
+                                                    borderRadius: 1,
+                                                    p: .8
+                                                }}
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                    action: "ON_PAY",
+                                                    row: quote.content,
+                                                    event
+                                                })}
+                                                size={"small"}
+                                                disableFocusRipple>
+                                                <IconUrl color={"white"} path="ic-argent"/>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Stack>}
                                 {!quote.content.patient?.isArchived &&
                                     <Tooltip
                                         title={commonTranslation("plus", {ns: "waitingRoom"})}>

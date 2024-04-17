@@ -2,7 +2,11 @@
   "patientSpace": "Espace patient",
   "lang": "Langue",
   "main-menu": {
+    "dashboard": "Dashboard",
     "agenda": "Agenda",
+    "doctors": "Médecins",
+    "staff": "Personnel",
+    "departments": "Services",
     "waiting-room": "Salle d'attente",
     "patient": "Patients",
     "message": "Message",
@@ -16,7 +20,8 @@
     "logout": "Se déconnecter",
     "cashbox": "Caisse",
     "inventory": "Inventaire",
-    "consultation": "Consultation"
+    "consultation": "Consultation",
+    "features": "Nouvelles fonctionnalités"
   },
   "doctor-dropdown": {
     "news": "Fil d'actualité",
@@ -27,7 +32,7 @@
     "settings": "Paramètres",
     "statistics": "Statistiques",
     "switch-agenda": "Réinitialiser agenda",
-    "switch-account": "Changer de compte",
-    "logout": "Se déconnecter"
+    "switch-account": "Changement de compte",
+    "logout": "Déconnexion"
   }
 }

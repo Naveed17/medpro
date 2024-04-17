@@ -1,4 +1,4 @@
-import {TableRowStyled} from "@features/table"
+import {editUser, TableRowStyled} from "@features/table"
 import TableCell from '@mui/material/TableCell';
 import {Typography, Skeleton, IconButton, Stack, useTheme} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
@@ -60,13 +60,13 @@ function HolidayRow({...props}) {
             </TableCell>
             <TableCell align="right">
                 {row ?
-                    <Stack direction='row' alignItems='center' justifyContent='flex-end'>
+                    <Stack direction='row' alignItems='center' justifyContent='flex-end' spacing={1}>
                         <Can I={"manage"} a={"settings"} field={"settings__holidays__update"}>
                             <IconButton
                                 size="small"
-                                sx={{mr: {md: 1}}}
+                                className="btn-edit"
                                 onClick={() => handleEvent("onEditAbsence", row)}>
-                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                             </IconButton>
                         </Can>
                         <Can I={"manage"} a={"settings"} field={"settings__holidays__delete"}>
@@ -80,7 +80,7 @@ function HolidayRow({...props}) {
                                     }
                                 }}
                                 onClick={() => handleEvent("onDeleteAbsence", row)}>
-                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
                             </IconButton>}
                         </Can>
                     </Stack>

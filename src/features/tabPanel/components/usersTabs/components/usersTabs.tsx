@@ -23,7 +23,7 @@ import {useCashBox,} from "@lib/hooks/rest";
 import {useAppSelector} from '@lib/redux/hooks';
 import {agendaSelector} from '@features/calendar';
 import {Form, FormikProvider, useFormik} from 'formik';
-import RootSyled from './overrides/rootStyle';
+import RootSyled from './overrides/rootUserStyled';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {CustomIconButton, CustomSwitch} from '@features/buttons';
@@ -31,7 +31,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useTranslation} from "next-i18next";
 import {useRequestQueryMutation} from "@lib/axios";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {getPermissionsCount, groupPermissionsByFeature, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {startCase} from "lodash";
 import {LoadingButton} from "@mui/lab";
@@ -112,17 +112,6 @@ function UsersTabs({...props}) {
 
     const {getFieldProps, values, errors, touched, setFieldValue, setValues, handleSubmit} = formik;
 
-    const groupPermissionsByFeature = (permissions: PermissionModel[]) => {
-        const groupedPermissions = permissions.group((permission: PermissionModel) => permission.slug?.split("__")[1]);
-        return Object.entries(groupedPermissions).reduce((groups: any[], group: any) => [...(groups ?? []), {
-            name: group[0],
-            uuid: group[0],
-            checkAll: false,
-            collapseIn: false,
-            children: group[1]
-        }], []);
-    }
-
     const handleSelectedRole = (props: any) => {
         setValues({
             role_name: props?.name,
@@ -149,14 +138,6 @@ function UsersTabs({...props}) {
                 setFieldValue(`roles[${slug}][${currentIndex}].profile`, data?.profile?.uuid);
             });
         }
-    }
-
-    const handleSelectedPermissionCount = (role: FeatureModel[]) => {
-        return role.reduce((features: any[], feature: FeatureModel) =>
-            [...(features ?? []),
-                ...(feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
-                    [...(permissions ?? []),
-                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [])], [])?.length;
     }
 
     const resetFormData = () => {
@@ -318,7 +299,7 @@ function UsersTabs({...props}) {
                         {t("roles")}
                     </Typography>
                     <List disablePadding>
-                        {profiles.map((profile: ProfileModel) => (
+                        {profiles?.map((profile: ProfileModel) => (
                             <ListItem
                                 onClick={() => {
                                     setSelectedProfile(profile);
@@ -420,7 +401,7 @@ function UsersTabs({...props}) {
                                         </Typography>
 
                                         <Badge sx={{ml: 2}}
-                                               badgeContent={handleSelectedPermissionCount(role[1])}
+                                               badgeContent={getPermissionsCount(role[1])}
                                                color="primary"/>
                                     </Stack>
                                     <Collapse in={role[0] === openCollapseFeature} onClick={(e) => e.stopPropagation()}>
@@ -434,7 +415,19 @@ function UsersTabs({...props}) {
                                                             sx={{paddingTop: 2}}
                                                             control={<CustomSwitch
                                                                 checked={featurePermission?.featureEntity?.checked ?? false}/>}
-                                                            onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
+                                                            onChange={(event: any) => {
+                                                                setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked);
+                                                                if (!event.target.checked) {
+                                                                    setFieldValue(`roles[${role[0]}][${index}].permissions[0]`, {
+                                                                        ...values.roles[role[0]][index].permissions[0],
+                                                                        checked: false,
+                                                                        children: featurePermission.permissions[0].children.map((permission: PermissionModel) => ({
+                                                                            ...permission,
+                                                                            checked: false
+                                                                        }))
+                                                                    });
+                                                                }
+                                                            }}
                                                             label={featurePermission?.featureEntity?.name}/>
                                                         {featurePermission.root === "cashbox" &&
                                                             (index === 0 ?

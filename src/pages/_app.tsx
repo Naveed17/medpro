@@ -1,5 +1,5 @@
 import type {AppProps} from "next/app";
-import {appWithTranslation, UserConfig} from "next-i18next";
+import {appWithTranslation} from "next-i18next";
 import {GlobleStyles} from "@themes/globalStyle";
 import React, {ReactElement, ReactNode, useMemo} from "react";
 import {NextPage} from "next";
@@ -7,9 +7,7 @@ import {SnackbarProvider} from "notistack";
 // import global style
 import "@styles/globals.scss";
 import 'react-medium-image-zoom/dist/styles.css';
-import 'react-date-range/dist/styles.css'; // main css file
-import 'react-date-range/dist/theme/default.css'; // theme css file
-import 'react-pdf/dist/Page/AnnotationLayer.css';
+import '../styles/datepicker.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -21,7 +19,7 @@ import "moment/locale/fr";
 import AppThemeProvider from "@themes/index";
 import KeycloakSession from "@lib/keycloak/keycloakSession";
 import AuthGuard from "@lib/keycloak/authGuard";
-import {FcmLayout} from "@features/base";
+import {MainLayout} from "@features/base";
 import {useRouter} from "next/router";
 import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
 import {buildProvidersTree} from "@lib/routes/buildProvidersTree";
@@ -31,13 +29,14 @@ import {CloseSnackbarAction} from "@features/popup";
 import StoreProvider from "@lib/redux/storeProvider";
 
 import dynamic from "next/dynamic";
+
 const AblyClient = dynamic(
     () => import("@lib/ably/ablyClient"),
     {
         ssr: false, // this ensures that server side rendering is never used for this component
     },
 );
-import nextI18NextConfig from '../../next-i18next.config.js';
+import nextI18NextConfig from '../../next-i18next.config.cjs';
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -45,13 +44,6 @@ interface MyAppProps extends AppProps {
 
 type NextPageWithLayout = NextPage & {
     getLayout?: (page: ReactElement) => ReactNode;
-};
-
-const emptyInitialI18NextConfig: UserConfig = {
-    i18n: {
-        defaultLocale: nextI18NextConfig.i18n.defaultLocale,
-        locales: nextI18NextConfig.i18n.locales,
-    },
 };
 
 function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
@@ -83,9 +75,9 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                 wrapper={(children: any) =>
                     <AuthGuard>
                         <AblyClient>
-                            <FcmLayout {...pageProps}>
+                            <MainLayout {...pageProps}>
                                 {children}
-                            </FcmLayout>
+                            </MainLayout>
                         </AblyClient>
                     </AuthGuard>}>
                 {getLayout(<Component key={pageKey} {...pageProps} />)}
@@ -96,4 +88,4 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
 
 App.displayName = "Med Link";
 
-export default appWithTranslation(App, emptyInitialI18NextConfig);
+export default appWithTranslation(App, nextI18NextConfig);

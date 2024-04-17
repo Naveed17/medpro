@@ -1,5 +1,4 @@
 import {GetStaticPaths, GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {useTranslation} from "next-i18next";
@@ -47,6 +46,7 @@ import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import PageStyled from "@features/page/components/overrides/pageStyled";
 import {UploadFile} from "@features/uploadFile";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 function DocsConfig() {
     const router = useRouter();
@@ -55,7 +55,7 @@ function DocsConfig() {
     const isMobile = useMediaQuery("(max-width:669px)");
     const {enqueueSnackbar} = useSnackbar();
 
-    let defaultData:any = {
+    let defaultData: any = {
         background: {show: false, content: {url: ''}},
         header: {show: false, x: 0, y: 0},
         footer: {show: false, x: 0, y: 400, content: 'change me ...'},
@@ -101,8 +101,8 @@ function DocsConfig() {
         title: {show: false, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
         date: {show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
         patient: {show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
-        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
-        age: {show: false, prefix: 'AGE:', content: '', x: 40, y: 316},
+        cin: {show: false, prefix: 'CIN : ', content: '00000000', x: 40, y: 274},
+        age: {show: false, prefix: 'AGE:', content: 'X ans', x: 40, y: 316},
         size: 'portraitA4',
         isNew: true,
         content: {
@@ -168,7 +168,9 @@ function DocsConfig() {
         form.append('isDefault', JSON.stringify(isDefault));
 
         let _docsUuids = "";
-        docs.map((doc:{uuid:string}, index) => {_docsUuids += doc.uuid + (index === docs.length - 1 ? "" : ",")})
+        docs.map((doc: { uuid: string }, index) => {
+            _docsUuids += doc.uuid + (index === docs.length - 1 ? "" : ",")
+        })
         form.append('files', _docsUuids);
 
         if (file)
@@ -224,7 +226,10 @@ function DocsConfig() {
     const handleDrop = React.useCallback((acceptedFiles: File[]) => {
             let reader = new FileReader();
             reader.onload = (ev) => {
-                data.background.content.url = (ev.target?.result as string)
+                if (data.background.content.url)
+                    data.background.content.url = (ev.target?.result as string)
+                else
+                    data.background.content = {url: ev.target?.result as string}
                 data.background.show = true;
                 setData({...data})
             }
@@ -233,7 +238,7 @@ function DocsConfig() {
             setFiles([...files, ...acceptedFiles]);
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [files,data]
+        [files, data]
     );
 
     const resetFormat = (target: string, value: string) => {
@@ -317,7 +322,7 @@ function DocsConfig() {
         } else
             setHeader({left1: "", left2: "", left3: "", right1: "", right2: "", right3: ""})
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        setTimeout(()=>setLoading(false),2000)
+        setTimeout(() => setLoading(false), 2000)
     }, [docHeader])
 
     useEffect(() => {
@@ -521,7 +526,7 @@ function DocsConfig() {
                                 container
                                 spacing={1}
                                 alignItems="center">
-                                {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew", "other","header","footer"].includes(key)).map(key => (
+                                {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew", "other", "header", "footer"].includes(key)).map(key => (
                                     <Grid key={key} item xs={6}>
                                         <div style={{opacity: data[key].show === true ? 0.5 : 1}}>
                                             <Stack
@@ -820,7 +825,7 @@ function DocsConfig() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, [
+        ...(await getServerTranslations(context.locale as string, [
             "common",
             "menu",
             "patient",

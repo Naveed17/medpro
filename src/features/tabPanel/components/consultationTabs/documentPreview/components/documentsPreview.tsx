@@ -47,7 +47,7 @@ function DocumentsPreview({...props}) {
                        in={showDocument}
                        key={doc.uuid}>
                     <Card onClick={() => {
-                        showDoc(doc,true)
+                        showDoc(doc, true)
                     }} style={{borderColor: theme.palette.success.main}}>
                         <Stack direction={"row"} alignItems={"center"} spacing={1}
                                justifyContent={"space-between"} padding={1}>
@@ -56,7 +56,12 @@ function DocumentsPreview({...props}) {
                                 <Typography
                                     style={{fontSize: "0.6875rem", cursor: "pointer"}}>{t(doc.title)}</Typography>
                             </Stack>
-                            <IconUrl width={15} height={15} path={'ic-print'}/>
+                            <IconUrl
+                                style={{marginRight: 6}}
+                                width={15}
+                                height={15}
+                                path={'menu/ic-print'}
+                                color={theme.palette.primary.main}/>
                         </Stack>
                     </Card>
                 </Slide>

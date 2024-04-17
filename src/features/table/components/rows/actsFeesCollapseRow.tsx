@@ -5,9 +5,7 @@ import IconUrl from "@themes/urlIcon";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 function ActsFeesCollapseRow({...props}) {
-
     const theme = useTheme();
-
     const {data, handleEvent} = props;
     const {devise} = data;
 

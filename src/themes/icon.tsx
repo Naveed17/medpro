@@ -16,68 +16,84 @@ import MenuIcon from "@themes/overrides/icons/MenuIcon";
 import PaymentIcon from '@themes/overrides/icons/PaymentIcon'
 import ConsultationPausedIcon from "@themes/overrides/icons/consultationPausedIcon";
 import DocsIcon from "@themes/overrides/icons/docsIcon";
+import StaffIcon from "@themes/overrides/icons/staffIcon";
+import DoctorsIcon from "@themes/overrides/icons/doctorsIcon";
+import DepartmentIcon from "@themes/overrides/icons/departmentIcon";
+import DashboardIcon from "./overrides/icons/dashboardIcon";
 
 interface IconProps {
     path: string;
     className?: string
 }
 
-export default function Icon({path, className, ...props}: IconProps) {
+export default function Icon({ path, className, ...props }: IconProps) {
     let selectedIcon: any = null;
     switch (path) {
         case 'ic-salle-sidenav':
-            selectedIcon = <SalleIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <SalleIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-agenda':
-            selectedIcon = <AgendaIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <AgendaIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
+            break;
+        case 'ic-dashboard':
+            selectedIcon = <DashboardIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-user2':
-            selectedIcon = <PatientIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <PatientIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-messanger-lite':
-            selectedIcon = <MessageIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <MessageIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-edit-file':
-            selectedIcon = <ArticleIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <ArticleIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-questions-lite':
-            selectedIcon = <QuestionIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <QuestionIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'shopping-bag':
-            selectedIcon = <ShopIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <ShopIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-video-contour':
-            selectedIcon = <NotificationIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <NotificationIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-notification-lite':
-            selectedIcon = <NotificationIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <NotificationIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-plusinfo-quetsion':
-            selectedIcon = <PlusInfoIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <PlusInfoIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-cloc':
-            selectedIcon = <ClocIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <ClocIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-toggle':
-            selectedIcon = <ToggleIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <ToggleIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-fullscreen':
-            selectedIcon = <FullViewIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <FullViewIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-deconnexion-1x':
-            selectedIcon = <LogoutIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <LogoutIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-menu':
-            selectedIcon = <MenuIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <MenuIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-payment':
-            selectedIcon = <PaymentIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <PaymentIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-consultation-pause':
-            selectedIcon = <ConsultationPausedIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <ConsultationPausedIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
         case 'ic-docs':
-            selectedIcon = <DocsIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            selectedIcon = <DocsIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
+            break;
+        case 'ic-doctors':
+            selectedIcon = <DoctorsIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
+            break;
+        case 'ic-staff':
+            selectedIcon = <StaffIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
+            break;
+        case 'ic-departments':
+            selectedIcon = <DepartmentIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
     }
     return selectedIcon;
