@@ -304,7 +304,7 @@ function PreviewDialog({...props}) {
                             ]
                             pageX.appendChild(prescLine)
 
-                            setTitle("Ordonnance lunette");
+                            setTitle("Ordonnance lunettes");
                             break;
                         case "lens":
                             const lensLine = document.createElement('p');

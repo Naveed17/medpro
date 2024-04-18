@@ -268,18 +268,19 @@ function DocumentDetailDialog({...props}) {
         }
     })
 
-    const handleActions = async (action: string) => {
+    const handleActions =  async (action: string) => {
         switch (action) {
             case "print":
                 handlePrint();
                 break;
             case "email":
                 setDownloadMode(true);
+                setEditMode(false)
                 setSendEmailDrawer(true);
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    const file = await generatePdfFromHtml(componentRef, "blob");
-                    setDownloadMode(false);
-                    setPreviewDoc(file);
+                        const file = await generatePdfFromHtml(componentRef, "blob");
+                        setDownloadMode(false);
+                        setPreviewDoc(file);
                 } else {
                     const photoUrlBytes = await fetch(file.url, {
                         // Fix CROSS origin issues with no-cache header
@@ -625,7 +626,7 @@ function DocumentDetailDialog({...props}) {
                         date,
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
-                        docs: urls,
+                        docs: urls,t,
                         editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
@@ -690,14 +691,15 @@ function DocumentDetailDialog({...props}) {
 
     return (
         <DocumentDetailDialogStyled>
-            {isPrinting && <Card className={'loading-card'}>
+            {loading || isPrinting && <Card className={'loading-card'}>
                 <CardContent>
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
                         <FacebookCircularProgress size={20}/>
-                        <Typography fontSize={16} fontWeight={600}>{t('printing')}</Typography>
+                        <Typography fontSize={16} fontWeight={600}>{t(loading ? 'generate':'printing')}</Typography>
                     </Stack>
                 </CardContent>
             </Card>}
+
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
