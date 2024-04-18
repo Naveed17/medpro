@@ -1,35 +1,35 @@
-import React, { memo, useState } from "react";
-import { Button, Stack, Typography } from "@mui/material";
-import { Player } from "@lottiefiles/react-lottie-player";
+import React, {memo, useState} from "react";
+import {Button, Stack, Typography} from "@mui/material";
+import {Player} from "@lottiefiles/react-lottie-player";
 import IconUrl from "@themes/urlIcon";
-import { styled } from "@mui/material/styles";
-import { LoadingButton } from "@mui/lab";
-import { duplicatedSelector, setDuplicated } from "@features/duplicateDetected";
-import { Label } from "@features/label";
+import {styled} from "@mui/material/styles";
+import {LoadingButton} from "@mui/lab";
+import {duplicatedSelector, setDuplicated} from "@features/duplicateDetected";
+import {Label} from "@features/label";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { useTranslation } from "next-i18next";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useTranslation} from "next-i18next";
 
-const RootStyle = styled(Stack)(({ theme }) => ({
+const RootStyle = styled(Stack)(({theme}) => ({
     backgroundColor: theme.palette.common.white,
     padding: theme.spacing(2),
 }));
 
-export const LottiePlayer: any = memo(({ src, ...props }: any) => {
+export const LottiePlayer: any = memo(({src, ...props}: any) => {
     return (
         <Player src={src}
-            {...props} />
+                {...props} />
     );
 })
 LottiePlayer.displayName = "lottie-player";
 
-function SuccessCard({ ...props }) {
-    const { onClickTextButton, data } = props;
-    const { title, description, buttons } = data;
+function SuccessCard({...props}) {
+    const {onClickTextButton, data} = props;
+    const {title, description, buttons} = data;
     const dispatch = useAppDispatch();
 
-    const { t } = useTranslation("common");
-    const { duplications } = useAppSelector(duplicatedSelector);
+    const {t} = useTranslation("common");
+    const {duplications} = useAppSelector(duplicatedSelector);
 
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -39,16 +39,16 @@ function SuccessCard({ ...props }) {
                 autoplay
                 keepLastFrame
                 src="/static/lotties/check-mark-success.json"
-                style={{ height: "133px", width: "133px" }}
+                style={{height: "133px", width: "133px"}}
             />
-            <Typography variant="h6" gutterBottom sx={{ my: 3 }}>
+            <Typography variant="h6" gutterBottom sx={{my: 3}}>
                 {title}
             </Typography>
             {(duplications && duplications.length > 0) && <Button
-                sx={{ p: 0, ml: 1, borderRadius: 3 }}
+                sx={{p: 0, ml: 1, borderRadius: 3}}
                 onClick={(event) => {
                     event.stopPropagation();
-                    dispatch(setDuplicated({ openDialog: true }));
+                    dispatch(setDuplicated({openDialog: true}));
                 }}>
                 <Label
                     variant="filled"
@@ -62,28 +62,25 @@ function SuccessCard({ ...props }) {
                         }
                     }}
                     color={"warning"}>
-                    <WarningRoundedIcon sx={{ width: 12, height: 12 }} />
-                    <Typography sx={{ fontSize: 12, fontWeight: "bold" }}> {t("duplication")}</Typography>
+                    <WarningRoundedIcon sx={{width: 12, height: 12}}/>
+                    <Typography sx={{fontSize: 12, fontWeight: "bold"}}> {t("duplication")}</Typography>
                 </Label></Button>}
             <Typography
                 variant="body1"
-                textAlign={{ xs: "center", lg: "left" }}
+                textAlign={{xs: "center", lg: "left"}}
                 color="text.secondary">
                 {description}
             </Typography>
             {buttons &&
-                <Stack direction={{
-                    lg: (buttons.length > 2 && buttons.find((button: any) => button.disabled) ? "row" : "column"),
-                    xs: "column"
-                }} spacing={2} mt={5}>
+                <Stack direction={"column"} spacing={2} mt={5}>
                     {buttons.map((button: any, index: number) => (
                         <LoadingButton
                             key={`button-${index}`}
-                            {...{ loading }}
-                            {...(button.variant && { variant: button.variant })}
-                            {...(button.color && { color: button.color })}
-                            {...(button.disabled && { disabled: button.disabled })}
-                            startIcon={button.icon && <IconUrl path={button.icon} color={"white"} />}
+                            {...{loading}}
+                            {...(button.variant && {variant: button.variant})}
+                            {...(button.color && {color: button.color})}
+                            {...(button.disabled && {disabled: button.disabled})}
+                            startIcon={button.icon && <IconUrl path={button.icon} color={"white"}/>}
                             sx={button.sx}
                             onClick={() => {
                                 setLoading(true);

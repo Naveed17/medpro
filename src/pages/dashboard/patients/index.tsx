@@ -174,7 +174,7 @@ function Patients() {
     const {submitted} = useAppSelector(appointmentSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {openUploadDialog} = useAppSelector(addPatientSelector);
 
     const {data: user} = session as Session;
@@ -337,6 +337,7 @@ function Patients() {
     const {trigger: triggerDeletePatient} = useRequestQueryMutation("/patient/delete");
     const {trigger: triggerCheckDuplication} = useRequestQueryMutation("/patient/duplication/check");
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/patient/documents");
+    const {trigger: triggerAddAppointment} = useRequestQueryMutation("/patient/appointment/add");
 
     const searchParams = (new URL(location.href)).searchParams;
     let page = parseInt(searchParams.get("page") || "1");
@@ -459,6 +460,41 @@ function Patients() {
         setMoveDialog(true);
     };
 
+    const startConsultationFormPatient = (patient: PatientModel) => {
+        const form = new FormData();
+        form.append('dates', JSON.stringify([{
+            "start_date": moment().format('DD-MM-YYYY'),
+            "start_time": `${moment().format('HH')}:${Math.round(parseInt(moment().format('mm')))}`
+        }]));
+        form.append('title', `${patient?.firstName} ${patient?.lastName}`);
+        form.append('patient_uuid', patient?.uuid as string);
+        appointmentTypes && form.append('type', appointmentTypes[0].uuid);
+        form.append('duration', '15');
+
+        triggerAddAppointment({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: (value: any) => {
+                const {data, status} = value?.data;
+                if (status === 'success') {
+                    const slugConsultation = `/dashboard/consultation/${data[0]}`;
+                    router.push({
+                        pathname: slugConsultation,
+                        query: {inProgress: true}
+                    }, slugConsultation, {locale: router.locale}).then(() => {
+                        if (patientDrawer) {
+                            dispatch(onResetPatient());
+                            dispatch(resetSubmitAppointment());
+                            setPatientDrawer(false);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     const handleTableActions = (action: string, event: PatientModel, mouseEvent?: any, setLoadingRequest?: any) => {
         switch (action) {
             case "PATIENT_DETAILS":
@@ -520,6 +556,9 @@ function Patients() {
                 break;
             case "IMPORT-DOCUMENT":
                 dispatch(setOpenUploadDialog(true));
+                break;
+            case "START_CONSULTATION":
+                startConsultationFormPatient(event);
                 break;
         }
     }
