@@ -149,6 +149,7 @@
     "insurance_document_print": "Documents assurance",
     "patient_history": "Historique",
     "analysis": "Analyse",
+    "generate": "Creation du document...",
     "docs": "Docs",
     "start": "Date du début",
     "end": "Date de la fin",

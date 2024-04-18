@@ -278,11 +278,9 @@ function DocumentDetailDialog({...props}) {
                 setEditMode(false)
                 setSendEmailDrawer(true);
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    setTimeout(async () => {
                         const file = await generatePdfFromHtml(componentRef, "blob");
-                        //setDownloadMode(false);
+                        setDownloadMode(false);
                         setPreviewDoc(file);
-                    }, 2000)
                 } else {
                     const photoUrlBytes = await fetch(file.url, {
                         // Fix CROSS origin issues with no-cache header
@@ -693,14 +691,15 @@ function DocumentDetailDialog({...props}) {
 
     return (
         <DocumentDetailDialogStyled>
-            {isPrinting && <Card className={'loading-card'}>
+            {loading || isPrinting && <Card className={'loading-card'}>
                 <CardContent>
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
                         <FacebookCircularProgress size={20}/>
-                        <Typography fontSize={16} fontWeight={600}>{t('printing')}</Typography>
+                        <Typography fontSize={16} fontWeight={600}>{t(loading ? 'generate':'printing')}</Typography>
                     </Stack>
                 </CardContent>
             </Card>}
+
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
