@@ -49,6 +49,9 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
             margin: 0,
             marginLeft: 'auto'
         }
+    },
+    "& .user-name": {
+        cursor: "pointer"
     }
 }))
 export default PausedConsultationPopoverStyled;

@@ -14,7 +14,7 @@ import React from "react";
 import PausedConsultationPopoverStyled from "./overrides/pausedConsultationPopoverStyled";
 import {Label} from "@features/label";
 import {useTranslation} from "next-i18next";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {capitalizeFirst, useMedicalEntitySuffix} from "@lib/hooks";
 import {CipCard2nd, NoDataCard, timerSelector} from "@features/card";
 import Icon from "@themes/icon";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -106,11 +106,8 @@ function PausedConsultationPopover({...props}) {
                                 if (isActive || roles.includes('ROLE_SECRETARY')) {
                                     setPatientId(next.patient_uuid);
                                     setPatientDetailDrawer(true);
-
-
                                 } else {
                                     handleStartConsultation(next);
-
                                 }
                                 onClose()
                             }}
@@ -196,6 +193,7 @@ function PausedConsultationPopover({...props}) {
                         </Typography>
                     </Toolbar>
                     <CipCard2nd
+                        {...{onClose}}
                         openPatientDialog={(uuid: string) => {
                             setPatientId(uuid);
                             setPatientDetailDrawer(true);
@@ -238,8 +236,17 @@ function PausedConsultationPopover({...props}) {
                                    alignItems={"center"}>
                                 <Stack>
                                     <Typography
+                                        className={"user-name"}
+                                        onClick={event => {
+                                            event.stopPropagation();
+                                            setPatientId(paused.extendedProps.patient?.uuid);
+                                            setPatientDetailDrawer(true);
+                                            onClose();
+                                        }}
                                         fontSize={14}
-                                        fontWeight={600}>{paused.extendedProps.patient.firstName} {paused.extendedProps.patient.lastName}</Typography>
+                                        fontWeight={600}>
+                                        {capitalizeFirst(`${paused.extendedProps.patient.firstName} ${paused.extendedProps.patient.lastName}`)}
+                                    </Typography>
                                     <Label
                                         variant="filled"
                                         sx={{
