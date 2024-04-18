@@ -268,18 +268,21 @@ function DocumentDetailDialog({...props}) {
         }
     })
 
-    const handleActions = async (action: string) => {
+    const handleActions =  async (action: string) => {
         switch (action) {
             case "print":
                 handlePrint();
                 break;
             case "email":
                 setDownloadMode(true);
+                setEditMode(false)
                 setSendEmailDrawer(true);
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    const file = await generatePdfFromHtml(componentRef, "blob");
-                    setDownloadMode(false);
-                    setPreviewDoc(file);
+                    setTimeout(async () => {
+                        const file = await generatePdfFromHtml(componentRef, "blob");
+                        //setDownloadMode(false);
+                        setPreviewDoc(file);
+                    }, 2000)
                 } else {
                     const photoUrlBytes = await fetch(file.url, {
                         // Fix CROSS origin issues with no-cache header
@@ -625,7 +628,7 @@ function DocumentDetailDialog({...props}) {
                         date,
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
-                        docs: urls,
+                        docs: urls,t,
                         editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
