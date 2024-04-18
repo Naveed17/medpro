@@ -1023,7 +1023,8 @@ function PlacesDetail() {
                                                                                     theme.palette.error.main,
                                                                             },
                                                                         }}
-                                                                        startIcon={<IconUrl path="icdelete"/>}
+                                                                        startIcon={<IconUrl path="ic-trash" width={20}
+                                                                                            height={20}/>}
                                                                         onClick={() => {
                                                                             tabContent.openingHours[day].splice(i, 1);
                                                                             setHoraires([...horaires]);
