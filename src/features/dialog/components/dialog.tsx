@@ -1,14 +1,14 @@
-import {DialogData} from "@features/dialog";
+import { DialogData } from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import {DialogActions, DialogContent, DialogContentText, IconButton, Stack, useMediaQuery} from "@mui/material";
+import { DialogActions, DialogContent, DialogContentText, IconButton, Stack, useMediaQuery } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import {Theme} from "@mui/material/styles";
-import Dialog, {DialogProps} from "@mui/material/Dialog";
-import React, {useEffect, useState} from "react";
+import { Theme } from "@mui/material/styles";
+import Dialog, { DialogProps } from "@mui/material/Dialog";
+import React, { useEffect, useState } from "react";
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
-function Dialogs({...props}) {
+function Dialogs({ ...props }) {
     const {
         action,
         data,
@@ -43,8 +43,8 @@ function Dialogs({...props}) {
     return (
         <>
             <Dialog
-                {...(fullScreen && {fullScreen: true})}
-                {...{open, maxWidth, fullWidth}}
+                {...(fullScreen && { fullScreen: true })}
+                {...{ open, maxWidth, fullWidth }}
                 {...rest}
                 onClose={dialogClose}
                 scroll="paper"
@@ -62,15 +62,12 @@ function Dialogs({...props}) {
                 })}>
                 {!headerDialog ? <DialogTitle
                     sx={{
-                        backgroundColor: color
-                            ? color
-                            : (theme: Theme) => theme.palette.primary.main,
-                        color: `${contrastText} !important` as any,
+
                         position: "relative",
                     }}
                     id="scroll-dialog-title">
                     <Stack direction={"row"}>
-                        {icon && <HourglassEmptyRoundedIcon/>}
+                        {icon && <HourglassEmptyRoundedIcon />}
                         {title}
                     </Stack>
                     {enableFullScreen && <IconButton
@@ -83,7 +80,7 @@ function Dialogs({...props}) {
                             transform: "translateY(-50%)",
                             color: (theme) => theme.palette.grey[0],
                         }}>
-                        <FullscreenIcon/>
+                        <FullscreenIcon />
                     </IconButton>}
                     {onClose ? (
                         <IconButton
@@ -96,18 +93,18 @@ function Dialogs({...props}) {
                                 transform: "translateY(-50%)",
                                 color: (theme) => theme.palette.grey[0],
                             }}>
-                            <CloseIcon/>
+                            <CloseIcon />
                         </IconButton>
                     ) : null}
                 </DialogTitle> : headerDialog}
                 <DialogContent
-                    {...{sx}}
+                    {...{ sx }}
                     dividers={true}
-                    style={{overflow: action === 'write_certif' ? 'hidden' : ''}}>
-                    <DialogContentText id="scroll-dialog-description" tabIndex={-1}/>
-                    <Component {...(data && {data, fullScreen})}/>
+                    style={{ overflow: action === 'write_certif' ? 'hidden' : '' }}>
+                    <DialogContentText id="scroll-dialog-description" tabIndex={-1} />
+                    <Component {...(data && { data, fullScreen })} />
                 </DialogContent>
-                {actionDialog ? <DialogActions style={{width: '100%'}}>{actionDialog}</DialogActions> : null}
+                {actionDialog ? <DialogActions style={{ width: '100%' }}>{actionDialog}</DialogActions> : null}
             </Dialog>
         </>
     );

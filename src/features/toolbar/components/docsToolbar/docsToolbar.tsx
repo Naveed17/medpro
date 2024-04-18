@@ -1,11 +1,11 @@
-import {Button, Stack, Typography} from "@mui/material";
-import {useTranslation} from "next-i18next";
+import { Button, Stack, Typography } from "@mui/material";
+import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
-import {useCallback} from "react";
+import { useCallback } from "react";
 
-function DocsToolbar({...props}) {
-    const {onUploadOcrDoc, isMobile} = props;
-    const {t} = useTranslation("docs");
+function DocsToolbar({ ...props }) {
+    const { onUploadOcrDoc, isMobile } = props;
+    const { t } = useTranslation("docs");
 
     const handleUploadOcrDoc = useCallback(() => {
         onUploadOcrDoc();
@@ -26,8 +26,8 @@ function DocsToolbar({...props}) {
                         variant="contained"
                         onClick={() => handleUploadOcrDoc()}
                         color="success"
-                        sx={{ml: "auto"}}
-                        startIcon={<IconUrl path={"add-doc"}/>}>
+                        sx={{ ml: "auto" }}
+                        startIcon={<IconUrl path={"add-doc"} />}>
                         {t("sub-header.add-doc")}
                     </Button>
                 )

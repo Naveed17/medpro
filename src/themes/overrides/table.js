@@ -10,50 +10,6 @@ export default function Table(theme) {
           borderSpacing: "0px",
           background: "transparent",
           "& .MuiTableBody-root": {
-            ".MuiTableRow-root": {
-              "& .MuiTableCell-root:not(.MuiTableCell-head)": {
-                borderRadius: 0,
-                borderTop: "1px solid transparent",
-                borderBottom: `1px solid ${theme.palette.divider}`,
-                "&:first-of-type": {
-                  borderLeft: "1px solid transparent",
-                },
-                "&:last-of-type": {
-                  borderRight: "1px solid transparent",
-                },
-              },
-              "& .text-row": {
-                backgroundColor: "transparent",
-                padding: 0,
-              },
-              "&:hover": {
-                "& > .MuiTableCell-root:not(.MuiTableCell-head)": {
-                  backgroundColor: theme.palette.primary.lighter,
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                  "&.text-row": {
-                    backgroundColor: "transparent",
-                    borderColor: "transparent",
-                    "&:first-of-type": {
-                      borderColor: "transparent",
-                    },
-                    "&:last-of-type": {
-                      borderColor: "transparent",
-                    },
-                  },
-                },
-
-              },
-              "&:first-of-type": {
-                "&:hover": {
-                  ".MuiTableCell-root:not(.MuiTableCell-head)": {
-                    background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
-                  }
-                },
-                ".MuiTableCell-root": {
-                  paddingTop: 10,
-                }
-              }
-            },
             "& .action span": {
               float: "right",
             },
@@ -70,11 +26,68 @@ export default function Table(theme) {
     MuiTableRow: {
       styleOverrides: {
         root: {
-          "&.Mui-selected": {
-            backgroundColor: theme.palette.action.selected,
-            "&:hover": {
-              backgroundColor: theme.palette.action.hover,
+          "& .MuiTableCell-root:not(.MuiTableCell-head)": {
+            borderRadius: 0,
+            borderTop: "1px solid transparent",
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            "&:first-of-type": {
+              borderLeft: "1px solid transparent",
             },
+            "&:last-of-type": {
+              borderRight: "1px solid transparent",
+            },
+          },
+          "& .text-row": {
+            backgroundColor: "transparent",
+            padding: 0,
+          },
+          "&.MuiTableRow-root[role='checkbox']": {
+            ".MuiTableCell-root": {
+              "&:first-of-type": {
+                borderLeft: `4px solid transparent`,
+              }
+            }
+          },
+          "&.MuiTableRow-root.Mui-selected": {
+            ".MuiTableCell-root": {
+              backgroundColor: theme.palette.primary.lighter,
+              "&:first-of-type": {
+                borderLeft: `4px solid ${theme.palette.primary.main}`,
+              }
+            }
+          },
+          "&:hover": {
+            "& > .MuiTableCell-root:not(.MuiTableCell-head)": {
+              backgroundColor: theme.palette.primary.lighter,
+              borderBottom: `1px solid ${theme.palette.divider}`,
+              "&.text-row": {
+                backgroundColor: "transparent",
+                borderColor: "transparent",
+                "&:first-of-type": {
+                  borderColor: "transparent",
+                },
+                "&:last-of-type": {
+                  borderColor: "transparent",
+                },
+              },
+            },
+
+          },
+          "&:first-of-type": {
+            "&:hover": {
+              ".MuiTableCell-root:not(.MuiTableCell-head)": {
+                background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
+              }
+            },
+            ".MuiTableCell-root": {
+              paddingTop: 10,
+            },
+            "&.Mui-selected": {
+              ".MuiTableCell-root": {
+                background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
+              }
+            },
+
           },
         },
       },
@@ -106,9 +119,9 @@ export default function Table(theme) {
               overflow: "hidden",
               borderColor: "transparent",
               color: theme.palette.text.secondary,
-              textTransform: "normal",
+              textTransform: "none",
               fontWeight: 500,
-              fontSize: 13,
+              fontSize: 14,
               fontFamily: "Poppins",
               letterSpacing: "1px",
               cursor: "pointer",
@@ -119,11 +132,6 @@ export default function Table(theme) {
               },
               div: {
                 float: "right",
-              },
-              "& .MuiTableSortLabel-root": {
-                "& .MuiTableSortLabel-icon": {
-                  transform: "rotate(90deg)",
-                },
               },
             },
           },
@@ -139,7 +147,7 @@ export default function Table(theme) {
           borderColor: theme.palette.grey["A400"],
           fontFamily: "Poppins",
           color: theme.palette.text.secondary,
-          fontSize: "12px",
+          fontSize: "14px",
           "&:first-of-type": {
             borderTopLeftRadius: theme.shape.borderRadius,
             borderBottomLeftRadius: theme.shape.borderRadius,

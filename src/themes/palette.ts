@@ -7,11 +7,11 @@ function createGradient(color1: string, color2: string) {
 
 // SETUP COLORS
 const PRIMARY = {
-  lighter: alpha("#0696D6", 0.1),
-  light: alpha("#0696D6", 0.12),
+  lighter: "#E6F7FE",
+  light: '#60BCE6',
   main: "#0696D6",
-  dark: "#04618B",
-  darker: "#005249",
+  dark: "#034665",
+  darker: "#022C3F",
 };
 
 const SECONDARY = {
@@ -31,27 +31,27 @@ const INFO = {
 };
 
 const SUCCESS = {
-  lighter: "#E9FCD4",
-  light: "#2DBD1F",
-  main: "#1BC47D",
-  dark: "#28C76F",
-  darker: "#138958",
+  lighter: "#EAFBF3",
+  light: "#76E5B3",
+  main: "#2AD587",
+  dark: "#14613E",
+  darker: "#0C3B26",
 };
 
 const WARNING = {
-  lighter: "#FFF7CD",
-  light: "#FFE16A",
+  lighter: "#FFFBE5",
+  light: "#FFE45C",
   main: "#FFD400",
-  dark: "#B78103",
-  darker: "#c7a300",
+  dark: "#766100",
+  darker: "##483B00",
 };
 
 const ERROR = {
-  lighter: "#FFE7E9",
-  light: "#f1cbdf",
-  main: "#E83B68",
-  dark: "#B72136",
-  darker: "#8B0D01",
+  lighter: "#FFE3E3",
+  light: "#FF5656",
+  main: "#E60000",
+  dark: "#7A0000",
+  darker: "#510000",
 };
 
 const EXPIRE = {
@@ -88,7 +88,7 @@ const BLACK = {
 
 export const GREY = {
   0: "#FFFFFF",
-  100: "#F2F2F2",
+  100: "#DCE3ED",
   200: "#DDDDDD",
   300: "#C9C8C8",
   400: "#7C878E",
@@ -118,6 +118,8 @@ export const GREY = {
   B904: "#B5B5C3",
   B905: "#E6E6E6",
   B906:"#EBEDF3",
+  B907:"#BEC2CC",
+  B908:"#3D4B57",
   500_8: alpha("#919EAB", 0.08),
   500_12: alpha("#919EAB", 0.12),
   500_16: alpha("#919EAB", 0.16),

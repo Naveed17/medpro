@@ -9,23 +9,26 @@ import {
     ListItemIcon,
     ListItemText,
     Toolbar,
-    useMediaQuery
+    Tooltip,
+    Zoom,
+    useMediaQuery,
+    useTheme
 } from "@mui/material";
 // utils
 import Icon from "@themes/icon";
 
 // config
-import {siteHeader} from "./headerConfig";
-import {useTranslation} from "next-i18next";
+import { siteHeader } from "./headerConfig";
+import { useTranslation } from "next-i18next";
 
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import Link from "next/link";
 //style
 import "@styles/sidebarMenu.module.scss";
 import Image from "next/image";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import React, {useEffect, useRef, useState} from "react";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import React, { useEffect, useRef, useState } from "react";
 import {
     ListItemTextStyled,
     logout,
@@ -34,40 +37,40 @@ import {
     sideBarSelector,
     toggleMobileBar,
 } from "@features/menu";
-import {TopNavBar} from "@features/topNavBar";
-import {LeftActionBar} from "@features/leftActionBar";
-import {dashLayoutSelector} from "@features/base";
-import {useSession} from "next-auth/react";
+import { TopNavBar } from "@features/topNavBar";
+import { LeftActionBar } from "@features/leftActionBar";
+import { dashLayoutSelector } from "@features/base";
+import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import {ConditionalWrapper, unsubscribeTopic} from "@lib/hooks";
+import { ConditionalWrapper, unsubscribeTopic } from "@lib/hooks";
 import axios from "axios";
-import {Session} from "next-auth";
-import {MobileContainer} from "@lib/constants";
-import {motion} from "framer-motion";
+import { Session } from "next-auth";
+import { MobileContainer } from "@lib/constants";
+import { motion } from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import Can from "@features/casl/can";
-import {minMaxWindowSelector} from "@features/buttons";
+import { minMaxWindowSelector } from "@features/buttons";
 import NewFeatureIcon from "@themes/overrides/icons/newFeatureIcon";
 
-const {sidebarItems, adminSidebarItems} = siteHeader;
+const { sidebarItems, adminSidebarItems } = siteHeader;
 
 const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
-function SideBarMenu({children}: LayoutProps) {
-    const {data: session} = useSession();
+function SideBarMenu({ children }: LayoutProps) {
+    const { data: session } = useSession();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
     const dispatch = useAppDispatch();
-
-    const {data: user} = session as Session;
+    const [showTooltip, setShowTooltip] = useState<string | null>(null)
+    const { data: user } = session as Session;
     const general_information = (user as UserDataResponse).general_information;
     const hasAdminAccess = router.pathname.includes("/admin");
-
-    const {t, ready} = useTranslation("menu");
-    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
-    const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
+    const theme = useTheme()
+    const { t, ready } = useTranslation("menu");
+    const { opened, mobileOpened } = useAppSelector(sideBarSelector);
+    const { isWindowMax } = useAppSelector(minMaxWindowSelector);
+    const { waiting_room, newCashBox, nb_appointment } = useAppSelector(dashLayoutSelector);
 
     let container: any = useRef<HTMLDivElement>(null);
     const [menuItems, setMenuItems] = useState(router.pathname.includes("/admin") ? adminSidebarItems : sidebarItems);
@@ -79,15 +82,15 @@ function SideBarMenu({children}: LayoutProps) {
     };
 
     const handleLogout = async () => {
-        await unsubscribeTopic({general_information});
+        await unsubscribeTopic({ general_information });
         // Log out from keycloak session
         const {
-            data: {path},
+            data: { path },
         } = await axios({
             url: "/api/auth/logout",
             method: "GET",
         });
-        dispatch(logout({redirect: true, path}));
+        dispatch(logout({ redirect: true, path }));
     };
 
     const handleSettingRoute = () => {
@@ -98,7 +101,7 @@ function SideBarMenu({children}: LayoutProps) {
     const drawer = (
         <div>
             <Link href="https://www.med.tn/">
-                <Box className={"med-logo"} sx={{marginTop: 1}}>
+                <Box className={"med-logo"} sx={{ marginTop: 1 }}>
                     <Image
                         height={38}
                         width={38}
@@ -112,7 +115,7 @@ function SideBarMenu({children}: LayoutProps) {
             <List
                 component={"ul"}
                 onMouseLeave={() => setCurrentIndex(null)}
-                sx={{overflow: 'hidden', px: 1.5}}>
+                sx={{ overflow: 'hidden', px: 1.5 }}>
                 {menuItems?.map((item, i) => (
                     <ConditionalWrapper
                         key={item.name}
@@ -122,63 +125,82 @@ function SideBarMenu({children}: LayoutProps) {
                                 {children}
                             </Can>}>
                         <Hidden smUp={item.name === "wallet"}>
-                            <a onClick={() => handleRouting(item.href)}>
-                                <ListItem
-                                    sx={{
-                                        margin: "0.5rem 0",
-                                        cursor: 'pointer'
-                                    }}
-                                    className={router.pathname.includes(item.href) ? "active" : ""}>
-                                    <Badge
-                                        anchorOrigin={{
-                                            vertical: "bottom",
-                                            horizontal: "right",
+                            <Tooltip TransitionComponent={Zoom}
+                                // open={item.name === showTooltip}
+                                // onMouseEnter={() => { setShowTooltip(item.name) }}
+                                // onMouseLeave={() => { setShowTooltip(null) }}
+                                // disableHoverListener={true}
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            bgcolor: 'primary.dark',
+                                            '& .MuiTooltip-arrow': {
+                                                color: 'primary.dark',
+                                            },
+                                        },
+                                    },
+                                }}
+
+                                title={t("main-menu." + item.name)} arrow placement="right">
+                                <a onClick={() => handleRouting(item.href)}>
+                                    <ListItem
+                                        sx={{
+                                            margin: "2rem 0",
+                                            cursor: 'pointer',
                                         }}
-                                        invisible={item.badge === undefined || isMobile}
-                                        color="warning"
-                                        badgeContent={item.badge}>
-                                        <ListItemIcon
-                                            onMouseEnter={(e) => {
-                                                if (router.pathname === item.href) {
-                                                    e.stopPropagation();
-                                                    setCurrentIndex(null);
-                                                    return;
-                                                }
-
-                                                setCurrentIndex(i);
-                                            }}>
-                                            <Icon path={item.icon}/>
-                                        </ListItemIcon>
-                                    </Badge>
-                                    <ListItemTextStyled primary={t("main-menu." + item.name)}/>
-                                    {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                        className={router.pathname.includes(item.href) ? "active" : ""}>
                                         <Badge
-                                            badgeContent={item.badge}
-                                            color="warning"
-                                            sx={{
-                                                ".MuiBadge-badge": {
-                                                    right: 8,
-                                                },
+                                            anchorOrigin={{
+                                                vertical: "bottom",
+                                                horizontal: "right",
                                             }}
-                                        />
-                                    )}
+                                            invisible={item.badge === undefined || isMobile}
+                                            color="warning"
+                                            badgeContent={item.badge}>
+                                            <ListItemIcon
+                                                onMouseEnter={(e) => {
+                                                    if (router.pathname === item.href) {
+                                                        e.stopPropagation();
+                                                        setCurrentIndex(null);
+                                                        return;
+                                                    }
 
-                                    {i === currentIndex && (
-                                        <motion.div
-                                            className="icon-background"
-                                            layoutId="social"
-                                            key="social"
-                                            initial={false}
-                                        />
-                                    )}
-                                </ListItem>
-                            </a>
+                                                    setCurrentIndex(i);
+                                                }}>
+                                                <Icon path={item.icon} />
+                                            </ListItemIcon>
+                                        </Badge>
+                                        {/* <ListItemTextStyled primary={t("main-menu." + item.name)}/> */}
+                                        {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                            <Badge
+                                                badgeContent={item.badge}
+                                                color="warning"
+                                                sx={{
+                                                    ".MuiBadge-badge": {
+                                                        right: 8,
+                                                    },
+                                                }}
+                                            />
+                                        )}
+
+                                        {i === currentIndex && (
+                                            <motion.div
+                                                className="icon-background"
+                                                layoutId="social"
+                                                key="social"
+                                                initial={false}
+                                            />
+                                        )}
+                                    </ListItem>
+                                </a>
+                            </Tooltip>
                         </Hidden>
                     </ConditionalWrapper>
                 ))}
             </List>
             <List className="list-bottom">
                 {!hasAdminAccess && <Can I={"read"} a={"statistics"}>
+
                     <ListItem
                         onClick={() => handleRouting(`/${hasAdminAccess ? "admin" : "dashboard"}/statistics`)}
                         disableRipple
@@ -188,15 +210,43 @@ function SideBarMenu({children}: LayoutProps) {
                                 ? "active mt-2"
                                 : "mt-2"
                         }>
-                        <ListItemIcon>
-                            <StatsIcon/>
-                        </ListItemIcon>
+                        <Tooltip TransitionComponent={Zoom}
+                            disableHoverListener={false}
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        bgcolor: 'primary.dark',
+                                        '& .MuiTooltip-arrow': {
+                                            color: 'primary.dark',
+                                        },
+                                    },
+                                },
+                            }}
+                            slotProps={{
+                                popper: {
+                                    modifiers: [
+                                        {
+                                            name: 'offset',
+                                            options: {
+                                                offset: [0, 10],
+                                            },
+                                        },
+                                    ],
+                                },
+                            }}
+                            title={t("main-menu.statistics")} arrow placement="right">
+                            <ListItemIcon>
+                                <StatsIcon />
+                            </ListItemIcon>
+                        </Tooltip>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu.statistics")}/>
+                            <ListItemText primary={t("main-menu.statistics")} />
                         </Hidden>
                     </ListItem>
+
                 </Can>}
                 <Can I={"read"} a={"settings"}>
+
                     <ListItem
                         onClick={handleSettingRoute}
                         disableRipple
@@ -206,15 +256,42 @@ function SideBarMenu({children}: LayoutProps) {
                                 ? "active mt-2"
                                 : "mt-2"
                         }>
-                        <ListItemIcon>
-                            <SettingsIcon/>
-                        </ListItemIcon>
+                        <Tooltip TransitionComponent={Zoom}
+                            disableHoverListener={false}
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        bgcolor: 'primary.dark',
+                                        '& .MuiTooltip-arrow': {
+                                            color: 'primary.dark',
+                                        },
+                                    },
+                                },
+                            }}
+                            slotProps={{
+                                popper: {
+                                    modifiers: [
+                                        {
+                                            name: 'offset',
+                                            options: {
+                                                offset: [0, 10],
+                                            },
+                                        },
+                                    ],
+                                },
+                            }}
+                            title={t("main-menu.settings")} arrow placement="right">
+                            <ListItemIcon>
+                                <SettingsIcon />
+                            </ListItemIcon>
+                        </Tooltip>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu.settings")}/>
+                            <ListItemText primary={t("main-menu.settings")} />
                         </Hidden>
                     </ListItem>
+
                 </Can>
-               {/* <Badge
+                {/* <Badge
                     className={"custom-Badge"}
                     color={"error"} badgeContent={"N"}>
                     <ListItem
@@ -232,9 +309,9 @@ function SideBarMenu({children}: LayoutProps) {
                 <Hidden smUp>
                     <ListItem onClick={() => handleLogout()}>
                         <ListItemIcon>
-                            <Icon path="ic-deconnexion-1x"/>
+                            <Icon path="ic-deconnexion-1x" />
                         </ListItemIcon>
-                        <ListItemText primary={t("main-menu." + "logout")}/>
+                        <ListItemText primary={t("main-menu." + "logout")} />
                     </ListItem>
                 </Hidden>
             </List>
@@ -261,16 +338,16 @@ function SideBarMenu({children}: LayoutProps) {
         let menus = [...menuItems];
         const agendaPageIndex = menuItems.findIndex(item => item.icon === "ic-agenda");
         if (agendaPageIndex !== -1) {
-            menus[agendaPageIndex] = {...menus[agendaPageIndex], badge: nb_appointment}
+            menus[agendaPageIndex] = { ...menus[agendaPageIndex], badge: nb_appointment }
         }
         const waitingRoomPageIndex = menuItems.findIndex(item => item.icon === "ic-salle-sidenav");
         if (waitingRoomPageIndex !== -1) {
-            menus[waitingRoomPageIndex] = {...menus[waitingRoomPageIndex], badge: waiting_room}
+            menus[waitingRoomPageIndex] = { ...menus[waitingRoomPageIndex], badge: waiting_room }
         }
         (agendaPageIndex !== -1 || waitingRoomPageIndex !== -1) && setMenuItems(menus);
     }, [nb_appointment, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return <LoadingScreen button text={"loading-error"}/>;
+    if (!ready) return <LoadingScreen button text={"loading-error"} />;
 
     return (
         <MainMenuStyled>
@@ -278,16 +355,16 @@ function SideBarMenu({children}: LayoutProps) {
                 <>
                     <motion.div
                         key='navbar-top'
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}>
-                        <TopNavBar dashboard/>
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}>
+                        <TopNavBar dashboard />
                     </motion.div>
 
                     <Box
                         component={motion.nav}
                         key='sidenav-main'
-                        initial={{opacity: 0}}
-                        animate={{opacity: 1}}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
                         aria-label="mailbox folders"
                         className="sidenav-main">
                         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
@@ -312,14 +389,14 @@ function SideBarMenu({children}: LayoutProps) {
                         className={`action-side-nav ${opened ? "active" : ""}`}>
                         <div className="action-bar-open">
                             {/* side page bar */}
-                            <LeftActionBar/>
+                            <LeftActionBar />
                         </div>
                     </Box>
                 </>
             }
 
             <Box className="body-main" component={"main"}>
-                <Toolbar sx={{minHeight: isMobile ? 66 : 56, display: isWindowMax ? 'none' : 'block'}}/>
+                <Toolbar sx={{ minHeight: isMobile ? 66 : 56, display: isWindowMax ? 'none' : 'block' }} />
                 <Box>{children}</Box>
             </Box>
         </MainMenuStyled>

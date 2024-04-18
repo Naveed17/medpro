@@ -41,14 +41,14 @@ const typography: any = {
   h3: {
     fontFamily: "Poppins-Bold",
     lineHeight: 1.5,
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: pxToRem(48),
     ...responsiveFontSizes({ sm: 26, md: 30, lg: 48 }),
   },
   h4: {
     fontFamily: "Poppins-Bold",
     lineHeight: 1.5,
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: pxToRem(40),
     ...responsiveFontSizes({ sm: 20, md: 24, lg: 40 }),
   },

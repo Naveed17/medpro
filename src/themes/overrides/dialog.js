@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------
 
-import {alpha} from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 
 export default function Dialog(theme) {
     return {
@@ -12,13 +12,13 @@ export default function Dialog(theme) {
                     },
                     "& .MuiDialogTitle-root": {
                         fontSize: "1.125rem",
-                        color: "white",
                     },
-                    "& .MuiPaper-root": {
-                        [theme.breakpoints.down("sm")]: {
-                            // margin: "6px",
-                        },
-                        //maxWidth: "100%",
+                    ".MuiDialogContent-root": {
+                        borderTop: "none",
+                    },
+                    ".MuiDialog-paper": {
+                        boxShadow: theme.customShadows.dialog,
+                        border: 'none',
                         "& .modal-actions": {
                             position: "relative",
                             [theme.breakpoints.down("sm")]: {
@@ -37,6 +37,9 @@ export default function Dialog(theme) {
                                 },
                             },
                         },
+                        ".MuiCard-root": {
+                            boxShadow: 'none'
+                        }
                     },
                 },
             },

@@ -5,12 +5,13 @@ import TableHead from "@mui/material/TableHead";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import {Checkbox} from "@mui/material";
-import {visuallyHidden} from "@mui/utils";
+import { Checkbox } from "@mui/material";
+import { visuallyHidden } from "@mui/utils";
 import CodeIcon from "@mui/icons-material/Code";
-import {capitalize} from 'lodash'
+import { capitalize } from 'lodash'
+import SortIcon from "@themes/overrides/icons/sortIcon"
 
-function OHead({...props}) {
+function OHead({ ...props }) {
     const {
         order,
         orderBy,
@@ -65,7 +66,7 @@ function OHead({...props}) {
                                     {...(headCell.sortable && {
                                         onClick: createSortHandler(headCell.id),
                                     })}
-                                    IconComponent={headCell.sortable ? CodeIcon : null}
+                                    IconComponent={headCell.sortable ? SortIcon : null}
                                     sx={{
                                         fontWeight: 500,
                                         justifyContent:

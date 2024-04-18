@@ -15,6 +15,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
         }),
     },
     "& .sidenav-main": {
+        
         width: 84,
         flexShrink: 0,
         "& .MuiDrawer-root": {
@@ -22,6 +23,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             "& .MuiDrawer-paper": {
                 boxSizing: "border-box",
                 width: 84,
+                backgroundColor: theme.palette.grey[100],
             },
         },
         "& .nav-logo": {
@@ -60,8 +62,9 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                     padding: 7,
                     "& svg": {
                         width: 22,
-                        "path": {
+                        path: {
                             transition: 'all .5s ease-in-out .2s',
+                            fill: theme.palette.grey["B908"],
 
                         }
                     },

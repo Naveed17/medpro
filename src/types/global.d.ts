@@ -109,6 +109,8 @@ declare module "@mui/material" {
         B904: string;
         B905: string;
         B906: string;
+        B907: string;
+        B908: string;
     }
 
     interface PaletteColor {

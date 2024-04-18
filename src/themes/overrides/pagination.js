@@ -9,7 +9,7 @@ export default function Pagination(theme) {
         root: {
           borderRadius: 6,
           backgroundColor: theme.palette.common.white,
-          boxShadow: theme.shadows[7],
+          boxShadow: theme.shadows[2],
           "&.Mui-selected": {
             fontWeight: theme.typography.fontWeightBold,
           },

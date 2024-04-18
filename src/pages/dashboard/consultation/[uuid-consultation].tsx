@@ -1786,7 +1786,7 @@ function ConsultationInProgress() {
                 fullWidth={true}
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description">
-                <DialogTitle sx={{ backgroundColor: theme.palette.primary.main }} id="scroll-dialog-title">
+                <DialogTitle id="scroll-dialog-title">
                     {t('consultationIP.patient_observation_history')}
                 </DialogTitle>
                 <DialogContent dividers={true}>
@@ -1878,7 +1878,6 @@ function ConsultationInProgress() {
                     {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
                         headerDialog: (<DialogTitle
                             sx={{
-                                backgroundColor: (theme: Theme) => theme.palette.primary.main,
                                 position: "relative",
                             }}
                             id="scroll-dialog-title">

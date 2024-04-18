@@ -2,9 +2,10 @@ import { alpha } from "@mui/material/styles";
 import palette from "./palette";
 
 export const shadows: any = [
-  "0px 1px 5px rgba(0, 85, 121, 0.44)",
-  "0px 1px 5px rgba(0, 112, 50, 0.7)",
-  "0px 1px 5px rgba(244, 167, 170, 0.78)",
+  "0px 4px 8px 0px rgba(0, 0, 0, 0.1)",
+  "0px 8px 16px 0px rgba(0, 0, 0, 0.2)",
+  "0px 2px 4px 0px rgba(0, 0, 0, 0.1)",
+  "0px 0px 3px 1px rgba(219, 219, 219, 1)",
   "0px 0px 3px 1px rgba(219, 219, 219, 1)",
   "0px 0px 6px rgba(6, 150, 214, 0.2)",
   "0px 5px 12px rgba(0, 0, 0, 0.06)",
@@ -67,7 +68,9 @@ const createCustomShadow = (): CustomShadowType => {
     customShadow1: "0px -1px 1px rgba(0, 150, 214, 0.45)",
     speedDial: "0px 2px 20px rgb(156 155 155 / 46%)",
     documentCard: "0px 0px 20px rgba(76, 87, 125, 0.02)",
-    dialogActionShadow:'0px -1px 1px 0px rgba(0, 150, 214, 0.45)'
+    dialogActionShadow:'0px -1px 1px 0px rgba(0, 150, 214, 0.45)',
+    avatarShadow:"0px 0px 1px 0px rgba(33, 37, 41, 0.08),0px 0px 1px 0px rgba(33, 37, 41, 0.06)",
+    dialog:"2px 2px 16px 0px rgba(16, 24, 40, 0.1)"
   };
 };
 
