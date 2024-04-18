@@ -96,6 +96,7 @@ function Page({...props}) {
                 let targetCanvas = document.getElementById(`canvas${id}`) as HTMLCanvasElement;
                 let targetCtx = targetCanvas?.getContext('2d');
 
+                console.log("margin",getMarginTop())
                 if (targetCanvas)
                     html2canvas(htmlContent).then(function (canvas) {
                         // Define the region you want to capture
@@ -105,8 +106,7 @@ function Page({...props}) {
                         targetCanvas.height = height
                         //const htmlHeight = htmlContent?.scrollHeight || 0
                         targetCtx?.setTransform(1, 0, 0, 1, 0, 0);
-                        targetCtx && targetCtx.drawImage(canvas, 0, 0, width, height);
-                        //targetCtx && targetCtx.drawImage(canvas, 0, 0, width, htmlHeight, 0, -1*getMarginTop(), width, height);
+                        targetCtx && targetCtx.drawImage(canvas, 0, -20, width, height);
 
                         if (htmlContent)
                             htmlContent.style.visibility = "hidden"
@@ -748,7 +748,7 @@ function Page({...props}) {
                         {downloadMode && <canvas id={`canvas${id}`}/>}
                         <div
                             id={`content${id}`}
-                            style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
+                            style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%",visibility:downloadMode ? "hidden":"visible"}}
                             dangerouslySetInnerHTML={{__html: data.content.content}}/>
                         {editMode && <div className={"menuTop"} style={{top: 0}}>
                             {state && <div className={"btnMenu"}>

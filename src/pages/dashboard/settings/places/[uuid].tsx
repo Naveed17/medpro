@@ -25,7 +25,6 @@ import {
     TextField,
     Typography, useTheme,
 } from "@mui/material";
-
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import {GetStaticPaths, GetStaticProps} from "next";
@@ -51,10 +50,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {Dialog, resetOpeningData} from "@features/dialog";
 import {dialogOpeningHoursSelector} from "@features/dialog/components/openingHoursDialog";
 import {getServerTranslations} from "@lib/i18n/getServerTranslations";
-import {LocalizationProvider, TimePicker} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {LocaleFnsProvider} from "@lib/localization";
-import CustomTimePicker from "../../../../features/customTimePicker/customTimePicker";
+import {CustomTimePicker} from "@features/customTimePicker";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -1023,7 +1019,8 @@ function PlacesDetail() {
                                                                                     theme.palette.error.main,
                                                                             },
                                                                         }}
-                                                                        startIcon={<IconUrl path="icdelete"/>}
+                                                                        startIcon={<IconUrl path="ic-trash" width={20}
+                                                                                            height={20}/>}
                                                                         onClick={() => {
                                                                             tabContent.openingHours[day].splice(i, 1);
                                                                             setHoraires([...horaires]);

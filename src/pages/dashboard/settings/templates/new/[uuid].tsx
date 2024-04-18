@@ -746,7 +746,7 @@ function DocsConfig() {
                                     setOnResize,
                                     urlMedicalProfessionalSuffix,
                                     docs,
-                                    setDocs
+                                    setDocs,t
                                 }}/>}
                         </Box>
                     </Box>

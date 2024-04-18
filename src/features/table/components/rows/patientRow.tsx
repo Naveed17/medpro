@@ -22,7 +22,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
-import {setSelectedEvent} from "@features/calendar";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
@@ -35,9 +35,10 @@ function PatientRow({...props}) {
     const {insurances} = data;
     const dispatch = useAppDispatch();
     const theme = useTheme() as Theme;
-
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
+
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
+    const {mode} = useAppSelector(agendaSelector);
 
     const handlePatientRowClick = (event: any) => {
         event.stopPropagation();
@@ -169,7 +170,11 @@ function PatientRow({...props}) {
                                     }}>
 
                                         <Typography
-                                            color={"primary.main"}
+                                            {...(mode !== "normal" && {
+                                                className: "blur-text",
+                                                sx: {overflow: "hidden", lineHeight: 1}
+                                            })}
+                                            {...(mode === "normal" && {color: "primary.main"})}
                                             fontWeight={600}> {row.firstName} {row.lastName}</Typography>
                                         {row.fiche_id &&
                                             <Stack direction='row' alignItems='center'>
@@ -458,7 +463,7 @@ function PatientRow({...props}) {
                                     <IconButton
                                         disabled={loading}
                                         sx={{
-                                            mr: { md: 1 },
+                                            mr: {md: 1},
                                             '& .react-svg svg': {
                                                 width: 20,
                                                 height: 20

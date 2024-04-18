@@ -1,6 +1,6 @@
 import React from "react";
 import StyledMenu from "./overrides/styledMenu";
-import {Box, MenuItem, useTheme} from "@mui/material";
+import {Box, MenuItem} from "@mui/material";
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {CustomIconButton} from "@features/buttons";
@@ -40,10 +40,10 @@ function CalendarAddButton({...props}) {
             <CustomIconButton
                 onClick={handleClick}
                 variant="filled"
-                sx={{ p: .8}}
+                sx={{p: .6}}
                 color={"primary"}
                 size={"small"}>
-                <AgendaAddViewIcon />
+                <AgendaAddViewIcon/>
             </CustomIconButton>
             <StyledMenu
                 {...{open, anchorEl}}

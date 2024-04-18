@@ -41,14 +41,11 @@ const PageStyled = styled(Box)(({theme}) => ({
             //padding: 10,
             overflow: "hidden",
             margin: "0 10mm",
-            p:{
-                margin:'14px 0'
-            }
         },
         '& .contentPis': {
-            p:{
+            /*p:{
                 margin:'14px 0'
-            },
+            },*/
             margin: "0 10mm",
             marginTop:14
         },
