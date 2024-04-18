@@ -112,14 +112,21 @@ function Statistics() {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const {rdv_type, act_by_rdv, motif_by_consult} = state
     const appointmentStats = ((statsAppointmentHttp as HttpResponse)?.data ?? []) as any;
-    const appointmentPerPeriod = (appointmentStats?.period ? Object.values(appointmentStats.period) : []) as any[];
+    const start = moment().add(1, "months");
+    const months = Array.from({length: 12}, (_, i) => moment(start.subtract(1, 'months')).set({
+        date: 1,
+        hour: 0,
+        minute: 0,
+        millisecond: 0
+    })).reverse();
+    const appointmentPerPeriod = (appointmentStats?.period ? months.map(month => appointmentStats.period[`${month.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
     const appointmentPerPeriodKeys = (appointmentStats?.period ? Object.keys(appointmentStats.period) : []) as any[];
     const motifPerPeriod = (appointmentStats?.motif ?? []) as any[];
     const actPerPeriod = (appointmentStats?.act ?? []) as any[];
     const typePerPeriod = (appointmentStats?.type ?? []) as any[];
     const statsPerPeriod = (appointmentStats?.stats ?? null) as any;
     const patientStats = ((statsPatientHttp as HttpResponse)?.data ?? []) as any;
-    const patientPerPeriod = (patientStats?.period ? Object.values(patientStats.period) : []) as any[];
+    const patientPerPeriod = (patientStats?.period ? months.map(month => patientStats.period[`${month.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
     const patientPerAge = (patientStats?.age ? Object.values(patientStats.age) : []) as any[];
     const patientPerGender = (patientStats?.gender ? Object.values(patientStats.gender) : []) as any[];
     const patientPerLocation = (patientStats?.location ? Object.values(patientStats.location).map((location: any) => ({
@@ -708,9 +715,9 @@ function Statistics() {
                                                 </ChartStyled>
                                                 <Stack direction='row' alignItems='center' justifyContent='center'
                                                        mt={2}>
-                                                    {patientPerGender.map((gender, index) => gender.key !== "u" &&
-                                                        <>
-                                                            <Stack key={gender.key}>
+                                                    {patientPerGender.filter(gender => gender.key !== "u").map((gender, index) =>
+                                                        <Stack key={gender.key} direction={"row"} alignItems={"center"}>
+                                                            <Stack alignItems={"center"}>
                                                                 <Typography fontWeight={700}
                                                                             color={index === 0 ? 'primary' : 'warning.main'}
                                                                             fontSize={28}
@@ -728,7 +735,7 @@ function Statistics() {
                                                             </Stack>
                                                             {index === 0 && <Divider orientation={"vertical"}
                                                                                      sx={{height: 50, mx: 2}}/>}
-                                                        </>
+                                                        </Stack>
                                                     )}
                                                 </Stack>
                                             </CardContent>
@@ -1254,9 +1261,9 @@ function Statistics() {
                                                     fontWeight={700}>{t("patient_by_gender")}</Typography>
                                         <Stack direction='row' alignItems='center'>
                                             <Stack width={"33%"}>
-                                                {patientPerGender.map((gender, index) => gender.key !== "u" &&
-                                                    <>
-                                                        <Stack key={gender.key}>
+                                                {patientPerGender.filter(gender => gender.key !== "u").map((gender, index) =>
+                                                    <Stack key={gender.key} alignItems={"center"}>
+                                                        <Stack alignItems={"center"}>
                                                             <Typography fontWeight={700}
                                                                         color={index === 0 ? 'primary' : 'warning.main'}
                                                                         fontSize={28}
@@ -1275,7 +1282,7 @@ function Statistics() {
                                                         {index === 0 && <Divider
                                                             orientation={"horizontal"}
                                                             sx={{width: 100, my: 2}}/>}
-                                                    </>
+                                                    </Stack>
                                                 )}
                                             </Stack>
                                             <ChartStyled>

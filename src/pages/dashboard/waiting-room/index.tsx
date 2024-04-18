@@ -617,7 +617,7 @@ function WaitingRoom() {
             url: '#',
             icon: <CalendarIcon/>,
             action: <CustomIconButton
-                sx={{mr: 1}}
+                sx={{mr: 1, p: .6}}
                 onClick={() => {
                     setWithoutDateTime(false);
                     setQuickAddAppointment(true);
@@ -636,6 +636,7 @@ function WaitingRoom() {
             icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
             ...(ability.can('manage', 'waiting-room', 'waiting-room__waiting-room__appointment-create') && {
                 action: <CustomIconButton
+                    sx={{p: .6}}
                     onClick={() => {
                         setWithoutDateTime(true);
                         setQuickAddAppointment(true);

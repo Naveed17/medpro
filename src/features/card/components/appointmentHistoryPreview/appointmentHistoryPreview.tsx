@@ -1,23 +1,19 @@
 import React from "react";
-import PatientHistoryCardStyled
-    from "@features/card/components/patientHistoryCard/components/overrides/PatientHistoryCardStyle";
-import {CardContent, Chip, IconButton, Stack, Typography, useMediaQuery} from "@mui/material";
+import {CIPPatientHistoryCardStyled} from "@features/card";
+import {CardContent, IconButton, Stack, Typography, useMediaQuery} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {capitalize} from "lodash";
 import moment from "moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import {Theme} from "@mui/material/styles";
 import {useRouter} from "next/router";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useAppSelector} from "@lib/redux/hooks";
-import CircleIcon from '@mui/icons-material/Circle';
 import IconUrl from "@themes/urlIcon";
 import {Label} from "@features/label";
 
 function AppointmentHistoryPreview({...props}) {
     const {children, app, appuuid, dispatch, t, mini, handleDeleteApp} = props;
-
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
 
@@ -31,7 +27,7 @@ function AppointmentHistoryPreview({...props}) {
     }
 
     return (
-        <PatientHistoryCardStyled
+        <CIPPatientHistoryCardStyled
             style={{
                 border: app.uuid === appuuid ? "2px solid #FFD400" : app.uuid !== appuuid ? 0 : "",
                 opacity: selectedApp === "" || app.uuid === selectedApp ? 1 : 0.7
@@ -86,11 +82,16 @@ function AppointmentHistoryPreview({...props}) {
                         {moment(app.date, "DD-MM-YYYY").format(
                             "ddd DD-MM-YYYY"
                         )}{" "}
-                        {!isMobile && <AccessTimeIcon
-                            style={{marginBottom: "-3px", width: 20, height: 15}}
-                        />}{" "}
-                        {!isMobile && app.time}
                     </Typography>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} pl={1}>
+                        {!isMobile && <AccessTimeIcon
+                            htmlColor={"white"}
+                            style={{width: 20, height: 15}}
+                        />}{" "}
+                        {!isMobile && <Typography
+                            variant="body2"
+                            color="text.secondary">{app.time}</Typography>}
+                    </Stack>
                     {app.uuid !== appuuid && <Stack direction={"row"} alignItems={"center"} pl={2}>
                         <IconButton
                             onClick={(e) => {
@@ -114,7 +115,7 @@ function AppointmentHistoryPreview({...props}) {
                 style={{padding: 0}}>
                 {children}
             </CardContent>
-        </PatientHistoryCardStyled>
+        </CIPPatientHistoryCardStyled>
     )
 }
 
