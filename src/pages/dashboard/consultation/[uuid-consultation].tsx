@@ -1299,6 +1299,13 @@ function ConsultationInProgress() {
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        changes.map(change => {
+            change.checked = documents.filter((doc: {
+                documentType: string
+            }) => doc.documentType === change.name).length > 0
+        })
+        setChanges([...changes])
+
         if (documents.length > 0 && selectedAudio !== null && documents.findIndex((doc: any) => doc.uuid === selectedAudio?.uuid) !== -1) {
             // set speech to text result after processing
             setSelectedAudio(documents.find((doc: any) => doc.uuid === selectedAudio?.uuid));
