@@ -268,12 +268,15 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     const queryClient = new QueryClient();
     const countries = `/api/public/places/countries/${locale}?nationality=true`;
 
-    await queryClient.prefetchQuery([countries], async () => {
-        const {data} = await instanceAxios.request({
-            url: countries,
-            method: "GET"
-        });
-        return data
+    await queryClient.prefetchQuery({
+        queryKey: [countries],
+        queryFn: async () => {
+            const {data} = await instanceAxios.request({
+                url: countries,
+                method: "GET"
+            });
+            return data
+        }
     });
     return {
         props: {
@@ -284,9 +287,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     };
 }
 
-export const getStaticPaths: GetStaticPaths<{
-    slug: string
-}> = async () => {
+export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     return {
         paths: [], //indicates that no page needs be created at build time
         fallback: "blocking", //indicates the type of fallback
