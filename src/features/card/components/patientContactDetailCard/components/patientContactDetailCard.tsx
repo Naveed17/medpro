@@ -42,6 +42,8 @@ import {checkObjectChange, flattenObject, useMedicalEntitySuffix} from "@lib/hoo
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import {CustomIconButton} from "@features/buttons";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -651,41 +653,32 @@ function PatientContactDetailCard({...props}) {
                                                     </Grid>
                                                     <Grid item md={1} sm={1} xs={1}>
                                                         <Stack direction="row"
-                                                               mt={.8}
+                                                               mt={.4}
                                                                ml={1}
                                                                alignItems="center">
                                                             {(editable && index === 0) ? <>
-                                                                <IconButton
+                                                                <CustomIconButton
                                                                     onClick={handleAddPhone}
-                                                                    className="success-light"
-                                                                    sx={{
-                                                                        mr: 1.5,
-                                                                        p: "3px 5px",
-                                                                        "& svg": {
-                                                                            width: 14,
-                                                                            height: 14
-                                                                        },
-                                                                    }}
-                                                                >
-                                                                    <IconUrl path="ic-plus"/>
-                                                                </IconButton>
-                                                            </> : (editable && <IconButton
-                                                                onClick={() => handleRemovePhone(index)}
-                                                                className="error-light"
-                                                                sx={{
-                                                                    mr: 1.5,
-                                                                    p: "3px 5px",
-                                                                    "& svg": {
-                                                                        width: 14,
-                                                                        height: 14,
-                                                                        "& path": {
-                                                                            fill: (theme) => theme.palette.text.primary,
-                                                                        },
-                                                                    },
-                                                                }}
-                                                            >
-                                                                <IconUrl path="ic-moin"/>
-                                                            </IconButton>)}
+                                                                    sx={{p: .4}}
+                                                                    variant="filled"
+                                                                    color={"success"}
+                                                                    size={"small"}>
+                                                                    <AgendaAddViewIcon/>
+                                                                </CustomIconButton>
+                                                            </> : (editable &&
+                                                                <CustomIconButton
+                                                                    onClick={() => handleRemovePhone(index)}
+                                                                    sx={{p: .4}}
+                                                                    variant="filled"
+                                                                    color={"error"}
+                                                                    size={"small"}>
+                                                                    <IconUrl
+                                                                        width={22}
+                                                                        height={22}
+                                                                        path="ic-moin"
+                                                                        color={"white"}/>
+                                                                </CustomIconButton>
+                                                            )}
                                                         </Stack>
                                                     </Grid>
                                                 </Stack>
