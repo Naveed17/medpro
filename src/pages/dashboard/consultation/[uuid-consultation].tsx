@@ -1429,7 +1429,7 @@ function ConsultationInProgress() {
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
                 <Grid container>
-                    <Grid item md={showDocument ? 10 : 12}>
+                    <Grid item xs={12} md={showDocument ? 10 : 12}>
                         <Box style={{paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : ""}}
                              id={"container-tab"}
                              className="container-scroll scrollbar-hidden">
@@ -1483,7 +1483,7 @@ function ConsultationInProgress() {
                                     />
                                 </MyCardStyled></Card>
                                 }
-                                {!fullOb && <Grid container spacing={0}>
+                                {!fullOb && <>
                                     {!isMobile &&
                                         <ConsultationCard {...{
                                             cards,
@@ -1533,7 +1533,7 @@ function ConsultationInProgress() {
                                             setFullOb,
                                             patient
                                         }} />}
-                                    {isMobile && <Grid item xs={12}>
+                                    {isMobile &&
                                         <ConsultationCard {...{
                                             cards: mobileCards,
                                             setCards: setMobileCards,
@@ -1582,8 +1582,8 @@ function ConsultationInProgress() {
                                             setFullOb,
                                             patient
                                         }} />
-                                    </Grid>}
-                                </Grid>}
+                                    }
+                                </>}
                             </TabPanel>
                             <TabPanel padding={1} value={selectedTab} index={"documents"}>
                                 <LinearProgress sx={{
