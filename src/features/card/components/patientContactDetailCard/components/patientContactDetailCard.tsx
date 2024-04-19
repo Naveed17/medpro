@@ -39,7 +39,6 @@ import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-
 import {LoadingScreen} from "@features/loadingScreen";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import {CustomIconButton} from "@features/buttons";
