@@ -29,12 +29,13 @@ function useRequestInfiniteQuery<Data = unknown, Error = unknown>(request: GetRe
         fetchNextPage,
         fetchPreviousPage,
         hasNextPage
-    } = useInfiniteQuery(
+    } = useInfiniteQuery({
         queryKey,
-        ({signal, pageParam = (isMobile ? 0 : 1)}) =>
+        initialPageParam: isMobile ? 0 : 1,
+        queryFn: ({signal, pageParam}) =>
             ((request?.url?.length ?? 0) > 0 && queryKey.length > 0) ? instanceAxios.request<Data>({
                 ...request,
-                ...(isMobile && {params: {page: pageParam + 1}}),
+                ...(isMobile && {params: {page: (pageParam as number) + 1}}),
                 ...(variables?.query && {url: `${request?.url}${variables.query}`}),
                 ...(!request?.url?.includes("/api/public") && {
                     headers: {
@@ -53,17 +54,16 @@ function useRequestInfiniteQuery<Data = unknown, Error = unknown>(request: GetRe
                 }
                 return Promise.reject(error);
             }) : null,
-        {
-            enabled: (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
-            retry: 2,
-            getNextPageParam: (lastPage: any, pages: any) => {
-                if (Math.ceil(lastPage?.data?.data?.total / 10) > pages.length)
-                    return pages.length;
-                return undefined;
-            },
-            ...config
-        }
-    );
+
+        enabled: (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
+        retry: 2,
+        getNextPageParam: (lastPage: any, pages: any) => {
+            if (Math.ceil(lastPage?.data?.data?.total / 10) > pages.length)
+                return pages.length;
+            return undefined;
+        },
+        ...config
+    });
 
     return {
         isLoading: isFetching,
