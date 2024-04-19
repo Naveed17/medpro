@@ -168,9 +168,9 @@ function MainLayout({...props}) {
                         } else if (data.body.action === "update") {
                             // update pending notifications status
                             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
-                            // Mutate on going api
-                            mutateOnGoing();
                         }
+                        // Mutate on going api
+                        mutateOnGoing();
                         break;
                     case "waiting-room":
                         // Mutate agenda
@@ -201,6 +201,9 @@ function MainLayout({...props}) {
                         data.body.mutate && invalidateQueries([data.body.mutate]);
                         break;
                 }
+            } else {
+                // Mutate on going api
+                mutateOnGoing();
             }
         }
     }

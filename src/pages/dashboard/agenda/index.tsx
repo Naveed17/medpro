@@ -1737,7 +1737,10 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
 
     const countries = `api/public/places/countries/${locale}?nationality=true`;
 
-    await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
+    await queryClient.prefetchQuery({
+        queryKey: [`/${countries}`],
+        queryFn: () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json())
+    });
 
     return {
         props: {
