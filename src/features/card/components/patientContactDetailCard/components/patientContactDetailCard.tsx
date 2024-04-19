@@ -10,7 +10,6 @@ import {
     InputBase,
     AppBar,
     Toolbar,
-    IconButton,
     MenuItem,
     useTheme,
     Avatar,
