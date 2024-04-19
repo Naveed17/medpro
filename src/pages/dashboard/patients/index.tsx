@@ -653,7 +653,7 @@ function Patients() {
         }
     }
     const currentPageParams = httpPatientsResponse?.pageParams.findIndex(pageIndex => pageIndex === page) ?? 0;
-    const currentPage = httpPatientsResponse?.pages[currentPageParams === -1 ? 0 : currentPageParams]?.data.data as PaginationModel ?? null;
+    const currentPage = (httpPatientsResponse?.pages[currentPageParams === -1 ? 0 : currentPageParams] as any)?.data.data as PaginationModel ?? null;
 
     useLeavePageConfirm((path: string) => {
         if (!path.includes("/dashboard/patient")) {
@@ -1222,9 +1222,18 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     const insurances = `api/public/insurances/${locale}`;
     const contactTypes = `api/public/contact-type/${locale}`;
 
-    await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
-    await queryClient.prefetchQuery([`/${insurances}`], () => fetch(`${baseURL}${insurances}`, {method: "GET"}).then(response => response.json()));
-    await queryClient.prefetchQuery([`/${contactTypes}`], () => fetch(`${baseURL}${contactTypes}`, {method: "GET"}).then(response => response.json()));
+    await queryClient.prefetchQuery({
+        queryKey: [`/${countries}`],
+        queryFn: () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json())
+    });
+    await queryClient.prefetchQuery({
+        queryKey: [`/${insurances}`],
+        queryFn: () => fetch(`${baseURL}${insurances}`, {method: "GET"}).then(response => response.json())
+    });
+    await queryClient.prefetchQuery({
+        queryKey: [`/${contactTypes}`],
+        queryFn: () => fetch(`${baseURL}${contactTypes}`, {method: "GET"}).then(response => response.json())
+    });
 
     return {
         props: {
