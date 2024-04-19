@@ -691,7 +691,7 @@ function DocumentDetailDialog({...props}) {
 
     return (
         <DocumentDetailDialogStyled>
-            {loading || isPrinting && <Card className={'loading-card'}>
+            {(loading || isPrinting) && <Card className={'loading-card'}>
                 <CardContent>
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
                         <FacebookCircularProgress size={20}/>
@@ -807,120 +807,100 @@ function DocumentDetailDialog({...props}) {
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
-                    {menu ? <List>
-                            {actionButtons.map((button, idx) =>
-                                <ListItem key={idx} onClick={() => handleActions(button.title)}>
-                                    {!button.disabled && <ListItemButton
-                                        className={button.title === "delete" ? "btn-delete" : ""}>
-                                        <ListItemIcon>
-                                            <IconUrl path={button.icon}/>
-                                        </ListItemIcon>
-                                        {menu && <ListItemText sx={{ml: 1}} primary={t(button.title)}/>}
-                                    </ListItemButton>}
-                                </ListItem>)}
-                            <ListItem className='secound-list'>
-                                <ListItemButton onClick={() => {
-                                    setMenu(false)
-                                }}>
-                                    <ListItemIcon>
-                                        <IconUrl path="menu/ic-close-menu"/>
-                                    </ListItemIcon>
-                                    <ListItemText sx={{ml: 1}} primary={t("close")}/>
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem className='secound-list'>
-                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                    <Typography color='text.secondary'>
-                                        {t('document_note')}
-                                    </Typography>
-                                    <TextField
-                                        value={note}
-                                        id={'note-input'}
-                                        multiline
-                                        rows={4}
-                                        onBlur={() => {
-                                            editDoc("description", note)
-                                        }}
-                                        onChange={(ev) => {
-                                            setNote(ev.target.value)
-                                            document.getElementById('note-input')?.focus()
-                                        }}/>
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem className='secound-list'>
-                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                    <Typography color='text.secondary'>
-                                        {t('document_name')}
-                                    </Typography>
-                                    <TextField
-                                        value={name}
-                                        id={'name-input'}
-                                        onBlur={() => editDoc("name", name)}
-                                        onChange={(ev) => {
-                                            setName(ev.target.value)
-                                            document.getElementById('name-input')?.focus()
-                                        }}
-                                    />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem className='secound-list'>
-                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                    <Typography color='text.secondary'>
-                                        {t('created_on')}
-                                    </Typography>
-                                    <TextField
-                                        value={date}
-                                        id={'date-input'}
-                                        onChange={(ev) => {
-                                            setDate(ev.target.value);
-                                            document.getElementById('date-input')?.focus()
-                                        }}
-                                    />
-                                </ListItemButton>
-                            </ListItem>
-                            {
-                                list.map((item, idx) =>
-                                    <ListItem className='secound-list' key={idx}>
-                                        <ListItemButton disableRipple
-                                                        sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                            <Typography color='text.secondary'>
-                                                {capitalize(t(item.title))}
-                                            </Typography>
-                                            <Typography fontWeight={700}>
-                                                {item.value}
-                                            </Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                )
-                            }
-                        </List> :
-                        <List>
-                            <ListItem
-                                onClick={() => {
-                                    setMenu(true)
-                                }} disablePadding sx={{display: 'block'}}>
-                                <ListItemButton
-                                    sx={{
-                                        minHeight: 48,
-                                        justifyContent: 'center',
-                                        px: 2.5,
+                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar"  style={{background: "white"}}>
+                    <>
+                        {menu ? <List>
+                                {actionButtons.map((button, idx) =>
+                                    <ListItem key={idx} onClick={() => handleActions(button.title)}>
+                                        {!button.disabled && <ListItemButton
+                                            className={button.title === "delete" ? "btn-delete" : ""}>
+                                            <ListItemIcon>
+                                                <IconUrl path={button.icon}/>
+                                            </ListItemIcon>
+                                            {menu && <ListItemText sx={{ml: 1}} primary={t(button.title)}/>}
+                                        </ListItemButton>}
+                                    </ListItem>)}
+                                <ListItem className='secound-list'>
+                                    <ListItemButton onClick={() => {
+                                        setMenu(false)
                                     }}>
-                                    <ListItemIcon
-                                        sx={{
-                                            minWidth: 0,
-                                            margin: 'auto',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <IconUrl width={24} height={24} path={'menu/ic-open-menu'}/>
-                                    </ListItemIcon>
-                                </ListItemButton>
-                            </ListItem>
-
-                            {actionButtons.map((button, idx) =>
-                                !button.disabled &&
-                                <ListItem key={`${idx}-item`} onClick={() => handleActions(button.title)}
-                                          disablePadding sx={{display: 'block'}}>
+                                        <ListItemIcon>
+                                            <IconUrl path="menu/ic-close-menu"/>
+                                        </ListItemIcon>
+                                        <ListItemText sx={{ml: 1}} primary={t("close")}/>
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem className='secound-list'>
+                                    <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                        <Typography color='text.secondary'>
+                                            {t('document_note')}
+                                        </Typography>
+                                        <TextField
+                                            value={note}
+                                            id={'note-input'}
+                                            multiline
+                                            rows={4}
+                                            onBlur={() => {
+                                                editDoc("description", note)
+                                            }}
+                                            onChange={(ev) => {
+                                                setNote(ev.target.value)
+                                                document.getElementById('note-input')?.focus()
+                                            }}/>
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem className='secound-list'>
+                                    <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                        <Typography color='text.secondary'>
+                                            {t('document_name')}
+                                        </Typography>
+                                        <TextField
+                                            value={name}
+                                            id={'name-input'}
+                                            onBlur={() => editDoc("name", name)}
+                                            onChange={(ev) => {
+                                                setName(ev.target.value)
+                                                document.getElementById('name-input')?.focus()
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem className='secound-list'>
+                                    <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                        <Typography color='text.secondary'>
+                                            {t('created_on')}
+                                        </Typography>
+                                        <TextField
+                                            value={date}
+                                            id={'date-input'}
+                                            onChange={(ev) => {
+                                                setDate(ev.target.value);
+                                                document.getElementById('date-input')?.focus()
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                                {
+                                    list.map((item, idx) =>
+                                        <ListItem className='secound-list' key={idx}>
+                                            <ListItemButton disableRipple
+                                                            sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                                <Typography color='text.secondary'>
+                                                    {capitalize(t(item.title))}
+                                                </Typography>
+                                                <Typography fontWeight={700}>
+                                                    {item.value}
+                                                </Typography>
+                                            </ListItemButton>
+                                        </ListItem>
+                                    )
+                                }
+                            </List> :
+                            <List>
+                                <ListItem
+                                    onClick={() => {
+                                        setMenu(true)
+                                    }} disablePadding sx={{display: 'block'}}>
                                     <ListItemButton
                                         sx={{
                                             minHeight: 48,
@@ -933,13 +913,35 @@ function DocumentDetailDialog({...props}) {
                                                 margin: 'auto',
                                                 justifyContent: 'center',
                                             }}>
-                                            <IconUrl path={button.icon}/>
+                                            <IconUrl width={24} height={24} path={'menu/ic-open-menu'}/>
                                         </ListItemIcon>
                                     </ListItemButton>
-                                </ListItem>)
-                            }
-                        </List>
-                    }
+                                </ListItem>
+
+                                {actionButtons.map((button, idx) =>
+                                    !button.disabled &&
+                                    <ListItem key={`${idx}-item`} onClick={() => handleActions(button.title)}
+                                              disablePadding sx={{display: 'block'}}>
+                                        <ListItemButton
+                                            sx={{
+                                                minHeight: 48,
+                                                justifyContent: 'center',
+                                                px: 2.5,
+                                            }}>
+                                            <ListItemIcon
+                                                sx={{
+                                                    minWidth: 0,
+                                                    margin: 'auto',
+                                                    justifyContent: 'center',
+                                                }}>
+                                                <IconUrl path={button.icon}/>
+                                            </ListItemIcon>
+                                        </ListItemButton>
+                                    </ListItem>)
+                                }
+                            </List>
+                        }
+                    </>
                 </Grid>
             </Grid>
 
