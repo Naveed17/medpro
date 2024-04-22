@@ -284,7 +284,7 @@
       "description": "Vous perderez à jamais l'historique et les documents concernant ce patient",
       "description-data": "Vous perderez à jamais l'historique et les documents concernant ce rendez-vous",
       "delete-appointment-insertion": "Données d'insertion",
-      "delete-appointment-data": "Données historiques",
+      "delete-appointment-data": "Données historique du rdv",
       "delete-transaction": "Données de transaction",
       "cancel": "Annuler",
       "confirm": "Supprimer"
