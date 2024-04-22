@@ -9,6 +9,7 @@ import {SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import IconUrl from "@themes/urlIcon";
+import Can from "@features/casl/can";
 
 function PatientHistoryCard({...props}) {
     const {
@@ -89,21 +90,25 @@ function PatientHistoryCard({...props}) {
                             {data?.appointment.startTime}
                         </Typography>
                         <Stack direction={"row"} alignItems={"center"} pl={2}>
-                            <IconButton
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleConsultation();
-                                }}>
-                                <IconUrl path={"ic-re-open"} color={"white"} width={18} height={18}/>
-                            </IconButton>
-                            <IconButton
-                                sx={{mt: -.3}}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteApp();
-                                }}>
-                                <IconUrl path={"ic-trash"} color={"white"} width={20} height={20}/>
-                            </IconButton>
+                            <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
+                                <IconButton
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleConsultation();
+                                    }}>
+                                    <IconUrl path={"ic-re-open"} color={"white"} width={18} height={18}/>
+                                </IconButton>
+                            </Can>
+                            <Can I={"manage"} a={"agenda"} field={"agenda__appointment__delete"}>
+                                <IconButton
+                                    sx={{mt: -.3}}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteApp();
+                                    }}>
+                                    <IconUrl path={"ic-trash"} color={"white"} width={20} height={20}/>
+                                </IconButton>
+                            </Can>
                         </Stack>
                     </Stack>
                 </Stack>
