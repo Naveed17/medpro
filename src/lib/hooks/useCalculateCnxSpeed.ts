@@ -20,7 +20,6 @@ function useCalculateCnxSpeed() {
         let speedInBps = parseFloat((loadedBits / timeDuration).toFixed(2));
         let speedInKbps = parseFloat((speedInBps / 1024).toFixed(2));
         speedInMbps.current = parseFloat((speedInKbps / 1024).toFixed(2));
-        console.log("speedInMbps", speedInMbps.current);
         if (speedInMbps.current < 0.6) {
             enqueueSnackbar(t("slow-connection"), {
                 key: "slow",
