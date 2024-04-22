@@ -74,7 +74,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
-import {partition, uniqueId} from "lodash";
+import {partition} from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
 import Can, {AbilityContext} from "@features/casl/can";
