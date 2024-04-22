@@ -697,7 +697,7 @@ function Statistics() {
                                                     <Chart
                                                         type='donut'
                                                         series={
-                                                            patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.doc_count], [])
+                                                            patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.key !== "u" && val.doc_count], [])
                                                         }
                                                         options={
                                                             merge(ChartsOption(), {
@@ -1297,7 +1297,7 @@ function Statistics() {
                                                 <Chart
                                                     type='donut'
                                                     series={
-                                                        patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.doc_count], [])
+                                                        patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.key !== "u" && val.doc_count], [])
                                                     }
                                                     options={
                                                         merge(ChartsOption(), {
