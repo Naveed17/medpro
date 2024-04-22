@@ -7,7 +7,6 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import moment from "moment/moment";
 import {SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import IconUrl from "@themes/urlIcon";
 import Can from "@features/casl/can";
 
