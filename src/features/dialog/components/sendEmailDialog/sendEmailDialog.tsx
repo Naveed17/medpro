@@ -18,7 +18,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 import IconUrl from "@themes/urlIcon";
 
 function SendEmailDialog({...props}) {
-    const {preview, patient, t, title, handleSendEmail, loading} = props.data;
+    const {preview, patient, t, title, handleSendEmail} = props.data;
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [loadingReq, setLoadingReq] = useState<boolean>(true);
