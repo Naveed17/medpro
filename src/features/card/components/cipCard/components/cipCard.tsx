@@ -94,7 +94,7 @@ function CipCard({...props}) {
                                  boxShadow: "none",
                                  minHeight: 20,
                                  height: 36,
-                                 width: isMobile ? 42 : 36
+                                 width: 36
                              }}>
                             <IconUrl path={"ic-pause"} color={"white"}/>
                         </Fab>
@@ -113,7 +113,7 @@ function CipCard({...props}) {
                                  boxShadow: "none",
                                  minHeight: 20,
                                  height: 36,
-                                 width: isMobile ? 42 : 36
+                                 width: 36
                              }}>
                             <IconUrl path={"ic-stop-record"} color={"white"}/>
                         </Fab>
