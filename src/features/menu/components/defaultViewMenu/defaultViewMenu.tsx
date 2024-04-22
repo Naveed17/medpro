@@ -31,6 +31,7 @@ import {useEffect, useState} from "react";
 import {dashLayoutSelector} from "@features/base";
 import SettingsViewIcon from "@themes/overrides/icons/settingsViewIcon";
 import IconUrl from "@themes/urlIcon";
+import {startCase} from "lodash";
 
 const VIEW_OPTIONS = [
     {value: "timeGridDay", label: "day", text: "Jour", icon: TodayIcon},
@@ -151,7 +152,7 @@ function DefaultViewMenu() {
                                 display: 'block',
                                 position: 'absolute',
                                 top: 0,
-                                right: 68,
+                                right: 110,
                                 width: 10,
                                 height: 10,
                                 bgcolor: 'background.paper',
@@ -193,13 +194,19 @@ function DefaultViewMenu() {
                         <List component="div" disablePadding>
                             {VIEW_OPTIONS.map((option, index) => (
                                 <MenuItem
-                                    sx={{pl: 3}}
+                                    sx={{
+                                        pl: 3,
+                                        svg: {
+                                            width: 20,
+                                            height: 20
+                                        }
+                                    }}
                                     key={option.value}
                                     selected={index === VIEW_OPTIONS.findIndex(view => view.value === general_information?.agendaDefaultFormat)}
                                     onClick={(event) => handleMenuItemClick(event, option)}>
                                     <SvgIcon component={option.icon} fontSize={"small"}/>
-                                    <Typography fontSize={12} fontWeight={600} ml={1}
-                                                variant={"body2"}>{t(`times.${option.label}`)}</Typography>
+                                    <Typography fontSize={12} fontWeight={800} ml={1}
+                                                variant={"body2"}>{startCase(t(`times.${option.label}`))}</Typography>
                                 </MenuItem>
                             ))}
                         </List>
