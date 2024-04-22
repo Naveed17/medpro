@@ -72,7 +72,7 @@ function MainLayout({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-    useCalculateCnxSpeed(); // Check speed connection
+    //useCalculateCnxSpeed(); // Check speed connection
     const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
@@ -93,7 +93,6 @@ function MainLayout({...props}) {
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
     const [isOffline, setIsOffline] = useState(false);
-    const [isSlow, setIsSlow] = useState(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
