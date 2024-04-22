@@ -623,7 +623,7 @@ function TopNavBar({...props}) {
                         }}
                         data={{
                             instruction, setInstruction,
-                            general_information,medicalEntityHasUser,
+                            general_information, medicalEntityHasUser,
                             selectedUser, setSelectedUser,
                             setSelectedDiscussion,
                             setOpenPaymentDialog
@@ -645,7 +645,7 @@ function TopNavBar({...props}) {
                                     </LoadingButton>
                                 </Stack>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
-                                    {dialogAction !== "finish" ?
+                                    {(dialogAction !== "finish" || selectedEvent !== null) &&
                                         <LoadingButton
                                             loading={loadingReq}
                                             color={"white"}
@@ -657,8 +657,8 @@ function TopNavBar({...props}) {
                                             <Typography color={"text.primary"}>
                                                 {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
                                             </Typography>
-                                        </LoadingButton>
-                                        :
+                                        </LoadingButton>}
+                                    {(dialogAction === "finish" || selectedEvent !== null) &&
                                         <LoadingButton
                                             loading={loadingReq}
                                             loadingPosition="start"
