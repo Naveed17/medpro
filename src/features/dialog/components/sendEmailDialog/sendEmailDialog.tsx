@@ -8,7 +8,6 @@ import {
     Typography
 } from "@mui/material";
 import TextareaAutosizeStyled from "./overrides/TextareaAutosizeStyled";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import React, {useCallback, useState} from "react";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
@@ -16,6 +15,7 @@ import {LoadingButton} from "@mui/lab";
 import {Document, Page} from "react-pdf";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
+import IconUrl from "@themes/urlIcon";
 
 function SendEmailDialog({...props}) {
     const {preview, patient, t, title, handleSendEmail, loading} = props.data;
@@ -155,8 +155,8 @@ function SendEmailDialog({...props}) {
                     sx={{marginLeft: 'auto'}}
                     onClick={() => sendEmailCallback(values)}
                     variant="contained"
-                    startIcon={<SaveRoundedIcon/>}>
-                    {t("save")}
+                    startIcon={<IconUrl path={"menu/ic-send-message"} width={20} height={20}/>}>
+                    {t("send")}
                 </LoadingButton>
             </CardActions>
         </FormikProvider>)
