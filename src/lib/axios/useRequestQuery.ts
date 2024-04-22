@@ -2,6 +2,7 @@ import {useQuery} from "@tanstack/react-query";
 import {GetRequest} from "@lib/axios/config";
 import {instanceAxios} from "@lib/axios/index";
 import {useSession} from "next-auth/react";
+import {AxiosResponse} from "axios";
 
 export const ReactQueryNoValidateConfig = {
     refetchOnMount: false,
@@ -14,9 +15,9 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
     const {jti} = session?.user as any;
     const queryKey: string[] = [...(request?.url ? [request.url] : []), ...(variables?.query ? [variables.query] : [])];
 
-    const {isFetching, error, data: response, refetch} = useQuery(
+    const {isFetching, error, data: response, refetch} = useQuery({
         queryKey,
-        ({signal}) => ((request?.url?.length ?? 0) > 0 && queryKey.length > 0) ? instanceAxios.request<Data>({
+        queryFn: ({signal}) => ((request?.url?.length ?? 0) > 0 && queryKey.length > 0) ? instanceAxios.request<Data>({
             ...request,
             ...(variables?.query && {url: `${request?.url}${variables.query}`}),
             ...(!request?.url?.includes("/api/public") && {
@@ -35,17 +36,16 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
                 return instanceAxios(originalRequest);
             }
             return Promise.reject(error);
-        }) : null, {
-            enabled: (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
-            retry: 2,
-            ...config
-        }
-    );
+        }) : null,
+        enabled: (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
+        retry: 2,
+        ...config
+    });
 
     return {
         isLoading: isFetching,
         error,
-        data: response && response.data,
+        data: response && (response as AxiosResponse).data,
         mutate: refetch
     }
 }

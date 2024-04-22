@@ -77,7 +77,7 @@ import {Label} from "@features/label";
 import {partition} from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
-import {AbilityContext} from "@features/casl/can";
+import Can, {AbilityContext} from "@features/casl/can";
 import _ from "lodash";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import AddIcon from "@mui/icons-material/Add";
@@ -617,7 +617,7 @@ function WaitingRoom() {
             url: '#',
             icon: <CalendarIcon/>,
             action: <CustomIconButton
-                sx={{mr: 1}}
+                sx={{mr: 1, p: .6}}
                 onClick={() => {
                     setWithoutDateTime(false);
                     setQuickAddAppointment(true);
@@ -636,6 +636,7 @@ function WaitingRoom() {
             icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
             ...(ability.can('manage', 'waiting-room', 'waiting-room__waiting-room__appointment-create') && {
                 action: <CustomIconButton
+                    sx={{p: .6}}
                     onClick={() => {
                         setWithoutDateTime(true);
                         setQuickAddAppointment(true);
@@ -1041,16 +1042,20 @@ function WaitingRoom() {
                     </TabPanel>
 
                     <ActionMenu {...{contextMenu, handleClose}}>
-                        {popoverActions.map((v: any, index) => (
-                            <MenuItem
-                                key={index}
-                                className="popover-item"
-                                onClick={() => OnMenuActions(v.action)}>
-                                {v.icon}
-                                <Typography fontSize={15} sx={{color: "#fff"}}>
-                                    {t(v.title)}
-                                </Typography>
-                            </MenuItem>
+                        {popoverActions.map((context: any, index) => (
+                            <Can key={index}
+                                 I={"manage"}
+                                 a={context.feature as any} {...(context.permission !== "*" && {field: context.permission})}>
+                                <MenuItem
+                                    key={index}
+                                    className="popover-item"
+                                    onClick={() => OnMenuActions(context.action)}>
+                                    {context.icon}
+                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                        {t(context.title)}
+                                    </Typography>
+                                </MenuItem>
+                            </Can>
                         ))}
                     </ActionMenu>
 

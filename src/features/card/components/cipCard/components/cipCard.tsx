@@ -43,7 +43,7 @@ function CipCard({...props}) {
     return (
         <CipCardStyled
             onClick={!roles.includes('ROLE_SECRETARY') && !isWindowMax ? handleConsultation : openPatientDetail}>
-            <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 0}}>
+            <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0, md: 0}}>
                 <Typography
                     className={"timer-text"}
                     fontWeight={800}
@@ -53,31 +53,33 @@ function CipCard({...props}) {
                     {capitalizeFirst(`${event?.extendedProps.patient.lastName} ${event?.extendedProps.patient.firstName}`)}
                 </Typography>
 
-                <Avatar
-                    alt="button avatar"
-                    {...(isMobile && {className: "cip-avatar-mobile"})}
-                    sx={{
-                        height: 28,
-                        py: 1,
 
-                        borderRadius: 3,
-                        minWidth: isMobile ? "auto" : 80,
-                        color: theme.palette.warning.contrastText,
-                        bgcolor: theme.palette.warning.main
-                    }}>
-                    <Typography
-                        sx={{width: "auto"}}
-                        ml={0}
-                        fontSize={14}
-                        fontWeight={600}>
-                        {shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {
-                            largest: 1,
-                            round: true
-                        })}
-                    </Typography>
-                </Avatar>
+                <Stack direction={"row"} alignItems={"center"}
+                       spacing={1}  {...(isMobile && {className: "cip-avatar-mobile"})}>
+                    <Avatar
+                        alt="button avatar"
 
-                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                        sx={{
+                            height: 28,
+                            py: 2,
+                            px: .5,
+                            borderRadius: 3,
+                            minWidth: isMobile ? "fit-content" : 80,
+                            color: theme.palette.warning.contrastText,
+                            bgcolor: theme.palette.warning.main
+                        }}>
+                        <Typography
+                            sx={{width: "auto"}}
+                            ml={0}
+                            fontSize={14}
+                            fontWeight={600}>
+                            {shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {
+                                largest: 1,
+                                round: true
+                            })}
+                        </Typography>
+                    </Avatar>
+
                     <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
                         <Fab color="default"
                              aria-label="finish consultation"
@@ -92,7 +94,7 @@ function CipCard({...props}) {
                                  boxShadow: "none",
                                  minHeight: 20,
                                  height: 36,
-                                 width: 36
+                                 width: isMobile ? 42 : 36
                              }}>
                             <IconUrl path={"ic-pause"} color={"white"}/>
                         </Fab>
@@ -111,7 +113,7 @@ function CipCard({...props}) {
                                  boxShadow: "none",
                                  minHeight: 20,
                                  height: 36,
-                                 width: 36
+                                 width: isMobile ? 42 : 36
                              }}>
                             <IconUrl path={"ic-stop-record"} color={"white"}/>
                         </Fab>

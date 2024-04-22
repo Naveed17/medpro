@@ -228,7 +228,6 @@ function ModifyUser() {
             } else {
                 const featureIndex = selectedFeatureEntity ? values.roles[selectedFeature].findIndex((feature: FeatureModel) => feature.featureEntity?.uuid === selectedFeatureEntity.uuid) : 0;
                 const feature = values.roles[selectedFeature][featureIndex];
-                console.log("feature", feature)
                 const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                     [...(permissions ?? []),
                         ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
