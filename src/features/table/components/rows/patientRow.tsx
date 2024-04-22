@@ -230,16 +230,30 @@ function PatientRow({...props}) {
                         <Skeleton variant="text" width={100}/>
                     ) : (
                         <>
-                            {(row?.contact?.length > 0 ? <Stack direction={"row"}>
-                                <IconUrl path="ic-phone" width={16} height={16} color={theme.palette.text.primary}/>
-                                {row.contact[0].code &&
-                                    <Typography fontWeight={600} variant={"body2"}
-                                                fontSize={13}
-                                                sx={{ml: 0.6}}>{row.contact[0].code}</Typography>
-                                }
-                                <Typography fontWeight={600} fontSize={13} variant={"body2"}
-                                            sx={{ml: 0.6}}>{row.contact[0].value}</Typography>
-                            </Stack> : "-")}
+                            {(row?.contact?.length > 0 ?
+                                <Stack direction={"row"}>
+                                    <IconUrl path="ic-phone" width={16} height={16} color={theme.palette.text.primary}/>
+                                    {row.contact[0].code &&
+                                        <Typography
+                                            {...(mode !== "normal" ? {
+                                                className: "blur-text",
+                                                sx: {overflow: "hidden", lineHeight: 1}
+                                            } : {
+                                                sx: {ml: 0.6}
+                                            })}
+                                            fontWeight={600} variant={"body2"}
+                                            fontSize={13}>{row.contact[0].code}</Typography>
+                                    }
+                                    <Typography
+                                        {...(mode !== "normal" ? {
+                                            className: "blur-text",
+                                            sx: {overflow: "hidden", lineHeight: 1}
+                                        } : {
+                                            sx: {ml: 0.6}
+                                        })}
+                                        fontWeight={600} fontSize={13}
+                                        variant={"body2"}>{row.contact[0].value}</Typography>
+                                </Stack> : "-")}
                         </>
                     )}
                 </Box>
