@@ -2,7 +2,7 @@ import {styled} from '@mui/material/styles'
 import {LoadingButton} from "@mui/lab";
 
 const CipCard2ndStyled = styled(LoadingButton)(({theme}) => ({
-    justifyContent:'flex-start',
+    justifyContent: 'flex-start',
     marginRight: 0,
     padding: "6px 12px",
     backgroundColor: theme.palette.text.primary,
@@ -40,40 +40,44 @@ const CipCard2ndStyled = styled(LoadingButton)(({theme}) => ({
         borderRadius: 20,
         border: `2px solid ${theme.palette.background.paper}`
     },
-    ".ic-avatar":{
-        width:16,
-        height:16,
-        svg:{
-            width:16,
-            height:16,
-            position:'relative',
-            
-            path:{
-                fill:theme.palette.text.primary
+    ".ic-avatar": {
+        width: 16,
+        height: 16,
+        svg: {
+            width: 16,
+            height: 16,
+            position: 'relative',
+
+            path: {
+                fill: theme.palette.text.primary
             }
         }
     },
-    '.action-buttons':{
-        '.MuiAvatar-root':{
-            width:20,
-            height:20,
-            marginLeft:0,
-            ".MuiAvatar-root":{
-                margin:0
+    '.action-buttons': {
+        '.MuiAvatar-root': {
+            width: 20,
+            height: 20,
+            marginLeft: 0,
+            ".MuiAvatar-root": {
+                margin: 0
             },
-            "&.avatar-top":{
-                padding:14,
+            "&.avatar-top": {
+                padding: 14,
             }
         },
-        '&.action-buttons':{
-            marginLeft:'auto'
+        '&.action-buttons': {
+            marginLeft: 'auto'
         },
     },
-    ".patient-avatar":{
-        marginLeft:0
+    ".patient-avatar": {
+        marginLeft: 0
     },
-    '.MuiButton-startIcon':{
-marginLeft:0,
+    '.MuiButton-startIcon': {
+        marginLeft: 0
+    },
+    "& .user-name": {
+        cursor: "pointer",
+        display: {xs: 'none', md: "block"}
     }
 }));
 export default CipCard2ndStyled

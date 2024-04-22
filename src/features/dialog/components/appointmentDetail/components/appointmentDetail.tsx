@@ -28,18 +28,14 @@ import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
-
 import {Dialog, openDrawer as DialogOpenDrawer, QrCodeDialog, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
-import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {Label} from "@features/label";
@@ -81,8 +77,6 @@ function AppointmentDetail({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
-
-    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation(["common", "agenda"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
@@ -211,6 +205,7 @@ function AppointmentDetail({...props}) {
                                     </Box>
                                     <Stack sx={{width: "100%"}}>
                                         <Typography
+                                            onClick={() => OnEditDetail(appointment)}
                                             className={"user-name"}
                                             variant="subtitle1"
                                             color="primary"

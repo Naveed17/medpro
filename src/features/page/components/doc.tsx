@@ -30,7 +30,7 @@ function Doc({...props}) {
         editMode = true,
         bg2ePage = true,
         downloadMode = false,
-        setDocs
+        setDocs, t
     } = props
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -123,6 +123,43 @@ function Doc({...props}) {
                 setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
 
                 break;
+            case "glasses":
+                const subTitle = ['sphere', 'cylindre', 'axe']
+                let od = "";
+                let og = "";
+                let odp = "";
+                let ogp = ""
+
+                state.info.map((el: any) => {
+                    subTitle.map(key => {
+                        od += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
+                        og += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
+                        odp += `${t(key)} : ${el.pfp[0].od[key] ? el.pfp[0].od[key] : ' - '}  `;
+                        ogp += `${t(key)} : ${el.pfp[0].og[key] ? el.pfp[0].og[key] : ' - '}   `
+                    })
+
+                    elx += `<p>• ${t('farvision')}</p>
+                            <p style="margin-left: 20px">${od}</p>
+                            <p>• ${t('nearvision')}</p>
+                            <p style="margin-left: 20px">${od}</p>`
+                })
+
+                setTitle("Ordonnance de lunettes");
+                break;
+            case "lens":
+                let odl = "";
+                let ogl = ""
+                const st = ['sphere', 'cylindre', 'axe']
+
+                state.info.map((el: any) => {
+                    st.forEach(key => {
+                        odl += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
+                        ogl += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
+                    })
+                    elx += `<p>• ${odl}</p><p>• ${ogl}</p>`
+                })
+                setTitle("Lentille");
+                break;
         }
         data.content.content = elx
         setData({...data})
@@ -209,7 +246,8 @@ function Doc({...props}) {
             if (data.content.pages) {
                 let _rest = contentDiv.clientHeight
                 let nbPage = 0
-                while (_rest > 10) {
+
+                while (_rest > 0) {
                     const _h = data.content.pages.find((page: { id: number }) => page.id === nbPage)
                     _rest -= _h ? _h.height : data.content.maxHeight
                     nbPage++
@@ -257,7 +295,7 @@ function Doc({...props}) {
                     onClose={() => {
                         setValue("")
                     }}>
-                {data[value] ? ["patient","date","cin","age"].includes(value) ? <Stack spacing={1} p={2}>
+                {data[value] ? ["patient", "date", "cin", "age"].includes(value) ? <Stack spacing={1} p={2}>
                     <Typography fontSize={12}>Prefix</Typography>
                     <TextField
                         value={data[value].prefix}

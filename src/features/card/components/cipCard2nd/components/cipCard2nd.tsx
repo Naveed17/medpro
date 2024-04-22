@@ -18,7 +18,7 @@ import {Label} from '@features/label';
 const shortEnglishHumanizer = humanizeDuration.humanizer(humanizerConfig);
 
 function CipCard2nd({...props}) {
-    const {openPatientDialog} = props;
+    const {openPatientDialog, onClose} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const {timer} = useTimer();
@@ -67,14 +67,18 @@ function CipCard2nd({...props}) {
                         border: `2px solid ${theme.palette.background.paper}`
                     }} variant={"circular"}
                     src={`/static/icons/men-avatar.svg`}/>
-            </Badge>}
-        >
+            </Badge>}>
             <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 0}} width={1}>
                 <Stack alignItems='flex-start'>
                     <Typography
-
-                        fontWeight={500}
-                        fontSize={16}
+                        onClick={event => {
+                            event.stopPropagation();
+                            openPatientDetail();
+                            onClose();
+                        }}
+                        fontWeight={800}
+                        className={"user-name"}
+                        fontSize={14}
                         color="common.white"
                         display={{xs: 'none', md: "block"}}>
                         {capitalizeFirst(`${event?.extendedProps.patient.firstName} ${event?.extendedProps.patient.lastName}`)}
@@ -100,8 +104,6 @@ function CipCard2nd({...props}) {
                         sx={{
                             width: 30,
                             height: 30,
-
-                            bgcolor: "white",
                             "& .MuiAvatar-img": {
                                 width: 20,
                                 height: 20

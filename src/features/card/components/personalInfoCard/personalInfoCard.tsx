@@ -272,8 +272,7 @@ function PersonalInfo({...props}) {
                                                     }
                                                 }
                                             })}
-                                        item md={8} sm={6} xs={9}
-                                    >
+                                        item md={8} sm={6} xs={9}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -288,10 +287,11 @@ function PersonalInfo({...props}) {
                                                 size="medium"
                                                 readOnly={!editable}
                                                 error={Boolean(touched.gender && errors.gender)}
-                                                {...getFieldProps("gender")}
-                                            >
-                                                <MenuItem value={1}>{t("mr")}</MenuItem>
-                                                <MenuItem value={2}>{t("mrs")}</MenuItem>
+                                                {...getFieldProps("gender")}>
+                                                <MenuItem
+                                                    value={1}>{t(getBirthday(patient.birthdate).years < 18 ? "male" : "mr")}</MenuItem>
+                                                <MenuItem
+                                                    value={2}>{t(getBirthday(patient.birthdate).years < 18 ? "female" : "mrs")}</MenuItem>
                                             </Select>
                                         )}
                                     </Grid>
