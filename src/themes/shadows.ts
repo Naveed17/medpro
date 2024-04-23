@@ -7,7 +7,7 @@ export const shadows: any = [
   "0px 2px 4px 0px rgba(0, 0, 0, 0.1)",
   "0px 0px 3px 1px rgba(219, 219, 219, 1)",
   "0px 0px 3px 1px rgba(219, 219, 219, 1)",
-  "0px 0px 6px rgba(6, 150, 214, 0.2)",
+  "0px 2px 4px 0px rgba(0, 0, 0, 0.1)",
   "0px 5px 12px rgba(0, 0, 0, 0.06)",
   "0px 1px 5px #0096D6",
   "0px 0px 6px rgba(0, 0, 0, 0.07)",
@@ -70,7 +70,9 @@ const createCustomShadow = (): CustomShadowType => {
     documentCard: "0px 0px 20px rgba(76, 87, 125, 0.02)",
     dialogActionShadow:'0px -1px 1px 0px rgba(0, 150, 214, 0.45)',
     avatarShadow:"0px 0px 1px 0px rgba(33, 37, 41, 0.08),0px 0px 1px 0px rgba(33, 37, 41, 0.06)",
-    dialog:"2px 2px 16px 0px rgba(16, 24, 40, 0.1)"
+    dialog:"2px 2px 16px 0px rgba(16, 24, 40, 0.1)",
+    inputShadow:"0px 2px 1px 0px rgba(232, 245, 255, 0.25)"
+
   };
 };
 

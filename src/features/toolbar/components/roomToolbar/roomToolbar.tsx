@@ -1,23 +1,23 @@
-import {Stack, useMediaQuery, Button, Tabs, Tab, Badge, Avatar, useTheme} from '@mui/material'
-import {DrawerBottom} from '@features/drawerBottom';
-import {WaitingRoom} from '@features/leftActionBar'
+import { Stack, useMediaQuery, Button, Tabs, Tab, Badge, Avatar, useTheme } from '@mui/material'
+import { DrawerBottom } from '@features/drawerBottom';
+import { WaitingRoom } from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
-import React, {SyntheticEvent, useCallback, useState} from 'react';
-import {MobileContainer} from '@themes/mobileContainer';
-import {a11yProps} from "@lib/hooks";
-import {MinMaxWindowButton, minMaxWindowSelector} from '@features/buttons';
-import {LoadingButton} from "@mui/lab";
+import React, { SyntheticEvent, useCallback, useState } from 'react';
+import { MobileContainer } from '@themes/mobileContainer';
+import { a11yProps } from "@lib/hooks";
+import { MinMaxWindowButton, minMaxWindowSelector } from '@features/buttons';
+import { LoadingButton } from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import {CipCard} from "@features/card";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {onOpenPatientDrawer} from "@features/table";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
-import {agendaSelector, setNavigatorMode} from "@features/calendar";
-import {ToggleButtonStyled} from "@features/toolbar";
+import { CipCard } from "@features/card";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { onOpenPatientDrawer } from "@features/table";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { agendaSelector, setNavigatorMode } from "@features/calendar";
+import { ToggleButtonStyled } from "@features/toolbar";
 
-function RoomToolbar({...props}) {
+function RoomToolbar({ ...props }) {
     const {
         t,
         tabIndex,
@@ -33,12 +33,12 @@ function RoomToolbar({...props}) {
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {data: session} = useSession();
+    const { data: session } = useSession();
 
-    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
-    const {mode} = useAppSelector(agendaSelector);
+    const { isWindowMax } = useAppSelector(minMaxWindowSelector);
+    const { mode } = useAppSelector(agendaSelector);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
     const [open, set0pen] = useState(false);
@@ -90,7 +90,7 @@ function RoomToolbar({...props}) {
                     <React.Fragment>
                         {data?.map((item: any, index: number) => (
                             <Button
-                                {...(handleCollapse && {onClick: () => handleCollapse(item.id)})}
+                                {...(handleCollapse && { onClick: () => handleCollapse(item.id) })}
                                 sx={{
                                     minWidth: 40,
                                     textTransform: 'capitalize',
@@ -98,10 +98,10 @@ function RoomToolbar({...props}) {
                                     '& svg': {
                                         width: 14,
                                         height: 14,
-                                        '& path': {fill: theme => theme.palette.text.primary}
+                                        '& path': { fill: theme => theme.palette.text.primary }
                                     }
                                 }} variant='contained' color={item.color} key={index.toString()}>
-                                <Icon path={item.icon}/>
+                                <Icon path={item.icon} />
                             </Button>
                         ))
                         }
@@ -110,7 +110,7 @@ function RoomToolbar({...props}) {
             </Stack>
             <MobileContainer>
                 <Button
-                    startIcon={<Icon path="ic-filter"/>}
+                    startIcon={<Icon path="ic-filter" />}
                     variant="filter"
                     onClick={() => set0pen(!open)}
                     sx={{
@@ -128,7 +128,7 @@ function RoomToolbar({...props}) {
                 handleClose={() => set0pen(false)}
                 open={open}
                 title="Filter">
-                <WaitingRoom/>
+                <WaitingRoom />
             </DrawerBottom>
 
             <Stack direction={"row"} alignItems={"center"} mb={.5} spacing={1}>
@@ -137,7 +137,7 @@ function RoomToolbar({...props}) {
                         disableRipple
                         color={"black"}
                         onClick={() => {
-                            dispatch(onOpenPatientDrawer({patientId: is_next.patient_uuid}));
+                            dispatch(onOpenPatientDrawer({ patientId: is_next.patient_uuid }));
                             setPatientDetailDrawer(true);
                         }}
                         sx={{
@@ -152,7 +152,7 @@ function RoomToolbar({...props}) {
                         loadingPosition={"start"}
                         startIcon={<Badge
                             overlap="circular"
-                            anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                             badgeContent={
                                 <Avatar alt="Small avatar" sx={{
                                     pt: .2,
@@ -161,7 +161,7 @@ function RoomToolbar({...props}) {
                                     borderRadius: 20,
                                     border: theme => `2px solid ${theme.palette.background.paper}`
                                 }}>
-                                    <IconUrl width={14} height={16} path={"ic-next"}/>
+                                    <IconUrl width={14} height={16} path={"ic-next"} />
                                 </Avatar>
                             }>
                             <Avatar
@@ -171,7 +171,7 @@ function RoomToolbar({...props}) {
                                     borderRadius: 20,
                                     border: theme => `2px solid ${theme.palette.background.paper}`
                                 }} variant={"circular"}
-                                src={`/static/icons/men-avatar.svg`}/>
+                                src={`/static/icons/men-avatar.svg`} />
                         </Badge>}
                         variant={"contained"}>
                         <Stack direction={"row"} alignItems={"center"}>
@@ -181,7 +181,7 @@ function RoomToolbar({...props}) {
                                 variant={"square"}
                                 onClick={(event) => {
                                     event.stopPropagation();
-                                    nextConsultation({is_next: true, uuid: is_next.uuid});
+                                    nextConsultation({ is_next: true, uuid: is_next.uuid });
                                 }}
                                 sx={{
                                     ml: 1,
@@ -195,7 +195,7 @@ function RoomToolbar({...props}) {
                                         color: theme => theme.palette.text.primary,
                                         width: 20,
                                         height: 20
-                                    }}/>
+                                    }} />
                             </Avatar>
                         </Stack>
                     </LoadingButton>
@@ -204,11 +204,11 @@ function RoomToolbar({...props}) {
                 {(isActive && isWindowMax) &&
                     <CipCard
                         openPatientDialog={(uuid: string) => {
-                            dispatch(onOpenPatientDrawer({patientId: uuid}));
+                            dispatch(onOpenPatientDrawer({ patientId: uuid }));
                             setPatientDetailDrawer(true);
-                        }}/>
+                        }} />
                 }
-                {roles.includes('ROLE_SECRETARY') && <MinMaxWindowButton/>}
+                {roles.includes('ROLE_SECRETARY') && <MinMaxWindowButton />}
 
                 <ToggleButtonStyled
                     id="toggle-button"
@@ -216,11 +216,11 @@ function RoomToolbar({...props}) {
                     onClick={() => dispatch(setNavigatorMode(mode === "normal" ? "discreet" : "normal"))}
                     className={"toggle-button"}
                     sx={{
-                        ...(mode !== "normal" && {border: "none"}),
+                        ...(mode !== "normal" && { border: "none" }),
                         background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
                     }}>
                     <IconUrl width={19} height={19}
-                             path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>
+                        path={"ic-eye-slash"} {...(mode !== "normal" && { color: "white" })} />
                 </ToggleButtonStyled>
             </Stack>
         </Stack>

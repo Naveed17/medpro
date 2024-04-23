@@ -2,6 +2,23 @@ import {styled} from "@mui/material/styles";
 import {Drawer} from "@mui/material";
 
 const MobileDrawerStyled = styled(Drawer)(({ theme }) => ({
+     "& .MuiListItemIcon-root": {
+        svg: {
+            path: {
+                transition: 'all .5s ease-in-out .2s',
+                fill: theme.palette.grey["B908"],
+            }
+        },
+        "&.ic-logout":{
+            svg: {
+            path: {
+                
+                fill: theme.palette.error.main,
+            }
+        },
+        },
+
+    },
     "& .MuiPaper-root": {
         padding: 20,
         "& .MuiList-root": {
@@ -46,11 +63,6 @@ const MobileDrawerStyled = styled(Drawer)(({ theme }) => ({
                 "& .MuiListItem-root":{
                   "&:hover": {
                     backgroundColor: "transparent",
-                    "& .MuiListItemIcon-root": {
-                        backgroundColor: theme.palette.info.main,
-                        boxShadow: theme.shadows[4],
-                        border: `1px solid ${theme.palette.grey["A100"]}`,
-                    },
                     }
                 },
             },

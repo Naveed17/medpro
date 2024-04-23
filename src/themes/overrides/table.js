@@ -58,7 +58,7 @@ export default function Table(theme) {
           },
           "&:hover": {
             "& > .MuiTableCell-root:not(.MuiTableCell-head)": {
-              backgroundColor: theme.palette.primary.lighter,
+              backgroundColor: theme.palette.grey[50],
               borderBottom: `1px solid ${theme.palette.divider}`,
               "&.text-row": {
                 backgroundColor: "transparent",
@@ -76,7 +76,7 @@ export default function Table(theme) {
           "&:first-of-type": {
             "&:hover": {
               ".MuiTableCell-root:not(.MuiTableCell-head)": {
-                background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
+                background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.grey[50]} 0%);`
               }
             },
             ".MuiTableCell-root": {
@@ -84,7 +84,7 @@ export default function Table(theme) {
             },
             "&.Mui-selected": {
               ".MuiTableCell-root": {
-                background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
+                background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.grey[50]} 0%);`
               }
             },
 

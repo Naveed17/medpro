@@ -37,7 +37,6 @@ export default function Switch(theme) {
               backgroundColor: theme.palette.divider,
               opacity: 1,
               border: `1px solid ${theme.palette.common.white}`,
-
               '&:after': {
                 content: '""',
                 position: 'absolute',
@@ -48,6 +47,7 @@ export default function Switch(theme) {
                 right: theme.direction === 'rtl' ? 12 : 9,
                 backgroundRepeat: 'no-repeat',
               },
+
             },
             '& .MuiSwitch-thumb': {
               boxShadow: 'none',
@@ -56,6 +56,20 @@ export default function Switch(theme) {
               height: 16,
               margin: 2,
             },
+            "&:hover": {
+              '& .MuiSwitch-track': {
+                backgroundColor: theme.palette.primary.lighter
+              },
+              ".Mui-checked+.MuiSwitch-track": {
+                backgroundColor: theme.palette.primary.dark
+              }
+            },
+            ".MuiSwitch-switchBase": {
+              "&:hover": {
+                background: 'none'
+              }
+            },
+
           },
         }
       },

@@ -88,15 +88,16 @@ const BLACK = {
 
 export const GREY = {
   0: "#FFFFFF",
+  50:"#EEF2F6",
   100: "#DCE3ED",
-  200: "#DDDDDD",
-  300: "#C9C8C8",
-  400: "#7C878E",
-  500: "#3C3C3B",
-  600: "#1B2746",
-  700: "#B8BCCA",
-  800: "#212B36",
-  900: "#161C24",
+  200: "#C8D4E2",
+  300: "#B4C5D7",
+  400: "#A0B6CC",
+  500: "#8CA7C1",
+  600: "#71899D",
+  700: "#576A7A",
+  800: "#3D4B57",
+  900: "#232C34",
   A0: "#959CBD",
   A10: "#f8fafc",
   A11: "#E4E4E4",
@@ -128,6 +129,7 @@ export const GREY = {
   500_48: alpha("#919EAB", 0.48),
   500_56: alpha("#919EAB", 0.56),
   500_80: alpha("#919EAB", 0.8),
+  500_90: alpha("#212529",0.40)
 };
 
 const GRADIENTS = {
@@ -156,11 +158,11 @@ const COMMON = {
   back: { ...BACK, contrastText: GREY[600] },
   grey: GREY,
   gradients: GRADIENTS,
-  divider: "#DDDDDD",
+  divider: "#C8D4E2",
   action: {
     hover: GREY[500_8],
     selected: GREY[500_16],
-    disabled: GREY[500_80],
+    disabled: GREY[500_90],
     disabledBackground: GREY[500_24],
     focus: GREY[500_24],
     hoverOpacity: 0.08,
@@ -172,8 +174,8 @@ const palette = {
   ...COMMON,
   text: {
     primary: "#1B2746",
-    secondary: "#7C878E",
-    disabled: "#959CBD",
+    secondary: "#4D5966",
+    disabled: COMMON.action.disabled,
   },
   background: {
     default: "#F0FAFF",

@@ -23,7 +23,6 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             "& .MuiDrawer-paper": {
                 boxSizing: "border-box",
                 width: 84,
-                backgroundColor: theme.palette.grey[100],
             },
         },
         "& .nav-logo": {
@@ -100,7 +99,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                     zIndex: -1
                 }
             },
-            "@media screen and (max-height: 600px)": {
+            "@media screen and (max-height: 446px)": {
                 marginTop: 0,
                 "&.list-bottom": {
                     paddingTop: 0,
@@ -111,11 +110,6 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             },
             "@media screen and (min-height: 750px)": {
                 marginTop: 20,
-                " &.list-bottom": {
-                    position: "absolute",
-                    bottom: 0,
-                    left: 22,
-                },
                 "& .action-bar-open": {
                     padding: "10px 0px 10px 20px",
                     backgroundColor: theme.palette.background.paper,

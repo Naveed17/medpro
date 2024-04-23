@@ -66,9 +66,8 @@ const ProfileSectionStyled = styled('div')(({theme}) => ({
                 },
                 "& .profile-top-sec": {
                     padding: 0,
-                    "& ul": {
+                    ul: {
                         paddingTop: 0,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
                         width: "100%",
                         "& li": {
                             "& .profile-detail": {
@@ -155,6 +154,13 @@ const ProfileSectionStyled = styled('div')(({theme}) => ({
                         },
                     },
                 },
+                ".MuiToggleButton-root":{
+                    minWidth:39,
+                "&.Mui-selected":{
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                }
+                }
             },
         },
         "&[data-popper-placement='top-end']": {

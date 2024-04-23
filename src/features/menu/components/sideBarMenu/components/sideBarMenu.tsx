@@ -129,7 +129,7 @@ function SideBarMenu({ children }: LayoutProps) {
                                 // open={item.name === showTooltip}
                                 // onMouseEnter={() => { setShowTooltip(item.name) }}
                                 // onMouseLeave={() => { setShowTooltip(null) }}
-                                // disableHoverListener={true}
+                                disableHoverListener={isMobile}
                                 componentsProps={{
                                     tooltip: {
                                         sx: {
@@ -145,13 +145,13 @@ function SideBarMenu({ children }: LayoutProps) {
                                 <a onClick={() => handleRouting(item.href)}>
                                     <ListItem
                                         sx={{
-                                            margin: "2rem 0",
+                                            margin: isMobile ? "0.5rem 0" : "1.5rem 0",
                                             cursor: 'pointer',
                                         }}
                                         className={router.pathname.includes(item.href) ? "active" : ""}>
                                         <Badge
                                             anchorOrigin={{
-                                                vertical: "bottom",
+                                                vertical: "top",
                                                 horizontal: "right",
                                             }}
                                             invisible={item.badge === undefined || isMobile}
@@ -170,7 +170,7 @@ function SideBarMenu({ children }: LayoutProps) {
                                                 <Icon path={item.icon} />
                                             </ListItemIcon>
                                         </Badge>
-                                        {/* <ListItemTextStyled primary={t("main-menu." + item.name)}/> */}
+                                        {isMobile && <ListItemTextStyled primary={t("main-menu." + item.name)} />}
                                         {isMobile && item.badge !== undefined && item.badge > 0 && (
                                             <Badge
                                                 badgeContent={item.badge}
@@ -211,7 +211,7 @@ function SideBarMenu({ children }: LayoutProps) {
                                 : "mt-2"
                         }>
                         <Tooltip TransitionComponent={Zoom}
-                            disableHoverListener={false}
+                            disableHoverListener={isMobile}
                             componentsProps={{
                                 tooltip: {
                                     sx: {
@@ -257,7 +257,7 @@ function SideBarMenu({ children }: LayoutProps) {
                                 : "mt-2"
                         }>
                         <Tooltip TransitionComponent={Zoom}
-                            disableHoverListener={false}
+                            disableHoverListener={isMobile}
                             componentsProps={{
                                 tooltip: {
                                     sx: {
@@ -307,8 +307,8 @@ function SideBarMenu({ children }: LayoutProps) {
                     </ListItem>
                 </Badge>*/}
                 <Hidden smUp>
-                    <ListItem onClick={() => handleLogout()}>
-                        <ListItemIcon>
+                    <ListItem sx={{ cursor: 'pointer' }} onClick={() => handleLogout()}>
+                        <ListItemIcon className="ic-logout">
                             <Icon path="ic-deconnexion-1x" />
                         </ListItemIcon>
                         <ListItemText primary={t("main-menu." + "logout")} />
