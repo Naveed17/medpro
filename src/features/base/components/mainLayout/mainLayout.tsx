@@ -42,7 +42,7 @@ import {DefaultCountry, EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {useCalculateCnxSpeed, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
