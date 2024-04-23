@@ -2,7 +2,7 @@
   "sub-header": {
     "title": "Liste des patients",
     "merge-patient": "Fusionner les patients",
-    "add-patient": "Ajouter Patient"
+    "add-patient": "Ajouter un patient"
   },
   "patient-details": {
     "duplicate": "Détection des doublons",
@@ -144,7 +144,7 @@
       "action": "Action",
       "add-appointment": "Ajouter RDV",
       "edit": "Modifier",
-      "see-card": "Voir fiche",
+      "see-card": "Voir la fiche",
       "of": "de",
       "title": "Documents",
       "Photos": "Photos",
@@ -300,7 +300,7 @@
     },
     "dialogs": {
       "move-dialog": {
-        "title": "Déplacer RDV",
+        "title": "Déplacer le RDV",
         "title-duration": "Modifier la durée du RDV",
         "sub-title": "Voulez-vous vraiment déplacer le RDV?",
         "sub-title-duration": "Voulez-vous vraiment modifier la durée du rendez-vous ?",
@@ -355,7 +355,7 @@
       "type": "Type",
       "payment": "Statut du paiement",
       "duplicate": "Voir les patients en double",
-      "next-appointment": "Prochain rendez-vous",
+      "next-appointment": "Prochains rendez-vous",
       "last-appointment": "Dernier rendez-vous",
       "reasons": "Motif",
       "status": "Statut",
@@ -373,7 +373,7 @@
       "pending": "En attente",
       "cancel": "Annulé",
       "expired": "Expiré",
-      "no_show": "Patient ne s'est pas présenté",
+      "no_show": "Le patient ne s'est pas présenté",
       "cancel_patient": "Annulé par le patient",
       "note": "Notes",
       "apply": "Appliquer",
