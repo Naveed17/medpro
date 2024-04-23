@@ -645,19 +645,18 @@ function TopNavBar({...props}) {
                                     </LoadingButton>
                                 </Stack>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
-                                    {(dialogAction !== "finish" || selectedEvent !== null) &&
-                                        <LoadingButton
-                                            loading={loadingReq}
-                                            color={"white"}
-                                            variant="contained"
-                                            loadingPosition="start"
-                                            onClick={handlePauseStartConsultation}
-                                            startIcon={<IconUrl height={"18"} width={"18"}
-                                                                path="ic-pause-mate"></IconUrl>}>
-                                            <Typography color={"text.primary"}>
-                                                {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
-                                            </Typography>
-                                        </LoadingButton>}
+                                    {(dialogAction !== "finish" || selectedEvent !== null) && <LoadingButton
+                                        loading={loadingReq}
+                                        color={"white"}
+                                        variant="contained"
+                                        loadingPosition="start"
+                                        onClick={handlePauseStartConsultation}
+                                        startIcon={<IconUrl height={"18"} width={"18"}
+                                                            path="ic-pause-mate"></IconUrl>}>
+                                        <Typography color={"text.primary"}>
+                                            {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
+                                        </Typography>
+                                    </LoadingButton>}
                                     {(dialogAction === "finish" || selectedEvent !== null) &&
                                         <LoadingButton
                                             loading={loadingReq}

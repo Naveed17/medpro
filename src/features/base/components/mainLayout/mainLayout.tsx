@@ -93,7 +93,6 @@ function MainLayout({...props}) {
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
     const [isOffline, setIsOffline] = useState(false);
-    const [isSlow, setIsSlow] = useState(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -106,7 +105,7 @@ function MainLayout({...props}) {
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
     const slugFeature = router.pathname.split('/')[2];
-    const extraPaths = ["documents", "cash-box-switcher", "all", "waiting-room"];
+    const extraPaths = ["documents", "cash-box-switcher", "all", "waiting-room", "consultation"];
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const ability = buildAbilityFor(features ?? [], permissions);
@@ -188,6 +187,7 @@ function MainLayout({...props}) {
                         break;
                     case "documents":
                         // Mutate Speech to text Documents
+                        //enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
                         medicalEntityHasUser && invalidateQueries([
                             ...(data.body.appointment ? [`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`] : []),
                             ...(data.body.patient ? [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.body.patient}/documents/${router.locale}`] : [])
