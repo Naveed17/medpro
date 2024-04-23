@@ -58,9 +58,9 @@ function CipCard({...props}) {
                        spacing={1}  {...(isMobile && {className: "cip-avatar-mobile"})}>
                     <Avatar
                         alt="button avatar"
-
                         sx={{
                             height: 28,
+                            width: "auto",
                             py: 2,
                             px: .5,
                             borderRadius: 3,
@@ -69,7 +69,7 @@ function CipCard({...props}) {
                             bgcolor: theme.palette.warning.main
                         }}>
                         <Typography
-                            sx={{width: "auto"}}
+                            sx={{width: "auto", minWidth: 20}}
                             ml={0}
                             fontSize={14}
                             fontWeight={600}>
