@@ -462,11 +462,15 @@ function Cashbox() {
         setSelectedTab(newValue);
         dispatch(setSelectedTabIndex(newValue));
     };
-    const exportDoc = () => {
-        triggerExport(
+    const exportDoc = (from:string) => {
+
+        let url= `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`;
+        if (from === "apps")
+            url =`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/export/${router.locale}`;
+            triggerExport(
             {
                 method: "GET",
-                url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`,
+                url,
             },
             {
                 onSuccess: (result) => {
@@ -595,6 +599,17 @@ function Cashbox() {
                                     <Typography fontWeight={700}>{t("consultations")}</Typography>
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                 </Stack>
+
+                                {apps.length > 0 &&
+                                    <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
+                                        <Button
+                                            onClick={() => exportDoc('apps')}
+                                            variant="outlined"
+                                            color="info"
+                                            startIcon={<IconUrl path="ic-export-new"/>}>
+                                            {t("export")}
+                                        </Button>
+                                    </Can>}
                             </Stack>
                             <DesktopContainer>
                                 {apps.length > 0 ? <Otable
@@ -654,7 +669,7 @@ function Cashbox() {
                                     {rows.length > 0 &&
                                         <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
                                             <Button
-                                                onClick={exportDoc}
+                                                onClick={() => exportDoc('cashbox')}
                                                 variant="outlined"
                                                 color="info"
                                                 startIcon={<IconUrl path="ic-export-new"/>}>

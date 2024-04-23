@@ -28,7 +28,7 @@ import {agendaSelector} from "@features/calendar";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
-    const {roles, setLoading, openMenu} = data;
+    const {roles, setLoading, openMenu, tabIndex} = data;
     const theme = useTheme();
 
     const {next: is_next} = useAppSelector(dashLayoutSelector);
@@ -60,7 +60,6 @@ function WaitingRoomRow({...props}) {
             </DialogActions>
         );
     }
-
     return (
         <>
             <TableRowStyled>
@@ -148,7 +147,7 @@ function WaitingRoomRow({...props}) {
                             </>
                         )}
                 </TableCell>
-                <TableCell>
+                {tabIndex !==1 && <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Typography
@@ -168,7 +167,7 @@ function WaitingRoomRow({...props}) {
                     ) : (
                         <Skeleton variant="text" width={80}/>
                     )}
-                </TableCell>
+                </TableCell>}
                 <TableCell>
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
