@@ -42,7 +42,7 @@ import {DefaultCountry, EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {useCalculateCnxSpeed, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
@@ -72,6 +72,7 @@ function MainLayout({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    //useCalculateCnxSpeed(); // Check speed connection
     const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
@@ -104,7 +105,7 @@ function MainLayout({...props}) {
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
     const slugFeature = router.pathname.split('/')[2];
-    const extraPaths = ["documents", "cash-box-switcher"];
+    const extraPaths = ["documents", "cash-box-switcher", "all", "waiting-room", "consultation"];
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const ability = buildAbilityFor(features ?? [], permissions);
@@ -186,7 +187,7 @@ function MainLayout({...props}) {
                         break;
                     case "documents":
                         // Mutate Speech to text Documents
-                        enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
+                        //enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
                         medicalEntityHasUser && invalidateQueries([
                             ...(data.body.appointment ? [`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`] : []),
                             ...(data.body.patient ? [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.body.patient}/documents/${router.locale}`] : [])

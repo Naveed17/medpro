@@ -123,7 +123,9 @@ function Trash() {
             const eventsUpdated: EventModal[] = [];
             const trash = (httpTrashAppointment as HttpResponse)?.data as AppointmentModel[];
             trash.forEach((appointment) => eventsUpdated.push(appointmentPrepareEvent(appointment, false, [])))
-            setGroupTrashArrays(appointmentGroupByDate(eventsUpdated));
+            const sortedData = appointmentGroupByDate(eventsUpdated).sort((a, b) =>
+                moment(b.date, "DD-MM-YYYY").toDate().getTime() - moment(a.date, "DD-MM-YYYY").toDate().getTime());
+            setGroupTrashArrays(sortedData);
             setLoading(false);
         }
     }, [httpTrashAppointment])
