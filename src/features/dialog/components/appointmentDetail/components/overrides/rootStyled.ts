@@ -118,6 +118,9 @@ const RootStyled = styled(Paper)(({theme}) => ({
         borderRadius: 8,
         padding: theme.spacing(.8),
     },
+    "& .user-name": {
+        cursor: "pointer"
+    }
 }));
 
 export default RootStyled;

@@ -7,6 +7,7 @@ export {default as useGeneratePdfTemplate} from "./useGeneratePdfTemplate";
 export {default as useMutateOnGoing} from "./useMutateOnGoing";
 export {default as useInvalidateQueries} from "./useInvalidateQueries";
 export {default as useLastPrescription} from "./useLastPrescription";
+export {default as useCalculateCnxSpeed} from "./useCalculateCnxSpeed";
 export {default as useTimer} from "./useTimer";
 export * from "./prepareSearchKeys";
 export * from "./prepareInsurancesData";

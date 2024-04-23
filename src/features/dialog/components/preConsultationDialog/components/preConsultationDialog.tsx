@@ -30,7 +30,7 @@ function PreConsultationDialog({...props}) {
 
     const {t} = useTranslation("consultation", {keyPrefix: "filter"});
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const { medicalEntityHasUser, medicalProfessionalData } = useAppSelector(dashLayoutSelector);
 
     const [insurances, setInsurances] = useState<InsuranceModel[]>([]);
     const [changes, setChanges] = useState([
@@ -54,6 +54,7 @@ function PreConsultationDialog({...props}) {
     const [isClose, setIsClose] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [acts, setActs] = useState<AppointmentActModel[]>([]);
 
     const {
         data: httpSheetResponse,
@@ -86,6 +87,14 @@ function PreConsultationDialog({...props}) {
             setLoading(false);
         }
     }, [dispatch, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(()=>{
+        let _acts: AppointmentActModel[] = []
+        medicalProfessionalData && medicalProfessionalData.acts.map(act => {
+            _acts.push({ qte: 1, selected: false, ...act })
+        })
+        setActs(_acts)
+    },[medicalProfessionalData])
 
     return (
         <PreConsultationDialogStyled direction={"column"} spacing={1.2}>
@@ -182,6 +191,8 @@ function PreConsultationDialog({...props}) {
                         changes,
                         setChanges,
                         isClose,
+                        acts,
+                        setActs,
                         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/data/${router.locale}`,
                     }}
                     expandButton={false}

@@ -24,12 +24,15 @@ import IconUrl from "@themes/urlIcon";
 import { getDiffDuration } from "@lib/hooks";
 import TableRowStyled from "../overrides/tableRowStyled";
 import { IconButtonStyled } from "@features/board";
+import { agendaSelector } from "@features/calendar";
 
 function WaitingRoomRow({ ...props }) {
     const { index: key, row, t, handleEvent, data, loading } = props;
     const { roles, setLoading, openMenu } = data;
     const theme = useTheme();
+
     const { next: is_next } = useAppSelector(dashLayoutSelector);
+    const { mode } = useAppSelector(agendaSelector);
 
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -93,9 +96,15 @@ function WaitingRoomRow({ ...props }) {
                                         handleEvent({ action: "PATIENT_DETAILS", row, event });
                                     }
                                 })}
-                                color={row.patient?.isArchived ? "text.primary" : "primary"}
-                                fontWeight={600}
-                                sx={{ ml: 0.6, cursor: "pointer" }}>
+                                {...(mode !== "normal" && {
+                                    className: "blur-text",
+                                    sx: { overflow: "hidden", lineHeight: 1 }
+                                })}
+                                {...(mode === "normal" && {
+                                    color: row.patient?.isArchived ? "text.primary" : "primary",
+                                    sx: { ml: 0.6, cursor: "pointer" }
+                                })}
+                                fontWeight={600}>
                                 {row.patient.firstName} {row.patient.lastName}
                             </Typography>
                         </Stack>

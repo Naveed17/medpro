@@ -86,7 +86,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(medicalEntityHasUser && {variables: {query: '?sort=false'}})
+        ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
     });
 
 

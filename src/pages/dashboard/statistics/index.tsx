@@ -32,12 +32,9 @@ import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {CalendarViewButton} from "@features/buttons";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
-import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import moment from "moment-timezone";
 import {startCase} from 'lodash';
-
-const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 import {LoadingScreen} from "@features/loadingScreen";
 import {TabPanel} from "@features/tabPanel";
 import NumberIcon from "@themes/overrides/icons/numberIcon";
@@ -47,7 +44,8 @@ import {useCountries} from "@lib/hooks/rest";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {height} from "@mui/system";
+
+const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 
 function Statistics() {
     const theme = useTheme();
@@ -63,6 +61,7 @@ function Statistics() {
 
     const [value, setValue] = React.useState(0);
     const [viewChart, setViewChart] = useState('month');
+    const [periodChartData, setPeriodChartData] = useState<any[]>([]);
     const [fullScreenChart, setFullScreenChart] = useState({"act": false, "motif": false, "type": false});
     const [state, setState] = useState({
         rdv_type: {
@@ -86,16 +85,16 @@ function Statistics() {
             ]
         }
     })
-    const [horaires, setHoraires] = useState<any>(null);
+    const [schedules, setSchedules] = useState<any>(null);
 
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-stats/${router.locale}?format=${viewChart}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: statsPatientHttp} = useRequestQuery(medicalEntityHasUser ? {
+    const {data: statsPatientHttp} = useRequestQuery(statsAppointmentHttp && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patient-stats/${router.locale}?format=month`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patient-stats/${router.locale}?format=${viewChart}`
     } : null, ReactQueryNoValidateConfig);
 
     const increasePercentage = (newVal: number, oldVAl: number) => {
@@ -112,14 +111,21 @@ function Statistics() {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const {rdv_type, act_by_rdv, motif_by_consult} = state
     const appointmentStats = ((statsAppointmentHttp as HttpResponse)?.data ?? []) as any;
-    const appointmentPerPeriod = (appointmentStats?.period ? Object.values(appointmentStats.period) : []) as any[];
+    const start = moment().add(1, `${viewChart}s` as any);
+    const durations = Array.from({length: 12}, (_, i) => moment(start.subtract(1, `${viewChart}s` as any)).set({
+        ...(viewChart === "month" && {date: 1}),
+        hour: 0,
+        minute: 0,
+        millisecond: 0
+    })).reverse();
+    const appointmentPerPeriod = (appointmentStats?.period ? durations.map(duration => appointmentStats.period[`${duration.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
     const appointmentPerPeriodKeys = (appointmentStats?.period ? Object.keys(appointmentStats.period) : []) as any[];
     const motifPerPeriod = (appointmentStats?.motif ?? []) as any[];
     const actPerPeriod = (appointmentStats?.act ?? []) as any[];
     const typePerPeriod = (appointmentStats?.type ?? []) as any[];
     const statsPerPeriod = (appointmentStats?.stats ?? null) as any;
     const patientStats = ((statsPatientHttp as HttpResponse)?.data ?? []) as any;
-    const patientPerPeriod = (patientStats?.period ? Object.values(patientStats.period) : []) as any[];
+    const patientPerPeriod = (patientStats?.period ? durations.map(duration => patientStats.period[`${duration.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
     const patientPerAge = (patientStats?.age ? Object.values(patientStats.age) : []) as any[];
     const patientPerGender = (patientStats?.gender ? Object.values(patientStats.gender) : []) as any[];
     const patientPerLocation = (patientStats?.location ? Object.values(patientStats.location).map((location: any) => ({
@@ -129,7 +135,7 @@ function Statistics() {
     const patientPerIncreasePercentage = increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])
     const VIEW_OPTIONS = [
         {value: "day", label: "Day", text: "Jour", icon: TodayIcon, format: "D"},
-        {value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
+        //{value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
         {value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM"}
     ];
     const genders = {
@@ -155,16 +161,31 @@ function Statistics() {
                 "SAT": "Saturday",
                 "SUN": "Sunday"
             }
-            let horaires: any = {}
+            let schedules: any = {}
             Object.entries(days).forEach(
                 day => {
                     if (statsPerPeriod.common_start_time && statsPerPeriod.common_end_time) {
-                        horaires[day[0]] = statsPerPeriod.common_start_time[day[1]] ? convertDurationToMin(statsPerPeriod.common_start_time[day[1]], statsPerPeriod.common_end_time[day[1]]) : 0
+                        schedules[day[0]] = statsPerPeriod.common_start_time[day[1]] ? convertDurationToMin(statsPerPeriod.common_start_time[day[1]], statsPerPeriod.common_end_time[day[1]]) : 0
                     }
                 })
-            setHoraires(horaires)
+            setSchedules(schedules)
         }
     }, [statsPerPeriod]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (statsPatientHttp && (appointmentPerPeriod.length > 0 || patientPerPeriod.length > 0)) {
+            setPeriodChartData([
+                {
+                    name: 'patients',
+                    data: patientPerPeriod.slice(-12)
+                },
+                {
+                    name: 'appointments',
+                    data: appointmentPerPeriod.slice(-12)
+                },
+            ])
+        }
+    }, [patientStats]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         dispatch(toggleSideBar(true));
@@ -231,7 +252,7 @@ function Statistics() {
                                                             {appointmentPerPeriod[appointmentPerPeriod.length - 1]}
                                                         </Typography>
                                                         <Typography fontWeight={500} variant="body2">
-                                                            {t("rdv_per-min")}
+                                                            {t(`rdv-per.${viewChart}`)}
                                                         </Typography>
                                                     </Stack>
                                                 </Stack>
@@ -271,13 +292,7 @@ function Statistics() {
                                             <ChartStyled>
                                                 <Chart
                                                     type="area"
-                                                    series={[
-                                                        {name: 'patients', data: patientPerPeriod.slice(-12)},
-                                                        {
-                                                            name: 'appointments',
-                                                            data: appointmentPerPeriod.slice(-12)
-                                                        },
-                                                    ]}
+                                                    series={periodChartData}
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
@@ -367,7 +382,7 @@ function Statistics() {
                                                         [
                                                             {
                                                                 name: 'Temps de travail de la journée',
-                                                                data: (horaires ? Object.values(horaires) : []) as any[]
+                                                                data: (schedules ? Object.values(schedules) : []) as any[]
                                                             }
                                                         ]
                                                     }
@@ -682,7 +697,7 @@ function Statistics() {
                                                     <Chart
                                                         type='donut'
                                                         series={
-                                                            patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.doc_count], [])
+                                                            patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.key !== "u" && val.doc_count], [])
                                                         }
                                                         options={
                                                             merge(ChartsOption(), {
@@ -708,9 +723,9 @@ function Statistics() {
                                                 </ChartStyled>
                                                 <Stack direction='row' alignItems='center' justifyContent='center'
                                                        mt={2}>
-                                                    {patientPerGender.map((gender, index) => gender.key !== "u" &&
-                                                        <>
-                                                            <Stack key={gender.key}>
+                                                    {patientPerGender.filter(gender => gender.key !== "u").map((gender, index) =>
+                                                        <Stack key={gender.key} direction={"row"} alignItems={"center"}>
+                                                            <Stack alignItems={"center"}>
                                                                 <Typography fontWeight={700}
                                                                             color={index === 0 ? 'primary' : 'warning.main'}
                                                                             fontSize={28}
@@ -728,7 +743,7 @@ function Statistics() {
                                                             </Stack>
                                                             {index === 0 && <Divider orientation={"vertical"}
                                                                                      sx={{height: 50, mx: 2}}/>}
-                                                        </>
+                                                        </Stack>
                                                     )}
                                                 </Stack>
                                             </CardContent>
@@ -1254,9 +1269,9 @@ function Statistics() {
                                                     fontWeight={700}>{t("patient_by_gender")}</Typography>
                                         <Stack direction='row' alignItems='center'>
                                             <Stack width={"33%"}>
-                                                {patientPerGender.map((gender, index) => gender.key !== "u" &&
-                                                    <>
-                                                        <Stack key={gender.key}>
+                                                {patientPerGender.filter(gender => gender.key !== "u").map((gender, index) =>
+                                                    <Stack key={gender.key} alignItems={"center"}>
+                                                        <Stack alignItems={"center"}>
                                                             <Typography fontWeight={700}
                                                                         color={index === 0 ? 'primary' : 'warning.main'}
                                                                         fontSize={28}
@@ -1275,14 +1290,14 @@ function Statistics() {
                                                         {index === 0 && <Divider
                                                             orientation={"horizontal"}
                                                             sx={{width: 100, my: 2}}/>}
-                                                    </>
+                                                    </Stack>
                                                 )}
                                             </Stack>
                                             <ChartStyled>
                                                 <Chart
                                                     type='donut'
                                                     series={
-                                                        patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.doc_count], [])
+                                                        patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.key !== "u" && val.doc_count], [])
                                                     }
                                                     options={
                                                         merge(ChartsOption(), {
@@ -1457,7 +1472,7 @@ function Statistics() {
                                                 [
                                                     {
                                                         name: 'Temps de travail de la journée',
-                                                        data: (horaires ? Object.values(horaires) : []) as any[]
+                                                        data: (schedules ? Object.values(schedules) : []) as any[]
                                                     }
                                                 ]
                                             }

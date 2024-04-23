@@ -209,7 +209,7 @@
         "address-group": "Adresse du patient",
         "address-placeholder": "Entrez l'adresse du patient",
         "assurance": "Assurances",
-        "assurance-social": "L'assure social",
+        "assurance-social": "Assurance sociale",
         "assurance-placeholder": "assurance",
         "assurance-phone-error": "numéro d'assurance",
         "assurance-num-error": "Le numéro d'assurance est obligatoire",
@@ -302,7 +302,7 @@
       "sub-title": "Voulez-vous vraiment supprimer le RDV?",
       "description": "Vous perderez à jamais l'historique et les documents concernant ce patient",
       "delete-appointment-insertion": "Données d'insertion",
-      "delete-appointment-data": "Données historiques",
+      "delete-appointment-data": "Données historique du rdv",
       "delete-transaction": "Données de transaction",
       "cancel": "Annuler",
       "confirm": "Supprimer"
