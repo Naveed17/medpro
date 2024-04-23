@@ -12,6 +12,7 @@ const defaultOpts = {
  */
 module.exports = class Backend {
     static type;
+
     /**
      * @param services `i18next.services` - see i18next documentation
      * @param backendOptions Backend Options - see i18next documentation
@@ -24,6 +25,7 @@ module.exports = class Backend {
         this.MODNAME = 'i18next-node-firestore-backend';
         this.init(services, backendOptions, i18nextOptions);
     }
+
     services;
     opts;
     i18nOpts;
@@ -32,6 +34,7 @@ module.exports = class Backend {
     firestore;
     firestoreModule;
     firestoreIsNamespaced;
+
     init(services, opts, i18nOpts) {
         console.log("i18nOpts", i18nOpts)
         if (!opts || (typeof opts === 'object' && Object.keys(opts).length === 0)) {
@@ -39,7 +42,7 @@ module.exports = class Backend {
         }
         this.services = services;
         this.i18nOpts = i18nOpts;
-        this.opts = { ...defaultOpts, ...opts };
+        this.opts = {...defaultOpts, ...opts};
         let bOpts = i18nOpts.backend;
         this.debug = i18nOpts.backend.debug;
         if (this.debug) {
@@ -70,8 +73,7 @@ module.exports = class Backend {
         if (this.debug) {
             if (this.firestoreIsNamespaced) {
                 console.log(`${this.MODNAME}:: using namespaced Firestore`);
-            }
-            else {
+            } else {
                 console.log(`${this.MODNAME}:: using modular Firestore:`, this.firestoreModule.functions);
             }
         }
@@ -91,6 +93,7 @@ module.exports = class Backend {
             console.log(`${this.MODNAME}:: this.opts: ${JSON.stringify(this.opts)}`);
         }
     }
+
     /**
      * @param lang the language code (e.g. "tr" or "en")
      * @param ns the namespace code (e.g. "colors", "greetings")
@@ -120,6 +123,7 @@ module.exports = class Backend {
         }
         return data;
     }
+
     /**
      * @param lang the language code (e.g. "tr" or "en")
      * @param ns the namespace code (e.g. "colors", "greetings")
@@ -130,6 +134,8 @@ module.exports = class Backend {
             console.log(`${this.MODNAME}:: calling modular collection(${this.opts.collectionName})`);
         }
         const collRef = this.firestoreModule.functions.collection(this.firestore, this.opts.collectionName);
+        console.log("languageFieldName", this.opts.languageFieldName, lang)
+        console.log("namespaceFieldName", this.opts.namespaceFieldName, ns)
         const q = this.firestoreModule.functions.query(collRef, this.firestoreModule.functions.where(this.opts.languageFieldName, '==', lang), this.firestoreModule.functions.where(this.opts.namespaceFieldName, '==', ns));
         const querySnap = await this.firestoreModule.functions.getDocs(q);
         if (this.debug) {
@@ -147,6 +153,7 @@ module.exports = class Backend {
         }
         return data;
     }
+
     /**
      * @param lang the language code (e.g. "tr" or "en")
      * @param ns the namespace code (e.g. "colors", "greetings")
@@ -159,10 +166,12 @@ module.exports = class Backend {
             !this.opts.namespaceFieldName) {
             return null;
         }
+        console.log("firestoreIsNamespaced", this.firestoreIsNamespaced)
         return this.firestoreIsNamespaced
             ? this.getDataFromNamedspacedFirestore(lang, ns)
             : this.getDataFromModularFirestore(lang, ns);
     }
+
     /**
      * @param langs array of languages
      * @param nss array of namespaces
@@ -180,6 +189,7 @@ module.exports = class Backend {
         }
         return res;
     }
+
     async read(lang, ns, cb) {
         if (!cb)
             return;
@@ -189,11 +199,11 @@ module.exports = class Backend {
                 console.log(`${this.MODNAME}: Failed to find data for lang(${lang}), ns(${ns})`);
             }
             cb(null, (doc && doc[this.opts.dataFieldName]) || {});
-        }
-        catch (ex) {
+        } catch (ex) {
             this.opts.readOnError(ex);
         }
     }
+
     readMulti(langs, nss, cb) {
         if (!cb)
             return;
@@ -203,6 +213,7 @@ module.exports = class Backend {
             return;
         }
     }
+
     create(langs, ns, key, fallbackVal) {
         let x = 'NOT IMPLEMENTED YET';
         if (x === 'NOT IMPLEMENTED YET') {

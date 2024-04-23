@@ -1,7 +1,9 @@
 // next-i18next.config.js
 const Backend = require("./i18next-firestore-backend.cjs");
 const firebase = require("firebase/compat/app").default;
+const {collection, getDocs, where, query} = require("firebase/firestore");
 require("firebase/compat/firestore");
+
 const ChainedBackend = require('i18next-chained-backend').default
 const LocalStorageBackend = require('i18next-localstorage-backend').default
 
@@ -18,7 +20,7 @@ firebase.initializeApp({
     measurementId: "G-H1ZS7R6SQJ"
 });
 const firestore = firebase.firestore();
-console.log("firestore", firestore)
+
 module.exports = {
     i18n: {
         locales: ["fr", "en", "ar"], defaultLocale: "fr"
@@ -28,21 +30,20 @@ module.exports = {
             expirationTime: 60 * 60 * 1000, // 1 hour
         }, ...(!isDev ? [{
             loadPath: `${process.env.NEXT_PUBLIC_CDN_API}/{{lng}}/{{ns}}.json`,
-
-            collectionName: "i18next",
-            languageFieldName: "i18next/000_list_of_languages",
-            namespaceFieldName: "language",
-            dataFieldName: "data",
-            debug: true,
         }] : [])],
         firestore: firestore,
+        collectionName: "locales",
+        languageFieldName: "fr",
+        namespaceFieldName: "common",
+        dataFieldName: "data",
+        debug: true,
         firestoreModule: {
             isModular: true,
             functions: {
-                collection: firestore.collection,
-                query: firestore.namedQuery,
-                where: firestore.doc,
-                getDocs: firestore.doc,
+                collection,
+                query,
+                where,
+                getDocs
             },
         },
         backends: isBrowser ? [Backend] : [],

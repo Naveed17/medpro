@@ -105,7 +105,7 @@ function MainLayout({...props}) {
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
     const slugFeature = router.pathname.split('/')[2];
-    const extraPaths = ["documents", "cash-box-switcher", "all", "waiting-room", "consultation"];
+    const extraPaths = ["documents", "cash-box-switcher", "all", "waiting-room", "consultation", "agenda"];
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const ability = buildAbilityFor(features ?? [], permissions);
@@ -149,6 +149,8 @@ function MainLayout({...props}) {
             } else if ([slugFeature, ...extraPaths].includes(message.data.root)) {
                 switch (message.data.root) {
                     case "agenda":
+                    case "waiting-room":
+                        // Mutate agenda
                         dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
                             if (!data.body.appointment) {
@@ -170,12 +172,8 @@ function MainLayout({...props}) {
                             // update pending notifications status
                             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
                         }
-                        // Mutate on going api
-                        mutateOnGoing();
-                        break;
-                    case "waiting-room":
-                        // Mutate agenda
-                        dispatch(setLastUpdate(data));
+                        // Mutate waiting room
+                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]);
                         // Mutate on going api
                         mutateOnGoing();
                         break;
