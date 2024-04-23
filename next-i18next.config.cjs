@@ -1,5 +1,5 @@
 // next-i18next.config.js
-const Backend = require("./i18next-firestore-backend.cjs");
+const firestoreBackend = require("./i18next-firestore-backend.cjs");
 const firebase = require("firebase/compat/app").default;
 const {collection, getDocs, where, query} = require("firebase/firestore");
 require("firebase/compat/firestore");
@@ -11,13 +11,13 @@ const isBrowser = typeof window !== 'undefined'
 const isDev = process.env.NODE_ENV === 'development'
 
 firebase.initializeApp({
-    apiKey: "AIzaSyCvG726dE6kIYfGaqc90pEfirK5lSdLUpM",
-    authDomain: "medlink-3ce56.firebaseapp.com",
-    projectId: "medlink-3ce56",
-    storageBucket: "medlink-3ce56.appspot.com",
-    messagingSenderId: "1098306173863",
-    appId: "1:1098306173863:web:812fdf8cef13c4e8999482",
-    measurementId: "G-H1ZS7R6SQJ"
+    apiKey: process.env.NEXT_PUBLIC_FCM_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FCM_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FCM_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FCM_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FCM_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FCM_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_FCM_MEASUREMENT_ID,
 });
 const firestore = firebase.firestore();
 
@@ -28,25 +28,24 @@ module.exports = {
     backend: {
         backendOptions: [{
             expirationTime: 60 * 60 * 1000, // 1 hour
-        }, ...(!isDev ? [{
-            loadPath: `${process.env.NEXT_PUBLIC_CDN_API}/{{lng}}/{{ns}}.json`,
-        }] : [])],
-        firestore: firestore,
-        collectionName: "locales",
-        languageFieldName: "fr",
-        namespaceFieldName: "common",
-        dataFieldName: "data",
-        debug: true,
-        firestoreModule: {
-            isModular: true,
-            functions: {
-                collection,
-                query,
-                where,
-                getDocs
-            },
-        },
-        backends: isBrowser ? [Backend] : [],
+        }, {
+            firestore: firestore,
+            collectionName: "i18next",
+            languageFieldName: "locales",
+            namespaceFieldName: "ns",
+            dataFieldName: "data",
+            debug: isDev,
+            firestoreModule: {
+                isModular: true,
+                functions: {
+                    collection,
+                    query,
+                    where,
+                    getDocs
+                },
+            }
+        }],
+        backends: isBrowser ? [LocalStorageBackend, firestoreBackend] : [],
     },
     serializeConfig: false,
     partialBundledLanguages: isBrowser && true,

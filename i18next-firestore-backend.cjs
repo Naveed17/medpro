@@ -43,8 +43,8 @@ module.exports = class Backend {
         this.services = services;
         this.i18nOpts = i18nOpts;
         this.opts = {...defaultOpts, ...opts};
-        let bOpts = i18nOpts.backend;
-        this.debug = i18nOpts.backend.debug;
+        let bOpts = i18nOpts.backend.backendOptions[1];
+        this.debug = i18nOpts.backend.backendOptions[1].debug;
         if (this.debug) {
             console.log(`${this.MODNAME}:: options: ${JSON.stringify(bOpts)}`);
         }
