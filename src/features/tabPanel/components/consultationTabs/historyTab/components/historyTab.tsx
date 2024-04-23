@@ -219,11 +219,11 @@ function HistoryTab({...props}) {
             </div>
 
             {/****** Doctor QR CODE ******/}
-            {medical_professional &&
+            {medical_professional?.webUrl &&
                 <div className='hidden' id={'qr-canva'}>
                     <Canvas
                         key={"qrUrl"}
-                        text={medical_professional?.webUrl ?? ""}
+                        text={medical_professional.webUrl}
                         options={{
                             errorCorrectionLevel: 'H',
                             margin: 0,
