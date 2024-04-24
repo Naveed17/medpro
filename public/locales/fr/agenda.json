@@ -52,7 +52,7 @@
     "type": "Type",
     "fiche_id": "Fiche patient",
     "fiche": "Numéro fiche",
-    "next-appointment": "Prochain rendez-vous",
+    "next-appointment": "Prochains rendez-vous",
     "last-appointment": "Dernier rendez-vous",
     "reasons": "Motif",
     "status": "Statut",
@@ -71,7 +71,7 @@
     "pending": "En attente",
     "cancel": "Annulé",
     "expired": "Expiré",
-    "no_show": "Patient ne s'est pas présenté",
+    "no_show": "Le patient ne s'est pas présenté",
     "cancel_patient": "Annulé par le patient",
     "note": "Notes"
   },
@@ -259,12 +259,12 @@
     "waiting": "Ajouter le patient à la salle d'attente",
     "start_the_consultation": "Commencer la consultation",
     "added-description": "Rendez-vous ajouté avec succès",
-    "show-patient": "Voir fiche Patient",
+    "show-patient": "Voir la fiche Patient",
     "finish": "Fermer"
   },
   "dialogs": {
     "move-dialog": {
-      "title": "Déplacer RDV",
+      "title": "Déplacer le RDV",
       "title-duration": "Modifier la durée du RDV",
       "sub-title": "Voulez-vous vraiment déplacer le RDV?",
       "sub-title-duration": "Voulez-vous vraiment modifier la durée du rendez-vous ?",

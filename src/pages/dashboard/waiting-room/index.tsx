@@ -48,7 +48,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry, deleteAppointmentOptionsData, WaitingHeadCells} from "@lib/constants";
+import {DefaultCountry, deleteAppointmentOptionsData, WaitingHeadCells, WaitingTodayCells} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {LoadingButton} from "@mui/lab";
 import {
@@ -780,6 +780,7 @@ function WaitingRoom() {
                                             openMenu,
                                             doctor_country,
                                             roles,
+                                            tabIndex,
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
@@ -810,7 +811,7 @@ function WaitingRoom() {
                                                     </Typography>}
                                             />
                                         }
-                                        headers={WaitingHeadCells}
+                                        headers={WaitingTodayCells}
                                         rows={waitingRoomsGroup[1]}
                                         from={"waitingRoom"}
                                         t={t}
