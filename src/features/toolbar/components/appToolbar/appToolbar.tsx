@@ -2,7 +2,6 @@ import React, {useEffect} from "react";
 import {
     Avatar,
     Badge,
-    Button,
     IconButton,
     MenuItem,
     Stack,
@@ -12,10 +11,8 @@ import {
     Tooltip,
     Typography,
     useTheme,
-    Zoom,
 } from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
-import AddIcon from "@mui/icons-material/Add";
 import StyledMenu from "./overrides/menuStyle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {documentButtonList} from "@features/toolbar/components/appToolbar/config";
@@ -289,7 +286,7 @@ function AppToolbar({...props}) {
                                 '&.Mui-disabled': {opacity: 0.5},
                             }
                         }}
-                        variant={isMobile ? "scrollable" : "standard"}
+
                         allowScrollButtonsMobile={isMobile}
                         scrollButtons={true}
                         textColor="primary"
@@ -322,21 +319,15 @@ function AppToolbar({...props}) {
                             size={"small"}>
                             <AgendaAddViewIcon color={theme.palette.text.primary}/>
                         </CustomIconButton>
-
-                        {selectedTab === 'consultation_form' &&
-                            <Zoom in={selectedTab === 'consultation_form'}
-                                  style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
-                                <Tooltip title={t("documents")}>
-                                    <Badge badgeContent={nbDoc} showZero={true} color="primary">
-                                        <IconButton
-                                            className={"btn-edit"}
-                                            onClick={() => setShowDocument(!showDocument)}>
-                                            <IconUrl path={"ic-white-docs"} color={theme.palette.text.primary}/>
-                                        </IconButton>
-                                    </Badge>
-                                </Tooltip>
-                            </Zoom>}
-
+                        <Tooltip title={t("documents")}>
+                            <Badge badgeContent={nbDoc} showZero={true} color="primary">
+                                <IconButton
+                                    className={"btn-edit"}
+                                    onClick={() => setShowDocument(!showDocument)}>
+                                    <IconUrl path={"ic-white-docs"} color={theme.palette.text.primary}/>
+                                </IconButton>
+                            </Badge>
+                        </Tooltip>
                         <StyledMenu
                             {...{open, anchorEl}}
                             id="basic-menu"

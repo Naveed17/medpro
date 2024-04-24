@@ -201,7 +201,7 @@ function Document() {
                         fontSize={18}
                         fontWeight={600}
                         color="text.primary"
-                        sx={{py: 1.5, pl: "10px", mt: "0.55rem"}}
+                        sx={{py: 1.38, pl: "10px", mb: "0.84em"}}
                         gutterBottom>
                         {t(`filter.title`)}
                     </Typography>

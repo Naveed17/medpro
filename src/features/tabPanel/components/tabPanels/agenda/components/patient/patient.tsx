@@ -109,7 +109,7 @@ function Patient({...props}) {
                     handleAddPatient && handleAddPatient(false);
                     mutatePatients().then(result => {
                         const {data: patients} = result
-                        const {data: patientList} = patients?.data as HttpResponse;
+                        const {data: patientList} = (patients as any)?.data as HttpResponse;
                         if (selectedPatient) {
                             dispatch(setAppointmentPatient(
                                 patientList.find((patient: PatientModel) => patient.uuid === selectedPatient.uuid)));

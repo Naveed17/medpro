@@ -47,6 +47,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {
     downloadFileAsPdf,
     generatePdfFromHtml,
+    getMimeTypeFromArrayBuffer,
     useMedicalEntitySuffix,
     useMedicalProfessionalSuffix
 } from "@lib/hooks";
@@ -125,7 +126,9 @@ function DocumentDetailDialog({...props}) {
     const [previewDoc, setPreviewDoc] = useState<any>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [onReSize, setOnResize] = useState(true)
-    const [pdfUrl, setPdfUrl] = useState('');
+    const [editMode, setEditMode] = useState(false);
+    const [bg2ePage, setBg2ePage] = useState(true);
+    const [downloadMode, setDownloadMode] = useState(false);
 
     const {direction} = useAppSelector(configSelector);
 
@@ -152,7 +155,7 @@ function DocumentDetailDialog({...props}) {
         name2: t(state?.type),
         data: props,
     }
-    const actionButtons = [
+    const actionButtons: any[] = [
         {
             title: 'print',
             icon: "menu/ic-print",
@@ -181,16 +184,26 @@ function DocumentDetailDialog({...props}) {
             icon: "ic-trash",
             disabled: !state?.uuid
         },
-        {
+        ...(data.isNew ? [{
+            title: 'editMode',
+            icon: `text-selection`,
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        }] : []),
+        ...(data.isNew ? [{
+            title: 'bg2ePage',
+            icon: `menu/${bg2ePage ? 'ic-eye-closed' : 'ic-open-eye'}`,
+            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        }] : []),
+        ...(!data.isNew ? [{
             title: data.header.show ? 'hide' : 'show',
             icon: `menu/${!data.header.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
-        },
-        {
+        }] : []),
+        ...(!data.isNew ? [{
             title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
             icon: `menu/${!data.header.page ? 'ic-open-eye' : 'ic-eye-closed'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
-        },
+        }] : []),
         {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: `menu/${!data.title.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
@@ -201,7 +214,7 @@ function DocumentDetailDialog({...props}) {
             icon: `menu/${data.patient.show ? 'ic-cancel-patient' : 'ic-user'}`,
             disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         }
-    ];
+    ]
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -255,25 +268,31 @@ function DocumentDetailDialog({...props}) {
         }
     })
 
-    const handleActions = async (action: string) => {
+    const handleActions =  async (action: string) => {
         switch (action) {
             case "print":
                 handlePrint();
                 break;
             case "email":
+                setDownloadMode(true);
+                setEditMode(false)
                 setSendEmailDrawer(true);
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    const file = await generatePdfFromHtml(componentRef, "blob");
-                    setPreviewDoc(file);
+                        const file = await generatePdfFromHtml(componentRef, "blob");
+                        setDownloadMode(false);
+                        setPreviewDoc(file);
                 } else {
-                    const fileType = ["png", "jpeg", "jpg"].includes(file.url.split('.').pop().split(/\#|\?/)[0]) ? 'image/png' : 'application/pdf';
-                    fetch(file.url).then(response => {
-                        response.blob().then(blob => {
-                            const file = new File([new Blob([blob])], `report${new Date().toISOString()}`
-                                , {type: fileType})
-                            setPreviewDoc(file);
-                        })
-                    })
+                    const photoUrlBytes = await fetch(file.url, {
+                        // Fix CROSS origin issues with no-cache header
+                        headers: {
+                            'Cache-Control': 'no-cache, no-store, must-revalidate',
+                            'Pragma': 'no-cache',
+                            'Expires': '0'
+                        }
+                    }).then((res) => res.arrayBuffer());
+                    const photoExtension = getMimeTypeFromArrayBuffer(photoUrlBytes);
+                    const fileData = new File([new Blob([photoUrlBytes])], `report${new Date().toISOString()}`, {type: photoExtension?.type})
+                    setPreviewDoc(fileData);
                 }
                 break;
             case "delete":
@@ -363,13 +382,21 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "download":
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew);
+                    setEditMode(false)
+                    setDownloadMode(true);
+                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew, setDownloadMode);
                 } else {
                     downloadFileFromUrl(file.url, `${state?.type} ${state?.patient}`);
                 }
                 break;
             case "settings":
                 setOpenAlert(true)
+                break;
+            case "editMode":
+                setEditMode(prev => !prev)
+                break;
+            case "bg2ePage":
+                setBg2ePage(prev => !prev)
                 break;
             default:
                 break;
@@ -478,24 +505,6 @@ function DocumentDetailDialog({...props}) {
         });
     }
 
-    /* const convertToPdf = async (htmlContent) => {
-         const response = await fetch('/api/convertToPdf', {
-             method: 'POST',
-             headers: {
-                 'Content-Type': 'application/json',
-             },
-             body: JSON.stringify({ htmlContent }),
-         });
-         if (response.ok) {
-             const pdfBlob = await response.blob();
-             const pdfUrl = URL.createObjectURL(pdfBlob);
-             setPdfUrl(pdfUrl);
-         } else {
-             console.error('Failed to convert HTML to PDF');
-         }
-     };
-
- */
     useEffect(() => {
         setIsImg(state?.detectedType?.split('/')[0] === 'image')
         setFile(state?.uri)
@@ -512,7 +521,6 @@ function DocumentDetailDialog({...props}) {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
-
             if (docInfo.length === 0) {
                 setLoading(false)
             } else {
@@ -601,7 +609,7 @@ function DocumentDetailDialog({...props}) {
                 }
                 setTimeout(() => {
                     setLoading(false)
-                }, 1000)
+                }, 2000)
             }
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -618,7 +626,8 @@ function DocumentDetailDialog({...props}) {
                         date,
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
-                        docs: urls,
+                        docs: urls,t,
+                        editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
@@ -682,22 +691,19 @@ function DocumentDetailDialog({...props}) {
 
     return (
         <DocumentDetailDialogStyled>
-            {isPrinting && <Card className={'loading-card'}>
+            {(loading || isPrinting) && <Card className={'loading-card'}>
                 <CardContent>
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
                         <FacebookCircularProgress size={20}/>
-                        <Typography fontSize={16} fontWeight={600}>{t('printing')}</Typography>
+                        <Typography fontSize={16} fontWeight={600}>{t(loading ? 'generate':'printing')}</Typography>
                     </Stack>
                 </CardContent>
             </Card>}
+
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
-                        {pdfUrl && (
-                            <a href={pdfUrl} download="converted.pdf">
-                                Download PDF
-                            </a>
-                        )}
+
                         {!multiMedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
@@ -801,120 +807,100 @@ function DocumentDetailDialog({...props}) {
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
-                    {menu ? <List>
-                            {actionButtons.map((button, idx) =>
-                                <ListItem key={idx} onClick={() => handleActions(button.title)}>
-                                    {!button.disabled && <ListItemButton
-                                        className={button.title === "delete" ? "btn-delete" : ""}>
-                                        <ListItemIcon>
-                                            <IconUrl path={button.icon}/>
-                                        </ListItemIcon>
-                                        {menu && <ListItemText sx={{ml: 1}} primary={t(button.title)}/>}
-                                    </ListItemButton>}
-                                </ListItem>)}
-                            <ListItem className='secound-list'>
-                                <ListItemButton onClick={() => {
-                                    setMenu(false)
-                                }}>
-                                    <ListItemIcon>
-                                        <IconUrl path="menu/ic-close-menu"/>
-                                    </ListItemIcon>
-                                    <ListItemText sx={{ml: 1}} primary={t("close")}/>
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem className='secound-list'>
-                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                    <Typography color='text.secondary'>
-                                        {t('document_note')}
-                                    </Typography>
-                                    <TextField
-                                        value={note}
-                                        id={'note-input'}
-                                        multiline
-                                        rows={4}
-                                        onBlur={() => {
-                                            editDoc("description", note)
-                                        }}
-                                        onChange={(ev) => {
-                                            setNote(ev.target.value)
-                                            document.getElementById('note-input')?.focus()
-                                        }}/>
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem className='secound-list'>
-                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                    <Typography color='text.secondary'>
-                                        {t('document_name')}
-                                    </Typography>
-                                    <TextField
-                                        value={name}
-                                        id={'name-input'}
-                                        onBlur={() => editDoc("name", name)}
-                                        onChange={(ev) => {
-                                            setName(ev.target.value)
-                                            document.getElementById('name-input')?.focus()
-                                        }}
-                                    />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem className='secound-list'>
-                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                    <Typography color='text.secondary'>
-                                        {t('created_on')}
-                                    </Typography>
-                                    <TextField
-                                        value={date}
-                                        id={'date-input'}
-                                        onChange={(ev) => {
-                                            setDate(ev.target.value);
-                                            document.getElementById('date-input')?.focus()
-                                        }}
-                                    />
-                                </ListItemButton>
-                            </ListItem>
-                            {
-                                list.map((item, idx) =>
-                                    <ListItem className='secound-list' key={idx}>
-                                        <ListItemButton disableRipple
-                                                        sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                            <Typography color='text.secondary'>
-                                                {capitalize(t(item.title))}
-                                            </Typography>
-                                            <Typography fontWeight={700}>
-                                                {item.value}
-                                            </Typography>
-                                        </ListItemButton>
-                                    </ListItem>
-                                )
-                            }
-                        </List> :
-                        <List>
-                            <ListItem
-                                onClick={() => {
-                                    setMenu(true)
-                                }} disablePadding sx={{display: 'block'}}>
-                                <ListItemButton
-                                    sx={{
-                                        minHeight: 48,
-                                        justifyContent: 'center',
-                                        px: 2.5,
+                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar"  style={{background: "white"}}>
+                    <>
+                        {menu ? <List>
+                                {actionButtons.map((button, idx) =>
+                                    <ListItem key={idx} onClick={() => handleActions(button.title)}>
+                                        {!button.disabled && <ListItemButton
+                                            className={button.title === "delete" ? "btn-delete" : ""}>
+                                            <ListItemIcon>
+                                                <IconUrl path={button.icon}/>
+                                            </ListItemIcon>
+                                            {menu && <ListItemText sx={{ml: 1}} primary={t(button.title)}/>}
+                                        </ListItemButton>}
+                                    </ListItem>)}
+                                <ListItem className='secound-list'>
+                                    <ListItemButton onClick={() => {
+                                        setMenu(false)
                                     }}>
-                                    <ListItemIcon
-                                        sx={{
-                                            minWidth: 0,
-                                            margin: 'auto',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <IconUrl width={24} height={24} path={'menu/ic-open-menu'}/>
-                                    </ListItemIcon>
-                                </ListItemButton>
-                            </ListItem>
-
-                            {actionButtons.map((button, idx) =>
-                                !button.disabled &&
-                                <ListItem key={`${idx}-item`} onClick={() => handleActions(button.title)}
-                                          disablePadding sx={{display: 'block'}}>
+                                        <ListItemIcon>
+                                            <IconUrl path="menu/ic-close-menu"/>
+                                        </ListItemIcon>
+                                        <ListItemText sx={{ml: 1}} primary={t("close")}/>
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem className='secound-list'>
+                                    <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                        <Typography color='text.secondary'>
+                                            {t('document_note')}
+                                        </Typography>
+                                        <TextField
+                                            value={note}
+                                            id={'note-input'}
+                                            multiline
+                                            rows={4}
+                                            onBlur={() => {
+                                                editDoc("description", note)
+                                            }}
+                                            onChange={(ev) => {
+                                                setNote(ev.target.value)
+                                                document.getElementById('note-input')?.focus()
+                                            }}/>
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem className='secound-list'>
+                                    <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                        <Typography color='text.secondary'>
+                                            {t('document_name')}
+                                        </Typography>
+                                        <TextField
+                                            value={name}
+                                            id={'name-input'}
+                                            onBlur={() => editDoc("name", name)}
+                                            onChange={(ev) => {
+                                                setName(ev.target.value)
+                                                document.getElementById('name-input')?.focus()
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem className='secound-list'>
+                                    <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                        <Typography color='text.secondary'>
+                                            {t('created_on')}
+                                        </Typography>
+                                        <TextField
+                                            value={date}
+                                            id={'date-input'}
+                                            onChange={(ev) => {
+                                                setDate(ev.target.value);
+                                                document.getElementById('date-input')?.focus()
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                                {
+                                    list.map((item, idx) =>
+                                        <ListItem className='secound-list' key={idx}>
+                                            <ListItemButton disableRipple
+                                                            sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                                <Typography color='text.secondary'>
+                                                    {capitalize(t(item.title))}
+                                                </Typography>
+                                                <Typography fontWeight={700}>
+                                                    {item.value}
+                                                </Typography>
+                                            </ListItemButton>
+                                        </ListItem>
+                                    )
+                                }
+                            </List> :
+                            <List>
+                                <ListItem
+                                    onClick={() => {
+                                        setMenu(true)
+                                    }} disablePadding sx={{display: 'block'}}>
                                     <ListItemButton
                                         sx={{
                                             minHeight: 48,
@@ -927,13 +913,35 @@ function DocumentDetailDialog({...props}) {
                                                 margin: 'auto',
                                                 justifyContent: 'center',
                                             }}>
-                                            <IconUrl path={button.icon}/>
+                                            <IconUrl width={24} height={24} path={'menu/ic-open-menu'}/>
                                         </ListItemIcon>
                                     </ListItemButton>
-                                </ListItem>)
-                            }
-                        </List>
-                    }
+                                </ListItem>
+
+                                {actionButtons.map((button, idx) =>
+                                    !button.disabled &&
+                                    <ListItem key={`${idx}-item`} onClick={() => handleActions(button.title)}
+                                              disablePadding sx={{display: 'block'}}>
+                                        <ListItemButton
+                                            sx={{
+                                                minHeight: 48,
+                                                justifyContent: 'center',
+                                                px: 2.5,
+                                            }}>
+                                            <ListItemIcon
+                                                sx={{
+                                                    minWidth: 0,
+                                                    margin: 'auto',
+                                                    justifyContent: 'center',
+                                                }}>
+                                                <IconUrl path={button.icon}/>
+                                            </ListItemIcon>
+                                        </ListItemButton>
+                                    </ListItem>)
+                                }
+                            </List>
+                        }
+                    </>
                 </Grid>
             </Grid>
 
@@ -970,6 +978,8 @@ function DocumentDetailDialog({...props}) {
                         control={
                             <Checkbox checked={selectedTemplate === doc.uuid}
                                       onChange={() => {
+                                          //PATCH
+                                          editDoc("header", doc.uuid)
                                           setSelectedTemplate(doc.uuid)
                                       }} name={doc.uuid}/>
                         }

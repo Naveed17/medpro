@@ -1,21 +1,23 @@
 import React, {useCallback, useEffect, useRef, useState,} from "react";
 import RootStyled from "./overrides/rootStyled";
 import {
-    Chip,
     AppBar,
     Avatar,
     Box,
     Card,
     CardActions,
     CardContent,
+    Chip,
     IconButton,
     Link,
     List,
     ListItem,
+    Skeleton,
     Stack,
     Toolbar,
     Typography,
-    useTheme, useMediaQuery, Skeleton,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
@@ -25,26 +27,23 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, openDrawer} from "@features/calendar";
-
+import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
 import {Dialog, openDrawer as DialogOpenDrawer, QrCodeDialog, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
-import {getBirthdayFormat} from "@lib/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {Label} from "@features/label";
 import {DefaultCountry, MobileContainer} from "@lib/constants";
-import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import {setMessage, setOpenChat} from "@features/chat/actions";
 import {startCase} from "lodash";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {useRequestQueryMutation} from "@lib/axios";
 
 function AppointmentDetail({...props}) {
     const {
@@ -71,6 +70,7 @@ function AppointmentDetail({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const {direction} = useAppSelector(configSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
@@ -80,11 +80,15 @@ function AppointmentDetail({...props}) {
 
     const {t, ready} = useTranslation(["common", "agenda"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-
     const {patientPhoto, mutatePatientPhoto} = useProfilePhoto({
         patientId: appointment?.extendedProps?.patient?.uuid,
         hasPhoto: appointment?.extendedProps?.patient?.hasPhoto
     });
+
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {trigger} = useRequestQueryMutation("/payment/cashbox");
+
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [canManageActions] = useState<boolean>(![
@@ -92,6 +96,7 @@ function AppointmentDetail({...props}) {
         "/dashboard/waiting-room",
         "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
     const [loading, setLoading] = useState(false);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 
     const setAppointmentDate = (action: string) => {
         const newDate = moment(appointment?.extendedProps.time);
@@ -200,6 +205,7 @@ function AppointmentDetail({...props}) {
                                     </Box>
                                     <Stack sx={{width: "100%"}}>
                                         <Typography
+                                            onClick={() => OnEditDetail(appointment)}
                                             className={"user-name"}
                                             variant="subtitle1"
                                             color="primary"
@@ -297,10 +303,10 @@ function AppointmentDetail({...props}) {
                                                 color: theme.palette.error.main,
                                                 background: theme.palette.error.lighter
                                             }}>
-                                            <Typography
-                                                sx={{
-                                                    fontSize: 10,
-                                                }}>
+                                            <Typography onClick={() => setOpenPaymentDialog(true)}
+                                                        sx={{
+                                                            fontSize: 10,
+                                                        }}>
                                                 {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
                                         </Label>}
                                 </Stack>
@@ -531,6 +537,46 @@ function AppointmentDetail({...props}) {
                 direction={"ltr"}
                 title={t("qr_title")}
                 dialogClose={handleCloseDialog}
+            />
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient: appointment?.extendedProps.patient,
+                    setOpenPaymentDialog,
+                    mutatePatient: () => {
+                        trigger({
+                                method: "GET",
+                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${appointment?.extendedProps.patient?.uuid}/wallet/${router.locale}`
+                            },
+                            {
+                                onSuccess: (res) => {
+                                    let _appointment: any = {
+                                        ...appointment,
+                                        extendedProps: {
+                                            ...appointment?.extendedProps,
+                                            restAmount: res.data.data.rest_amount
+                                        }
+                                    }
+                                    dispatch(setSelectedEvent(_appointment));
+                                },
+                            }
+                        );
+                    }
+                }}
+                size={"lg"}
+                fullWidth
+                title={t("payment_dialog_title", {ns: "payment"})}
+                dialogClose={() => {
+                    setOpenPaymentDialog(false)
+                }}
             />
         </RootStyled>
     );

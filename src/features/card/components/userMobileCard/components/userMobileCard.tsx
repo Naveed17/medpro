@@ -21,7 +21,7 @@ function UserMobileCard({ ...props }) {
             <CardContent>
                 <Stack direction="row" spacing={2} alignItems="center">
                     <Typography variant="body1" color="text.primary" fontWeight={600}>
-                        {data.FirstName} {data.lastName}
+                        {data.firstName} {data.lastName}
                     </Typography>
                     <Lable variant="filled" color={data.isActive ? "success" : "error"} sx={{ px: 1.5 }}>
                         {data.isActive ? t("table.active") : t("table.inactive")}

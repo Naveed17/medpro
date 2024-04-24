@@ -9,7 +9,7 @@ import {
     Avatar,
     Box,
     Card,
-    CardContent,
+    CardContent, Divider,
     Grid,
     List,
     ListItem,
@@ -28,16 +28,13 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {CalendarViewButton} from "@features/buttons";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
-import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import moment from "moment-timezone";
 import {startCase} from 'lodash';
-
-const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 import {LoadingScreen} from "@features/loadingScreen";
 import {TabPanel} from "@features/tabPanel";
 import NumberIcon from "@themes/overrides/icons/numberIcon";
@@ -47,6 +44,8 @@ import {useCountries} from "@lib/hooks/rest";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+
+const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 
 function Statistics() {
     const theme = useTheme();
@@ -62,6 +61,7 @@ function Statistics() {
 
     const [value, setValue] = React.useState(0);
     const [viewChart, setViewChart] = useState('month');
+    const [periodChartData, setPeriodChartData] = useState<any[]>([]);
     const [fullScreenChart, setFullScreenChart] = useState({"act": false, "motif": false, "type": false});
     const [state, setState] = useState({
         rdv_type: {
@@ -85,16 +85,16 @@ function Statistics() {
             ]
         }
     })
-    const {rdv_type, act_by_rdv, motif_by_consult} = state
+    const [schedules, setSchedules] = useState<any>(null);
 
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-stats/${router.locale}?format=${viewChart}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: statsPatientHttp} = useRequestQuery(medicalEntityHasUser ? {
+    const {data: statsPatientHttp} = useRequestQuery(statsAppointmentHttp && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patient-stats/${router.locale}?format=month`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patient-stats/${router.locale}?format=${viewChart}`
     } : null, ReactQueryNoValidateConfig);
 
     const increasePercentage = (newVal: number, oldVAl: number) => {
@@ -109,27 +109,83 @@ function Statistics() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const {rdv_type, act_by_rdv, motif_by_consult} = state
     const appointmentStats = ((statsAppointmentHttp as HttpResponse)?.data ?? []) as any;
-    const appointmentPerPeriod = (appointmentStats?.period ? Object.values(appointmentStats.period) : []) as any[];
+    const start = moment().add(1, `${viewChart}s` as any);
+    const durations = Array.from({length: 12}, (_, i) => moment(start.subtract(1, `${viewChart}s` as any)).set({
+        ...(viewChart === "month" && {date: 1}),
+        hour: 0,
+        minute: 0,
+        millisecond: 0
+    })).reverse();
+    const appointmentPerPeriod = (appointmentStats?.period ? durations.map(duration => appointmentStats.period[`${duration.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
     const appointmentPerPeriodKeys = (appointmentStats?.period ? Object.keys(appointmentStats.period) : []) as any[];
     const motifPerPeriod = (appointmentStats?.motif ?? []) as any[];
     const actPerPeriod = (appointmentStats?.act ?? []) as any[];
     const typePerPeriod = (appointmentStats?.type ?? []) as any[];
-    const statsPerPeriod = (appointmentStats?.stats ?? []) as any[];
-
+    const statsPerPeriod = (appointmentStats?.stats ?? null) as any;
     const patientStats = ((statsPatientHttp as HttpResponse)?.data ?? []) as any;
-    const patientPerPeriod = (patientStats?.period ? Object.values(patientStats.period) : []) as any[];
+    const patientPerPeriod = (patientStats?.period ? durations.map(duration => patientStats.period[`${duration.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
     const patientPerAge = (patientStats?.age ? Object.values(patientStats.age) : []) as any[];
     const patientPerGender = (patientStats?.gender ? Object.values(patientStats.gender) : []) as any[];
     const patientPerLocation = (patientStats?.location ? Object.values(patientStats.location).map((location: any) => ({
         ...location,
         ...countries.find(country => country.uuid === location.key)
     })) : []) as any[];
+    const patientPerIncreasePercentage = increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])
     const VIEW_OPTIONS = [
         {value: "day", label: "Day", text: "Jour", icon: TodayIcon, format: "D"},
-        {value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
+        //{value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
         {value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM"}
     ];
+    const genders = {
+        "f": "female",
+        "m": "male",
+        "u": "other"
+    }
+
+    const convertDurationToMin = (startTime: string, endTime: string) => {
+        const duration = getDiffDuration(`${moment().format("DD-MM-YYY")} ${startTime}`, 1, false, `${moment().format("DD-MM-YYY")} ${endTime}`);
+        const durationEntity = duration.split(" ");
+        return durationEntity[1] === 'h' ? parseFloat(durationEntity[0]) : parseFloat((parseFloat(durationEntity[0]) * 0.01).toFixed(2))
+    }
+
+    useEffect(() => {
+        if (statsPerPeriod) {
+            const days = {
+                "MON": "Monday",
+                "TUE": "Tuesday",
+                "WED": "Wednesday",
+                "THU": "Thursday",
+                "FRI": "Friday",
+                "SAT": "Saturday",
+                "SUN": "Sunday"
+            }
+            let schedules: any = {}
+            Object.entries(days).forEach(
+                day => {
+                    if (statsPerPeriod.common_start_time && statsPerPeriod.common_end_time) {
+                        schedules[day[0]] = statsPerPeriod.common_start_time[day[1]] ? convertDurationToMin(statsPerPeriod.common_start_time[day[1]], statsPerPeriod.common_end_time[day[1]]) : 0
+                    }
+                })
+            setSchedules(schedules)
+        }
+    }, [statsPerPeriod]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (statsPatientHttp && (appointmentPerPeriod.length > 0 || patientPerPeriod.length > 0)) {
+            setPeriodChartData([
+                {
+                    name: 'patients',
+                    data: patientPerPeriod.slice(-12)
+                },
+                {
+                    name: 'appointments',
+                    data: appointmentPerPeriod.slice(-12)
+                },
+            ])
+        }
+    }, [patientStats]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         dispatch(toggleSideBar(true));
@@ -141,7 +197,7 @@ function Statistics() {
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
-    console.log(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country.code !== val.code ? val.doc_count : 0), 0))
+
     return (
         <>
             <SubHeader
@@ -196,7 +252,7 @@ function Statistics() {
                                                             {appointmentPerPeriod[appointmentPerPeriod.length - 1]}
                                                         </Typography>
                                                         <Typography fontWeight={500} variant="body2">
-                                                            {t("rdv_per-min")}
+                                                            {t(`rdv-per.${viewChart}`)}
                                                         </Typography>
                                                     </Stack>
                                                 </Stack>
@@ -236,13 +292,7 @@ function Statistics() {
                                             <ChartStyled>
                                                 <Chart
                                                     type="area"
-                                                    series={[
-                                                        {name: 'patients', data: patientPerPeriod.slice(-12)},
-                                                        {
-                                                            name: 'appointments',
-                                                            data: appointmentPerPeriod.slice(-12)
-                                                        },
-                                                    ]}
+                                                    series={periodChartData}
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
@@ -301,10 +351,11 @@ function Statistics() {
                                             <Stack direction='row' alignItems='center' mt={2}>
                                                 <Stack width={1}>
                                                     <Typography variant="h6" fontWeight={700}>
-                                                        9<Typography variant="caption" fontWeight={500}>h</Typography>
+                                                        {statsPerPeriod?.day_common_start_time ? moment(statsPerPeriod.day_common_start_time, "HH:mm").format("H") : "--"}
+                                                        <Typography variant="caption" fontWeight={500}>h</Typography>
                                                         {" "}
-                                                        35<Typography variant="caption"
-                                                                      fontWeight={500}>min</Typography>
+                                                        {statsPerPeriod?.day_common_start_time ? moment(statsPerPeriod.day_common_start_time, "HH:mm").format("mm") : "--"}
+                                                        <Typography variant="caption" fontWeight={500}>min</Typography>
                                                     </Typography>
                                                     <Typography variant="body2" fontWeight={500}>
                                                         {t("start_time")}
@@ -312,10 +363,12 @@ function Statistics() {
                                                 </Stack>
                                                 <Stack width={1} pl={2} borderLeft={1} borderColor='divider'>
                                                     <Typography variant="h6" fontWeight={700}>
-                                                        16<Typography variant="caption" fontWeight={500}>h</Typography>
+                                                        {statsPerPeriod?.day_common_end_time ? moment(statsPerPeriod.day_common_end_time, "HH:mm").format("H") : "--"}<Typography
+                                                        variant="caption" fontWeight={500}>h</Typography>
                                                         {" "}
-                                                        51<Typography variant="caption"
-                                                                      fontWeight={500}>min</Typography>
+                                                        {statsPerPeriod?.day_common_end_time ? moment(statsPerPeriod.day_common_end_time, "HH:mm").format("mm") : "--"}<Typography
+                                                        variant="caption"
+                                                        fontWeight={500}>min</Typography>
                                                     </Typography>
                                                     <Typography variant="body2" fontWeight={500}>
                                                         {t("end_time")}
@@ -328,15 +381,9 @@ function Statistics() {
                                                     series={
                                                         [
                                                             {
-                                                                name: 'PRODUCT A',
-                                                                data: [44, 55, 41, 67, 22, 43, 16]
-                                                            }, {
-                                                            name: 'PRODUCT B',
-                                                            data: [13, 23, 20, 8, 13, 27, 14]
-                                                        }, {
-                                                            name: 'PRODUCT C',
-                                                            data: [11, 17, 15, 15, 21, 14, 12]
-                                                        }
+                                                                name: 'Temps de travail de la journée',
+                                                                data: (schedules ? Object.values(schedules) : []) as any[]
+                                                            }
                                                         ]
                                                     }
                                                     options={merge(ChartsOption(), {
@@ -351,11 +398,18 @@ function Statistics() {
                                                                 columnWidth: '30%',
                                                             },
                                                         },
+                                                        yaxis: {
+                                                            labels: {
+                                                                show: true,
+                                                                formatter: (val: string) => {
+                                                                    return val + "h";
+                                                                }
+                                                            }
+                                                        },
                                                         xaxis: {
                                                             type: 'day',
                                                             categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
                                                         },
-
                                                         fill: {
                                                             opacity: 1
                                                         },
@@ -408,9 +462,11 @@ function Statistics() {
                                                                 </Typography>
 
                                                                 <Stack direction={"row"}>
-                                                                    <IconUrl path={"ic-up-right"}/>
+                                                                    <IconUrl
+                                                                        path={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "ic-down-left" : "ic-up-right") : "ic-up-right"}
+                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
                                                                     <Typography fontWeight={700} fontSize={14}
-                                                                                color="success.main"
+                                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
                                                                                 variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
                                                                 </Stack>
                                                             </Stack>
@@ -497,7 +553,7 @@ function Statistics() {
                                                                 <Typography fontWeight={700} color='primary'
                                                                             fontSize={28}
                                                                             variant="subtitle1">
-                                                                    {Math.round(patientPerLocation.find(location => location.code === doctor_country?.code)?.doc_count / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) ?? ""}
+                                                                    {Math.round(patientPerLocation.find(location => location.code === doctor_country?.code)?.doc_count / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                                     <Typography fontSize={12} fontWeight={500}
                                                                                 variant="caption">
                                                                         %
@@ -513,7 +569,7 @@ function Statistics() {
                                                                 <Typography fontWeight={700} color='warning.main'
                                                                             fontSize={28}
                                                                             variant="subtitle1">
-                                                                    {Math.round(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country?.code !== val.code ? val.doc_count : 0), 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) ?? ""}
+                                                                    {Math.round(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country?.code !== val.code ? val.doc_count : 0), 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                                     <Typography fontSize={12} fontWeight={500}
                                                                                 variant="caption">
                                                                         %
@@ -579,7 +635,7 @@ function Statistics() {
                                                             merge(ChartsOption(), {
                                                                 labels: patientPerAge.reduce((patients: any[], patient: any) => [...(patients ?? []), `${patient.key} ans `], []),
                                                                 dataLabels: {
-                                                                    enabled: true,
+                                                                    enabled: false,
                                                                     style: {
                                                                         colors: [theme.palette.text.primary],
                                                                     },
@@ -611,7 +667,7 @@ function Statistics() {
                                                                         };
                                                                         seriesIndex: string | number;
                                                                     }) => {
-                                                                        return `${label} : ${Math.round(opts.w.globals.series[opts.seriesIndex] / patientPerAge.reduce((total: number, val: any) => total + val.doc_count, 0) * 100)}%`
+                                                                        return `${label} : ${Math.round(opts.w.globals.series[opts.seriesIndex] / patientPerAge.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "_"}%`
                                                                     },
                                                                     horizontalAlign: 'center',
                                                                 },
@@ -641,11 +697,11 @@ function Statistics() {
                                                     <Chart
                                                         type='donut'
                                                         series={
-                                                            patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.doc_count], [])
+                                                            patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.key !== "u" && val.doc_count], [])
                                                         }
                                                         options={
                                                             merge(ChartsOption(), {
-                                                                labels: [t('male'), t('female'), t('other')],
+                                                                labels: patientPerGender.map(gender => t(genders[gender.key as keyof typeof genders])),
                                                                 legend: {
                                                                     show: false
                                                                 },
@@ -653,10 +709,8 @@ function Statistics() {
                                                                     pie: {
                                                                         donut: {
                                                                             labels: {
-                                                                                show: false,
-
+                                                                                show: false
                                                                             },
-
                                                                         }
                                                                     },
                                                                 },
@@ -669,32 +723,28 @@ function Statistics() {
                                                 </ChartStyled>
                                                 <Stack direction='row' alignItems='center' justifyContent='center'
                                                        mt={2}>
-                                                    <Stack>
-                                                        <Typography fontWeight={700} color='primary' fontSize={28}
-                                                                    variant="subtitle1">
-                                                            {patientPerGender.length > 0 ? Math.round(patientPerGender[0].doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) : "--"}
-                                                            <Typography fontSize={12} fontWeight={500}
-                                                                        variant="caption">
-                                                                %
-                                                            </Typography>
-                                                        </Typography>
-                                                        <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                            {t("male")}
-                                                        </Typography>
-                                                    </Stack>
-                                                    <Stack pl={2} ml={2} borderLeft={1.5} borderColor={'divider'}>
-                                                        <Typography fontWeight={700} color='warning.main' fontSize={28}
-                                                                    variant="subtitle1">
-                                                            {patientPerGender.length > 0 ? Math.round(patientPerGender[1].doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) : "--"}
-                                                            <Typography fontSize={12} fontWeight={500}
-                                                                        variant="caption">
-                                                                %
-                                                            </Typography>
-                                                        </Typography>
-                                                        <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                            {t("female")}
-                                                        </Typography>
-                                                    </Stack>
+                                                    {patientPerGender.filter(gender => gender.key !== "u").map((gender, index) =>
+                                                        <Stack key={gender.key} direction={"row"} alignItems={"center"}>
+                                                            <Stack alignItems={"center"}>
+                                                                <Typography fontWeight={700}
+                                                                            color={index === 0 ? 'primary' : 'warning.main'}
+                                                                            fontSize={28}
+                                                                            variant="subtitle1">
+                                                                    {Math.round(gender?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
+                                                                    <Typography fontSize={12} fontWeight={500}
+                                                                                variant="caption">
+                                                                        %
+                                                                    </Typography>
+                                                                </Typography>
+                                                                <Typography fontSize={12} fontWeight={500}
+                                                                            variant="body2">
+                                                                    {t(genders[gender.key as keyof typeof genders])}
+                                                                </Typography>
+                                                            </Stack>
+                                                            {index === 0 && <Divider orientation={"vertical"}
+                                                                                     sx={{height: 50, mx: 2}}/>}
+                                                        </Stack>
+                                                    )}
                                                 </Stack>
                                             </CardContent>
                                         </Card>
@@ -1061,9 +1111,11 @@ function Statistics() {
                                                         </Typography>
 
                                                         <Stack direction={"row"}>
-                                                            <IconUrl path={"ic-up-right"}/>
+                                                            <IconUrl
+                                                                path={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "ic-down-left" : "ic-up-right") : "ic-up-right"}
+                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
                                                             <Typography fontWeight={700} fontSize={14}
-                                                                        color="success.main"
+                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
                                                                         variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
                                                         </Stack>
                                                     </Stack>
@@ -1078,7 +1130,7 @@ function Statistics() {
                                                     <Stack direction={"row"} spacing={1} alignItems={"flex-end"}>
                                                         <Typography lineHeight={1} fontWeight={600} fontSize={24}
                                                                     variant="subtitle1">
-                                                            --
+                                                            {statsPerPeriod ? statsPerPeriod["waiting_time"] : "--"}
                                                         </Typography>
                                                         <Typography variant="caption">
                                                             min
@@ -1147,7 +1199,7 @@ function Statistics() {
                                                     <Stack pb={1}>
                                                         <Typography fontWeight={700} color='primary' fontSize={56}
                                                                     variant="subtitle1">
-                                                            {Math.round((patientPerLocation.find(location => location.code === doctor_country.code)?.doc_count ?? 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) ?? ""}
+                                                            {Math.round((patientPerLocation.find(location => location.code === doctor_country.code)?.doc_count ?? 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                             <Typography fontSize={18} fontWeight={700}
                                                                         variant="caption">
                                                                 %
@@ -1160,7 +1212,7 @@ function Statistics() {
                                                     <Stack borderTop={1.5} borderColor={'divider'}>
                                                         <Typography fontWeight={700} color='warning.main' fontSize={56}
                                                                     variant="subtitle1">
-                                                            {Math.round(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country.code !== val.code ? val.doc_count : 0), 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) ?? ""}
+                                                            {Math.round(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country.code !== val.code ? val.doc_count : 0), 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                             <Typography fontSize={18} fontWeight={500}
                                                                         variant="caption">
                                                                 %
@@ -1217,40 +1269,39 @@ function Statistics() {
                                                     fontWeight={700}>{t("patient_by_gender")}</Typography>
                                         <Stack direction='row' alignItems='center'>
                                             <Stack width={"33%"}>
-                                                <Stack pb={1}>
-                                                    <Typography fontWeight={700} color='warning.main' fontSize={28}
-                                                                variant="subtitle1">
-                                                        {patientPerGender.length > 0 ? Math.round(patientPerGender[0].doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) : "--"}
-                                                        <Typography fontSize={12} fontWeight={500} variant="caption">
-                                                            %
-                                                        </Typography>
-                                                    </Typography>
-                                                    <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                        {t("male")}
-                                                    </Typography>
-                                                </Stack>
-                                                <Stack borderTop={1.5} borderColor={'divider'}>
-                                                    <Typography fontWeight={700} color='primary' fontSize={28}
-                                                                variant="subtitle1">
-                                                        {patientPerGender.length > 0 ? Math.round(patientPerGender[1].doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) : "--"}
-                                                        <Typography fontSize={12} fontWeight={500} variant="caption">
-                                                            %
-                                                        </Typography>
-                                                    </Typography>
-                                                    <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                        {t("female")}
-                                                    </Typography>
-                                                </Stack>
+                                                {patientPerGender.filter(gender => gender.key !== "u").map((gender, index) =>
+                                                    <Stack key={gender.key} alignItems={"center"}>
+                                                        <Stack alignItems={"center"}>
+                                                            <Typography fontWeight={700}
+                                                                        color={index === 0 ? 'primary' : 'warning.main'}
+                                                                        fontSize={28}
+                                                                        variant="subtitle1">
+                                                                {Math.round(gender?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
+                                                                <Typography fontSize={12} fontWeight={500}
+                                                                            variant="caption">
+                                                                    %
+                                                                </Typography>
+                                                            </Typography>
+                                                            <Typography fontSize={12} fontWeight={500}
+                                                                        variant="body2">
+                                                                {t(genders[gender.key as keyof typeof genders])}
+                                                            </Typography>
+                                                        </Stack>
+                                                        {index === 0 && <Divider
+                                                            orientation={"horizontal"}
+                                                            sx={{width: 100, my: 2}}/>}
+                                                    </Stack>
+                                                )}
                                             </Stack>
                                             <ChartStyled>
                                                 <Chart
                                                     type='donut'
                                                     series={
-                                                        patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.doc_count], [])
+                                                        patientPerGender.reduce((gender: any[], val: any) => [...(gender ?? []), val.key !== "u" && val.doc_count], [])
                                                     }
                                                     options={
                                                         merge(ChartsOption(), {
-                                                            labels: [t('male'), t('female'), t('other')],
+                                                            labels: patientPerGender.map(gender => t(genders[gender.key as keyof typeof genders])),
                                                             legend: {
                                                                 show: false
                                                             },
@@ -1297,8 +1348,7 @@ function Statistics() {
                                                     merge(ChartsOption(), {
                                                         labels: patientPerAge.reduce((patients: any[], patient: any) => [...(patients ?? []), `${patient.key} ans `], []),
                                                         dataLabels: {
-                                                            enabled: true,
-
+                                                            enabled: false,
                                                             style: {
                                                                 colors: [theme.palette.text.primary],
                                                             },
@@ -1332,7 +1382,7 @@ function Statistics() {
                                                                 w: { globals: { series: { [x: string]: any; }; }; };
                                                                 seriesIndex: string | number;
                                                             }) => {
-                                                                return `${label} : ${Math.round(opts.w.globals.series[opts.seriesIndex] / patientPerAge.reduce((total: number, val: any) => total + val.doc_count, 0) * 100)}%`
+                                                                return `${label} : ${Math.round(opts.w.globals.series[opts.seriesIndex] / patientPerAge.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "_"}%`
                                                             },
                                                             horizontalAlign: 'center',
                                                         },
@@ -1365,9 +1415,11 @@ function Statistics() {
                                             <IconUrl path="stats/ic-start"/>
                                             <Stack width={1}>
                                                 <Typography variant="h6" fontWeight={700}>
-                                                    9<Typography variant="caption" fontWeight={500}>h</Typography>
+                                                    {statsPerPeriod?.day_common_start_time ? moment(statsPerPeriod.day_common_start_time, "HH:mm").format("H") : "--"}
+                                                    <Typography variant="caption" fontWeight={500}>h</Typography>
                                                     {" "}
-                                                    35<Typography variant="caption" fontWeight={500}>min</Typography>
+                                                    {statsPerPeriod?.day_common_start_time ? moment(statsPerPeriod.day_common_start_time, "HH:mm").format("mm") : "--"}
+                                                    <Typography variant="caption" fontWeight={500}>min</Typography>
                                                 </Typography>
                                                 <Typography variant="body2" fontWeight={500}>
                                                     {t("start_time")}
@@ -1386,9 +1438,11 @@ function Statistics() {
                                             <IconUrl path="stats/ic-end"/>
                                             <Stack width={1}>
                                                 <Typography variant="h6" fontWeight={700}>
-                                                    16<Typography variant="caption" fontWeight={500}>h</Typography>
+                                                    {statsPerPeriod?.day_common_end_time ? moment(statsPerPeriod.day_common_end_time, "HH:mm").format("H") : "--"}
+                                                    <Typography variant="caption" fontWeight={500}>h</Typography>
                                                     {" "}
-                                                    51<Typography variant="caption" fontWeight={500}>min</Typography>
+                                                    {statsPerPeriod?.day_common_end_time ? moment(statsPerPeriod.day_common_end_time, "HH:mm").format("mm") : "--"}
+                                                    <Typography variant="caption" fontWeight={500}>min</Typography>
                                                 </Typography>
                                                 <Typography variant="body2" fontWeight={500}>
                                                     {t("end_time")}
@@ -1414,19 +1468,12 @@ function Statistics() {
                                     <ChartStyled>
                                         <Chart
                                             type='bar'
-
                                             series={
                                                 [
                                                     {
-                                                        name: 'PRODUCT A',
-                                                        data: [44, 55, 41, 67, 22, 43, 16]
-                                                    }, {
-                                                    name: 'PRODUCT B',
-                                                    data: [13, 23, 20, 8, 13, 27, 14]
-                                                }, {
-                                                    name: 'PRODUCT C',
-                                                    data: [11, 17, 15, 15, 21, 14, 12]
-                                                }
+                                                        name: 'Temps de travail de la journée',
+                                                        data: (schedules ? Object.values(schedules) : []) as any[]
+                                                    }
                                                 ]
                                             }
                                             options={merge(ChartsOption(), {
@@ -1447,7 +1494,14 @@ function Statistics() {
                                                     categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'
                                                     ],
                                                 },
-
+                                                yaxis: {
+                                                    labels: {
+                                                        show: true,
+                                                        formatter: (val: string) => {
+                                                            return val + "h";
+                                                        }
+                                                    }
+                                                },
                                                 fill: {
                                                     opacity: 1
                                                 },

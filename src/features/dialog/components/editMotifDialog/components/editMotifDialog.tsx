@@ -130,7 +130,7 @@ function EditMotifDialog({ ...props }) {
             if (props.data) {
                 medicalEntityHasUser && triggerMotifUpdate({
                     method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${props.data.uuid}/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${props.data.uuid}/fr`,
                     data: form
                 }, {
                     onSuccess: () => {
@@ -143,7 +143,7 @@ function EditMotifDialog({ ...props }) {
             } else {
                 medicalEntityHasUser && triggerMotifAdd({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/fr`,
                     data: form
                 }, {
                     onSuccess: () => {

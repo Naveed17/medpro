@@ -5,7 +5,7 @@ import {useCallback} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks/index";
+import {getMimeTypeFromArrayBuffer, useMedicalEntitySuffix} from "@lib/hooks/index";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -42,12 +42,11 @@ function useGeneratePdfTemplate() {
         ApexCharts.exec("chart-growth", "dataURI").then(async ({imgURI}: any) => {
             const chartGrowthBytes = await fetch(imgURI).then((res) => res.arrayBuffer())
             const chartGrowth = await pdfDoc.embedPng(chartGrowthBytes);
-            const chartGrowthDims = chartGrowth.scale(0.35);
             copiedPages[0].drawImage(chartGrowth, {
                 x: 420,
                 y: 68,
-                width: chartGrowthDims.width,
-                height: chartGrowthDims.height,
+                width: 370,
+                height: 226
             })
             // draw bebe coordination
             copiedPages[0].drawText('Je m\'appelle', {
@@ -118,24 +117,30 @@ function useGeneratePdfTemplate() {
             })
             // Draw bebe photo
             if (patient?.hasPhoto) {
-                const photoURL = (patient?.hasPhoto as any).url as string;
-                const photoExtension = photoURL.includes(".png") ? "png" : "jpg";
+                const photoURL = (patient?.hasPhoto as any).url?.url as string;
+                //const photoExtension = (patient?.hasPhoto as any).extension as string;
                 const photoUrlBytes = await fetch(photoURL, {
+                    // Fix CROSS origin issues with no-cache header
                     headers: {
-                        'Access-Control-Allow-Origin': '*',
-                        crossOrigin: "Anonymous"
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
                     }
                 }).then((res) => res.arrayBuffer());
-                const photoUrlImage = await (photoExtension === "png" ? pdfDoc.embedPng(photoUrlBytes) : pdfDoc.embedJpg(photoUrlBytes));
-                const photoUrlDims = photoUrlImage.scale(0.2);
-                console.log("photoURL", photoURL, photoUrlDims)
-                copiedPages[0].drawImage(photoUrlImage, {
-                    x: 64,
-                    y: 370,
-                    rotate: degrees(2),
-                    width: 210,
-                    height: 170
-                })
+                const photoExtension = getMimeTypeFromArrayBuffer(photoUrlBytes);
+
+                try {
+                    const photoUrlImage = await (photoExtension?.ext === "png" ? pdfDoc.embedPng(photoUrlBytes) : pdfDoc.embedJpg(photoUrlBytes));
+                    copiedPages[0].drawImage(photoUrlImage, {
+                        x: 64,
+                        y: 370,
+                        rotate: degrees(2),
+                        width: 210,
+                        height: 170
+                    })
+                } catch (e) {
+                    console.log("Draw photo error", e);
+                }
             }
             // Get doctor QR code
             const canvas = document.getElementById('qr-canva')?.children[0] as HTMLCanvasElement;

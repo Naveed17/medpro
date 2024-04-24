@@ -49,6 +49,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ActionMenu} from "@features/menu";
 import {Dialog as MedDialog} from "@features/dialog";
 import AddIcon from "@mui/icons-material/Add";
+import {useSendNotification} from "@lib/hooks/rest";
 import useMPActs from "@lib/hooks/rest/useMPacts";
 
 const filter = createFilterOptions<any>();
@@ -102,6 +103,7 @@ function ActFees() {
     const {data: user} = session as Session;
     const router = useRouter();
     const theme = useTheme();
+    const {trigger: triggerNotificationPush} = useSendNotification();
     const {acts, mutateActs} = useMPActs({noPagination: false})
 
     const {enqueueSnackbar} = useSnackbar();
@@ -422,8 +424,7 @@ function ActFees() {
                     <Button
                         variant="contained"
                         startIcon={<AddIcon/>}
-                        onClick={() => handleCreate()}
-                    >
+                        onClick={() => handleCreate()}>
                         {t("add_a_new_act")}
                     </Button>
                 )}
@@ -434,35 +435,10 @@ function ActFees() {
                             <Button
                                 variant="contained"
                                 startIcon={<AddIcon/>}
-                                onClick={() => handleCreate()}
-                            >
+                                onClick={() => handleCreate()}>
                                 {t("add_a_new_act")}
                             </Button>
                         )}
-                        {/*<span>|</span>
-                        <Typography>{t("consultation")} :</Typography>
-                        <TextField
-                            id="outlined-basic"
-                            value={consultationFees}
-                            size="small"
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">{devise}</InputAdornment>
-                                ),
-                                style: {width: 120, backgroundColor: "white"},
-                            }}
-                            onChange={(ev) => {
-                                setConsultationFees(Number(ev.target.value));
-                            }}
-                            variant="outlined"
-                        />
-                        <IconButton
-                            color={"primary"}
-                            onClick={() => {
-                                editFees();
-                            }}>
-                            <SaveRoundedIcon color={"primary"}/>
-                        </IconButton>*/}
                     </Stack>
                 )}
             </SubHeader>
@@ -470,9 +446,7 @@ function ActFees() {
             <Card style={{margin: 20, marginBottom: 0, paddingLeft: 10}}>
                 <FormControlLabel
                     label={t("betav")}
-                    sx={{
-                        ml: theme.direction === 'rtl' ? 0 : -1.25
-                    }}
+                    sx={{ml: theme.direction === 'rtl' ? 0 : -1.25}}
                     control={
                         <Checkbox
                             checked={isChecked}
@@ -497,6 +471,12 @@ function ActFees() {
                                                 !isChecked ? "1" : "0"
                                             );
                                             setIsChecked(!isChecked);
+                                            triggerNotificationPush({
+                                                action: "push",
+                                                root: "cash-box-switcher",
+                                                message: " ",
+                                                content: JSON.stringify({newCashBox: !isChecked})
+                                            });
                                         },
                                     }
                                 );

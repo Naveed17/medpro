@@ -1,7 +1,7 @@
-import React, { ReactElement, useContext, useEffect, useState } from "react";
-import { GetStaticPaths, GetStaticProps } from "next";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
+import {GetStaticPaths, GetStaticProps} from "next";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
 import {
     Avatar,
     Box,
@@ -94,6 +94,7 @@ import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
 import {useChannel} from "ably/react";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -199,7 +200,7 @@ function ConsultationInProgress() {
     ];
     const isAddAppointment = false;
 
-    const [selectedTab, setSelectedTab] = useState<string>("consultation_form");
+    const [selectedTab, setSelectedTab] = useState<string>(router.query["tab"]?.toString() ?? "consultation_form");
     const [changes, setChanges] = useState([
         {name: "patientInfo", txt: "patientInfo", icon: "docs/ic-note", checked: false},
         {name: "fiche", txt: "fiche", icon: "ic-text", checked: false},
@@ -316,7 +317,7 @@ function ConsultationInProgress() {
     const tabsData = [
         ...sheet?.hasHistory && ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
             label: "patient_history",
-            label_mobile: "patient_history",
+            label_mobile: "history",
             value: "patient history"
         }] : [],
         ...(ability.can("manage", "consultation", "consultation__consultation__fiche__show") ? [{
@@ -387,14 +388,13 @@ function ConsultationInProgress() {
         _cards[ind][index].expanded = true;
 
         const _locPosition = JSON.parse(localStorage.getItem("cardPositions") as string)
-        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition,widget: true}))
+        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition, widget: true}))
 
         _cards[ind][index].config = false;
         setCards([..._cards])
     };
 
     const showDoc = (card: any, print?: boolean) => {
-
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
@@ -417,7 +417,7 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 name: "certif",
                 type: "write_certif",
-                documentHeader: card.certificate[0].documentHeader,
+                documentHeader: card.header ? card.header : card.certificate[0].documentHeader,
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient
             });
@@ -430,11 +430,11 @@ function ConsultationInProgress() {
                     uuidDoc = card.prescription[0].uuid;
                     break;
                 case "requested-analysis":
-                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.analyses : [];
+                    info = card.requested_Analyses.length > 0 ? card.requested_Analyses[0]?.requested_analyses_has_analyses : [];
                     uuidDoc = card.requested_Analyses[0].uuid;
                     break;
                 case "requested-medical-imaging":
-                    info = card.medical_imaging[0]["medical-imaging"];
+                    info = card.medical_imaging[0]["requested_medical_imaging_has_medical_imaging"];
                     uuidDoc = card.medical_imaging[0].uuid;
                     break;
             }
@@ -449,8 +449,8 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 uuidDoc: uuidDoc,
-                patient: `${type} ${
-                    patient?.firstName
+                documentHeader: card.header ? card.header : null,
+                patient: `${type} ${patient?.firstName
                 } ${patient?.lastName}`,
                 cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutateDoc,
@@ -919,7 +919,7 @@ function ConsultationInProgress() {
                                 type: "requested-analysis",
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
-                                info: res[0].analyses,
+                                info: res[0]["requested_analyses_has_analyses"],
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
                                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 print: true
@@ -961,7 +961,7 @@ function ConsultationInProgress() {
                                 uri: res[1],
                                 name: "requested-medical-imaging",
                                 type: "requested-medical-imaging",
-                                info: res[0]["medical-imaging"],
+                                info: res[0]["requested_medical_imaging_has_medical_imaging"],
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 description: "",
@@ -1300,6 +1300,13 @@ function ConsultationInProgress() {
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        changes.map(change => {
+            change.checked = documents.filter((doc: {
+                documentType: string
+            }) => doc.documentType === change.name).length > 0
+        })
+        setChanges([...changes])
+
         if (documents.length > 0 && selectedAudio !== null && documents.findIndex((doc: any) => doc.uuid === selectedAudio?.uuid) !== -1) {
             // set speech to text result after processing
             setSelectedAudio(documents.find((doc: any) => doc.uuid === selectedAudio?.uuid));
@@ -1422,213 +1429,210 @@ function ConsultationInProgress() {
 
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
-                <Box style={{paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : ""}}
-                     id={"container-tab"}
-                     className="container-scroll">
-                    <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
-                        <HistoryTab
-                            {...{
-                                patient: {
-                                    uuid: sheet?.patient,
-                                    ...patient
-                                },
-                                dispatch,
-                                t,
-                                session,
-                                acts,
-                                direction,
-                                mutate: mutatePatient,
-                                setOpenDialog,
-                                showDoc,
-                                setState,
-                                setInfo,
-                                router,
-                                modelData: sheetModal?.data,
-                                date: sheet?.date,
-                                setIsViewerOpen,
-                                setSelectedTab,
-                                appuuid: app_uuid,
-                                trigger: triggerAppointmentEdit
-                            }}
-                        />
-                    </TabPanel>
-                    <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        {sheetExam && fullOb && <Card><MyCardStyled style={{border: 0}}>
-                            <ConsultationDetailCard
-                                {...{
-                                    changes,
-                                    setChanges,
-                                    app_uuid,
-                                    exam: sheetExam,
-                                    hasDataHistory,
-                                    seeHistory,
-                                    closed: closeExam,
-                                    setCloseExam,
-                                    isClose,
-                                    agenda,
-                                    mutateSheetData,
-                                    fullOb, setFullOb,
-                                    trigger: triggerAppointmentEdit,
-                                    loading
-                                }}
-                                handleClosePanel={(v: boolean) => setCloseExam(v)}
-                            />
-                        </MyCardStyled></Card>
-                        }
-                        {!fullOb && <Grid container spacing={0}>
-                            {!isMobile && <Grid item md={showDocument ? 10 : 12}>
-                                <ConsultationCard {...{
-                                    cards,
-                                    setCards,
-                                    onDragEnd,
-                                    getListStyle,
-                                    getItemStyle,
-                                    selectedModel,
-                                    sheetExam,
-                                    closeExam,
-                                    theme,
-                                    sheet,
-                                    changes,
-                                    setChanges,
-                                    setIsClose,
-                                    app_uuid,
-                                    mutateSheetData,
-                                    hasDataHistory,
-                                    seeHistory,
-                                    setCloseExam,
-                                    dispatch,
-                                    printGlasses,
-                                    isClose,
-                                    session,
-                                    changeModel,
+                <Grid container>
+                    <Grid item xs={12} md={showDocument ? 10 : 12}>
+                        <Box style={{paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                             id={"container-tab"}
+                             className="container-scroll scrollbar-hidden">
+                            <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
+                                <HistoryTab
+                                    {...{
+                                        patient: {
+                                            uuid: sheet?.patient,
+                                            ...patient
+                                        },
+                                        dispatch,
+                                        t,
+                                        session,
+                                        acts,
+                                        direction,
+                                        mutate: mutatePatient,
+                                        setOpenDialog,
+                                        showDoc,
+                                        setState,
+                                        setInfo,
+                                        router,
+                                        modelData: sheetModal?.data,
+                                        date: sheet?.date,
+                                        setIsViewerOpen,
+                                        setSelectedTab,
+                                        appuuid: app_uuid,
+                                        trigger: triggerAppointmentEdit
+                                    }}
+                                />
+                            </TabPanel>
+                            <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
+                                {sheetExam && fullOb && <Card><MyCardStyled style={{border: 0}}>
+                                    <ConsultationDetailCard
+                                        {...{
+                                            changes,
+                                            setChanges,
+                                            app_uuid,
+                                            exam: sheetExam,
+                                            hasDataHistory,
+                                            seeHistory,
+                                            closed: closeExam,
+                                            setCloseExam,
+                                            isClose,
+                                            agenda,
+                                            mutateSheetData,
+                                            fullOb, setFullOb,
+                                            trigger: triggerAppointmentEdit,
+                                            loading
+                                        }}
+                                        handleClosePanel={(v: boolean) => setCloseExam(v)}
+                                    />
+                                </MyCardStyled></Card>
+                                }
+                                {!fullOb && <>
+                                    {!isMobile &&
+                                        <ConsultationCard {...{
+                                            cards,
+                                            setCards,
+                                            onDragEnd,
+                                            getListStyle,
+                                            getItemStyle,
+                                            selectedModel,
+                                            sheetExam,
+                                            closeExam,
+                                            theme,
+                                            sheet,
+                                            changes,
+                                            setChanges,
+                                            setIsClose,
+                                            app_uuid,
+                                            mutateSheetData,
+                                            hasDataHistory,
+                                            seeHistory,
+                                            setCloseExam,
+                                            dispatch,
+                                            printGlasses,
+                                            isClose,
+                                            session,
+                                            changeModel,
+                                            acts,
+                                            loading,
+                                            urlMedicalEntitySuffix,
+                                            direction,
+                                            setOpenDialog,
+                                            showDoc,
+                                            sheetModal,
+                                            setState,
+                                            mutatePatient,
+                                            setInfo,
+                                            setSelectedModel,
+                                            router,
+                                            setActs,
+                                            previousData,
+                                            setIsViewerOpen,
+                                            setSelectedTab,
+                                            models,
+                                            t,
+                                            triggerAppointmentEdit,
+                                            agenda,
+                                            fullOb,
+                                            setFullOb,
+                                            patient
+                                        }} />}
+                                    {isMobile &&
+                                        <ConsultationCard {...{
+                                            cards: mobileCards,
+                                            setCards: setMobileCards,
+                                            onDragEnd,
+                                            getListStyle,
+                                            getItemStyle,
+                                            selectedModel,
+                                            sheetExam,
+                                            closeExam,
+                                            theme,
+                                            sheet,
+                                            changes,
+                                            setChanges,
+                                            setIsClose,
+                                            app_uuid,
+                                            mutateSheetData,
+                                            hasDataHistory,
+                                            seeHistory,
+                                            setCloseExam,
+                                            dispatch,
+                                            printGlasses,
+                                            isClose,
+                                            session,
+                                            changeModel,
+                                            acts,
+                                            loading,
+                                            urlMedicalEntitySuffix,
+                                            direction,
+                                            setOpenDialog,
+                                            showDoc,
+                                            sheetModal,
+                                            setState,
+                                            mutatePatient,
+                                            setInfo,
+                                            setSelectedModel,
+                                            router,
+                                            setActs,
+                                            previousData,
+                                            setIsViewerOpen,
+                                            setSelectedTab,
+                                            models,
+                                            t,
+                                            triggerAppointmentEdit,
+                                            agenda,
+                                            fullOb,
+                                            setFullOb,
+                                            patient
+                                        }} />
+                                    }
+                                </>}
+                            </TabPanel>
+                            <TabPanel padding={1} value={selectedTab} index={"documents"}>
+                                <LinearProgress sx={{
+                                    marginTop: '-0.5rem',
+                                    visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
+                                }} color="warning"/>
+                                <DocumentsTab
+                                    {...{
+                                        documents,
+                                        mutateDoc,
+                                        mutateSheetData,
+                                        setSelectedAudio,
+                                        setDeleteAudio,
+                                        showDoc,
+                                        router,
+                                        t
+                                    }}></DocumentsTab>
+                            </TabPanel>
+                            <TabPanel padding={1} value={selectedTab} index={"medical_procedures"}>
+                                <FeesTab {...{
                                     acts,
-                                    loading,
-                                    urlMedicalEntitySuffix,
-                                    direction,
-                                    setOpenDialog,
-                                    showDoc,
-                                    sheetModal,
-                                    setState,
-                                    mutatePatient,
-                                    setInfo,
-                                    setSelectedModel,
-                                    router,
                                     setActs,
-                                    previousData,
-                                    setIsViewerOpen,
-                                    setSelectedTab,
-                                    models,
-                                    t,
-                                    triggerAppointmentEdit,
-                                    agenda,
-                                    fullOb,
-                                    setFullOb,
-                                    patient
-                                }} />
-                            </Grid>}
-                            <Grid item md={showDocument ? 2 : 0}>
-                                {showDocument && <DocumentPreview {...{
-                                    allDocs: changes.filter(ch => ch.index !== undefined && !ch.checked),
-                                    documents,
-                                    showDocument,
-                                    showDoc,
-                                    theme,
-                                    showPreview,
-                                    t,
-                                }} />}
-                            </Grid>
-                            {isMobile && <Grid item xs={12}>
-                                <ConsultationCard {...{
-                                    cards: mobileCards,
-                                    setCards: setMobileCards,
-                                    onDragEnd,
-                                    getListStyle,
-                                    getItemStyle,
-                                    selectedModel,
-                                    sheetExam,
-                                    closeExam,
-                                    theme,
-                                    sheet,
-                                    changes,
-                                    setChanges,
-                                    setIsClose,
+                                    mpActs,
+                                    status: sheet?.status,
+                                    urlMedicalEntitySuffix,
+                                    agenda: agenda?.uuid,
                                     app_uuid,
-                                    mutateSheetData,
-                                    hasDataHistory,
-                                    seeHistory,
-                                    setCloseExam,
-                                    dispatch,
-                                    printGlasses,
-                                    isClose,
-                                    session,
-                                    changeModel,
-                                    acts,
-                                    loading,
-                                    urlMedicalEntitySuffix,
-                                    direction,
-                                    setOpenDialog,
-                                    showDoc,
-                                    sheetModal,
-                                    setState,
+                                    total,
+                                    setTotal,
+                                    devise,
                                     mutatePatient,
-                                    setInfo,
-                                    setSelectedModel,
-                                    router,
-                                    setActs,
-                                    previousData,
-                                    setIsViewerOpen,
-                                    setSelectedTab,
-                                    models,
-                                    t,
-                                    triggerAppointmentEdit,
-                                    agenda,
-                                    fullOb,
-                                    setFullOb,
-                                    patient
+                                    t
                                 }} />
-                            </Grid>}
-                        </Grid>}
-                    </TabPanel>
-                    <TabPanel padding={1} value={selectedTab} index={"documents"}>
-                        <LinearProgress sx={{
-                            marginTop: '-0.5rem',
-                            visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
-                        }} color="warning"/>
-                        <DocumentsTab
-                            {...{
-                                documents,
-                                mutateDoc,
-                                mutateSheetData,
-                                setSelectedAudio,
-                                setDeleteAudio,
-                                showDoc,
-                                router,
-                                t
-                            }}></DocumentsTab>
-                    </TabPanel>
-                    <TabPanel padding={1} value={selectedTab} index={"medical_procedures"}>
-                        <FeesTab {...{
-                            acts,
-                            setActs,
-                            mpActs,
-                            status: sheet?.status,
-                            urlMedicalEntitySuffix,
-                            agenda: agenda?.uuid,
-                            app_uuid,
-                            total,
-                            setTotal,
-                            devise,
-                            mutatePatient,
+                            </TabPanel>
+                        </Box>
+                    </Grid>
+                    <Grid item md={showDocument ? 2 : 0} padding={1}>
+                        {showDocument && <DocumentPreview {...{
+                            allDocs: changes.filter(ch => ch.index !== undefined && !ch.checked),
+                            documents,
+                            showDocument,
+                            showDoc,
+                            theme,
+                            showPreview,
                             t,
-                            setOpenDialogSave,
-                            patient,
-                            setInfo,
-                            setOpenDialog,
-                            setState
-                        }} />
-                    </TabPanel>
-                </Box>
-
+                        }} />}
+                    </Grid>
+                </Grid>
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}
                     open={filterdrawer}
@@ -1781,7 +1785,6 @@ function ConsultationInProgress() {
                 open={openSecDialog}
                 data={{
                     app_uuid,
-                    agenda: agenda?.uuid,
                     patient: {
                         uuid: sheet?.patient,
                         ...patient
@@ -1814,11 +1817,14 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    PaperProps={{
-                        sx: {
-                            overflow: 'hidden'
+                    {...(!["medical_prescription", "medical_prescription_cycle"].includes(info) && {
+                            PaperProps: {
+                                sx: {
+                                    overflow: 'hidden'
+                                }
+                            }
                         }
-                    }}
+                    )}
                     data={{
                         appuuid: app_uuid,
                         patient,
@@ -1859,8 +1865,8 @@ function ConsultationInProgress() {
                         ),
                         sx: {
                             p: 1.5,
-                            overflowX: 'hidden',
-                            overflowY: 'hidden'
+                            /*overflowX: 'hidden',
+                            overflowY: 'hidden'*/
                         }
 
                     })}
@@ -1912,10 +1918,10 @@ function ConsultationInProgress() {
                                             color={"info"}
                                             variant="outlined"
                                             onClick={() => handleSaveDialog(false)}
-                                            disabled={info.includes("medical_prescription") && state?.length === 0}
+                                            disabled={state?.length === 0}
                                             startIcon={
                                                 <IconUrl
-                                                    {...(info.includes("medical_prescription") && state?.length === 0 && {color: "white"})}
+                                                    {...(state?.length === 0 && {color: "white"})}
                                                     path={"iconfinder_save"}/>}>
                                             {t("consultationIP.save")}
                                         </Button>
@@ -1923,7 +1929,7 @@ function ConsultationInProgress() {
                                             variant="contained"
                                             sx={{width: {xs: 1, sm: 'auto'}}}
                                             onClick={() => handleSaveDialog()}
-                                            disabled={info.includes("medical_prescription") && state?.length === 0}
+                                            disabled={state?.length === 0}
                                             startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
                                             {t("consultationIP.save_print")}
                                         </Button>}
@@ -2295,7 +2301,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(locale as string, [
+            ...(await getServerTranslations(locale as string, [
                 "consultation",
                 "menu",
                 "common"

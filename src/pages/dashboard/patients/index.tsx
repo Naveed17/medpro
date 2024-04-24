@@ -18,7 +18,7 @@ import {
     Zoom,
     Fab,
     Checkbox,
-    FormControlLabel, MenuItem, LinearProgress, Card, Grid
+    FormControlLabel, MenuItem, LinearProgress, Card, Grid, InputAdornment
 } from "@mui/material";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -38,11 +38,12 @@ import {useRequestInfiniteQuery, useRequestQueryMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
+    addPatientSelector,
     AddPatientStep1,
     AddPatientStep2,
     AddPatientStep3, appointmentSelector,
     onResetPatient, resetSubmitAppointment,
-    setAppointmentPatient,
+    setAppointmentPatient, setOpenUploadDialog,
 } from "@features/tabPanel";
 import {
     AppointmentDetail,
@@ -61,7 +62,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
-import {IconButton} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {Accordion} from "@features/accordion/components";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -75,7 +75,7 @@ import {
 } from "@features/leftActionBar";
 import {selectCheckboxActionSelector, onSelectCheckbox} from 'src/features/selectCheckboxCard'
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import {useInsurances} from "@lib/hooks/rest";
+import {useInsurances, useSendNotification} from "@lib/hooks/rest";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {MobileContainer as MobileWidth} from "@lib/constants";
@@ -88,6 +88,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {CustomIconButton} from "@features/buttons";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -161,6 +162,8 @@ function Patients() {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
+    const {trigger: triggerNotificationPush} = useSendNotification();
+
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready, i18n} = useTranslation("patient", {keyPrefix: "config"});
@@ -170,9 +173,11 @@ function Patients() {
     const {submitted} = useAppSelector(appointmentSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {openUploadDialog} = useAppSelector(addPatientSelector);
 
     const {data: user} = session as Session;
+    const {jti} = session?.user as any;
     const roles = (user as UserDataResponse)?.general_information.roles;
 
     // state hook for details drawer
@@ -321,21 +326,24 @@ function Patients() {
             ),
         },
     ]);
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [loadingFiles, setLoadingFiles] = useState(true);
+
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
 
     const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/patient/appointment/update");
     const {trigger: triggerDeletePatient} = useRequestQueryMutation("/patient/delete");
     const {trigger: triggerCheckDuplication} = useRequestQueryMutation("/patient/duplication/check");
+    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/patient/documents");
+    const {trigger: triggerAddAppointment} = useRequestQueryMutation("/patient/appointment/add");
 
     const searchParams = (new URL(location.href)).searchParams;
     let page = parseInt(searchParams.get("page") || "1");
-    let isNext = parseInt(searchParams.get("previousPage") ?? "1") < page;
 
     const {
         data: httpPatientsResponse,
         fetchNextPage,
-        fetchPreviousPage,
         hasNextPage,
         mutate: mutatePatients,
         isLoading
@@ -406,10 +414,9 @@ function Patients() {
                 if ((result?.data as HttpResponse).status === "success") {
                     enqueueSnackbar(
                         t(
-                            `dialogs.move-dialog.${
-                                !event.extendedProps.onDurationChanged
-                                    ? "alert-msg"
-                                    : "alert-msg-duration"
+                            `dialogs.move-dialog.${!event.extendedProps.onDurationChanged
+                                ? "alert-msg"
+                                : "alert-msg-duration"
                             }`
                         ),
                         {variant: "success"}
@@ -451,6 +458,41 @@ function Patients() {
         setMoveDialogInfo(false);
         setMoveDialog(true);
     };
+
+    const startConsultationFormPatient = (patient: PatientModel) => {
+        const form = new FormData();
+        form.append('dates', JSON.stringify([{
+            "start_date": moment().format('DD-MM-YYYY'),
+            "start_time": `${moment().format('HH')}:${Math.round(parseInt(moment().format('mm')))}`
+        }]));
+        form.append('title', `${patient?.firstName} ${patient?.lastName}`);
+        form.append('patient_uuid', patient?.uuid as string);
+        appointmentTypes && form.append('type', appointmentTypes[0].uuid);
+        form.append('duration', '15');
+
+        triggerAddAppointment({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: (value: any) => {
+                const {data, status} = value?.data;
+                if (status === 'success') {
+                    const slugConsultation = `/dashboard/consultation/${data[0]}`;
+                    router.push({
+                        pathname: slugConsultation,
+                        query: {inProgress: true}
+                    }, slugConsultation, {locale: router.locale}).then(() => {
+                        if (patientDrawer) {
+                            dispatch(onResetPatient());
+                            dispatch(resetSubmitAppointment());
+                            setPatientDrawer(false);
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     const handleTableActions = (action: string, event: PatientModel, mouseEvent?: any, setLoadingRequest?: any) => {
         switch (action) {
@@ -511,6 +553,12 @@ function Patients() {
             case "DUPLICATION_CHECK":
                 checkDuplications(event, setLoadingRequest);
                 break;
+            case "IMPORT-DOCUMENT":
+                dispatch(setOpenUploadDialog(true));
+                break;
+            case "START_CONSULTATION":
+                startConsultationFormPatient(event);
+                break;
         }
     }
 
@@ -556,6 +604,33 @@ function Patients() {
 
     };
 
+    const handleUploadDocuments = () => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        documentConfig.files.map((file: any) => {
+            params.append(`document[${file.type}][]`, file.file, file.name);
+        });
+        medicalEntityHasUser && triggerUploadDocuments({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: () => {
+                const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`;
+                triggerNotificationPush({
+                    action: "push",
+                    root: "all",
+                    message: " ",
+                    content: JSON.stringify({
+                        mutate: mutateUrl,
+                        fcm_session: jti
+                    })
+                });
+            },
+            onSettled: () => setLoadingRequest(false)
+        });
+    }
+
     const OnMenuActions = (action: string) => {
         handleCloseMenu();
         switch (action) {
@@ -578,7 +653,7 @@ function Patients() {
         }
     }
     const currentPageParams = httpPatientsResponse?.pageParams.findIndex(pageIndex => pageIndex === page) ?? 0;
-    const currentPage = httpPatientsResponse?.pages[currentPageParams === -1 ? 0 : currentPageParams]?.data.data as PaginationModel ?? null;
+    const currentPage = (httpPatientsResponse?.pages[currentPageParams === -1 ? 0 : currentPageParams] as any)?.data.data as PaginationModel ?? null;
 
     useLeavePageConfirm((path: string) => {
         if (!path.includes("/dashboard/patient")) {
@@ -592,7 +667,7 @@ function Patients() {
 
     useEffect(() => {
         if (httpPatientsResponse) {
-            const patientsResponse = httpPatientsResponse.pages.reduce((pages: any[], page: any) => [...(pages ?? []), ...page.data.data.list], []) ?? [];
+            const patientsResponse = httpPatientsResponse.pages.reduce((pages: any[], page: any) => [...(pages ?? []), ...(page.data?.data?.list ?? [])], []) ?? [];
             setRows(patientsResponse);
         }
     }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -612,12 +687,10 @@ function Patients() {
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        //remove query params on load from url
-        //isMobile && router.replace(router.pathname, router.pathname, {shallow: true});
-        //reload resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    // useEffect(() => {
+    //     //reload resources from cdn servers
+    //     i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
+    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -645,10 +718,15 @@ function Patients() {
                             onChange={(e) => onFilterPatient(e.target.value)}
                             fullWidth
                             placeholder={t("filter.search")}
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start">
+                                    <IconUrl path="ic-outline-search-normal"/>
+                                </InputAdornment>,
+                            }}
                         />
-                        <IconButton disableRipple onClick={handleClickOpen}>
-                            <IconUrl path="ic-setting-grey"/>
-                        </IconButton>
+                        <CustomIconButton sx={{minWidth: 38}} color="back" onClick={handleClickOpen}>
+                            <IconUrl path="ic-filter-outlined"/>
+                        </CustomIconButton>
                     </Stack>
                 )}
             </SubHeader>
@@ -889,6 +967,54 @@ function Patients() {
             />
 
             <Dialog
+                action={"add_a_document"}
+                open={openUploadDialog}
+                data={{
+                    t,
+                    state: documentConfig,
+                    setState: setDocumentConfig,
+                    handleUpdateFiles: (files: any[]) => {
+                        if (files.length > 0) {
+                            setLoadingFiles(false);
+                        }
+                    }
+                }}
+                size={"md"}
+                direction={"ltr"}
+                sx={{minHeight: 400}}
+                title={t("doc_detail_title")}
+                dialogClose={() => {
+                    dispatch(setOpenUploadDialog(false));
+                }}
+                onClose={() => {
+                    dispatch(setOpenUploadDialog(false));
+                }}
+                actionDialog={
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
+                           width={"100%"}>
+                        <Button
+                            variant={"text-black"}
+                            onClick={() => {
+                                dispatch(setOpenUploadDialog(false));
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("add-patient.cancel")}
+                        </Button>
+                        <Button
+                            disabled={loadingFiles}
+                            variant="contained"
+                            onClick={() => {
+                                dispatch(setOpenUploadDialog(false));
+                                handleUploadDocuments();
+                            }}
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
+                            {t("add-patient.register")}
+                        </Button>
+                    </Stack>
+                }
+            />
+
+            <Dialog
                 color={theme.palette.warning.main}
                 contrastText={theme.palette.warning.contrastText}
                 dialogClose={() => {
@@ -903,10 +1029,9 @@ function Patients() {
                             <Box sx={{minHeight: 150}}>
                                 <Typography sx={{textAlign: "center"}} variant="subtitle1">
                                     {t(
-                                        `dialogs.move-dialog.${
-                                            !appointmentMoveData?.extendedProps.onDurationChanged
-                                                ? "sub-title"
-                                                : "sub-title-duration"
+                                        `dialogs.move-dialog.${!appointmentMoveData?.extendedProps.onDurationChanged
+                                            ? "sub-title"
+                                            : "sub-title-duration"
                                         }`
                                     )}
                                 </Typography>
@@ -1097,9 +1222,18 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     const insurances = `api/public/insurances/${locale}`;
     const contactTypes = `api/public/contact-type/${locale}`;
 
-    await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
-    await queryClient.prefetchQuery([`/${insurances}`], () => fetch(`${baseURL}${insurances}`, {method: "GET"}).then(response => response.json()));
-    await queryClient.prefetchQuery([`/${contactTypes}`], () => fetch(`${baseURL}${contactTypes}`, {method: "GET"}).then(response => response.json()));
+    await queryClient.prefetchQuery({
+        queryKey: [`/${countries}`],
+        queryFn: () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json())
+    });
+    await queryClient.prefetchQuery({
+        queryKey: [`/${insurances}`],
+        queryFn: () => fetch(`${baseURL}${insurances}`, {method: "GET"}).then(response => response.json())
+    });
+    await queryClient.prefetchQuery({
+        queryKey: [`/${contactTypes}`],
+        queryFn: () => fetch(`${baseURL}${contactTypes}`, {method: "GET"}).then(response => response.json())
+    });
 
     return {
         props: {

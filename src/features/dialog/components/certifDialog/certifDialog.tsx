@@ -96,10 +96,10 @@ function CertifDialog({...props}) {
     const [message, setMessage] = useState(t('write'));
     const [loadingChat, setLoadingChat] = useState(false);
     const [openChat, setOpenChat] = useState(false);
-    const [antecedents, setAntecedents] = useState<string[]>([]);
+    const [antecedents, setAntecedents] = useState<{ name: string, note: string }[]>([]);
     const [motifs, setMotifs] = useState<string[]>([]);
     const [acts, setActs] = useState<string[]>([]);
-    const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total, key) => total + data.patient.antecedents[key], 0) > 0
+    const hasAntecedents = data.patient?.antecedents ? Object.keys(data.patient.antecedents).reduce((total, key) => total + data.patient.antecedents[key], 0) > 0 : false;
     const hasMotif = data.sheetExam.appointment_data.consultation_reason.length > 0
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -330,9 +330,9 @@ function CertifDialog({...props}) {
         }, {
             onSuccess: (result) => {
                 const res = result.data.data
-                let ant: string[] = [];
+                let ant: any[] = [];
                 Object.keys(res).forEach(key => {
-                    res[key].map((asc: { name: string; }) => ant.push(asc.name))
+                    res[key].map((asc: { name: string; note: string }) => ant.push({name: asc.name, note: asc.note}))
                 })
                 setAntecedents(ant)
             }
@@ -450,9 +450,9 @@ function CertifDialog({...props}) {
         setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 480) : 280);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(()=>{
+    useEffect(() => {
         setMessage(`${t('write')} ${title}`)
-    },[t, title])
+    }, [t, title])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -463,55 +463,56 @@ function CertifDialog({...props}) {
                     <List sx={{
                         width: '100%',
                         bgcolor: theme => theme.palette.background.paper,
-                        paddingRight: { xs: 0, sm: 2 }
+                        paddingRight: {xs: 0, sm: 2}
                     }}>
                         <Stack spacing={1}>
-                            {!fullScreen && <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: "100%" }}>
-                                <Stack sx={{width: "100%"}}>
-                                    <Typography style={{color: "gray"}}
-                                                fontSize={12}>{t('consultationIP.title')}</Typography>
-                                    <Stack alignItems={"center"} spacing={1} direction={"row"}>
-                                        <TextField
-                                            style={{width: "100%"}}
-                                            value={title}
-                                            onChange={(ev) => {
-                                                setTitle(ev.target.value)
-                                                data.state.title = ev.target.value;
-                                                data.setState(data.state)
-                                            }}/>
+                            {!fullScreen &&
+                                <Stack direction={{xs: 'column', sm: 'row'}} spacing={2} sx={{width: "100%"}}>
+                                    <Stack sx={{width: "100%"}}>
+                                        <Typography style={{color: "gray"}}
+                                                    fontSize={12}>{t('consultationIP.title')}</Typography>
+                                        <Stack alignItems={"center"} spacing={1} direction={"row"}>
+                                            <TextField
+                                                style={{width: "100%"}}
+                                                value={title}
+                                                onChange={(ev) => {
+                                                    setTitle(ev.target.value)
+                                                    data.state.title = ev.target.value;
+                                                    data.setState(data.state)
+                                                }}/>
+                                        </Stack>
                                     </Stack>
-                                </Stack>
 
-                                <Stack sx={{width: "100%"}}>
-                                    <Typography style={{color: "gray"}}
-                                                fontSize={12}>{t('consultationIP.dir')}</Typography>
-                                    <Select
-                                        size={"small"}
-                                        value={folder}
-                                        onChange={(e) => setFolder(e.target.value)}>
-                                        {ParentModels.map((folder: any, index: number) => <MenuItem
-                                            key={index}
-                                            value={folder.uuid}>{folder.name}</MenuItem>)}
-                                    </Select>
-                                </Stack>
+                                    <Stack sx={{width: "100%"}}>
+                                        <Typography style={{color: "gray"}}
+                                                    fontSize={12}>{t('consultationIP.dir')}</Typography>
+                                        <Select
+                                            size={"small"}
+                                            value={folder}
+                                            onChange={(e) => setFolder(e.target.value)}>
+                                            {ParentModels.map((folder: any, index: number) => <MenuItem
+                                                key={index}
+                                                value={folder.uuid}>{folder.name}</MenuItem>)}
+                                        </Select>
+                                    </Stack>
 
-                                <Stack sx={{width: "100%"}}>
-                                    <Typography style={{color: "gray"}}
-                                                fontSize={12}>{t('consultationIP.alertTitle')}</Typography>
-                                    <Select
-                                        size={"small"}
-                                        value={selectedTemplate}
-                                        onChange={(e) => {
-                                            setSelectedTemplate(e.target.value);
-                                            data.state.documentHeader = e.target.value;
-                                            data.setState(data.state);
-                                        }}>
-                                        {templates.map((template: any, index: number) => <MenuItem
-                                            key={index}
-                                            value={template.uuid}>{template.title}</MenuItem>)}
-                                    </Select>
-                                </Stack>
-                            </Stack>}
+                                    <Stack sx={{width: "100%"}}>
+                                        <Typography style={{color: "gray"}}
+                                                    fontSize={12}>{t('consultationIP.alertTitle')}</Typography>
+                                        <Select
+                                            size={"small"}
+                                            value={selectedTemplate}
+                                            onChange={(e) => {
+                                                setSelectedTemplate(e.target.value);
+                                                data.state.documentHeader = e.target.value;
+                                                data.setState(data.state);
+                                            }}>
+                                            {templates.map((template: any, index: number) => <MenuItem
+                                                key={index}
+                                                value={template.uuid}>{template.title}</MenuItem>)}
+                                        </Select>
+                                    </Stack>
+                                </Stack>}
 
                             {!fullScreen && <Typography style={{color: "gray"}} fontSize={12} mt={1}
                                                         mb={1}>{t('consultationIP.contenu')}</Typography>}
@@ -568,7 +569,7 @@ function CertifDialog({...props}) {
                                 <Stack direction={"row"} spacing={1}>
                                     <Fab size={"small"}
                                          sx={{
-                                             width: 30 ,
+                                             width: 30,
                                              height: 30,
                                              minHeight: 30,
                                              boxShadow: "none",
@@ -600,12 +601,17 @@ function CertifDialog({...props}) {
                                     id="outlined-start-adornment"
                                     value={message}
                                     onChange={(ev) => setMessage(ev.target.value)}
-                                    sx={{ m: 1, width: '95%' }}
+                                    sx={{m: 1, width: '95%'}}
                                     InputProps={{
-                                        endAdornment: <IconButton disabled={loadingChat} size={"small"} onClick={()=> sendToAi()}><IconUrl path={"ic-send"} width={15} height={15}/> </IconButton>
+                                        endAdornment: <IconButton disabled={loadingChat} size={"small"}
+                                                                  onClick={() => sendToAi()}><IconUrl path={"ic-send"}
+                                                                                                      width={15}
+                                                                                                      height={15}/>
+                                        </IconButton>
                                     }}
                                 />
-                                {loadingChat && <Typography style={{color: "gray"}} fontSize={12}>{t('loading')}</Typography>}
+                                {loadingChat &&
+                                    <Typography style={{color: "gray"}} fontSize={12}>{t('loading')}</Typography>}
                             </Collapse>
                             <Collapse in={expanded} timeout="auto" unmountOnExit>
                                 <div className={'suggestion'}>
@@ -628,12 +634,12 @@ function CertifDialog({...props}) {
                                     {antecedents.map((item, index) => (
                                         <Button style={{width: "fit-content", margin: 2}}
                                                 onClick={() => {
-                                                    addVal(item.toString())
+                                                    addVal(item.name.toString() + " " + item.note.toString())
                                                 }}
                                                 color={"info"}
                                                 variant="outlined"
                                                 key={`antecedent${index}`}
-                                                size={"small"}> <AddIcon/> {item}
+                                                size={"small"}> <AddIcon/> {item.name}
                                         </Button>
                                     ))}
                                     {antecedents.length === 0 &&

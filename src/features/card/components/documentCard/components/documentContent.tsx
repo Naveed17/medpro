@@ -5,16 +5,21 @@ import Icon from "@themes/urlIcon";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {AppointmentStatus, CalendarContextMenu} from "@features/calendar";
 import {prepareContextMenu} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+import {sideBarSelector} from "@features/menu";
 
 function DocumentContent({...props}) {
     const {t, data, date, resize, width = null, handleMoreAction} = props;
     const theme = useTheme();
 
+    const {opened} = useAppSelector(sideBarSelector);
+
     return (
         <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
             <Stack {...(!resize ? {direction: "column"} : {alignItems: "flex-start", m: 1})}>
                 <Typography
-                    className={"sub-title ellipsis"} style={{width: width ? width : "5rem"}} variant='subtitle2'
+                    className={"sub-title ellipsis"} style={{width: width ? width : (!opened ? "10rem" : "7rem")}}
+                    variant='subtitle2'
                     whiteSpace={"nowrap"}
                     sx={{
                         cursor: "pointer", textOverflow: "ellipsis",
@@ -34,7 +39,7 @@ function DocumentContent({...props}) {
 
                     <Icon path="ic-time" height={11} width={11} color={theme.palette.text.primary}/>
                     <Typography
-                        variant="body2">{moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}</Typography>
+                        variant="body2">{moment.utc(data.createdAt, 'DD-MM-YYYY HH:mm').format('HH:mm')}</Typography>
                 </Stack>
 
             </Stack>

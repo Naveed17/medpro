@@ -1,10 +1,10 @@
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import {useRouter} from "next/router";
+import {useTranslation} from "next-i18next";
 import * as Yup from "yup";
-import { Form, FormikProvider, useFormik } from "formik";
-import React, { ReactElement, SyntheticEvent, useEffect, useRef, useState } from "react";
-import { SubHeader } from "@features/subHeader";
-import { RootStyled } from "@features/toolbar";
+import {Form, FormikProvider, useFormik} from "formik";
+import React, {ReactElement, SyntheticEvent, useEffect, useRef, useState} from "react";
+import {SubHeader} from "@features/subHeader";
+import {RootStyled} from "@features/toolbar";
 import {
     Box,
     Button,
@@ -25,40 +25,38 @@ import {
     TextField,
     Typography, useTheme,
 } from "@mui/material";
-
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
-import TimePicker from "@themes/overrides/TimePicker";
-import { GetStaticPaths, GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
+import {GetStaticPaths, GetStaticProps} from "next";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import dynamic from "next/dynamic";
-import { LatLngBoundsExpression } from "leaflet";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
-import { styled } from "@mui/material/styles";
+import {LatLngBoundsExpression} from "leaflet";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
-import { DateTime } from "next-auth/providers/kakao";
-import { LoadingButton } from "@mui/lab";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { CountrySelect } from "@features/countrySelect";
-import { countries as dialCountries } from "@features/countrySelect/countries";
-import { DefaultCountry } from "@lib/constants";
-import { CustomInput, TabPanel } from "@features/tabPanel";
+import {LoadingButton} from "@mui/lab";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {CountrySelect} from "@features/countrySelect";
+import {countries as dialCountries} from "@features/countrySelect/countries";
+import {DefaultCountry} from "@lib/constants";
+import {CustomInput, TabPanel} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
-import { isValidPhoneNumber } from "libphonenumber-js";
-import { a11yProps, useInvalidateQueries, useMedicalEntitySuffix } from "@lib/hooks";
-import { useContactType } from "@lib/hooks/rest";
+import {isValidPhoneNumber} from "libphonenumber-js";
+import {a11yProps, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {useContactType} from "@lib/hooks/rest";
 import CloseIcon from "@mui/icons-material/Close";
-import { Dialog, resetOpeningData } from "@features/dialog";
-import { dialogOpeningHoursSelector } from "@features/dialog/components/openingHoursDialog";
+import {Dialog, resetOpeningData} from "@features/dialog";
+import {dialogOpeningHoursSelector} from "@features/dialog/components/openingHoursDialog";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import {CustomTimePicker} from "@features/customTimePicker";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
 });
 
-const FormStyled = styled(Form)(({ theme }) => ({
+const FormStyled = styled(Form)(({theme}) => ({
     "& .MuiCard-root": {
         border: "none",
         marginBottom: theme.spacing(2),
@@ -125,17 +123,17 @@ const FormStyled = styled(Form)(({ theme }) => ({
 
 function PlacesDetail() {
     const router = useRouter();
-    const { data: session } = useSession();
+    const {data: session} = useSession();
     const phoneInputRef = useRef(null);
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { contacts: contactTypes } = useContactType();
-    const { trigger: invalidateQueries } = useInvalidateQueries();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {contacts: contactTypes} = useContactType();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
     const dispatch = useAppDispatch();
     const theme = useTheme();
 
-    const { t } = useTranslation(["settings", "common"]);
-    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
-    const { direction } = useAppSelector(configSelector);
+    const {t} = useTranslation(["settings", "common"]);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
     const dialogOpeningHoursData = useAppSelector(dialogOpeningHoursSelector);
 
     const validationSchema = Yup.object().shape({
@@ -161,18 +159,18 @@ function PlacesDetail() {
         city: Yup.string().required(t("lieux.new.cityReq")),
     });
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const uuind = router.query.uuid;
 
-    const { trigger: triggerPlaceUpdate } = useRequestQueryMutation("/settings/place/update");
-    const { data, mutate } = useRequestQuery(uuind !== "new" ? {
+    const {trigger: triggerPlaceUpdate} = useRequestQueryMutation("/settings/place/update");
+    const {data, mutate} = useRequestQuery(uuind !== "new" ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`
     } : null);
 
-    const { data: httpStateResponse } = useRequestQuery({
+    const {data: httpStateResponse} = useRequestQuery({
         method: "GET",
         url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`
     });
@@ -234,8 +232,8 @@ function PlacesDetail() {
             form.append("access_data", JSON.stringify({}));
             form.append("opening_hours", JSON.stringify(horaires[0].openingHours));
             form.append("city", values.city);
-            form.append("name", JSON.stringify({ [router.locale as string]: values.name }));
-            form.append("address", JSON.stringify({ [router.locale as string]: values.address }));
+            form.append("name", JSON.stringify({[router.locale as string]: values.name}));
+            form.append("address", JSON.stringify({[router.locale as string]: values.address}));
             const updatedPhones: any[] = [];
             values.phones.map((phone: any) => {
                 updatedPhones.push({
@@ -389,7 +387,7 @@ function PlacesDetail() {
         } else {
             navigator.geolocation.getCurrentPosition(function (position) {
                 setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
-                setCords([{ name: "name", points: [position.coords.latitude, position.coords.longitude] }]);
+                setCords([{name: "name", points: [position.coords.latitude, position.coords.longitude]}]);
             });
             setHoraires([
                 {
@@ -438,7 +436,7 @@ function PlacesDetail() {
         if (row !== undefined && check) {
             if (row.address.location.point)
                 setOuterBounds([row.address.location.point]);
-            setCords([{ name: "name", points: row.address.location.point }]);
+            setCords([{name: "name", points: row.address.location.point}]);
 
             const cnts: any[] = [];
             row.contacts.forEach((contact: ContactModel) => {
@@ -487,7 +485,7 @@ function PlacesDetail() {
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{ margin: 0 }}>
+                    <p style={{margin: 0}}>
                         {uuind === "new"
                             ? t("lieux.new.path")
                             : t("lieux.config.path") +
@@ -498,7 +496,7 @@ function PlacesDetail() {
 
             <Box
                 bgcolor="#F0FAFF"
-                sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+                sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <FormikProvider value={formik}>
                     <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
                         <Typography
@@ -513,11 +511,11 @@ function PlacesDetail() {
                                 <Box mb={2}>
                                     <Grid
                                         container
-                                        spacing={{ lg: 2, xs: 1 }}
+                                        spacing={{lg: 2, xs: 1}}
                                         alignItems="center">
                                         <Grid item xs={12} lg={2}>
                                             <Typography
-                                                textAlign={{ lg: "right", xs: "left" }}
+                                                textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
@@ -543,11 +541,11 @@ function PlacesDetail() {
                                 <Box mb={2}>
                                     <Grid
                                         container
-                                        spacing={{ lg: 2, xs: 1 }}
+                                        spacing={{lg: 2, xs: 1}}
                                         alignItems="center">
                                         <Grid item xs={12} lg={2}>
                                             <Typography
-                                                textAlign={{ lg: "right", xs: "left" }}
+                                                textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
@@ -570,7 +568,7 @@ function PlacesDetail() {
                                         </Grid>
                                         <Grid item xs={12} lg={2}>
                                             <Typography
-                                                textAlign={{ lg: "right", xs: "left" }}
+                                                textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
@@ -595,11 +593,11 @@ function PlacesDetail() {
                                 <Box mb={2}>
                                     <Grid
                                         container
-                                        spacing={{ lg: 2, xs: 1 }}
+                                        spacing={{lg: 2, xs: 1}}
                                         alignItems="center">
                                         <Grid item xs={12} lg={2}>
                                             <Typography
-                                                textAlign={{ lg: "right", xs: "left" }}
+                                                textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
@@ -613,7 +611,7 @@ function PlacesDetail() {
                                         <Grid item xs={12} lg={10}>
                                             <Grid
                                                 container
-                                                spacing={{ lg: 2, xs: 1 }}
+                                                spacing={{lg: 2, xs: 1}}
                                                 alignItems="center"
                                                 justifyContent={{
                                                     lg: "space-between",
@@ -628,7 +626,7 @@ function PlacesDetail() {
                                                             value={values.town}
                                                             onChange={onChangeState}
                                                             displayEmpty={true}
-                                                            sx={{ color: "text.secondary" }}
+                                                            sx={{color: "text.secondary"}}
                                                             placeholder={t("lieux.new.selectCity")}>
                                                             {httpStateResponse &&
                                                                 (httpStateResponse as HttpResponse).data.map(
@@ -646,9 +644,9 @@ function PlacesDetail() {
 
                                                 <Grid item xs={12} lg={6}>
                                                     <Stack
-                                                        spacing={{ lg: 2, xs: 1 }}
-                                                        direction={{ lg: "row", xs: "column" }}
-                                                        alignItems={{ lg: "center", xs: "flex-start" }}>
+                                                        spacing={{lg: 2, xs: 1}}
+                                                        direction={{lg: "row", xs: "column"}}
+                                                        alignItems={{lg: "center", xs: "flex-start"}}>
                                                         <Typography
                                                             color="text.secondary"
                                                             variant="body2"
@@ -665,7 +663,7 @@ function PlacesDetail() {
                                                                 {...getFieldProps("city")}
                                                                 value={values.city}
                                                                 displayEmpty={true}
-                                                                sx={{ color: "text.secondary" }}>
+                                                                sx={{color: "text.secondary"}}>
                                                                 {cities.map((state: LocationModel) => (
                                                                     <MenuItem key={state.uuid} value={state.uuid}>
                                                                         {state.name}
@@ -686,7 +684,7 @@ function PlacesDetail() {
                             data={uuind === "new" ? null : cords}
                             outerBounds={outerBounds}
                             editCords={(c: { lat: number; lng: number }) => {
-                                setCords([{ name: values.name, points: [c.lat, c.lng] }]);
+                                setCords([{name: values.name, points: [c.lat, c.lng]}]);
                             }}
                             draggable={true}></Maps>}
 
@@ -703,7 +701,7 @@ function PlacesDetail() {
                                 <Box mb={2}>
                                     <Grid
                                         container
-                                        spacing={{ lg: 2, xs: 1 }}
+                                        spacing={{lg: 2, xs: 1}}
                                         justifyContent="center">
                                         {values.phones.map((phone, index) => (
                                             <React.Fragment key={index}>
@@ -757,14 +755,14 @@ function PlacesDetail() {
                                                                                 name: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
                                                                                 phone: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
                                                                             }}
-                                                                            sx={{ width: 140 }}
+                                                                            sx={{width: 140}}
                                                                             onSelect={(v: any) =>
                                                                                 setFieldValue(
                                                                                     `phones[${index}]`, {
-                                                                                    ...values.phones[index],
-                                                                                    code: v.phone,
-                                                                                    value: ""
-                                                                                }
+                                                                                        ...values.phones[index],
+                                                                                        code: v.phone,
+                                                                                        value: ""
+                                                                                    }
                                                                                 )
                                                                             }
                                                                         />
@@ -772,26 +770,26 @@ function PlacesDetail() {
                                                                 ),
                                                             }}
                                                             {...(getFieldProps(`phones[${index}].phone`) &&
-                                                            {
-                                                                helperText: `${t("phone_format", { ns: "common" })}: ${getFieldProps(`phones[${index}].value`)?.value ?
-                                                                    getFieldProps(`phones[${index}].value`).value : ""}`
-                                                            })}
+                                                                {
+                                                                    helperText: `${t("phone_format", {ns: "common"})}: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                        getFieldProps(`phones[${index}].value`).value : ""}`
+                                                                })}
                                                             error={Boolean(errors.phones && (errors.phones as any)[index])}
-                                                            {...(data && { country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any }) as any}
+                                                            {...(data && {country: (getCountryByCode(phone.code) ? getCountryByCode(phone.code)?.code : doctor_country?.code.toUpperCase()) as any}) as any}
                                                             value={data && values.phones[index] ? values.phones[index]?.value : ""}
                                                             onChange={value => setFieldValue(`phones[${index}].value`, value)}
                                                             inputComponent={CustomInput as any}
                                                         />
                                                         <IconButton
                                                             onClick={() => handleRemovePhone(index)}
-                                                            sx={{ position: "absolute", right: -40, top: 3 }}
+                                                            sx={{position: "absolute", right: -40, top: 3}}
                                                             size="small">
                                                             <IconUrl width={20} height={20}
-                                                                color={theme.palette.error.main} path="ic-trash" />
+                                                                     color={theme.palette.error.main} path="ic-trash"/>
                                                         </IconButton>
                                                     </Stack>
                                                 </Grid>
-                                                <Grid item xs={12} lg={4} sx={{ ml: "auto" }}>
+                                                <Grid item xs={12} lg={4} sx={{ml: "auto"}}>
                                                     <FormControlLabel
                                                         control={
                                                             <Switch
@@ -811,7 +809,7 @@ function PlacesDetail() {
                                             </React.Fragment>
                                         ))}
                                         <Grid item xs={12} lg={10} ml="auto">
-                                            <Button size={"small"} onClick={handleAddPhone} startIcon={<AddIcon />}>
+                                            <Button size={"small"} onClick={handleAddPhone} startIcon={<AddIcon/>}>
                                                 {t("lieux.new.addNumber")}
                                             </Button>
                                         </Grid>
@@ -819,7 +817,7 @@ function PlacesDetail() {
                                 </Box>
                             </CardContent>
                         </Card>
-                        <Typography
+                        {/*<Typography
                             textTransform="uppercase"
                             fontWeight={600}
                             marginBottom={2}
@@ -855,7 +853,7 @@ function PlacesDetail() {
                                     </Grid>
                                 </Box>
                             </CardContent>
-                        </Card>
+                        </Card>*/}
 
                         <Typography
                             textTransform="uppercase"
@@ -879,7 +877,7 @@ function PlacesDetail() {
                                     {...a11yProps(tabHeaderIndex)}
                                 />)
                             )}
-{/*                            <Button
+                            {/*                            <Button
                                 onClick={() => setOpeningHoursDialog(true)}
                                 variant={"text"}
                                 startIcon={<AddIcon />}
@@ -940,14 +938,14 @@ function PlacesDetail() {
                                                 borderTop: "1px solid #C9C8C8",
                                             }}>
                                             <Paper
-                                                sx={{ borderRadius: 0, border: "none", px: 1, my: 2 }}>
+                                                sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
                                                 {tabContent.openingHours[day]?.map(
                                                     (hour: any, i: number) => (
                                                         <Grid
                                                             container
                                                             spacing={1}
                                                             alignItems="center"
-                                                            sx={{ mt: 1 }}
+                                                            sx={{mt: 1}}
                                                             key={i}>
                                                             {hour && (
                                                                 <Grid item lg={3} md={3} sm={12} xs={4}>
@@ -955,10 +953,10 @@ function PlacesDetail() {
                                                                         sx={{
                                                                             display: "flex",
                                                                             alignItems: "center",
-                                                                            svg: { mr: 1 },
+                                                                            svg: {mr: 1},
                                                                             justifyContent: "end",
                                                                         }}>
-                                                                        <IconUrl path="ic-time" />
+                                                                        <IconUrl path="ic-time"/>
                                                                         <Typography
                                                                             variant="body2"
                                                                             color="text.primary">
@@ -977,7 +975,7 @@ function PlacesDetail() {
                                                             )}
                                                             {hour && (
                                                                 <Grid item lg={4} md={6} sm={12} xs={12}>
-                                                                    <TimePicker
+                                                                    <CustomTimePicker
                                                                         defaultValue={[
                                                                             hour.start_time
                                                                                 ? new Date(
@@ -989,8 +987,8 @@ function PlacesDetail() {
                                                                                 : "",
                                                                         ]}
                                                                         onChange={(
-                                                                            start: DateTime,
-                                                                            end: DateTime
+                                                                            start: any,
+                                                                            end: any
                                                                         ) => {
                                                                             if (
                                                                                 hour.start_time !==
@@ -1015,13 +1013,14 @@ function PlacesDetail() {
                                                                         color="error"
                                                                         size="small"
                                                                         sx={{
-                                                                            svg: { width: 15 },
+                                                                            svg: {width: 15},
                                                                             path: {
                                                                                 fill: (theme) =>
                                                                                     theme.palette.error.main,
                                                                             },
                                                                         }}
-                                                                        startIcon={<IconUrl path="icdelete" />}
+                                                                        startIcon={<IconUrl path="ic-trash" width={20}
+                                                                                            height={20}/>}
                                                                         onClick={() => {
                                                                             tabContent.openingHours[day].splice(i, 1);
                                                                             setHoraires([...horaires]);
@@ -1046,7 +1045,7 @@ function PlacesDetail() {
                                                             }}
                                                             variant="contained"
                                                             color="success"
-                                                            sx={{ mt: 1 }}>
+                                                            sx={{mt: 1}}>
                                                             {t("lieux.new.add")}
                                                         </Button>
                                                     </Grid>
@@ -1065,7 +1064,7 @@ function PlacesDetail() {
                         ))}
 
 
-                        <div style={{ paddingBottom: "50px" }}></div>
+                        <div style={{paddingBottom: "50px"}}></div>
 
                         <Stack
                             className="bottom-section"
@@ -1093,25 +1092,25 @@ function PlacesDetail() {
                 {...{
                     direction,
                     sx: {
-                        padding: { xs: 1, md: 2 }
+                        padding: {xs: 1, md: 2}
                     },
                 }}
                 open={openingHoursDialog}
-                data={{ t }}
+                data={{t}}
                 size={"md"}
                 title={t("lieux.new.add-horaire")}
                 dialogClose={() => setOpeningHoursDialog(false)}
                 actionDialog={
                     <DialogActions>
-                        <Button onClick={() => setOpeningHoursDialog(false)} startIcon={<CloseIcon />}>
-                            {t("config.cancel", { ns: "common" })}
+                        <Button onClick={() => setOpeningHoursDialog(false)} startIcon={<CloseIcon/>}>
+                            {t("config.cancel", {ns: "common"})}
                         </Button>
                         <LoadingButton
                             disabled={moment(dialogOpeningHoursData.startDate).diff(dialogOpeningHoursData.endDate) > 0 || dialogOpeningHoursData.name.length === 0}
                             variant="contained"
                             onClick={handleADDOpeningHours}
-                            startIcon={<IconUrl path="ic-dowlaodfile" />}>
-                            {t("config.save", { ns: "common" })}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            {t("config.save", {ns: "common"})}
                         </LoadingButton>
                     </DialogActions>
                 }
@@ -1123,7 +1122,7 @@ function PlacesDetail() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, [
+        ...(await getServerTranslations(context.locale as string, [
             "common",
             "menu",
             "patient",

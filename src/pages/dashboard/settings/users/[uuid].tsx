@@ -1,5 +1,4 @@
 import {GetStaticProps, GetStaticPaths} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState, memo, useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
@@ -51,6 +50,7 @@ import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {useCashBox} from "@lib/hooks/rest";
 import {NoDataCard} from "@features/card";
 import {FacebookCircularProgress} from "@features/progressUI";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -97,42 +97,44 @@ function ModifyUser() {
     const features = (userData as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features ?? [];
     const readOnly = user?.ssoId !== currentUser
 
-    const validationSchema = Yup.object().shape({
-        name: Yup.string()
-            .min(3, t("users.ntc"))
-            .max(50, t("users.ntl"))
-            .required(t("users.nameReq")),
-        email: Yup.string()
-            .email(t("users.mailInvalid"))
-            .required(t("users.mailReq")),
-        birthdate: Yup.string().nullable(),
-        firstName: Yup.string().required(),
-        lastName: Yup.string().required(),
-        phones: Yup.array().of(
-            Yup.object().shape({
-                dial: Yup.object().shape({
-                    code: Yup.string(),
-                    label: Yup.string(),
-                    phone: Yup.string(),
-                }),
-                phone: Yup.string()
-                    .test({
-                        name: "is-phone",
-                        message: t("telephone-error"),
-                        test: (value) => {
-                            return value ? isValidPhoneNumber(value) : false
-                        }
-                    })
-            })
-        ),
-        oldPassword: Yup.string().when('password', {
-            is: (val: string) => val && val.length > 0,
-            then: (schema) => schema.required(t("password-error"))
-        }),
-        password: Yup.string(),
-        confirmPassword: Yup.string().when('password', (password, field) =>
-            password ? field.oneOf([Yup.ref('password')]) : field),
-    });
+    const validationSchema = [
+        Yup.object().shape({
+            name: Yup.string()
+                .min(3, t("users.ntc"))
+                .max(50, t("users.ntl"))
+                .required(t("users.nameReq")),
+            email: Yup.string()
+                .email(t("users.mailInvalid"))
+                .required(t("users.mailReq")),
+            birthdate: Yup.string().nullable(),
+            firstName: Yup.string().required(),
+            lastName: Yup.string().required(),
+            phones: Yup.array().of(
+                Yup.object().shape({
+                    dial: Yup.object().shape({
+                        code: Yup.string(),
+                        label: Yup.string(),
+                        phone: Yup.string(),
+                    }),
+                    phone: Yup.string()
+                        .test({
+                            name: "is-phone",
+                            message: t("telephone-error"),
+                            test: (value) => {
+                                return value ? isValidPhoneNumber(value) : false
+                            }
+                        })
+                })
+            ),
+            oldPassword: Yup.string().when('password', {
+                is: (val: string) => val && val.length > 0,
+                then: (schema) => schema.required(t("password-error"))
+            }),
+            password: Yup.string(),
+            confirmPassword: Yup.string().when('password', (password, field) =>
+                password ? field.oneOf([Yup.ref('password')]) : field),
+        })
+    ];
 
     const handleChangeTabs = (event: React.SyntheticEvent, newValue: number) => {
         setTabIndex(newValue);
@@ -171,7 +173,7 @@ function ModifyUser() {
             admin: user?.admin || false,
             consultation_fees: user?.ConsultationFees || "",
             birthdate: user?.birthDate || null,
-            firstName: user?.FirstName || " ",
+            firstName: user?.firstName || " ",
             lastName: user?.lastName || " ",
             phones: [],
             profile: user?.profile?.uuid || "",
@@ -180,7 +182,7 @@ function ModifyUser() {
             confirmPassword: "",
             roles: initData()
         },
-        validationSchema,
+        validationSchema: validationSchema[tabIndex],
         onSubmit: async (values) => {
             setLoading(true);
             const form = new FormData();
@@ -224,7 +226,8 @@ function ModifyUser() {
                     }
                 });
             } else {
-                const feature = selectedFeatureEntity ? values.roles[selectedFeature].find((feature: FeatureModel) => feature.featureEntity?.uuid === selectedFeatureEntity.uuid) : values.roles[selectedFeature][0];
+                const featureIndex = selectedFeatureEntity ? values.roles[selectedFeature].findIndex((feature: FeatureModel) => feature.featureEntity?.uuid === selectedFeatureEntity.uuid) : 0;
+                const feature = values.roles[selectedFeature][featureIndex];
                 const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                     [...(permissions ?? []),
                         ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
@@ -239,12 +242,14 @@ function ModifyUser() {
                 }
 
                 triggerUserUpdate({
-                    method: feature?.profile ? "PUT" : "POST",
+                    method: feature?.profile || permissions.length === 0 ? "PUT" : "POST",
                     url: `${urlMedicalEntitySuffix}/features/${selectedFeature}/profiles${feature?.profile ? `/${feature?.profile}` : ""}/${router.locale}`,
                     data: form
                 }, {
-                    onSuccess: () => {
+                    onSuccess: (result) => {
+                        const profileUuid = (result?.data as HttpResponse)?.data?.uuid;
                         enqueueSnackbar(t(`users.alert.updated-role`), {variant: "success"});
+                        setFieldValue(`roles[${selectedFeature}][${featureIndex}].profile`, profileUuid ?? null);
                         setLoading(false);
                     },
                     onError: () => {
@@ -918,7 +923,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(locale as string, [
+            ...(await getServerTranslations(locale as string, [
                 "common",
                 "menu",
                 "patient",

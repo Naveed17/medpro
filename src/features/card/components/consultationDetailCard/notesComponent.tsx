@@ -40,7 +40,6 @@ function NotesComponent({...props}) {
         hasDataHistory,
         mutateSheetData,
         seeHistory,
-        debouncedOnChange,
         isStarted, setIsStarted,
         modelContent,
         fullOb, setFullOb,
@@ -165,8 +164,10 @@ function NotesComponent({...props}) {
 
                     {typing === "saved" &&
                         <IconUrl width={20} height={20} path={"ic-saved"}/>}
+                    {/*
                     {typing === "typing" &&
                         <IconUrl width={20} height={20} className={"image-clignote"} path={"typing"}/>}
+*/}
                     {typing === "offline" &&
                         <IconUrl width={20} height={20} className={"image-clignote"} path={"no-wifi"}/>}
                     {typing === "error" &&
@@ -287,12 +288,15 @@ function NotesComponent({...props}) {
 
 
             {showToolbar && <Editor
-                initialValue={values.notes}
+                value={values.notes}
                 tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                 onEditorChange={(event) => {
-                    debouncedOnChange("notes", event)
+                    //debouncedOnChange("notes", event)
                     setTyping("typing")
+                    setFieldValue("notes", event)
                 }}
+                onBlur={() => saveChanges("notes", values.notes)}
+
                 disabled={isStarted || loading || typing === "offline"}
                 init={{
                     branding: false,
@@ -307,12 +311,14 @@ function NotesComponent({...props}) {
 
             {
                 !showToolbar && <Editor
-                    initialValue={values.notes}
+                    value={values.notes}
                     tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                     onEditorChange={(event) => {
-                        debouncedOnChange("notes", event)
+                        //debouncedOnChange("notes", event)
                         setTyping("typing")
+                        setFieldValue("notes", event)
                     }}
+                    onBlur={() => saveChanges("notes", values.notes)}
                     disabled={isStarted || loading || typing === "offline"}
                     init={{
                         branding: false,

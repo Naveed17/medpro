@@ -6,9 +6,8 @@ import {
     TableCell,
     Skeleton,
     Stack,
-    DialogActions, Tooltip, Menu, MenuItem,
-    ListItemIcon,
-    ListItemText
+    DialogActions,
+    Tooltip
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
 import {Dialog} from "@features/dialog";
@@ -25,28 +24,26 @@ import IconUrl from "@themes/urlIcon";
 import {getDiffDuration} from "@lib/hooks";
 import TableRowStyled from "../overrides/tableRowStyled";
 import {IconButtonStyled} from "@features/board";
+import {agendaSelector} from "@features/calendar";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
-    const {roles, setLoading} = data;
+    const {roles, setLoading, openMenu, tabIndex} = data;
     const theme = useTheme();
+
     const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {mode} = useAppSelector(agendaSelector);
 
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [actions] = useState<boolean>(false);
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
     }
+
+    const docsCount = Object.entries(row).reduce((docs: number, doc: any) => docs + (["certificate", "prescriptions", "requestedAnalyses", "requestedMedicalImaging"].includes(doc[0]) && doc[1].length > 0 ? 1 : 0), 0)
 
     const DialogAction = () => {
         return (
@@ -63,7 +60,6 @@ function WaitingRoomRow({...props}) {
             </DialogActions>
         );
     }
-
     return (
         <>
             <TableRowStyled>
@@ -97,9 +93,15 @@ function WaitingRoomRow({...props}) {
                                         handleEvent({action: "PATIENT_DETAILS", row, event});
                                     }
                                 })}
-                                color={row.patient?.isArchived ? "text.primary" : "primary"}
-                                fontWeight={600}
-                                sx={{ml: 0.6, cursor: "pointer"}}>
+                                {...(mode !== "normal" && {
+                                    className: "blur-text",
+                                    sx: {overflow: "hidden", lineHeight: 1}
+                                })}
+                                {...(mode === "normal" && {
+                                    color: row.patient?.isArchived ? "text.primary" : "primary",
+                                    sx: {ml: 0.6, cursor: "pointer"}
+                                })}
+                                fontWeight={600}>
                                 {row.patient.firstName} {row.patient.lastName}
                             </Typography>
                         </Stack>
@@ -132,7 +134,6 @@ function WaitingRoomRow({...props}) {
                                     fontWeight={600}
                                     color='text.primary'
                                     sx={{
-
                                         ml: 0.6,
                                         fontSize: 13
                                     }}>
@@ -146,7 +147,7 @@ function WaitingRoomRow({...props}) {
                             </>
                         )}
                 </TableCell>
-                <TableCell>
+                {tabIndex !==1 && <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Typography
@@ -166,7 +167,7 @@ function WaitingRoomRow({...props}) {
                     ) : (
                         <Skeleton variant="text" width={80}/>
                     )}
-                </TableCell>
+                </TableCell>}
                 <TableCell>
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
@@ -211,80 +212,78 @@ function WaitingRoomRow({...props}) {
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
                             {(!roles.includes("ROLE_SECRETARY") && [5].includes(row.status)) &&
                                 <Stack direction='row' alignItems='center' spacing={.5} sx={{mr: '12px !important'}}>
-                                    <IconButtonStyled sx={{width: 30, height: 30}} size={"small"}>
-                                        <IconUrl width={14} height={14} path="ic-doc-analysis"/>
-                                    </IconButtonStyled>
-                                    <IconButtonStyled size={"small"}>
-                                        <IconUrl width={16} height={16} path="ic-doc-ordonance"/>
-                                    </IconButtonStyled>
-                                    <Stack>
+                                    <Tooltip title={t("add_prescription", {ns: "common"})}>
+                                            <span>
+                                                <IconButtonStyled
+                                                    size={"small"}
+                                                    onClick={(event) => handleEvent({
+                                                        action: "ON_ADD_DOCUMENT",
+                                                        row,
+                                                        event
+                                                    })}>
+                                                    <IconUrl width={18} height={18} path="add-doc"
+                                                             color={theme.palette.primary.main}/>
+                                                </IconButtonStyled>
+                                            </span>
+                                    </Tooltip>
+                                    {row.certificate.length > 0 &&
+                                        <Tooltip title={t("medical-certificate", {ns: "common"})}>
+                                            <span>
+                                                <IconButtonStyled
+                                                    onClick={(event) => handleEvent({
+                                                        action: "ON_PREVIEW_DOCUMENT",
+                                                        row: {
+                                                            uuid: row.uuid,
+                                                            doc: row.certificate[0]
+                                                        },
+                                                        event
+                                                    })}
+                                                    size={"small"}>
+                                                    <IconUrl width={18} height={18} path="docs/ic-ordonnance"
+                                                             color={theme.palette.primary.main}/>
+                                                </IconButtonStyled>
+                                            </span>
+                                        </Tooltip>}
+                                    {row.prescriptions.length > 0 &&
+                                        <Tooltip title={t("requestedPrescription", {ns: "common"})}>
+                                            <span>
+                                                <IconButtonStyled
+                                                    size={"small"}
+                                                    onClick={(event) => handleEvent({
+                                                        action: "ON_PREVIEW_DOCUMENT",
+                                                        row: {
+                                                            uuid: row.uuid,
+                                                            doc: row.prescriptions[0]
+                                                        },
+                                                        event
+                                                    })}>
+                                                    <IconUrl width={18} height={18} path="docs/ic-prescription"
+                                                             color={theme.palette.primary.main}/>
+                                                </IconButtonStyled>
+                                            </span>
+                                        </Tooltip>}
+                                    {docsCount > 2 &&
                                         <IconButtonStyled
                                             id="basic-button"
-                                            aria-controls={open ? 'basic-menu' : undefined}
+                                            aria-controls={openMenu ? 'basic-menu' : undefined}
                                             aria-haspopup="true"
-                                            aria-expanded={open ? 'true' : undefined}
-                                            onClick={handleClick}
-                                            className="btn-doc btn-plus">+2</IconButtonStyled>
-                                        <Menu
-                                            id="basic-menu"
-                                            anchorEl={anchorEl}
-                                            open={open}
-                                            onClose={handleClose}
-                                            MenuListProps={{
-                                                'aria-labelledby': 'basic-button',
-                                                sx: {
-                                                    "& .MuiMenuItem-root": {
-                                                        minWidth: 255,
-                                                        py: 1.2,
-                                                        "&:not(:last-child)": {
-                                                            borderBottom: `1px solid ${theme.palette.divider}`,
-                                                        },
-                                                        "&.Mui-disabled": {
-                                                            border: 'none',
-                                                            mb: 2,
-                                                            opacity: 1
-                                                        }
-                                                    }
-                                                }
-                                            }}
-
-                                        >
-                                            <MenuItem disabled>
-                                                <Typography variant="body2" color='text.primary' fontWeight={600}>
-                                                    {t("table.documents")}
-                                                </Typography>
-                                            </MenuItem>
-                                            {Array.from({length: 5}).map((_, idx) => (
-                                                <MenuItem onClick={handleClose} key={idx}>
-                                                    <ListItemIcon>
-                                                        <IconUrl path="ic-doc-analysis" width={20} height={20}
-                                                                 color={theme.palette.text.primary}/>
-                                                    </ListItemIcon>
-                                                    <ListItemText primary="Analyse"/>
-                                                    <Stack direction='row' alignItems='center' spacing={1}>
-                                                        <IconButton disableRipple size="small">
-                                                            <IconUrl path="ic-voir-new"/>
-                                                        </IconButton>
-                                                        <IconButton disableRipple size="small">
-                                                            <IconUrl path="ic-print-compact"/>
-                                                        </IconButton>
-                                                    </Stack>
-                                                </MenuItem>
-                                            ))}
-
-
-                                        </Menu>
-                                    </Stack>
+                                            aria-expanded={openMenu ? 'true' : undefined}
+                                            onClick={(event) => handleEvent({
+                                                action: "DOCUMENT_MENU",
+                                                row,
+                                                event
+                                            })}
+                                            className="btn-doc btn-plus">{docsCount - 2}</IconButtonStyled>}
                                 </Stack>
 
                             }
                             {(!roles.includes("ROLE_SECRETARY") && [5, 3].includes(row.status)) &&
                                 <Stack direction='row' alignItems="center" spacing={.5}>
-                                    {row.status === 5 &&
+                                    {/* {row.status === 5 &&
                                         <IconButtonStyled>
                                             <IconUrl width={16} height={16} path="ic-edit-file-new"/>
                                         </IconButtonStyled>
-                                    }
+                                    }*/}
                                     <Tooltip title={t("consultation_pay")}>
                                         <span>
                                             <IconButton

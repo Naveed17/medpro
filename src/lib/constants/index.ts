@@ -17,7 +17,7 @@ export const PhoneRegExp =
 
 export const DefaultCountry = countries.find(country => country.code === process.env.NEXT_PUBLIC_COUNTRY) as CountryModel;
 
-export const EnvPattern = ["localhost", "develop", "master"];
+export const EnvPattern = ["localhost", "develop", "master", "preview"];
 
 export const SubMotifCard = [
     {
@@ -97,6 +97,57 @@ export const WaitingHeadCells = [
         numeric: false,
         disablePadding: true,
         label: "waiting_time",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "type",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "motif",
+        numeric: false,
+        disablePadding: true,
+        label: "reason",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "empty",
+        numeric: false,
+        disablePadding: true,
+        label: "empty",
+        align: "right",
+        sortable: false,
+    }
+];
+
+export const WaitingTodayCells = [
+    {
+        id: "id",
+        numeric: true,
+        disablePadding: true,
+        label: "Id",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "patient",
+        numeric: false,
+        disablePadding: true,
+        label: "patient",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "appointment",
+        numeric: false,
+        disablePadding: true,
+        label: "appointment",
         align: "left",
         sortable: true,
     },

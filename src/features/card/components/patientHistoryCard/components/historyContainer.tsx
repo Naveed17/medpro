@@ -374,7 +374,7 @@ function HistoryContainer({...props}) {
                                                         app?.appointment.requestedImaging && Object.keys(app?.appointment.requestedImaging)
                                                             .length > 0 ? <>
                                                             {
-                                                                app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
+                                                                app?.appointment.requestedImaging["medical-imaging"]?.map((rs: any, idx: number) => (
                                                                     <Box key={`req-sheet-imgx-${idx}`}
                                                                          className={"boxHisto"}>
                                                                         <Typography

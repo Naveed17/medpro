@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Page} from "@features/page";
-import {prescriptionPreviewDosage} from "@lib/hooks";
+import {getBirthdayFormat, prescriptionPreviewDosage} from "@lib/hooks";
 import {DefaultCountry, tinymcePlugins, tinymceToolbarNotes} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -8,6 +8,7 @@ import PageStyled from "@features/page/components/overrides/pageStyled";
 import {Box, Stack, TextField, Typography} from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import {Editor} from "@tinymce/tinymce-react";
+import moment from "moment/moment";
 
 function Doc({...props}) {
 
@@ -27,13 +28,18 @@ function Doc({...props}) {
         setOnResize,
         urlMedicalProfessionalSuffix,
         docs,
-        setDocs
+        editMode = true,
+        bg2ePage = true,
+        downloadMode = false,
+        setDocs, t
     } = props
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+
+    const general_information = (user as UserDataResponse).general_information;
 
     const editorInit = {
         branding: false,
@@ -53,7 +59,7 @@ function Doc({...props}) {
 
                     const child = document.createElement('p');
                     child.append()
-                    elx += `<p>${index + 1} • ${el.standard_drug.commercial_name}</p>`
+                    elx += `<p>${index + 1} • ${el?.drugName ?? ""}</p>`
                     el.cycles.map((cycle: any) => {
                         let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                         if (cycle.duration)
@@ -73,7 +79,7 @@ function Doc({...props}) {
                 const value = `<p>Prière de faire les explorations biologiques suivantes à ${state.patient} :</p>`
                 elx += value
                 state.info.map((el: any) => {
-                    elx += `<p>• ${el.analysis.name}</p>`
+                    elx += `<p>• ${el.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
 
@@ -83,7 +89,7 @@ function Doc({...props}) {
                 const val = `<p>Prière de faire les explorations radiologiques suivantes à ${state.patient} :</p>`
                 elx += val
                 state.info.map((el: any) => {
-                    elx += `<p>• ${el['medical-imaging']?.name}</p>`
+                    elx += `<p>• ${el?.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
 
@@ -120,6 +126,43 @@ function Doc({...props}) {
                 setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
 
                 break;
+            case "glasses":
+                const subTitle = ['sphere', 'cylindre', 'axe']
+                let od = "";
+                let og = "";
+                let odp = "";
+                let ogp = ""
+
+                state.info.map((el: any) => {
+                    subTitle.map(key => {
+                        od += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
+                        og += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
+                        odp += `${t(key)} : ${el.pfp[0].od[key] ? el.pfp[0].od[key] : ' - '}  `;
+                        ogp += `${t(key)} : ${el.pfp[0].og[key] ? el.pfp[0].og[key] : ' - '}   `
+                    })
+
+                    elx += `<p>• ${t('farvision')}</p>
+                            <p style="margin-left: 20px">${od}</p>
+                            <p>• ${t('nearvision')}</p>
+                            <p style="margin-left: 20px">${od}</p>`
+                })
+
+                setTitle("Ordonnance de lunettes");
+                break;
+            case "lens":
+                let odl = "";
+                let ogl = ""
+                const st = ['sphere', 'cylindre', 'axe']
+
+                state.info.map((el: any) => {
+                    st.forEach(key => {
+                        odl += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
+                        ogl += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
+                    })
+                    elx += `<p>• ${odl}</p><p>• ${ogl}</p>`
+                })
+                setTitle("Lentille");
+                break;
         }
         data.content.content = elx
         setData({...data})
@@ -130,7 +173,21 @@ function Doc({...props}) {
             if (state.info)
                 createPageContent()
             else if (state && state.content) {
-                data.content.content = state.content;
+                let txt =state.content?.replaceAll('{patient}', state.patient)
+                txt = txt?.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
+                txt = txt?.replaceAll('[date]', moment().format('DD/MM/YYYY'))
+                if (state.birthdate) {
+                    txt = txt?.replaceAll('{age}', getBirthdayFormat({birthdate: state.birthdate}, t))
+                    txt = txt?.replaceAll('{birthdate}', moment(state.birthdate, "DD-MM-YYYY").format('DD-MM-YYYY'))
+                }
+                if (state.cin)
+                    txt = txt?.replaceAll('{cin}', state.cin)
+                if (state.tel)
+                    txt = txt?.replaceAll('{tel}', state.tel)
+                txt = txt?.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
+                txt = txt?.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
+                txt = txt?.replaceAll('&nbsp;', '')
+                data.content.content = txt;
                 setData({...data})
             }
             data.age.content = state.age
@@ -149,8 +206,8 @@ function Doc({...props}) {
             data.title.content = title;
             setData({...data})
         }
-            if(state && state.title)
-                data.title.content = state.title
+        if (state && state.title)
+            data.title.content = state.title
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [title])
 
@@ -206,7 +263,8 @@ function Doc({...props}) {
             if (data.content.pages) {
                 let _rest = contentDiv.clientHeight
                 let nbPage = 0
-                while (_rest > 10) {
+
+                while (_rest > 0) {
                     const _h = data.content.pages.find((page: { id: number }) => page.id === nbPage)
                     _rest -= _h ? _h.height : data.content.maxHeight
                     nbPage++
@@ -235,6 +293,8 @@ function Doc({...props}) {
                         header,
                         setHeader,
                         state,
+                        bg2ePage,
+                        editMode, downloadMode,
                         urlMedicalProfessionalSuffix,
                         docs, setDocs
                     }}/>
@@ -252,23 +312,23 @@ function Doc({...props}) {
                     onClose={() => {
                         setValue("")
                     }}>
-                {data[value] ? value === "patient" || value === "date" ? <Stack spacing={1} p={2}>
+                {data[value] ? ["patient", "date", "cin", "age"].includes(value) ? <Stack spacing={1} p={2}>
                     <Typography fontSize={12}>Prefix</Typography>
                     <TextField
-                    value={data[value].prefix}
-                    onChange={(event) => {
-                        data[value].prefix = event.target.value
-                        setData({...data})
-                    }}
-                />
-                </Stack>:<Editor
+                        value={data[value].prefix}
+                        onChange={(event) => {
+                            data[value].prefix = event.target.value
+                            setData({...data})
+                        }}
+                    />
+                </Stack> : <Editor
                     value={data[value].content}
                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                     onEditorChange={(event) => {
                         data[value].content = event
                         setData({...data})
                     }}
-                    init={editorInit}/>: null}
+                    init={editorInit}/> : null}
 
                 {value.includes("other") && <Editor
                     value={data["other"][value.replace("other", "")].content}

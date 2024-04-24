@@ -1,25 +1,17 @@
 import {styled} from '@mui/material/styles'
-import {LoadingButton} from "@mui/lab";
+import {Card} from "@mui/material";
 
-const CipCardStyled = styled(LoadingButton)(({theme}) => ({
+const CipCardStyled = styled(Card)(({theme}) => ({
     scale: "0.9",
     marginRight: 0,
     padding: "6px 12px",
+    borderRadius: 10,
     backgroundColor: theme.palette.text.primary,
     '&:hover': {
         backgroundColor: theme.palette.text.primary,
         boxShadow: "none"
     },
     cursor: 'pointer',
-    "& .MuiButtonBase-root": {
-        // padding: "6px 0",
-    },
-    "& .MuiTypography-root": {
-        //fontWeight: 100
-    },
-    ".MuiIconButton-root": {
-        //color: theme.palette.grey[0]
-    },
     '.label': {
         [theme.breakpoints.down("md")]: {
             display: 'none'
@@ -39,6 +31,9 @@ const CipCardStyled = styled(LoadingButton)(({theme}) => ({
     "& .round-avatar": {
         borderRadius: 20,
         border: `2px solid ${theme.palette.background.paper}`
+    },
+    "& .cip-avatar-mobile": {
+        marginLeft: 0
     }
 }));
 export default CipCardStyled

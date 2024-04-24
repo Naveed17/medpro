@@ -8,7 +8,7 @@ import {useRouter} from "next/router";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 
 function NotesPanel({...props}) {
     const {t, patient, mutatePatientDetails, loading} = props;
@@ -22,6 +22,7 @@ function NotesPanel({...props}) {
     const [notes, setNotes] = useState(patient && patient.note ? patient.note : "");
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/notes/update");
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const uploadPatientNotes = () => {
         setRequestLoading(true);
@@ -38,6 +39,8 @@ function NotesPanel({...props}) {
                 onSuccess: () => {
                     setRequestLoading(false);
                     mutatePatientDetails();
+                    const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`;
+                    invalidateQueries([url])
                 }
             });
         }

@@ -72,6 +72,7 @@ function MainLayout({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    //useCalculateCnxSpeed(); // Check speed connection
     const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
@@ -104,6 +105,7 @@ function MainLayout({...props}) {
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
     const slugFeature = router.pathname.split('/')[2];
+    const extraPaths = ["documents", "cash-box-switcher", "all", "waiting-room", "consultation", "agenda"];
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const ability = buildAbilityFor(features ?? [], permissions);
@@ -144,9 +146,11 @@ function MainLayout({...props}) {
             } else if (data.type === "session") {
                 // Update session permissions feature
                 update({[message.data.root]: data.body});
-            } else if (slugFeature === message.data.root) {
+            } else if ([slugFeature, ...extraPaths].includes(message.data.root)) {
                 switch (message.data.root) {
                     case "agenda":
+                    case "waiting-room":
+                        // Mutate agenda
                         dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
                             if (!data.body.appointment) {
@@ -167,13 +171,9 @@ function MainLayout({...props}) {
                         } else if (data.body.action === "update") {
                             // update pending notifications status
                             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
-                            // Mutate on going api
-                            mutateOnGoing();
                         }
-                        break;
-                    case "waiting-room":
-                        // Mutate agenda
-                        dispatch(setLastUpdate(data));
+                        // Mutate waiting room
+                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]);
                         // Mutate on going api
                         mutateOnGoing();
                         break;
@@ -185,14 +185,24 @@ function MainLayout({...props}) {
                         break;
                     case "documents":
                         // Mutate Speech to text Documents
-                        enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
-                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
+                        //enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
+                        medicalEntityHasUser && invalidateQueries([
+                            ...(data.body.appointment ? [`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`] : []),
+                            ...(data.body.patient ? [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.body.patient}/documents/${router.locale}`] : [])
+                        ]);
+                        break;
+                    case "cash-box-switcher":
+                        localStorage.setItem("newCashbox", data.body.newCashBox ? "1" : "0");
+                        dispatch(setOngoing({newCashBox: data.body.newCashBox}));
                         break;
                     default:
                         // Mutate dynamic requests
                         data.body.mutate && invalidateQueries([data.body.mutate]);
                         break;
                 }
+            } else {
+                // Mutate on going api
+                mutateOnGoing();
             }
         }
     }
@@ -344,7 +354,7 @@ function MainLayout({...props}) {
                     setTimeout(connectToStream, 1);
                 }
             } else if ((error as any)?.type === "error") {
-                console.log("eventSource", eventSource.readyState);
+                setTimeout(connectToStream, 1);
             }
         };
 
@@ -391,7 +401,7 @@ function MainLayout({...props}) {
             const payload = JSON.parse(message.data);
             setMessage({user: payload.user, message: payload.message})
             setTimeout(() => setMessage(null), 3000)
-            setHasMessage(true)
+            !openChat && setHasMessage(true)
             dispatch(setMessagesRefresh(payload.message))
         }
     });
@@ -548,10 +558,15 @@ function MainLayout({...props}) {
                     />}
             </Dialog>
 
-            {!isMobile &&  <Draggable bounds="body"><Stack direction={"row"}
-                    spacing={2}
-                    alignItems={'center'}
-                    sx={{position: "absolute", bottom: 75, right: 40, zIndex: 99}}>
+            {!isMobile && <Draggable bounds={{bottom: 0, right: 0}}><Stack direction={"row"}
+                                                                           spacing={2}
+                                                                           alignItems={'center'}
+                                                                           sx={{
+                                                                               position: "fixed",
+                                                                               bottom: 75,
+                                                                               right: 40,
+                                                                               zIndex: 99
+                                                                           }}>
                 {message && <Stack direction={"row"}
                                    padding={1}
                                    spacing={2}
@@ -569,7 +584,15 @@ function MainLayout({...props}) {
                             <Typography fontSize={11} color={"#7C878E"}
                                         fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
                         </Stack>
-                        <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
+                        <Typography style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            lineClamp: 1,
+                            boxOrient: "vertical",
+                        }}>
+                            <div dangerouslySetInnerHTML={{__html: message.message}}></div>
+                        </Typography>
                     </Stack>
                 </Stack>}
                 <Fab color="info"
@@ -581,7 +604,8 @@ function MainLayout({...props}) {
                         <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
                 </Fab>
-            </Stack></Draggable>}
+            </Stack>
+            </Draggable>}
         </AbilityContext.Provider>
     );
 }

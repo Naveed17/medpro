@@ -7,7 +7,7 @@ import {
     Avatar,
     Badge,
     Box,
-    Button,
+    Button, Card,
     Drawer,
     Hidden,
     IconButton, Menu,
@@ -38,13 +38,20 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 import {WarningTooltip} from "./warningTooltip";
-import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries, isAppleDevise, isSupported} from "@lib/hooks";
+import {
+    useMedicalEntitySuffix,
+    useMutateOnGoing,
+    useInvalidateQueries,
+    isAppleDevise,
+    isSupported
+} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
-import CloseIcon from "@mui/icons-material/Close";
 import {resetAppointment} from "@features/tabPanel";
 import {partition} from "lodash";
 import Can from "@features/casl/can";
+import {Label} from "@features/label";
+import {useChannel} from "ably/react";
 
 let deferredPrompt: any;
 
@@ -60,7 +67,6 @@ function TopNavBar({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -75,14 +81,19 @@ function TopNavBar({...props}) {
     } = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
-    const {switchConsultationDialog} = useAppSelector(navBarSelector);
+    const {switchConsultationDialog, action: dialogAction} = useAppSelector(navBarSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const {channel} = useChannel(medical_entity?.uuid);
 
     const {trigger: triggerAppointmentUpdate} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("/agenda/appointment/edit");
+
+    const general_information = (user as UserDataResponse).general_information;
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -94,6 +105,9 @@ function TopNavBar({...props}) {
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [selectedUser, setSelectedUser] = useState("");
+    const [selectedDiscussion, setSelectedDiscussion] = useState("");
+    const [instruction, setInstruction] = useState("");
 
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
@@ -205,8 +219,22 @@ function TopNavBar({...props}) {
         });
     }
 
+    const sendMsg = () => {
+        const msg = `<div class="rdv" patient="${event?.extendedProps.patient?.uuid}" fn="${event?.extendedProps.patient?.firstName}" ln="${event?.extendedProps.patient?.lastName}"> &lt; <span class="tag" id="${event?.extendedProps.patient?.uuid}">${event?.extendedProps.patient?.firstName} ${event?.extendedProps.patient?.lastName} </span><span class="afterTag">> ${instruction} </span></div>`;
+
+        channel.publish(selectedDiscussion, JSON.stringify({
+            message: msg,
+            from: medicalEntityHasUser,
+            to: selectedUser,
+            user: `${general_information.firstName} ${general_information.lastName}`
+        }))
+    }
+
     const handleSaveStartConsultation = () => {
         setLoadingReq(true);
+
+        if (instruction)
+            sendMsg()
         const form = new FormData();
         form.append("status", "5");
         form.append("action", "end_consultation");
@@ -214,7 +242,7 @@ function TopNavBar({...props}) {
         form.append("content", JSON.stringify({
             fees: event?.extendedProps.total,
             restAmount: event?.extendedProps.restAmount,
-            instruction: "",
+            instruction,
             control: true,
             edited: false,
             payed: true,
@@ -236,7 +264,7 @@ function TopNavBar({...props}) {
                 dispatch(resetTimer());
                 dispatch(resetAppointment());
                 dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
-
+                setInstruction("")
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
@@ -320,6 +348,7 @@ function TopNavBar({...props}) {
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
         window.addEventListener("beforeinstallprompt", (e) => {
+            console.log("beforeinstallprompt", e)
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
             // Stash the event so it can be triggered later.
@@ -437,11 +466,9 @@ function TopNavBar({...props}) {
                                         <IconUrl path={"ic-notification-off"} width={25} height={25} color={"black"}/>
                                     </Avatar>
                                 </WarningTooltip>}
-                            {!hasAdminAccess && <Box>
+                            {!hasAdminAccess && <Stack direction={"row"} alignItems={"center"}>
                                 {next &&
-                                    <LoadingButton
-                                        {...{loading}}
-                                        disableRipple
+                                    <Card
                                         color={"black"}
                                         onClick={() => {
                                             if (isActive || roles.includes('ROLE_SECRETARY')) {
@@ -452,54 +479,32 @@ function TopNavBar({...props}) {
                                             }
                                         }}
                                         sx={{
-                                            scale: "0.96",
+                                            border: "none",
                                             mr: isActive ? 0 : 1,
                                             p: "6px 12px",
                                             backgroundColor: (theme) => theme.palette.info.lighter,
                                             '&:hover': {
                                                 backgroundColor: (theme) => theme.palette.info.lighter,
                                             }
-                                        }}
-                                        loadingPosition={"start"}
-                                        startIcon={<Badge
-                                            overlap="circular"
-                                            anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                            badgeContent={
-                                                <Avatar alt="Small avatar" sx={{
-                                                    pt: .2,
-                                                    width: 16,
-                                                    height: 16,
-                                                    borderRadius: 20,
-                                                    border: `2px solid ${theme.palette.background.paper}`
-                                                }}>
-                                                    <IconUrl width={14} height={16} path={"ic-next"}/>
-                                                </Avatar>
-                                            }>
-                                            <Avatar
-                                                sx={{
-                                                    width: 30,
-                                                    height: 30,
-                                                    borderRadius: 20,
-                                                    border: `2px solid ${theme.palette.background.paper}`
-                                                }} variant={"circular"}
-                                                src={`/static/icons/men-avatar.svg`}/>
-                                        </Badge>}
-                                        variant={"contained"}>
-                                        <Stack direction={"row"} alignItems={"center"}>
-                                            {next.patient}
-                                            <Avatar
-                                                alt="Small avatar"
-                                                variant={"square"}
+                                        }}>
+                                        <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
+                                            <Typography
+                                                className={"timer-text ellipsis"}
+                                                fontWeight={800}>
+                                                {next.patient}
+                                            </Typography>
+                                            {!isMobile && <Label color="primary" variant="filled">
+                                                {commonTranslation("pending")}
+                                            </Label>}
+                                            <IconButton
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     resetNextConsultation(next.uuid);
                                                 }}
                                                 sx={{
                                                     ml: 1,
-                                                    background: "#FFF",
                                                     width: 30,
                                                     height: 30,
-                                                    border: `1px solid ${theme.palette.grey["A900"]}`
                                                 }}>
                                                 <CloseRoundedIcon
                                                     sx={{
@@ -507,9 +512,9 @@ function TopNavBar({...props}) {
                                                         width: 20,
                                                         height: 20
                                                     }}/>
-                                            </Avatar>
+                                            </IconButton>
                                         </Stack>
-                                    </LoadingButton>
+                                    </Card>
                                 }
                                 {isActive &&
                                     <CipCard
@@ -530,7 +535,7 @@ function TopNavBar({...props}) {
                                         </IconButton>
                                     </Badge>
                                 </Can>
-                            </Box>}
+                            </Stack>}
                             {(installable && !isMobile) &&
                                 <Button sx={{mr: 2, p: "6px 12px"}}
                                         onClick={handleInstallClick}
@@ -539,7 +544,7 @@ function TopNavBar({...props}) {
                                     {commonTranslation("install_app")}
                                 </Button>
                             }
-                            {topBar.map((item, index) => (
+                            {!isMobile && topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={notificationsCount}
                                     className="custom-badge"
@@ -617,25 +622,33 @@ function TopNavBar({...props}) {
                             direction
                         }}
                         data={{
+                            instruction, setInstruction,
+                            general_information, medicalEntityHasUser,
+                            selectedUser, setSelectedUser,
+                            setSelectedDiscussion,
                             setOpenPaymentDialog
                         }}
                         action={"switch-consultation"}
                         open={switchConsultationDialog}
-                        title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title`)}
+                        title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title${selectedEvent === null ? `-${dialogAction}` : ""}`)}
                         actionDialog={
                             <Stack direction={isMobile ? "column" : "row"} justifyContent={"space-between"}
                                    sx={{width: "100%"}}>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
-                                    <Button
+                                    <LoadingButton
+                                        loading={loadingReq}
+                                        loadingPosition="start"
                                         variant="text-black"
                                         onClick={handleResetConsultation}
                                         startIcon={<IconUrl path="ic-temps"/>}>
                                         {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.later_on`)}
-                                    </Button>
+                                    </LoadingButton>
                                 </Stack>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
-                                    <LoadingButton
+                                    {(dialogAction !== "finish" || selectedEvent !== null) && <LoadingButton
                                         loading={loadingReq}
+                                        color={"white"}
+                                        variant="contained"
                                         loadingPosition="start"
                                         onClick={handlePauseStartConsultation}
                                         startIcon={<IconUrl height={"18"} width={"18"}
@@ -643,17 +656,17 @@ function TopNavBar({...props}) {
                                         <Typography color={"text.primary"}>
                                             {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
                                         </Typography>
-                                    </LoadingButton>
-                                    <LoadingButton
-                                        loading={loadingReq}
-                                        loadingPosition="start"
-                                        onClick={handleSaveStartConsultation}
-                                        variant="contained"
-                                        color={"error"}
-                                        startIcon={<IconUrl height={"18"} width={"18"}
-                                                            path="ic-check-circle"></IconUrl>}>
-                                        {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.finish`)}
-                                    </LoadingButton>
+                                    </LoadingButton>}
+                                    {(dialogAction === "finish" || selectedEvent !== null) &&
+                                        <LoadingButton
+                                            loading={loadingReq}
+                                            loadingPosition="start"
+                                            onClick={handleSaveStartConsultation}
+                                            variant="contained"
+                                            color={"error"}
+                                            startIcon={<IconUrl path="ic-check"></IconUrl>}>
+                                            {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.finish`)}
+                                        </LoadingButton>}
                                 </Stack>
                             </Stack>
                         }

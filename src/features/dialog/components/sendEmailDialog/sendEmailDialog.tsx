@@ -8,7 +8,6 @@ import {
     Typography
 } from "@mui/material";
 import TextareaAutosizeStyled from "./overrides/TextareaAutosizeStyled";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import React, {useCallback, useState} from "react";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
@@ -16,12 +15,13 @@ import {LoadingButton} from "@mui/lab";
 import {Document, Page} from "react-pdf";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
+import IconUrl from "@themes/urlIcon";
 
 function SendEmailDialog({...props}) {
-    const {preview, patient, t, title, handleSendEmail, loading} = props.data;
-
+    const {preview, patient, t, title, handleSendEmail} = props.data;
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
+    const [loadingReq, setLoadingReq] = useState<boolean>(true);
 
     const validationSchema = Yup.object().shape({
         receiver: Yup.string().email(t("error.mailInvalid")).required(t("error.receiver")),
@@ -49,6 +49,7 @@ function SendEmailDialog({...props}) {
 
     const onDocumentLoadSuccess = ({numPages}: { numPages: number }) => {
         setNumPages(numPages);
+        setLoadingReq(false);
     }
 
     const changePage = (offset: number) => {
@@ -75,7 +76,11 @@ function SendEmailDialog({...props}) {
                         mt: 2
                     }}>
                     <Box
-                        sx={{scale: preview.type.includes("image") ? "1" : "0.4", transformOrigin: "top left", height: 340}}>
+                        sx={{
+                            scale: preview.type.includes("image") ? "1" : "0.4",
+                            transformOrigin: "top left",
+                            height: 340
+                        }}>
                         {preview.type.includes("image") ?
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -144,14 +149,14 @@ function SendEmailDialog({...props}) {
 
             <CardActions>
                 <LoadingButton
-                    {...{loading}}
+                    {...(!preview?.type.includes("image") && {loading: loadingReq})}
                     loadingPosition={"start"}
                     disabled={!isValid}
                     sx={{marginLeft: 'auto'}}
                     onClick={() => sendEmailCallback(values)}
                     variant="contained"
-                    startIcon={<SaveRoundedIcon/>}>
-                    {t("save")}
+                    startIcon={<IconUrl path={"menu/ic-send-message"} width={20} height={20}/>}>
+                    {t("send")}
                 </LoadingButton>
             </CardActions>
         </FormikProvider>)

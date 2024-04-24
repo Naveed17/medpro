@@ -73,7 +73,7 @@ function PatientDetailsCard({...props}) {
                 url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""),
                 file: ""
             },
-            name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
+            name: !loading ? `${patient.firstName?.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
         onSubmit: () => {
@@ -223,8 +223,8 @@ function PatientDetailsCard({...props}) {
                           spacing={1.2}
                           direction="row"
                           justifyContent="space-between">
-                        <Grid item md={12}>
-                            <Stack direction={"row"} spacing={1.2}>
+                        <Grid item xs={12}>
+                            <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 2, sm: 1.2}}>
                                 {loading ? (
                                     <Skeleton
                                         variant="rectangular"
@@ -234,15 +234,16 @@ function PatientDetailsCard({...props}) {
                                     />
                                 ) : (
 
-                                    <label htmlFor="contained-button-file"
-                                           style={{
-                                               position: "relative",
-                                               zIndex: 1,
-                                               cursor: "pointer",
-                                               display: 'inline-flex',
-                                               width: 118,
-                                               height: 118,
-                                           }}>
+                                    <Box sx={{alignSelf: {xs: 'center', sm: "flex-start"}}} component={"label"}
+                                         htmlFor="contained-button-file"
+                                         style={{
+                                             position: "relative",
+                                             zIndex: 1,
+                                             cursor: "pointer",
+                                             display: 'inline-flex',
+                                             width: 118,
+                                             height: 118,
+                                         }}>
                                         <InputStyled
                                             id="contained-button-file"
                                             onChange={(e) => handleDrop(e.target.files as FileList)}
@@ -273,7 +274,7 @@ function PatientDetailsCard({...props}) {
                                             <IconUrl path="ic-camera-add" width={18}
                                                      height={18}/>
                                         </IconButton>
-                                    </label>
+                                    </Box>
                                 )}
 
                                 <Box mx={1} sx={{width: "100%"}}>
@@ -529,7 +530,7 @@ function PatientDetailsCard({...props}) {
                                                                             },
                                                                         }}
                                                                         placeholder={"-"}
-                                                                        {...getFieldProps("fiche_id")}/>
+                                                                        {...getFieldProps("fiche_id")} />
 
                                                                 </Stack>
                                                             )}

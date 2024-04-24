@@ -14,8 +14,10 @@ import {
     FormControlLabel,
     FormHelperText,
     Grid,
-    IconButton, InputBase,
-    List, ListItem,
+    IconButton,
+    InputBase,
+    List,
+    ListItem,
     ListItemButton,
     ListItemText,
     ListSubheader,
@@ -26,9 +28,11 @@ import {
     Tab,
     Tabs,
     TextField,
-    Theme, Tooltip,
+    Theme,
+    Tooltip,
     Typography,
-    useMediaQuery, useTheme,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {Form, FormikProvider, useFormik} from "formik";
 import React, {useEffect, useRef, useState} from "react";
@@ -58,7 +62,8 @@ import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
 import {
-    a11yProps, ConditionalWrapper,
+    a11yProps,
+    ConditionalWrapper,
     getBirthdayFormat,
     prescriptionPreviewDosage,
     useLastPrescription,
@@ -464,26 +469,30 @@ function MedicalPrescriptionCycleDialog({...props}) {
         const hasMultiValues = form.split("_");
         let formUnitMedic: any;
         if (hasMultiValues.length > 1) {
-            formUnitMedic = MedicalFormUnit.find(
-                (medic: any) => medic.unit == hasMultiValues[1]
-            );
+            formUnitMedic = MedicalFormUnit.find((medic: any) => medic.unit == hasMultiValues[1]);
         } else {
-            formUnitMedic =
-                MedicalFormUnit.find((medic: any) => {
-                    const matchFormUnit: string[] = search(
-                        form,
-                        medic.forms.map((data: any) => data.form),
-                        {returnMatchData: true}
-                    ).reduce((filtered: string[], option) => {
-                        if (option.score >= 0.8) {
-                            filtered.push(option.item as string);
-                        }
-                        return filtered;
-                    }, []);
-                    return matchFormUnit.length > 0;
-                }) ?? form;
+            formUnitMedic = MedicalFormUnit.reduce((forms: any[], medic: any) => {
+                const matchFormUnit: string[] = search(
+                    form,
+                    medic.forms.map((data: any) => data.form),
+                    {returnMatchData: true}
+                ).reduce((filtered: any[], option) => {
+                    if (option.score >= 0.8) {
+                        filtered.push({value: option.item, score: option.score});
+                    }
+                    return filtered;
+                }, []);
+                if (matchFormUnit.length > 0) {
+                    forms.push({
+                        ...medic,
+                        score: matchFormUnit.reduce((acc, value: any) => acc = acc > value.score ? acc : value.score, 0)
+                    })
+                }
+                return forms;
+            }, []) ?? form;
         }
-        return formUnitMedic;
+
+        return Array.isArray(formUnitMedic) ? formUnitMedic.reduce((form: any, value: any) => form = form.score > value.score ? form : value, {}) : formUnitMedic;
     }
 
     const generateDosageText = (cycle: any, unit?: string) => {
@@ -498,13 +507,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const showPreview = () => {
         let pdoc = [...pendingDocuments]
-        pdoc.push({
-            id: 2,
-            name: "requestedPrescription",
-            status: "in_progress",
-            icon: "ic-traitement",
-            state: drugs
-        })
+        if (!pdoc.find(doc => doc.id === 2)) {
+            pdoc.push({
+                id: 2,
+                name: "requestedPrescription",
+                status: "in_progress",
+                icon: "ic-traitement",
+                state: drugs
+            })
+        }
         setPendingDocuments(pdoc);
         setPrescription(drugs)
         dispatch(SetSelectedDialog({
@@ -515,12 +526,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 createdAt: moment().format('DD/MM/YYYY'),
                 patient: `${patient.firstName} ${patient.lastName}`,
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                info: drugs,
+                info: drugs.map((drug: any) => ({...drug, drugName: drug.name})),
             },
             uuid: "",
             appUuid: ""
         }))
-
     }
 
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
@@ -685,7 +695,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     })}
                                                                     value={option.uuid}>
                                                                     {!option.uuid && <AddOutlinedIcon/>}
-                                                                    {option.commercial_name}
+                                                                    {option.commercial_name} {option?.form?.name}
                                                                 </MenuItem>
                                                             </Stack>
                                                         )}
@@ -1488,10 +1498,11 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         id="nested-list-subheader">
                                                         {t("drug_list", {ns: "consultation"})}
                                                     </ListSubheader>
-                                                    <IconButton onClick={showPreview} className="btn-list-action"
-                                                                sx={{"&.btn-list-action": {px: .8}}}>
-                                                        <IconUrl path="ic-eye-scan" width={16} height={16}/>
-                                                    </IconButton>
+                                                    {!router.pathname.includes("waiting-room") &&
+                                                        <IconButton onClick={showPreview} className="btn-list-action"
+                                                                    sx={{"&.btn-list-action": {px: .8}}}>
+                                                            <IconUrl path="ic-eye-scan" width={16} height={16}/>
+                                                        </IconButton>}
                                                 </Stack>
                                             }>
                                             {drugs?.map((drug: DrugCycleModel, index: number) => (
@@ -1559,7 +1570,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         <IconUrl
                                                             width={12}
                                                             height={12}
-                                                            path="ic-edit"
+                                                            path="ic-edit-patient"
                                                         />
                                                     </IconButton>
                                                     <IconButton
@@ -1570,7 +1581,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         className="btn-del"
                                                         disableRipple>
                                                         <IconUrl
-                                                            color="red"
+                                                            color={theme.palette.background.paper}
                                                             width={12}
                                                             height={12}
                                                             path="ic-delete"

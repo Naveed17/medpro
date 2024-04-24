@@ -24,7 +24,7 @@
     "medical_imaging": "Medical Imaging"
   },
   "profile": {
-    "specialities": "Specialties",
+    "specialities": "Speciality",
     "sms-rappel": "Reminder SMS",
     "sms-rappel-send": "Enable SMS Reminder",
     "qualification": "Professional Qualification",
@@ -89,6 +89,7 @@
         "agenda": "Agenda",
         "type": "Type",
         "active": "Active",
+        "status": "Status",
         "action": "Action",
         "code": "Code",
         "icon": "Icon",
@@ -883,6 +884,7 @@
       "table": {
         "name": "Name",
         "active": "Active",
+        "status": "Status",
         "action": "Action"
       },
       "dialog": {

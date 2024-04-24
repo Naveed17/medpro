@@ -334,10 +334,10 @@ function Agenda() {
         }
     }
 
-    useEffect(() => {
-        //reload resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common', 'patient']);
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    // useEffect(() => {
+    //     //reload resources from cdn servers
+    //     i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common', 'patient']);
+    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (lastUpdateNotification) {
@@ -444,11 +444,14 @@ function Agenda() {
         });
     }
 
-    const handleDeleteAbsence = (uuid: string) => {
+    const handleDeleteAbsence = (uuid: string, deleteDayOnly: boolean) => {
         setLoadingRequest(true);
+        const form = new FormData();
+        deleteDayOnly && form.append("day", moment(currentDate.date).format("DD"));
         triggerDeleteAbsence({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences/${uuid}`,
+            ...(deleteDayOnly && {data: form})
         }, {
             onSuccess: () => refreshData(),
             onSettled: () => setLoadingRequest(false)
@@ -752,7 +755,9 @@ function Agenda() {
             router.push({
                 pathname: slugConsultation,
                 query: {inProgress: true}
-            }, slugConsultation, {locale: router.locale})
+            }, slugConsultation, {locale: router.locale}).then(() => {
+                dispatch(openDrawer({type: "view", open: false}));
+            })
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
@@ -1193,7 +1198,7 @@ function Agenda() {
 
                 {(isMobile && view === "listWeek") && <>
                     {sortedData.current?.map((row, index) => (
-                        <Container key={index} sx={{background: theme.palette.background.default}}>
+                        <Container key={index} sx={{background: theme.palette.background.default, minHeight: "100vh"}}>
                             <Typography variant={"body1"}
                                         color="text.primary"
                                         pb={1} pt={2}
@@ -1732,7 +1737,10 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
 
     const countries = `api/public/places/countries/${locale}?nationality=true`;
 
-    await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
+    await queryClient.prefetchQuery({
+        queryKey: [`/${countries}`],
+        queryFn: () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json())
+    });
 
     return {
         props: {

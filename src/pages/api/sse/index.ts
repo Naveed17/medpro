@@ -32,7 +32,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     evtSource.onmessage = (e: MessageEvent<any>) => {
-        res.write(`event: message\ndata: ${e.data}\n\n`)
+        if (e?.data) {
+            res.write(`event: message\ndata: ${e.data}\n\n`)
+        }
     }
 
     evtSource.onerror = (e: Event) => {

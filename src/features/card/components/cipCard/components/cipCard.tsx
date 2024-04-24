@@ -1,16 +1,18 @@
 import React from 'react'
 import CipCardStyled from './overrides/cipCardStyle'
-import {Stack, Typography, Avatar, useTheme, useMediaQuery} from '@mui/material';
+import {Stack, Typography, Avatar, useTheme, useMediaQuery, Fab} from '@mui/material';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {timerSelector} from "@features/card";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {capitalizeFirst, getMilliseconds, shortEnglishHumanizer, useTimer} from "@lib/hooks";
-import {setDialog} from "@features/topNavBar";
+import {setDialog, setDialogAction} from "@features/topNavBar";
 import {setSelectedEvent} from "@features/calendar";
 import {MobileContainer} from "@lib/constants";
 import {minMaxWindowSelector} from "@features/buttons";
+import IconUrl from "@themes/urlIcon";
+import Can from "@features/casl/can";
 
 function CipCard({...props}) {
     const {openPatientDialog} = props;
@@ -40,74 +42,83 @@ function CipCard({...props}) {
 
     return (
         <CipCardStyled
-            disableRipple
-            variant={"contained"}
             onClick={!roles.includes('ROLE_SECRETARY') && !isWindowMax ? handleConsultation : openPatientDetail}>
-            <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 0}}>
+            <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0, md: 0}}>
                 <Typography
                     className={"timer-text"}
-                    fontWeight={500}
+                    fontWeight={800}
                     fontSize={16}
                     color="common.white"
                     display={{xs: 'none', md: "block"}}>
                     {capitalizeFirst(`${event?.extendedProps.patient.lastName} ${event?.extendedProps.patient.firstName}`)}
                 </Typography>
 
-                {(!isMobile && !roles.includes('ROLE_SECRETARY') && !isWindowMax) && <Avatar
-                    alt="Small avatar"
-                    variant={"square"}
-                    src={'/static/icons/ic-stop.svg'}
-                    onClick={event => {
-                        event.stopPropagation();
-                        dispatch(setSelectedEvent(null));
-                        dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-                    }}
-                    sx={{
-                        width: 30,
-                        height: 30,
-                        mr: 3,
-                        bgcolor: "white",
-                        "& .MuiAvatar-img": {
-                            width: 20,
-                            height: 20
-                        }
-                    }}/>}
 
-                <Avatar
-                    alt="button avatar"
-                    {...((!isMobile && !roles.includes('ROLE_SECRETARY') && !isWindowMax) && {
-                        onClick: (event: any) => {
-                            event.stopPropagation();
-                            dispatch(setSelectedEvent(null));
-                            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-                        }
-                    })}
-                    sx={{
-                        height: 30,
-                        pl: .5,
-                        borderRadius: 1,
-                        width: 100,
-                        color: theme.palette.warning.contrastText,
-                        bgcolor: theme.palette.warning.main
-                    }}>
-                    {(!roles.includes('ROLE_SECRETARY') && !isWindowMax) && <Avatar
-                        src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
+                <Stack direction={"row"} alignItems={"center"}
+                       spacing={1}  {...(isMobile && {className: "cip-avatar-mobile"})}>
+                    <Avatar
+                        alt="button avatar"
                         sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: 20
-                        }}/>}
-                    <Typography
-                        sx={{width: 60}}
-                        ml={0}
-                        fontSize={14}
-                        fontWeight={600}>
-                        {shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {
-                            largest: 1,
-                            round: true
-                        })}
-                    </Typography>
-                </Avatar>
+                            height: 28,
+                            width: "auto",
+                            py: 2,
+                            px: .5,
+                            borderRadius: 3,
+                            minWidth: isMobile ? "fit-content" : 80,
+                            color: theme.palette.warning.contrastText,
+                            bgcolor: theme.palette.warning.main
+                        }}>
+                        <Typography
+                            sx={{width: "auto", minWidth: 20}}
+                            ml={0}
+                            fontSize={14}
+                            fontWeight={600}>
+                            {shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {
+                                largest: 1,
+                                round: true
+                            })}
+                        </Typography>
+                    </Avatar>
+
+                    <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
+                        <Fab color="default"
+                             aria-label="finish consultation"
+                             onClick={event => {
+                                 event.stopPropagation();
+                                 dispatch(setSelectedEvent(null));
+                                 dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                                 dispatch(setDialogAction("pause"));
+                             }}
+                             size={"small"}
+                             sx={{
+                                 boxShadow: "none",
+                                 minHeight: 20,
+                                 height: 36,
+                                 width: 36
+                             }}>
+                            <IconUrl path={"ic-pause"} color={"white"}/>
+                        </Fab>
+                    </Can>
+                    <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
+                        <Fab color="error"
+                             aria-label="finish consultation"
+                             onClick={event => {
+                                 event.stopPropagation();
+                                 dispatch(setSelectedEvent(null));
+                                 dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                                 dispatch(setDialogAction("finish"));
+                             }}
+                             size={"small"}
+                             sx={{
+                                 boxShadow: "none",
+                                 minHeight: 20,
+                                 height: 36,
+                                 width: 36
+                             }}>
+                            <IconUrl path={"ic-stop-record"} color={"white"}/>
+                        </Fab>
+                    </Can>
+                </Stack>
             </Stack>
         </CipCardStyled>
     )

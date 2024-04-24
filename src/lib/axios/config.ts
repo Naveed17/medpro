@@ -23,7 +23,7 @@ instanceAxios.interceptors.response.use((response) => response, (error) => {
     // whatever you want to do with the error
     switch (error.response?.status) {
         case 401:
-            console.log("fin session");
+            console.log("Token expired");
             break;
     }
     throw error;

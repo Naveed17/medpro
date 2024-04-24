@@ -22,12 +22,12 @@ export const new_feature_data = [
             "De plus, la fonctionnalité inclut la gestion de la caisse, permettant une prise en charge complète des activités administratives et opérationnelles.",
         img: "new_feature-3"
     },
-    {
+   /* {
         id: 4,
         title: "MedLink Mobile: Enrichissez les Dossiers Patients en Instantané",
         description: "MedLink offre une fonctionnalité novatrice permettant aux médecins et à l'assistante d'enrichir facilement le dossier patient avec des photos, analyses, et documents médicaux via un smartphone équipé d'un appareil photo. Cette fonction simplifie le processus d'ajout d'informations cruciales au dossier électronique, offrant une capture instantanée et une intégration fluide des documents médicaux pertinents.",
         img: "new_feature-4"
-    },
+    },*/
     {
         id: 5,
         title: "MedLink Stats: Visualisez et Optimisez l'Activité de Votre Cabinet Médical",

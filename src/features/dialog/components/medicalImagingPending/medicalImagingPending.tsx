@@ -47,7 +47,7 @@ function MedicalImagingDialog({...props}) {
 
     useEffect(() => {
         const file: React.SetStateAction<any[]> = [];
-        images['medical-imaging'].map((img: { uuid: any; uri: string | any[]; }) => {
+        images['requested_medical_imaging_has_medical_imaging'].map((img: { uuid: any; uri: string | any[]; }) => {
             file.push({uuid: img.uuid, nb: img.uri.length})
         })
         setFiles(file)
@@ -59,7 +59,7 @@ function MedicalImagingDialog({...props}) {
         <BalanceSheetPendingStyled>
             <Typography gutterBottom>{t('medical_imagery_list')}</Typography>
             {
-                images['medical-imaging'].map((item: any, index: number) => (
+                images['requested_medical_imaging_has_medical_imaging'].map((item: any, index: number) => (
                     <Card key={index} sx={{p: 1}}>
                         <Stack direction='row'
                                alignItems="center"

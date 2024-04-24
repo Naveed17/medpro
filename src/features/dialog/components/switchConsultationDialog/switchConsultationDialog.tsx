@@ -1,15 +1,21 @@
 import {
     Avatar,
     Button,
-    Checkbox, FormControlLabel,
+    Checkbox,
+    FormControlLabel,
     IconButton,
     InputAdornment,
-    InputBase, Radio,
+    InputBase,
+    Radio,
     RadioGroup,
-    Stack, TextField,
-    Typography, useMediaQuery, useTheme
+    Select,
+    Stack,
+    TextField,
+    Typography,
+    useMediaQuery,
+    useTheme
 } from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {startCase} from 'lodash'
 import {useAppSelector} from "@lib/redux/hooks";
@@ -25,10 +31,19 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {DefaultCountry, MobileContainer} from "@lib/constants";
 import {agendaSelector} from "@features/calendar";
+import {navBarSelector} from "@features/topNavBar";
+import MenuItem from "@mui/material/MenuItem";
+import useUsers from "@lib/hooks/rest/useUsers";
+import {dashLayoutSelector} from "@features/base";
+import {useRequestQueryMutation} from "@lib/axios";
 
 function SwitchConsultationDialog({...props}) {
     const {
         data: {
+            instruction, setInstruction,
+            general_information,medicalEntityHasUser,
+            selectedUser, setSelectedUser,
+            setSelectedDiscussion,
             setOpenPaymentDialog
         }
     } = props;
@@ -47,22 +62,55 @@ function SwitchConsultationDialog({...props}) {
     const {t} = useTranslation(["common", "consultation"]);
     const {event} = useAppSelector(timerSelector);
     const {selectedEvent} = useAppSelector(agendaSelector);
+    const {action: dialogAction} = useAppSelector(navBarSelector);
 
-    const [instruction, setInstruction] = useState("");
+    const {users} = useUsers();
+
     const [checkedNext, setCheckedNext] = useState(false);
     const [meeting, setMeeting] = useState<number>(5);
     const [selectedDose, setSelectedDose] = useState("day")
 
+    const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
+
+    const addDiscussion = (user: UserModel | undefined) => {
+        if (user)
+            createDiscussion({
+                method: "POST",
+                data: {
+                    "members": [{
+                        uuid: medicalEntityHasUser,
+                        name: `${general_information.firstName} ${general_information.lastName}`
+                    }, {
+                        uuid: user.uuid,
+                        name: `${user?.firstName} ${user?.lastName}`
+                    }]
+                },
+                url: `/-/chat/api/discussion`
+            }, {
+                onSuccess: (res: any) => {
+                    setSelectedDiscussion(res.data)
+                }
+            })
+    }
+
+    useEffect(() => {
+        const usr = users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser)
+        if (usr.length > 0) {
+            setSelectedUser(usr[0].uuid)
+            addDiscussion(usr[0])
+        }
+    }, [users]) // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <SwitchConsultationDialogStyled sx={{minHeight: 150}} alignItems={"center"}>
             <Typography sx={{textAlign: "center"}}
-                        variant="subtitle1">{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.sub-title`)} </Typography>
+                        variant="subtitle1">{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.sub-title${selectedEvent === null ? `-${dialogAction}` : ""}`)} </Typography>
             <Typography sx={{textAlign: "center"}}
-                        marginTop={2}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description`).split(',')[0]},</Typography>
+                        marginTop={2}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description${selectedEvent === null ? `-${dialogAction}` : ""}`).split(',')[0]}</Typography>
             <Typography
-                sx={{textAlign: "center"}}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description`).split(',')[1]}</Typography>
+                sx={{textAlign: "center"}}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description${selectedEvent === null ? `-${dialogAction}` : ""}`).split(',')[1]}</Typography>
 
-            <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '80%'}}>
+            <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '90%'}}>
                 <Stack direction={isMobile ? "column" : "row"} alignItems={"center"} spacing={1.2}>
                     <Avatar sx={{width: 40, height: 40, bgcolor: 'primary.main'}}/>
                     <Stack>
@@ -112,6 +160,19 @@ function SwitchConsultationDialog({...props}) {
 
             <Stack className="instruction-box" spacing={1}>
                 <Typography variant="body2" color="text.secondary">{startCase(t('note'))}</Typography>
+                <Select
+                    id="demo-simple-select"
+                    value={selectedUser}
+                    size={"small"}
+                    onChange={event => {
+                        addDiscussion(users.find((usr: UserModel) => usr.uuid === event.target.value))
+                        setSelectedUser(event.target.value)
+                    }}>
+                    {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser).map((user: UserModel) => (
+                        <MenuItem key={user.uuid}
+                                  value={user.uuid}>{user.firstName} {user.lastName}</MenuItem>))}
+                </Select>
+
                 <TextField
                     fullWidth
                     multiline
@@ -120,7 +181,7 @@ function SwitchConsultationDialog({...props}) {
                         setInstruction(event.target.value.slice(0, 255));
                     }}
                     placeholder={t("type_instruction_for_the_secretary")}
-                    rows={4}
+                    rows={2}
                     InputProps={{
                         endAdornment: (
                             <InputAdornment defaultValue={instruction} position="end">
@@ -129,6 +190,7 @@ function SwitchConsultationDialog({...props}) {
                         ),
                     }}
                 />
+
 
                 <Button
                     className="counter-btn"

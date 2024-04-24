@@ -24,8 +24,8 @@
   "deleted-patient": "Deleted patient",
   "search": "Search",
   "stats": "Statistics",
-  "wallet": "Wallet",
-  "credit": "Credit",
+  "wallet": "Credit",
+  "credit": "Speed",
   "settings": "Settings",
   "duplication": "Duplication",
   "unpaid": "Unpaid",
@@ -512,6 +512,9 @@
     "chooseUser2": "and start a conversation.",
     "tag": "Tag",
     "search": "Search",
-    "patientName": "Patient name"
+    "patientName": "Patient name",
+    "payment_dialog_title": "Payment",
+    "pay": "Payment",
+    "planif": "Schedule"
   }
 }

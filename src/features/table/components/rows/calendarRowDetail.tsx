@@ -20,6 +20,8 @@ import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
 import moment from "moment-timezone";
 import {ConditionalWrapper} from "@lib/hooks";
 import Can from "@features/casl/can";
+import {useAppSelector} from "@lib/redux/hooks";
+import {agendaSelector} from "@features/calendar";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -30,10 +32,11 @@ function CalendarRowDetail({...props}) {
     const {data: session} = useSession();
     const theme = useTheme();
 
+    const {mode} = useAppSelector(agendaSelector);
+
     const [loading, setLoading] = useState<boolean>(false);
 
     const {data: user} = session as Session;
-    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
@@ -146,7 +149,12 @@ function CalendarRowDetail({...props}) {
                                 sx: {cursor: "pointer"}
                             })}
                             variant={"body2"}
-                            color={!data?.patient?.isArchived ? "primary" : "info"}>{data.title} {data.patient.contact && `(${data.patient.contact[0]?.code} ${data.patient.contact[0]?.value})`}</Typography>
+                            {...(mode !== "normal" && {
+                                className: "blur-text",
+                                sx: {overflow: "hidden", lineHeight: 1}
+                            })}
+                            {...(mode === "normal" && {color: !data?.patient?.isArchived ? "primary" : "info"})}>
+                            {data.title} {data.patient.contact && `(${data.patient.contact[0]?.code} ${data.patient.contact[0]?.value})`}</Typography>
                     </Stack>
                 </TableCell>
                 {!pendingData && <TableCell
@@ -254,7 +262,7 @@ function CalendarRowDetail({...props}) {
                 <TableCell align="right" sx={{p: "0px 12px!important"}}>
                     {!data.patient?.isArchived &&
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
-                            {(!roles.includes("ROLE_SECRETARY") && ["FINISHED", "WAITING_ROOM"].includes(data?.status?.key)) &&
+                            {["FINISHED", "WAITING_ROOM"].includes(data?.status?.key) &&
                                 <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__create"}>
                                     <ConditionalWrapper
                                         condition={loading}
@@ -343,7 +351,27 @@ function CalendarRowDetail({...props}) {
                                         </IconButton>
                                     </ConditionalWrapper>
                                 </Can>}
-                            {(!roles.includes("ROLE_SECRETARY") && ["CONFIRMED", "WAITING_ROOM"].includes(data?.status?.key)) &&
+                            {data?.status?.key === "WAITING_ROOM" &&
+                                <Can I={"manage"} a={"waiting-room"} field={"*"}>
+                                    <ConditionalWrapper
+                                        condition={loading}
+                                        wrapper={(children: any) => <Tooltip
+                                            title={t("leave_waiting_room")}>{children}</Tooltip>}>
+                                        <IconButton
+                                            disabled={loading}
+                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
+                                                "onLeaveWaitingRoom",
+                                                data,
+                                                event
+                                            )}
+                                            size={"small"}
+                                            disableFocusRipple
+                                            sx={{background: theme.palette.primary.main, borderRadius: 1}}>
+                                            <IconUrl color={"white"} width={20} height={20} path="exit_waiting_room"/>
+                                        </IconButton>
+                                    </ConditionalWrapper>
+                                </Can>}
+                            {["CONFIRMED", "WAITING_ROOM"].includes(data?.status?.key) &&
                                 <Can I={"manage"} a={"consultation"} field={"*"}>
                                     <ConditionalWrapper
                                         condition={loading}

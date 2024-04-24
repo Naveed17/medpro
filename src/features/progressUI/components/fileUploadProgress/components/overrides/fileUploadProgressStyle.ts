@@ -6,6 +6,12 @@ const FileUploadProgressStyled = styled(Box)(({theme}) => ({
         cursor: "pointer",
         position: "relative"
     },
+    "& .audio-title": {
+        position: "absolute",
+        zIndex: 11,
+        marginLeft: 4,
+        marginTop: -4
+    },
     "& #time,#duration": {
         position: "absolute",
         zIndex: 11,

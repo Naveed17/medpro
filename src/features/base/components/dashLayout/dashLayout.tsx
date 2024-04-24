@@ -315,13 +315,15 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         }
     }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        if (!localStorage.getItem("new-features")) {
-            setTimeout(() => {
-                dispatch(openNewFeaturesDialog(true));
-            }, 3000);
-        }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    /*
+        useEffect(() => {
+            if (!localStorage.getItem("new-features")) {
+                setTimeout(() => {
+                    dispatch(openNewFeaturesDialog(true));
+                }, 3000);
+            }
+        }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    */
 
     return (
         <SideBarMenu>
