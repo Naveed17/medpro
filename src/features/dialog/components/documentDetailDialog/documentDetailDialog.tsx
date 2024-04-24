@@ -384,7 +384,11 @@ function DocumentDetailDialog({...props}) {
                 if (generatedDocs.some(doc => doc == state?.type)) {
                     setEditMode(false)
                     setDownloadMode(true);
-                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew, setDownloadMode);
+                    const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
+                    const size = selected?.header.data.size;
+                    const orientation = size.includes('portrait') ? "portrait": "landscape"
+                    const format = size.replace(orientation,"");
+                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew, setDownloadMode,format);
                 } else {
                     downloadFileFromUrl(file.url, `${state?.type} ${state?.patient}`);
                 }
