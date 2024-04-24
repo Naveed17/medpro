@@ -73,7 +73,7 @@ function Cashbox() {
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready, i18n} = useTranslation(["payment", "common"]);
+    const {t, ready} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
     const {config: agenda, mode} = useAppSelector(agendaSelector);
 
@@ -83,7 +83,7 @@ function Cashbox() {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [rows, setRows] = useState<any[]>([]);
-    const [apps, setApps] = useState<any[]>([]);
+    const [apps, setApps] = useState<any>(null);
     const [total, setTotal] = useState(0);
     const [unpaid, setUnpaid] = useState(0);
     const [ca, setCA] = useState(0);
@@ -367,7 +367,7 @@ function Cashbox() {
     const getConsultation = (start: string, end: string) => {
         const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format(
             "DD-MM-YYYY"
-        )}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`;
+        )}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week&page=${router.query.page || 1}&limit=10`;
         agenda?.uuid && triggerAppointmentDetails(
             {
                 method: "GET",
@@ -462,11 +462,15 @@ function Cashbox() {
         setSelectedTab(newValue);
         dispatch(setSelectedTabIndex(newValue));
     };
-    const exportDoc = () => {
+    const exportDoc = (from: string) => {
+
+        let url = `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`;
+        if (from === "apps")
+            url = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/export/${router.locale}`;
         triggerExport(
             {
                 method: "GET",
-                url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`,
+                url,
             },
             {
                 onSuccess: (result) => {
@@ -595,26 +599,40 @@ function Cashbox() {
                                     <Typography fontWeight={700}>{t("consultations")}</Typography>
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                 </Stack>
+
+                                {apps?.list.length > 0 &&
+                                    <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
+                                        <Button
+                                            onClick={() => exportDoc('apps')}
+                                            variant="outlined"
+                                            color="info"
+                                            startIcon={<IconUrl path="ic-export-new"/>}>
+                                            {t("export")}
+                                        </Button>
+                                    </Can>}
                             </Stack>
                             <DesktopContainer>
-                                {apps.length > 0 ? <Otable
+                                {apps?.list?.length > 0 ? <Otable
                                     {...{
-                                        rows: apps,
+                                        rows: apps.list,
                                         t,
                                         hideName: mode !== "normal",
                                         insurances,
                                         pmList,
                                         mutateTransactions,
-                                        filterCB,
+                                        filterCB
                                     }}
                                     headers={consultationCells}
                                     from={"unpaidconsult"}
                                     handleEvent={handleTableActions}
+                                    total={apps.total}
+                                    totalPages={apps.totalPages}
+                                    pagination
                                 /> : !loading && <NoDataCard t={t} ns={"payment"} data={noAppData}/>}
                             </DesktopContainer>
                             <MobileContainer>
                                 <Stack spacing={1}>
-                                    {apps.map((row) => (
+                                    {apps?.list?.map((row:any) => (
                                         <React.Fragment key={row.uuid}>
                                             <UnpaidConsultationCard
                                                 {...{
@@ -654,7 +672,7 @@ function Cashbox() {
                                     {rows.length > 0 &&
                                         <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
                                             <Button
-                                                onClick={exportDoc}
+                                                onClick={() => exportDoc('cashbox')}
                                                 variant="outlined"
                                                 color="info"
                                                 startIcon={<IconUrl path="ic-export-new"/>}>
