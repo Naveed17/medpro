@@ -126,6 +126,57 @@ export const WaitingHeadCells = [
     }
 ];
 
+export const WaitingTodayCells = [
+    {
+        id: "id",
+        numeric: true,
+        disablePadding: true,
+        label: "Id",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "patient",
+        numeric: false,
+        disablePadding: true,
+        label: "patient",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "appointment",
+        numeric: false,
+        disablePadding: true,
+        label: "appointment",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "type",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "motif",
+        numeric: false,
+        disablePadding: true,
+        label: "reason",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "empty",
+        numeric: false,
+        disablePadding: true,
+        label: "empty",
+        align: "right",
+        sortable: false,
+    }
+];
+
 export const AddWaitingRoomCardData = {
     mainIcon: "ic-salle",
     title: "empty",

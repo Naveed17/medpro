@@ -511,9 +511,7 @@ function LifeStyleDialog({...props}) {
                                 });
                             }}
                             startIcon={<AddIcon/>}>
-                        {`${t('add')} ${allAntecedents.find((ant: {
-                            slug: any;
-                        }) => ant.slug === action).name}`}
+                        {t('add')}
                     </Button>
                 }
             </Box>
