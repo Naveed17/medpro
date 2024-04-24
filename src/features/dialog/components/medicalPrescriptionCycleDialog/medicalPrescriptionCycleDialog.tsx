@@ -498,8 +498,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value)
             ? `${Object.entries(cycle.dosageTime.filter((time: any) => time.value).group((diag: any) => diag.qty))
-                .map((time: any) => `${time[0]} ${getFormUnitMedic(unit).unit ?? unit}${parseFloat(time[0]) >= 2 ? "(s)" : ""}, ${time[1].map((dosage: any) => t(dosage.label)).join(`/`)}`).join(" • ")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0
-                ? `, ${t(cycle.dosageMealValue)}`
+                .map((time: any) => ` ${time[1].map((dosage: any) => `${time[0]} ${getFormUnitMedic(unit).unit ?? unit}${parseFloat(time[0]) >= 2 ? "(s)" : ""} `+ t(dosage.label)).join(` / `)}`).join(" • ")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0
+                ? ` , ${t(cycle.dosageMealValue)}`
                 : ""
             }`
             : "";
