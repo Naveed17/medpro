@@ -3,7 +3,20 @@ import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
-import {Button, DialogActions, Paper, Stack, useTheme} from "@mui/material";
+import {
+    AppBar,
+    Box,
+    Button,
+    Divider,
+    Grid,
+    IconButton,
+    Paper,
+    Skeleton,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -13,7 +26,7 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
@@ -27,6 +40,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {PatientInsurance} from "@features/patientInsurance";
+import {ImageHandler} from "@features/image";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -291,8 +305,14 @@ function PersonalInsuranceCard({...props}) {
                                 pb: 0
                             })
                         }}>
-                        <PatientInsurance {...{patientInsurances,mutatePatientInsurances,patient,urlMedicalEntitySuffix,medicalEntityHasUser}}/>
-                        <AppBar position="static" color={"transparent"}>
+                        <PatientInsurance {...{
+                            patientInsurances,
+                            mutatePatientInsurances,
+                            patient,
+                            urlMedicalEntitySuffix,
+                            medicalEntityHasUser
+                        }}/>
+                        {/*<AppBar position="static" color={"transparent"}>
                             <Toolbar variant="dense">
                                 <Box sx={{flexGrow: 1}}>
                                     <Typography
@@ -405,7 +425,7 @@ function PersonalInsuranceCard({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>))
-                        }
+                        }*/}
                     </Paper>
                 </PersonalInfoStyled>
                 <Dialog

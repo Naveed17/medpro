@@ -27,7 +27,7 @@ const CardInsurance = ({...props}) => {
                          alt={"insurance image"}/>
                     <Stack>
                         <Typography className={"number"}>{pi.insuranceNumber}</Typography>
-                        {pi.insuranceBook.endDate && <Typography className={"expireIn"}>{t('insurance.expire', {ns: "patient"})} {pi.insuranceBook.endDate}</Typography>}
+                        {pi.insuranceBook?.endDate && <Typography className={"expireIn"}>{t('insurance.expire', {ns: "patient"})} {pi.insuranceBook.endDate}</Typography>}
                     </Stack>
                 </Stack>
             </Stack>

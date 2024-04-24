@@ -117,9 +117,9 @@ const AddInsurance = ({...props}) => {
         enableReinitialize: true,
         initialValues: {
             insurance: {
-                insurance_book: pi ? pi.insuranceBook.insuranceNumber : "",
-                start_date: pi ? new Date(moment(pi.insuranceBook.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
-                end_date: pi ? new Date(moment(pi.insuranceBook.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
+                insurance_book: pi ? pi.insuranceBook?.insuranceNumber : "",
+                start_date: pi ? new Date(moment(pi.insuranceBook?.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
+                end_date: pi ? new Date(moment(pi.insuranceBook?.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
                 insurance_key: "",
                 insurance_number: pi ? pi.insuranceNumber : "",
                 insurance_uuid: pi ? pi.insurance.uuid : "",
