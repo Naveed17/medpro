@@ -145,7 +145,7 @@ function SideBarMenu({ children }: LayoutProps) {
                                 <a onClick={() => handleRouting(item.href)}>
                                     <ListItem
                                         sx={{
-                                            margin: isMobile ? "0.5rem 0" : "1.5rem 0",
+                                            margin: isMobile ? "0.5rem 0" : "1.2rem 0",
                                             cursor: 'pointer',
                                         }}
                                         className={router.pathname.includes(item.href) ? "active" : ""}>
