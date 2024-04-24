@@ -54,6 +54,11 @@ export default function Table(theme) {
               "&:first-of-type": {
                 borderLeft: `4px solid ${theme.palette.primary.main}`,
               }
+            },
+            "&:hover": {
+              ".MuiTableCell-root": {
+                backgroundColor: theme.palette.primary.lighter,
+              }
             }
           },
           "&:hover": {
@@ -84,7 +89,12 @@ export default function Table(theme) {
             },
             "&.Mui-selected": {
               ".MuiTableCell-root": {
-                background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.grey[50]} 0%);`
+                background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
+              },
+              "&:hover": {
+                ".MuiTableCell-root": {
+                  background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
+                }
               }
             },
 
