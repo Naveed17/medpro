@@ -1,6 +1,6 @@
 const defaultOpts = {
     collectionName: 'i18n',
-    languageFieldName: 'lang',
+    languageFieldName: 'locales',
     namespaceFieldName: 'ns',
     dataFieldName: 'data',
     readOnError: console.error,
@@ -36,7 +36,6 @@ module.exports = class Backend {
     firestoreIsNamespaced;
 
     init(services, opts, i18nOpts) {
-        console.log("i18nOpts", i18nOpts)
         if (!opts || (typeof opts === 'object' && Object.keys(opts).length === 0)) {
             return;
         }
@@ -46,7 +45,7 @@ module.exports = class Backend {
         let bOpts = i18nOpts.backend.backendOptions[1];
         this.debug = i18nOpts.backend.backendOptions[1].debug;
         if (this.debug) {
-            console.log(`${this.MODNAME}:: options: ${JSON.stringify(bOpts)}`);
+            console.log(`${this.MODNAME}:: options:`, bOpts);
         }
         this.firestore = bOpts.firestore;
         if (!this.firestore) {
@@ -88,9 +87,6 @@ module.exports = class Backend {
         }
         if (bOpts.dataFieldName) {
             this.opts.dataFieldName = bOpts.dataFieldName;
-        }
-        if (this.debug) {
-            console.log(`${this.MODNAME}:: this.opts: ${JSON.stringify(this.opts)}`);
         }
     }
 
@@ -134,8 +130,6 @@ module.exports = class Backend {
             console.log(`${this.MODNAME}:: calling modular collection(${this.opts.collectionName})`);
         }
         const collRef = this.firestoreModule.functions.collection(this.firestore, this.opts.collectionName);
-        console.log("languageFieldName", this.opts.languageFieldName, lang)
-        console.log("namespaceFieldName", this.opts.namespaceFieldName, ns)
         const q = this.firestoreModule.functions.query(collRef, this.firestoreModule.functions.where(this.opts.languageFieldName, '==', lang), this.firestoreModule.functions.where(this.opts.namespaceFieldName, '==', ns));
         const querySnap = await this.firestoreModule.functions.getDocs(q);
         if (this.debug) {
@@ -166,7 +160,6 @@ module.exports = class Backend {
             !this.opts.namespaceFieldName) {
             return null;
         }
-        console.log("firestoreIsNamespaced", this.firestoreIsNamespaced)
         return this.firestoreIsNamespaced
             ? this.getDataFromNamedspacedFirestore(lang, ns)
             : this.getDataFromModularFirestore(lang, ns);
