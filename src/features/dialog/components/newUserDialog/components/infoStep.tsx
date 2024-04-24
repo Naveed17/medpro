@@ -2,11 +2,7 @@ import React, {memo, useRef, useState} from 'react'
 import DialogStyled from './overrides/dialogStyle';
 import {
     Box,
-    Checkbox,
-    FormControlLabel,
     IconButton,
-    Radio,
-    RadioGroup,
     Stack,
     TextField,
     Theme,
@@ -19,7 +15,6 @@ import {CustomIconButton} from '@features/buttons';
 import IconUrl from '@themes/urlIcon';
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import {debounce} from "lodash";
-import CircularProgress from "@mui/material/CircularProgress";
 import {FacebookCircularProgress} from "@features/progressUI";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
