@@ -163,7 +163,7 @@ function ConsultationInProgress() {
     const app_uuid = router.query["uuid-consultation"];
     const general_information = (user as UserDataResponse).general_information;
     const cardPositions = localStorage.getItem('cardPositions') !== null ? JSON.parse((localStorage.getItem('cardPositions') as string)) : null
-
+    const sDoc = localStorage.getItem('showDocument') ? localStorage.getItem('showDocument') == 'true' : false
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
@@ -248,7 +248,7 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
     const [addFinishAppointment, setAddFinishAppointment] = useState<boolean>(false);
-    const [showDocument, setShowDocument] = useState(false);
+    const [showDocument, setShowDocument] = useState(sDoc);
     const [nbDoc, setNbDoc] = useState(0);
     const [cards, setCards] = useState([
         [
@@ -278,7 +278,6 @@ function ConsultationInProgress() {
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}
     ]]);
-
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
     const [deleteAudio, setDeleteAudio] = useState(false);
     const [saveAudio, setSaveAudio] = useState(false);
