@@ -469,26 +469,30 @@ function MedicalPrescriptionCycleDialog({...props}) {
         const hasMultiValues = form.split("_");
         let formUnitMedic: any;
         if (hasMultiValues.length > 1) {
-            formUnitMedic = MedicalFormUnit.find(
-                (medic: any) => medic.unit == hasMultiValues[1]
-            );
+            formUnitMedic = MedicalFormUnit.find((medic: any) => medic.unit == hasMultiValues[1]);
         } else {
-            formUnitMedic =
-                MedicalFormUnit.find((medic: any) => {
-                    const matchFormUnit: string[] = search(
-                        form,
-                        medic.forms.map((data: any) => data.form),
-                        {returnMatchData: true}
-                    ).reduce((filtered: string[], option) => {
-                        if (option.score >= 0.8) {
-                            filtered.push(option.item as string);
-                        }
-                        return filtered;
-                    }, []);
-                    return matchFormUnit.length > 0;
-                }) ?? form;
+            formUnitMedic = MedicalFormUnit.reduce((forms: any[], medic: any) => {
+                const matchFormUnit: string[] = search(
+                    form,
+                    medic.forms.map((data: any) => data.form),
+                    {returnMatchData: true}
+                ).reduce((filtered: any[], option) => {
+                    if (option.score >= 0.8) {
+                        filtered.push({value: option.item, score: option.score});
+                    }
+                    return filtered;
+                }, []);
+                if (matchFormUnit.length > 0) {
+                    forms.push({
+                        ...medic,
+                        score: matchFormUnit.reduce((acc, value: any) => acc = acc > value.score ? acc : value.score, 0)
+                    })
+                }
+                return forms;
+            }, []) ?? form;
         }
-        return formUnitMedic;
+
+        return Array.isArray(formUnitMedic) ? formUnitMedic.reduce((form: any, value: any) => form = form.score > value.score ? form : value, {}) : formUnitMedic;
     }
 
     const generateDosageText = (cycle: any, unit?: string) => {
