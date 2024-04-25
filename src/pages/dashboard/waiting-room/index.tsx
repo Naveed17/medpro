@@ -727,9 +727,9 @@ function WaitingRoom() {
         }
     }, [httpWaitingRoomsResponse, is_next, boardFilterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // useEffect(() => {
-    //     i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
-    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilter());

@@ -627,10 +627,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     isVerified: false,
                                                                 });
                                                             } else {
-                                                                setFieldValue(
-                                                                    `data[${idx}].drug`,
-                                                                    drug as DrugModel
-                                                                );
+                                                                setFieldValue(`data[${idx}].drug`, drug as DrugModel);
                                                                 setFieldValue(`data[${idx}].unit`, drug?.form?.name);
                                                                 drug?.uuid && triggerGetDrugModel({
                                                                     method: "GET",
