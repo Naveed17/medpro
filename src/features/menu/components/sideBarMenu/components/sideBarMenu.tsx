@@ -62,7 +62,6 @@ function SideBarMenu({ children }: LayoutProps) {
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const [showTooltip, setShowTooltip] = useState<string | null>(null)
     const { data: user } = session as Session;
     const general_information = (user as UserDataResponse).general_information;
     const hasAdminAccess = router.pathname.includes("/admin");
@@ -97,6 +96,31 @@ function SideBarMenu({ children }: LayoutProps) {
         router.push(`/${hasAdminAccess ? "admin" : "dashboard"}/settings`);
         dispatch(toggleMobileBar(true));
     }
+    const CustomTooltip = ({ ...props }) => {
+        const { children, item, } = props;
+        const [showTooltip, setShowTooltip] = useState<boolean>(false)
+        return (
+            <Tooltip TransitionComponent={Zoom}
+                open={showTooltip}
+                onClose={() => setShowTooltip(false)}
+                onOpen={() => setShowTooltip(true)}
+                disableHoverListener={isMobile}
+                componentsProps={{
+                    tooltip: {
+                        sx: {
+                            bgcolor: 'primary.dark',
+                            '& .MuiTooltip-arrow': {
+                                color: 'primary.dark',
+                            },
+                        },
+                    },
+                }}
+
+                title={t("main-menu." + item.name)} arrow placement="right">
+                {children}
+            </Tooltip>
+        );
+    }
 
     const drawer = (
         <div>
@@ -125,38 +149,23 @@ function SideBarMenu({ children }: LayoutProps) {
                                 {children}
                             </Can>}>
                         <Hidden smUp={item.name === "wallet"}>
-                            <Tooltip TransitionComponent={Zoom}
-                                // open={item.name === showTooltip}
-                                // onMouseEnter={() => { setShowTooltip(item.name) }}
-                                // onMouseLeave={() => { setShowTooltip(null) }}
-                                disableHoverListener={isMobile}
-                                componentsProps={{
-                                    tooltip: {
-                                        sx: {
-                                            bgcolor: 'primary.dark',
-                                            '& .MuiTooltip-arrow': {
-                                                color: 'primary.dark',
-                                            },
-                                        },
-                                    },
-                                }}
 
-                                title={t("main-menu." + item.name)} arrow placement="right">
-                                <a onClick={() => handleRouting(item.href)}>
-                                    <ListItem
-                                        sx={{
-                                            margin: isMobile ? "0.5rem 0" : "1.2rem 0",
-                                            cursor: 'pointer',
+                            <a onClick={() => handleRouting(item.href)}>
+                                <ListItem
+                                    sx={{
+                                        margin: isMobile ? "0.5rem 0" : "1.2rem 0",
+                                        cursor: 'pointer',
+                                    }}
+                                    className={router.pathname.includes(item.href) ? "active" : ""}>
+                                    <Badge
+                                        anchorOrigin={{
+                                            vertical: "top",
+                                            horizontal: "right",
                                         }}
-                                        className={router.pathname.includes(item.href) ? "active" : ""}>
-                                        <Badge
-                                            anchorOrigin={{
-                                                vertical: "top",
-                                                horizontal: "right",
-                                            }}
-                                            invisible={item.badge === undefined || isMobile}
-                                            color="warning"
-                                            badgeContent={item.badge}>
+                                        invisible={item.badge === undefined || isMobile}
+                                        color="warning"
+                                        badgeContent={item.badge}>
+                                        <CustomTooltip item={item}>
                                             <ListItemIcon
                                                 onMouseEnter={(e) => {
                                                     if (router.pathname === item.href) {
@@ -169,31 +178,32 @@ function SideBarMenu({ children }: LayoutProps) {
                                                 }}>
                                                 <Icon path={item.icon} />
                                             </ListItemIcon>
-                                        </Badge>
-                                        {isMobile && <ListItemTextStyled primary={t("main-menu." + item.name)} />}
-                                        {isMobile && item.badge !== undefined && item.badge > 0 && (
-                                            <Badge
-                                                badgeContent={item.badge}
-                                                color="warning"
-                                                sx={{
-                                                    ".MuiBadge-badge": {
-                                                        right: 8,
-                                                    },
-                                                }}
-                                            />
-                                        )}
+                                        </CustomTooltip>
+                                    </Badge>
+                                    {isMobile && <ListItemTextStyled primary={t("main-menu." + item.name)} />}
+                                    {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                        <Badge
+                                            badgeContent={item.badge}
+                                            color="warning"
+                                            sx={{
+                                                ".MuiBadge-badge": {
+                                                    right: 8,
+                                                },
+                                            }}
+                                        />
+                                    )}
 
-                                        {i === currentIndex && (
-                                            <motion.div
-                                                className="icon-background"
-                                                layoutId="social"
-                                                key="social"
-                                                initial={false}
-                                            />
-                                        )}
-                                    </ListItem>
-                                </a>
-                            </Tooltip>
+                                    {i === currentIndex && (
+                                        <motion.div
+                                            className="icon-background"
+                                            layoutId="social"
+                                            key="social"
+                                            initial={false}
+                                        />
+                                    )}
+                                </ListItem>
+                            </a>
+
                         </Hidden>
                     </ConditionalWrapper>
                 ))}
@@ -220,18 +230,6 @@ function SideBarMenu({ children }: LayoutProps) {
                                             color: 'primary.dark',
                                         },
                                     },
-                                },
-                            }}
-                            slotProps={{
-                                popper: {
-                                    modifiers: [
-                                        {
-                                            name: 'offset',
-                                            options: {
-                                                offset: [0, 10],
-                                            },
-                                        },
-                                    ],
                                 },
                             }}
                             title={t("main-menu.statistics")} arrow placement="right">
@@ -266,18 +264,6 @@ function SideBarMenu({ children }: LayoutProps) {
                                             color: 'primary.dark',
                                         },
                                     },
-                                },
-                            }}
-                            slotProps={{
-                                popper: {
-                                    modifiers: [
-                                        {
-                                            name: 'offset',
-                                            options: {
-                                                offset: [0, 10],
-                                            },
-                                        },
-                                    ],
                                 },
                             }}
                             title={t("main-menu.settings")} arrow placement="right">
@@ -315,7 +301,7 @@ function SideBarMenu({ children }: LayoutProps) {
                     </ListItem>
                 </Hidden>
             </List>
-        </div>
+        </div >
     );
 
     useEffect(() => {
