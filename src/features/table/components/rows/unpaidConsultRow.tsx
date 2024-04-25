@@ -82,9 +82,9 @@ function UnpaidConsultRow({...props}) {
             <TableCell>
                 <Stack direction={"row"} justifyContent={"center"} spacing={-1}>
                     {
-                        !!row.patient.insurances.length ? row.patient.insurances.map((insurance: any) => (
+                        !!row.patient.insurances.length ? row.patient.insurances.map((insurance: any,index:number) => (
                             <Tooltip
-                                key={insurance.uuid + "ins"}
+                                key={`${insurance.uuid}-ins${index}`}
                                 title={insurance.name}>
                                 <Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
                                     <ImageHandler
