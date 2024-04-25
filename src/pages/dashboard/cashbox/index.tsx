@@ -462,12 +462,12 @@ function Cashbox() {
         setSelectedTab(newValue);
         dispatch(setSelectedTabIndex(newValue));
     };
-    const exportDoc = (from:string) => {
+    const exportDoc = (from: string) => {
 
-        let url= `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`;
+        let url = `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`;
         if (from === "apps")
-            url =`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/export/${router.locale}`;
-            triggerExport(
+            url = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/export/${router.locale}`;
+        triggerExport(
             {
                 method: "GET",
                 url,
@@ -489,10 +489,10 @@ function Cashbox() {
 
     }, [cashboxes])
 
-    // useEffect(() => {
-    //     //reload resources from cdn servers
-    //     i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
-    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 

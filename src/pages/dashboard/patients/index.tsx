@@ -687,10 +687,10 @@ function Patients() {
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // useEffect(() => {
-    //     //reload resources from cdn servers
-    //     i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
-    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
