@@ -229,6 +229,7 @@ function NewUserDialog({...props}) {
         enableReinitialize: true,
         initialValues: {
             name: '',
+            user_exist: false,
             first_name: '',
             last_name: '',
             phones: [

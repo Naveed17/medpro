@@ -36,7 +36,6 @@ function InfoStep({...props}) {
 
     const {trigger: triggerUserCheck} = useRequestQueryMutation("/user/check/email");
 
-
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setLoading(true);
         const email = event.target.value;
@@ -47,10 +46,12 @@ function InfoStep({...props}) {
             }, {
                 onSuccess: (result) => {
                     const user = (result?.data as HttpResponse)?.data;
-                    if (user?.exist) {
+                    if (user?.username) {
                         setFieldValue("email", event.target.value);
+                        setFieldValue("user_exist", true);
+                        setFieldValue("name", user?.username);
                     } else {
-                        enqueueSnackbar(t("alert.user-exist"), {variant: "error"});
+                        setFieldValue("user_exist", false);
                     }
                 },
                 onSettled: () => setLoading(false)
@@ -73,6 +74,7 @@ function InfoStep({...props}) {
                         <Typography color='error' variant='caption'>*</Typography>
                     </Typography>
                     <TextField
+                        disabled={values.user_exist}
                         placeholder={t("dialog.user_name")}
                         fullWidth
                         {...getFieldProps('name')}
