@@ -6,7 +6,6 @@ export const prescriptionPreviewDosage = (dosage: string) => {
         const cycleUnit = `${dosageData[0]} ${dosageData[1]}`.replace(",", "");
         const ampersand = index === 0 && dosageCycles.length > 1 ? "," : "et"
         const dosageTimes: any = {
-            [`${cycleUnit},`]: cycleUnit,
             'Matin/Midi/Soir': `Matin, ${cycleUnit} Midi ${ampersand} ${cycleUnit} Soir`,
             'Matin/Midi': `Matin ${ampersand} ${cycleUnit} Midi`,
             'Matin/Soir': `Matin ${ampersand} ${cycleUnit} Soir`,
