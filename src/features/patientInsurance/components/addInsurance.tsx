@@ -269,7 +269,7 @@ const AddInsurance = ({...props}) => {
                         onBlur={(ev) => {
                             trigger({
                                 method: "GET",
-                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${ev.target.value}/${router.locale}`
+                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${ev.target.value}/search/${router.locale}`
                             }, {
                                 onSuccess: (result) => {
                                     const res = result.data.data;

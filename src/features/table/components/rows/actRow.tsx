@@ -12,13 +12,12 @@ function ActRow({...props}) {
     const {row, handleChange, t, isItemSelected, handleEvent, handleClick, selected, loading} = props;
     const {agreement} = useAppSelector(stepperSelector);
     const _act = agreement?.acts.find((act:any) => act.uuid === row.uuid)
-console.log(agreement)
     const [fees, setFees] = useState(_act ? _act.fees : row.fees);
     const [contribution, setContribution] = useState(_act ? _act.patient_part : row.fees);
     const [refund, setRefund] = useState(_act ? _act.refund : "0");
     const [apci, setApci] = useState<string[]>(_act && _act.apci ? _act.apci?.split(',') :[]);
 
-    const {apcis} = useApci(agreement?.insurance.uuid)
+    const {apcis} = useApci(agreement?.insurance?.uuid)
 
     const handleSelect = (event: SelectChangeEvent<typeof apci>) => {
         const {
