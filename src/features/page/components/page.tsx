@@ -96,7 +96,6 @@ function Page({...props}) {
                 let targetCanvas = document.getElementById(`canvas${id}`) as HTMLCanvasElement;
                 let targetCtx = targetCanvas?.getContext('2d');
 
-                console.log("margin",getMarginTop())
                 if (targetCanvas)
                     html2canvas(htmlContent).then(function (canvas) {
                         // Define the region you want to capture
