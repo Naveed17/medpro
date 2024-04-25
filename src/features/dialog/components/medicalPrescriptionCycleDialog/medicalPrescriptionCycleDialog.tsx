@@ -118,6 +118,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
         "2.5",
         ...Array.from({length: 30}, (v, k) => (k + 3).toString()),
     ];
+    const forms = MedicalFormUnit.reduce((medics: any[], medic: any) => [...(medics ?? []), medic.unit], []);
+    const formsRegExp = new RegExp(forms.join("|"), "g");
     const [info, setInfo] = useState("");
     const [loading, setLoading] = useState(false);
     const [editModel, setEditModel] = useState<PrescriptionPatternModel | null>(null);
@@ -182,8 +184,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const getMedicForm = (drug: any) => {
-        const [first, ...rest] = (drug.cycles?.length > 0 ? drug.cycles[0].dosage.split(",")[0] : "")?.split(" ");
-        const unit = rest.join(" ");
+        const unit = drug.cycles?.length > 0 && drug.cycles[0].dosage.match(formsRegExp)?.length > 0 ? drug.cycles[0].dosage.match(formsRegExp)[0] : "";
         const hasMultiValues = PrescriptionMultiUnits.includes(unit);
         const hasMedicalFormUnit = MedicalFormUnit.find(
             (item) => item.unit === unit
@@ -226,17 +227,17 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         dosageMealValue:
                             cycle.dosage !== "" &&
                             cycle.dosage.split("•").length === 1 &&
-                            cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0
+                            cycle.dosage.split(formsRegExp) && cycle.dosage.split(formsRegExp).length > 0
                                 ? dosageMeal.find((meal) =>
-                                    cycle.dosage.split(",")[2].includes(t(meal.label))
+                                    cycle.dosage.split(formsRegExp).includes(t(meal.label))
                                 )?.label
                                 :
                                 cycle.dosage.split("•").length > 0 &&
                                 cycle.dosage.split("•")[cycle.dosage.split("•").length - 1] &&
-                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2] &&
-                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2].length > 0 ?
+                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp) &&
+                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp).length > 0 ?
                                     dosageMeal.find((meal) =>
-                                        cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2].includes(t(meal.label))
+                                        cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp).includes(t(meal.label))
                                     )?.label
                                     :
                                     "",
@@ -498,8 +499,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value)
             ? `${Object.entries(cycle.dosageTime.filter((time: any) => time.value).group((diag: any) => diag.qty))
-                .map((time: any) => ` ${time[1].map((dosage: any) => `${time[0]} ${getFormUnitMedic(unit).unit ?? unit}${parseFloat(time[0]) >= 2 ? "(s)" : ""} `+ t(dosage.label)).join(` / `)}`).join(" • ")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0
-                ? ` , ${t(cycle.dosageMealValue)}`
+                .map((time: any) => `${time[0]} ${getFormUnitMedic(unit).unit ?? unit}${parseFloat(time[0]) >= 2 ? "(s)" : ""} ${time[1].map((dosage: any) => t(dosage.label)).join(`/`)}`).join(" • ")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0
+                ? `, ${t(cycle.dosageMealValue)}`
                 : ""
             }`
             : "";
@@ -512,7 +513,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 id: 2,
                 name: "requestedPrescription",
                 status: "in_progress",
-                icon: "ic-traitement",
+                icon: "docs/ic-prescription",
                 state: drugs
             })
         }
@@ -793,6 +794,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     isOptionEqualToValue={(option: any, value) =>
                                                         option?.name === value?.name
                                                     }
+                                                    renderOption={(props, option) => (
+                                                        <Stack key={`${idx}-${option.uuid}`}>
+                                                            <MenuItem
+                                                                {...props}
+                                                                value={option.uuid}>
+                                                                {option.name}
+                                                            </MenuItem>
+                                                        </Stack>
+                                                    )}
                                                     renderInput={(params) => (
                                                         <TextField placeholder={t("dosage-model")} {...params} />
                                                     )}
