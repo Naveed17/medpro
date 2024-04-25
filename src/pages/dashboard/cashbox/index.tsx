@@ -73,7 +73,7 @@ function Cashbox() {
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready, i18n} = useTranslation(["payment", "common"]);
+    const {t, ready} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
     const {config: agenda, mode} = useAppSelector(agendaSelector);
 
@@ -83,7 +83,7 @@ function Cashbox() {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [rows, setRows] = useState<any[]>([]);
-    const [apps, setApps] = useState<any[]>([]);
+    const [apps, setApps] = useState<any>(null);
     const [total, setTotal] = useState(0);
     const [unpaid, setUnpaid] = useState(0);
     const [ca, setCA] = useState(0);
@@ -367,7 +367,7 @@ function Cashbox() {
     const getConsultation = (start: string, end: string) => {
         const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format(
             "DD-MM-YYYY"
-        )}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`;
+        )}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week&page=${router.query.page || 1}&limit=10`;
         agenda?.uuid && triggerAppointmentDetails(
             {
                 method: "GET",
@@ -600,7 +600,7 @@ function Cashbox() {
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                 </Stack>
 
-                                {apps.length > 0 &&
+                                {apps?.list.length > 0 &&
                                     <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
                                         <Button
                                             onClick={() => exportDoc('apps')}
@@ -612,24 +612,27 @@ function Cashbox() {
                                     </Can>}
                             </Stack>
                             <DesktopContainer>
-                                {apps.length > 0 ? <Otable
+                                {apps?.list?.length > 0 ? <Otable
                                     {...{
-                                        rows: apps,
+                                        rows: apps.list,
                                         t,
                                         hideName: mode !== "normal",
                                         insurances,
                                         pmList,
                                         mutateTransactions,
-                                        filterCB,
+                                        filterCB
                                     }}
                                     headers={consultationCells}
                                     from={"unpaidconsult"}
                                     handleEvent={handleTableActions}
+                                    total={apps.total}
+                                    totalPages={apps.totalPages}
+                                    pagination
                                 /> : !loading && <NoDataCard t={t} ns={"payment"} data={noAppData}/>}
                             </DesktopContainer>
                             <MobileContainer>
                                 <Stack spacing={1}>
-                                    {apps.map((row) => (
+                                    {apps?.list?.map((row:any) => (
                                         <React.Fragment key={row.uuid}>
                                             <UnpaidConsultationCard
                                                 {...{
