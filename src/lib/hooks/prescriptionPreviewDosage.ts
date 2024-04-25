@@ -1,11 +1,19 @@
 export const prescriptionPreviewDosage = (dosage: string) => {
-    const dosageTimes: any = {
-        'Matin/Midi/Soir': 'Matin, Midi et Soir',
-        'Matin/Midi': 'Matin et Midi',
-        'Matin/Soir': 'Matin et Soir',
-        'Midi/Soir': 'Midi et Soir'
-    };
+    let previewDosage = "";
+    const dosageCycles = dosage.split(" • ");
+    dosageCycles.forEach((dosage: any, index) => {
+        const dosageData = dosage.split(" ");
+        const cycleUnit = `${dosageData[0]} ${dosageData[1]}`.replace(",", "");
+        const ampersand = index === 0 && dosageCycles.length > 1 ? "," : "et"
+        const dosageTimes: any = {
+            'Matin/Midi/Soir': `Matin, ${cycleUnit} Midi ${ampersand} ${cycleUnit} Soir`,
+            'Matin/Midi': `Matin ${ampersand} ${cycleUnit} Midi`,
+            'Matin/Soir': `Matin ${ampersand} ${cycleUnit} Soir`,
+            'Midi/Soir': `Midi ${ampersand} ${cycleUnit} Soir`
+        };
+        const reg = new RegExp(Object.keys(dosageTimes).join("|"), "g");
+        previewDosage += `${index > 0 && !dosage.match(reg, (matched: any) => dosageTimes[matched]) ? " et " : (index !== 0 ? ", " : " ")}${dosage.replace(reg, (matched: any) => dosageTimes[matched])}`;
+    })
 
-    const reg = new RegExp(Object.keys(dosageTimes).join("|"), "g");
-    return dosage.replace(reg, (matched) => dosageTimes[matched]);
+    return previewDosage
 }

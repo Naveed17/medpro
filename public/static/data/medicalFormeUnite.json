@@ -35,7 +35,7 @@
       },
       {
         "form": "Solution glycéro-saline d'extrais allergéniques",
-        "unit": "application"
+        "unit": "Application"
       },
       {
         "form": "Pommade  dermique",
@@ -514,16 +514,16 @@
     ]
   },
   {
-    "unit": "par ml ( 1-25 )",
+    "unit": "Par ml ( 1-25 )",
     "multiple": true,
     "forms": [
       {
         "form": "Sirop",
-        "unit": "par ml ( 1-25 )"
+        "unit": "Par ml ( 1-25 )"
       },
       {
         "form": "Suspension buvable",
-        "unit": "par ml ( 1-25 )"
+        "unit": "Par ml ( 1-25 )"
       }
     ]
   },
@@ -633,7 +633,7 @@
     "forms": [
       {
         "form": "Suspension rectale",
-        "unit": "flacons"
+        "unit": "Flacons"
       }
     ]
   },
@@ -709,11 +709,11 @@
     "forms": [
       {
         "form": "Solution buvable",
-        "unit": "sachet"
+        "unit": "Sachet"
       },
       {
         "form": "Poudre pour solution orale",
-        "unit": "sachet"
+        "unit": "Sachet"
       },
       {
         "form": "Poudre orale effervescente",
