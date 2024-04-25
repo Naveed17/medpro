@@ -498,8 +498,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value)
             ? `${Object.entries(cycle.dosageTime.filter((time: any) => time.value).group((diag: any) => diag.qty))
-                .map((time: any) => ` ${time[1].map((dosage: any) => `${time[0]} ${getFormUnitMedic(unit).unit ?? unit}${parseFloat(time[0]) >= 2 ? "(s)" : ""} `+ t(dosage.label)).join(` / `)}`).join(" • ")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0
-                ? ` , ${t(cycle.dosageMealValue)}`
+                .map((time: any) => `${time[0]} ${getFormUnitMedic(unit).unit ?? unit}${parseFloat(time[0]) >= 2 ? "(s)" : ""}, ${time[1].map((dosage: any) => t(dosage.label)).join(`/`)}`).join(" • ")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0
+                ? `, ${t(cycle.dosageMealValue)}`
                 : ""
             }`
             : "";
@@ -512,7 +512,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 id: 2,
                 name: "requestedPrescription",
                 status: "in_progress",
-                icon: "ic-traitement",
+                icon: "docs/ic-prescription",
                 state: drugs
             })
         }
@@ -768,6 +768,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     value={item?.dosageModel ?? null}
                                                     onChange={(event, data) => {
                                                         event.stopPropagation();
+                                                        console.log("data", idx, data)
                                                         if (data) {
                                                             switchModel([
                                                                 ...drugs.slice(0, idx),
@@ -788,7 +789,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                             return option;
                                                         }
                                                         // Regular option
-                                                        return option.name;
+                                                        return option?.name ?? "";
                                                     }}
                                                     isOptionEqualToValue={(option: any, value) =>
                                                         option?.name === value?.name
