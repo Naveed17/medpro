@@ -2,7 +2,7 @@ import {MutableRefObject} from "react";
 import {PDFDocument} from "pdf-lib";
 import generatePDF from "react-to-pdf";
 
-export const generatePdfFromHtml = async (componentRef: MutableRefObject<any[]>, type: any,format?: string) => {
+export const generatePdfFromHtml = async (componentRef: MutableRefObject<any[]>, type: any, format?: string, orientation?: string) => {
     const pdfDoc = await PDFDocument.create();
 
     for (const ref of componentRef?.current) {
@@ -15,7 +15,8 @@ export const generatePdfFromHtml = async (componentRef: MutableRefObject<any[]>,
                 qualityRatio: 1
             },
             page: {
-                 format: format && (format === "A5" || format === "A4") ? format : 'A4',
+                format: format && (format === "A5" || format === "A4") ? format : 'A4',
+                orientation: orientation ? orientation === "portrait" ? "p" : "l" : "p"
             },
             overrides: {
                 // see https://artskydj.github.io/jsPDF/docs/jsPDF.html for more options
