@@ -18,7 +18,6 @@ import {debounce} from "lodash";
 import {FacebookCircularProgress} from "@features/progressUI";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSnackbar} from "notistack";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -28,10 +27,9 @@ PhoneCountry.displayName = "Phone country";
 function InfoStep({...props}) {
     const {formik, t, doctor_country} = props;
     const router = useRouter();
-    const {enqueueSnackbar} = useSnackbar();
     const phoneInputRef = useRef(null);
 
-    const {getFieldProps, values, setFieldValue, setValues, errors, touched} = formik;
+    const {getFieldProps, values, setFieldValue, errors, touched} = formik;
     const [loading, setLoading] = useState(false);
 
     const {trigger: triggerUserCheck} = useRequestQueryMutation("/user/check/email");
