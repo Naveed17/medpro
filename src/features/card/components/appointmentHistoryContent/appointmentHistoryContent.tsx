@@ -72,7 +72,7 @@ function AppointmentHistoryContent({...props}) {
             type: "fees",
             name: "note_fees",
             info: selectedActs,
-            consultationFees: app.appointment.consultation_fees,
+            //consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
             age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
             patient: `${type} ${patient.firstName} ${patient.lastName}`,
@@ -368,21 +368,7 @@ function AppointmentHistoryContent({...props}) {
                                                 </Grid>
                                             </Grid>
 
-                                            <Grid container spacing={2} pb={1} pt={1}
-                                                  style={{borderBottom: '1px dashed gray'}}>
-                                                <Grid item xs={3}>
-                                                    <Typography className={"feesContent"}
-                                                    >{t('consultationIP.consultation')}</Typography>
-                                                </Grid>
-                                                <Grid item xs={3}></Grid>
-                                                <Grid item xs={3}></Grid>
-                                                <Grid item xs={3}>
-                                                    <Typography textAlign={"right"}
-                                                                className={"feesContent"}>{app?.appointment.consultation_fees && app?.appointment.consultation_fees !== "null"
-                                                        ? app?.appointment.consultation_fees
-                                                        : "--"} {devise}</Typography>
-                                                </Grid>
-                                            </Grid>
+
                                             {app?.appointment.acts.map(
                                                 (act: any, idx: number) => (
                                                     <Grid container pb={1} pt={1}

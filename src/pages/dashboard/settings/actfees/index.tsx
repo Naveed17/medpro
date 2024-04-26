@@ -123,7 +123,7 @@ function ActFees() {
     const [selected, setSelected] = useState<any>("");
     const [create, setCreate] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
-    const [consultationFees, setConsultationFees] = useState(0);
+    //const [consultationFees, setConsultationFees] = useState(0);
     const [confirmDialog, setConfirmDialog] = useState(false);
     const [isChecked, setIsChecked] = useState(user.medical_entity.hasDemo);
     const [newFees, setNewFees] = useState<{
@@ -168,7 +168,7 @@ function ActFees() {
 
     useEffect(() => {
         if (medicalProfessionalData) {
-            setConsultationFees(Number(medicalProfessionalData?.consultation_fees));
+            //setConsultationFees(Number(medicalProfessionalData?.consultation_fees));
             if (localStorage.getItem("newCashbox")) {
                 setIsChecked(localStorage.getItem("newCashbox") === "1");
             }
@@ -203,7 +203,7 @@ function ActFees() {
         setNewFees({act: null, fees: "", code: "", contribution: ""});
     };
 
-    const editFees = () => {
+    /*const editFees = () => {
         const form = new FormData();
         form.append("consultation_fees", consultationFees.toString());
         triggerActUpdate(
@@ -217,7 +217,7 @@ function ActFees() {
                     enqueueSnackbar(t("alert.updated"), {variant: "success"}),
             }
         );
-    };
+    };*/
 
     const removeFees = (uuid: string) => {
         setLoading(true);
@@ -486,7 +486,7 @@ function ActFees() {
                 />
             </Card>
 
-            {isMobile && (
+            {/*{isMobile && (
                 <Box padding={2}>
                     <Stack
                         spacing={1}
@@ -520,7 +520,7 @@ function ActFees() {
                         </Button>
                     </Stack>
                 </Box>
-            )}
+            )}*/}
             <Box sx={{
                 p: {xs: "40px 8px", sm: "30px 8px", md: 2},
                 table: {tableLayout: "fixed"},

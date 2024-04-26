@@ -28,9 +28,7 @@ function InsuranceAgreementRow({...props}) {
                             {row.insurance ? row.insurance.name: row.mutual}
                         </Typography>
                     </Stack>
-                ) : (
-                    <Skeleton variant="text" width={100}/>
-                )}
+                ) : (<Skeleton variant="text" width={100}/>)}
             </TableCell>
             <TableCell align="center">
                 {row ? (

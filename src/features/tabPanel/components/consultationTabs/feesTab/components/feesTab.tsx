@@ -123,14 +123,14 @@ function FeesTab({...props}) {
         if (isQuoteRequest)
             setLoading(false)
         if (res) {
-            let _acts = [{
+            let _acts = [/*{
                 act: {name: res.type.name},
                 fees: res.consultation_fees && res.consultation_fees !== "null" ? Number(res.consultation_fees) : res.type.price,
                 isTopAct: false,
                 qte: 1,
                 selected: res.consultation_fees !== null && res.consultation_fees !== "null",
                 uuid: "consultation_type"
-            }, ...mpActs]
+            },*/ ...mpActs]
 
             res.acts && res.acts.map((act: { act_uuid: string, qte: number, price: number }) => {
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
@@ -180,19 +180,19 @@ function FeesTab({...props}) {
             });
         })
 
-        const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
+       /* const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
         let isFree = true;
         let consultationFees = 0;
 
         if (app_type) {
             isFree = !app_type?.selected;
             consultationFees = isFree ? null : app_type?.fees
-        }
+        }*/
 
         const form = new FormData();
         form.append("acts", JSON.stringify(_acts));
         form.append("fees", _total.toString());
-        form.append("consultation_fees", consultationFees ? consultationFees.toString() : "null");
+        //form.append("consultation_fees", consultationFees ? consultationFees.toString() : "null");
 
         app_uuid && triggerFeesEdit({
             method: "PUT",
