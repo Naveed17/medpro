@@ -5,7 +5,7 @@ import {DefaultCountry, tinymcePlugins, tinymceToolbarNotes} from "@lib/constant
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PageStyled from "@features/page/components/overrides/pageStyled";
-import {Box, Stack, TextField, Typography} from "@mui/material";
+import {Box, Stack, TextField, Typography, useTheme} from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import {Editor} from "@tinymce/tinymce-react";
 import moment from "moment/moment";
@@ -33,6 +33,7 @@ function Doc({...props}) {
         downloadMode = false,
         setDocs, t
     } = props
+    const theme = useTheme();
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -98,32 +99,28 @@ function Doc({...props}) {
             case "fees":
             case "quote":
                 let total = 0;
-                elx = "<table>"
+                elx = "<table style='width: 100%;'>"
                 elx += `<tr>
-                                    <td>NOM</td>
-                                    <td>PRIX</td>
-                                    <td>QTE</td>
-                                    <td>TOTAL</td>
+                                    <td class="act-table-title" style="text-align: left">Acte</td>
+                                    <td class="act-table-title">PRIX</td>
+                                    <td class="act-table-title">QTE</td>
+                                    <td class="act-table-title">TOTAL</td>
                                 </tr>`
-                state.info.map((el: any) => {
+                state.info.map((el: any,index:number) => {
                     total += el.qte * el.fees;
-                    elx += `<tr>
-                                        <td> ${el.act.name}</td>
-                                        <td>${el.fees} ${devise}</td>
-                                        <td>${el.qte}</td>
-                                        <td>${el.qte * el.fees} ${devise}</td>
+                    elx += `<tr style="background: ${theme.palette.info.main};border-radius: 10px">
+                                        <td class="act-table-item" style="padding: 20px;font-weight: bold;border-top-left-radius:  ${index === 0 ? "10px":0};border-bottom-left-radius: ${index === state.info.length - 1 ? "10px":0}">${el.act.name}</td>
+                                        <td class="act-table-item" style="text-align: center">${el.fees} ${devise}</td>
+                                        <td style="color: ${theme.palette.grey["400"]};text-align: center">${el.qte}</td>
+                                        <td style="text-align: center;font-size: 18px;font-weight: bold;border-top-right-radius: ${index === 0 ? "10px":0};border-bottom-right-radius: ${index === state.info.length - 1 ? "10px":0}">${el.qte * el.fees} ${devise}</td>
                                     </tr>`
                 });
-
-                elx += `<tr>
-                                        <td> Total</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>${total} ${devise}</td>
-                                    </tr>`
                 elx += "</table>"
+                elx += `<p style="text-align: right; color: ${theme.palette.grey["400"]};margin-top: 20px">Total</p>`
+                elx += `<p style="text-align: right;font-size: 24px;color: ${theme.palette.primary.main};font-weight: bold">${total} ${devise}</p>`
 
-                setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
+
+                setTitle(state.type == "fees" ? "Facture" : "Devis");
 
                 break;
             case "glasses":
