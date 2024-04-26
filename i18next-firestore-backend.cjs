@@ -22,7 +22,7 @@ module.exports = class Backend {
         this.services = services;
         this.opts = backendOptions;
         this.i18nOpts = i18nextOptions;
-        this.MODNAME = 'i18next-node-firestore-backend';
+        this.MODNAME = 'i18next-firestore-backend';
         this.init(services, backendOptions, i18nextOptions);
     }
 
