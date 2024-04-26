@@ -238,6 +238,8 @@
       "old-placeholder": "Ajouter L'âge",
       "cin": "CIN",
       "cin-placeholder": "CIN du patient",
+      "addressed-by": "Adressée par",
+      "addressed-by-placeholder": "Adressée par...",
       "profession": "Profession",
       "profession-placeholder": "profession du patient",
       "from": "De",
