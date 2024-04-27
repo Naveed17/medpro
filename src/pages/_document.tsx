@@ -6,6 +6,7 @@ import Document, {
     NextScript
 } from "next/document";
 import Script from 'next/script';
+import {Partytown} from '@builder.io/partytown/react';
 
 class MyDocument extends Document {
     render() {
@@ -18,8 +19,15 @@ class MyDocument extends Document {
                     <link rel="manifest" href="/manifest.json"/>
                     {/* Inject MUI styles first to match with to prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
+                    <Partytown debug={true} forward={['dataLayer.push']}/>
+                    <Script
+                        src="/static/files/upscope.js"
+                        type="text/partytown"
+                        strategy="lazyOnload"
+                    />
                     <Script
                         src="/static/files/usetifulWorker.js"
+                        type="text/partytown"
                         strategy="lazyOnload"
                     />
                 </Head>
