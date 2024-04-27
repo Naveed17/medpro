@@ -20,14 +20,21 @@ class MyDocument extends Document {
                     {/* Inject MUI styles first to match with to prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
                     <Partytown debug={true} forward={['dataLayer.push']}/>
-                    <Script
-                        src="/static/files/upscope.js"
-                        type="text/partytown"
-                        strategy="lazyOnload"
+                    <script
+                        type="text/javascript"
+                        crossOrigin={"anonymous"}
+                        dangerouslySetInnerHTML={{
+                            __html: '(function(w, u, d){var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};\n' +
+                                '                        var l = function(){var s=d.createElement(\'script\');s.type=\'text/javascript\';s.async=true;\n' +
+                                '                        s.src=\'https://code.upscope.io/sASRVsqUBF.js\';\n' +
+                                '                        var x=d.getElementsByTagName(\'script\')[0];x.parentNode.insertBefore(s,x);};\n' +
+                                '                        if(typeof u!=="function"){w.Upscope=i;l();}})(window, window.Upscope, document);\n' +
+                                '\n' +
+                                '                        Upscope(\'init\');',
+                        }}
                     />
                     <Script
                         src="/static/files/usetifulWorker.js"
-                        type="text/partytown"
                         strategy="lazyOnload"
                     />
                 </Head>
