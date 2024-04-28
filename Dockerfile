@@ -14,6 +14,7 @@ VOLUME ["$APP_ROOT"]
 FROM wodby/node:20 AS builder
 
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_OPTIONS="--max-old-space-size=8192"
 
 COPY --chown=node:node --from=dev "${APP_ROOT}/node_modules" "${APP_ROOT}/node_modules"
 COPY --chown=node:node . "${APP_ROOT}/"
