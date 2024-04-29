@@ -1,8 +1,8 @@
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useEffect, useState } from "react";
-import { configSelector, DashLayout } from "@features/base";
-import { useTranslation } from "next-i18next";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useEffect, useState} from "react";
+import {configSelector, DashLayout} from "@features/base";
+import {useTranslation} from "next-i18next";
 import {
     Box,
     Button,
@@ -23,44 +23,44 @@ import {
 } from "@mui/material";
 import dynamic from "next/dynamic";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
-import { AddButton } from "@features/pfTemplateDetail";
-import { RootStyled, SetSelectedDialog } from "@features/toolbar";
+import {AddButton} from "@features/pfTemplateDetail";
+import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
-import { SubHeader } from "@features/subHeader";
+import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
-import { a11yProps, capitalizeFirst, useMedicalProfessionalSuffix, } from "@lib/hooks";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {a11yProps, capitalizeFirst, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { CertifModelDrawer } from "@features/drawer";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {CertifModelDrawer} from "@features/drawer";
 import IconUrl from "@themes/urlIcon";
-import { useSnackbar } from "notistack";
-import { Dialog, handleDrawerAction } from "@features/dialog";
+import {useSnackbar} from "notistack";
+import {Dialog, handleDrawerAction} from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import { Theme } from "@mui/material/styles";
-import { SwitchPrescriptionUI } from "@features/buttons";
-import { getPrescriptionUI } from "@lib/hooks/setPrescriptionUI";
+import {Theme} from "@mui/material/styles";
+import {SwitchPrescriptionUI} from "@features/buttons";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import { TabPanel } from "@features/tabPanel";
-import { startCase } from 'lodash';
-import { Page } from "@features/page";
+import {TabPanel} from "@features/tabPanel";
+import {startCase} from 'lodash';
+import {Page} from "@features/page";
 import Can from "@features/casl/can";
 
 const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
 function TemplatesConfig() {
     const router = useRouter();
-    const { urlMedicalProfessionalSuffix } = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
 
-    const { t, ready, i18n } = useTranslation(["settings", "common"], {
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {
         keyPrefix: "documents.config",
     });
-    const { t: tConsultation } = useTranslation("consultation");
-    const { direction } = useAppSelector(configSelector);
+    const {t: tConsultation} = useTranslation("consultation");
+    const {direction} = useAppSelector(configSelector);
 
     const [loading, setLoading] = useState(true);
     const [docs, setDocs] = useState<DocTemplateModel[]>([]);
@@ -78,14 +78,14 @@ function TemplatesConfig() {
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
     const [certificateTabIndex, setCertificateTabIndex] = useState(0);
     const isMobile = useMediaQuery(theme.breakpoints.down("md"))
-    const { trigger: triggerModelDelete } = useRequestQueryMutation(
+    const {trigger: triggerModelDelete} = useRequestQueryMutation(
         "/settings/certifModel/delete"
     );
-    const { trigger: triggerEditPrescriptionModel } = useRequestQueryMutation(
+    const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation(
         "/consultation/prescription/model/edit"
     );
 
-    const { data: httpDocumentHeader } = useRequestQuery(
+    const {data: httpDocumentHeader} = useRequestQuery(
         urlMedicalProfessionalSuffix
             ? {
                 method: "GET",
@@ -94,7 +94,7 @@ function TemplatesConfig() {
             : null
     );
 
-    const { data: httpModelResponse, mutate: mutateCertificate } =
+    const {data: httpModelResponse, mutate: mutateCertificate} =
         useRequestQuery(
             urlMedicalProfessionalSuffix
                 ? {
@@ -104,7 +104,7 @@ function TemplatesConfig() {
                 : null
         );
 
-    const { data: httpParentModelResponse, mutate: mutateParentModel } =
+    const {data: httpParentModelResponse, mutate: mutateParentModel} =
         useRequestQuery(
             urlMedicalProfessionalSuffix
                 ? {
@@ -114,7 +114,7 @@ function TemplatesConfig() {
                 : null
         );
 
-    const { data: httpPrescriptionResponse, mutate: mutatePrescription } =
+    const {data: httpPrescriptionResponse, mutate: mutatePrescription} =
         useRequestQuery(
             urlMedicalProfessionalSuffix
                 ? {
@@ -124,7 +124,7 @@ function TemplatesConfig() {
                 : null
         );
 
-    const { data: httpAnalysesResponse, mutate: mutateAnalyses } =
+    const {data: httpAnalysesResponse, mutate: mutateAnalyses} =
         useRequestQuery(
             urlMedicalProfessionalSuffix
                 ? {
@@ -164,9 +164,9 @@ function TemplatesConfig() {
             {
                 onSuccess: () =>
                     (certificateTabIndex === 0
-                        ? mutateCertificate()
-                        : mutateParentModel()
-                    ).then(() => enqueueSnackbar(t("removed"), { variant: "success" })),
+                            ? mutateCertificate()
+                            : mutateParentModel()
+                    ).then(() => enqueueSnackbar(t("removed"), {variant: "success"})),
             }
         );
     };
@@ -180,7 +180,7 @@ function TemplatesConfig() {
             {
                 onSuccess: () => {
                     mutatePrescription().then(() => {
-                        enqueueSnackbar(t("removed"), { variant: "error" });
+                        enqueueSnackbar(t("removed"), {variant: "error"});
                     });
                 },
             }
@@ -196,7 +196,7 @@ function TemplatesConfig() {
             {
                 onSuccess: () => {
                     mutateAnalyses().then(() => {
-                        enqueueSnackbar(t("removed"), { variant: "error" });
+                        enqueueSnackbar(t("removed"), {variant: "error"});
                     });
                 },
             }
@@ -233,7 +233,7 @@ function TemplatesConfig() {
             {
                 onSuccess: () => {
                     mutatePrescription().then(() => {
-                        enqueueSnackbar(t("updated"), { variant: "success" });
+                        enqueueSnackbar(t("updated"), {variant: "success"});
                         setOpenDialog(false);
                         setTimeout(() => setInfo(null));
                         dispatch(SetSelectedDialog(null));
@@ -266,19 +266,17 @@ function TemplatesConfig() {
             const analysis = (httpAnalysesResponse as HttpResponse)
                 ?.data as AnalysisModelModel[];
             analysis.forEach((r) => {
-                const info = r.analyses.map((ra) => ({ analysis: ra, note: "" }));
-                res.push({ uuid: r.uuid, name: r.name, info });
+                const info = r.analyses.map((ra) => ({analysis: ra, note: ""}));
+                res.push({uuid: r.uuid, name: r.name, info});
             });
             setAnalysis(res);
         }
     }, [httpAnalysesResponse]);
 
-    const prescriptionFolders = ((httpPrescriptionResponse as HttpResponse)
-        ?.data ?? []) as PrescriptionParentModel[];
-    const certificateModel = ((httpModelResponse as HttpResponse)?.data ??
-        []) as CertifModel[];
-    const certificateFolderModel = ((httpParentModelResponse as HttpResponse)
-        ?.data ?? []) as any[];
+    const prescriptionFolders = ((httpPrescriptionResponse as HttpResponse)?.data ?? []) as PrescriptionParentModel[];
+    const certificateModel = ((httpModelResponse as HttpResponse)?.data ?? []) as CertifModel[];
+    const certificateFolderModel = ((httpParentModelResponse as HttpResponse)?.data ?? []) as any[];
+
     const onClickEventCertificate = (prop: any) => {
         switch (prop) {
             case "unfolded":
@@ -288,7 +286,7 @@ function TemplatesConfig() {
                 setTimeout(() => setOpen(true));
                 break;
             default:
-                setData({ folder: prop.uuid });
+                setData({folder: prop.uuid});
                 setAction("editDoc");
                 setTimeout(() => setOpen(true));
                 break;
@@ -306,24 +304,24 @@ function TemplatesConfig() {
         i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return <LoadingScreen button text={"loading-error"} />;
+    if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{ margin: 0 }}>{t("path")}</p>
+                    <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
             </SubHeader>
             <LinearProgress
-                sx={{ visibility: loading ? "visible" : "hidden" }}
+                sx={{visibility: loading ? "visible" : "hidden"}}
                 color="warning"
             />
 
             <Can I={"manage"} a={"settings"} field={"settings__templates__layout__show"}>
                 <Box
                     bgcolor={(theme) => theme.palette.background.default}
-                    sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+                    sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                     <TemplateStyled>
                         {!loading && (
                             <Box p={2}>
@@ -340,12 +338,12 @@ function TemplatesConfig() {
                                                 router.push(`/dashboard/settings/templates/new/new`);
                                             }}
                                             variant="contained"
-                                            startIcon={<IconUrl path={"ic-doc-add"} />}>
+                                            startIcon={<IconUrl path={"ic-doc-add"}/>}>
                                             {t("btnAdd")}
                                         </Button>
                                     </Can>
                                 </Stack>
-                                <Divider sx={{ mt: 2 }} />
+                                <Divider sx={{mt: 2}}/>
                             </Box>
                         )}
 
@@ -372,7 +370,7 @@ function TemplatesConfig() {
                                                 justifyContent: "center",
                                                 height: "100%",
                                                 border: "none",
-                                                transform: { xs: "scale(1)", md: "scale(.8)" },
+                                                transform: {xs: "scale(1)", md: "scale(.8)"},
                                             }}
                                         />
                                     </div>
@@ -387,7 +385,7 @@ function TemplatesConfig() {
                                 <Stack key={res.uuid} spacing={2}>
                                     <Box className={"container"}>
                                         <div
-                                            style={{ width: '100%' }}
+                                            style={{width: '100%'}}
                                             onMouseOver={() => {
                                                 handleMouseOver(res.uuid);
                                             }}
@@ -430,7 +428,7 @@ function TemplatesConfig() {
                                                             edit(res);
                                                         }}>
                                                         <IconUrl color={theme.palette.text.secondary}
-                                                            path="ic-edit-patient" />
+                                                                 path="ic-edit-patient"/>
                                                     </IconButton>
                                                 </Stack>
                                             )}
@@ -454,16 +452,16 @@ function TemplatesConfig() {
             </Can>
 
             <Can I={"manage"} a={"settings"} field={"settings__templates__models__show"}>
-                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: "0 16px 16px 16px" } }}>
+                <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: "0 16px 16px 16px"}}}>
                     <TemplateStyled>
                         <Box p={2}>
                             <Stack
                                 width={1}
-                                direction={{ xs: 'column-reverse', sm: 'row' }}
+                                direction={{xs: 'column-reverse', sm: 'row'}}
                                 alignItems="center"
                                 justifyContent="space-between"
-                                borderBottom={{ xs: 0, sm: `1px solid ${theme.palette.divider}` }}
-                                display={{ xs: "grid", sm: 'flex' }}>
+                                borderBottom={{xs: 0, sm: `1px solid ${theme.palette.divider}`}}
+                                display={{xs: "grid", sm: 'flex'}}>
                                 <Tabs
                                     value={certificateTabIndex}
                                     onChange={(event, value) => setCertificateTabIndex(value)}
@@ -471,8 +469,8 @@ function TemplatesConfig() {
                                     variant={isMobile ? "scrollable" : 'standard'}
                                     scrollButtons={false}
                                     sx={{
-                                        mb: { xs: 2, sm: 0 },
-                                        borderBottom: { xs: `1px solid ${theme.palette.divider}`, sm: 0 },
+                                        mb: {xs: 2, sm: 0},
+                                        borderBottom: {xs: `1px solid ${theme.palette.divider}`, sm: 0},
 
                                     }}>
                                     <Tab
@@ -492,11 +490,11 @@ function TemplatesConfig() {
                                     ))}
                                 </Tabs>
                                 <Can I={"manage"} a={"settings"} field={"settings__templates__models__create"}>
-                                    <Stack ml={{ sm: 2 }} direction={"row"} spacing={1} alignItems={"center"}>
+                                    <Stack ml={{sm: 2}} direction={"row"} spacing={1} alignItems={"center"}>
                                         <AddButton {...{
                                             t,
                                             onClickEvent: onClickEventCertificate,
-                                            list: [{ name: "unfolded" }, ...certificateFolderModel]
+                                            list: [{name: "unfolded"}, ...certificateFolderModel]
                                         }} />
                                     </Stack>
                                 </Can>
@@ -529,7 +527,7 @@ function TemplatesConfig() {
                                                     justifyContent: "center",
                                                     height: "100%",
                                                     border: "none",
-                                                    transform: { xs: "scale(1)", md: "scale(.8)" },
+                                                    transform: {xs: "scale(1)", md: "scale(.8)"},
                                                 }}
                                             />
                                         </div>
@@ -543,7 +541,7 @@ function TemplatesConfig() {
                                         <Stack direction="column" key={res.uuid} spacing={2}>
                                             <Box className={"container"}>
                                                 <div
-                                                    style={{ width: '100%' }}
+                                                    style={{width: '100%'}}
                                                     onMouseOver={() => {
                                                         handleMouseOver(res.uuid);
                                                     }}
@@ -583,22 +581,22 @@ function TemplatesConfig() {
                                                                 setTimeout(() => setOpen(true));
                                                             }}>
                                                             <IconUrl width={20} height={20}
-                                                                color={theme.palette.text.secondary}
-                                                                path="ic-open-eye" />
+                                                                     color={theme.palette.text.secondary}
+                                                                     path="ic-open-eye"/>
                                                         </IconButton>
                                                         <Can I={"manage"} a={"settings"}
-                                                            field={"settings__templates__models__update"}>
+                                                             field={"settings__templates__models__update"}>
                                                             <IconButton
                                                                 size="small"
                                                                 onClick={() => {
                                                                     handleEditDoc(res);
                                                                 }}>
                                                                 <IconUrl color={theme.palette.text.secondary}
-                                                                    path="ic-edit-patient" />
+                                                                         path="ic-edit-patient"/>
                                                             </IconButton>
                                                         </Can>
                                                         <Can I={"manage"} a={"settings"}
-                                                            field={"settings__templates__models__delete"}>
+                                                             field={"settings__templates__models__delete"}>
                                                             <IconButton
                                                                 size="small"
                                                                 sx={{
@@ -611,7 +609,7 @@ function TemplatesConfig() {
                                                                     removeDoc(res);
                                                                 }}>
                                                                 <IconUrl color={theme.palette.text.secondary}
-                                                                    path="ic-trash" />
+                                                                         path="ic-trash"/>
                                                             </IconButton>
                                                         </Can>
                                                     </Stack>
@@ -621,7 +619,7 @@ function TemplatesConfig() {
                                                 <Typography className={"title"}>{res.title}</Typography>
                                                 <div
                                                     className={"color-content"}
-                                                    style={{ background: res.color }}
+                                                    style={{background: res.color}}
                                                 ></div>
                                             </Stack>
                                         </Stack>
@@ -640,7 +638,7 @@ function TemplatesConfig() {
                                             className={"portraitA4"}
                                             onClick={() => {
                                                 setTimeout(() => setOpen(true));
-                                                setData({ folder: certificate.uuid });
+                                                setData({folder: certificate.uuid});
                                                 setAction("editDoc");
                                             }}
                                             style={{
@@ -658,7 +656,7 @@ function TemplatesConfig() {
                                                     justifyContent: "center",
                                                     height: "100%",
                                                     border: "none",
-                                                    transform: { xs: "scale(1)", md: "scale(.8)" },
+                                                    transform: {xs: "scale(1)", md: "scale(.8)"},
                                                 }}
                                             />
                                         </div>
@@ -673,7 +671,7 @@ function TemplatesConfig() {
                                             <Stack key={res.uuid} spacing={2}>
                                                 <Box className={"container"}>
                                                     <div
-                                                        style={{ width: '100%' }}
+                                                        style={{width: '100%'}}
                                                         onMouseOver={() => {
                                                             handleMouseOver(res.uuid);
                                                         }}
@@ -714,8 +712,8 @@ function TemplatesConfig() {
                                                                     setTimeout(() => setOpen(true));
                                                                 }}>
                                                                 <IconUrl width={20} height={20}
-                                                                    color={theme.palette.primary.main}
-                                                                    path="ic-open-eye" />
+                                                                         color={theme.palette.primary.main}
+                                                                         path="ic-open-eye"/>
                                                             </IconButton>
                                                             <IconButton
                                                                 size="small"
@@ -726,7 +724,7 @@ function TemplatesConfig() {
                                                                     });
                                                                 }}>
                                                                 <IconUrl color={theme.palette.primary.main}
-                                                                    path="ic-edit-patient" />
+                                                                         path="ic-edit-patient"/>
                                                             </IconButton>
                                                             <IconButton
                                                                 size="small"
@@ -740,7 +738,7 @@ function TemplatesConfig() {
                                                                     removeDoc(res);
                                                                 }}>
                                                                 <IconUrl color={theme.palette.error.main}
-                                                                    path="ic-trash" />
+                                                                         path="ic-trash"/>
                                                             </IconButton>
                                                         </Stack>
                                                     )}
@@ -749,7 +747,7 @@ function TemplatesConfig() {
                                                     <Typography className={"title"}>{startCase(res.title)}</Typography>
                                                     <div
                                                         className={"color-content"}
-                                                        style={{ background: res.color }}
+                                                        style={{background: res.color}}
                                                     ></div>
                                                 </Stack>
                                             </Stack>
@@ -762,15 +760,15 @@ function TemplatesConfig() {
             </Can>
 
             <Can I={"manage"} a={"settings"} field={"settings__templates__prescriptions__show"}>
-                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: "0 16px 16px 16px" } }}>
+                <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: "0 16px 16px 16px"}}}>
                     <TemplateStyled>
                         <Box px={2} pt={2}>
                             <Stack
-                                direction={{ xs: 'column-reverse', sm: 'row' }}
+                                direction={{xs: 'column-reverse', sm: 'row'}}
                                 alignItems="center"
                                 justifyContent="space-between"
-                                borderBottom={{ xs: 0, sm: `1px solid ${theme.palette.divider}` }}
-                                display={{ xs: "grid", sm: 'flex' }}>
+                                borderBottom={{xs: 0, sm: `1px solid ${theme.palette.divider}`}}
+                                display={{xs: "grid", sm: 'flex'}}>
                                 <Tabs
                                     value={prescriptionTabIndex}
                                     onChange={(event, value) => setPrescriptionTabIndex(value)}
@@ -778,8 +776,8 @@ function TemplatesConfig() {
                                     variant={isMobile ? "scrollable" : 'standard'}
                                     scrollButtons={false}
                                     sx={{
-                                        mb: { xs: 2, sm: 0 },
-                                        borderBottom: { xs: `1px solid ${theme.palette.divider}`, sm: 0 }
+                                        mb: {xs: 2, sm: 0},
+                                        borderBottom: {xs: `1px solid ${theme.palette.divider}`, sm: 0}
                                     }}>
                                     {prescriptionFolders.map((folder) => (
                                         <Tab
@@ -805,10 +803,10 @@ function TemplatesConfig() {
                                 padding={0.1}
                                 key={index}
                                 value={prescriptionTabIndex}
-                                {...{ index }}>
+                                {...{index}}>
                                 <CardContent>
                                     <Can I={"manage"} a={"settings"}
-                                        field={"settings__templates__prescriptions__create"}>
+                                         field={"settings__templates__prescriptions__create"}>
                                         <Stack spacing={2} className="add-doc-wrapper">
                                             <div
                                                 className={"portraitA4"}
@@ -832,8 +830,8 @@ function TemplatesConfig() {
                                                         justifyContent: "center",
                                                         height: "100%",
                                                         border: "none",
-                                                        transform: { xs: "scale(1)", md: "scale(.8)" },
-                                                    }} />
+                                                        transform: {xs: "scale(1)", md: "scale(.8)"},
+                                                    }}/>
                                             </div>
                                             <Typography
                                                 className={"empty-preview"}
@@ -847,7 +845,7 @@ function TemplatesConfig() {
                                             <Stack key={card.uuid} spacing={2}>
                                                 <Box className={"container"}>
                                                     <div
-                                                        style={{ width: '100%' }}
+                                                        style={{width: '100%'}}
                                                         onMouseOver={() => {
                                                             handleMouseOver(card.uuid);
                                                         }}
@@ -864,7 +862,7 @@ function TemplatesConfig() {
                                                                         (pmhd: any) => ({
                                                                             ...pmhd,
                                                                             standard_drug: {
-                                                                                commercial_name: pmhd.name,
+                                                                                commercial_name: `${pmhd.name}`,
                                                                                 uuid: pmhd.drugUuid,
                                                                             },
                                                                         })
@@ -906,20 +904,20 @@ function TemplatesConfig() {
                                                                         uuid: card.uuid,
                                                                         name: card.name,
                                                                         parent:
-                                                                            prescriptionFolders[prescriptionTabIndex]
-                                                                                .uuid,
+                                                                        prescriptionFolders[prescriptionTabIndex]
+                                                                            .uuid,
                                                                         prescriptionModalHasDrugs,
                                                                     });
                                                                     setAction("showPrescription");
                                                                     setTimeout(() => setOpen(true));
                                                                 }}>
                                                                 <IconUrl width={20} height={20}
-                                                                    color={theme.palette.text.secondary}
-                                                                    path="ic-open-eye" />
+                                                                         color={theme.palette.text.secondary}
+                                                                         path="ic-open-eye"/>
                                                             </IconButton>
 
                                                             <Can I={"manage"} a={"settings"}
-                                                                field={"settings__templates__prescriptions__update"}>
+                                                                 field={"settings__templates__prescriptions__update"}>
                                                                 <IconButton
                                                                     size="small"
                                                                     onClick={() => {
@@ -937,8 +935,8 @@ function TemplatesConfig() {
                                                                             uuid: card.uuid,
                                                                             name: card.name,
                                                                             parent:
-                                                                                prescriptionFolders[prescriptionTabIndex]
-                                                                                    .uuid,
+                                                                            prescriptionFolders[prescriptionTabIndex]
+                                                                                .uuid,
                                                                             prescriptionModalHasDrugs,
                                                                         });
                                                                         setState(prescriptionModalHasDrugs);
@@ -946,11 +944,11 @@ function TemplatesConfig() {
                                                                         setOpenDialog(true);
                                                                     }}>
                                                                     <IconUrl color={theme.palette.text.secondary}
-                                                                        path="ic-edit-patient" />
+                                                                             path="ic-edit-patient"/>
                                                                 </IconButton>
                                                             </Can>
                                                             <Can I={"manage"} a={"settings"}
-                                                                field={"settings__templates__prescriptions__delete"}>
+                                                                 field={"settings__templates__prescriptions__delete"}>
                                                                 <IconButton
                                                                     size="small"
                                                                     sx={{
@@ -963,7 +961,7 @@ function TemplatesConfig() {
                                                                         removePrescription(card.uuid);
                                                                     }}>
                                                                     <IconUrl color={theme.palette.text.secondary}
-                                                                        path="ic-trash" />
+                                                                             path="ic-trash"/>
                                                                 </IconButton>
                                                             </Can>
                                                         </Stack>
@@ -987,7 +985,7 @@ function TemplatesConfig() {
             </Can>
 
             <Can I={"manage"} a={"settings"} field={"settings__templates__analyses__show"}>
-                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: "0  16px 16px" } }}>
+                <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: "0  16px 16px"}}}>
                     <TemplateStyled>
                         <Box px={2} pt={2}>
                             <Stack
@@ -1005,12 +1003,12 @@ function TemplatesConfig() {
                                             setOpenDialog(true);
                                         }}
                                         variant="contained"
-                                        startIcon={<IconUrl path={"ic-doc-add"} />}>
+                                        startIcon={<IconUrl path={"ic-doc-add"}/>}>
                                         {t("btnAdd")}
                                     </Button>
                                 </Can>
                             </Stack>
-                            <Divider sx={{ mt: 2 }} />
+                            <Divider sx={{mt: 2}}/>
                         </Box>
                         <CardContent>
                             <Can I={"manage"} a={"settings"} field={"settings__templates__analyses__create"}>
@@ -1036,8 +1034,8 @@ function TemplatesConfig() {
                                                 justifyContent: "center",
                                                 height: "100%",
                                                 border: "none",
-                                                transform: { xs: "scale(1)", md: "scale(.8)" },
-                                            }} />
+                                                transform: {xs: "scale(1)", md: "scale(.8)"},
+                                            }}/>
                                     </div>
                                     <Typography
                                         className={"empty-preview"}
@@ -1052,7 +1050,7 @@ function TemplatesConfig() {
                                     <Stack key={card.uuid} spacing={2}>
                                         <Box className={"container"}>
                                             <div
-                                                style={{ width: '100%' }}
+                                                style={{width: '100%'}}
                                                 onMouseOver={() => {
                                                     handleMouseOver(card.uuid);
                                                 }}
@@ -1094,11 +1092,11 @@ function TemplatesConfig() {
                                                             setAction("showAnalyses");
                                                         }}>
                                                         <IconUrl width={20} height={20}
-                                                            color={theme.palette.text.secondary}
-                                                            path="ic-open-eye" />
+                                                                 color={theme.palette.text.secondary}
+                                                                 path="ic-open-eye"/>
                                                     </IconButton>
                                                     <Can I={"manage"} a={"settings"}
-                                                        field={"settings__templates__analyses__update"}>
+                                                         field={"settings__templates__analyses__update"}>
                                                         <IconButton
                                                             size="small"
                                                             onClick={() => {
@@ -1114,11 +1112,11 @@ function TemplatesConfig() {
                                                                 setOpenDialog(true);
                                                             }}>
                                                             <IconUrl color={theme.palette.text.secondary}
-                                                                path="ic-edit-patient" />
+                                                                     path="ic-edit-patient"/>
                                                         </IconButton>
                                                     </Can>
                                                     <Can I={"manage"} a={"settings"}
-                                                        field={"settings__templates__analyses__delete"}>
+                                                         field={"settings__templates__analyses__delete"}>
                                                         <IconButton
                                                             size="small"
                                                             sx={{
@@ -1131,7 +1129,7 @@ function TemplatesConfig() {
                                                                 removeAnalyses(card.uuid);
                                                             }}>
                                                             <IconUrl color={theme.palette.text.secondary}
-                                                                path="ic-trash" />
+                                                                     path="ic-trash"/>
                                                         </IconButton>
                                                     </Can>
                                                 </Stack>
@@ -1147,11 +1145,11 @@ function TemplatesConfig() {
                 </Box>
             </Can>
 
-            <Drawer anchor={"right"} {...{ open }} dir={direction} onClose={closeDraw}>
-                <Toolbar sx={{ bgcolor: theme.palette.common.white }}>
+            <Drawer anchor={"right"} {...{open}} dir={direction} onClose={closeDraw}>
+                <Toolbar sx={{bgcolor: theme.palette.common.white}}>
                     <Stack alignItems="flex-end" width={1}>
                         <IconButton onClick={closeDraw} disableRipple>
-                            <CloseIcon />
+                            <CloseIcon/>
                         </IconButton>
                     </Stack>
                 </Toolbar>
@@ -1226,7 +1224,7 @@ function TemplatesConfig() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{ state, setState, t: tConsultation, setOpenDialog, model }}
+                    data={{state, setState, t: tConsultation, setOpenDialog, model}}
                     size={
                         ["medical_prescription", "medical_prescription_cycle"].includes(
                             info
@@ -1235,7 +1233,7 @@ function TemplatesConfig() {
                             : "lg"
                     }
                     direction={direction}
-                    sx={{ height: 400 }}
+                    sx={{height: 400}}
                     title={tConsultation(info)}
                     dialogClose={handleCloseDialog}
                     {...(["medical_prescription", "medical_prescription_cycle"].includes(
@@ -1267,9 +1265,9 @@ function TemplatesConfig() {
                         ),
                     })}
                     actionDialog={
-                        <DialogActions sx={{ width: "100%" }}>
+                        <DialogActions sx={{width: "100%"}}>
                             <Stack
-                                sx={{ width: "100%" }}
+                                sx={{width: "100%"}}
                                 direction={"row"}
                                 justifyContent={
                                     info === "medical_prescription_cycle"
@@ -1279,7 +1277,7 @@ function TemplatesConfig() {
                             >
                                 {info === "medical_prescription_cycle" && (
                                     <Button
-                                        startIcon={<AddIcon />}
+                                        startIcon={<AddIcon/>}
                                         onClick={() => {
                                             dispatch(handleDrawerAction("addDrug"));
                                         }}
@@ -1288,7 +1286,7 @@ function TemplatesConfig() {
                                     </Button>
                                 )}
                                 <Stack direction={"row"} spacing={1.2}>
-                                    <Button onClick={handleCloseDialog} startIcon={<CloseIcon />}>
+                                    <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("close")}
                                     </Button>
                                     {info === getPrescriptionUI() && model && (
@@ -1296,7 +1294,7 @@ function TemplatesConfig() {
                                             onClick={() => {
                                                 editPrescriptionModel();
                                             }}
-                                            startIcon={<SaveRoundedIcon />}
+                                            startIcon={<SaveRoundedIcon/>}
                                         >
                                             {t("save")}
                                         </Button>
