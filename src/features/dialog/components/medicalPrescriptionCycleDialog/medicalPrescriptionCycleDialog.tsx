@@ -567,7 +567,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     drugs.push({
                         cycles,
                         drugUuid: drug?.uuid,
-                        name: drug?.commercial_name,
+                        name: `${drug?.commercial_name} ${drug?.form?.name ?? ""} ${drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}`,
                         standard_drug: {commercial_name: drug?.commercial_name}
                     });
                 }
@@ -693,7 +693,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     })}
                                                                     value={option.uuid}>
                                                                     {!option.uuid && <AddOutlinedIcon/>}
-                                                                    {option.commercial_name} {option?.form?.name}
+                                                                    {option.commercial_name} {option?.form?.name} {option?.dosages?.map((data: any) => data.dosage).join(" ")}
                                                                 </MenuItem>
                                                             </Stack>
                                                         )}
