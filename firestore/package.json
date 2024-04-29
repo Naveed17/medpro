@@ -1,0 +1,19 @@
+{
+  "name": "firestore-sync-data",
+  "private": true,
+  "author": "Mohamed Zghal",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "scripts": {
+    "sync": "node sync-firestore.js",
+    "test": "mocha --timeout 600000"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^10.4.0"
+  }
+}

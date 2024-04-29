@@ -268,7 +268,7 @@ function DocumentDetailDialog({...props}) {
         }
     })
 
-    const handleActions =  async (action: string) => {
+    const handleActions = async (action: string) => {
         switch (action) {
             case "print":
                 handlePrint();
@@ -278,9 +278,9 @@ function DocumentDetailDialog({...props}) {
                 setEditMode(false)
                 setSendEmailDrawer(true);
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                        const file = await generatePdfFromHtml(componentRef, "blob");
-                        setDownloadMode(false);
-                        setPreviewDoc(file);
+                    const file = await generatePdfFromHtml(componentRef, "blob");
+                    setDownloadMode(false);
+                    setPreviewDoc(file);
                 } else {
                     const photoUrlBytes = await fetch(file.url, {
                         // Fix CROSS origin issues with no-cache header
@@ -386,9 +386,9 @@ function DocumentDetailDialog({...props}) {
                     setDownloadMode(true);
                     const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
                     const size = selected?.header.data.size;
-                    const orientation = size.includes('portrait') ? "portrait": "landscape"
-                    const format = size.replace(orientation,"");
-                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew, setDownloadMode,format);
+                    const orientation = selected?.header.data.layout ? selected?.header.data.layout : "portrait"
+                    const format = size.replace(orientation, "");
+                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew, setDownloadMode, format, orientation);
                 } else {
                     downloadFileFromUrl(file.url, `${state?.type} ${state?.patient}`);
                 }
@@ -630,7 +630,7 @@ function DocumentDetailDialog({...props}) {
                         date,
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
-                        docs: urls,t,
+                        docs: urls, t,
                         editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
@@ -699,7 +699,7 @@ function DocumentDetailDialog({...props}) {
                 <CardContent>
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
                         <FacebookCircularProgress size={20}/>
-                        <Typography fontSize={16} fontWeight={600}>{t(loading ? 'generate':'printing')}</Typography>
+                        <Typography fontSize={16} fontWeight={600}>{t(loading ? 'generate' : 'printing')}</Typography>
                     </Stack>
                 </CardContent>
             </Card>}
@@ -707,7 +707,6 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
-
                         {!multiMedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
@@ -811,7 +810,7 @@ function DocumentDetailDialog({...props}) {
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar"  style={{background: "white"}}>
+                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" style={{background: "white"}}>
                     <>
                         {menu ? <List>
                                 {actionButtons.map((button, idx) =>
