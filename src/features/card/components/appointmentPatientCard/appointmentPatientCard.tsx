@@ -36,7 +36,7 @@ function AppointmentPatientCard({...props}) {
                         sx={{
                             display: "flex",
                             alignItems: "center",
-                            opacity: data?.patient.contact.length > 0 ? 1 : 0,
+                            opacity: data?.patient.contact?.length > 0 ? 1 : 0,
                             svg: {
                                 width: 9,
                                 marginRight: 1
