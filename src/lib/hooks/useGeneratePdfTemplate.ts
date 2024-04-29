@@ -172,7 +172,7 @@ function useGeneratePdfTemplate() {
                     const antecedents = ((result?.data as HttpResponse)?.data['Développementpsychomoteur'] ?? []) as AntecedentsModel[];
                     if (antecedents) {
                         antecedents.forEach((antecedent) => {
-                            const data = PsychomotorDevelopmentXY.find(item => item.key === antecedent.name)
+                            const data = PsychomotorDevelopmentXY.find(item => item.key === antecedent.antecedent?.slug)
                             data?.coordinates && Object.keys(data.coordinates).forEach(key => {
                                 if (antecedent[key as keyof typeof antecedent]) {
                                     const coordinates = data?.coordinates[key as keyof typeof data.coordinates];
