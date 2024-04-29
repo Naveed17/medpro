@@ -110,7 +110,7 @@ function FeesTab({...props}) {
         setOpenDialog,
         setState
     } = props;
-
+console.log(setInfo)
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
     const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
         method: "GET",
@@ -235,7 +235,7 @@ function FeesTab({...props}) {
                                 <Stack direction={'row'} alignItems="center" spacing={1}>
                                     {!isQuoteRequest && <Stack direction={'row'} spacing={1} alignItems={"flex-end"}>
                                         <IconButton onClick={(event) => {
-                                            setOpenDialogSave(true);
+                                            setOpenDialogSave && setOpenDialogSave(true);
                                             let type = "";
                                             if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
                                                 type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "

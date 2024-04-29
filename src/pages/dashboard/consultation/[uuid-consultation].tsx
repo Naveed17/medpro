@@ -1614,6 +1614,11 @@ function ConsultationInProgress() {
                                     total,
                                     setTotal,
                                     devise,
+                                    setOpenDialogSave,
+                                    setInfo,
+                                    setState,
+                                    setOpenDialog,
+                                    patient,
                                     mutatePatient,
                                     t
                                 }} />
