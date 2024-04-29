@@ -558,8 +558,8 @@ function WaitingRoom() {
     const handleSavePrescription = (print: boolean = true) => {
         setLoadingRequest(true);
         const form = new FormData();
-        let method = "";
-        let url = ""
+        let method;
+        let url;
         form.append("globalNote", "");
         form.append("isOtherProfessional", "false");
         form.append("drugs", JSON.stringify(drugs));
