@@ -624,7 +624,6 @@ function AddPatientStep2({...props}) {
                                                     }, {
                                                         onSuccess: (result) => {
                                                             const data = (result?.data as HttpResponse)?.data;
-                                                            console.log("data", data);
                                                             setFieldValue("addressed_by", {
                                                                 uuid: data?.uuid,
                                                                 name: event?.inputValue ?? event
@@ -680,7 +679,6 @@ function AddPatientStep2({...props}) {
                                             isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
                                             placeholder={t("add-patient.addressed-by-placeholder")}
                                         />
-
                                     </Grid>
                                     <Grid item md={6} xs={12}>
                                         <Box>
@@ -714,7 +712,6 @@ function AddPatientStep2({...props}) {
                                                 isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
                                                 placeholder={t("add-patient.civil-status-placeholder")}
                                             />
-
                                         </Box>
                                     </Grid>
                                 </Grid>

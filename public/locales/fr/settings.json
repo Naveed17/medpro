@@ -673,12 +673,12 @@
         },
         "role": {
           "title": "Veuillez ajouter votre première profil",
-          "description": "Gérez votre accès et créez votre premier profil",
+          "description": "Gérez votre accès et créez votre première profil",
           "button-text": "Ajouter un profil"
         },
         "permissions": {
           "title": "Veuillez sélectionner les fonctionnalités et les autorisations",
-          "description": "Gérez votre accès et créez votre premier profil"
+          "description": "Gérez votre accès et créez votre première profil"
         }
       },
       "table": {

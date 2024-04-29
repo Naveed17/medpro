@@ -1,7 +1,6 @@
 import {Autocomplete, CircularProgress, TextField} from "@mui/material";
 import React, {useCallback, useEffect, useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
-import {debounce} from "lodash";
 
 function AsyncAutoComplete({...props}) {
     const {url, onChangeData, placeholder, loading = false, ...rest} = props
@@ -36,11 +35,8 @@ function AsyncAutoComplete({...props}) {
         })();
     }, [openAutoComplete]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const debouncedOnChange = debounce(onChangeInput, 500);
-
     return (
         <Autocomplete
-            {...rest}
             size={"small"}
             disableClearable
             sx={{
@@ -76,6 +72,8 @@ function AsyncAutoComplete({...props}) {
                     }}
                     variant="outlined"
                     fullWidth/>}
+
+            {...rest}
         />
     )
 }

@@ -116,9 +116,9 @@
         "button-text": "Ajouter un RDV"
       },
       "documents": {
-        "title": "Ajouter le premier document",
+        "title": "Veuillez ajouter le première document",
         "description": "Vous n'avez pas de document médical Ajoutez les documents en cliquant sur 'Ajouter un document'",
-        "quote-add": "Ajouter le premier devis",
+        "quote-add": "Veuillez ajouter le première devis",
         "quote-description": "Vous n'avez pas aucun devis. Ajoutez un devis en cliquant sur Ajouter un devis",
         "add_quote": "Ajouter un devis",
         "button-text": "Ajouter un document"
