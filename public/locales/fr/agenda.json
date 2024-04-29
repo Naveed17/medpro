@@ -96,13 +96,13 @@
     },
     "no-data": {
       "event": {
-        "title": "Ajouter votre premier rendez-vous",
+        "title": "Veuillez ajouter votre première rendez-vous",
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"
       },
       "vacation": {
-        "title": "Ajouter votre première absence",
+        "title": "Veuillez ajouter votre première absence",
         "sub-title": "Pas de absences",
         "description": "",
         "button-text": "Ajouter un absence"

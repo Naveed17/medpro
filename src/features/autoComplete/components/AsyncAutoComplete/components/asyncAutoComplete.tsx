@@ -1,4 +1,4 @@
-import {Autocomplete, AutocompleteProps, CircularProgress, ListItem, ListItemText, TextField} from "@mui/material";
+import {Autocomplete, CircularProgress, TextField} from "@mui/material";
 import React, {useCallback, useEffect, useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {debounce} from "lodash";

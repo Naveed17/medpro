@@ -244,7 +244,9 @@ function AddPatientStep2({...props}) {
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
         form.append('profession', values.profession);
-        form.append('note', values.note ? values.note : "");
+        form.append('note', values.note ?? "");
+        values.addressed_by?.uuid && form.append('addressed_by', values.addressed_by.uuid);
+        values.civil_status?.uuid && form.append('civil_status', values.civil_status.uuid);
 
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
@@ -321,6 +323,7 @@ function AddPatientStep2({...props}) {
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    console.log("val", values)
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -663,7 +666,7 @@ function AddPatientStep2({...props}) {
                                                     filtered.push({
                                                         inputValue,
                                                         name: `${t(
-                                                            "add_drug"
+                                                            "add"
                                                         )} "${inputValue}"`,
                                                         isVerified: false,
                                                     });
@@ -1094,13 +1097,11 @@ function AddPatientStep2({...props}) {
                     spacing={3}
                     direction="row"
                     justifyContent="flex-end"
-                    className="action"
-                >
+                    className="action">
                     <Button
                         variant="text-black"
                         color="primary"
-                        onClick={() => onNext(0)}
-                    >
+                        onClick={() => onNext(0)}>
                         {t("add-patient.return")}
                     </Button>
 
@@ -1109,8 +1110,7 @@ function AddPatientStep2({...props}) {
                         type="submit"
                         color="primary"
                         loading={loading}
-                        variant="contained"
-                    >
+                        variant="contained">
                         {t("add-patient.register")}
                     </LoadingButton>
                 </Stack>

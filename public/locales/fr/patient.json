@@ -111,7 +111,7 @@
     },
     "no-data": {
       "appointment": {
-        "title": "Ajouter votre premier rendez-vous",
+        "title": "Veuillez ajouter votre première rendez-vous",
         "description": "Vous n'avez pas de rendez-vous, ajoutez les rendez-vous en cliquant sur 'Ajouter RDV'",
         "button-text": "Ajouter un RDV"
       },
@@ -124,7 +124,7 @@
         "button-text": "Ajouter un document"
       },
       "consultation": {
-        "title": "Ajouter votre premier consultation",
+        "title": "Veuillez ajouter votre première consultation",
         "description": "Vous n'avez pas de consultation, ajouter un rendez-vous et commencer la consultation",
         "button-text": "Ajouter une consultation"
       },
@@ -239,7 +239,9 @@
       "cin": "CIN",
       "cin-placeholder": "CIN du patient",
       "addressed-by": "Adressée par",
-      "addressed-by-placeholder": "Adressée par...",
+      "addressed-by-placeholder": "adressée par...",
+      "civil-status": "État civil",
+      "civil-status-placeholder": "état civil...",
       "profession": "Profession",
       "profession-placeholder": "profession du patient",
       "from": "De",
