@@ -307,7 +307,7 @@ function DocumentDetailDialog({...props}) {
                             state: state?.info.map((drug: any) => ({
                                 cycles: drug.cycles,
                                 drugUuid: drug.standard_drug?.uuid,
-                                name: drug.drugName
+                                name: `${drug.drugName} ${drug?.standard_drug?.form?.name ?? ""} ${drug?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}`
                             })),
                             uuid: state?.uuidDoc,
                             appUuid: state?.appUuid
