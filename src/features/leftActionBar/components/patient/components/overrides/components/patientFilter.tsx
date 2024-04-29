@@ -121,7 +121,8 @@ function PatientFilter({...props}) {
                                             {...{inputRef}}
                                             InputProps={{
                                                 startAdornment: (
-                                                    <InputAdornment position="start">
+                                                    <InputAdornment onClick={() => inputRef.current?.focus()}
+                                                                    position="start">
                                                         <SearchRoundedIcon color={"white"}/>
                                                     </InputAdornment>
                                                 ),

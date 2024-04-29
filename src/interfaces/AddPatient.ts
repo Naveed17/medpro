@@ -30,6 +30,8 @@ interface Qualifications {
         address: string;
         email: string;
         cin: string;
+        addressed_by: string;
+        civil_status: string;
         profession: string;
         family_doctor: string;
         insurance: {

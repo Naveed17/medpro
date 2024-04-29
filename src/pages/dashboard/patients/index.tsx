@@ -585,9 +585,13 @@ function Patients() {
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);
-                setTimeout(() => setDeleteDialog(false));
                 mutatePatients();
                 enqueueSnackbar(t(`alert.delete-patient`), {variant: "success"});
+                setDeleteDialog(false);
+                setDeletePatientOptions(deletePatientOptions.map(option => ({
+                    ...option,
+                    selected: false
+                })));
             }
         });
     }
