@@ -290,9 +290,10 @@ function WaitingRoom() {
         });
     }
 
-    const handleAppointmentStatus = (uuid: string, status: string) => {
+    const handleAppointmentStatus = (uuid: string, status: string, order?: string) => {
         const form = new FormData();
         form.append('status', status);
+        order && form.append('order', order);
         updateAppointmentStatus({
             method: "PATCH",
             data: form,
@@ -398,7 +399,8 @@ function WaitingRoom() {
     const handleDragEvent = (result: DropResult, item: BoardModel) => {
         handleAppointmentStatus(
             item.content.uuid,
-            columns.find(column => result.destination?.droppableId === column.name)?.id);
+            columns.find(column => result.destination?.droppableId === column.name)?.id,
+            (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);
     }
 
     const showDoc = (doc: any) => {
