@@ -262,7 +262,7 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.telephone")}
                         </Typography>
-                        {modalData.contact && modalData.contact.length > 0 ? (
+                        {modalData.contact && modalData.contact?.length > 0 ? (
                             <Typography>{`${modalData.contact[0].code} ${modalData.contact[0].value}`}</Typography>
                         ) : (
                             <Typography>--</Typography>
