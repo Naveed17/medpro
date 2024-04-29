@@ -41,7 +41,6 @@ import {timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog} from "@features/dialog";
 import {setMessage, setOpenChat} from "@features/chat/actions";
-import {EventDef} from "@fullcalendar/core/internal";
 import {setDialog} from "@features/topNavBar";
 
 function PatientDetailsCard({...props}) {
