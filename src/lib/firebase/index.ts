@@ -3,6 +3,7 @@ import {getAnalytics} from "firebase/analytics";
 import {getMessaging, getToken} from "firebase/messaging";
 import axios from "axios";
 import {getFirestore} from "@firebase/firestore";
+import {isAppleDevise, isSupported} from "@lib/hooks";
 
 const firebaseCloudSdk = {
     firebase: initializeApp({
@@ -19,9 +20,9 @@ const firebaseCloudSdk = {
             //init firebase analytics
             const analytics = process.env.NODE_ENV !== 'development' && getAnalytics(firebaseCloudSdk.firebase);
             //init firebase messaging
-            const messaging = getMessaging(firebaseCloudSdk.firebase);
+            const messaging = (!isAppleDevise() && isSupported()) && getMessaging(firebaseCloudSdk.firebase);
             const firestore = getFirestore(firebaseCloudSdk.firebase);
-            const tokenInLocalForage = await localStorage.getItem("fcm_token");
+            const tokenInLocalForage = localStorage.getItem("fcm_token");
 
             // Return the token if it is already in our local storage
             if (tokenInLocalForage !== null) {
@@ -29,28 +30,32 @@ const firebaseCloudSdk = {
             }
 
             // Request the push notification permission from browser
-            const status = await Notification.requestPermission();
-            if (status && status === "granted") {
-                const {data: pair_key} = await axios({
-                    url: "/api/helper/server_env",
-                    method: "POST",
-                    data: {
-                        key: "FCM_KEY_PAIR"
-                    }
-                });
-                // Get new token from Firebase
-                const fcm_token = await getToken(messaging, {
-                    vapidKey: pair_key
-                });
+            if (messaging) {
+                const status = await Notification.requestPermission();
+                if (status && status === "granted") {
+                    const {data: pair_key} = await axios({
+                        url: "/api/helper/server_env",
+                        method: "POST",
+                        data: {
+                            key: "FCM_KEY_PAIR"
+                        }
+                    });
+                    // Get new token from Firebase
+                    const fcm_token = await getToken(messaging, {
+                        vapidKey: pair_key
+                    });
 
-                // Set token in our local storage
-                if (fcm_token) {
-                    localStorage.setItem("fcm_token", fcm_token);
-                    return {token: fcm_token, analytics, firestore};
+                    // Set token in our local storage
+                    if (fcm_token) {
+                        localStorage.setItem("fcm_token", fcm_token);
+                        return {token: fcm_token, analytics, firestore};
+                    }
+                } else {
+                    console.log("requestPermission", status);
+                    return {token: null, analytics: null, firestore: null};
                 }
             } else {
-                console.log("requestPermission", status);
-                return {token: null, analytics: null, firestore: null};
+                return {token: null, analytics, firestore};
             }
         } catch (error) {
             console.log("firebaseCloudMessaging", error);
