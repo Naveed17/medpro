@@ -35,6 +35,8 @@ export const initialPatientState: MenuState = {
             address: "",
             email: "",
             cin: "",
+            addressed_by: "",
+            civil_status: "",
             profession: "",
             family_doctor: "",
             insurance: [],

@@ -147,7 +147,7 @@ function WaitingRoomRow({...props}) {
                             </>
                         )}
                 </TableCell>
-                {tabIndex !==1 && <TableCell>
+                {tabIndex !== 1 && <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Typography
