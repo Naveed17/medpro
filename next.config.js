@@ -31,7 +31,7 @@ const nextConfig = {
         locales: ["fr", "en", "ar"], defaultLocale: "fr"
     },
     experimental: {
-        nextScriptWorkers: true
+        nextScriptWorkers: false
     },
     images: {
         dangerouslyAllowSVG: true,
