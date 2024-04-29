@@ -254,7 +254,7 @@ function AppointmentPopoverCard({...props}) {
                         sx={{
                             display: "flex",
                             alignItems: "center",
-                            opacity: appointmentData?.patient.contact.length > 0 ? 1 : 0,
+                            opacity: appointmentData?.patient.contact?.length > 0 ? 1 : 0,
                             svg: {
                                 width: 9,
                                 marginRight: 1

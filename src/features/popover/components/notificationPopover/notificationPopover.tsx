@@ -216,7 +216,7 @@ function NotificationPopover({...props}) {
                         {text: t("dialogs.move-dialog.confirm"), color: "success", action: "onConfirm"},
                         {text: t("dialogs.confirm-dialog.edit"), color: "white", action: "onEdit"},
                         {
-                            ...(appointment.patient?.contact.length > 0 && {
+                            ...(appointment.patient?.contact?.length > 0 && {
                                 text: `${t("dialogs.confirm-dialog.call")} ${appointment.patient?.contact[0].value}`,
                                 href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
                                 color: "primary",
