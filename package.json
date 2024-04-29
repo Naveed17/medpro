@@ -17,7 +17,6 @@
     "tinymce": "node postinstall.cjs"
   },
   "dependencies": {
-    "@builder.io/partytown": "^0.10.2",
     "@casl/ability": "^6.5.0",
     "@casl/react": "^3.1.0",
     "@emotion/cache": "^11.7.1",

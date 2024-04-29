@@ -311,6 +311,25 @@ function MainLayout({...props}) {
     }, [window?.usetifulInit, general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
+        if (typeof window !== "undefined" && window?.Upscope && general_information && process.env.NODE_ENV !== 'development') {
+            fetchAndActivate(remoteConfig).then(() => {
+                const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
+                if (config.upscope) {
+                    window.Upscope('init');
+                    window.Upscope('updateConnection', {
+                        // Set the  user ID below. If you don't have one, set to undefined.
+                        uniqueId: general_information.uuid,
+
+                        // Set the  username or email below (e.g. ["John Smith", "john.smith@acme.com"]).
+                        identities: [roles[0], `${general_information.firstName} ${general_information.lastName}`]
+                    });
+                }
+            });
+        }
+    }, [window?.Upscope, general_information]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         // Update notifications popup
         const localStorageNotifications = localStorage.getItem("notifications");
         if (localStorageNotifications) {

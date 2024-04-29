@@ -6,7 +6,6 @@ import Document, {
     NextScript
 } from "next/document";
 import Script from 'next/script';
-import {Partytown} from '@builder.io/partytown/react';
 
 class MyDocument extends Document {
     render() {
@@ -19,20 +18,12 @@ class MyDocument extends Document {
                     <link rel="manifest" href="/manifest.json"/>
                     {/* Inject MUI styles first to match with to prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
-                    <Partytown debug={true} forward={['dataLayer.push']}/>
-                    <script
-                        type="text/javascript"
-                        crossOrigin={"anonymous"}
-                        dangerouslySetInnerHTML={{
-                            __html: '(function(w, u, d){var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};\n' +
-                                '                        var l = function(){var s=d.createElement(\'script\');s.type=\'text/javascript\';s.async=true;\n' +
-                                '                        s.src=\'https://code.upscope.io/sASRVsqUBF.js\';\n' +
-                                '                        var x=d.getElementsByTagName(\'script\')[0];x.parentNode.insertBefore(s,x);};\n' +
-                                '                        if(typeof u!=="function"){w.Upscope=i;l();}})(window, window.Upscope, document);\n' +
-                                '\n' +
-                                '                        Upscope(\'init\');',
-                        }}
+                    {/* upscope integration. */}
+                    <Script
+                        src="/static/files/upscope.js"
+                        strategy="lazyOnload"
                     />
+                    {/* usetiful integration. */}
                     <Script
                         src="/static/files/usetifulWorker.js"
                         strategy="lazyOnload"

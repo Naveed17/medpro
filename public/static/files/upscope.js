@@ -5,4 +5,3 @@
     if(typeof u!=="function"){w.Upscope=i;l();}})(window, window.Upscope, document);
 
 console.log('Upscope loaded');
-Upscope('init');
