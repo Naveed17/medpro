@@ -308,7 +308,7 @@ function FeesTab({...props}) {
                                             {t("table.fees")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            {isNaN(total) || total < 0 ? "-" : total} {devise}
+                                            {acts.reduce((acc: number, curr: any) =>acc + (curr.selected ?Number(curr.fees):0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -320,7 +320,7 @@ function FeesTab({...props}) {
                                             {t("table.reimb")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            0 {devise}
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ?Number(curr.contribution):0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -332,7 +332,7 @@ function FeesTab({...props}) {
                                             {t("table.total")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            35.00 {devise}
+                                            {isNaN(total) || total < 0 ? "-" : total} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>

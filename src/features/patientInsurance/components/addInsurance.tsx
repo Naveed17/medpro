@@ -582,7 +582,7 @@ const AddInsurance = ({...props}) => {
                                 <Typography
                                     fontSize={13}
                                     color="textSecondary">
-                                    {t("table.apci")}
+                                    {t("insurance.apci")}
                                 </Typography>
                             );
                         }

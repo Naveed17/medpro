@@ -150,15 +150,6 @@ function Actes() {
                 onError: () => setLoading(false)
             });
     }
-
-    useEffect(() => {
-        setLoading(true);
-        if (httpActs) {
-            setMainActes(httpActs.data.acts as ActModel[]);
-            setLoading(false);
-        }
-    }, [httpActs]); // eslint-disable-line react-hooks/exhaustive-deps
-
     const save = () => {
         if (newAct) {
             const method = newAct.uuid ? "PUT" : "POST"
@@ -187,6 +178,14 @@ function Actes() {
             });
         }
     }
+
+    useEffect(() => {
+        setLoading(true);
+        if (httpActs) {
+            setMainActes(httpActs.data.acts as ActModel[]);
+            setLoading(false);
+        }
+    }, [httpActs]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
