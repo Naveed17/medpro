@@ -1064,7 +1064,7 @@ function ConsultationInProgress() {
                             id: 2,
                             name: "requestedPrescription",
                             status: "in_progress",
-                            icon: "ic-traitement",
+                            icon: "docs/ic-prescription",
                             state
                         }); else setPrescription([])
                 } else {

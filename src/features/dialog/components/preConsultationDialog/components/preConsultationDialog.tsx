@@ -36,7 +36,7 @@ function PreConsultationDialog({...props}) {
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
-        {index: 0, name: "prescription", icon: "ic-traitement", checked: false},
+        {index: 0, name: "prescription", icon: "docs/ic-prescription", checked: false},
         {
             index: 3,
             name: "requested-analysis",

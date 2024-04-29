@@ -74,7 +74,7 @@ function Cashbox() {
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready} = useTranslation(["payment", "common"]);
+    const {t, ready, i18n} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
     const {config: agenda, mode} = useAppSelector(agendaSelector);
 
@@ -494,10 +494,10 @@ function Cashbox() {
 
     }, [cashboxes])
 
-    // useEffect(() => {
-    //     //reload resources from cdn servers
-    //     i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
-    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -637,7 +637,7 @@ function Cashbox() {
                             </DesktopContainer>
                             <MobileContainer>
                                 <Stack spacing={1}>
-                                    {apps?.list?.map((row:any) => (
+                                    {apps?.list?.map((row: any) => (
                                         <React.Fragment key={row.uuid}>
                                             <UnpaidConsultationCard
                                                 {...{

@@ -279,7 +279,7 @@ function Users() {
                                     setNewUserDialog(true);
                                 }}
                                 variant="filled"
-                                sx={{p: .8}}
+                                sx={{p: .6}}
                                 color={"primary"}
                                 size={"small"}>
                                 <AgendaAddViewIcon/>

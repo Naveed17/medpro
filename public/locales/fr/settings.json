@@ -703,7 +703,8 @@
       },
       "alert": {
         "add_user_success": "Ajouter un utilisateur avec succès",
-        "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment "
+        "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment ",
+        "user-exist": "Adresse e-mail est déjà utilisée"
       }
     },
     "dialog": {

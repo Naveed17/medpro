@@ -334,10 +334,10 @@ function Agenda() {
         }
     }
 
-    // useEffect(() => {
-    //     //reload resources from cdn servers
-    //     i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common', 'patient']);
-    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['common', 'menu', 'agenda']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (lastUpdateNotification) {
@@ -1746,7 +1746,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
         props: {
             dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient']))
+            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda']))
         }
     }
 }
