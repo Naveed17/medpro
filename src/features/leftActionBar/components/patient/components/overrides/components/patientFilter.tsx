@@ -120,7 +120,7 @@ function PatientFilter({...props}) {
                                             className={'search-input'}
                                             {...{inputRef}}
                                             InputProps={{
-                                                startAdornment: (
+                                                endAdornment: (
                                                     <InputAdornment onClick={() => inputRef.current?.focus()}
                                                                     position="start">
                                                         <SearchRoundedIcon color={"white"}/>
