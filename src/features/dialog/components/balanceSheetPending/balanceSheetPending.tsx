@@ -12,15 +12,9 @@ function BalanceSheetPendingDialog({...props}) {
     const [analyses, setAnalyses] = useState<any>(data.state);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const [files, setFile] = useState([]);
+    const [files] = useState([]);
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
-    const handleDrop = React.useCallback(
-        (acceptedFiles: React.SetStateAction<never[]>) => {
-            setFile(acceptedFiles);
-            setOpenDialog(true)
-        },
-        [setFile]
-    );
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
