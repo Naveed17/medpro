@@ -1,33 +1,48 @@
-import React, { ReactElement, useContext, useEffect, useState } from "react";
-import { GetStaticPaths, GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { DashLayout, dashLayoutSelector } from "@features/base";
-import { Button, Card, CardContent, FormControl, IconButton, InputAdornment, MenuItem, Select, Stack, Tab, Tabs, tabsClasses, TextField, Typography, useMediaQuery } from "@mui/material";
-import { useAppSelector } from "@lib/redux/hooks";
-import { agendaSelector } from "@features/calendar";
-import { useTranslation } from "next-i18next";
-import { useMedicalEntitySuffix } from "@lib/hooks";
-import { useRouter } from "next/router";
-import { Theme, useTheme } from "@mui/material/styles";
-import { useRequestQuery } from "@lib/axios";
-import { useSession } from "next-auth/react";
-import { Otable } from "@features/table";
-import { DefaultCountry } from "@lib/constants";
-import { Session } from "next-auth";
-import { AbilityContext } from "@features/casl/can";
-import { ImageHandler } from "@features/image";
-import { TabPanel } from "@features/tabPanel";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
+import {GetStaticPaths, GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import {DashLayout, dashLayoutSelector} from "@features/base";
+import {
+    Button,
+    Card,
+    CardContent,
+    FormControl,
+    InputAdornment,
+    MenuItem,
+    Select,
+    Stack,
+    Tab,
+    Tabs,
+    tabsClasses,
+    TextField,
+    Typography,
+    useMediaQuery
+} from "@mui/material";
+import {useAppSelector} from "@lib/redux/hooks";
+import {agendaSelector} from "@features/calendar";
+import {useTranslation} from "next-i18next";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
+import {Theme, useTheme} from "@mui/material/styles";
+import {useRequestQuery} from "@lib/axios";
+import {useSession} from "next-auth/react";
+import {Otable} from "@features/table";
+import {DefaultCountry} from "@lib/constants";
+import {Session} from "next-auth";
+import {AbilityContext} from "@features/casl/can";
+import {ImageHandler} from "@features/image";
+import {TabPanel} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { MobileContainer } from "@themes/mobileContainer";
-import { ArchiveInsuranceMobileCard, InsuranceAppointMobileCard } from "@features/card";
+import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import {ArchiveInsuranceMobileCard, InsuranceAppointMobileCard} from "@features/card";
 
 function ConsultationInProgress() {
     const router = useRouter();
-    const { data: session } = useSession();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const ability = useContext(AbilityContext);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const [rows, setRows] = useState([
@@ -227,12 +242,12 @@ function ConsultationInProgress() {
         }
     ]
 
-    const { t, i18n } = useTranslation("payment", { keyPrefix: "insurances" });
+    const {t, i18n} = useTranslation("payment", {keyPrefix: "insurances"});
     //***** SELECTORS ****//
-    const { medicalEntityHasUser, medicalProfessionalData } = useAppSelector(dashLayoutSelector);
-    const { config: agenda, openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -242,7 +257,7 @@ function ConsultationInProgress() {
 
     const uuid = router.query.uuid;
 
-    const { data: httpDocket, mutate } = useRequestQuery({
+    const {data: httpDocket, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/insurance-dockets/${router.locale}`,
     })
@@ -291,25 +306,26 @@ function ConsultationInProgress() {
         <Stack spacing={1} padding={2}>
             <Card>
                 <CardContent>
-                    <Stack direction={{ xs: "column", md: "row" }}
-                        {...(isMobile && {
-                            spacing: 2
-                        })}
-                        position='relative'
-                        alignItems={{ xs: 'flex-start', md: 'center' }}>
+                    <Stack direction={{xs: "column", md: "row"}}
+                           {...(isMobile && {
+                               spacing: 2
+                           })}
+                           position='relative'
+                           alignItems={{xs: 'flex-start', md: 'center'}}>
                         <Stack direction='row' alignItems='center' spacing={1}>
-                            <img src="/static/img/assurance-1.png" width={60} />
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src="/static/img/assurance-1.png" width={60} alt={"insurance logo"}/>
                             <Typography variant="subtitle2" fontWeight={700}>CNAM</Typography>
                         </Stack>
                         <Stack ml={2}
-                            width={1}
-                            display="grid"
-                            sx={{ gap: 1.2 }}
-                            gridTemplateColumns={`repeat(${isMobile ? "1" : "4"},minmax(0,1fr))`}
+                               width={1}
+                               display="grid"
+                               sx={{gap: 1.2}}
+                               gridTemplateColumns={`repeat(${isMobile ? "1" : "4"},minmax(0,1fr))`}
 
                         >
-                            <Card sx={{ border: (theme) => `1px dashed ${theme.palette.divider}` }}>
-                                <CardContent sx={{ py: 1, '&.MuiCardContent-root:last-child': { pb: 1 } }}>
+                            <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
+                                <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
                                         {t("code")} CNAM
                                     </Typography>
@@ -318,8 +334,8 @@ function ConsultationInProgress() {
                                     </Typography>
                                 </CardContent>
                             </Card>
-                            <Card sx={{ border: (theme) => `1px dashed ${theme.palette.divider}` }}>
-                                <CardContent sx={{ py: 1, '&.MuiCardContent-root:last-child': { pb: 1 } }}>
+                            <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
+                                <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
                                         {t("reference_center")}
                                     </Typography>
@@ -328,26 +344,26 @@ function ConsultationInProgress() {
                                     </Typography>
                                 </CardContent>
                             </Card>
-                            <Card sx={{ border: (theme) => `1px dashed ${theme.palette.divider}` }}>
-                                <CardContent sx={{ py: 1, '&.MuiCardContent-root:last-child': { pb: 1 } }}>
+                            <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
+                                <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
                                         {t("start_date")}
                                     </Typography>
                                     <Stack direction='row' alignItems='center' spacing={.5}>
-                                        <IconUrl path="ic-agenda-jour" width={16} height={16} />
+                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
                                             10/10/2022
                                         </Typography>
                                     </Stack>
                                 </CardContent>
                             </Card>
-                            <Card sx={{ border: `1px dashed ${theme.palette.divider}` }}>
-                                <CardContent sx={{ py: 1, '&.MuiCardContent-root:last-child': { pb: 1 } }}>
+                            <Card sx={{border: `1px dashed ${theme.palette.divider}`}}>
+                                <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
                                         {t("end_date")}
                                     </Typography>
                                     <Stack direction='row' alignItems='center' spacing={.5}>
-                                        <IconUrl path="ic-agenda-jour" width={16} height={16} />
+                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
                                             10/10/2022
                                         </Typography>
@@ -355,7 +371,7 @@ function ConsultationInProgress() {
                                 </CardContent>
                             </Card>
                         </Stack>
-                       {/* <IconButton disableRipple sx={{
+                        {/* <IconButton disableRipple sx={{
                             ml: 1, ...(isMobile && {
                                 position: 'absolute',
                                 top: -12,
@@ -370,10 +386,10 @@ function ConsultationInProgress() {
                     value={selectedTab}
                     onChange={handleChangeTab}
                     sx={{
-                        width: { xs: "100%", md: "50%" },
+                        width: {xs: "100%", md: "50%"},
                         px: 2,
                         [`& .${tabsClasses.scrollButtons}`]: {
-                            "&.Mui-disabled": { opacity: 0.5 },
+                            "&.Mui-disabled": {opacity: 0.5},
                         },
                         marginTop: "8px",
                     }}
@@ -400,18 +416,18 @@ function ConsultationInProgress() {
                     <Stack
                         mb={0.6}
                         display="grid"
-                        sx={{ gap: 1.2 }}
+                        sx={{gap: 1.2}}
                         gridTemplateColumns={`repeat(${isMobile ? "2" : "3"},minmax(0,1fr))`}>
                         {topCard.map((card, idx) => (
-                            <Card sx={{ border: "none" }} key={idx}>
-                                <CardContent sx={{ px: isMobile ? 1.75 : 2 }}>
+                            <Card sx={{border: "none"}} key={idx}>
+                                <CardContent sx={{px: isMobile ? 1.75 : 2}}>
                                     <Stack
                                         direction="row"
                                         alignItems="center"
-                                        spacing={{ xs: 1, md: 2 }}>
+                                        spacing={{xs: 1, md: 2}}>
                                         <ImageHandler
                                             src={`/static/icons/${card.icon
-                                                }.svg`}
+                                            }.svg`}
                                             alt={card.title}
                                             width={isMobile ? 24 : 40}
                                             height={isMobile ? 24 : 40}
@@ -430,51 +446,55 @@ function ConsultationInProgress() {
                         ))}
                     </Stack>
                     <Card>
-                        <Stack p={2} direction={{ xs: 'column', md: 'row' }} alignItems='center' justifyContent='space-between' spacing={1}>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} alignItems='center' spacing={1} {...(isMobile && {
+                        <Stack p={2} direction={{xs: 'column', md: 'row'}} alignItems='center'
+                               justifyContent='space-between' spacing={1}>
+                            <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center'
+                                   spacing={1} {...(isMobile && {
                                 width: 1
                             })}>
-                                <FormControl fullWidth size="small" sx={{ minWidth: 100 }}>
+                                <FormControl fullWidth size="small" sx={{minWidth: 100}}>
                                     <Select id="demo-simple-select"
-                                        value={'all'}
-                                        renderValue={selected => {
-                                            if (selected.length === 0) {
-                                                return <Typography fontSize={12}>{t("select")}</Typography>
-                                            } else {
-                                                return <Typography fontSize={12}>{t("all")}</Typography>
+                                            value={'all'}
+                                            renderValue={selected => {
+                                                if (selected.length === 0) {
+                                                    return <Typography fontSize={12}>{t("select")}</Typography>
+                                                } else {
+                                                    return <Typography fontSize={12}>{t("all")}</Typography>
+                                                }
                                             }
-                                        }
-                                        }
+                                            }
 
                                     >
                                         <MenuItem value="all">{t("all")}</MenuItem>
 
                                     </Select>
                                 </FormControl>
-                                <FormControl fullWidth size="small" sx={{ minWidth: { xs: "auto", md: 300 } }}>
+                                <FormControl fullWidth size="small" sx={{minWidth: {xs: "auto", md: 300}}}>
                                     <TextField fullWidth={isMobile} InputProps={{
                                         startAdornment: <InputAdornment position="start">
-                                            <IconUrl path="ic-search" width={16} height={16} />
+                                            <IconUrl path="ic-search" width={16} height={16}/>
                                         </InputAdornment>
-                                    }} placeholder={t("search")} />
+                                    }} placeholder={t("search")}/>
                                 </FormControl>
                             </Stack>
                             <Stack direction='row' alignItems='center' spacing={1}
-                                {...(isMobile && {
-                                    width: 1
-                                })}
+                                   {...(isMobile && {
+                                       width: 1
+                                   })}
                             >
                                 <Button fullWidth={isMobile}
                                         onClick={createDockets}
                                         variant="grey"
-                                        startIcon={<IconUrl path="ic-archive-new" />}>{t("archive")}</Button>
-                                <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-printer-new" />}>{t("print")}</Button>
-                                <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-export-new" />}>{t("export")}</Button>
+                                        startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
+                                <Button fullWidth={isMobile} variant="grey"
+                                        startIcon={<IconUrl path="ic-printer-new"/>}>{t("print")}</Button>
+                                <Button fullWidth={isMobile} variant="grey"
+                                        startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
                             </Stack>
                         </Stack>
                         <DesktopContainer>
                             <Otable
-                                {...{ t }}
+                                {...{t}}
                                 headers={headCells}
                                 //handleEvent={handleTableActions}
                                 rows={[...rows]}
@@ -487,7 +507,7 @@ function ConsultationInProgress() {
                         <MobileContainer>
                             <Stack spacing={2} p={2}>
                                 {rows.map((item) => (
-                                    <InsuranceAppointMobileCard key={item.uuid} t={t} row={item} />
+                                    <InsuranceAppointMobileCard key={item.uuid} t={t} row={item}/>
                                 ))}
                             </Stack>
                         </MobileContainer>
@@ -497,47 +517,50 @@ function ConsultationInProgress() {
             </TabPanel>
             <TabPanel padding={1} value={selectedTab} index={"archived"}>
                 <Card>
-                    <Stack p={2} direction={{ xs: 'column', md: 'row' }} alignItems='center' justifyContent='space-between' spacing={1}>
-                        <Stack direction={{ xs: 'column', sm: 'row' }} alignItems='center' spacing={1} {...(isMobile && {
+                    <Stack p={2} direction={{xs: 'column', md: 'row'}} alignItems='center'
+                           justifyContent='space-between' spacing={1}>
+                        <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center' spacing={1} {...(isMobile && {
                             width: 1
                         })}>
-                            <FormControl fullWidth size="small" sx={{ minWidth: 100 }}>
+                            <FormControl fullWidth size="small" sx={{minWidth: 100}}>
                                 <Select id="demo-simple-select"
-                                    value={'all'}
-                                    renderValue={selected => {
-                                        if (selected.length === 0) {
-                                            return <Typography fontSize={12}>{t("select")}</Typography>
-                                        } else {
-                                            return <Typography fontSize={12}>{t("all")}</Typography>
+                                        value={'all'}
+                                        renderValue={selected => {
+                                            if (selected.length === 0) {
+                                                return <Typography fontSize={12}>{t("select")}</Typography>
+                                            } else {
+                                                return <Typography fontSize={12}>{t("all")}</Typography>
+                                            }
                                         }
-                                    }
-                                    }
+                                        }
 
                                 >
                                     <MenuItem value="all">{t("all")}</MenuItem>
 
                                 </Select>
                             </FormControl>
-                            <FormControl fullWidth size="small" sx={{ minWidth: { xs: "auto", md: 300 } }}>
+                            <FormControl fullWidth size="small" sx={{minWidth: {xs: "auto", md: 300}}}>
                                 <TextField fullWidth={isMobile} InputProps={{
                                     startAdornment: <InputAdornment position="start">
-                                        <IconUrl path="ic-search" width={16} height={16} />
+                                        <IconUrl path="ic-search" width={16} height={16}/>
                                     </InputAdornment>
-                                }} placeholder={t("search")} />
+                                }} placeholder={t("search")}/>
                             </FormControl>
                         </Stack>
                         <Stack direction='row' alignItems='center' spacing={1}
-                            {...(isMobile && {
-                                width: 1
-                            })}
+                               {...(isMobile && {
+                                   width: 1
+                               })}
                         >
-                            <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-printer-new" />}>{t("print")}</Button>
-                            <Button fullWidth={isMobile} variant="grey" startIcon={<IconUrl path="ic-export-new" />}>{t("export")}</Button>
+                            <Button fullWidth={isMobile} variant="grey"
+                                    startIcon={<IconUrl path="ic-printer-new"/>}>{t("print")}</Button>
+                            <Button fullWidth={isMobile} variant="grey"
+                                    startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
                         </Stack>
                     </Stack>
                     <DesktopContainer>
                         <Otable
-                            {...{ t }}
+                            {...{t}}
                             headers={headCellsArchiveSlip}
                             //handleEvent={handleTableActions}
                             rows={['1']}
@@ -549,7 +572,7 @@ function ConsultationInProgress() {
                     </DesktopContainer>
                     <MobileContainer>
                         <Stack p={2}>
-                            <ArchiveInsuranceMobileCard {...{ row: true, t }} />
+                            <ArchiveInsuranceMobileCard {...{row: true, t}} />
                         </Stack>
                     </MobileContainer>
                 </Card>
@@ -562,16 +585,16 @@ function ConsultationInProgress() {
                                 <Typography variant="subtitle1" fontWeight={700}>{t("3rd_paryty_pay")}</Typography>
                                 <Stack
                                     display="grid"
-                                    sx={{ gap: 1.2 }}
+                                    sx={{gap: 1.2}}
                                     gridTemplateColumns={`repeat(${isMobile ? "1" : "6"},minmax(0,1fr))`}
                                 >
                                     <Stack spacing={-0.5}
-                                        {...(isMobile && {
-                                            sx: {
-                                                pb: 2,
-                                                borderBottom: `1px solid ${theme.palette.divider}`
-                                            }
-                                        })}
+                                           {...(isMobile && {
+                                               sx: {
+                                                   pb: 2,
+                                                   borderBottom: `1px solid ${theme.palette.divider}`
+                                               }
+                                           })}
                                     >
                                         <Typography variant="h6" fontWeight={700}>1568</Typography>
                                         <Typography variant="body2" fontWeight={500}>{t("no_of_books")}</Typography>
@@ -598,7 +621,8 @@ function ConsultationInProgress() {
                                         })
                                     }}>
                                         <Typography variant="h6" fontWeight={700}>861</Typography>
-                                        <Typography variant="body2" fontWeight={500}>{t("total_rightsholders")}</Typography>
+                                        <Typography variant="body2"
+                                                    fontWeight={500}>{t("total_rightsholders")}</Typography>
                                     </Stack>
                                     <Stack spacing={-0.5} sx={{
                                         ...(isMobile ? {
@@ -610,7 +634,8 @@ function ConsultationInProgress() {
                                         })
                                     }}>
                                         <Typography variant="h6" fontWeight={700}>579</Typography>
-                                        <Typography variant="body2" fontWeight={500}>{t("rightsholders_APCI")}</Typography>
+                                        <Typography variant="body2"
+                                                    fontWeight={500}>{t("rightsholders_APCI")}</Typography>
                                     </Stack>
                                     <Stack spacing={-0.5} sx={{
                                         ...(isMobile ? {
@@ -622,7 +647,8 @@ function ConsultationInProgress() {
                                         })
                                     }}>
                                         <Typography variant="h6" fontWeight={700}>167</Typography>
-                                        <Typography variant="body2" fontWeight={500}>{t("APCI_patients_seen")}</Typography>
+                                        <Typography variant="body2"
+                                                    fontWeight={500}>{t("APCI_patients_seen")}</Typography>
                                     </Stack>
                                     <Stack spacing={-0.5} sx={{
                                         ...(isMobile ? {
@@ -634,7 +660,8 @@ function ConsultationInProgress() {
                                         })
                                     }}>
                                         <Typography variant="h6" fontWeight={700}>79</Typography>
-                                        <Typography variant="body2" fontWeight={500}>{t("APCI_patients_with_no_consultation")}</Typography>
+                                        <Typography variant="body2"
+                                                    fontWeight={500}>{t("APCI_patients_with_no_consultation")}</Typography>
                                     </Stack>
                                 </Stack>
                             </Stack>
@@ -643,12 +670,13 @@ function ConsultationInProgress() {
                     <Card>
                         <CardContent>
                             <Stack spacing={4}>
-                                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'flex-start', md: 'center' }} justifyContent='space-between'>
+                                <Stack direction={{xs: 'column', md: 'row'}} spacing={2}
+                                       alignItems={{xs: 'flex-start', md: 'center'}} justifyContent='space-between'>
                                     <Typography variant="subtitle1" fontWeight={700}>{t("recipes")}</Typography>
                                     <Stack direction='row' alignItems='center' spacing={1}>
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <DatePicker
-                                                renderInput={(props) => <TextField sx={{ maxWidth: 180 }} {...props} />}
+                                                renderInput={(props) => <TextField sx={{maxWidth: 180}} {...props} />}
                                                 inputFormat={"dd/MM/yyyy"}
                                                 onChange={function (value: unknown, keyboardInputValue?: string | undefined): void {
                                                     throw new Error("Function not implemented.");
@@ -661,7 +689,7 @@ function ConsultationInProgress() {
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <DatePicker
 
-                                                renderInput={(props) => <TextField sx={{ maxWidth: 180 }} {...props} />}
+                                                renderInput={(props) => <TextField sx={{maxWidth: 180}} {...props} />}
                                                 inputFormat={"dd/MM/yyyy"}
                                                 onChange={function (value: unknown, keyboardInputValue?: string | undefined): void {
                                                     throw new Error("Function not implemented.");
@@ -672,16 +700,16 @@ function ConsultationInProgress() {
                                 </Stack>
                                 <Stack
                                     display="grid"
-                                    sx={{ gap: 1.2 }}
+                                    sx={{gap: 1.2}}
                                     gridTemplateColumns={`repeat(${isMobile ? 1 : 4},minmax(0,1fr))`}
                                 >
                                     <Stack direction='row' alignItems='center' spacing={2}
-                                        {...(isMobile && {
-                                            sx: {
-                                                pb: 2,
-                                                borderBottom: `1px solid ${theme.palette.divider}`
-                                            }
-                                        })}
+                                           {...(isMobile && {
+                                               sx: {
+                                                   pb: 2,
+                                                   borderBottom: `1px solid ${theme.palette.divider}`
+                                               }
+                                           })}
 
                                     >
                                         <ImageHandler
@@ -694,7 +722,8 @@ function ConsultationInProgress() {
                                             <Typography variant="h6" fontWeight={700}>16869
                                                 <Typography variant="caption" fontWeight={500} ml={1}>TND</Typography>
                                             </Typography>
-                                            <Typography variant="body2" fontWeight={500}>{t("montant_total_demandé")}</Typography>
+                                            <Typography variant="body2"
+                                                        fontWeight={500}>{t("montant_total_demandé")}</Typography>
                                         </Stack>
                                     </Stack>
                                     <Stack direction='row' alignItems='center' spacing={2} sx={{
@@ -716,7 +745,8 @@ function ConsultationInProgress() {
                                             <Typography variant="h6" fontWeight={700}>16679
                                                 <Typography variant="caption" fontWeight={500} ml={1}>TND</Typography>
                                             </Typography>
-                                            <Typography variant="body2" fontWeight={500}>{t("total_granted")}</Typography>
+                                            <Typography variant="body2"
+                                                        fontWeight={500}>{t("total_granted")}</Typography>
                                         </Stack>
                                     </Stack>
                                     <Stack direction='row' alignItems='center' spacing={2} sx={{
@@ -760,7 +790,8 @@ function ConsultationInProgress() {
                                             <Typography variant="h6" fontWeight={700}>1667.78
                                                 <Typography variant="caption" fontWeight={500} ml={1}>TND</Typography>
                                             </Typography>
-                                            <Typography variant="body2" fontWeight={500}>{t("transfer")} CNAM</Typography>
+                                            <Typography variant="body2"
+                                                        fontWeight={500}>{t("transfer")} CNAM</Typography>
                                         </Stack>
                                     </Stack>
                                 </Stack>
@@ -774,7 +805,7 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,

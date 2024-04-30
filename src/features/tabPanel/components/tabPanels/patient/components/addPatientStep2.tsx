@@ -3,17 +3,19 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
 import {
-    Autocomplete,
-    Avatar,
+    Autocomplete, Avatar,
     Box,
     Button,
+    Card,
+    CardContent,
+    CardHeader,
     Collapse,
     Divider,
     FormControl,
+    FormHelperText,
     Grid,
-    InputAdornment,
     IconButton,
-     ListItem, ListItemText,
+    InputAdornment, ListItem, ListItemText,
     MenuItem,
     Stack,
     TextField,
@@ -21,17 +23,23 @@ import {
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {addPatientSelector, onSubmitPatient} from "@features/tabPanel";
+import {addPatientSelector, CustomInput, onSubmitPatient} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {styled} from "@mui/material/styles";
+import {DatePicker} from "@features/datepicker";
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {LocalizationProvider} from '@mui/x-date-pickers';
+import {CountrySelect} from "@features/countrySelect";
 import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
+import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
-import {prepareInsurancesData, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import PhoneInput from "react-phone-number-input/input";
+import {useMedicalEntitySuffix, prepareInsurancesData, useMutateOnGoing} from "@lib/hooks";
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
 import {setDuplicated} from "@features/duplicateDetected";
@@ -922,9 +930,163 @@ function AddPatientStep2({...props}) {
                                                                     </InputAdornment>
                                                                 );
 
-                    {/*
-                    <PatientInsurance {...{patientInsurances:values.insurance, t,patient:selectedPatient}}/>
-                    */}
+                                                                return <TextField color={"info"}
+                                                                                  {...params}
+                                                                                  sx={{paddingLeft: 0}}
+                                                                                  placeholder={t("add-patient.assurance-placeholder")}
+                                                                                  variant="outlined"
+                                                                                  fullWidth/>;
+                                                            }}/>
+                                                        {touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_uuid && (
+                                                            <FormHelperText error sx={{px: 2, mx: 0}}>
+                                                                {(errors.insurance as any)[index].insurance_uuid}
+                                                            </FormHelperText>
+                                                        )}
+                                                    </FormControl>
+                                                </Grid>
+                                                <Grid item xs={12} md={8}>
+                                                    <Stack direction="row" spacing={2}>
+                                                        <MyTextInput
+                                                            variant="outlined"
+                                                            placeholder={t("add-patient.assurance-phone-error")}
+                                                            size="small"
+                                                            error={Boolean(touched.insurance &&
+                                                                (touched.insurance as any)[index]?.insurance_number &&
+                                                                errors.insurance && (errors.insurance as any)[index]?.insurance_number)}
+                                                            helperText={touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_number}
+                                                            fullWidth
+                                                            {...getFieldProps(`insurance[${index}].insurance_number`)}
+                                                        />
+
+                                                    </Stack>
+                                                </Grid>
+                                            </Grid>
+                                        </CardContent>
+                                        <Collapse in={getFieldProps(`insurance[${index}].expand`).value} timeout="auto"
+                                                  unmountOnExit>
+                                            <CardContent sx={{paddingTop: 0}} className={"insurance-section"}>
+                                                <Box mb={1}>
+                                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                        {t("add-patient.first-name")}
+                                                    </Typography>
+                                                    <TextField
+                                                        placeholder={t("add-patient.first-name-placeholder")}
+                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.firstName)}
+                                                        helperText={
+                                                            Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.firstName)
+                                                                ? String((errors.insurance as any)[index].insurance_social.firstName)
+                                                                : undefined
+                                                        }
+                                                        variant="outlined"
+                                                        size="small"
+                                                        fullWidth
+                                                        {...getFieldProps(`insurance[${index}].insurance_social.firstName`)}
+                                                    />
+                                                </Box>
+                                                <Box mb={1}>
+                                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                        {t("add-patient.last-name")}
+                                                    </Typography>
+                                                    <TextField
+                                                        placeholder={t("add-patient.last-name-placeholder")}
+                                                        variant="outlined"
+                                                        size="small"
+                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.lastName)}
+                                                        helperText={
+                                                            Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.lastName)
+                                                                ? String((errors.insurance as any)[index].insurance_social.lastName)
+                                                                : undefined
+                                                        }
+                                                        fullWidth
+                                                        {...getFieldProps(`insurance[${index}].insurance_social.lastName`)}
+                                                    />
+                                                </Box>
+                                                <Box mb={1} sx={{
+                                                    "& .MuiOutlinedInput-root button": {
+                                                        padding: "5px",
+                                                        minHeight: "auto",
+                                                        height: "auto",
+                                                        minWidth: "auto"
+                                                    }
+                                                }}>
+                                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                            {t("add-patient.birthdate")}
+                                                        </Typography>
+                                                        <DatePicker
+                                                            value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
+                                                            onChange={(date: Date) => {
+                                                                if (moment(date).isValid()) {
+                                                                    setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                }
+                                                            }}
+                                                            inputFormat="dd/MM/yyyy"
+                                                        />
+                                                    </LocalizationProvider>
+                                                </Box>
+                                                <Box>
+                                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                        {t("add-patient.telephone")}
+                                                    </Typography>
+                                                    <Grid container spacing={2}>
+                                                        <Grid item md={6} lg={4} xs={12}>
+                                                            <CountrySelect
+                                                                initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                    getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) : DefaultCountry}
+                                                                onSelect={(state: any) => {
+                                                                    setFieldValue(`insurance[${index}].insurance_social.phone.value`, "");
+                                                                    setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone);
+                                                                }}/>
+                                                        </Grid>
+                                                        <Grid item md={6} lg={8} xs={12}>
+                                                            <PhoneInput
+                                                                ref={phoneInputRef}
+                                                                international
+                                                                fullWidth
+                                                                error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.phone)}
+                                                                withCountryCallingCode
+                                                                {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
+                                                                    {
+                                                                        helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                            getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
+                                                                    })}
+                                                                country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                    getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value)?.code :
+                                                                    doctor_country.code) as any}
+                                                                value={getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
+                                                                    getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}
+                                                                onChange={value => setFieldValue(`insurance[${index}].insurance_social.phone.value`, value)}
+                                                                inputComponent={CustomInput as any}
+                                                            />
+                                                            {/*<TextField
+                                                                variant="outlined"
+                                                                size="small"
+                                                                {...getFieldProps(`insurance[${index}].insurance_social.phone.value`)}
+                                                                error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.phone?.value)}
+                                                                helperText={
+                                                                    Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.phone)
+                                                                        ? String((errors.insurance as any)[index].insurance_social.phone.value)
+                                                                        : undefined
+                                                                }
+                                                                fullWidth
+                                                                InputProps={{
+                                                                    startAdornment: (
+                                                                        <InputAdornment position="start">
+                                                                            {getFieldProps(`insurance[${index}].insurance_social.phone.code`)?.value}
+                                                                        </InputAdornment>
+                                                                    ),
+                                                                }}
+                                                            />*/}
+                                                        </Grid>
+                                                    </Grid>
+                                                </Box>
+                                            </CardContent>
+                                        </Collapse>
+                                    </Card>
+                                ))}
+                            </Box>
+                        </Box>
+                    </Collapse>
 
                 </div>
                 <Stack

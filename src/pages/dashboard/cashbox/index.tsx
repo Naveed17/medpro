@@ -745,14 +745,14 @@ function Cashbox() {
                                     </Stack>
                                     {rows.length > 0 &&
                                         <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
-                                            <Button
-                                                onClick={exportDoc}
-                                                variant="outlined"
-                                                color="info"
-                                                startIcon={<IconUrl path="ic-export-new"/>}>
+                                            <Button startIcon={<IconUrl path="ic-export-new"/>}
+                                                    color="info"
+                                                    variant="outlined"
+                                                    onClick={() => exportDoc('cashbox')}>
                                                 {t("export")}
                                             </Button>
-                                        </Can>}
+                                        </Can>
+                                    }
                                 </Stack>
                                 <InsuranceDocket/>
                             </CardContent>
