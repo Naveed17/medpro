@@ -23,6 +23,7 @@ import {FormikProvider, useFormik} from "formik";
 import Switch from "@mui/material/Switch";
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {configSelector} from "@features/base";
+import DayIcon from "@themes/overrides/icons/dayIcon";
 
 interface Lab {
     label: string;
@@ -173,6 +174,9 @@ function PatientFilter({...props}) {
                                         <DatePicker
                                             value={queryState.birthdate}
                                             inputFormat="dd/MM/yyyy"
+                                            components={{
+                                                OpenPickerIcon: DayIcon
+                                            }}
                                             onChange={date => {
                                                 setFieldValue("birthdate", date);
                                                 if (date && date.toString() !== "Invalid Date" && date.getFullYear() > 1000) {

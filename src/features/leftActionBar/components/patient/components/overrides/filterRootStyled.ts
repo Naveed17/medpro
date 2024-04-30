@@ -28,8 +28,8 @@ const FilterRootStyled = styled(Box)(({theme}) => ({
             },
         },
     },
-    "& .search-input .MuiOutlinedInput-root input": {
-        //paddingLeft: 0
+    "& .search-input .MuiOutlinedInput-root": {
+        paddingRight: 0
     }
 }));
 export default FilterRootStyled;
