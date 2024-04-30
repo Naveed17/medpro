@@ -53,3 +53,5 @@ yarn-error.log*
 waypoint.hcl
 .wpoutputs/
 kustomize/
+Dockerfile
+skaffold/

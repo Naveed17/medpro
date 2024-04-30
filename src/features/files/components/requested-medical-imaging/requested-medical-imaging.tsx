@@ -37,7 +37,7 @@ function RequestedMedicalImaging({...props}) {
             {data?.info?.map((line: any) => (
                 <tr key={line.uuid}>
                     <td className={"line"}>
-                        <p>• {line['medical-imaging'].name}</p>
+                        <p>• {line?.name}</p>
                     </td>
                 </tr>
 

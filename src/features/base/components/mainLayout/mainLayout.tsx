@@ -535,7 +535,7 @@ function MainLayout({...props}) {
                         data={{
                             id: notificationData?.appointment.patient.uuid,
                             name: `${notificationData?.appointment.patient.firstName} ${notificationData?.appointment.patient.lastName}`,
-                            phone: `${notificationData?.appointment.patient.contact[0]?.code} ${notificationData?.appointment.patient.contact[0]?.value}`,
+                            phone: notificationData?.appointment.patient.contact?.length > 0 ? `${notificationData?.appointment.patient.contact[0]?.code} ${notificationData?.appointment.patient.contact[0]?.value}` : "",
                             date: notificationData?.appointment.dayDate,
                             time: notificationData?.appointment.startTime
                         }}
