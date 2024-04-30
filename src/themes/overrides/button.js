@@ -433,6 +433,23 @@ export default function Button(theme) {
             border: `1px solid ${theme.palette.divider}`,
           },
         },
+        {
+          props: { variant: "primary-light" },
+          style: {
+            color: theme.palette.primary.main,
+            backgroundColor: theme.palette.primary.lighter,
+            border: `1px solid ${theme.palette.primary.light}`,
+            "&:hover": {
+              color: theme.palette.primary.main,
+              backgroundColor: theme.palette.primary.lighter,
+            },
+            "& svg": {
+              "& path": {
+                fill: theme.palette.primary.main,
+              },
+            },
+          },
+        },
       ],
     },
   };

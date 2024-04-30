@@ -2,7 +2,7 @@ import { IconButton, useTheme } from "@mui/material";
 import { PaletteColor } from "@mui/material/styles";
 
 function CustomIconButton({ ...props }) {
-    const { variant, color = null, sx, ...other } = props;
+    const { variant, color = "back", sx, className = "", ...other } = props;
     const theme = useTheme();
 
     return (
@@ -17,6 +17,7 @@ function CustomIconButton({ ...props }) {
                 }),
 
             }}
+            className={`custom-icon-button ${className}`}
             {...other}
         />
     );

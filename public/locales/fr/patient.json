@@ -410,5 +410,30 @@
     "father": "Père",
     "mother": "Mère",
     "both": "Les deux"
+  },
+  "patient_details": {
+    "title": "Dossier patient",
+    "resume": "Résumé",
+    "credit": "Crédit",
+    "debit": "Débit",
+    "upcoming": "À venir",
+    "completed": "Achevé",
+    "appointments": "Rendez-vous",
+    "start_consultation": "Commencer la consultation",
+    "add_rdv": "Ajouter un rendez-vous",
+    "duplicate": "Détection des doublons",
+    "pregnancy_and_childbirth": "Grossesse et accouchement",
+    "psychomotor_development": "Développement psychomoteur",
+    "risk_factors": "Facteurs de risque",
+    "allergic": "Allergies",
+    "family_antecedents": "Antécédents familiaux",
+    "previous_surgery": "Chirurgie précédente",
+    "add": "Ajouter",
+    "tabs": {
+      "medical_record": "Dossier médical",
+      "information": "Informations",
+      "documents": "Documents",
+      "payments": "Paiements"
+    }
   }
 }
