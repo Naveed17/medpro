@@ -79,6 +79,7 @@ jobs:
       cmd:  skaffold run
       environment: ${{ matrix.envs.name }}
       version: "2.0.4"
+      sops: true
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
