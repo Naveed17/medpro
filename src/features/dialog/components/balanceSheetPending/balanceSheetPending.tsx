@@ -1,15 +1,11 @@
 import {Button, Card, DialogActions, Stack, TextField, Typography} from '@mui/material'
-import {useFormik} from "formik";
 import BalanceSheetPendingStyled from './overrides/balanceSheetPendingStyle';
 import {Dialog} from '@features/dialog'
 import {useTranslation} from 'next-i18next'
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 
 function BalanceSheetPendingDialog({...props}) {
     const {data} = props;
