@@ -264,7 +264,7 @@ function Consultation() {
                                     }}>
                                     {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
                                 </Typography>
-                                {patient?.contact && patient?.contact.length > 0 &&
+                                {patient?.contact && patient?.contact?.length > 0 &&
                                     <Typography
                                         component="div"
                                         sx={{

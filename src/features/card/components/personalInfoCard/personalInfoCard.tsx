@@ -792,7 +792,7 @@ function PersonalInfo({...props}) {
                                                     </ListItem>
                                                 )}
                                                 isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
-                                                placeholder={t("add-patient.addressed-by-placeholder")}
+                                                placeholder={t("addressed-by-placeholder")}
                                             />
                                         )}
                                     </Grid>
@@ -862,7 +862,7 @@ function PersonalInfo({...props}) {
                                                     </ListItem>
                                                 )}
                                                 isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
-                                                placeholder={t("add-patient.civil-status-placeholder")}
+                                                placeholder={t("civil-status-placeholder")}
                                             />
                                         )}
                                     </Grid>
