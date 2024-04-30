@@ -250,7 +250,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                     size="small"
                                     value={values.motif && reasons ? reasons.filter((reason: {
                                         uuid: any;
-                                    }) => values.motif.includes(reason.uuid)) : []}
+                                    }) => values.motif.includes(reason.uuid)).sort((a:any, b:any) => a.name.localeCompare(b.name)): []}
                                     onChange={(e, newValue: any) => {
 
                                         e.stopPropagation();
@@ -270,7 +270,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                     sx={{color: "text.secondary"}}
                                     options={reasons ? reasons.filter((item: {
                                         isEnabled: any;
-                                    }) => item.isEnabled) : []}
+                                    }) => item.isEnabled).sort((a:any, b:any) => a.name.localeCompare(b.name)) : []}
                                     loading={reasons?.length === 0}
                                     getOptionLabel={(option) => {
                                         // Value selected with enter, right from the input
