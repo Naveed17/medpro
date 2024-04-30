@@ -73,14 +73,14 @@ function useGeneratePdfTemplate() {
                 font: customFont,
                 color: textColor
             })
-            copiedPages[0].drawText(`Ma Maman Salma & Mon Papa Sélim`, {
+           /* copiedPages[0].drawText(`Ma Maman Salma & Mon Papa Sélim`, {
                 x: 110,
                 y: 310,
                 size: 12,
                 rotate: degrees(2),
                 font: customFont,
                 color: textColor
-            })
+            })*/
             // Draw bebe weight / size
             const weight = Object.values(sheet.poids.data).slice(-1)[0] as string;
             copiedPages[0].drawText(`${weight} Kg`, {
