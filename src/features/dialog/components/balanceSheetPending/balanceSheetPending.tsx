@@ -15,14 +15,7 @@ function BalanceSheetPendingDialog({...props}) {
     const {data} = props;
     const [analyses, setAnalyses] = useState<any>(data.state);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const formik = useFormik({
-        initialValues: {
-            name: '',
-        },
-        onSubmit: async (values) => {
-        },
-    });
-    const {values, handleSubmit, setFieldValue} = formik;
+
     const [files, setFile] = useState([]);
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const handleDrop = React.useCallback(
