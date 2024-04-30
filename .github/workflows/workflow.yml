@@ -85,6 +85,7 @@ jobs:
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
       ENV_VARS: |
         ${{ secrets.ENV_VARS }}
+        SOPS_AGE_KEY="${{ secrets.SOPS_AGE_KEY }}"
         INGRESS_TARGET=${{ secrets.INGRESS_TARGET }}
         INGRESS_HOST=${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
         NEXTAUTH_URL=https://${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
