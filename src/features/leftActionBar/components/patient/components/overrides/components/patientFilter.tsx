@@ -23,7 +23,7 @@ import {FormikProvider, useFormik} from "formik";
 import Switch from "@mui/material/Switch";
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {configSelector} from "@features/base";
-import DayIcon from "@themes/overrides/icons/dayIcon";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 interface Lab {
     label: string;
@@ -175,7 +175,7 @@ function PatientFilter({...props}) {
                                             value={queryState.birthdate}
                                             inputFormat="dd/MM/yyyy"
                                             components={{
-                                                OpenPickerIcon: DayIcon
+                                                OpenPickerIcon: CalendarPickerIcon
                                             }}
                                             onChange={date => {
                                                 setFieldValue("birthdate", date);
