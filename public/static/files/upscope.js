@@ -3,5 +3,3 @@
         s.mode="no-cors";s.src='https://code.upscope.io/sASRVsqUBF.js';
         var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};
     if(typeof u!=="function"){w.Upscope=i;l();}})(window, window.Upscope, document);
-
-console.log('Upscope loaded');

@@ -328,8 +328,8 @@ function DocumentDetailDialog({...props}) {
                         let mi: MIModel[] = []
                         state?.info.map((info: any) => {
                             mi.push({
-                                uuid: info['medical-imaging'].uuid,
-                                name: info['medical-imaging'].name,
+                                uuid: info['medical-imaging']?.uuid,
+                                name: info.name,
                                 note: info.note
                             });
                         });

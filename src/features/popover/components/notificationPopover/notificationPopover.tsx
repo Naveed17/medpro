@@ -215,14 +215,12 @@ function NotificationPopover({...props}) {
                     buttons: [
                         {text: t("dialogs.move-dialog.confirm"), color: "success", action: "onConfirm"},
                         {text: t("dialogs.confirm-dialog.edit"), color: "white", action: "onEdit"},
-                        {
-                            ...(appointment.patient?.contact?.length > 0 && {
-                                text: `${t("dialogs.confirm-dialog.call")} ${appointment.patient?.contact[0].value}`,
-                                href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
-                                color: "primary",
-                                action: "onCall"
-                            })
-                        }
+                        ...(appointment.patient?.contact?.length > 0 ? [{
+                            text: `${t("dialogs.confirm-dialog.call")} ${appointment.patient?.contact[0].value}`,
+                            href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
+                            color: "primary",
+                            action: "onCall"
+                        }] : [])
                     ]
                 }))])
         }
@@ -234,8 +232,8 @@ function NotificationPopover({...props}) {
                 ...pendingAppointments
                 , ...(localNotifications ? localNotifications.map(data => ({
                     ...(data?.appointment ?? data),
-                    avatar: `${data.appointment?.patient.firstName?.charAt(0).toUpperCase()}${data.appointment?.patient.lastName?.charAt(0).toUpperCase()}`,
-                    title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
+                    avatar: `${data.appointment?.patient?.firstName?.charAt(0).toUpperCase()}${data.appointment?.patient?.lastName?.charAt(0).toUpperCase()}`,
+                    title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient?.firstName} ${data.appointment?.patient?.lastName}`,
                     icon: <EventIcon/>,
                     buttons: [
                         {
