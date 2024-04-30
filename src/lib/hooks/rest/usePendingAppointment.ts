@@ -13,7 +13,7 @@ function usePendingAppointment() {
     const {data: httpPendingAppointmentResponse} = useRequestQuery(agendaConfig ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig.uuid}/appointments/get/pending/${router.locale}`
-    } : null, {});
+    } : null, {refetchOnWindowFocus: false});
 
     return {pendingAppointments: ((httpPendingAppointmentResponse as HttpResponse)?.data ?? []) as AppointmentModel[]}
 }
