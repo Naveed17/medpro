@@ -548,7 +548,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list.analysis.name}{" "}
+                                                    {list?.name}{" "}
                                                     {list.result ? "/" + list.result : ""}
                                                 </Typography>
                                             </ListItem>

@@ -84,25 +84,24 @@ function BalanceSheetPendingDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={5}>*/}
             <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
-            {
-                analyses.hasAnalysis.map((item: any, index: number) => (
-                    <Card key={index} sx={{p: 1}}>
-                        <Stack direction='row' alignItems="center" justifyContent='space-between' mb={1}>
-                            <Typography>{item.analysis.name}</Typography>
-                        </Stack>
-                        <TextField
-                            placeholder={t("enter_the_result")}
-                            value={item.result}
-                            fullWidth
-                            onChange={(ev) => {
-                                let items = analyses.hasAnalysis.map((item: { result: string }) => ({...item}));
-                                items[index].result = ev.target.value;
-                                setAnalyses({uuid: analyses.uuid, hasAnalysis: items})
-                                data.setState({uuid: analyses.uuid, hasAnalysis: items})
-                            }}
-                        />
-                    </Card>
-                ))}
+            {analyses.hasAnalysis.map((item: any, index: number) => (
+                <Card key={index} sx={{p: 1}}>
+                    <Stack direction='row' alignItems="center" justifyContent='space-between' mb={1}>
+                        <Typography>{item?.name}</Typography>
+                    </Stack>
+                    <TextField
+                        placeholder={t("enter_the_result")}
+                        value={item.result}
+                        fullWidth
+                        onChange={(ev) => {
+                            let items = analyses.hasAnalysis.map((item: { result: string }) => ({...item}));
+                            items[index].result = ev.target.value;
+                            setAnalyses({uuid: analyses.uuid, hasAnalysis: items})
+                            data.setState({uuid: analyses.uuid, hasAnalysis: items})
+                        }}
+                    />
+                </Card>
+            ))}
 
             <Dialog action={"add_a_document"}
                     open={openDialog}
