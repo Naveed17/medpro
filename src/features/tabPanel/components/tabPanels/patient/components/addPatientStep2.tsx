@@ -12,6 +12,8 @@ import {
     FormControl,
     Grid,
     InputAdornment,
+    IconButton,
+     ListItem, ListItemText,
     MenuItem,
     Stack,
     TextField,
@@ -34,6 +36,7 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {AsyncAutoComplete} from "@features/autoComplete";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -79,6 +82,7 @@ function AddPatientStep2({...props}) {
         grouped: commonTranslation(`social_insured.${Insured.grouped}`),
         label: commonTranslation(`social_insured.${Insured.label}`)
     })));
+    const [loadingReq, setLoadingReq] = useState(false);
 
     const RegisterSchema = Yup.object().shape({
         email: Yup.string().email("Invalid email"),
@@ -146,6 +150,8 @@ function AddPatientStep2({...props}) {
             address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
             email: selectedPatient ? selectedPatient.email : stepsData.step2.email,
             cin: selectedPatient ? selectedPatient?.cin : stepsData.step2.cin,
+            addressed_by: selectedPatient ? selectedPatient?.addressed_by : stepsData.step2.addressed_by,
+            civil_status: selectedPatient ? selectedPatient?.civil_status : stepsData.step2.civil_status,
             profession: selectedPatient ? selectedPatient?.cin : stepsData.step2.profession,
             family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : stepsData.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
@@ -181,6 +187,7 @@ function AddPatientStep2({...props}) {
     const {values, handleSubmit, getFieldProps, setFieldValue, setValues, touched, errors} = formik;
 
     const {trigger: triggerAddPatient} = useRequestQueryMutation("/patient/add");
+    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
 
     const {data: httpStatesResponse} = useRequestQuery(contacts.length > 0 && values.country ? {
         method: "GET",
@@ -229,7 +236,9 @@ function AddPatientStep2({...props}) {
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
         form.append('profession', values.profession);
-        form.append('note', values.note ? values.note : "");
+        form.append('note', values.note ?? "");
+        values.addressed_by?.uuid && form.append('addressed_by', values.addressed_by.uuid);
+        values.civil_status?.uuid && form.append('civil_status', values.civil_status.uuid);
 
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
@@ -352,8 +361,7 @@ function AddPatientStep2({...props}) {
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
-                                    gutterBottom
-                                >
+                                    gutterBottom>
                                     {t("add-patient.nationality")}
                                 </Typography>
                                 <FormControl fullWidth>
@@ -436,8 +444,7 @@ function AddPatientStep2({...props}) {
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
-                                    gutterBottom
-                                >
+                                    gutterBottom>
                                     {t("add-patient.country")}
                                 </Typography>
                                 <FormControl fullWidth>
@@ -584,48 +591,336 @@ function AddPatientStep2({...props}) {
                                     }
                                 />
                             </Box>
-                            <Stack direction={{xs: 'column', md: 'row'}} spacing={{xs: 2, md: 1}} pb={3}>
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {t("add-patient.cin")}
-                                    </Typography>
-                                    <TextField
-                                        placeholder={t("add-patient.cin-placeholder")}
-                                        variant="outlined"
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("cin")}
-                                    />
-                                </Box>
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {t("add-patient.profession")}
-                                    </Typography>
-                                    <TextField
-                                        placeholder={t("add-patient.profession-placeholder")}
-                                        variant="outlined"
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("profession")}
-                                    />
-                                </Box>
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {t("add-patient.family_doctor")}
-                                    </Typography>
-                                    <TextField
-                                        placeholder={t("add-patient.family_doctor-placeholder")}
-                                        type="text"
-                                        variant="outlined"
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("family_doctor")}
-                                    />
-                                </Box>
-                            </Stack>
+                            <Box>
+                                <Grid container spacing={2}>
+                                    <Grid item md={6} xs={12}>
+                                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                                            {t("add-patient.addressed-by")}
+                                        </Typography>
+                                        <AsyncAutoComplete
+                                            freeSolo
+                                            loading={loadingReq}
+                                            value={values.addressed_by}
+                                            url={`${urlMedicalEntitySuffix}/addressedBy/${router.locale}`}
+                                            onChangeData={(event: any) => {
+                                                if (event?.inputValue || typeof event === "string") {
+                                                    // Create a new value from the user input
+                                                    console.log("onChangeData: Create", event)
+                                                    setLoadingReq(true);
+                                                    const params = new FormData();
+                                                    params.append("name", event?.inputValue ?? event);
+                                                    triggerAddressedBy({
+                                                        method: "POST",
+                                                        url: `${urlMedicalEntitySuffix}/addressedBy/${router.locale}`,
+                                                        data: params
+                                                    }, {
+                                                        onSuccess: (result) => {
+                                                            const data = (result?.data as HttpResponse)?.data;
+                                                            setFieldValue("addressed_by", {
+                                                                uuid: data?.uuid,
+                                                                name: event?.inputValue ?? event
+                                                            });
+                                                        },
+                                                        onSettled: () => setLoadingReq(false)
+                                                    })
+                                                } else {
+                                                    setFieldValue("addressed_by", event);
+                                                }
+                                            }}
+                                            getOptionLabel={(option: any) => {
+                                                // Value selected with enter, right from the input
+                                                if (typeof option === "string") {
+                                                    return option;
+                                                }
+                                                // Add "xxx" option created dynamically
+                                                if (option.inputValue) {
+                                                    return option.inputValue;
+                                                }
+                                                // Regular option
+                                                return option.name;
+                                            }}
+                                            filterOptions={(options: any, params: any) => {
+                                                const {inputValue} = params;
+                                                const filtered = options.filter((option: any) =>
+                                                    option.name
+                                                        .toLowerCase()
+                                                        .includes(inputValue.toLowerCase())
+                                                );
+                                                // Suggest the creation of a new value
+                                                const isExisting = options.some(
+                                                    (option: any) =>
+                                                        inputValue.toLowerCase() ===
+                                                        option.name.toLowerCase()
+                                                );
+                                                if (inputValue !== "" && !isExisting) {
+                                                    filtered.push({
+                                                        inputValue,
+                                                        name: `${t(
+                                                            "add"
+                                                        )} "${inputValue}"`,
+                                                        isVerified: false,
+                                                    });
+                                                }
+                                                return filtered;
+                                            }}
+                                            renderOption={(props: any, option: any) => (
+                                                <ListItem {...props}>
+                                                    <ListItemText primary={`${option?.name}`}/>
+                                                </ListItem>
+                                            )}
+                                            isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                            placeholder={t("add-patient.addressed-by-placeholder")}
+                                        />
+                                    </Grid>
+                                    <Grid item md={6} xs={12}>
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.civil-status")}
+                                            </Typography>
+                                            <AsyncAutoComplete
+                                                loading={loadingReq}
+                                                value={values.civil_status}
+                                                url={`api/public/civil-status/${router.locale}`}
+                                                onChangeData={(event: any) => {
+                                                    setFieldValue("civil_status", event);
+                                                }}
+                                                getOptionLabel={(option: any) => {
+                                                    // Value selected with enter, right from the input
+                                                    if (typeof option === "string") {
+                                                        return option;
+                                                    }
+                                                    // Add "xxx" option created dynamically
+                                                    if (option.inputValue) {
+                                                        return option.inputValue;
+                                                    }
+                                                    // Regular option
+                                                    return option.name;
+                                                }}
+                                                renderOption={(props: any, option: any) => (
+                                                    <ListItem {...props}>
+                                                        <ListItemText primary={`${option?.name}`}/>
+                                                    </ListItem>
+                                                )}
+                                                isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                                placeholder={t("add-patient.civil-status-placeholder")}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Box>
+
+                            <Box>
+                                <Grid container spacing={2}>
+                                    <Grid item md={4} xs={12}>
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.cin")}
+                                            </Typography>
+                                            <TextField
+                                                placeholder={t("add-patient.cin-placeholder")}
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                                {...getFieldProps("cin")}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                    <Grid item md={4} xs={12}>
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.profession")}
+                                            </Typography>
+                                            <TextField
+                                                placeholder={t("add-patient.profession-placeholder")}
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                                {...getFieldProps("profession")}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                    <Grid item md={4} xs={12}>
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.family_doctor")}
+                                            </Typography>
+                                            <TextField
+                                                placeholder={t("add-patient.family_doctor-placeholder")}
+                                                type="text"
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                                {...getFieldProps("family_doctor")}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Box>
                         </Stack>
                     </Collapse>
-                    <Divider/>
+                    <Divider sx={{mt: 4}}/>
+                    <Stack my={2} sx={{cursor: 'pointer'}} onClick={() => {
+                        const newCollapse = [...collapse];
+                        if (collapse.includes("insurance-info")) {
+                            const index = collapse.indexOf("insurance-info");
+                            newCollapse.splice(index, 1);
+                            setCollapse(newCollapse);
+                        } else {
+                            newCollapse.push('insurance-info');
+                            setCollapse(newCollapse);
+                        }
+                    }} direction='row' alignItems='center' justifyContent='space-between'>
+                        <Typography variant="h6" color="text.primary">
+                            {t("add-patient.insurance-info")}
+                        </Typography>
+                        <Box sx={{
+                            '.react-svg': {
+                                transform: collapse.includes("insurance-info") ? "scale(1)" : 'scale(-1)'
+                            }
+                        }}>
+                            <Icon path="ic-up-arrow"/>
+                        </Box>
+                    </Stack>
+                    <Collapse in={collapse.includes("insurance-info")}>
+                        <Box>
+                            <Typography sx={{mb: 1.5, textTransform: "capitalize"}}>
+                                <IconButton
+                                    onClick={handleAddInsurance}
+                                    className="success-light"
+                                    size={"small"}
+                                    sx={{
+                                        mr: 1.5,
+                                        "& svg": {
+                                            width: 16,
+                                            height: 16
+                                        }
+                                    }}
+                                >
+                                    <Icon path="ic-plus"/>
+                                </IconButton>
+                                {t("add-patient.assurance")}
+                            </Typography>
+                            <Box>
+                                {values.insurance.map((
+                                    val: { insurance_number: string; insurance_uuid: string; },
+                                    index: number) => (
+                                    <Card key={index} sx={{marginBottom: 2}}>
+                                        <CardHeader
+                                            sx={{
+                                                "& .MuiCardHeader-action": {
+                                                    marginTop: 0
+                                                }
+                                            }}
+                                            action={
+                                                <IconButton
+                                                    size={"small"}
+                                                    onClick={() => handleRemoveInsurance(index)}
+                                                    className="error-light"
+                                                    sx={{
+                                                        mr: 1.5,
+                                                        mt: .3,
+                                                        "& svg": {
+                                                            width: 20,
+                                                            height: 20,
+                                                            "& path": {
+                                                                fill: (theme) => theme.palette.text.primary,
+                                                            },
+                                                        },
+                                                    }}
+                                                >
+                                                    <Icon path="ic-moin"/>
+                                                </IconButton>
+                                            }
+                                            avatar={
+                                                <Stack direction={"row"} alignItems={"center"}>
+                                                    <Autocomplete
+                                                        size={"small"}
+                                                        value={getFieldProps(`insurance[${index}].insurance_type`) ?
+                                                            socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
+                                                        onChange={(event, insurance: any) => {
+                                                            setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
+                                                            setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
+                                                        }}
+                                                        id={"assure"}
+                                                        options={socialInsurances}
+                                                        groupBy={(option: any) => option.grouped}
+                                                        sx={{minWidth: 460}}
+                                                        getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                        isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
+                                                        renderGroup={(params) => {
+                                                            return (
+                                                                <li key={params.key}>
+                                                                    {(params.children as Array<any>)?.length > 1 &&
+                                                                        <GroupHeader
+                                                                            sx={{marginLeft: 0.8}}>{params.group}</GroupHeader>}
+                                                                    <GroupItems {...(
+                                                                        (params.children as Array<any>)?.length > 1 &&
+                                                                        {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
+                                                                </li>)
+                                                        }}
+                                                        renderInput={(params) => {
+                                                            return (<TextField {...params}
+                                                                               placeholder={t("add-patient.patient-placeholder")}/>)
+                                                        }}
+                                                    />
+                                                </Stack>
+                                            }/>
+                                        <CardContent sx={{padding: "0 16px 16px"}}>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.assurance-social")}
+                                            </Typography>
+                                            <Grid
+                                                container
+                                                spacing={2}>
+                                                <Grid item xs={12} md={4}>
+                                                    <FormControl fullWidth>
+                                                        <Autocomplete
+                                                            size={"small"}
+                                                            value={insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) ?
+                                                                insurances.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) : ""}
+                                                            onChange={(event, insurance: any) => {
+                                                                setFieldValue(`insurance[${index}].insurance_uuid`, insurance?.uuid);
+                                                            }}
+                                                            id={"assurance"}
+                                                            options={insurances ? insurances : []}
+                                                            getOptionLabel={option => option?.name ? option.name : ""}
+                                                            isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                                            renderOption={(params, option) => (
+                                                                <Stack key={`assurance-${option.uuid}`}>
+                                                                    <MenuItem
+                                                                        {...params}
+
+                                                                        value={option.uuid}>
+                                                                        <Avatar
+                                                                            sx={{
+                                                                                width: 20,
+                                                                                height: 20,
+                                                                                borderRadius: 0.4
+                                                                            }}
+                                                                            alt={"insurance"}
+                                                                            src={option.logoUrl.url}
+                                                                        />
+                                                                        <Typography
+                                                                            sx={{ml: 1}}>{option.name}</Typography>
+                                                                    </MenuItem>
+                                                                </Stack>
+                                                            )}
+                                                            renderInput={(params) => {
+                                                                const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
+                                                                params.InputProps.startAdornment = insurance && (
+                                                                    <InputAdornment position="start">
+                                                                        {insurance?.logoUrl &&
+                                                                            <Avatar
+                                                                                sx={{
+                                                                                    width: 20,
+                                                                                    height: 20,
+                                                                                    borderRadius: 0.4
+                                                                                }}
+                                                                                alt="insurance"
+                                                                                src={insurance?.logoUrl.url}
+                                                                            />}
+                                                                    </InputAdornment>
+                                                                );
 
                     {/*
                     <PatientInsurance {...{patientInsurances:values.insurance, t,patient:selectedPatient}}/>
@@ -636,13 +931,11 @@ function AddPatientStep2({...props}) {
                     spacing={3}
                     direction="row"
                     justifyContent="flex-end"
-                    className="action"
-                >
+                    className="action">
                     <Button
                         variant="text-black"
                         color="primary"
-                        onClick={() => onNext(0)}
-                    >
+                        onClick={() => onNext(0)}>
                         {t("add-patient.return")}
                     </Button>
 
@@ -651,8 +944,7 @@ function AddPatientStep2({...props}) {
                         type="submit"
                         color="primary"
                         loading={loading}
-                        variant="contained"
-                    >
+                        variant="contained">
                         {t("add-patient.register")}
                     </LoadingButton>
                 </Stack>

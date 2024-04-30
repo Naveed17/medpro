@@ -155,18 +155,17 @@ function BoardItem({...props}) {
                         }
                     }
                 }}>
-                <CardContent sx={{
-                    p: 1
-                }}>
+                <CardContent sx={{p: 1}}>
                     <Stack direction='row' alignItems='center' justifyContent='space-between'>
                         <Stack direction='row' alignItems='center' spacing={.8}>
                             {quote.content.status !== 3 &&
-                                <Box display='flex' sx={{
-                                    svg: {
-                                        width: 22,
-                                        height: 22
-                                    }
-                                }}>
+                                <Box display='flex'
+                                     sx={{
+                                         svg: {
+                                             width: 22,
+                                             height: 22
+                                         }
+                                     }}>
                                     {!isDragging && AppointmentStatus[quote.content.status].icon}
                                 </Box>}
                             <Stack spacing={.4}>

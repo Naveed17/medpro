@@ -407,7 +407,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
-                tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
+                tel: patient?.contact && patient?.contact?.length > 0 ? patient?.contact[0] : "",
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 days: card.days,
                 description: card.description,

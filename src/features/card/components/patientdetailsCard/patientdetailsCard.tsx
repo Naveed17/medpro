@@ -30,7 +30,7 @@ import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
-import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
@@ -41,6 +41,7 @@ import {timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog} from "@features/dialog";
 import {setMessage, setOpenChat} from "@features/chat/actions";
+import {setDialog} from "@features/topNavBar";
 
 function PatientDetailsCard({...props}) {
     const {
@@ -125,14 +126,29 @@ function PatientDetailsCard({...props}) {
             onSuccess: (value: any) => {
                 const {data, status} = value?.data;
                 if (status === 'success') {
-                    const slugConsultation = `/dashboard/consultation/${data[0]}`;
-                    router.push({
-                        pathname: slugConsultation,
-                        query: {inProgress: true}
-                    }, slugConsultation, {locale: router.locale}).then(() => {
-                        closePatientDialog && closePatientDialog()
+                    if (!isActive) {
+                        const slugConsultation = `/dashboard/consultation/${data[0]}`;
+                        router.push({
+                            pathname: slugConsultation,
+                            query: {inProgress: true}
+                        }, slugConsultation, {locale: router.locale}).then(() => {
+                            closePatientDialog && closePatientDialog();
+                            setRequestLoading(false);
+                        });
+                    } else {
+                        const defEvent = {
+                            publicId: data[0],
+                            extendedProps: {
+                                patient
+                            }
+                        } as any;
+                        dispatch(setSelectedEvent(defEvent));
+                        dispatch(openDrawer({type: "view", open: false}));
+                        dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                        closePatientDialog && closePatientDialog();
                         setRequestLoading(false);
-                    });
+                    }
+
                 }
             }
         });
@@ -596,7 +612,6 @@ function PatientDetailsCard({...props}) {
                                                             !isMobile ? <LoadingButton
                                                                     loading={requestLoading}
                                                                     onClick={startConsultationFormPatient}
-                                                                    disabled={isActive}
                                                                     variant="contained"
                                                                     sx={{
                                                                         ml: {md: "auto", xs: 0},

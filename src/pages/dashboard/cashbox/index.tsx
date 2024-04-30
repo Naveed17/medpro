@@ -358,6 +358,8 @@ function Cashbox() {
         setTotal(data.total_amount);
         setTotalCash(data.period_cash);
         setTotalCheck(data.period_check);
+        setCA(data.appointment_total);
+        setUnpaid(data.appointment_rest_total);
         /*
             setToReceive(data.total_insurance_amount);
             setCollected(data.total_collected);*/
@@ -382,10 +384,6 @@ function Cashbox() {
                 onSuccess: (result) => {
                     const res = result.data.data;
                     setApps(res);
-                    setUnpaid(res.reduce((total: number, val: {
-                        appointmentRestAmount: number;
-                    }) => total + val.appointmentRestAmount, 0));
-                    setCA(res.reduce((total: number, val: { fees: string; }) => total + parseInt(val.fees), 0));
                 },
             }
         );
