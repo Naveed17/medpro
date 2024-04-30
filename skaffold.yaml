@@ -20,7 +20,7 @@ build:
         dockerfile: Dockerfile
       hooks:
         before:
-          - command: [ "bash", "-c", "envsubst < .env.local.dist  > .env" ]
+          - command: [ "bash", "-c", "./hook.sh" ]
 
 manifests:
   kustomize:
