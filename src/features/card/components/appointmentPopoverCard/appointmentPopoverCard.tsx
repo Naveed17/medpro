@@ -248,7 +248,7 @@ function AppointmentPopoverCard({...props}) {
                         {appointmentData?.patient.firstName ??
                             <Skeleton variant="text" width={50}/>} {appointmentData?.patient.lastName}
                     </Typography>
-                    <Typography
+                    {appointmentData?.patient.contact?.length > 0 && <Typography
                         variant="body2"
                         color="text.primary"
                         sx={{
@@ -264,7 +264,7 @@ function AppointmentPopoverCard({...props}) {
                         <CallIcon/>
                         {appointmentData?.patient.contact ? appointmentData?.patient.contact[0]?.code : doctor_country?.phone}
                         {appointmentData?.patient.contact[0]?.value}
-                    </Typography>
+                    </Typography>}
                 </Box>
             </Stack>
 
