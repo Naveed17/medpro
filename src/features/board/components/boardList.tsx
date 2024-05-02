@@ -94,21 +94,6 @@ const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
     ));
 });
 
-function InnerList({...props}) {
-    const {quotes, dropProvided} = props;
-    const title = props.title ? <div>{props.title}</div> : null;
-
-    return (
-        <Container>
-            {title}
-            <DropZone ref={dropProvided.innerRef}>
-                <InnerQuoteList quotes={quotes} handleEvent={props.handleEvent}/>
-                {dropProvided.placeholder}
-            </DropZone>
-        </Container>
-    );
-}
-
 export default function BoardList({...props}) {
     const {
         ignoreContainerClipping,
