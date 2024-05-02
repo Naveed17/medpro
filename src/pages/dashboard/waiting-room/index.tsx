@@ -137,9 +137,9 @@ function WaitingRoom() {
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
-        {index: 0, key: "startTime", value: "start-time", checked: true},
-        {index: 1, key: "arrivalTime", value: "arrival-time", checked: true},
-        {index: 2, key: "estimatedStartTime", value: "smart-list", checked: true}
+        {index: 0, key: "startTime", value: "start-time", checked: agenda?.waitingRoomDisplay === 0},
+        {index: 1, key: "arrivalTime", value: "arrival-time", checked: agenda?.waitingRoomDisplay === 1},
+        {index: 2, key: "estimatedStartTime", value: "smart-list", checked: agenda?.waitingRoomDisplay === 2}
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
