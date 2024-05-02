@@ -151,7 +151,21 @@ export default function BoardList({...props}) {
     `;
 
     const getRowHeight = (data: any) => {
-        return (document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height ?? 80) + heightOffset
+        const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height;
+        let defaultHeight;
+        switch (data?.column.id.toString()) {
+            case "1":
+            case "4,8":
+                defaultHeight = 65;
+                break;
+            case "3":
+                defaultHeight = 87;
+                break;
+            default:
+                defaultHeight = 70;
+                break;
+        }
+        return (elementHeight ?? defaultHeight) + heightOffset
     }
 
     return (
@@ -185,7 +199,7 @@ export default function BoardList({...props}) {
                             height={600}
                             rowCount={itemCount}
                             rowHeight={params => getRowHeight(quotes[params.index])}
-                            width={320}
+                            width={340}
                             autoContainerWidth
                             autoWidth
                             ref={(ref) => {

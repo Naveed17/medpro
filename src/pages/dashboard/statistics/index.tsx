@@ -189,9 +189,6 @@ function Statistics() {
 
     useEffect(() => {
         dispatch(toggleSideBar(true));
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["stats", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps

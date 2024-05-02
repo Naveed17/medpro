@@ -30,7 +30,7 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {ActionMenu} from "@features/menu";
+import {ActionMenu, toggleSideBar} from "@features/menu";
 import {
     getBirthdayFormat,
     prepareContextMenu,
@@ -724,7 +724,6 @@ function WaitingRoom() {
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
             const sortKey = menuOptions.find(option => option.value === boardFilterData.sort)?.key;
-            console.log("sortKey", sortKey);
             let sortData = (httpWaitingRoomsResponse as HttpResponse).data;
             if (sortKey !== "estimatedStartTime") {
                 const timeFormat = `DD-MM-YYYY HH:mm${sortKey === "arrivalTime" ? ":ss" : ""}`;
@@ -750,6 +749,8 @@ function WaitingRoom() {
     }, [httpWaitingRoomsResponse, is_next, boardFilterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        dispatch(toggleSideBar(true));
+        //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -110,7 +110,7 @@ function TopNavBar({...props}) {
     const [instruction, setInstruction] = useState("");
 
     const dir = router.locale === "ar" ? "rtl" : "ltr";
-
+    const excludeSideBar = ["/dashboard/waiting-room", "/dashboard/statistics", "/admin/doctors/[uuid]", "/admin/staff/[uuid]"];
     const settingHas = router.pathname.includes("settings/");
     const hasAdminAccess = router.pathname.includes("/admin");
 
@@ -420,7 +420,7 @@ function TopNavBar({...props}) {
                                     <Icon path="ic-toggle"/>
                                 </IconButton>
                             ) :
-                            (!["/dashboard/statistics", "/admin/doctors/[uuid]", "/admin/staff/[uuid]"].includes(router.pathname) &&
+                            (!excludeSideBar.includes(router.pathname) &&
                                 <IconButton
                                     disabled={lock}
                                     color="primary"
