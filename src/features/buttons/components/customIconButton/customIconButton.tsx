@@ -8,13 +8,13 @@ function CustomIconButton({ ...props }) {
     return (
         <IconButton
             sx={{
-                ...(sx && sx),
                 borderRadius: 1,
                 ...(color && {
                     backgroundColor: (theme.palette[color as keyof typeof theme.palette] as PaletteColor).main,
                     color: (theme.palette[color as keyof typeof theme.palette] as PaletteColor).contrastText,
                     "&:hover": { backgroundColor: (theme.palette[color as keyof typeof theme.palette] as PaletteColor).main }
                 }),
+                ...(sx && sx),
 
             }}
             className={`custom-icon-button ${className}`}

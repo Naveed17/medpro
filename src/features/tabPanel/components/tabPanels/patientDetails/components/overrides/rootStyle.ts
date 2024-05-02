@@ -71,6 +71,18 @@ const RootStyled = styled(Stack)(({theme})=>({
             fontWeight:600,
             cursor:'pointer'
         }
+    },
+    ".chart-view":{
+        button:{
+            backgroundColor:'transparent',
+            "&.active":{
+                backgroundColor:theme.palette.grey[200]
+            }
+        }
+    },
+    ".chart-wrapper":{
+        padding:theme.spacing(1),
+        border: `1px dashed ${theme.palette.divider}`,
     }
 }
 

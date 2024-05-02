@@ -12,6 +12,9 @@ export default function Card(theme) {
                         '&:last-child': {
                             paddingBottom: theme.spacing(2)
                         }
+                    },
+                    ".MuiCardHeader-action": {
+                        margin: 0
                     }
                 },
             },
