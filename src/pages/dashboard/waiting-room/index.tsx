@@ -107,7 +107,7 @@ function WaitingRoom() {
         patient,
         type
     } = useAppSelector(appointmentSelector);
-    const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {next: is_next, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
 
     const {data: user} = session as Session;
@@ -137,9 +137,9 @@ function WaitingRoom() {
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
-        {key: "startTime", value: "start-time", checked: true},
-        {key: "arrivalTime", value: "arrival-time", checked: true},
-        {key: "estimatedStartTime", value: "smart-list", checked: true}
+        {index: 0, key: "startTime", value: "start-time", checked: true},
+        {index: 1, key: "arrivalTime", value: "arrival-time", checked: true},
+        {index: 2, key: "estimatedStartTime", value: "smart-list", checked: true}
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
@@ -159,6 +159,7 @@ function WaitingRoom() {
     };
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
+    const {trigger: updateAgendaConfig} = useRequestQueryMutation("/agenda/config/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
@@ -383,10 +384,24 @@ function WaitingRoom() {
         dispatch(setIsUnpaid(event.target.checked));
     };
 
-    const handleSortSelect = (value: string) => {
-        dispatch(setSortTime(value));
+    const handleSortSelect = (item: any) => {
+        dispatch(setSortTime(item.value));
+
+        const params = new FormData();
+        params.append('waitingRoomDisplay', item.index.toString());
+        medicalEntityHasUser && updateAgendaConfig({
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: () => {
+
+            }
+        })
+
         setAnchorEl(null);
     };
+
     const handleOrderSelect = (value: string) => {
         dispatch(setOrderSort(value));
         setAnchorEl(null);
@@ -709,12 +724,17 @@ function WaitingRoom() {
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
             const sortKey = menuOptions.find(option => option.value === boardFilterData.sort)?.key;
-            const timeFormat = `DD-MM-YYYY HH:mm${sortKey === "arrivalTime" ? ":ss" : ""}`
-            let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => {
-                const d1 = boardFilterData.order === "asscending" ? a : b;
-                const d2 = boardFilterData.order === "asscending" ? b : a;
-                return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
-            }).group((diag: any) => diag.status);
+            console.log("sortKey", sortKey);
+            let sortData = (httpWaitingRoomsResponse as HttpResponse).data;
+            if (sortKey !== "estimatedStartTime") {
+                const timeFormat = `DD-MM-YYYY HH:mm${sortKey === "arrivalTime" ? ":ss" : ""}`;
+                sortData = sortData?.sort((a: any, b: any) => {
+                    const d1 = boardFilterData.order === "asscending" ? a : b;
+                    const d2 = boardFilterData.order === "asscending" ? b : a;
+                    return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
+                });
+            }
+            let groupedData = sortData.group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0]];
             if (sortKey === "arrivalTime") {
@@ -1109,7 +1129,7 @@ function WaitingRoom() {
                         {menuOptions.map((option) => (
                             <MenuItem
                                 key={option.value}
-                                onClick={() => handleSortSelect(option.value)}>
+                                onClick={() => handleSortSelect(option)}>
                                 <Box
                                     component={Radio}
                                     checkedIcon={<TripOriginRoundedIcon/>}

@@ -183,97 +183,82 @@ function Board({...props}) {
     return (
         <ParentContainer>
             <DragDropContext onDragEnd={handleOnDragBoard}>
-                <Droppable
-                    droppableId="board"
-                    type="COLUMN"
-                    direction="horizontal"
-                    ignoreContainerClipping={true}
-                    isCombineEnabled={true}>
-                    {(provided: DroppableProvided) => (
-                        <Grid container spacing={1} ref={provided.innerRef} {...provided.droppableProps}>
-                            {Object.keys(boardData).map((key: any, index: number) => (
-                                <Draggable key={index} draggableId={key} index={index} isDragDisabled>
-                                    {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-                                        <Grid item md={3} ref={provided.innerRef} {...provided.draggableProps}>
-                                            <Header isDragging={snapshot.isDragging}>
-                                                <Title
-                                                    isDragging={snapshot.isDragging}
-                                                    {...provided.dragHandleProps}
-                                                    aria-label={`${key} quote list`}>
-                                                    <Card>
-                                                        <CardHeader
-                                                            avatar={columns[index].icon}
-                                                            sx={{
-                                                                minHeight: 60,
-                                                                ".MuiCardHeader-action": {alignSelf: 'center'}
-                                                            }}
-                                                            title={
-                                                                <Stack direction={"row"} alignItems={"center"}
-                                                                       spacing={1}>
-                                                                    <Typography
-                                                                        color={"text.primary"} fontWeight={700}
-                                                                        fontSize={14}
-                                                                        sx={{
-                                                                            whiteSpace: "nowrap",
-                                                                            overflow: "hidden",
-                                                                            textOverflow: "ellipsis",
-                                                                            width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : "auto",
-                                                                        }}>
-                                                                        {t(`tabs.${key}`)}
-                                                                    </Typography>
+                <Grid container spacing={1}>
+                    {Object.keys(boardData).map((key: any, index: number) => (
+                        <Grid key={index} item md={3}>
+                            <Header>
+                                <Title
+                                    aria-label={`${key} quote list`}>
+                                    <Card>
+                                        <CardHeader
+                                            avatar={columns[index].icon}
+                                            sx={{
+                                                minHeight: 60,
+                                                ".MuiCardHeader-action": {alignSelf: 'center'}
+                                            }}
+                                            title={
+                                                <Stack direction={"row"} alignItems={"center"}
+                                                       spacing={1}>
+                                                    <Typography
+                                                        color={"text.primary"} fontWeight={700}
+                                                        fontSize={14}
+                                                        sx={{
+                                                            whiteSpace: "nowrap",
+                                                            overflow: "hidden",
+                                                            textOverflow: "ellipsis",
+                                                            width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : "auto",
+                                                        }}>
+                                                        {t(`tabs.${key}`)}
+                                                    </Typography>
 
-                                                                    <Badge
-                                                                        sx={{pl: 1}}
-                                                                        invisible={!(boardData[key].length > 0 && index !== 2)}
-                                                                        badgeContent={boardData[key].length}
-                                                                        color="info"/>
-                                                                </Stack>
-                                                            }
-                                                            action={<Stack direction={"row"} alignItems={"center"}
-                                                                           spacing={1}>
-                                                                {columns[index].id === "3" &&
-                                                                    <IconButton
-                                                                        size={"small"}
-                                                                        onClick={event => handleSortData(event)}>
-                                                                        <IconUrl width={20} height={20}
-                                                                                 path={"sort"}/>
-                                                                    </IconButton>}
+                                                    <Badge
+                                                        sx={{pl: 1}}
+                                                        invisible={!(boardData[key].length > 0 && index !== 2)}
+                                                        badgeContent={boardData[key].length}
+                                                        color="info"/>
+                                                </Stack>
+                                            }
+                                            action={<Stack direction={"row"} alignItems={"center"}
+                                                           spacing={1}>
+                                                {columns[index].id === "3" &&
+                                                    <IconButton
+                                                        size={"small"}
+                                                        onClick={event => handleSortData(event)}>
+                                                        <IconUrl width={20} height={20}
+                                                                 path={"sort"}/>
+                                                    </IconButton>}
 
-                                                                {columns[index].id === "5" &&
-                                                                    <Stack direction={"row"} alignItems={"center"}
-                                                                           justifyContent={"flex-end"}
-                                                                           sx={{height: 28}}>
-                                                                        <CustomSwitch
-                                                                            className="custom-switch"
-                                                                            name="active"
-                                                                            onChange={handleUnpaidFilter}
-                                                                            checked={isUnpaidFilter}
-                                                                        />
-                                                                        <Typography variant={"body2"}
-                                                                                    fontSize={12}>{t("tabs.payed")}</Typography>
-                                                                    </Stack>
-                                                                }
-                                                                {!!columns[index].action && columns[index].action}
-                                                            </Stack>}
+                                                {columns[index].id === "5" &&
+                                                    <Stack direction={"row"} alignItems={"center"}
+                                                           justifyContent={"flex-end"}
+                                                           sx={{height: 28}}>
+                                                        <CustomSwitch
+                                                            className="custom-switch"
+                                                            name="active"
+                                                            onChange={handleUnpaidFilter}
+                                                            checked={isUnpaidFilter}
                                                         />
-                                                    </Card>
-                                                </Title>
-                                            </Header>
-                                            <BoardList
-                                                {...{handleEvent}}
-                                                listId={key}
-                                                listType="QUOTE"
-                                                quotes={boardData[key]}
-                                                internalScroll
-                                            />
-                                        </Grid>
-                                    )}
-                                </Draggable>
-                            ))}
-                            {provided.placeholder}
+                                                        <Typography variant={"body2"}
+                                                                    fontSize={12}>{t("tabs.payed")}</Typography>
+                                                    </Stack>
+                                                }
+                                                {!!columns[index].action && columns[index].action}
+                                            </Stack>}
+                                        />
+                                    </Card>
+                                </Title>
+                            </Header>
+                            <BoardList
+                                {...{handleEvent}}
+                                listId={key}
+                                listType="QUOTE"
+                                quotes={boardData[key]}
+                                internalScroll
+                                useClone
+                            />
                         </Grid>
-                    )}
-                </Droppable>
+                    ))}
+                </Grid>
             </DragDropContext>
         </ParentContainer>)
 }
