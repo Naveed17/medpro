@@ -7,7 +7,7 @@ import type {
     DraggableProvided,
     DraggableStateSnapshot,
 } from 'react-beautiful-dnd';
-import {BoardItem, grid} from "@features/board";
+import {BoardItem, grid, heightOffset} from "@features/board";
 import ReactDOM from "react-dom";
 import {List} from 'react-virtualized';
 
@@ -42,18 +42,18 @@ const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) 
     const patchedStyle = {
         ...style,
         left: 0,
-        top: style.top + grid,
-        width: `calc(${style.width} - ${grid}px)`,
+        top: style.top,
+        width: style.width,
         height: style.height - grid,
     };
 
     return (
-        <Draggable key={quote.id} draggableId={quote.id} index={index} isDragDisabled={!quote?.content.isDraggable}>
-            {(
-                dragProvided: DraggableProvided,
-                dragSnapshot: DraggableStateSnapshot,
-            ) => (
-                <div key={index} style={patchedStyle}>
+        <div key={index} style={patchedStyle}>
+            <Draggable key={quote.id} draggableId={quote.id} index={index} isDragDisabled={!quote?.content.isDraggable}>
+                {(
+                    dragProvided: DraggableProvided,
+                    dragSnapshot: DraggableStateSnapshot,
+                ) => (
                     <BoardItem
                         {...{
                             index,
@@ -64,9 +64,9 @@ const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) 
                             handleEvent
                         }}
                     />
-                </div>
-            )}
-        </Draggable>
+                )}
+            </Draggable>
+        </div>
     );
 };
 
@@ -123,11 +123,10 @@ export default function BoardList({...props}) {
         useClone,
         handleEvent
     } = props;
-    console.log("quotes", quotes)
+
     const Wrapper = styled.div`
         display: flex;
         flex-direction: column;
-        opacity: ${({isDropDisabled}: { isDropDisabled: Boolean }) => (isDropDisabled ? 0.5 : 'inherit')};
 
         border: ${grid}px;
         padding-bottom: 0;
@@ -139,15 +138,21 @@ export default function BoardList({...props}) {
     const ScrollContainer = styled.div`
         overflow-x: hidden;
         overflow-y: auto;
-        max-height: ${typeof window !== "undefined" && window.innerHeight > 800 ? '75vh' : '67vh'};
     `;
 
     const ColumnContainer = styled.div`
+        opacity: ${({isDropDisabled}: { isDropDisabled: Boolean }) => (isDropDisabled ? 0.5 : 'inherit')};
+        height: ${typeof window !== "undefined" && window.innerHeight > 800 ? '75vh' : '67vh'};
         flex-shrink: 0;
-        margin: ${grid}px;
+        margin: 0;
         display: flex;
         flex-direction: column;
     `;
+
+    const getRowHeight = (data: any) => {
+        console.log("getRowHeight", data, document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`))
+        return (document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height ?? 80) + heightOffset
+    }
 
     return (
         <ColumnContainer>
@@ -177,11 +182,12 @@ export default function BoardList({...props}) {
 
                     return (
                         <List
-                            height={500}
+                            height={600}
                             rowCount={itemCount}
-                            rowHeight={110}
-                            estimatedRowSize={100}
-                            width={260}
+                            rowHeight={params => getRowHeight(quotes[params.index])}
+                            width={320}
+                            autoContainerWidth
+                            autoWidth
                             ref={(ref) => {
                                 // react-virtualized has no way to get the list's ref that I can
                                 //  we use the `ReactDOM.findDOMNode(ref)` escape hatch to get the ref
@@ -194,7 +200,6 @@ export default function BoardList({...props}) {
                                 }
                             }}
                             style={{
-                                ...style,
                                 transition: 'background-color 0.2s ease',
                             }}
                             rowRenderer={getRowRender(quotes, handleEvent)}

@@ -182,7 +182,7 @@ function BoardItem({...props}) {
                                         }}
                                         {...(quote.content.startTime === "00:00" && {color: 'warning'})}
                                         variant={"contained"}
-                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
+                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}{!isDragging ? `-${index + 1}` : ""}</Button>}
                                     <Typography
                                         {...(mode !== "normal" && {
                                             className: "blur-text",
