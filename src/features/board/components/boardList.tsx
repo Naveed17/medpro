@@ -112,34 +112,15 @@ function InnerList({...props}) {
 export default function BoardList({...props}) {
     const {
         ignoreContainerClipping,
-        internalScroll,
-        scrollContainerStyle,
         isDropDisabled,
         isCombineEnabled,
         listId = 'LIST',
         listType,
-        style,
         quotes,
         title,
         useClone,
         handleEvent
     } = props;
-
-    const Wrapper = styled.div`
-        display: flex;
-        flex-direction: column;
-
-        border: ${grid}px;
-        padding-bottom: 0;
-        transition: background-color 0.2s ease, opacity 0.1s ease;
-        user-select: none;
-        width: 100%;
-    `;
-
-    const ScrollContainer = styled.div`
-        overflow-x: hidden;
-        overflow-y: auto;
-    `;
 
     const ColumnContainer = styled.div`
         opacity: ${({isDropDisabled}: { isDropDisabled: Boolean }) => (isDropDisabled ? 0.5 : 'inherit')};
