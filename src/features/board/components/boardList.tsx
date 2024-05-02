@@ -29,6 +29,7 @@ const Container = styled.div``;
 
 // Using a higher order function so that we can look up the quotes data to retrieve
 // our quote from within the rowRender function
+// eslint-disable-next-line react/display-name
 const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) => {
     const quote = quotes[index];
 
@@ -150,7 +151,6 @@ export default function BoardList({...props}) {
     `;
 
     const getRowHeight = (data: any) => {
-        console.log("getRowHeight", data, document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`))
         return (document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height ?? 80) + heightOffset
     }
 
