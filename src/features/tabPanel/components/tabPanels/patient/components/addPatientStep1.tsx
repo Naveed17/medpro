@@ -29,7 +29,6 @@ import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
 
 import Icon from "@themes/urlIcon";
-import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import IconUrl from "@themes/urlIcon";
@@ -693,14 +692,6 @@ function AddPatientStep1({...props}) {
                                                         size="small"
                                                         fullWidth
                                                         {...getFieldProps(`phones[${index}].firstName`)}
-                                                        error={Boolean(
-                                                            touched.first_name && errors.first_name
-                                                        )}
-                                                        helperText={
-                                                            Boolean(touched.first_name && errors.first_name)
-                                                                ? String(errors.first_name)
-                                                                : undefined
-                                                        }
                                                     />
                                                 </Box>
                                             </Grid>
@@ -722,14 +713,6 @@ function AddPatientStep1({...props}) {
                                                         size="small"
                                                         fullWidth
                                                         {...getFieldProps(`phones[${index}].lastName`)}
-                                                        error={Boolean(
-                                                            touched.last_name && errors.last_name
-                                                        )}
-                                                        helperText={
-                                                            Boolean(touched.last_name && errors.last_name)
-                                                                ? String(errors.last_name)
-                                                                : undefined
-                                                        }
                                                     />
                                                 </Box>
                                             </Grid>

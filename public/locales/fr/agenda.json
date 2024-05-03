@@ -215,6 +215,7 @@
         "assurance-num-error": "Le numéro d'assurance est obligatoire",
         "assurance-type-error": "Veuillez sélectionner l'assurance",
         "email": "E-mail",
+        "relation": "Relation",
         "email-placeholder": "Saisissez l'adresse e-mail du patient",
         "cin": "CIN",
         "cin-placeholder": "Saisir la CIN du patient",
@@ -230,6 +231,7 @@
         "description": "",
         "add-new": "Ajouter un autre patient",
         "add-appo": "Ajouter RDV",
+        "add-contact": "Ajouter un contact",
         "register": "Enregistrer",
         "return": "Retourner à",
         "dialog": {

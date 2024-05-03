@@ -13,11 +13,11 @@ export const SocialInsured = [
 ];
 
 export const PatientContactRelation = [
-    {key: "himself", value: "0", label: "himself"},
-    {key: "partner", value: "1", label: "partner"},
-    {key: "father", value: "2", label: "father"},
-    {key: "mother", value: "3", label: "mother"},
-    {key: "child", value: "4", label: "child"},
+    {key: "himself", value: 0, label: "himself"},
+    {key: "partner", value: 1, label: "partner"},
+    {key: "father", value: 2, label: "father"},
+    {key: "mother", value: 3, label: "mother"},
+    {key: "child", value: 4, label: "child"},
 ];
 
 export const PhoneRegExp =
