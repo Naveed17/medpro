@@ -28,11 +28,37 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
+
     {
+        id: "mtt",
+        numeric: true,
+        disablePadding: false,
+        label: "mtt",
+        sortable: true,
+        align: "center",
+    },
+
+    {
+        id: "remb",
+        numeric: true,
+        disablePadding: false,
+        label: "remb",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "patient_part",
+        numeric: true,
+        disablePadding: false,
+        label: "patient_part",
+        sortable: true,
+        align: "center",
+    },
+    /*{
         id: "type",
         numeric: true,
         disablePadding: false,
-        label: "type",
+        label: "start_date",
         sortable: true,
         align: "center",
     },
@@ -43,39 +69,7 @@ const headCells: readonly HeadCell[] = [
         label: "exp_date",
         sortable: true,
         align: "center",
-    },
-    {
-        id: "mtt",
-        numeric: true,
-        disablePadding: false,
-        label: "mtt",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "tax",
-        numeric: true,
-        disablePadding: false,
-        label: "tax",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "remb",
-        numeric: true,
-        disablePadding: false,
-        label: "remb",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "tax_remb",
-        numeric: true,
-        disablePadding: false,
-        label: "tax_remb",
-        sortable: true,
-        align: "center",
-    },
+    },*/
     {
         id: "actions",
         numeric: true,
@@ -323,7 +317,7 @@ function ActFeesRow({...props}) {
                     }}>
                         <Otable
                             headers={headCells}
-                            rows={[1, 2, 3]}
+                            rows={row.insurances}
                             from={"actfees-collapse"}
                             {...{t, devise, handleEvent}}
                         />

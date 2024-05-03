@@ -6,22 +6,33 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 function ActsFeesCollapseRow({...props}) {
     const theme = useTheme();
-    const {data, handleEvent} = props;
+    const {row,data, handleEvent} = props;
     const {devise} = data;
-
+console.log(row)
     return (
         <TableRowStyled className="act-fees-collapse-row">
             <TableCell>
                 <Typography fontWeight={700} color="text.primary">
-                    Nom d’assurance
+                    {row.insurance.name}
                 </Typography>
             </TableCell>
             <TableCell>
                 <Typography textAlign="center" color={theme.palette.grey[500]}>
-                    Nature
+                    {row.fees} {devise}
                 </Typography>
             </TableCell>
             <TableCell>
+                <Typography textAlign="center" color={theme.palette.grey[500]}>
+                    {row.refund ? row.refund : 0} {devise}
+                </Typography>
+            </TableCell>
+            <TableCell>
+                <Typography textAlign="center" color={theme.palette.grey[500]}>
+                    {row.patient_part ? row.patient_part : 0} {devise}
+                </Typography>
+            </TableCell>
+
+{/*            <TableCell>
                 <Stack
                     direction="row"
                     alignItems="center"
@@ -35,32 +46,30 @@ function ActsFeesCollapseRow({...props}) {
                         color={theme.palette.text.primary}
                     />
                     <Typography variant="body2" color={theme.palette.grey[500]}>
-                        03/12/2023
+                        {row.startDate}
                     </Typography>
                 </Stack>
-            </TableCell>
-            <TableCell>
-                <Typography textAlign="center" color={theme.palette.grey[500]}>
-                    0 {devise}
-                </Typography>
-            </TableCell>
-            <TableCell>
-                <Typography textAlign="center" color={theme.palette.grey[500]}>
-                    0 %
-                </Typography>
-            </TableCell>
-            <TableCell>
-                <Typography textAlign="center" color={theme.palette.grey[500]}>
-                    0 {devise}
-                </Typography>
-            </TableCell>
-            <TableCell>
-                <Typography textAlign="center" color={theme.palette.grey[500]}>
-                    0 %
-                </Typography>
-            </TableCell>
+            </TableCell>*/}
+            {/*<TableCell>
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="center"
+                    spacing={0.5}
+                >
+                    <IconUrl
+                        path="ic-agenda"
+                        height={11}
+                        width={11}
+                        color={theme.palette.text.primary}
+                    />
+                    <Typography variant="body2" color={theme.palette.grey[500]}>
+                        {row.endDate}
+                    </Typography>
+                </Stack>
+            </TableCell>*/}
             <TableCell align="right">
-                <IconButton
+                {/*<IconButton
                     size="small"
                     className="btn-more"
                     onClick={(e) =>
@@ -68,7 +77,7 @@ function ActsFeesCollapseRow({...props}) {
                     }
                 >
                     <MoreVertIcon fontSize="small"/>
-                </IconButton>
+                </IconButton>*/}
             </TableCell>
         </TableRowStyled>
     );
