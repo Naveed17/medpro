@@ -33,7 +33,7 @@ import {DatePicker} from "@features/datepicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {CountrySelect} from "@features/countrySelect";
-import {DefaultCountry, SocialInsured} from "@lib/constants";
+import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
@@ -224,6 +224,12 @@ function AddPatientStep2({...props}) {
             value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
             type: "phone",
             contact_type: contacts[0].uuid,
+            is_whatsapp: phoneData.isWhatsapp,
+            contact_relation: PatientContactRelation.find(relation => relation.key === phoneData.relation)?.value,
+            contactSocial: {
+                first_name: phoneData.firstName,
+                last_name: phoneData.lastName
+            },
             is_public: false,
             is_support: false
         }))));

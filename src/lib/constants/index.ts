@@ -12,6 +12,14 @@ export const SocialInsured = [
     {grouped: "child", key: "child", value: "7", label: "other_child"},
 ];
 
+export const PatientContactRelation = [
+    {key: "himself", value: "0", label: "himself"},
+    {key: "partner", value: "1", label: "partner"},
+    {key: "father", value: "2", label: "father"},
+    {key: "mother", value: "3", label: "mother"},
+    {key: "child", value: "4", label: "child"},
+];
+
 export const PhoneRegExp =
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
