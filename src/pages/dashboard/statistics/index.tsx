@@ -193,7 +193,7 @@ function Statistics() {
         i18n.reloadResources(i18n.resolvedLanguage, ["stats", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>
