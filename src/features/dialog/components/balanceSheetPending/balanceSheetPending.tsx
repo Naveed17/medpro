@@ -1,41 +1,26 @@
 import {Button, Card, DialogActions, Stack, TextField, Typography} from '@mui/material'
-import {useFormik} from "formik";
 import BalanceSheetPendingStyled from './overrides/balanceSheetPendingStyle';
 import {Dialog} from '@features/dialog'
 import {useTranslation} from 'next-i18next'
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 
 function BalanceSheetPendingDialog({...props}) {
     const {data} = props;
     const [analyses, setAnalyses] = useState<any>(data.state);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const formik = useFormik({
-        initialValues: {
-            name: '',
-        },
-        onSubmit: async (values) => {
-        },
-    });
-    const {values, handleSubmit, setFieldValue} = formik;
-    const [files, setFile] = useState([]);
+
+    const [files] = useState([]);
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
-    const handleDrop = React.useCallback(
-        (acceptedFiles: React.SetStateAction<never[]>) => {
-            setFile(acceptedFiles);
-            setOpenDialog(true)
-        },
-        [setFile]
-    );
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <BalanceSheetPendingStyled>
             {/*<Grid container spacing={5}>
@@ -84,25 +69,24 @@ function BalanceSheetPendingDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={5}>*/}
             <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
-            {
-                analyses.hasAnalysis.map((item: any, index: number) => (
-                    <Card key={index} sx={{p: 1}}>
-                        <Stack direction='row' alignItems="center" justifyContent='space-between' mb={1}>
-                            <Typography>{item.analysis.name}</Typography>
-                        </Stack>
-                        <TextField
-                            placeholder={t("enter_the_result")}
-                            value={item.result}
-                            fullWidth
-                            onChange={(ev) => {
-                                let items = analyses.hasAnalysis.map((item: { result: string }) => ({...item}));
-                                items[index].result = ev.target.value;
-                                setAnalyses({uuid: analyses.uuid, hasAnalysis: items})
-                                data.setState({uuid: analyses.uuid, hasAnalysis: items})
-                            }}
-                        />
-                    </Card>
-                ))}
+            {analyses.hasAnalysis.map((item: any, index: number) => (
+                <Card key={index} sx={{p: 1}}>
+                    <Stack direction='row' alignItems="center" justifyContent='space-between' mb={1}>
+                        <Typography>{item?.name}</Typography>
+                    </Stack>
+                    <TextField
+                        placeholder={t("enter_the_result")}
+                        value={item.result}
+                        fullWidth
+                        onChange={(ev) => {
+                            let items = analyses.hasAnalysis.map((item: { result: string }) => ({...item}));
+                            items[index].result = ev.target.value;
+                            setAnalyses({uuid: analyses.uuid, hasAnalysis: items})
+                            data.setState({uuid: analyses.uuid, hasAnalysis: items})
+                        }}
+                    />
+                </Card>
+            ))}
 
             <Dialog action={"add_a_document"}
                     open={openDialog}

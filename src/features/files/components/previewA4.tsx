@@ -95,7 +95,7 @@ function PreviewDialog({...props}) {
                                 elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
                                 switch (pr.name) {
                                     case "name":
-                                        const val = `${index + 1} • ${el.drugName}`;
+                                        const val = `${index + 1} • ${el.drugName} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}`;
                                         elx.append(val)
                                         rows.push({
                                             value: val,
@@ -163,9 +163,9 @@ function PreviewDialog({...props}) {
                         case "requested-medical-imaging":
                             const imgLine = document.createElement('p');
                             imgLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
-                            imgLine.append(`• ${el['medical-imaging']?.name}`)
+                            imgLine.append(`• ${el?.name}`)
                             rows.push({
-                                value: `• ${el['medical-imaging']?.name}`,
+                                value: `• ${el?.name}`,
                                 name: "name",
                                 element: "p",
                                 style: {
