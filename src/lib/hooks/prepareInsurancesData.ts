@@ -20,6 +20,7 @@ export const prepareInsurancesData = ({...props}) => {
             ...insurance,
             ...(insurance.start_date && {start_date: moment(insurance.start_date).format('DD/MM/YYYY')}),
             ...(insurance.end_date && {end_date: moment(insurance.end_date).format('DD/MM/YYYY')}),
+            ...(insurance.insurance_book_uuid && {insurance_book: insurance.insurance_book_uuid}),
             box,
             medical_entity_has_insurance,
             ...(apcis.length > 0 && {apci: apcis.join(',')}),

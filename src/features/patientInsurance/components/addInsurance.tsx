@@ -118,6 +118,7 @@ const AddInsurance = ({...props}) => {
         initialValues: {
             insurance: {
                 insurance_book: pi ? pi.insuranceBook?.insuranceNumber : "",
+                insurance_book_uuid: pi ? pi.insuranceBook?.uuid : "",
                 start_date: pi ? new Date(moment(pi.insuranceBook?.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
                 end_date: pi ? new Date(moment(pi.insuranceBook?.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
                 insurance_key: "",
@@ -172,6 +173,13 @@ const AddInsurance = ({...props}) => {
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
     const handleUpdatePatient = () => {
+        console.log(JSON.stringify(prepareInsurancesData({
+            insurances: [values.insurance],
+            box: selectedBox ? selectedBox.uuid : "",
+            apcis,
+            medical_entity_has_insurance: selectedConv ? selectedConv.uuid : "",
+            contact: contacts?.length > 0 && contacts[0].uuid
+        })[0]))
         const params = new FormData();
         params.append('insurance', JSON.stringify(prepareInsurancesData({
             insurances: [values.insurance],
@@ -297,6 +305,7 @@ const AddInsurance = ({...props}) => {
                                 onSuccess: (result) => {
                                     const res = result.data.data;
                                     if (res.length > 0) {
+                                        setFieldValue(`insurance.insurance_book_uuid`, res[0].uuid);
                                         const el = insurances.find(insc => insc.uuid === res[0].insurance.uuid)
                                         if (el) {
                                             setSelected(el)

@@ -110,7 +110,7 @@ function FeesTab({...props}) {
         setOpenDialog,
         setState
     } = props;
-console.log(setInfo)
+
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
     const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
         method: "GET",
