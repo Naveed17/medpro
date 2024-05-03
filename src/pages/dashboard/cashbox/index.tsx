@@ -492,7 +492,7 @@ function Cashbox() {
         i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>

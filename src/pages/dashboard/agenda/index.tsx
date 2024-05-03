@@ -1084,7 +1084,7 @@ function Agenda() {
         dispatch(resetFilter());
     });
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>

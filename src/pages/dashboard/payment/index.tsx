@@ -37,6 +37,7 @@ import {EventDef} from "@fullcalendar/core/internal";
 import {DrawerBottom} from "@features/drawerBottom";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances, useSendNotification} from "@lib/hooks/rest";
+import {LoadingScreen} from "@features/loadingScreen";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -123,7 +124,7 @@ function Payment() {
     const {trigger: triggerNotificationPush} = useSendNotification();
 
     const {tableState} = useAppSelector(tableActionSelector);
-    const {t, i18n} = useTranslation(["payment", "common"]);
+    const {t, ready, i18n} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
@@ -273,6 +274,8 @@ function Payment() {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>
