@@ -10,7 +10,7 @@ import {Insurance} from "@features/stepper/components/insurance";
 import {useInsurances} from "@lib/hooks/rest";
 
 function AgreementDialog({...props}) {
-    const {data: {t, devise, stepperData, collapse = false}} = props;
+    const {data: {t, devise, stepperData, collapse = false, selectedRow}} = props;
 
     const {insurances} = useInsurances();
 
@@ -38,23 +38,23 @@ function AgreementDialog({...props}) {
     const {values, setFieldValue, handleSubmit} = formik;
     return (
         <Stack>
-            <Paper sx={{
-                px: 2,
-                py: 3,
-                border: "none",
-                borderRadius: 0,
-                bgcolor: (theme) => theme.palette.background.default,
-            }}>
-                <Stepper
-                    {...{stepperData}}
-                    tabIndex={currentStep}
-                    t={t}
-                    minWidth={662}
-                    padding={0}/>
-            </Paper>
-            <Paper
-                sx={{px: 2, py: 3, border: "none", mx: -3, mb: -2, borderRadius: 0}}
-            >
+            {
+                selectedRow === null && <Paper sx={{
+                    px: 2,
+                    py: 3,
+                    border: "none",
+                    borderRadius: 0,
+                    bgcolor: (theme) => theme.palette.background.default,
+                }}>
+                    <Stepper
+                        {...{stepperData}}
+                        tabIndex={currentStep}
+                        t={t}
+                        minWidth={662}
+                        padding={0}/>
+                </Paper>
+            }
+            <Paper sx={{px: 2, py: 3, border: "none", mx: -3, mb: -2, borderRadius: 0}}>
                 <FormikProvider value={formik}>
                     <Form
                         autoComplete="off"

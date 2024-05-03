@@ -53,7 +53,7 @@ const GroupItems = styled('ul')({
 });
 
 const AddInsurance = ({...props}) => {
-    const {t, pi, setAddNew, patient, requestAction = "POST", mutatePatientInsurances,setSelectedInsurance} = props;
+    const {t, pi, setAddNew, patient, requestAction = "POST", mutatePatientInsurances, setSelectedInsurance} = props;
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -156,7 +156,8 @@ const AddInsurance = ({...props}) => {
     const [selectedBox, setSelectedBox] = useState<InsuranceBoxModel | null>(null);
     const [apcisList, setApcisList] = useState<ApciModel[]>([]);
     const [apcis, setApcis] = useState<string[]>([]);
-
+    const [conventions, setConventions] = useState<any[]>([]);
+    const [selectedConv, setSelectedConv] = useState<any>(null);
     const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
         ...Insured,
         grouped: commonTranslation(`social_insured.${Insured.grouped}`),
@@ -176,6 +177,7 @@ const AddInsurance = ({...props}) => {
             insurances: [values.insurance],
             box: selectedBox ? selectedBox.uuid : "",
             apcis,
+            medical_entity_has_insurance: selectedConv ? selectedConv.uuid : "",
             contact: contacts?.length > 0 && contacts[0].uuid
         })[0]));
 
@@ -185,9 +187,10 @@ const AddInsurance = ({...props}) => {
             data: params
         }, {
             onSuccess: () => {
-                console.log(mutatePatientInsurances)
                 setAddNew(false)
                 setSelected(null);
+                setSelectedConv(null)
+                resetForm();
                 setSelectedInsurance && setSelectedInsurance("");
                 mutatePatientInsurances && mutatePatientInsurances();
             }
@@ -220,14 +223,34 @@ const AddInsurance = ({...props}) => {
         return codes;
     }
 
-    const {values, errors, touched, getFieldProps, setFieldValue} = formik;
+    const getConvention = (insurance_uuid: string) => {
+        trigger({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${insurance_uuid}/conventions/${router.locale}`
+        }, {
+            onSuccess: (result) => {
+                setConventions(result.data.data)
+                if (result.data.data.length > 0) {
+                    if (pi && pi.insuranceBook?.medicalEntityHasInsurance) {
+                        setSelectedConv(result.data.data.find((res: any) => res.uuid === pi.insuranceBook.medicalEntityHasInsurance.uuid))
+                    } else {
+                        setSelectedConv(result.data.data[0])
+                    }
+                }
+            }
+        })
+    }
+
+    const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
 
     useEffect(() => {
-        if (selected)
+        if (selected) {
             getApci(selected.uuid)
-        else {
+            getConvention(selected.uuid)
+        } else {
             setApcisList([])
             setApcis([])
+            setConventions([])
         }
     }, [selected]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -279,7 +302,6 @@ const AddInsurance = ({...props}) => {
                                             setSelected(el)
                                             setBoxes(el.boxes)
                                             setFieldValue(`insurance.insurance_uuid`, el.uuid);
-
                                         }
                                     }
                                 }
@@ -377,6 +399,30 @@ const AddInsurance = ({...props}) => {
                 </Stack>}
 
             </Stack>
+            {conventions.length > 0 && <Stack spacing={1} style={{width: "100%"}}>
+                <Typography
+                    className="label"
+                    variant="body2"
+                    color="text.secondary">
+                    {t("insurance.convention")}
+                </Typography>
+
+                <Autocomplete
+                    options={conventions}
+                    getOptionLabel={(option) => option.name ? option.name : ""}
+                    value={selectedConv}
+                    popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
+                    size={"small"}
+                    isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
+                    onChange={(event, newValue) => {
+                        setSelectedConv(newValue)
+                    }}
+                    renderInput={(params) => (
+                        <TextField {...params} placeholder={t('insurance.select')} variant="outlined"/>
+                    )}
+                />
+            </Stack>}
+
             <Stack direction={"row"} spacing={1}>
                 <Stack spacing={1} style={{width: "100%"}}>
                     <Typography
@@ -391,7 +437,6 @@ const AddInsurance = ({...props}) => {
                             value={getFieldProps(`insurance.insurance_type`) ?
                                 socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance.insurance_type`).value) : ""}
                             onChange={(event, insurance: any) => {
-                                console.log(insurance?.value)
                                 setFieldValue(`insurance.insurance_type`, insurance?.value)
                                 setFieldValue(`insurance.expand`, insurance?.key !== "socialInsured")
                             }}
@@ -597,7 +642,8 @@ const AddInsurance = ({...props}) => {
 
             </Stack>}
 
-            <Button variant={"contained"} onClick={handleUpdatePatient}>{t(pi ? t('insurance.edit') : t('insurance.save'))}</Button>
+            <Button variant={"contained"}
+                    onClick={handleUpdatePatient}>{t(pi ? t('insurance.edit') : t('insurance.save'))}</Button>
         </Stack>
     );
 }

@@ -132,6 +132,7 @@ function InsuranceAndAgreement() {
     const [openAgreementDialog, setAgreementDialog] = useState(false);
     const [collapse, setCollapse] = useState(false);
     const [agreements, setAgreements] = useState([]);
+    const [selectedRow, setSelectedRow] = useState<any>(null);
 
     const {data: httpInsurances,mutate} = useRequestQuery({
         method: "GET",
@@ -170,6 +171,42 @@ function InsuranceAndAgreement() {
         setContextMenu(null);
     }
 
+    const saveChanges = (from:string) => {
+        const form = new FormData();
+        form.append("insurance", agreement.insurance ? agreement.insurance.uuid : "")
+        form.append("name", agreement.label)
+        form.append("mutual", agreement.name ? agreement.name : "")
+        form.append("start_date", agreement.startDate ? moment(agreement.startDate).format("DD/MM/YYYY") : moment().format("DD/MM/YYYY"))
+        form.append("end_date", agreement.endDate ? moment(agreement.endDate).format("DD/MM/YYYY") : moment().add(1, "year").format("DD/MM/YYYY"))
+        if (selectedRow === null)
+            form.append("acts", JSON.stringify(agreement.acts))
+        form.append("medicalEntityHasUsers", medicalEntityHasUser as string)
+        trigger(
+            {
+                method: selectedRow ? "PUT":"POST",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${selectedRow ? selectedRow.uuid+"/":""}${router.locale}`,
+                data: form
+            },
+            {
+                onSuccess: () => {
+                    setCollapse(false);
+                    dispatch(SetAgreement({
+                        type: 'insurance',
+                        insurance: {name: ""},
+                        label: '',
+                        startDate: null,
+                        endDate: null,
+                        acts: []
+                    }))
+                    mutate()
+                    dispatch(setStepperIndex(0))
+                    if (from !=="next")
+                        setAgreementDialog(false)
+                }
+            }
+        );
+    }
+
     useEffect(() => {
         if (httpInsurances) {
             setAgreements(httpInsurances.data)
@@ -202,6 +239,7 @@ function InsuranceAndAgreement() {
                                 /*toolbar={<Toolbar {...{t, search, handleSearch}} />}*/
                                 headers={headCells}
                                 rows={agreements}
+                                {...{setAgreementDialog,setSelectedRow}}
                                 handleEvent={handleTableActions}
                                 state={null}
                                 from={"insurance-agreement"}
@@ -250,16 +288,34 @@ function InsuranceAndAgreement() {
             <MedDialog
                 action={"agreement"}
                 open={openAgreementDialog}
-                data={{t, devise, stepperData, collapse}}
+                data={{t, devise, stepperData, collapse,selectedRow}}
                 direction={direction}
                 sx={{bgcolor: theme.palette.background.default}}
                 dialogClose={() => {
                     setAgreementDialog(false);
+                    setSelectedRow(null)
                     setCollapse(false);
+                    dispatch(SetAgreement({
+                        type: 'insurance',
+                        insurance: {name: ""},
+                        label: '',
+                        startDate: null,
+                        endDate: null,
+                        acts: []
+                    }))
                 }}
                 onClose={() => {
                     setAgreementDialog(false);
+                    setSelectedRow(null)
                     setCollapse(false);
+                    dispatch(SetAgreement({
+                        type: 'insurance',
+                        insurance: {name: ""},
+                        label: '',
+                        startDate: null,
+                        endDate: null,
+                        acts: []
+                    }))
                 }}
                 headerDialog={
                     <DialogTitle
@@ -303,73 +359,44 @@ function InsuranceAndAgreement() {
 
                         </Button>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                            <Button
-                                variant="contained"
-                                disabled={currentStep === 0 && ((agreement?.type ==="insurance" &&!agreement?.insurance?.uuid)|| (agreement?.type === "agreement" && !agreement?.name) ) }
-                                onClick={() => {
-                                    if (stepperData.length - 1 > currentStep) {
-                                        dispatch(setStepperIndex(currentStep + 1));
-                                    } else {
-                                        setAgreementDialog(false);
-                                        setCollapse(false);
-                                    }
-                                }}
-                                {...(stepperData.length - 1 === currentStep && {
-                                    variant: "outlined",
-                                    color: "info",
-                                    sx: {bgcolor: theme.palette.grey["A500"]},
-                                })}
-                            >
-
-                                {t("dialog.next")}
-
-                            </Button>
                             {stepperData.length - 1 === currentStep && (
                                 <Button
                                     onClick={() => {
-                                        const form = new FormData();
-                                        form.append("insurance", agreement.insurance.uuid ? agreement.insurance.uuid : "")
-                                        form.append("name", agreement.label)
-                                        form.append("mutual", agreement.name ? agreement.name : "")
-                                        form.append("start_date", agreement.startDate ? moment(agreement.startDate).format("DD/MM/YYYY") : moment().format("DD/MM/YYYY"))
-                                        form.append("end_date", agreement.endDate ? moment(agreement.endDate).format("DD/MM/YYYY") : moment().add(1, "year").format("DD/MM/YYYY"))
-                                        form.append("acts", JSON.stringify(agreement.acts))
-                                        form.append("medicalEntityHasUsers", medicalEntityHasUser as string)
-                                        trigger(
-                                            {
-                                                method: "POST",
-                                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
-                                                data: form
-                                            },
-                                            {
-                                                onSuccess: () => {
-                                                    setAgreementDialog(false);
-                                                    setCollapse(false);
-                                                    dispatch(SetAgreement({
-                                                        type: 'insurance',
-                                                        insurance: {name: ""},
-                                                        label: '',
-                                                        startDate: null,
-                                                        endDate: null,
-                                                        acts: []
-                                                    }))
-                                                    mutate()
-                                                    dispatch(setStepperIndex(0))
-                                                }
-                                            }
-                                        );
+                                        saveChanges("next")
                                     }}
                                     variant="contained"
+                                    color={"info"}
                                     sx={{
                                         position: {xs: "absolute", sm: "static"},
                                         width: {xs: "100%", sm: "auto"},
                                         left: {xs: -8, sm: "unset"},
                                         bottom: {xs: 0, sm: "unset"},
+                                        bgcolor: theme.palette.grey["A500"]
                                     }}
                                 >
                                     {t("dialog.confirm_save")}
                                 </Button>
                             )}
+                            {selectedRow ?  <Button
+                                variant="contained"
+                                disabled={currentStep === 0 && ((agreement?.type === "insurance" && !agreement?.insurance?.uuid) || (agreement?.type === "agreement" && !agreement?.name))}
+                                onClick={() => {
+                                    saveChanges("")
+                                    console.log(selectedRow)
+                                }}>
+                                {t("dialog.edit")}
+                            </Button>: <Button
+                                variant="contained"
+                                disabled={currentStep === 0 && ((agreement?.type === "insurance" && !agreement?.insurance?.uuid) || (agreement?.type === "agreement" && !agreement?.name))}
+                                onClick={() => {
+                                    if (stepperData.length - 1 > currentStep) {
+                                        dispatch(setStepperIndex(currentStep + 1));
+                                    } else {
+                                        saveChanges("")
+                                    }
+                                }}>
+                                {t(stepperData.length - 1 === currentStep ? "dialog.confirm" : "dialog.next")}
+                            </Button>}
                         </Stack>
                     </Stack>
                 }
