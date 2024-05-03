@@ -34,9 +34,7 @@ import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {Otable} from "@features/table";
 import {useSnackbar} from "notistack";
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {DefaultCountry} from "@lib/constants";
 import {ActFeesMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
@@ -48,6 +46,7 @@ import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuff
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ActionMenu} from "@features/menu";
 import {Dialog as MedDialog} from "@features/dialog";
+import {setStepperIndex, stepperSelector} from "@features/stepper";
 import AddIcon from "@mui/icons-material/Add";
 import {useSendNotification} from "@lib/hooks/rest";
 import useMPActs from "@lib/hooks/rest/useMPacts";
@@ -296,7 +295,7 @@ function ActFees() {
                         handleEdit(
                             actFees,
                             actFees.fees,
-                            (actFees.act as ActModel).name,
+                            (actFees.act as ActModel)?.name,
                             actFees.code,
                             actFees.contribution
                         ),
