@@ -1,19 +1,17 @@
 import React from "react";
 import {TableRowStyled} from "@features/table";
-import {IconButton, Stack, TableCell, Typography, useTheme,} from "@mui/material";
-import IconUrl from "@themes/urlIcon";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {TableCell, Typography, useTheme,} from "@mui/material";
 
 function ActsFeesCollapseRow({...props}) {
     const theme = useTheme();
-    const {row,data, handleEvent} = props;
+    const {row, data} = props;
     const {devise} = data;
-console.log(row)
+
     return (
         <TableRowStyled className="act-fees-collapse-row">
             <TableCell>
                 <Typography fontWeight={700} color="text.primary">
-                    {row.insurance.name}
+                    {row.insurance ? row.insurance?.name : row.mutual}
                 </Typography>
             </TableCell>
             <TableCell>
@@ -32,7 +30,7 @@ console.log(row)
                 </Typography>
             </TableCell>
 
-{/*            <TableCell>
+            {/*            <TableCell>
                 <Stack
                     direction="row"
                     alignItems="center"
@@ -68,8 +66,8 @@ console.log(row)
                     </Typography>
                 </Stack>
             </TableCell>*/}
-            <TableCell align="right">
-                {/*<IconButton
+            {/*<TableCell align="right">
+                <IconButton
                     size="small"
                     className="btn-more"
                     onClick={(e) =>
@@ -77,8 +75,8 @@ console.log(row)
                     }
                 >
                     <MoreVertIcon fontSize="small"/>
-                </IconButton>*/}
-            </TableCell>
+                </IconButton>
+            </TableCell>*/}
         </TableRowStyled>
     );
 }

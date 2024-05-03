@@ -771,6 +771,7 @@
       "title": "Titre",
       "type": "Nature",
       "exp_date": "date d’exp.",
+      "patient_part": "Part patient",
       "mtt": "Mtt t.m.",
       "tax": "Taux t.m.",
       "remb": "Remb.",

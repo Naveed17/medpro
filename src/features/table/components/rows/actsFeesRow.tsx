@@ -69,7 +69,7 @@ const headCells: readonly HeadCell[] = [
         label: "exp_date",
         sortable: true,
         align: "center",
-    },*/
+    },
     {
         id: "actions",
         numeric: true,
@@ -77,7 +77,7 @@ const headCells: readonly HeadCell[] = [
         label: "actions",
         sortable: false,
         align: "right",
-    },
+    },*/
 ];
 
 function ActFeesRow({...props}) {

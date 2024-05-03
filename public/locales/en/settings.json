@@ -702,6 +702,7 @@
       "title": "Title",
       "type": "Nature",
       "exp_date": "Exp. date",
+      "patient_part": "Patient part",
       "mtt": "Mtt t.m.",
       "tax": "Tax t.m.",
       "remb": "Reimbursement",
