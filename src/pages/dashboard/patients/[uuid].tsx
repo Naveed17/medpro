@@ -5,13 +5,13 @@ import { useRouter } from "next/router";
 import { DashLayout } from "@features/base";
 import { LoadingScreen } from "@features/loadingScreen";
 import { getServerTranslations } from "@lib/i18n/getServerTranslations";
-import { Box, Button, Stack, Tab, Tabs, Typography, useTheme } from "@mui/material";
+import { Box, Button, Grid, Stack, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
 import { CustomIconButton } from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
 import { Breadcrumbs } from "@features/breadcrumbs";
 import { a11yProps } from "@lib/hooks";
-import { MedicalRecord, TabPanel } from "@features/tabPanel";
+import { Information, MedicalRecord, PatientSidebar, TabPanel } from "@features/tabPanel";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { DefaultCountry } from "@lib/constants";
@@ -84,9 +84,20 @@ function PatientDetails() {
                 </Stack>
             </SubHeader>
             <Box className="container">
-                <TabPanel value={0} padding={0} index={currentTab}>
-                    <MedicalRecord {...{ t, devise, theme }} />
-                </TabPanel>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} md={4}>
+                        <PatientSidebar {...{ t, devise, theme }} />
+                    </Grid>
+                    <Grid item xs={12} md={8}>
+                        <TabPanel value={0} padding={0} index={currentTab}>
+                            <MedicalRecord {...{ t, devise, theme }} />
+                        </TabPanel>
+                        <TabPanel value={1} padding={0} index={currentTab}>
+                            <Information {...{ t, devise, theme }} />
+                        </TabPanel>
+                    </Grid>
+                </Grid>
+
             </Box>
         </Stack>
 

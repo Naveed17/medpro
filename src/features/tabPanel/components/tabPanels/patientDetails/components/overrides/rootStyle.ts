@@ -1,27 +1,31 @@
 import {Stack,styled} from '@mui/material';
-import { backIn } from 'framer-motion';
 const RootStyled = styled(Stack)(({theme})=>({
-    "&.medical-rec":{
     ".patient-avatar":{
          width: 64,
         height: 64,
         backgroundColor: theme.palette.common.white,
         boxShadow: "0px 0px 0px 4px rgba(6, 150, 214, 0.25)"
     },
-    ".assurance-avatar":{
+    ".MuiAvatarGroup-avatar":{
+    "&.assurance-avatar":{
         width:24,
         height:24,
         backgroundColor: theme.palette.common.white,
-        borderColor:'transparent',
+        border:'none',
         boxShadow:'none',
         margin:0,
+        "&:not(:first-of-type)":{
+            marginLeft:theme.spacing(.5),
+        },
         img:{
             objectFit:"contain"
         }
     },
+},
     ".MuiCard-root":{
         border:'none',
-        boxShadow:'none'
+        boxShadow:'none',
+        overflow:'visible'
     },
     ".alert-primary":{
         backgroundColor:theme.palette.primary.lighter,
@@ -72,6 +76,7 @@ const RootStyled = styled(Stack)(({theme})=>({
             cursor:'pointer'
         }
     },
+     "&.medical-rec":{
     ".chart-view":{
         button:{
             backgroundColor:'transparent',
@@ -83,6 +88,28 @@ const RootStyled = styled(Stack)(({theme})=>({
     ".chart-wrapper":{
         padding:theme.spacing(1),
         border: `1px dashed ${theme.palette.divider}`,
+    }
+},
+"&.info-panel":{
+    ".info-card":{
+        backgroundColor:'transparent',
+        border: `1px dashed ${theme.palette.divider}`,
+        ".custom-icon-button":{
+            minWidth:32,
+            minHeight:32,
+            padding:4
+        },
+        ".assurance-avatar":{
+            minWidth:24,
+            minHeight:24,
+            boxShadow: "0px 0px 0px 3px rgba(6, 150, 214, 0.25)",
+            padding:8,
+             "&:not(:first-of-type)":{
+            marginLeft:theme.spacing(1.5),
+            
+        },
+
+        }
     }
 }
 
