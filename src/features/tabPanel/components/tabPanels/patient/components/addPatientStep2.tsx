@@ -619,7 +619,6 @@ function AddPatientStep2({...props}) {
                                             onChangeData={(event: any) => {
                                                 if (event?.inputValue || typeof event === "string") {
                                                     // Create a new value from the user input
-                                                    console.log("onChangeData: Create", event)
                                                     setLoadingReq(true);
                                                     const params = new FormData();
                                                     params.append("name", event?.inputValue ?? event);
@@ -669,9 +668,7 @@ function AddPatientStep2({...props}) {
                                                 if (inputValue !== "" && !isExisting) {
                                                     filtered.push({
                                                         inputValue,
-                                                        name: `${t(
-                                                            "add"
-                                                        )} "${inputValue}"`,
+                                                        name: `${t("add-patient.add")} "${inputValue}"`,
                                                         isVerified: false,
                                                     });
                                                 }

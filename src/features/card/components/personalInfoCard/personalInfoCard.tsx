@@ -778,9 +778,7 @@ function PersonalInfo({...props}) {
                                                     if (inputValue !== "" && !isExisting) {
                                                         filtered.push({
                                                             inputValue,
-                                                            name: `${t(
-                                                                "add"
-                                                            )} "${inputValue}"`,
+                                                            name: `${t("add")} "${inputValue}"`,
                                                             isVerified: false,
                                                         });
                                                     }
