@@ -577,7 +577,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             }
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
-
+    console.log("values", values)
     return (
         <MedicalPrescriptionCycleStyled>
             <Container fixed>
@@ -654,34 +654,26 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 return option.inputValue;
                                                             }
                                                             // Regular option
-                                                            return option.commercial_name;
+                                                            return `${option.commercial_name} ${option?.form?.name ?? ""} ${option?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}`;
                                                         }}
                                                         filterOptions={(options, params) => {
                                                             const {inputValue} = params;
+                                                            console.log("inputValue", inputValue)
                                                             const filtered = options.filter((option) =>
-                                                                option.commercial_name
-                                                                    .toLowerCase()
-                                                                    .includes(inputValue.toLowerCase())
-                                                            );
+                                                                `${option.commercial_name.toLowerCase()} ${option?.form?.name?.toLowerCase() ?? ""} ${option?.dosages?.map((data: any) => data.dosage?.toLowerCase()).join(" ") ?? ""}`.includes(inputValue.toLowerCase()));
                                                             // Suggest the creation of a new value
-                                                            const isExisting = options.some(
-                                                                (option) =>
-                                                                    inputValue.toLowerCase() ===
-                                                                    option.commercial_name.toLowerCase()
-                                                            );
+                                                            const isExisting = options.some((option) => inputValue.toLowerCase() === option.commercial_name.toLowerCase());
                                                             if (inputValue !== "" && !isExisting) {
                                                                 filtered.push({
                                                                     inputValue,
-                                                                    commercial_name: `${t(
-                                                                        "add_drug"
-                                                                    )} "${inputValue}"`,
-                                                                    isVerified: false,
+                                                                    commercial_name: `${t("add_drug")} "${inputValue}"`,
+                                                                    isVerified: false
                                                                 });
                                                             }
                                                             return filtered;
                                                         }}
                                                         isOptionEqualToValue={(option, value) =>
-                                                            option?.commercial_name === value?.commercial_name
+                                                            `${option.commercial_name} ${option?.form?.name ?? ""} ${option?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}`.includes(value?.commercial_name)
                                                         }
                                                         renderOption={(props, option) => (
                                                             <Stack key={`${idx}-${option.uuid ? option.uuid : "-1"}`}>
