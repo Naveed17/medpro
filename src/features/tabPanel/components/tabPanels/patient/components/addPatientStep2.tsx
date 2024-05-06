@@ -226,7 +226,7 @@ function AddPatientStep2({...props}) {
             contact_type: contacts[0].uuid,
             is_whatsapp: phoneData.isWhatsapp,
             contact_relation: PatientContactRelation.find(relation => relation.key === phoneData.relation)?.value,
-            contactSocial: {
+            contact_social: {
                 first_name: phoneData.firstName,
                 last_name: phoneData.lastName
             },

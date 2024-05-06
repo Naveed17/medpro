@@ -71,7 +71,7 @@ function Patient({...props}) {
             contact_type: patient.contact.uuid,
             is_whatsapp: phoneData.isWhatsapp,
             contact_relation: PatientContactRelation.find(relation => relation.key === phoneData.relation)?.value,
-            contactSocial: {
+            contact_social: {
                 first_name: phoneData.firstName,
                 last_name: phoneData.lastName
             },

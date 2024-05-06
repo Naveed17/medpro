@@ -24,7 +24,6 @@ import {
     agendaSelector,
     AppointmentStatus,
     openDrawer,
-    setLastUpdate,
     setMessagesRefresh,
     setSelectedEvent,
     setStepperIndex
@@ -151,7 +150,6 @@ function MainLayout({...props}) {
                     case "agenda":
                     case "waiting-room":
                         // Mutate agenda
-                        dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
                             if (!data.body.appointment) {
                                 dispatch(resetTimer());
@@ -179,7 +177,7 @@ function MainLayout({...props}) {
                         break;
                     case "consultation":
                         // Mutate agenda
-                        dispatch(setLastUpdate(data));
+                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]);
                         // Mutate on going api
                         mutateOnGoing();
                         break;
