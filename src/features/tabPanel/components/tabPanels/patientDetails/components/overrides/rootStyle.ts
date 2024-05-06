@@ -111,6 +111,38 @@ const RootStyled = styled(Stack)(({theme})=>({
 
         }
     }
+},
+"&.docs-panel":{
+    ".doc-card":{
+        ".MuiCardMedia-root":{
+            height:"min(120px , 120px)",
+            padding:theme.spacing(2,4),
+            backgroundColor:theme.palette.primary.lighter,
+            borderRadius:theme.shape.borderRadius,
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'center',
+            img:{
+            maxWidth: "100%",
+            height: "auto"
+            }
+         },
+         ".MuiCardContent-root":{
+            paddingLeft:0,
+            paddingRight:0,
+            paddingTop:8
+         }
+        
+    }
+},
+"&.payments-panel":{
+    ".transactions-card":{
+        border: `1px solid ${theme.palette.divider}`,
+         ".custom-icon-button": { minWidth: 32, minHeight: 32, backgroundColor: theme.palette.primary.lighter }
+        
+    }
+    
+
 }
 
    

@@ -113,7 +113,7 @@ function PrevRdvCard() {
                                             <IconUrl path='document-download' />
                                         </IconButton>
                                     </Stack>
-                                    <Stack direction='row' alignItems='center' spacing={1}>
+                                    <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'stretch', sm: 'center' }} spacing={1}>
                                         <Alert variant='outlined' icon={false} className='item-treatment' >
                                             <Typography fontWeight={500}>Losartan 50mg tablets</Typography>
                                             <Typography variant='caption' color={theme.palette.grey[500]}>Take 1 tablet orally once daily for hypertension</Typography>

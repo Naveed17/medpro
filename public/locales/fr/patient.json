@@ -449,11 +449,23 @@
     "phone": "Numéro de téléphone",
     "address": "Adresse",
     "insurance": "Assurances",
+    "patient_documents": "Documents du patient",
+    "search": "Recherche",
+    "transactions": "Paiements",
+    "birthdate": "Date de naissance",
     "tabs": {
       "medical_record": "Dossier médical",
       "information": "Informations",
       "documents": "Documents",
-      "payments": "Paiements"
+      "payments": "Paiements",
+      "medical_doc": "Document médical",
+      "personal_doc": "Document personnel"
+    },
+    "table": {
+      "date": "Date",
+      "used": "Utilisé",
+      "payment_method": "Payment methode",
+      "amount": "Montant"
     }
   }
 }

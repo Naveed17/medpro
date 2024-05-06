@@ -158,7 +158,7 @@ const COMMON = {
   back: { ...BACK, contrastText: GREY[600] },
   grey: GREY,
   gradients: GRADIENTS,
-  divider: "#C8D4E2",
+  divider: GREY[200],
   action: {
     hover: GREY[500_8],
     selected: GREY[500_16],

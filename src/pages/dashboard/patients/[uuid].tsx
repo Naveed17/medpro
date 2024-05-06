@@ -11,7 +11,7 @@ import { CustomIconButton } from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
 import { Breadcrumbs } from "@features/breadcrumbs";
 import { a11yProps } from "@lib/hooks";
-import { Information, MedicalRecord, PatientSidebar, TabPanel } from "@features/tabPanel";
+import { Documents, Information, MedicalRecord, PatientSidebar, Payments, TabPanel } from "@features/tabPanel";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { DefaultCountry } from "@lib/constants";
@@ -76,7 +76,9 @@ function PatientDetails() {
                             {t("resume")}
                         </Button>
                     </Stack>
-                    <Tabs value={currentTab} onChange={handleTabsChange} aria-label="patients tabs">
+                    <Tabs
+                        variant="scrollable"
+                        scrollButtons="auto" value={currentTab} onChange={handleTabsChange} aria-label="patients tabs">
                         {["medical_record", "information", "documents", "payments"].map((title: string, tabHeaderIndex: number) =>
                             <Tab key={`tabHeaderIndex-${tabHeaderIndex}`}
                                 label={t("tabs." + title)} {...a11yProps(tabHeaderIndex)} />)}
@@ -94,6 +96,12 @@ function PatientDetails() {
                         </TabPanel>
                         <TabPanel value={1} padding={0} index={currentTab}>
                             <Information {...{ t, devise, theme }} />
+                        </TabPanel>
+                        <TabPanel value={2} padding={0} index={currentTab}>
+                            <Documents {...{ t, devise, theme }} />
+                        </TabPanel>
+                        <TabPanel value={3} padding={0} index={currentTab}>
+                            <Payments {...{ t, devise, theme }} />
                         </TabPanel>
                     </Grid>
                 </Grid>

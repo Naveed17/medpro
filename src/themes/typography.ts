@@ -79,16 +79,17 @@ const typography: any = {
   body1: {
     fontSize: pxToRem(14),
     lineHeight: 1.5,
-    fontWeight: 400,
+    fontWeight: 500,
   },
   body2: {
     fontSize: pxToRem(12),
     lineHeight: 22 / 14,
-    fontWeight: 400,
+    fontWeight: 500,
   },
   caption: {
     fontSize: pxToRem(12),
     lineHeight: 1.5,
+    fontWeight: 500,
   },
   overline: {
     fontSize: pxToRem(12),

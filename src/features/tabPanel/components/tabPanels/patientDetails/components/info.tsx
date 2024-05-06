@@ -111,7 +111,7 @@ function Info({ ...props }) {
                                                         </Stack>
                                                     </Stack>
                                                 </Stack>
-                                                <Stack direction='row' spacing={1}>
+                                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
                                                     <Stack spacing={.5} width={1}>
                                                         <Typography color={theme.palette.grey[500]} fontWeight={500}>
                                                             {t("family_name")}
@@ -133,7 +133,7 @@ function Info({ ...props }) {
                                                         />
                                                     </Stack>
                                                 </Stack>
-                                                <Stack direction='row' spacing={1}>
+                                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
                                                     <Stack spacing={.5} width={1}>
                                                         <Typography color={theme.palette.grey[500]} fontWeight={500}>
                                                             {t("id_card")}
@@ -146,7 +146,7 @@ function Info({ ...props }) {
                                                     </Stack>
                                                     <Stack spacing={.5} width={1}>
                                                         <Typography color={theme.palette.grey[500]} fontWeight={500}>
-                                                            {t("first_name")}
+                                                            {t("birthdate")}
                                                         </Typography>
                                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                             <DatePicker
@@ -263,6 +263,10 @@ function Info({ ...props }) {
                                                         {t("address_mail")}
                                                     </Typography>
                                                     <TextField
+
+                                                        inputProps={{
+                                                            readOnly: true
+                                                        }}
                                                         fullWidth
                                                         placeholder={t("address_mail")}
                                                         {...getFieldProps('address.address_mail')}
@@ -360,7 +364,7 @@ function Info({ ...props }) {
                     </Card>
                 </Form>
             </FormikProvider>
-        </RootStyled>
+        </RootStyled >
     )
 }
 
