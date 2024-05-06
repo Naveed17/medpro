@@ -96,7 +96,7 @@
     },
     "no-data": {
       "event": {
-        "title": "Veuillez ajouter votre première rendez-vous",
+        "title": "Veuillez ajouter votre premier rendez-vous",
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import styled from '@emotion/styled';
 import {Droppable, Draggable} from 'react-beautiful-dnd';
 import type {
@@ -11,22 +11,6 @@ import {BoardItem, grid, heightOffset} from "@features/board";
 import ReactDOM from "react-dom";
 import {List} from 'react-virtualized';
 
-const DropZone = styled.div`
-    /* stop the list collapsing when empty */
-    min-height: 250px;
-
-    /*
-      not relying on the items for a margin-bottom
-      as it will collapse when the list is empty
-    */
-    padding-bottom: 8px;
-`;
-
-/* stylelint-disable block-no-empty */
-const Container = styled.div``;
-/* stylelint-enable */
-
-
 // Using a higher order function so that we can look up the quotes data to retrieve
 // our quote from within the rowRender function
 // eslint-disable-next-line react/display-name
@@ -34,7 +18,7 @@ const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) 
     const quote = quotes[index];
 
     // We are rendering an extra item for the placeholder
-    // Do do this we increased our data set size to include one 'fake' item
+    // Do this we increased our data set size to include one 'fake' item
     if (!quote) {
         return null;
     }
@@ -116,7 +100,7 @@ export default function BoardList({...props}) {
         flex-direction: column;
     `;
 
-    const getRowHeight = (data: any) => {
+    const getRowHeight = useCallback((data: any) => {
         const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height;
         let defaultHeight;
         switch (data?.column.id.toString()) {
@@ -132,7 +116,7 @@ export default function BoardList({...props}) {
                 break;
         }
         return (elementHeight ?? defaultHeight) + heightOffset
-    }
+    },[]);
 
     return (
         <ColumnContainer>
@@ -154,12 +138,8 @@ export default function BoardList({...props}) {
                             isDragging: snapshot.isDragging
                         }}></BoardItem>
                 ))}>
-                {(
-                    droppableProvided: DroppableProvided,
-                    snapshot: DroppableStateSnapshot,
-                ) => {
+                {(droppableProvided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
                     const itemCount: number = snapshot.isUsingPlaceholder ? quotes.length + 1 : quotes.length;
-
                     return (
                         <List
                             height={600}

@@ -45,7 +45,7 @@
   },
   "no-data": {
     "docs": {
-      "title": "Veuillez ajouter le première document",
+      "title": "Veuillez ajouter le premier document",
       "description": "Vous n'avez pas de document médical Ajoutez vos documents en cliquant sur Ajouter un document",
       "import": "Importer un document"
     }
