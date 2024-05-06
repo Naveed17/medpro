@@ -111,14 +111,14 @@
     },
     "no-data": {
       "appointment": {
-        "title": "Veuillez ajouter votre première rendez-vous",
+        "title": "Veuillez ajouter votre premier rendez-vous",
         "description": "Vous n'avez pas de rendez-vous, ajoutez les rendez-vous en cliquant sur 'Ajouter RDV'",
         "button-text": "Ajouter un RDV"
       },
       "documents": {
-        "title": "Veuillez ajouter le première document",
+        "title": "Veuillez ajouter le premier document",
         "description": "Vous n'avez pas de document médical Ajoutez les documents en cliquant sur 'Ajouter un document'",
-        "quote-add": "Veuillez ajouter le première devis",
+        "quote-add": "Veuillez ajouter le premier devis",
         "quote-description": "Vous n'avez pas aucun devis. Ajoutez un devis en cliquant sur Ajouter un devis",
         "add_quote": "Ajouter un devis",
         "button-text": "Ajouter un document"
@@ -238,8 +238,8 @@
       "old-placeholder": "Ajouter L'âge",
       "cin": "CIN",
       "cin-placeholder": "CIN du patient",
-      "addressed-by": "Adressée par",
-      "addressed-by-placeholder": "adressée par...",
+      "addressed-by": "Adressé(e) par",
+      "addressed-by-placeholder": "adressé(e) par...",
       "civil-status": "État civil",
       "civil-status-placeholder": "état civil...",
       "profession": "Profession",

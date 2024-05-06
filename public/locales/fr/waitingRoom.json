@@ -3,7 +3,7 @@
     "title": "Salle d’attente",
     "room": "salle",
     "add": "Ajouter",
-    "add-to-waiting-room": "Veuillez ajouter votre première patient à la salle d'attente."
+    "add-to-waiting-room": "Veuillez ajouter votre premier patient à la salle d'attente."
   },
   "filter": {
     "title": "Filtre",
@@ -106,7 +106,7 @@
     "documents": "Documents",
     "no-data": {
       "event": {
-        "title": "Veuillez ajouter votre première rendez-vous",
+        "title": "Veuillez ajouter votre premier rendez-vous",
         "description": "",
         "button-text": "Ajouter un RDV"
       }
