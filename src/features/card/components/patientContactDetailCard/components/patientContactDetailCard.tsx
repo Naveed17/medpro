@@ -186,7 +186,7 @@ function PatientContactDetailCard({...props}) {
             contact_type: contacts?.length > 0 && contacts[0].uuid,
             is_whatsapp: phone.isWhatsapp,
             contact_relation: PatientContactRelation.find(relation => relation.key === phone.relation)?.value,
-            contactSocial: {
+            contact_social: {
                 first_name: phone.firstName,
                 last_name: phone.lastName
             },

@@ -18,6 +18,7 @@ export const PatientContactRelation = [
     {key: "father", value: 2, label: "father"},
     {key: "mother", value: 3, label: "mother"},
     {key: "child", value: 4, label: "child"},
+    {key: "other", value: 5, label: "other_child"},
 ];
 
 export const PhoneRegExp =
