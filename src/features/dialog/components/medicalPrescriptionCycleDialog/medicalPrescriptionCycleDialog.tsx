@@ -577,7 +577,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             }
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
-    console.log("values", values)
+
     return (
         <MedicalPrescriptionCycleStyled>
             <Container fixed>
@@ -658,7 +658,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         }}
                                                         filterOptions={(options, params) => {
                                                             const {inputValue} = params;
-                                                            console.log("inputValue", inputValue)
                                                             const filtered = options.filter((option) =>
                                                                 `${option.commercial_name.toLowerCase()} ${option?.form?.name?.toLowerCase() ?? ""} ${option?.dosages?.map((data: any) => data.dosage?.toLowerCase()).join(" ") ?? ""}`.includes(inputValue.toLowerCase()));
                                                             // Suggest the creation of a new value
