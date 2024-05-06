@@ -248,6 +248,13 @@ const rowsActionsData = [
                 (mod) => mod
             )
         ),
+    },{
+        action: "insurance-fees-collapse",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/insuranceFeesRow").then(
+                (mod) => mod
+            )
+        ),
     },
      {
         action: "rest-pass",

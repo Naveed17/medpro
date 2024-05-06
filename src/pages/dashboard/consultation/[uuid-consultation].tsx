@@ -355,6 +355,11 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
+    const {data: httpPatientInsuranceFees, mutate: mutateInsurance} = useRequestQuery(app_uuid && medical_professional_uuid ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${app_uuid}/professionals/${medical_professional_uuid}/acts/${router.locale}`
+    } : null);
+
     const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : [];
 
     const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
@@ -1232,15 +1237,9 @@ function ConsultationInProgress() {
             setSelectedModel(sheetModal);
             setInsuranceGenerated(sheet?.insuranceGenerated)
             setLoading(false)
-            let _acts: AppointmentActModel[] = []
-            medicalProfessionalData && medicalProfessionalData.acts.map(act => {
-                _acts.push({qte: 1, selected: false, ...act})
-            })
-            acts.length === 0 && setActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
 
-            setMPActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
             let nb = 0;
-            changes.map(change => {
+            changes.forEach(change => {
                 if (sheet && sheet[change.name]) {
                     change.checked = typeof sheet[change.name] == "boolean" && sheet[change.name] || sheet[change.name] > 0;
                     nb += sheet[change.name]
@@ -1271,7 +1270,19 @@ function ConsultationInProgress() {
             }
 
         }
-    }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [ sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(()=>{
+        if (httpPatientInsuranceFees){
+            const insuranceFees = httpPatientInsuranceFees.data;
+            let _acts: AppointmentActModel[] = []
+            insuranceFees.forEach((act:any) => {
+                _acts.push({qte: 1, selected: false, ...act})
+            })
+            setActs(_acts);
+            setMPActs(_acts); //.sort((a, b) => a.act.name.localeCompare(b.act.name))
+        }
+    },[httpPatientInsuranceFees])
 
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {

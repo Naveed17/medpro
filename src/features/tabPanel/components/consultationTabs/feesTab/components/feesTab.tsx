@@ -55,7 +55,6 @@ function FeesTab({...props}) {
             sortable: true,
             align: "left",
         },
-
         {
             id: "amount",
             numeric: true,
@@ -112,6 +111,7 @@ function FeesTab({...props}) {
     } = props;
 
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
+
     const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
@@ -132,12 +132,15 @@ function FeesTab({...props}) {
                 uuid: "consultation_type"
             },*/ ...mpActs]
 
-            res.acts && res.acts.map((act: { act_uuid: string, qte: number, price: number }) => {
+            res.acts && res.acts.map((act: any) => {
+
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
                 if (index > -1) {
                     _acts[index].selected = true
                     _acts[index].qte = act.qte;
                     _acts[index].fees = act.price;
+                    _acts[index].patientPart = act.patientPart;
+                    _acts[index].contribution = act.refund;
                 }
             })
 
@@ -180,14 +183,14 @@ function FeesTab({...props}) {
             });
         })
 
-       /* const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
-        let isFree = true;
-        let consultationFees = 0;
+        /* const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
+         let isFree = true;
+         let consultationFees = 0;
 
-        if (app_type) {
-            isFree = !app_type?.selected;
-            consultationFees = isFree ? null : app_type?.fees
-        }*/
+         if (app_type) {
+             isFree = !app_type?.selected;
+             consultationFees = isFree ? null : app_type?.fees
+         }*/
 
         const form = new FormData();
         form.append("acts", JSON.stringify(_acts));
@@ -309,7 +312,7 @@ function FeesTab({...props}) {
                                             {t("table.fees")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            {acts.reduce((acc: number, curr: any) =>acc + (curr.selected ?Number(curr.fees):0), 0)} {devise}
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.fees) : 0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -321,7 +324,7 @@ function FeesTab({...props}) {
                                             {t("table.reimb")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ?Number(curr.contribution):0), 0)} {devise}
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.contribution) : 0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
