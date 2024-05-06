@@ -1,5 +1,5 @@
 import TableCell from "@mui/material/TableCell";
-import {Button, Checkbox, IconButton, Stack, Typography} from "@mui/material";
+import {Button, Checkbox, IconButton, MenuItem, Select, Stack, Typography} from "@mui/material";
 import {Theme, useTheme} from "@mui/material/styles";
 import {TableRowStyled} from "@features/table";
 import React, {useState} from "react";
@@ -9,10 +9,15 @@ import InputBaseStyled from "../overrides/inputBaseStyled";
 import {debounce} from "lodash";
 import {SetLoading} from "@features/toolbar";
 import {useAppDispatch} from "@lib/redux/hooks";
+import {ImageHandler} from "@features/image";
+import {useInsurances} from "@lib/hooks/rest";
 
 function CIPMedicalProceduresRow({...props}) {
 
     const {row, data, editMotif, handleEvent} = props;
+    const {insurances} = data;
+    const {insurances: allInsurances} = useInsurances();
+
     const dispatch = useAppDispatch();
 
     const theme = useTheme() as Theme;
@@ -31,14 +36,90 @@ function CIPMedicalProceduresRow({...props}) {
             role="checkbox"
             tabIndex={-1}>
             <TableCell padding="checkbox">
-                <Checkbox
-                    color="primary"
-                    onChange={() => {
-                        editMotif(row, "check");
-                        handleEvent()
-                    }}
-                    checked={row.selected}
-                />
+                <Stack direction={"row"} alignItems={"center"}>
+
+                    <Select
+                        labelId="select-type"
+                        id="select-type"
+                        value={row.insurance}
+                        displayEmpty
+                        MenuProps={{
+                            PaperProps: {
+                                sx: {
+                                    bgcolor: (theme: Theme) => theme.palette.back.main,
+                                    p: 1,
+                                    minWidth: 115,
+                                    ".MuiMenuItem-root": {
+                                        "&:not(:last-child)": {
+                                            mb: 1,
+                                        },
+                                        borderRadius: 1,
+                                        border: 1,
+                                        borderColor: "divider",
+                                        "&:hover": {
+                                            bgcolor: (theme: Theme) =>
+                                                theme.palette.primary.main,
+                                            color: (theme: Theme) =>
+                                                theme.palette.common.white,
+                                            img: {
+                                                filter: "brightness(0) invert(1)",
+                                            },
+                                            ".MuiTypography-root": {
+                                                color: theme.palette.common.white,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        }}
+                        renderValue={(selected) => {
+                            console.log(selected)
+                            return (
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <ImageHandler
+                                        alt={insurances[0]?.insurance.name}
+                                        src={allInsurances.find(
+                                            (insurance: any) =>
+                                                insurance.uuid ===
+                                                insurances[0]?.insurance.uuid
+                                        )?.logoUrl?.url}
+                                    />
+
+                                </Stack>
+                            );
+                        }}
+                    >
+                        {insurances?.map((insurance: any) => (
+                            <MenuItem value={insurance.uuid} key={insurance.uuid}>
+                                <Stack direction="row"
+                                       alignItems="center"
+                                       onClick={() => {
+                                           // updatePaymentMeans(payment.slug)
+                                       }}
+                                       spacing={1}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <ImageHandler
+                                        alt={insurance?.insurance.name}
+                                        src={allInsurances.find(
+                                            (ins: any) =>
+                                                ins.uuid ===
+                                                insurance?.insurance.uuid
+                                        )?.logoUrl?.url}
+                                    />
+                                </Stack>
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <Checkbox
+                        color="primary"
+                        onChange={() => {
+                            editMotif(row, "check");
+                            handleEvent()
+                        }}
+                        checked={row.selected}
+                    />
+                </Stack>
             </TableCell>
             <TableCell>
                 <Typography fontWeight={500} color='text.primary'>

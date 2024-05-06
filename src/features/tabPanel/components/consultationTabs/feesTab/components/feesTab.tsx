@@ -290,6 +290,7 @@ function FeesTab({...props}) {
                                     from={"CIP-medical-procedures"}
                                     t={t}
                                     edit={editAct ? editAct : editActConsult}
+                                    insurances={patient.insurances}
                                     handleEvent={() => {
                                         saveChanges([...acts])
                                     }}
