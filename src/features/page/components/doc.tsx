@@ -63,7 +63,7 @@ function Doc({...props}) {
                     el.cycles.map((cycle: any) => {
                         let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                         if (cycle.duration)
-                            val += ` pendant ${cycle.duration} ${(cycle.durationType)}`
+                            val += ` pendant ${cycle.duration} ${t(cycle.durationType)}`
                         if (cycle.note)
                             val += ` (${cycle.note})`;
                         const child = document.createElement('p');
