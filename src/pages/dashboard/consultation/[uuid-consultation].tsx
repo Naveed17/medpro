@@ -406,7 +406,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
-                tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
+                tel: patient?.contact && patient?.contact?.length > 0 ? patient?.contact[0] : "",
                 age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
                 days: card.days,
                 description: card.description,
@@ -1235,9 +1235,9 @@ function ConsultationInProgress() {
             medicalProfessionalData && medicalProfessionalData.acts.map(act => {
                 _acts.push({ qte: 1, selected: false, ...act })
             })
+            acts.length === 0 && setActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
 
-            acts.length === 0 && setActs(_acts);
-            setMPActs(_acts);
+            setMPActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
             let nb = 0;
             changes.map(change => {
                 if (sheet && sheet[change.name]) {

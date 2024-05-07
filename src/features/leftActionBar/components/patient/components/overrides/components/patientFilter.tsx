@@ -23,6 +23,7 @@ import {FormikProvider, useFormik} from "formik";
 import Switch from "@mui/material/Switch";
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {configSelector} from "@features/base";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 interface Lab {
     label: string;
@@ -120,8 +121,9 @@ function PatientFilter({...props}) {
                                             className={'search-input'}
                                             {...{inputRef}}
                                             InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
+                                                endAdornment: (
+                                                    <InputAdornment onClick={() => inputRef.current?.focus()}
+                                                                    position="start">
                                                         <SearchRoundedIcon color={"white"}/>
                                                     </InputAdornment>
                                                 ),
@@ -172,6 +174,9 @@ function PatientFilter({...props}) {
                                         <DatePicker
                                             value={queryState.birthdate}
                                             inputFormat="dd/MM/yyyy"
+                                            components={{
+                                                OpenPickerIcon: CalendarPickerIcon
+                                            }}
                                             onChange={date => {
                                                 setFieldValue("birthdate", date);
                                                 if (date && date.toString() !== "Invalid Date" && date.getFullYear() > 1000) {

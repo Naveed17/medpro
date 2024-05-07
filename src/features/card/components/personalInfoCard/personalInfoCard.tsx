@@ -7,7 +7,7 @@ import {
     AppBar, Autocomplete, Avatar,
     Box,
     Grid, InputAdornment,
-    InputBase,
+    InputBase, ListItem, ListItemText,
     MenuItem,
     Paper,
     Skeleton,
@@ -36,6 +36,7 @@ import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} f
 
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {AsyncAutoComplete} from "@features/autoComplete";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -65,6 +66,7 @@ function PersonalInfo({...props}) {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
+    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -95,6 +97,8 @@ function PersonalInfo({...props}) {
         old: !loading && patient.birthdate ? getBirthday(patient.birthdate).years : "",
         email: !loading && patient.email && patient.email !== "null" ? patient.email : "",
         cin: !loading && patient.idCard && patient.idCard !== "null" ? patient.idCard : "",
+        addressedBy: !loading && patient.addressedBy && patient.addressedBy?.length > 0 ? patient.addressedBy[0] : "",
+        civilStatus: !loading && patient.civilStatus && patient.civilStatus !== "null" ? patient.civilStatus : "",
         profession: !loading && patient.profession && patient.profession !== "null" ? patient.profession : "",
         familyDoctor: !loading && patient.familyDoctor && patient.familyDoctor !== "null" ? patient.familyDoctor : "",
         nationality: !loading && patient?.nationality && patient.nationality !== "null" ? patient.nationality.uuid : ""
@@ -121,6 +125,8 @@ function PersonalInfo({...props}) {
         params.append('profession', values.profession);
         params.append('family_doctor', values.familyDoctor);
         params.append('nationality', values.nationality);
+        values.addressedBy?.uuid && params.append('addressed_by', values.addressedBy.uuid);
+        values.civilStatus?.uuid && params.append('civil_status', values.civilStatus.uuid);
         values.birthdate?.length > 0 && params.append('birthdate', values.birthdate);
         patient.note && params.append('note', patient.note);
 
@@ -259,7 +265,6 @@ function PersonalInfo({...props}) {
                                                 sx: {
                                                     border: `1px solid ${theme.palette.grey['A100']}`,
                                                     borderRadius: .5,
-                                                    height: 31,
                                                     "& .MuiSelect-select": {
                                                         pl: 1.5
                                                     }
@@ -672,6 +677,191 @@ function PersonalInfo({...props}) {
                                                                       placeholder={t("nationality")}
                                                                       variant="outlined" fullWidth/>;
                                                 }}/>
+                                        )}
+                                    </Grid>
+                                </Stack>
+                            </Grid>
+                            <Grid item md={6} sm={6} xs={12}>
+                                <Stack direction="row" spacing={1}
+                                       alignItems="center">
+                                    <Grid item md={3} sm={6} xs={3}>
+                                        <Typography
+                                            className="label"
+                                            variant="body2"
+                                            color="text.secondary"
+                                            width="50%">
+                                            {t("addressed-by")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        sx={{
+                                            ...(!editable && {
+                                                "& .MuiAutocomplete-endAdornment": {
+                                                    display: "none"
+                                                }
+                                            }),
+                                            "& .MuiInputBase-root": {
+                                                paddingLeft: 0,
+                                                width: "100%",
+                                                height: "100%"
+                                            },
+                                            "& .MuiSelect-select": {
+                                                pl: 0
+                                            }
+                                        }}
+                                        item md={8} sm={6} xs={9}>
+                                        {loading ? (
+                                            <Skeleton width={100}/>
+                                        ) : (
+                                            <AsyncAutoComplete
+                                                freeSolo
+                                                loading={loadingRequest}
+                                                value={values.addressedBy}
+                                                {...(editable && {
+                                                    sx: {
+                                                        color: "text.secondary",
+                                                        borderRadius: .6,
+                                                        border: `1px solid ${theme.palette.grey['A100']}`
+                                                    }
+                                                })}
+                                                url={`${urlMedicalEntitySuffix}/addressedBy/${router.locale}`}
+                                                onChangeData={(event: any) => {
+                                                    if (event?.inputValue || typeof event === "string") {
+                                                        // Create a new value from the user input
+                                                        setLoadingRequest(true);
+                                                        const params = new FormData();
+                                                        params.append("name", event?.inputValue ?? event);
+                                                        triggerAddressedBy({
+                                                            method: "POST",
+                                                            url: `${urlMedicalEntitySuffix}/addressedBy/${router.locale}`,
+                                                            data: params
+                                                        }, {
+                                                            onSuccess: (result) => {
+                                                                const data = (result?.data as HttpResponse)?.data;
+                                                                console.log("data", data);
+                                                                setFieldValue("addressedBy", {
+                                                                    uuid: data?.uuid,
+                                                                    name: event?.inputValue ?? event
+                                                                });
+                                                            },
+                                                            onSettled: () => setLoadingRequest(false)
+                                                        })
+                                                    } else {
+                                                        setFieldValue("addressedBy", event);
+                                                    }
+                                                }}
+                                                getOptionLabel={(option: any) => {
+                                                    // Value selected with enter, right from the input
+                                                    if (typeof option === "string") {
+                                                        return option;
+                                                    }
+                                                    // Add "xxx" option created dynamically
+                                                    if (option.inputValue) {
+                                                        return option.inputValue;
+                                                    }
+                                                    // Regular option
+                                                    return option.name;
+                                                }}
+                                                filterOptions={(options: any, params: any) => {
+                                                    const {inputValue} = params;
+                                                    const filtered = options.filter((option: any) =>
+                                                        option.name
+                                                            .toLowerCase()
+                                                            .includes(inputValue.toLowerCase())
+                                                    );
+                                                    // Suggest the creation of a new value
+                                                    const isExisting = options.some(
+                                                        (option: any) =>
+                                                            inputValue.toLowerCase() ===
+                                                            option.name.toLowerCase()
+                                                    );
+                                                    if (inputValue !== "" && !isExisting) {
+                                                        filtered.push({
+                                                            inputValue,
+                                                            name: `${t("add")} "${inputValue}"`,
+                                                            isVerified: false,
+                                                        });
+                                                    }
+                                                    return filtered;
+                                                }}
+                                                renderOption={(props: any, option: any) => (
+                                                    <ListItem {...props}>
+                                                        <ListItemText primary={`${option?.name}`}/>
+                                                    </ListItem>
+                                                )}
+                                                isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                                placeholder={t("addressed-by-placeholder")}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Stack>
+                            </Grid>
+                            <Grid item md={6} sm={6} xs={12}>
+                                <Stack direction="row" spacing={1}
+                                       alignItems="center">
+                                    <Grid item md={3} sm={6} xs={3}>
+                                        <Typography
+                                            className="label"
+                                            variant="body2"
+                                            color="text.secondary"
+                                            width="50%">
+                                            {t("civil-status")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        sx={{
+                                            ...(!editable && {
+                                                "& .MuiAutocomplete-endAdornment": {
+                                                    display: "none"
+                                                }
+                                            }),
+                                            "& .MuiInputBase-root": {
+                                                paddingLeft: 0,
+                                                width: "100%",
+                                                height: "100%"
+                                            },
+                                            "& .MuiSelect-select": {
+                                                pl: 0
+                                            }
+                                        }}
+                                        item md={8} sm={6} xs={9}>
+                                        {loading ? (
+                                            <Skeleton width={100}/>
+                                        ) : (
+                                            <AsyncAutoComplete
+                                                loading={loadingRequest}
+                                                value={values.civilStatus}
+                                                {...(editable && {
+                                                    sx: {
+                                                        color: "text.secondary",
+                                                        borderRadius: .6,
+                                                        border: `1px solid ${theme.palette.grey['A100']}`
+                                                    }
+                                                })}
+                                                url={`api/public/civil-status/${router.locale}`}
+                                                onChangeData={(event: any) => {
+                                                    setFieldValue("civilStatus", event);
+                                                }}
+                                                getOptionLabel={(option: any) => {
+                                                    // Value selected with enter, right from the input
+                                                    if (typeof option === "string") {
+                                                        return option;
+                                                    }
+                                                    // Add "xxx" option created dynamically
+                                                    if (option.inputValue) {
+                                                        return option.inputValue;
+                                                    }
+                                                    // Regular option
+                                                    return option.name;
+                                                }}
+                                                renderOption={(props: any, option: any) => (
+                                                    <ListItem {...props}>
+                                                        <ListItemText primary={`${option?.name}`}/>
+                                                    </ListItem>
+                                                )}
+                                                isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                                placeholder={t("civil-status-placeholder")}
+                                            />
                                         )}
                                     </Grid>
                                 </Stack>

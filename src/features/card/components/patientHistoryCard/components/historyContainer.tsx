@@ -326,7 +326,7 @@ function HistoryContainer({...props}) {
                                                                             justifyContent={"space-between"}
                                                                             spacing={2}>
                                                                             <Typography fontSize={12}>
-                                                                                {rs.analysis.name}
+                                                                                {rs?.name}
                                                                             </Typography>
 
                                                                             <TextField

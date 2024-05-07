@@ -135,7 +135,7 @@ function PatientFile({...props}) {
                         <Text style={{
                             ...styles.info, color: "black"
                         }}>{patientData?.birthdate} - {moment().diff(moment(patientData.birthdate, "DD-MM-YYYY"), 'years')} ans</Text>}
-                    {patientData?.contact && patientData?.contact.length > 0 &&
+                    {patientData?.contact && patientData?.contact?.length > 0 &&
                         <Text style={styles.info}>{patientData?.contact[0].code} {patientData?.contact[0].value}</Text>}
 
                     <View style={styles.separator}></View>
@@ -228,31 +228,24 @@ function PatientFile({...props}) {
                     {patientData?.requestedAnalyses.length > 0 && <View style={styles.separator}></View>}
                     {patientData?.requestedAnalyses.length > 0 &&
                         <Text style={styles.subtitle}>Analyses demandées</Text>}
-                    {
-                        patientData?.requestedAnalyses?.map((ra: {
-                            uuid: any;
-                            appointment: moment.MomentInput;
-                            hasAnalysis: {
-                                uuid: string;
-                                analysis: { name: string; };
-                                result: string;
-                            }[];
-                        }) => (
-                            <View key={`${ra.uuid}-ant`}>
-                                <Text
-                                    style={styles.antecedent}>{moment(ra?.appointment, "DD-MM-YYYY").format("MMM DD/YYYY")}</Text>
-                                {ra.hasAnalysis?.map((item: {
-                                    uuid: string;
-                                    analysis: {
-                                        name: string;
-                                    };
-                                    result: string;
-                                }) => (
-                                    <Text style={{...styles.text, marginLeft: 10, marginBottom: 5}}
-                                          key={item.uuid}>• {item.analysis.name}{" "}{item.result ? "/" + item.result : ""}</Text>
-                                ))}
-                            </View>
-                        ))
+                    {patientData?.requestedAnalyses?.map((ra: {
+                        uuid: any;
+                        appointment: moment.MomentInput;
+                        hasAnalysis: {
+                            uuid: string;
+                            analysis: { name: string; };
+                            result: string;
+                        }[];
+                    }) => (
+                        <View key={`${ra.uuid}-ant`}>
+                            <Text
+                                style={styles.antecedent}>{moment(ra?.appointment, "DD-MM-YYYY").format("MMM DD/YYYY")}</Text>
+                            {ra.hasAnalysis?.map((item: any) => (
+                                <Text style={{...styles.text, marginLeft: 10, marginBottom: 5}}
+                                      key={item.uuid}>• {item?.name}{" "}{item.result ? "/" + item.result : ""}</Text>
+                            ))}
+                        </View>
+                    ))
                     }
 
 

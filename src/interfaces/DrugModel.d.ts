@@ -1,6 +1,7 @@
 interface DrugModel {
   uuid?: string;
-  form?: string;
+  form?: any;
+  dosages?: any;
   dci?: string;
   dose?: string;
   commercial_name: string;

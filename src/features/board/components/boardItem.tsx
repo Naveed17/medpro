@@ -155,18 +155,17 @@ function BoardItem({ ...props }) {
                         }
                     }
                 }}>
-                <CardContent sx={{
-                    p: 1
-                }}>
+                <CardContent sx={{ p: 1 }}>
                     <Stack direction='row' alignItems='center' justifyContent='space-between'>
                         <Stack direction='row' alignItems='center' spacing={.8}>
                             {quote.content.status !== 3 &&
-                                <Box display='flex' sx={{
-                                    svg: {
-                                        width: 22,
-                                        height: 22
-                                    }
-                                }}>
+                                <Box display='flex'
+                                    sx={{
+                                        svg: {
+                                            width: 22,
+                                            height: 22
+                                        }
+                                    }}>
                                     {!isDragging && AppointmentStatus[quote.content.status].icon}
                                 </Box>}
                             <Stack spacing={.4}>
@@ -183,16 +182,20 @@ function BoardItem({ ...props }) {
                                         }}
                                         {...(quote.content.startTime === "00:00" && { color: 'warning' })}
                                         variant={"contained"}
-                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
-                                    <Typography
-                                        {...(mode !== "normal" && {
-                                            className: "blur-text",
-                                            sx: { overflow: "hidden", lineHeight: 1 }
-                                        })}
-                                        {...(quote.content.status === 3 && { pl: 1 })}
-                                        variant='body2' fontWeight={600}>
-                                        {quote.content.patient.firstName} {quote.content.patient.lastName}
-                                    </Typography>
+                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}{!isDragging ? `-${index + 1}` : ""}</Button>}
+                                    <Tooltip title={`${quote.content.patient.firstName} ${quote.content.patient.lastName}`}>
+                                        <Typography
+                                            className={"ellipsis"}
+                                            maxWidth={160}
+                                            {...(mode !== "normal" && {
+                                                className: "blur-text",
+                                                sx: { overflow: "hidden", lineHeight: 1 }
+                                            })}
+                                            {...(quote.content.status === 3 && { pl: 1 })}
+                                            variant='body2' fontWeight={600}>
+                                            {quote.content.patient.firstName} {quote.content.patient.lastName}
+                                        </Typography>
+                                    </Tooltip>
                                 </Stack>
 
 

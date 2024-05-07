@@ -147,7 +147,7 @@ function Agenda() {
         action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
     const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
-    const {config: agenda, lastUpdateNotification, sortedData: groupSortedData} = useAppSelector(agendaSelector);
+    const {config: agenda, sortedData: groupSortedData} = useAppSelector(agendaSelector);
     const absenceData = useAppSelector(absenceDrawerSelector);
 
     const [timeRange, setTimeRange] = useState({
@@ -338,12 +338,6 @@ function Agenda() {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ['common', 'menu', 'agenda']);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (lastUpdateNotification) {
-            refreshData();
-        }
-    }, [lastUpdateNotification])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (httpAppointmentsResponse) {
@@ -1084,7 +1078,7 @@ function Agenda() {
         dispatch(resetFilter());
     });
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>

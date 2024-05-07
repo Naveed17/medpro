@@ -15,7 +15,7 @@ import {
     FormHelperText,
     Grid,
     IconButton,
-    InputAdornment,
+    InputAdornment, ListItem, ListItemText,
     MenuItem,
     Stack,
     TextField,
@@ -33,7 +33,7 @@ import {DatePicker} from "@features/datepicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {CountrySelect} from "@features/countrySelect";
-import {DefaultCountry, SocialInsured} from "@lib/constants";
+import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
@@ -44,6 +44,7 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {AsyncAutoComplete} from "@features/autoComplete";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -89,6 +90,7 @@ function AddPatientStep2({...props}) {
         grouped: commonTranslation(`social_insured.${Insured.grouped}`),
         label: commonTranslation(`social_insured.${Insured.label}`)
     })));
+    const [loadingReq, setLoadingReq] = useState(false);
 
     const RegisterSchema = Yup.object().shape({
         email: Yup.string().email("Invalid email"),
@@ -156,6 +158,8 @@ function AddPatientStep2({...props}) {
             address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
             email: selectedPatient ? selectedPatient.email : stepsData.step2.email,
             cin: selectedPatient ? selectedPatient?.cin : stepsData.step2.cin,
+            addressed_by: selectedPatient ? selectedPatient?.addressed_by : stepsData.step2.addressed_by,
+            civil_status: selectedPatient ? selectedPatient?.civil_status : stepsData.step2.civil_status,
             profession: selectedPatient ? selectedPatient?.cin : stepsData.step2.profession,
             family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : stepsData.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
@@ -191,6 +195,7 @@ function AddPatientStep2({...props}) {
     const {values, handleSubmit, getFieldProps, setFieldValue, setValues, touched, errors} = formik;
 
     const {trigger: triggerAddPatient} = useRequestQueryMutation("/patient/add");
+    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
 
     const {data: httpStatesResponse} = useRequestQuery(contacts.length > 0 && values.country ? {
         method: "GET",
@@ -219,6 +224,12 @@ function AddPatientStep2({...props}) {
             value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
             type: "phone",
             contact_type: contacts[0].uuid,
+            is_whatsapp: phoneData.isWhatsapp,
+            contact_relation: PatientContactRelation.find(relation => relation.key === phoneData.relation)?.value,
+            contact_social: {
+                first_name: phoneData.firstName,
+                last_name: phoneData.lastName
+            },
             is_public: false,
             is_support: false
         }))));
@@ -239,7 +250,9 @@ function AddPatientStep2({...props}) {
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
         form.append('profession', values.profession);
-        form.append('note', values.note ? values.note : "");
+        form.append('note', values.note ?? "");
+        values.addressed_by?.uuid && form.append('addressed_by', values.addressed_by.uuid);
+        values.civil_status?.uuid && form.append('civil_status', values.civil_status.uuid);
 
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
@@ -362,8 +375,7 @@ function AddPatientStep2({...props}) {
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
-                                    gutterBottom
-                                >
+                                    gutterBottom>
                                     {t("add-patient.nationality")}
                                 </Typography>
                                 <FormControl fullWidth>
@@ -446,8 +458,7 @@ function AddPatientStep2({...props}) {
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
-                                    gutterBottom
-                                >
+                                    gutterBottom>
                                     {t("add-patient.country")}
                                 </Typography>
                                 <FormControl fullWidth>
@@ -594,48 +605,171 @@ function AddPatientStep2({...props}) {
                                     }
                                 />
                             </Box>
-                            <Stack direction={{xs: 'column', md: 'row'}} spacing={{xs: 2, md: 1}} pb={3}>
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {t("add-patient.cin")}
-                                    </Typography>
-                                    <TextField
-                                        placeholder={t("add-patient.cin-placeholder")}
-                                        variant="outlined"
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("cin")}
-                                    />
-                                </Box>
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {t("add-patient.profession")}
-                                    </Typography>
-                                    <TextField
-                                        placeholder={t("add-patient.profession-placeholder")}
-                                        variant="outlined"
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("profession")}
-                                    />
-                                </Box>
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {t("add-patient.family_doctor")}
-                                    </Typography>
-                                    <TextField
-                                        placeholder={t("add-patient.family_doctor-placeholder")}
-                                        type="text"
-                                        variant="outlined"
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("family_doctor")}
-                                    />
-                                </Box>
-                            </Stack>
+                            <Box>
+                                <Grid container spacing={2}>
+                                    <Grid item md={6} xs={12}>
+                                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                                            {t("add-patient.addressed-by")}
+                                        </Typography>
+                                        <AsyncAutoComplete
+                                            freeSolo
+                                            loading={loadingReq}
+                                            value={values.addressed_by}
+                                            url={`${urlMedicalEntitySuffix}/addressedBy/${router.locale}`}
+                                            onChangeData={(event: any) => {
+                                                if (event?.inputValue || typeof event === "string") {
+                                                    // Create a new value from the user input
+                                                    setLoadingReq(true);
+                                                    const params = new FormData();
+                                                    params.append("name", event?.inputValue ?? event);
+                                                    triggerAddressedBy({
+                                                        method: "POST",
+                                                        url: `${urlMedicalEntitySuffix}/addressedBy/${router.locale}`,
+                                                        data: params
+                                                    }, {
+                                                        onSuccess: (result) => {
+                                                            const data = (result?.data as HttpResponse)?.data;
+                                                            setFieldValue("addressed_by", {
+                                                                uuid: data?.uuid,
+                                                                name: event?.inputValue ?? event
+                                                            });
+                                                        },
+                                                        onSettled: () => setLoadingReq(false)
+                                                    })
+                                                } else {
+                                                    setFieldValue("addressed_by", event);
+                                                }
+                                            }}
+                                            getOptionLabel={(option: any) => {
+                                                // Value selected with enter, right from the input
+                                                if (typeof option === "string") {
+                                                    return option;
+                                                }
+                                                // Add "xxx" option created dynamically
+                                                if (option.inputValue) {
+                                                    return option.inputValue;
+                                                }
+                                                // Regular option
+                                                return option.name;
+                                            }}
+                                            filterOptions={(options: any, params: any) => {
+                                                const {inputValue} = params;
+                                                const filtered = options.filter((option: any) =>
+                                                    option.name
+                                                        .toLowerCase()
+                                                        .includes(inputValue.toLowerCase())
+                                                );
+                                                // Suggest the creation of a new value
+                                                const isExisting = options.some(
+                                                    (option: any) =>
+                                                        inputValue.toLowerCase() ===
+                                                        option.name.toLowerCase()
+                                                );
+                                                if (inputValue !== "" && !isExisting) {
+                                                    filtered.push({
+                                                        inputValue,
+                                                        name: `${t("add-patient.add")} "${inputValue}"`,
+                                                        isVerified: false,
+                                                    });
+                                                }
+                                                return filtered;
+                                            }}
+                                            renderOption={(props: any, option: any) => (
+                                                <ListItem {...props}>
+                                                    <ListItemText primary={`${option?.name}`}/>
+                                                </ListItem>
+                                            )}
+                                            isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                            placeholder={t("add-patient.addressed-by-placeholder")}
+                                        />
+                                    </Grid>
+                                    <Grid item md={6} xs={12}>
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.civil-status")}
+                                            </Typography>
+                                            <AsyncAutoComplete
+                                                loading={loadingReq}
+                                                value={values.civil_status}
+                                                url={`api/public/civil-status/${router.locale}`}
+                                                onChangeData={(event: any) => {
+                                                    setFieldValue("civil_status", event);
+                                                }}
+                                                getOptionLabel={(option: any) => {
+                                                    // Value selected with enter, right from the input
+                                                    if (typeof option === "string") {
+                                                        return option;
+                                                    }
+                                                    // Add "xxx" option created dynamically
+                                                    if (option.inputValue) {
+                                                        return option.inputValue;
+                                                    }
+                                                    // Regular option
+                                                    return option.name;
+                                                }}
+                                                renderOption={(props: any, option: any) => (
+                                                    <ListItem {...props}>
+                                                        <ListItemText primary={`${option?.name}`}/>
+                                                    </ListItem>
+                                                )}
+                                                isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                                placeholder={t("add-patient.civil-status-placeholder")}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Box>
+
+                            <Box>
+                                <Grid container spacing={2}>
+                                    <Grid item md={4} xs={12}>
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.cin")}
+                                            </Typography>
+                                            <TextField
+                                                placeholder={t("add-patient.cin-placeholder")}
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                                {...getFieldProps("cin")}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                    <Grid item md={4} xs={12}>
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.profession")}
+                                            </Typography>
+                                            <TextField
+                                                placeholder={t("add-patient.profession-placeholder")}
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                                {...getFieldProps("profession")}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                    <Grid item md={4} xs={12}>
+                                        <Box>
+                                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                {t("add-patient.family_doctor")}
+                                            </Typography>
+                                            <TextField
+                                                placeholder={t("add-patient.family_doctor-placeholder")}
+                                                type="text"
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                                {...getFieldProps("family_doctor")}
+                                            />
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Box>
                         </Stack>
                     </Collapse>
-                    <Divider/>
+                    <Divider sx={{mt: 4}}/>
                     <Stack my={2} sx={{cursor: 'pointer'}} onClick={() => {
                         const newCollapse = [...collapse];
                         if (collapse.includes("insurance-info")) {
@@ -962,13 +1096,11 @@ function AddPatientStep2({...props}) {
                     spacing={3}
                     direction="row"
                     justifyContent="flex-end"
-                    className="action"
-                >
+                    className="action">
                     <Button
                         variant="text-black"
                         color="primary"
-                        onClick={() => onNext(0)}
-                    >
+                        onClick={() => onNext(0)}>
                         {t("add-patient.return")}
                     </Button>
 
@@ -977,8 +1109,7 @@ function AddPatientStep2({...props}) {
                         type="submit"
                         color="primary"
                         loading={loading}
-                        variant="contained"
-                    >
+                        variant="contained">
                         {t("add-patient.register")}
                     </LoadingButton>
                 </Stack>

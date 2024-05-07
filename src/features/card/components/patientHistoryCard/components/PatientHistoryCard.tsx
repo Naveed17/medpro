@@ -83,12 +83,17 @@ function PatientHistoryCard({...props}) {
                             {moment(data?.appointment.dayDate, "DD-MM-YYYY").format(
                                 "ddd DD-MM-YYYY"
                             )}{" "}
-                            <AccessTimeIcon
-                                style={{marginBottom: "-3px", width: 20, height: 15}}
-                            />{" "}
-                            {data?.appointment.startTime}
                         </Typography>
-                        <Stack direction={"row"} alignItems={"center"} pl={2}>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} pl={1}>
+                            {!isMobile && <AccessTimeIcon
+                                htmlColor={"white"}
+                                style={{width: 20, height: 15}}
+                            />}{" "}
+                            {!isMobile && <Typography
+                                variant="body2"
+                                color="text.secondary">{data?.appointment.startTime}</Typography>}
+                        </Stack>
+                        <Stack direction={"row"} alignItems={"center"} pl={1.2}>
                             <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
                                 <IconButton
                                     onClick={(e) => {

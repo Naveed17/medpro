@@ -585,9 +585,13 @@ function Patients() {
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);
-                setTimeout(() => setDeleteDialog(false));
                 mutatePatients();
                 enqueueSnackbar(t(`alert.delete-patient`), {variant: "success"});
+                setDeleteDialog(false);
+                setDeletePatientOptions(deletePatientOptions.map(option => ({
+                    ...option,
+                    selected: false
+                })));
             }
         });
     }
@@ -693,7 +697,7 @@ function Patients() {
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>

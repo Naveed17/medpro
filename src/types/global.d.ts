@@ -16,6 +16,8 @@ declare global {
     interface Window {
         usetifulInit(window: Window, document: Document, src: string, apiKey: string)
 
+        Upscope(action: String, options?: any): void
+
         usetifulTags: Object
     }
 

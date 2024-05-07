@@ -96,13 +96,13 @@
     },
     "no-data": {
       "event": {
-        "title": "Ajouter votre premier rendez-vous",
+        "title": "Veuillez ajouter votre premier rendez-vous",
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"
       },
       "vacation": {
-        "title": "Ajouter votre première absence",
+        "title": "Veuillez ajouter votre première absence",
         "sub-title": "Pas de absences",
         "description": "",
         "button-text": "Ajouter un absence"
@@ -215,6 +215,7 @@
         "assurance-num-error": "Le numéro d'assurance est obligatoire",
         "assurance-type-error": "Veuillez sélectionner l'assurance",
         "email": "E-mail",
+        "relation": "Relation",
         "email-placeholder": "Saisissez l'adresse e-mail du patient",
         "cin": "CIN",
         "cin-placeholder": "Saisir la CIN du patient",
@@ -230,6 +231,7 @@
         "description": "",
         "add-new": "Ajouter un autre patient",
         "add-appo": "Ajouter RDV",
+        "add-contact": "Ajouter un contact",
         "register": "Enregistrer",
         "return": "Retourner à",
         "dialog": {

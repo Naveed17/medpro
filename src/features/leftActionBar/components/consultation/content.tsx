@@ -548,7 +548,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list.analysis.name}{" "}
+                                                    {list?.name}{" "}
                                                     {list.result ? "/" + list.result : ""}
                                                 </Typography>
                                             </ListItem>
@@ -629,7 +629,7 @@ const Content = ({...props}) => {
                                             <ListItem key={index} className={"ant-item"}
                                                       style={{paddingLeft: 10, paddingRight: 10}}>
                                                 <Typography variant="body2">
-                                                    {list.analysis.name}
+                                                    {list?.name}
                                                     {list.result ? " : " + list.result : ""}
                                                 </Typography>
                                             </ListItem>

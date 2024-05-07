@@ -33,7 +33,7 @@
         "is_for_appointment": "Est pour Rendez-vous"
     },
     "no-data": {
-        "title": "Ajouter votre premier produit",
+        "title": "Veuillez ajouter votre premier produit",
         "description": "Si vous n'avez pas de produit, ajoutez-les en cliquant sur 'Ajouter un produit'."
     }
 }

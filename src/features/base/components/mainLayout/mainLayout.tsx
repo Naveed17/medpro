@@ -24,7 +24,6 @@ import {
     agendaSelector,
     AppointmentStatus,
     openDrawer,
-    setLastUpdate,
     setMessagesRefresh,
     setSelectedEvent,
     setStepperIndex
@@ -42,7 +41,7 @@ import {DefaultCountry, EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
-import {useCalculateCnxSpeed, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {isAppleDevise, isSupported, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
@@ -72,7 +71,7 @@ function MainLayout({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-    useCalculateCnxSpeed(); // Check speed connection
+    //useCalculateCnxSpeed(); // Check speed connection
     const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
@@ -151,7 +150,6 @@ function MainLayout({...props}) {
                     case "agenda":
                     case "waiting-room":
                         // Mutate agenda
-                        dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
                             if (!data.body.appointment) {
                                 dispatch(resetTimer());
@@ -179,7 +177,7 @@ function MainLayout({...props}) {
                         break;
                     case "consultation":
                         // Mutate agenda
-                        dispatch(setLastUpdate(data));
+                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]);
                         // Mutate on going api
                         mutateOnGoing();
                         break;
@@ -215,7 +213,7 @@ function MainLayout({...props}) {
     const setToken = async () => {
         try {
             const {token, analytics} = await firebaseCloudSdk.init() as any;
-            if (token) {
+            if (token && !isAppleDevise() && isSupported()) {
                 getFcmMessage();
                 subscribeToTopic(token, `${roles[0]}-${general_information.uuid}`);
             }
@@ -309,6 +307,25 @@ function MainLayout({...props}) {
             });
         }
     }, [window?.usetifulInit, general_information]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
+        if (typeof window !== "undefined" && window?.Upscope && general_information && process.env.NODE_ENV !== 'development') {
+            fetchAndActivate(remoteConfig).then(() => {
+                const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
+                if (config.upscope) {
+                    window.Upscope('init');
+                    window.Upscope('updateConnection', {
+                        // Set the  user ID below. If you don't have one, set to undefined.
+                        uniqueId: general_information.uuid,
+
+                        // Set the  username or email below (e.g. ["John Smith", "john.smith@acme.com"]).
+                        identities: [roles[0], `${general_information.firstName} ${general_information.lastName}`]
+                    });
+                }
+            });
+        }
+    }, [window?.Upscope, general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         // Update notifications popup
@@ -516,7 +533,7 @@ function MainLayout({...props}) {
                         data={{
                             id: notificationData?.appointment.patient.uuid,
                             name: `${notificationData?.appointment.patient.firstName} ${notificationData?.appointment.patient.lastName}`,
-                            phone: `${notificationData?.appointment.patient.contact[0]?.code} ${notificationData?.appointment.patient.contact[0]?.value}`,
+                            phone: notificationData?.appointment.patient.contact?.length > 0 ? `${notificationData?.appointment.patient.contact[0]?.code} ${notificationData?.appointment.patient.contact[0]?.value}` : "",
                             date: notificationData?.appointment.dayDate,
                             time: notificationData?.appointment.startTime
                         }}
