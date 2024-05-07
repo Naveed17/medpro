@@ -1,7 +1,5 @@
 export function unflattenObject(ob: any) {
-    let toReturn: any = {};
-
-    Object.keys(ob).reduce((res, k) => {
+    return Object.keys(ob).reduce((res, k) => {
         k.split('.').reduce(
             (acc, e, i, keys) =>
                 acc[e] || (acc[e] = isNaN(Number(keys[i + 1]))
@@ -10,7 +8,5 @@ export function unflattenObject(ob: any) {
                         : {}
                     : []), res);
         return res;
-    }, toReturn)
-
-    return toReturn;
+    }, {} as any)
 }

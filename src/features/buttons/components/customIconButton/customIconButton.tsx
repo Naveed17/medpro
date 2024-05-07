@@ -8,7 +8,7 @@ function CustomIconButton({ ...props }) {
     return (
         <IconButton
             sx={{
-                ...(sx && sx),
+                ...(!!sx && sx),
                 borderRadius: 1,
                 ...(color && {
                     backgroundColor: (theme.palette[color as keyof typeof theme.palette] as PaletteColor).main,
