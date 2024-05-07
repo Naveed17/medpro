@@ -894,6 +894,12 @@ const Content = ({...props}) => {
 
             {info && (
                 <Dialog
+                    {...{
+                        size,
+                        direction,
+                        max: "true",
+                        actions: "true"
+                    }}
                     action={info}
                     open={openDialog}
                     fullWidth
@@ -904,11 +910,6 @@ const Content = ({...props}) => {
                         antecedents: allAntecedents,
                         action: infoDynamic,
                     }}
-                    change={false}
-                    max
-                    size={size}
-                    direction={direction}
-                    actions={true}
                     title={getTitle()}
                     dialogClose={handleClose}
                     actionDialog={
