@@ -42,6 +42,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog} from "@features/dialog";
 import {setMessage, setOpenChat} from "@features/chat/actions";
 import {setDialog} from "@features/topNavBar";
+import Can from "@features/casl/can";
 
 function PatientDetailsCard({...props}) {
     const {
@@ -55,8 +56,7 @@ function PatientDetailsCard({...props}) {
         walletMutate,
         closePatientDialog,
         rest,
-        devise,
-        roles
+        devise
     } = props;
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -595,46 +595,45 @@ function PatientDetailsCard({...props}) {
                                                     </IconButton>
                                                 </Stack>
 
-                                                {!roles.includes('ROLE_SECRETARY') && (
-                                                    <>
-                                                        {loading ? (
-                                                            <Skeleton
-                                                                variant="rectangular"
+                                                <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
+                                                    {loading ? (
+                                                        <Skeleton
+                                                            variant="rectangular"
+                                                            sx={{
+                                                                ml: {md: "auto", xs: 0},
+                                                                maxWidth: {md: 193, xs: "100%"},
+                                                                minHeight: {md: 60, xs: 40},
+                                                                width: 153,
+                                                                borderRadius: "4px",
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        !isMobile ?
+                                                            <LoadingButton
+                                                                loading={requestLoading}
+                                                                onClick={startConsultationFormPatient}
+                                                                variant="contained"
                                                                 sx={{
                                                                     ml: {md: "auto", xs: 0},
                                                                     maxWidth: {md: 193, xs: "100%"},
-                                                                    minHeight: {md: 60, xs: 40},
-                                                                    width: 153,
-                                                                    borderRadius: "4px",
                                                                 }}
-                                                            />
-                                                        ) : (
-                                                            !isMobile ? <LoadingButton
-                                                                    loading={requestLoading}
-                                                                    onClick={startConsultationFormPatient}
-                                                                    variant="contained"
-                                                                    sx={{
-                                                                        ml: {md: "auto", xs: 0},
-                                                                        maxWidth: {md: 193, xs: "100%"},
-                                                                    }}
-                                                                    color="warning"
-                                                                    startIcon={<PlayCircleIcon/>}>
-                                                                    <Typography
-                                                                        component='strong' variant={"body2"}
-                                                                        fontSize={13}>{t("start-consultation")}</Typography>
-                                                                </LoadingButton>
-                                                                :
-                                                                <IconButton
-                                                                    disabled={isActive}
-                                                                    sx={{
-                                                                        borderRadius: 8
-                                                                    }}
-                                                                    onClick={startConsultationFormPatient}>
-                                                                    <PlayCircleIcon/>
-                                                                </IconButton>
-                                                        )}
-                                                    </>
-                                                )}
+                                                                color="warning"
+                                                                startIcon={<PlayCircleIcon/>}>
+                                                                <Typography
+                                                                    component='strong' variant={"body2"}
+                                                                    fontSize={13}>{t("start-consultation")}</Typography>
+                                                            </LoadingButton>
+                                                            :
+                                                            <IconButton
+                                                                disabled={isActive}
+                                                                sx={{
+                                                                    borderRadius: 8
+                                                                }}
+                                                                onClick={startConsultationFormPatient}>
+                                                                <PlayCircleIcon/>
+                                                            </IconButton>
+                                                    )}
+                                                </Can>
                                             </Stack>
                                         </Stack>
                                     )}
