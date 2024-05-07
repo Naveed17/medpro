@@ -548,7 +548,7 @@ function WaitingRoom() {
                 setPopoverActions(CalendarContextMenu.filter(dataFilter => !["onReschedule", "onMove"].includes(dataFilter.action) && !prepareContextMenu(dataFilter.action, {
                     ...data.row,
                     status: AppointmentStatus[data.row?.status]
-                } as EventModal, roles)));
+                } as EventModal)));
                 handleContextMenu(data.event);
                 break;
         }

@@ -207,7 +207,7 @@ function RDVRow({...props}) {
                 !prepareContextMenu(dataFilter.action, {
                     ...inner,
                     status: AppointmentStatus[inner?.status]
-                } as EventModal, roles)));
+                } as EventModal)));
             setContextMenu(
                 contextMenu === null
                     ? {
