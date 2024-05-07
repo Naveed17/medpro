@@ -92,7 +92,7 @@ function PediatricianCharts({...props}) {
             dashArray = [...dashArray, 0, 3, 3, 0, 0]
         }
         if (sheet && sheet.poids && weight) {
-            Object.keys(sheet.poids.data).map(date => {
+            Object.keys(sheet.poids.data).forEach(date => {
                 const nbMonth = moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months")
                 patientWeight.push({
                     x: patientWeight.find(w => w.x === nbMonth) ? nbMonth + 1 : nbMonth,

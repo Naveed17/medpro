@@ -59,7 +59,7 @@ function Doc({...props}) {
                 state.info.forEach((el: any, index: number) => {
                     const child = document.createElement('p');
                     child.append();
-                    elx += `<p>${index + 1} • ${el?.drugName ?? ""} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}</p>`
+                    elx += `<p style="font-weight: bold">${index + 1} • ${el?.drugName ?? ""} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}</p>`
                     el.cycles.map((cycle: any) => {
                         let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                         if (cycle.duration)
