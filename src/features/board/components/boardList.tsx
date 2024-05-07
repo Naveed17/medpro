@@ -55,29 +55,6 @@ const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) 
     );
 };
 
-const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
-    return props.quotes.map((quote: any, index: number) => (
-        <Draggable key={quote.id} draggableId={quote.id} index={index} isDragDisabled={!quote?.content.isDraggable}>
-            {(
-                dragProvided: DraggableProvided,
-                dragSnapshot: DraggableStateSnapshot,
-            ) => (
-                <BoardItem
-                    {...{
-                        index,
-                        quote,
-                        isDragging: dragSnapshot.isDragging,
-                        isGroupedOver: Boolean(dragSnapshot.combineTargetFor),
-                        provided: dragProvided,
-                        handleEvent: props.handleEvent
-                    }}
-                    key={quote.id}
-                />
-            )}
-        </Draggable>
-    ));
-});
-
 export default function BoardList({...props}) {
     const {
         ignoreContainerClipping,
@@ -115,8 +92,8 @@ export default function BoardList({...props}) {
                 defaultHeight = 70;
                 break;
         }
-        return (elementHeight ?? defaultHeight) + heightOffset
-    },[]);
+        return ((elementHeight && elementHeight >= defaultHeight) ? elementHeight : defaultHeight) + heightOffset
+    }, []);
 
     return (
         <ColumnContainer>
@@ -145,7 +122,7 @@ export default function BoardList({...props}) {
                             height={600}
                             rowCount={itemCount}
                             rowHeight={params => getRowHeight(quotes[params.index])}
-                            width={340}
+                            width={600}
                             autoContainerWidth
                             autoWidth
                             ref={(ref) => {
@@ -160,7 +137,7 @@ export default function BoardList({...props}) {
                                 }
                             }}
                             style={{
-                                transition: 'background-color 0.2s ease',
+                                transition: 'background-color 0.2s ease'
                             }}
                             rowRenderer={getRowRender(quotes, handleEvent)}
                         />

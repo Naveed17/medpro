@@ -393,7 +393,7 @@ function AddPatientStep2({...props}) {
                                         sx={{color: "text.secondary"}}
                                         options={countriesData}
                                         loading={countriesData.length === 0}
-                                        getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                        getOptionLabel={(option: any) => option?.name ?? ""}
                                         isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                         renderOption={(props, option) => (
                                             <Stack key={`nationality-${option.uuid}`}>
@@ -476,7 +476,7 @@ function AddPatientStep2({...props}) {
                                         sx={{color: "text.secondary"}}
                                         options={countriesData.filter(country => country.hasState)}
                                         loading={countriesData.length === 0}
-                                        getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                        getOptionLabel={(option: any) => option?.name ?? ""}
                                         isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                         renderOption={(props, option) => (
                                             <Stack key={`country-${option.uuid}`}>
@@ -548,7 +548,7 @@ function AddPatientStep2({...props}) {
                                                 sx={{color: "text.secondary"}}
                                                 options={states ? states : []}
                                                 loading={states?.length === 0}
-                                                getOptionLabel={(option) => option?.name ? option.name : ""}
+                                                getOptionLabel={(option) => option?.name ?? ""}
                                                 isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                 renderOption={(props, option) => (
                                                     <Stack key={`region-${option.uuid}`}>
@@ -856,7 +856,7 @@ function AddPatientStep2({...props}) {
                                                         options={socialInsurances}
                                                         groupBy={(option: any) => option.grouped}
                                                         sx={{minWidth: 460}}
-                                                        getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                        getOptionLabel={(option: any) => option?.label ?? ""}
                                                         isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
                                                         renderGroup={(params) => {
                                                             return (
@@ -894,7 +894,7 @@ function AddPatientStep2({...props}) {
                                                             }}
                                                             id={"assurance"}
                                                             options={insurances ? insurances : []}
-                                                            getOptionLabel={option => option?.name ? option.name : ""}
+                                                            getOptionLabel={option => option?.name ?? ""}
                                                             isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                             renderOption={(params, option) => (
                                                                 <Stack key={`assurance-${option.uuid}`}>
