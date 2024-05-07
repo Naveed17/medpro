@@ -1,21 +1,15 @@
 import TableCell from "@mui/material/TableCell";
-import {Checkbox} from "@mui/material";
-import {Theme, useTheme} from "@mui/material/styles";
+import {Checkbox, Stack, Typography} from "@mui/material";
 import {TableRowStyled} from "@features/table";
-import React, {useState} from "react";
-import {debounce} from "lodash";
-import {useAppDispatch} from "@lib/redux/hooks";
+import React from "react";
 import {ImageHandler} from "@features/image";
 import {useInsurances} from "@lib/hooks/rest";
 
-
 function InsuranceFeesRow({...props}) {
 
-    const {row, data, editMotif, handleEvent} = props;
-    console.log(row.insurances)
+    const {row, data, } = props;
+    const {devise,insurance_act,handleChangeInsurance} = data;
     const {insurances: allInsurances} = useInsurances();
-    console.log(allInsurances)
-
 
     return (
         <TableRowStyled
@@ -24,29 +18,29 @@ function InsuranceFeesRow({...props}) {
             role="checkbox"
             tabIndex={-1}>
             <TableCell>
-                <Checkbox
-                    color="primary"
-                    onChange={() => {
-
-                    }}
-                    checked={row.a}
-                />
-                <ImageHandler
-                    alt={row?.name}
-                    src={allInsurances.find(
-                        (ins: any) =>
-                            ins.uuid ===
-                            row?.insurance.uuid
-                    )?.logoUrl?.url}/>
+                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                    <Checkbox
+                        color="primary"
+                        onChange={() => {
+                            handleChangeInsurance(row)
+                        }}
+                        checked={row.uuid === insurance_act}
+                    />
+                    <ImageHandler
+                        alt={row?.name}
+                        src={allInsurances.find(
+                            (ins: any) =>
+                                ins.uuid ===
+                                row?.insurance.uuid
+                        )?.logoUrl?.url}/>
+                    <Typography>{row.insurance.name}</Typography>
+                </Stack>
             </TableCell>
-            <TableCell>
-                {row.insurance.name}
+            <TableCell align="center">
+                <Typography>{row.refund} {devise}</Typography>
             </TableCell>
-            <TableCell>
-                {row.refund}
-            </TableCell>
-            <TableCell>
-                {row.patient_part}
+            <TableCell align="center">
+                <Typography>{row.patient_part} {devise}</Typography>
             </TableCell>
         </TableRowStyled>
     );

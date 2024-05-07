@@ -157,45 +157,28 @@ function FeesTab({...props}) {
     }, [res]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const saveChanges = (actsList: any[]) => {
+
         const _acts: { act_uuid: string; name: string; qte: number; price: number; }[] = [];
 
         let _total = 0
-        actsList.filter((act: { selected: boolean; }) => act.selected).forEach((act: {
-            fees: number;
-            qte: number;
-        }) => _total += act.fees * act.qte)
-        setTotal(_total);
-
-        actsList.filter((act: {
-            selected: boolean;
-            uuid: string;
-        }) => act.selected && act.uuid !== "consultation_type").forEach((act: {
-            uuid: string;
-            act: { name: string; };
-            qte: number;
-            fees: number;
-        }) => {
+        actsList.filter((act: any) => act.selected).forEach((act: any) => {
+            _total += act.fees * act.qte
+            console.log("act",act)
             _acts.push({
                 act_uuid: act.uuid,
                 name: act.act.name,
                 qte: act.qte,
                 price: act.fees,
+                ...(act.insurance_act &&{insurance_act: act.insurance_act}),
+                ...(act.patient_part &&{patient_part: act.patient_part}),
+                ...(act.refund &&{refund: act.refund})
             });
-        })
-
-        /* const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
-         let isFree = true;
-         let consultationFees = 0;
-
-         if (app_type) {
-             isFree = !app_type?.selected;
-             consultationFees = isFree ? null : app_type?.fees
-         }*/
+        });
+        setTotal(_total);
 
         const form = new FormData();
         form.append("acts", JSON.stringify(_acts));
         form.append("fees", _total.toString());
-        //form.append("consultation_fees", consultationFees ? consultationFees.toString() : "null");
 
         app_uuid && triggerFeesEdit({
             method: "PUT",

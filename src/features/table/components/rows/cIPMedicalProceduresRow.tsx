@@ -11,6 +11,7 @@ import {SetLoading} from "@features/toolbar";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {ImageHandler} from "@features/image";
 import {useInsurances} from "@lib/hooks/rest";
+import Icon from "@themes/urlIcon";
 
 const headCells: readonly HeadCell[] = [
     {
@@ -21,15 +22,6 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
-    {
-        id: "fees",
-        numeric: true,
-        disablePadding: false,
-        label: "mtt",
-        sortable: true,
-        align: "center",
-    },
-
     {
         id: "refund",
         numeric: true,
@@ -51,13 +43,10 @@ const headCells: readonly HeadCell[] = [
 function CIPMedicalProceduresRow({...props}) {
 
     const {row, data, editMotif, handleEvent, t} = props;
-    const {insurances} = data;
-    console.log(row.insurances)
+    const {insurances, devise} = data;
+
     const {insurances: allInsurances} = useInsurances();
-    console.log(allInsurances)
-
     const dispatch = useAppDispatch();
-
     const theme = useTheme() as Theme;
 
     const [selected, setSelected] = useState<string>("");
@@ -66,6 +55,16 @@ function CIPMedicalProceduresRow({...props}) {
     const lostFocus = (uuid: string) => {
         document.getElementById(uuid)?.blur()
     }
+
+    const handleChangeInsurance = (insurance: any) => {
+        row.insurance_act = insurance.uuid;
+        row.patient_part = insurance.patient_part
+        row.refund = insurance.refund
+        editMotif(row, "change");
+        handleEvent()
+        setCollapse(false)
+    }
+
     const debouncedOnChange = debounce(lostFocus, 1500);
 
     return (
@@ -77,15 +76,7 @@ function CIPMedicalProceduresRow({...props}) {
                 tabIndex={-1}>
                 <TableCell padding="checkbox">
                     <Stack direction={"row"} alignItems={"center"}>
-                        {row.insurances.length > 0 && <IconButton onClick={() => setCollapse(!collapse)}>
-                            <ImageHandler
-                                alt={insurances[0]?.insurance.name}
-                                src={allInsurances.find(
-                                    (insurance: any) =>
-                                        insurance.uuid ===
-                                        insurances[0]?.insurance.uuid
-                                )?.logoUrl?.url}/>
-                        </IconButton>}
+
                         <Checkbox
                             color="primary"
                             onChange={() => {
@@ -97,10 +88,19 @@ function CIPMedicalProceduresRow({...props}) {
                     </Stack>
                 </TableCell>
                 <TableCell>
-                    <Typography fontWeight={500} color='text.primary'>
-                        {row.act.name}
-                    </Typography>
-
+                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"}>
+                        <Typography fontWeight={500} color='text.primary'>
+                            {row.act.name}
+                        </Typography>
+                        {
+                            row.insurances.length > 0 && <IconButton onClick={() => setCollapse(!collapse)}>
+                                <ImageHandler
+                                    alt={insurances[0]?.insurance.name}
+                                    src={allInsurances.find((insurance: any) => insurance.uuid === row.insurance_act)?.logoUrl?.url}/>
+                            <Icon src={"ic-expand-more"}></Icon>
+                            </IconButton>
+                        }
+                    </Stack>
                 </TableCell>
                 <TableCell align="center">
 
@@ -305,16 +305,16 @@ function CIPMedicalProceduresRow({...props}) {
                         borderTopLeftRadius: 0,
                         borderTopRightRadius: 0
                     }}>
-                         <Otable
+                        <Otable
                             headers={headCells}
                             rows={row.insurances}
                             from={"insurance-fees-collapse"}
-                            {...{t, handleEvent}}
+                            {...{t, handleChangeInsurance, devise, insurance_act: row.insurance_act}}
                         />
                     </Paper>
                 </TableCell>
             </TableRowStyled>}
-            </>
+        </>
 
     );
 }
