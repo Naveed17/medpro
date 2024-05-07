@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import styled from '@emotion/styled';
 import {Droppable, Draggable} from 'react-beautiful-dnd';
 import type {
@@ -11,22 +11,6 @@ import {BoardItem, grid, heightOffset} from "@features/board";
 import ReactDOM from "react-dom";
 import {List} from 'react-virtualized';
 
-const DropZone = styled.div`
-    /* stop the list collapsing when empty */
-    min-height: 250px;
-
-    /*
-      not relying on the items for a margin-bottom
-      as it will collapse when the list is empty
-    */
-    padding-bottom: 8px;
-`;
-
-/* stylelint-disable block-no-empty */
-const Container = styled.div``;
-/* stylelint-enable */
-
-
 // Using a higher order function so that we can look up the quotes data to retrieve
 // our quote from within the rowRender function
 // eslint-disable-next-line react/display-name
@@ -34,7 +18,7 @@ const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) 
     const quote = quotes[index];
 
     // We are rendering an extra item for the placeholder
-    // Do do this we increased our data set size to include one 'fake' item
+    // Do this we increased our data set size to include one 'fake' item
     if (!quote) {
         return null;
     }
@@ -71,29 +55,6 @@ const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) 
     );
 };
 
-const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
-    return props.quotes.map((quote: any, index: number) => (
-        <Draggable key={quote.id} draggableId={quote.id} index={index} isDragDisabled={!quote?.content.isDraggable}>
-            {(
-                dragProvided: DraggableProvided,
-                dragSnapshot: DraggableStateSnapshot,
-            ) => (
-                <BoardItem
-                    {...{
-                        index,
-                        quote,
-                        isDragging: dragSnapshot.isDragging,
-                        isGroupedOver: Boolean(dragSnapshot.combineTargetFor),
-                        provided: dragProvided,
-                        handleEvent: props.handleEvent
-                    }}
-                    key={quote.id}
-                />
-            )}
-        </Draggable>
-    ));
-});
-
 export default function BoardList({...props}) {
     const {
         ignoreContainerClipping,
@@ -116,7 +77,7 @@ export default function BoardList({...props}) {
         flex-direction: column;
     `;
 
-    const getRowHeight = (data: any) => {
+    const getRowHeight = useCallback((data: any) => {
         const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height;
         let defaultHeight;
         switch (data?.column.id.toString()) {
@@ -131,8 +92,8 @@ export default function BoardList({...props}) {
                 defaultHeight = 70;
                 break;
         }
-        return (elementHeight ?? defaultHeight) + heightOffset
-    }
+        return ((elementHeight && elementHeight >= defaultHeight) ? elementHeight : defaultHeight) + heightOffset
+    }, []);
 
     return (
         <ColumnContainer>
@@ -154,18 +115,14 @@ export default function BoardList({...props}) {
                             isDragging: snapshot.isDragging
                         }}></BoardItem>
                 ))}>
-                {(
-                    droppableProvided: DroppableProvided,
-                    snapshot: DroppableStateSnapshot,
-                ) => {
+                {(droppableProvided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
                     const itemCount: number = snapshot.isUsingPlaceholder ? quotes.length + 1 : quotes.length;
-
                     return (
                         <List
                             height={600}
                             rowCount={itemCount}
                             rowHeight={params => getRowHeight(quotes[params.index])}
-                            width={340}
+                            width={600}
                             autoContainerWidth
                             autoWidth
                             ref={(ref) => {
@@ -180,7 +137,7 @@ export default function BoardList({...props}) {
                                 }
                             }}
                             style={{
-                                transition: 'background-color 0.2s ease',
+                                transition: 'background-color 0.2s ease'
                             }}
                             rowRenderer={getRowRender(quotes, handleEvent)}
                         />

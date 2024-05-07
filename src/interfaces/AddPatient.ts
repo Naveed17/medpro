@@ -19,7 +19,11 @@ interface Qualifications {
                 code: string;
                 name: string;
                 phone: string;
-            } | undefined
+            } | undefined;
+            isWhatsapp: boolean;
+            relation: string;
+            firstName: string;
+            lastName: string;
         }];
         gender: string;
     };

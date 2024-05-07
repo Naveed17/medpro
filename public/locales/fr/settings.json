@@ -387,7 +387,7 @@
       "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de cette agenda",
       "cancel": "Annuler",
       "no-data": {
-        "title": "Veuillez ajouter votre première Agenda",
+        "title": "Veuillez ajouter votre premier Agenda",
         "description": "",
         "button-text": "Ajouter un Agenda"
       },
@@ -668,18 +668,18 @@
       },
       "no-data": {
         "user": {
-          "title": "Veuillez ajouter votre première utilisateur",
-          "description": "Gérer votre accès et créer votre première secrétaire",
+          "title": "Veuillez ajouter votre premier utilisateur",
+          "description": "Gérer votre accès et créer votre premier secrétaire",
           "button-text": "Ajouter un utilisateur"
         },
         "role": {
-          "title": "Veuillez ajouter votre première profil",
-          "description": "Gérez votre accès et créez votre première profil",
+          "title": "Veuillez ajouter votre premier profil",
+          "description": "Gérez votre accès et créez votre premier profil",
           "button-text": "Ajouter un profil"
         },
         "permissions": {
           "title": "Veuillez sélectionner les fonctionnalités et les autorisations",
-          "description": "Gérez votre accès et créez votre première profil"
+          "description": "Gérez votre accès et créez votre premier profil"
         }
       },
       "table": {

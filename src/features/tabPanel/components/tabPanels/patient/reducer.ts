@@ -24,7 +24,11 @@ export const initialPatientState: MenuState = {
             old: "",
             phones: [{
                 phone: "",
-                dial: DefaultCountry
+                dial: DefaultCountry,
+                isWhatsapp: false,
+                relation: "himself",
+                firstName: "",
+                lastName: ""
             }],
             gender: ""
         },

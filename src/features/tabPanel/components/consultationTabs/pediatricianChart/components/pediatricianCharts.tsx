@@ -76,7 +76,7 @@ function PediatricianCharts({...props}) {
         let colors: string[] = []
         let dashArray: number[] = [];
         if (sheet && sheet.taille && height) {
-            Object.keys(sheet.taille.data).map(date => {
+            Object.keys(sheet.taille.data).forEach(date => {
                 const nbMonth = moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months");
                 patientHeight.push({
                     x: patientHeight.find(w => w.x === nbMonth) ? nbMonth + 1 : nbMonth,

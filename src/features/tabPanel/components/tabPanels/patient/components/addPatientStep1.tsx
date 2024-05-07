@@ -14,7 +14,7 @@ import {
     Stack,
     FormHelperText,
     IconButton,
-    Avatar,
+    Avatar, useTheme, InputAdornment, Autocomplete, MenuItem, Checkbox,
 } from "@mui/material";
 import {
     addPatientSelector, CustomInput,
@@ -29,12 +29,11 @@ import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
 
 import Icon from "@themes/urlIcon";
-import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/image";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -44,6 +43,8 @@ import PhoneInput from "react-phone-number-input/input";
 import {useRequestQueryMutation} from "@lib/axios";
 import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
+import AddIcon from "@mui/icons-material/Add";
+import {ToggleButtonStyled} from "@features/toolbar";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -66,6 +67,7 @@ function AddPatientStep1({...props}) {
     const phoneInputRef = useRef(null);
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const theme = useTheme();
 
     const {t: commonTranslation} = useTranslation("common");
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
@@ -76,7 +78,10 @@ function AddPatientStep1({...props}) {
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
     const [duplicatedFiche, setDuplicatedFiche] = useState(false);
     const [error, setError] = useState<boolean>(false);
-
+    const [contactRelations] = useState(PatientContactRelation.map(relation => ({
+        ...relation,
+        label: commonTranslation(`social_insured.${relation.label}`)
+    })));
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -149,6 +154,10 @@ function AddPatientStep1({...props}) {
                     {
                         phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value,
                         dial: doctor_country,
+                        isWhatsapp: false,
+                        relation: "himself",
+                        firstName: "",
+                        lastName: ""
                     }
                 ]
                 : stepsData.step1.phones
@@ -174,6 +183,10 @@ function AddPatientStep1({...props}) {
             {
                 phone: "",
                 dial: doctor_country,
+                isWhatsapp: false,
+                relation: "himself",
+                firstName: "",
+                lastName: ""
             },
         ];
         formik.setFieldValue("phones", phones);
@@ -262,8 +275,8 @@ function AddPatientStep1({...props}) {
                                                    zIndex: 1,
                                                    cursor: "pointer",
                                                    display: 'inline-flex',
-                                                   width:118,
-                                                   height:118,
+                                                   width: 118,
+                                                   height: 118,
                                                }}>
                                             <InputStyled
                                                 id="contained-button-file"
@@ -289,8 +302,8 @@ function AddPatientStep1({...props}) {
 
                                                 }}
                                                 style={{
-                                                    minWidth:32,
-                                                    minHeight:32,
+                                                    minWidth: 32,
+                                                    minHeight: 32,
                                                 }}>
                                                 <IconUrl path="ic-camera-add" width={18} height={18}/>
                                             </IconButton>
@@ -331,34 +344,34 @@ function AddPatientStep1({...props}) {
                                                     </FormHelperText>
                                                 )}
                                             </FormControl>
-                                             <Box mt={1}>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        gutterBottom
-                                        component="span">
-                                        {t("fiche")}{" "}
-                                    </Typography>
-                                    <TextField
-                                        variant="outlined"
-                                        placeholder={t("fiche-placeholder")}
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("fiche_id")}
-                                        error={Boolean(duplicatedFiche)}
-                                        helperText={
-                                            Boolean(touched.fiche_id && errors.fiche_id)
-                                                ? String(errors.fiche_id)
-                                                : undefined
-                                        }
-                                        onBlur={checkFicheID}
-                                    />
-                                </Box>
-                                {(duplicatedFiche && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
-                                        {t('duplicatedFileID')}
-                                    </FormHelperText>
-                                ))}
+                                            <Box mt={1}>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    gutterBottom
+                                                    component="span">
+                                                    {t("fiche")}{" "}
+                                                </Typography>
+                                                <TextField
+                                                    variant="outlined"
+                                                    placeholder={t("fiche-placeholder")}
+                                                    size="small"
+                                                    fullWidth
+                                                    {...getFieldProps("fiche_id")}
+                                                    error={Boolean(duplicatedFiche)}
+                                                    helperText={
+                                                        Boolean(touched.fiche_id && errors.fiche_id)
+                                                            ? String(errors.fiche_id)
+                                                            : undefined
+                                                    }
+                                                    onBlur={checkFicheID}
+                                                />
+                                            </Box>
+                                            {(duplicatedFiche && (
+                                                <FormHelperText error sx={{px: 2, mx: 0}}>
+                                                    {t('duplicatedFileID')}
+                                                </FormHelperText>
+                                            ))}
                                         </Stack>
                                     </Grid>
                                 </Grid>
@@ -377,64 +390,64 @@ function AddPatientStep1({...props}) {
                             },
                         }}>
                         <Grid container spacing={{xs: 1, md: 2}}>
-                                                <Grid item md={6} xs={12} lg={6}>
-                                                    <Box>
-                                                        <Typography
-                                                            variant="body2"
-                                                            color="text.secondary"
-                                                            gutterBottom
-                                                            component="span">
-                                                            {t("first-name")}{" "}
-                                                            <Typography component="span" color="error">
-                                                                *
-                                                            </Typography>
-                                                        </Typography>
-                                                        <TextField
-                                                            variant="outlined"
-                                                            placeholder={t("first-name-placeholder")}
-                                                            size="small"
-                                                            fullWidth
-                                                            {...getFieldProps("first_name")}
-                                                            error={Boolean(
-                                                                touched.first_name && errors.first_name
-                                                            )}
-                                                            helperText={
-                                                                Boolean(touched.first_name && errors.first_name)
-                                                                    ? String(errors.first_name)
-                                                                    : undefined
-                                                            }
-                                                        />
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item md={6} xs={12} lg={6}>
-                                                    <Box>
-                                                        <Typography
-                                                            variant="body2"
-                                                            color="text.secondary"
-                                                            gutterBottom
-                                                            component="span">
-                                                            {t("last-name")}{" "}
-                                                            <Typography component="span" color="error">
-                                                                *
-                                                            </Typography>
-                                                        </Typography>
-                                                        <TextField
-                                                            variant="outlined"
-                                                            placeholder={t("last-name-placeholder")}
-                                                            size="small"
-                                                            fullWidth
-                                                            {...getFieldProps("last_name")}
-                                                            error={Boolean(
-                                                                touched.last_name && errors.last_name
-                                                            )}
-                                                            helperText={
-                                                                Boolean(touched.last_name && errors.last_name)
-                                                                    ? String(errors.last_name)
-                                                                    : undefined
-                                                            }
-                                                        />
-                                                    </Box>
-                                                </Grid>
+                            <Grid item md={6} xs={12} lg={6}>
+                                <Box>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                        component="span">
+                                        {t("first-name")}{" "}
+                                        <Typography component="span" color="error">
+                                            *
+                                        </Typography>
+                                    </Typography>
+                                    <TextField
+                                        variant="outlined"
+                                        placeholder={t("first-name-placeholder")}
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("first_name")}
+                                        error={Boolean(
+                                            touched.first_name && errors.first_name
+                                        )}
+                                        helperText={
+                                            Boolean(touched.first_name && errors.first_name)
+                                                ? String(errors.first_name)
+                                                : undefined
+                                        }
+                                    />
+                                </Box>
+                            </Grid>
+                            <Grid item md={6} xs={12} lg={6}>
+                                <Box>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                        component="span">
+                                        {t("last-name")}{" "}
+                                        <Typography component="span" color="error">
+                                            *
+                                        </Typography>
+                                    </Typography>
+                                    <TextField
+                                        variant="outlined"
+                                        placeholder={t("last-name-placeholder")}
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("last_name")}
+                                        error={Boolean(
+                                            touched.last_name && errors.last_name
+                                        )}
+                                        helperText={
+                                            Boolean(touched.last_name && errors.last_name)
+                                                ? String(errors.last_name)
+                                                : undefined
+                                        }
+                                    />
+                                </Box>
+                            </Grid>
 
                             <Grid item xs={6} md={8}>
                                 <Typography
@@ -506,96 +519,212 @@ function AddPatientStep1({...props}) {
                             </Grid>
                         </Grid>
                     </Box>
-                    <Box>
+
+                    <Typography
+                        mt={1}
+                        variant="h6"
+                        color="text.primary"
+                        sx={{mb: 1}}>
+                        {t("contact")}
+                    </Typography>
+
+
+                    <Stack sx={{m: 1}} spacing={2}>
                         {values.phones.map((phoneObject, index: number) => (
-                            <Box key={index} mb={2}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                    component="span">
-                                    {t("telephone")}{" "}
-                                    <Typography component="span" color="error">
-                                        *
-                                    </Typography>
-                                </Typography>
-                                <Grid container spacing={{xs: 1, md: 2}}>
-                                    <Grid item xs={6} md={4}>
-                                        <PhoneCountry
-                                            initCountry={getFieldProps(`phones[${index}].dial`).value}
-                                            onSelect={(state: any) => {
-                                                setFieldValue(`phones[${index}].phone`, "");
-                                                setFieldValue(`phones[${index}].dial`, state);
-                                            }}
-                                        />
-                                         {touched.phones &&
-                                    touched.phones[index] &&
-                                    errors.phones &&
-                                    errors.phones[index] && (
-                                        <FormHelperText error sx={{px: 2, mx: 0}}>
-                                            {(touched.phones[index].phone as any) &&
-                                                (errors.phones[index] as any).phone}
-                                        </FormHelperText>
-                                    )}
-                                    </Grid>
-                                    <Grid item xs={6} md={7}>
-                                        {phoneObject && <PhoneInput
-                                            ref={phoneInputRef}
-                                            international
-                                            fullWidth
-                                            withCountryCallingCode
-                                            {...(getFieldProps(`phones[${index}].phone`) &&
-                                                {
-                                                    helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
-                                                        getFieldProps(`phones[${index}].phone`).value : ""}`
-                                                })}
-                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
-                                            country={phoneObject.dial?.code.toUpperCase() as any}
-                                            value={getFieldProps(`phones[${index}].phone`) ?
-                                                getFieldProps(`phones[${index}].phone`).value : ""}
-                                            onChange={value => setFieldValue(`phones[${index}].phone`, value)}
-                                            inputComponent={CustomInput as any}
-                                        />}
-
-                                    </Grid>
-                                    <Grid item xs={12} md={1}>
-                                        {index === 0 ? (
-                                            <IconButton
-                                                onClick={handleAddPhone}
-                                                color={"success"}
-                                                className="success-light"
+                            <fieldset key={index}>
+                                <Box m={1.2}>
+                                    <Grid container spacing={{xs: 1, md: 2}}>
+                                        <Grid item xs={6} md={4}>
+                                            <Box>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    gutterBottom
+                                                    component="span">
+                                                    {t("relation")}{" "}
+                                                    <Typography component="span" color="error">
+                                                        *
+                                                    </Typography>
+                                                </Typography>
+                                                <Autocomplete
+                                                    size={"small"}
+                                                    value={getFieldProps(`phones[${index}].relation`) ?
+                                                        contactRelations.find(relation => relation.key === values.phones[index].relation) : ""}
+                                                    onChange={(event, relation: any) => {
+                                                        relation && setFieldValue(`phones[${index}].relation`, relation.key);
+                                                    }}
+                                                    id={"relation"}
+                                                    options={contactRelations}
+                                                    getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                    isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
+                                                    renderOption={(params, option, {selected}) => (
+                                                        <MenuItem
+                                                            {...params}
+                                                            value={option.key}>
+                                                            <Typography>{option.label}</Typography>
+                                                        </MenuItem>)}
+                                                    renderInput={(params) => {
+                                                        return (<TextField {...params}
+                                                                           placeholder={t("add-patient.relation-placeholder")}/>)
+                                                    }}
+                                                />
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={6} md={index === 0 ? 7 : 6}>
+                                            <Box>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    gutterBottom
+                                                    component="span">
+                                                    {t("telephone")}{" "}
+                                                    <Typography component="span" color="error">
+                                                        *
+                                                    </Typography>
+                                                </Typography>
+                                                {phoneObject && <PhoneInput
+                                                    ref={phoneInputRef}
+                                                    international
+                                                    fullWidth
+                                                    withCountryCallingCode
+                                                    sx={{
+                                                        "& .MuiOutlinedInput-root input": {
+                                                            paddingLeft: ".5rem"
+                                                        }
+                                                    }}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment
+                                                                position="start"
+                                                                sx={{
+                                                                    maxWidth: "3rem",
+                                                                    "& .MuiOutlinedInput-notchedOutline": {
+                                                                        outline: "none",
+                                                                        borderColor: "transparent"
+                                                                    },
+                                                                    "& fieldset": {
+                                                                        border: "none!important",
+                                                                        boxShadow: "none!important"
+                                                                    },
+                                                                }}>
+                                                                <PhoneCountry
+                                                                    showCountryFlagOnly={true}
+                                                                    initCountry={getFieldProps(`phones[${index}].dial`).value}
+                                                                    onSelect={(state: any) => {
+                                                                        setFieldValue(`phones[${index}].phone`, "");
+                                                                        setFieldValue(`phones[${index}].dial`, state);
+                                                                    }}
+                                                                />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }}
+                                                    {...(values.phones[index].phone?.length > 0 &&
+                                                        {
+                                                            helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                                getFieldProps(`phones[${index}].phone`).value : ""}`
+                                                        })}
+                                                    error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                                    country={phoneObject.dial?.code.toUpperCase() as any}
+                                                    value={getFieldProps(`phones[${index}].phone`) ?
+                                                        getFieldProps(`phones[${index}].phone`).value : ""}
+                                                    onChange={value => setFieldValue(`phones[${index}].phone`, value)}
+                                                    inputComponent={CustomInput as any}
+                                                />}
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={12} md={index === 0 ? 1 : 2}>
+                                            <Stack
+                                                direction={"row"}
+                                                alignItems={"center"}
+                                                spacing={1.2}
                                                 sx={{
-                                                    mr: 1.5,
-                                                    "& svg": {
-                                                        width: 20,
-                                                        height: 20,
-                                                    },
+                                                    position: "relative",
+                                                    top: "1.4rem"
                                                 }}>
-                                                <AddIcCallTwoToneIcon/>
-                                            </IconButton>
-                                        ) : (
-                                            <IconButton
-                                                onClick={() => handleRemovePhone(index)}
-                                                className="error-light"
-                                                sx={{
-                                                    mr: 1.5,
-                                                    "& svg": {
-                                                        width: 20,
-                                                        height: 20,
-                                                        "& path": {
-                                                            fill: (theme) => theme.palette.text.primary,
+                                                <ToggleButtonStyled
+                                                    id="toggle-button"
+                                                    onClick={() => setFieldValue(`phones[${index}].isWhatsapp`, !values.phones[index].isWhatsapp)}
+                                                    value="toggle"
+                                                    className={"toggle-button"}
+                                                    sx={{
+                                                        minWidth: 34,
+                                                        ...(values.phones[index].isWhatsapp && {border: "none"}),
+                                                        background: values.phones[index].isWhatsapp ? theme.palette.primary.main : theme.palette.grey['A500']
+                                                    }}>
+                                                    <IconUrl width={19} height={19}
+                                                             path={`ic-whatsapp${values.phones[index].isWhatsapp ? '-white' : ''}`}/>
+                                                </ToggleButtonStyled>
+
+                                                {index > 0 && <IconButton
+                                                    onClick={() => handleRemovePhone(index)}
+                                                    className="error-light"
+                                                    sx={{
+                                                        "& svg": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            "& path": {
+                                                                fill: (theme) => theme.palette.text.primary,
+                                                            },
                                                         },
-                                                    },
-                                                }}>
-                                                <Icon path="ic-moin"/>
-                                            </IconButton>
-                                        )}
+                                                    }}>
+                                                    <Icon path="ic-moin"/>
+                                                </IconButton>}
+                                            </Stack>
+                                        </Grid>
                                     </Grid>
-                                </Grid>
+                                    {values.phones[index].relation !== "himself" &&
+                                        <Grid container spacing={{xs: 1, md: 2}} pt={2}>
+                                            <Grid item md={6} xs={12} lg={6}>
+                                                <Box>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        gutterBottom
+                                                        component="span">
+                                                        {t("first-name")}{" "}
+                                                        <Typography component="span" color="error">
+                                                            *
+                                                        </Typography>
+                                                    </Typography>
+                                                    <TextField
+                                                        variant="outlined"
+                                                        placeholder={t("first-name-placeholder")}
+                                                        size="small"
+                                                        fullWidth
+                                                        {...getFieldProps(`phones[${index}].firstName`)}
+                                                    />
+                                                </Box>
+                                            </Grid>
+                                            <Grid item md={6} xs={12} lg={6}>
+                                                <Box>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        gutterBottom
+                                                        component="span">
+                                                        {t("last-name")}{" "}
+                                                        <Typography component="span" color="error">
+                                                            *
+                                                        </Typography>
+                                                    </Typography>
+                                                    <TextField
+                                                        variant="outlined"
+                                                        placeholder={t("last-name-placeholder")}
+                                                        size="small"
+                                                        fullWidth
+                                                        {...getFieldProps(`phones[${index}].lastName`)}
+                                                    />
+                                                </Box>
+                                            </Grid>
+                                        </Grid>}
+                                </Box>
+                            </fieldset>
 
-                            </Box>
                         ))}
-                    </Box>
+                    </Stack>
+                    <Button size={"small"} sx={{width: 100}} onClick={handleAddPhone} startIcon={<AddIcon/>}>
+                        {t("add")}
+                    </Button>
                 </Stack>
                 {!freeSolo && (
                     <Stack

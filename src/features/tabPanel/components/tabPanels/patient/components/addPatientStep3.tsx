@@ -9,10 +9,13 @@ import {
 } from "@features/tabPanel";
 import {resetDuplicated} from "@features/duplicateDetected";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useContext} from "react";
+import {AbilityContext} from "@features/casl/can";
 
 function AddPatientStep3({...props}) {
     const {onNext, selectedPatient, OnCustomAction} = props;
     const dispatch = useAppDispatch();
+    const ability = useContext(AbilityContext);
 
     const {t, ready} = useTranslation("patient");
     const {submitted} = useAppSelector(appointmentSelector);
@@ -32,21 +35,21 @@ function AddPatientStep3({...props}) {
                         action: "onAddPatient",
                         title: t("config.add-patient.add-new")
                     },
-                    {
+                    ...(ability.can("manage", "agenda", "agenda__appointment__create") ? [{
                         icon: "ic-agenda-+",
                         action: "onAddAppointment",
                         variant: "contained",
                         title: t("config.add-patient.add-appo"),
                         color: "primary"
-                    },
-                    {
+                    }] : []),
+                    ...(ability.can("manage", "agenda", "agenda__appointment__start") ? [{
                         icon: "ic-play-audio-black",
                         action: "onStartConsultation",
                         variant: "contained",
                         title: t("patient-details.start-consultation"),
                         disabled: isActive,
                         color: "warning"
-                    },
+                    }] : []),
                     {
                         variant: "text-primary",
                         action: "onClose",

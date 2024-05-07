@@ -31,6 +31,7 @@ import {getDiffDuration} from "@lib/hooks";
 import {Label} from "@features/label";
 import {sideBarSelector} from "@features/menu";
 import {IconButtonStyled} from "@features/board";
+import Can from "@features/casl/can";
 
 const imageSize: number = 40;
 
@@ -183,7 +184,8 @@ function BoardItem({...props}) {
                                         {...(quote.content.startTime === "00:00" && {color: 'warning'})}
                                         variant={"contained"}
                                         size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}{!isDragging ? `-${index + 1}` : ""}</Button>}
-                                    <Tooltip title={`${quote.content.patient.firstName} ${quote.content.patient.lastName}`}>
+                                    <Tooltip
+                                        title={`${quote.content.patient.firstName} ${quote.content.patient.lastName}`}>
                                         <Typography
                                             className={"ellipsis"}
                                             maxWidth={160}
@@ -270,7 +272,7 @@ function BoardItem({...props}) {
                             <Stack direction={"row"} spacing={.5}>
                                 {quote.content.status === 0 &&
                                     <>
-                                        {!roles.includes('ROLE_SECRETARY') &&
+                                        <Can I={"manage"} a={"agenda"} field={"agenda__appointment__cancel"}>
                                             <Tooltip
                                                 title={commonTranslation("cancel", {ns: "waitingRoom"})}>
                                                 <IconButton
@@ -288,7 +290,8 @@ function BoardItem({...props}) {
                                                     }}>
                                                     <CloseIcon fontSize={"small"}/>
                                                 </IconButton>
-                                            </Tooltip>}
+                                            </Tooltip>
+                                        </Can>
                                         <Tooltip
                                             title={commonTranslation("confirm", {ns: "waitingRoom"})}>
                                             <IconButton
@@ -312,7 +315,7 @@ function BoardItem({...props}) {
                                 }
                                 {quote.content.status === 1 &&
                                     <>
-                                        {!roles.includes('ROLE_SECRETARY') &&
+                                        <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
                                             <Tooltip title={commonTranslation("start", {ns: "waitingRoom"})}>
                                                 <IconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
@@ -327,7 +330,8 @@ function BoardItem({...props}) {
                                                     }}>
                                                     <PlayCircleIcon fontSize={"small"}/>
                                                 </IconButton>
-                                            </Tooltip>}
+                                            </Tooltip>
+                                        </Can>
                                         <Tooltip
                                             title={commonTranslation("add_patient_to_waiting_room", {ns: "waitingRoom"})}>
                                             <IconButton
@@ -339,7 +343,8 @@ function BoardItem({...props}) {
                                                 size={"small"}
                                                 disableFocusRipple
                                                 sx={{background: theme.palette.primary.main, borderRadius: 1}}>
-                                                <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
+                                                <IconUrl color={"white"} width={20} height={20}
+                                                         path="ic_waiting_room"/>
                                             </IconButton>
                                         </Tooltip>
                                     </>
@@ -369,7 +374,7 @@ function BoardItem({...props}) {
                                             </IconButton>
                                         </span>
                                     </Tooltip>
-                                    {!roles.includes('ROLE_SECRETARY') &&
+                                    <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
                                         <Tooltip
                                             title={commonTranslation("start", {ns: "waitingRoom"})}>
                                             <span>
@@ -388,7 +393,8 @@ function BoardItem({...props}) {
                                                     <IconUrl path={"ic-play-audio-black"}/>
                                                 </IconButton>
                                             </span>
-                                        </Tooltip>}
+                                        </Tooltip>
+                                    </Can>
                                 </>}
                                 {(quote.content.status === 5 && quote?.content.restAmount !== 0) &&
                                     <Stack direction='row' spacing={.5}>

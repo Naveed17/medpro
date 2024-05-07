@@ -537,7 +537,7 @@ function Calendar({...props}) {
                             !prepareContextMenu(data.action,
                                 (view === "listWeek" ? eventGroupByDay.reduce((eventsData: EventCalendarModel[], data) =>
                                     [...(eventsData ?? []), ...data?.events], []) : events).find(event =>
-                                    event.id === eventMenu) as EventModal, roles)).map((context: ContextMenuModel) => (
+                                    event.id === eventMenu) as EventModal)).map((context: ContextMenuModel) => (
                                 <Can key={uniqueId()}
                                      I={"manage"}
                                      a={context.feature as any} {...(context.permission !== "*" && {field: context.permission})}>

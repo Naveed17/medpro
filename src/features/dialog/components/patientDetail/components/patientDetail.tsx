@@ -42,7 +42,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
-import {useAntecedentTypes, useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
+import {useAntecedentTypes, useFeaturePermissions, useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
@@ -52,6 +52,7 @@ import {DefaultCountry} from "@lib/constants";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {LoadingScreen} from "@features/loadingScreen";
 import {AbilityContext} from "@features/casl/can";
+import {setPermissions} from "@features/casl";
 
 function a11yProps(index: number) {
     return {
@@ -80,6 +81,7 @@ function PatientDetail({...props}) {
     const {allAntecedents} = useAntecedentTypes();
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {permissions} = useFeaturePermissions("patient", true);
     const ability = useContext(AbilityContext);
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -384,6 +386,13 @@ function PatientDetail({...props}) {
             permission: ["ROLE_PROFESSIONAL"]
         }] : [])
     ];
+
+    useEffect(() => {
+        // Load patient authorizations if they have not yet been loaded
+        if (permissions?.length > 0) {
+            dispatch(setPermissions({"patients": permissions.map(permission => permission?.slug)}));
+        }
+    }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {
