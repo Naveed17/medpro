@@ -22,8 +22,6 @@ import {prepareContextMenu, useInvalidateQueries, useMedicalEntitySuffix, useMut
 import {agendaSelector, AppointmentStatus, CalendarContextMenu, openDrawer, setSelectedEvent} from "@features/calendar";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
 import {setDialog} from "@features/topNavBar";
 import moment from "moment/moment";
 import {LoadingButton} from "@mui/lab";
@@ -34,7 +32,6 @@ import {deleteAppointmentOptionsData} from "@lib/constants";
 function RDVRow({...props}) {
     const {data: {patient, translate, closePatientDialog}} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -81,9 +78,6 @@ function RDVRow({...props}) {
     const patientHistory = (httpPatientHistoryResponse as HttpResponse)?.data;
     const nextAppointmentsData = patientHistory && patientHistory.nextAppointments.length > 0 ? patientHistory.nextAppointments : [];
     const previousAppointmentsData = patientHistory && patientHistory.previousAppointments.length > 0 ? patientHistory.previousAppointments : [];
-
-    const {data: user} = session as Session;
-    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const handleClose = () => {
         setContextMenu(null);
