@@ -20,6 +20,7 @@ const initialState: any = {
         type_transaction: '',
         status_transaction: '',
         insurances: '',
+        not_insured_patient: '',
         payment_means: '',
         cashboxes: '',
         start_date: '',
