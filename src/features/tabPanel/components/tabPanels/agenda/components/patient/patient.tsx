@@ -14,6 +14,7 @@ import {dashLayoutSelector, setOngoing} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {LoadingScreen} from "@features/loadingScreen";
+import {PatientContactRelation} from "@lib/constants";
 
 function Patient({...props}) {
     const {onNext, onBack, select, onPatientSearch, handleAddPatient = null} = props;
@@ -68,6 +69,12 @@ function Patient({...props}) {
             value: phoneData.phone.replace(phoneData.dial.phone, ""),
             type: "phone",
             contact_type: patient.contact.uuid,
+            is_whatsapp: phoneData.isWhatsapp,
+            contact_relation: PatientContactRelation.find(relation => relation.key === phoneData.relation)?.value,
+            contact_social: {
+                first_name: phoneData.firstName,
+                last_name: phoneData.lastName
+            },
             is_public: false,
             is_support: false
         }))));

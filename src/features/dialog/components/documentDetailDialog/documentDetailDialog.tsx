@@ -307,7 +307,7 @@ function DocumentDetailDialog({...props}) {
                             state: state?.info.map((drug: any) => ({
                                 cycles: drug.cycles,
                                 drugUuid: drug.standard_drug?.uuid,
-                                name: drug.drugName
+                                name: `${drug.drugName} ${drug?.standard_drug?.form?.name ?? ""} ${drug?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}`
                             })),
                             uuid: state?.uuidDoc,
                             appUuid: state?.appUuid
@@ -328,8 +328,8 @@ function DocumentDetailDialog({...props}) {
                         let mi: MIModel[] = []
                         state?.info.map((info: any) => {
                             mi.push({
-                                uuid: info['medical-imaging'].uuid,
-                                name: info['medical-imaging'].name,
+                                uuid: info['medical-imaging']?.uuid,
+                                name: info.name,
                                 note: info.note
                             });
                         });

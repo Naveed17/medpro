@@ -71,25 +71,7 @@ function NotificationPopover({...props}) {
     const [event, setEvent] = useState<EventDef | null>();
     const [loading, setLoading] = useState<boolean>(false);
     const [pendingAppointments, setPendingAppointments] = useState<any[]>([]);
-    const [notifications] = useState<any[]>([
-        ...pendingAppointments
-        , ...(localNotifications ? localNotifications.map(data => ({
-            ...(data?.appointment ?? data),
-            avatar: `${data.appointment?.patient.firstName?.charAt(0).toUpperCase()}${data.appointment?.patient.lastName?.charAt(0).toUpperCase()}`,
-            title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
-            icon: <EventIcon/>,
-            buttons: [
-                {
-                    text: t("dialogs.finish-dialog.pay"),
-                    color: "primary",
-                    action: "onPay"
-                },
-                {
-                    text: t("dialogs.finish-dialog.reschedule"),
-                    color: "primary",
-                    action: "onReschedule"
-                }]
-        })) : [])]);
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
@@ -222,28 +204,51 @@ function NotificationPopover({...props}) {
 
     useEffect(() => {
         if (localPendingAppointments.length > 0) {
-            setPendingAppointments([...localPendingAppointments.map(appointment => ({
-                ...appointment,
-                dur: appointment.duration,
-                avatar: `${appointment.patient.firstName?.charAt(0).toUpperCase()}${appointment.patient?.lastName.charAt(0).toUpperCase()}`,
-                duration: appointment.createdAt && getDiffDuration(appointment.createdAt),
-                title: `${appointment.patient?.firstName} ${appointment.patient?.lastName} ${t("request-appointment")} ${appointment.dayDate} ${appointment.startTime}`,
-                icon: <EventIcon/>,
-                buttons: [
-                    {text: t("dialogs.move-dialog.confirm"), color: "success", action: "onConfirm"},
-                    {text: t("dialogs.confirm-dialog.edit"), color: "white", action: "onEdit"},
-                    {
-                        ...(appointment.patient?.contact.length > 0 && {
+            setPendingAppointments([
+                ...localPendingAppointments.map(appointment => ({
+                    ...appointment,
+                    dur: appointment.duration,
+                    avatar: `${appointment.patient.firstName?.charAt(0).toUpperCase()}${appointment.patient?.lastName.charAt(0).toUpperCase()}`,
+                    duration: appointment.createdAt && getDiffDuration(appointment.createdAt),
+                    title: `${appointment.patient?.firstName} ${appointment.patient?.lastName} ${t("request-appointment")} ${appointment.dayDate} ${appointment.startTime}`,
+                    icon: <EventIcon/>,
+                    buttons: [
+                        {text: t("dialogs.move-dialog.confirm"), color: "success", action: "onConfirm"},
+                        {text: t("dialogs.confirm-dialog.edit"), color: "white", action: "onEdit"},
+                        ...(appointment.patient?.contact?.length > 0 ? [{
                             text: `${t("dialogs.confirm-dialog.call")} ${appointment.patient?.contact[0].value}`,
                             href: `tel:${appointment.patient?.contact[0]?.code}${appointment.patient?.contact[0].value}`,
                             color: "primary",
                             action: "onCall"
-                        })
-                    }
-                ]
-            }))])
+                        }] : [])
+                    ]
+                }))])
         }
     }, [localPendingAppointments]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (pendingAppointments.length > 0 || localNotifications) {
+            setNotifications([
+                ...pendingAppointments
+                , ...(localNotifications ? localNotifications.map(data => ({
+                    ...(data?.appointment ?? data),
+                    avatar: `${data.appointment?.patient?.firstName?.charAt(0).toUpperCase()}${data.appointment?.patient?.lastName?.charAt(0).toUpperCase()}`,
+                    title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient?.firstName} ${data.appointment?.patient?.lastName}`,
+                    icon: <EventIcon/>,
+                    buttons: [
+                        {
+                            text: t("dialogs.finish-dialog.pay"),
+                            color: "primary",
+                            action: "onPay"
+                        },
+                        {
+                            text: t("dialogs.finish-dialog.reschedule"),
+                            color: "primary",
+                            action: "onReschedule"
+                        }]
+                })) : [])])
+        }
+    }, [pendingAppointments, localNotifications]) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 

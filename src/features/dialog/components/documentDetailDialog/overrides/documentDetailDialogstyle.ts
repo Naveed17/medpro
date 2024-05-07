@@ -10,7 +10,7 @@ const DocumentDetailDialogStyled = styled(Stack)(({theme}) => ({
         position: "absolute",
         zIndex: 3,
         left: 10,
-        width: 240,
+        width: "auto",
         "& .MuiCardContent-root": {
             padding: 12
         }

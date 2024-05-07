@@ -5,7 +5,8 @@ import {
     setConfig,
     setCurrentDate,
     setGroupedByDayAppointments,
-    setLastUpdate, setMessagesRefresh, setNavigatorMode,
+    setMessagesRefresh,
+    setNavigatorMode,
     setSelectedEvent,
     setStepperIndex,
     setView
@@ -31,8 +32,7 @@ export type CalendarProps = {
     sortedData: GroupEventsModel[];
     absences: AppointmentModel[];
     appointmentTypes: AppointmentTypeModel[];
-    messagesRefresh: string,
-    lastUpdateNotification: { title: string, body: string } | null;
+    messagesRefresh: string
 };
 
 const initialState: CalendarProps = {
@@ -53,8 +53,7 @@ const initialState: CalendarProps = {
     sortedData: [],
     absences: [],
     appointmentTypes: [],
-    messagesRefresh: "",
-    lastUpdateNotification: null
+    messagesRefresh: ""
 };
 
 export const AgendaReducer = createReducer(initialState, builder => {
@@ -97,8 +96,6 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.sortedData = action.payload;
     }).addCase(setAbsences, (state, action) => {
         state.absences = action.payload;
-    }).addCase(setLastUpdate, (state, action) => {
-        state.lastUpdateNotification = action.payload;
     }).addCase(setAppointmentTypes, (state, action) => {
         state.appointmentTypes = action.payload;
     }).addCase(setMessagesRefresh, (state, action) => {

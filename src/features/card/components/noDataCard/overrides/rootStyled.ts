@@ -3,7 +3,7 @@ import {Box} from "@mui/material";
 
 const RootStyled = styled(Box)(({theme, ...props}) => ({
     textAlign: "center",
-    maxWidth: 360,
+    maxWidth: 380,
     margin: "16px auto 0 auto",
     [theme.breakpoints.down("sm")]: {
         maxWidth: "100%",

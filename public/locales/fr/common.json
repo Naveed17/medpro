@@ -16,7 +16,7 @@
   "plan_a_meeting": "Planifier un contrôle",
   "type_instruction_for_the_secretary": "Tapez l'instruction pour la secretaire",
   "pay": "Payer",
-  "paid": "Payé",
+  "paid": "Payée",
   "cash": "Encaisse",
   "lang": "langue",
   "rows_per-page": "Rangées par page",
@@ -37,7 +37,7 @@
   "credit": "Débit",
   "settings": "Paramètres",
   "duplication": "Détection des doublons",
-  "unpaid": "Non Payé",
+  "unpaid": "Non Payée",
   "partially": "Partiellement payée",
   "loading": "Veuillez patienter un instant le temps de chargement",
   "noOption": "Aucun résultat trouvé",
@@ -452,7 +452,7 @@
     "1_child": "1er Enfant",
     "2_child": "2ème Enfant",
     "3_child": "3ème Enfant",
-    "other_child": "Autre"
+    "other_child": "Autres"
   },
   "satisfied": "Satisfait",
   "notsatisfied": "Je ne suis pas satisfait",

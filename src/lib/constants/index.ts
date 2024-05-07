@@ -12,6 +12,15 @@ export const SocialInsured = [
     {grouped: "child", key: "child", value: "7", label: "other_child"},
 ];
 
+export const PatientContactRelation = [
+    {key: "himself", value: 0, label: "himself"},
+    {key: "partner", value: 1, label: "partner"},
+    {key: "father", value: 2, label: "father"},
+    {key: "mother", value: 3, label: "mother"},
+    {key: "child", value: 4, label: "child"},
+    {key: "other", value: 5, label: "other_child"},
+];
+
 export const PhoneRegExp =
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
@@ -295,38 +304,38 @@ export const multiMedias = ['video', 'audio', 'photo'];
 
 export const PsychomotorDevelopmentXY = [
     {
-        key: "Premiers mots",
+        key: "premiers_mots",
         coordinates: {
             startDate: {x: 394, y: 480, size: 12},
             note: {x: 354, y: 512, size: 16}
         }
     },
     {
-        key: "Station debout",
+        key: "station_debout",
         coordinates: {
             startDate: {x: 492, y: 496, size: 12}
         }
     },
     {
-        key: "Station assise",
+        key: "station_assise",
         coordinates: {
             startDate: {x: 338, y: 380, size: 12}
         }
     },
     {
-        key: "Marche sans appui",
+        key: "marche_sans_appui",
         coordinates: {
             startDate: {x: 564, y: 426, size: 12}
         }
     },
     {
-        key: "Propreté nocturne et diurne",
+        key: "proprete_nocturne_et_diurne",
         coordinates: {
             startDate: {x: 522, y: 361, size: 12}
         }
     },
     {
-        key: "Première dent",
+        key: "premiere_dent",
         coordinates: {
             startDate: {x: 405, y: 438, size: 12}
         }

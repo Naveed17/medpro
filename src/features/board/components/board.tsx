@@ -265,6 +265,7 @@ function Board({...props}) {
                                                 listType="QUOTE"
                                                 quotes={boardData[key]}
                                                 internalScroll
+                                                useClone
                                             />
                                         </Grid>
                                     )}

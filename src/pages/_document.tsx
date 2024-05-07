@@ -18,6 +18,12 @@ class MyDocument extends Document {
                     <link rel="manifest" href="/manifest.json"/>
                     {/* Inject MUI styles first to match with to prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
+                    {/* upscope integration. */}
+                    <Script
+                        src="/static/files/upscope.js"
+                        strategy="lazyOnload"
+                    />
+                    {/* usetiful integration. */}
                     <Script
                         src="/static/files/usetifulWorker.js"
                         strategy="lazyOnload"

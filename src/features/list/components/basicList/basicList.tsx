@@ -10,18 +10,24 @@ import {useSession} from "next-auth/react";
 import {NotifBadgeStyled} from "@features/popover";
 import {ConditionalWrapper} from "@lib/hooks";
 import NotesIcon from '@mui/icons-material/Notes';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 function BasicList({...props}) {
     const {data, handleAction, t, ...rest} = props;
     const {data: session} = useSession();
     const theme = useTheme();
 
-    const [dataItems] = useState([...data].reverse());
+    const [dataItems, setDataItems] = useState<any[]>([]);
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+
+    useEffect(() => {
+        if (data.length > 0) {
+            setDataItems([...data].reverse())
+        }
+    }, [data]);
 
     return (
         <BasicListStyled {...rest}>
