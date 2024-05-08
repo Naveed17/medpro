@@ -8,20 +8,20 @@ import {
     IconButton
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import {useRouter} from "next/router";
-import {editUser, TableRowStyled} from "@features/table";
-import {useAppDispatch} from "@lib/redux/hooks";
-import {uniqueId} from "lodash";
-import React, {useState} from "react";
-import {CustomSwitch} from "@features/buttons";
+import { useRouter } from "next/router";
+import { editUser, TableRowStyled } from "@features/table";
+import { useAppDispatch } from "@lib/redux/hooks";
+import { uniqueId } from "lodash";
+import React, { useState } from "react";
+import { CustomSwitch } from "@features/buttons";
 import Can from "@features/casl/can";
 
-function UserRow({...props}) {
+function UserRow({ ...props }) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const router = useRouter();
-    const {row, handleChange, handleEvent, t, editMotif, data} = props;
-    const {currentUser} = data;
+    const { row, handleChange, handleEvent, t, editMotif, data } = props;
+    const { currentUser } = data;
 
     const [isActive, setIsActive] = useState(row.isActive);
 
@@ -29,7 +29,9 @@ function UserRow({...props}) {
         <TableRowStyled
             key={uniqueId}
             className="user-row"
-            onClick={() => handleEvent("onUserDetail", row)}>
+            onClick={(e: any) => { e.stopPropagation(); handleEvent("onUserDetail", row) }}
+
+        >
             <TableCell>
                 {row ? (
                     <>
@@ -40,8 +42,8 @@ function UserRow({...props}) {
                     </>
                 ) : (
                     <Stack>
-                        <Skeleton variant="text" width={100}/>
-                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100} />
+                        <Skeleton variant="text" width={100} />
                     </Stack>
                 )}
             </TableCell>
@@ -59,8 +61,8 @@ function UserRow({...props}) {
                     </>
                 ) : (
                     <Stack alignItems="center">
-                        <Skeleton variant="text" width={100}/>
-                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100} />
+                        <Skeleton variant="text" width={100} />
                     </Stack>
                 )}
             </TableCell>
@@ -74,16 +76,16 @@ function UserRow({...props}) {
                     }}
                     checked={isActive}
                 /> : (
-                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
+                    <Skeleton width={50} height={40} sx={{ m: "auto" }} />
                 )}
             </TableCell>
             <TableCell align="center">
                 <Stack direction='row' alignItems='center' spacing={.5}>
-                    <IconUrl path="ic-agenda-jour"/>
+                    <IconUrl path="ic-agenda-jour" />
                     <Typography variant="body1" fontSize={13} fontWeight={700} color="text.primary">
                         10/10/2022
                     </Typography>
-                    <IconUrl path="ic-time"/>
+                    <IconUrl path="ic-time" />
                     <Typography variant="body1" fontWeight={700} fontSize={13} color="text.primary">
                         09:30
                     </Typography>
@@ -91,7 +93,7 @@ function UserRow({...props}) {
             </TableCell>
             <TableCell align="right">
                 {row ? (
-                    <Box display="flex" sx={{float: "right"}} alignItems="center">
+                    <Box display="flex" sx={{ float: "right" }} alignItems="center">
                         <Can I={"manage"} a={"settings"} field={"settings__users__update"}>
                             {row?.ssoId === currentUser && <IconButton
                                 size="small"
@@ -99,9 +101,9 @@ function UserRow({...props}) {
                                 className="btn-edit"
                                 onClick={() => {
                                     dispatch(editUser(row));
-                                    router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, {locale: router.locale});
+                                    //router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, { locale: router.locale });
                                 }}>
-                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient" />
                             </IconButton>}
                         </Can>
                         <Can I={"manage"} a={"settings"} field={"settings__users__delete"}>
@@ -114,13 +116,13 @@ function UserRow({...props}) {
                                         editMotif(row);
                                     }}
                                     sx={{
-                                        mr: {md: 1},
+                                        mr: { md: 1 },
                                         '& .react-svg svg': {
                                             width: 20,
                                             height: 20
                                         }
                                     }}>
-                                    <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                                    <IconUrl color={theme.palette.text.secondary} path="ic-trash" />
                                 </IconButton>}
                         </Can>
                     </Box>
@@ -130,8 +132,8 @@ function UserRow({...props}) {
                         spacing={1}
                         alignItems="center"
                         justifyContent="flex-end">
-                        <Skeleton variant="text" width={50}/>
-                        <Skeleton variant="text" width={50}/>
+                        <Skeleton variant="text" width={50} />
+                        <Skeleton variant="text" width={50} />
                     </Stack>
                 )}
             </TableCell>

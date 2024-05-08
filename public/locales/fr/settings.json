@@ -3,7 +3,7 @@
     "parameters": "Paramètres",
     "profile": "Profil",
     "acts": "Actes",
-    "motif": "Motifs de consultation",
+    "motifs": "Motifs",
     "consultation": "Fiche consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
@@ -14,7 +14,7 @@
     "users": "Utilisateurs",
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
-    "type": "Types des consultations",
+    "types": "Types",
     "actfees": "Honoraires",
     "configdoc": "Documents",
     "import-data": "Importation",
@@ -22,7 +22,22 @@
     "drugs": "Médicaments",
     "analysis": "Analyses",
     "medical_imaging": "Imageries médicales",
-    "billing": "Billing"
+    "plan_billing": "Plan & Facturation",
+    "general": "Général",
+    "preferences": "Préférences",
+    "schedule_and_location": "Horaire et lieu",
+    "location": "Lieu",
+    "leave_and_absence": "Congés et absences",
+    "time_off_types": "Types de congés",
+    "rdv": "Consultation",
+    "insurance": "Assurance",
+    "sheets": "Fiches"
+  },
+  "general": {
+    "title": "Général"
+  },
+  "scheduleAndLocation": {
+    "title": "Horaire et lieu"
   },
   "profile": {
     "upload-logo": "Télécharger le logo",
@@ -459,6 +474,7 @@
     "praticien": "praticien",
     "config": {
       "path": "Paramètres > Congé et Absences",
+      "title": "Congés et absences",
       "add": "Ajouter",
       "table": {
         "start": "Date debut",

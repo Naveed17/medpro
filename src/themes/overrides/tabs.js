@@ -28,6 +28,7 @@ export default function Tabs(theme) {
             },
           },
           "&.custom-tabs": {
+            minHeight: 32,
             ".MuiTabs-flexContainer": {
               gap: theme.spacing(.5),
               "& .MuiTab-root": {

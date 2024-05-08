@@ -111,7 +111,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             "@media screen and (min-height: 750px)": {
                 marginTop: 20,
                 "& .action-bar-open": {
-                    padding: "10px 0px 10px 20px",
+                    padding: "10px 20px 10px 20px",
                     backgroundColor: theme.palette.background.paper,
                     overflowY: "auto",
                     overflowX: "hidden",
@@ -148,7 +148,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             visibility: "visible",
         },
         "& .action-bar-open": {
-            padding: "10px 0px 10px 20px",
+            padding: "10px 20px 10px 20px",
             backgroundColor: theme.palette.background.paper,
             overflowY: "auto",
             height: "100%",

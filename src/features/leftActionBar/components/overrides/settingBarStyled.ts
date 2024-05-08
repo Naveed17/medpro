@@ -14,10 +14,10 @@ const SettingBarStyled = styled("div")(({theme}) => ({
     "& .MuiListItem-root": {
         transition: "all ease-in 0.3s",
         marginBottom: "4px",
-        borderRadius: "6px 0px 0px 6px",
+        borderRadius: theme.shape.borderRadius,
         height: "55px",
         "& .MuiListItemButton-root": {
-            borderRadius: "6px 0px 0px 6px",
+            borderRadius: theme.shape.borderRadius,
             "&:hover": {
                 backgroundColor: "transparent",
                 boxShadow: theme.shadows[3],
@@ -38,22 +38,38 @@ const SettingBarStyled = styled("div")(({theme}) => ({
                 "& span": {
                     color: theme.palette.text.secondary,
                     fontSize: "14px",
-                    fontFamily: "Poppins",
+                    fontWeight:500,
                 },
             },
         },
         "&.active": {
-            backgroundColor: theme.palette.grey['A700'],
+            backgroundColor: theme.palette.primary.lighter,
             "& .MuiListItemButton-root": {
-                borderRadius: "6px 0px 0px 6px",
+                borderRadius: theme.shape.borderRadius,
                 "&:hover": {
                     boxShadow: 'none',
                 }
             },
             "& .MuiListItemText-root": {
                 span: {
-                    color: theme.palette.text.primary,
+                    color: theme.palette.primary.main,
                 },
+            },
+            ".react-svg.arrow-down":{
+             transition:"all .3s",  
+             transform:"scale(-1)",
+             svg:{
+                path:{
+                    fill:theme.palette.primary.main
+                }
+             }
+            },
+            "&:hover":{
+             ".MuiListItemText-root": {
+                span: {
+                    color: theme.palette.primary.main,
+                },
+            },
             }
         },
         "@media(max-height: 750px)": {
@@ -65,6 +81,7 @@ const SettingBarStyled = styled("div")(({theme}) => ({
                 borderRadius: 6,
             },
         },
+        
     },
     [`@media (max-width: ${MobileContainer}px)`]: {
         position: "fixed",
@@ -80,6 +97,21 @@ const SettingBarStyled = styled("div")(({theme}) => ({
             marginTop: "30px",
         },
     },
+    ".sub-menu":{
+            borderRadius: theme.shape.borderRadius,
+            '.MuiListItemText-primary':{
+             color:theme.palette.text.secondary,
+             fontWeight:500,
+            },
+            "&.active":{
+                backgroundColor: theme.palette.primary.lighter,
+                "& .MuiListItemText-root": {
+                    span: {
+                        color: theme.palette.primary.main,
+                    },
+                }
+            }
+        },
 }));
 
 export default SettingBarStyled;

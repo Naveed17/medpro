@@ -3,11 +3,12 @@ import {
     setFilter,
     resetFilterPatient,
     resetFilterPayment,
-    setFilterPayment, resetFilterDocument, resetFilter
+    setFilterPayment, resetFilterDocument, resetFilter,setTabIndex
 } from "./actions";
 import _ from "lodash";
 
 export type ActionBarState = {
+    tabIndex: number;
     query: {
         type?: string;
         reasons?: string;
@@ -45,7 +46,8 @@ export type ActionBarState = {
 };
 
 const initialState: ActionBarState = {
-    query: undefined
+    query: undefined,
+    tabIndex:0,
 };
 
 export const leftActionBarReducer = createReducer(initialState, (builder) => {
@@ -68,5 +70,7 @@ export const leftActionBarReducer = createReducer(initialState, (builder) => {
         return {...state, query: {...state.query, document: undefined}};
     }).addCase(resetFilter, (state) => {
         return {...state, ...initialState};
-    });
+    }).addCase(setTabIndex,(state,action)=>{
+        return {...state,tabIndex:action.payload}
+    })
 });
