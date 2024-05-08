@@ -146,6 +146,8 @@
     "birthdate": "Date de naissance",
     "gender": "Genre",
     "male": "Homme",
+    "is_not_insured_patient": "Patient non assuré",
+    "is_not_insured": "Non assuré",
     "noInsurance": "Aucune assurance",
     "assurance-placeholder": "Sélectionner une assurance",
     "nopaymentMeans": "Aucun moyen de paiement",
