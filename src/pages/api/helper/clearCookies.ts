@@ -15,9 +15,9 @@ export default async function clearCookies(req: NextApiRequest, res: NextApiResp
             message: "Clear all Cookies",
             cookies: JSON.stringify(cookiesKeys, null, 2)
         })
-    } else {
-        res.send({
-            error: "You must be sign in to view the protected content on this page.",
-        })
     }
+
+    res.send({
+        error: "You must be sign in to view the protected content on this page.",
+    })
 }
