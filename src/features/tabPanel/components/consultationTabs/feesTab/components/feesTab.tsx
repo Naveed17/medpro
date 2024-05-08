@@ -139,6 +139,7 @@ function FeesTab({...props}) {
                     _acts[index].qte = act.qte;
                     _acts[index].fees = act.price;
                     _acts[index].insurance_act = act.insurance_act;
+                    _acts[index].insurance = act.insurance;
                     _acts[index].patientPart = act.patientPart;
                     _acts[index].contribution = act.refund;
                 }
@@ -169,6 +170,7 @@ function FeesTab({...props}) {
                 qte: act.qte,
                 price: act.fees,
                 ...(act.insurance_act && {insurance_act: act.insurance_act}),
+                ...(act.insurance && {insurance: act.insurance}),
                 ...(act.patient_part && {patient_part: act.patient_part}),
                 ...(act.refund && {refund: act.refund})
             });

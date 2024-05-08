@@ -41,7 +41,7 @@ const headCells: readonly HeadCell[] = [
 function CIPMedicalProceduresRow({...props}) {
 
     const {row, data, editMotif, handleEvent, t} = props;
-    const {insurances, devise} = data;
+    const {devise} = data;
 
     const {insurances: allInsurances} = useInsurances();
     const dispatch = useAppDispatch();
@@ -93,13 +93,13 @@ function CIPMedicalProceduresRow({...props}) {
                         {
                             row.insurances.length > 0 &&
                             <Tooltip
-                                title={row.insurance_act}>
-                                <IconButton onClick={() => setCollapse(!collapse)}>
+                                title={allInsurances.find((insurance: any) => insurance.uuid === row.insurance)?.name}>
+                                <IconButton disabled={!row.selected} onClick={() => setCollapse(!collapse)}>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    {row.insurance_act  ? <img
+                                    {row.insurance ? <img
                                             alt={"insurance name"}
                                             width={20} height={20}
-                                            src={allInsurances.find((insurance: any) => insurance.uuid === row.insurances.find((insc:InsuranceModel) => insc.uuid === row.insurance_act)?.insurance.uuid)?.logoUrl?.url}/> :
+                                            src={allInsurances.find((insurance: any) => insurance.uuid === row.insurance)?.logoUrl?.url}/> :
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={"/static/icons/Med-logo.png"} width={20} height={20} alt={"empty"}/>
                                     }                                </IconButton>
