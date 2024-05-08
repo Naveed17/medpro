@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {forwardRef, useLayoutEffect, useRef} from 'react';
 import styled from '@emotion/styled';
 import {Droppable, Draggable} from 'react-beautiful-dnd';
 import type {
@@ -9,8 +9,8 @@ import type {
 } from 'react-beautiful-dnd';
 import {BoardItem, boardSelector, grid, heightOffset} from "@features/board";
 import ReactDOM from "react-dom";
-import {List} from 'react-virtualized';
 import {useAppSelector} from "@lib/redux/hooks";
+import {areEqual, FixedSizeList} from "react-window";
 
 // Using a higher order function so that we can look up the quotes data to retrieve
 // our quote from within the rowRender function
@@ -55,12 +55,29 @@ const getRowRender = (quotes: any[], handleEvent: any, isDragging: boolean) => (
     );
 };
 
-export default function BoardList({...props}) {
+const Row = React.memo(function Row(props) {
+    const {data: items, index, style} = props as any;
+    console.log("props", props)
+    const item = items[index];
+
+    // We are rendering an extra item for the placeholder
+    if (!item) {
+        return null;
+    }
+
+    return (
+        <Draggable draggableId={item.id} index={index} key={item.id}>
+            {provided => <BoardItem {...{index, provided, style}} quote={item}/>}
+        </Draggable>
+    );
+}, areEqual);
+
+function BoardList({...props}) {
     const {
+        index,
         listId = 'LIST',
         quotes,
         title,
-        useClone,
         handleEvent
     } = props;
 
@@ -75,6 +92,10 @@ export default function BoardList({...props}) {
         flex-direction: column;
     `;
 
+    // eslint-disable-next-line react/display-name
+    const outerElementType = forwardRef((props, ref) => (
+        <div ref={ref} handleEvent={handleEvent} {...props} />
+    ));
     const getRowHeight = (data: any) => {
         const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height;
         let defaultHeight;
@@ -101,51 +122,47 @@ export default function BoardList({...props}) {
         return ((elementHeight && elementHeight >= defaultHeight) ? elementHeight : defaultHeight) + heightOffset
     };
 
+    const listRef = useRef<any>();
+
+    useLayoutEffect(() => {
+        const list = listRef.current;
+        if (list) {
+            list.scrollTo(0);
+        }
+    }, [index]);
+
     return (
-        <ColumnContainer>
-            {title}
-            <Droppable
-                droppableId={listId}
-                mode="virtual"
-                renderClone={useClone && ((provided, snapshot, descriptor) => (
-                    <BoardItem
-                        style={{margin: 0}}
-                        {...{
-                            handleEvent,
-                            quote: quotes[descriptor.source.index],
-                            provided,
-                            isDragging: snapshot.isDragging
-                        }}></BoardItem>
-                ))}>
-                {(droppableProvided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
-                    const itemCount: number = snapshot.isUsingPlaceholder ? quotes.length + 1 : quotes.length;
-                    return (
-                        <List
-                            height={600}
-                            rowCount={itemCount}
-                            rowHeight={params => getRowHeight(quotes[params.index])}
-                            width={600}
-                            autoContainerWidth
-                            autoWidth
-                            ref={(ref) => {
-                                // react-virtualized has no way to get the list's ref that I can
-                                //  we use the `ReactDOM.findDOMNode(ref)` escape hatch to get the ref
-                                if (ref) {
-                                    // eslint-disable-next-line react/no-find-dom-node
-                                    const whatHasMyLifeComeTo = ReactDOM.findDOMNode(ref);
-                                    if (whatHasMyLifeComeTo instanceof HTMLElement) {
-                                        droppableProvided.innerRef(whatHasMyLifeComeTo);
-                                    }
-                                }
-                            }}
-                            style={{
-                                transition: 'background-color 0.2s ease'
-                            }}
-                            rowRenderer={getRowRender(quotes, handleEvent, isDragging)}
-                        />
-                    );
-                }}
-            </Droppable>
-        </ColumnContainer>
+        <Droppable
+            droppableId={listId}
+            mode="virtual"
+            renderClone={((provided, snapshot, descriptor) => (
+                <BoardItem
+                    style={{margin: 0}}
+                    {...{
+                        handleEvent,
+                        quote: quotes[descriptor.source.index],
+                        provided,
+                        isDragging: snapshot.isDragging
+                    }}></BoardItem>
+            ))}>
+            {(droppableProvided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
+                const itemCount: number = snapshot.isUsingPlaceholder ? quotes.length + 1 : quotes.length;
+                return (
+                    <FixedSizeList
+                        height={600}
+                        itemCount={itemCount}
+                        itemSize={87}
+                        width={320}
+                        ref={listRef}
+                        outerElementType={outerElementType}
+                        outerRef={droppableProvided.innerRef}
+                        itemData={quotes}>
+                        {Row}
+                    </FixedSizeList>
+                );
+            }}
+        </Droppable>
     );
 }
+
+export default React.memo(BoardList);

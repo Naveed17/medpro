@@ -1,5 +1,5 @@
 import {
-    DragDropContext, DraggableLocation, DropResult
+    DragDropContext, Draggable, DraggableLocation, Droppable, DropResult
 } from "react-beautiful-dnd";
 import React, {useCallback, useEffect, useState} from "react";
 import styled from '@emotion/styled';
@@ -16,6 +16,13 @@ const ParentContainer = styled.div`
     padding-bottom: 1rem;
     overflow-x: hidden;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+const Container = styled.div`
+    display: flex;
 `;
 
 const Header = styled.div`
@@ -40,6 +47,25 @@ const Title = styled.h4`
         outline-offset: 2px;
     }
 `;
+
+const Column = React.memo(function Column(props) {
+    const {id, column, index, handleEvent} = props as any;
+    return (
+        <Draggable draggableId={id} index={index}>
+            {provided => (
+                <div
+                    className="column"
+                    {...provided.draggableProps}
+                    ref={provided.innerRef}>
+                    <h3 className="column-title" {...provided.dragHandleProps}>
+                        {column.title}
+                    </h3>
+                    <BoardList listId={id} quotes={column} {...{index, handleEvent}} />
+                </div>
+            )}
+        </Draggable>
+    );
+});
 
 function Board({...props}) {
     const {
@@ -188,84 +214,95 @@ function Board({...props}) {
     }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <ParentContainer>
-            <DragDropContext onDragEnd={handleOnDragBoard}>
-                <Grid container spacing={1}>
-                    {Object.keys(boardData).length > 0 && columns.map((column: any, index: number) => (
-                        <Grid key={index} item md={3}>
-                            <Header>
-                                <Title
-                                    aria-label={`${column.name} quote list`}>
-                                    <Card>
-                                        <CardHeader
-                                            avatar={columns[index].icon}
-                                            sx={{
-                                                minHeight: 60,
-                                                ".MuiCardHeader-action": {alignSelf: 'center'}
-                                            }}
-                                            title={
-                                                <Stack direction={"row"} alignItems={"center"}
-                                                       spacing={1}>
-                                                    <Typography
-                                                        color={"text.primary"} fontWeight={700}
-                                                        fontSize={14}
+        <DragDropContext onDragEnd={handleOnDragBoard}>
+            <ParentContainer>
+                <Droppable
+                    droppableId="all-droppables"
+                    direction="horizontal"
+                    type="column">
+                    {provided => (
+                        <Container
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}>
+                            <Grid container spacing={1}>
+                                {Object.keys(boardData).length > 0 && columns.map((column: any, index: number) => (
+                                    <Grid key={index} item md={3}>
+                                        <Header>
+                                            <Title
+                                                aria-label={`${column.name} quote list`}>
+                                                <Card>
+                                                    <CardHeader
+                                                        avatar={columns[index].icon}
                                                         sx={{
-                                                            whiteSpace: "nowrap",
-                                                            overflow: "hidden",
-                                                            textOverflow: "ellipsis",
-                                                            width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : "auto",
-                                                        }}>
-                                                        {t(`tabs.${column.name}`)}
-                                                    </Typography>
+                                                            minHeight: 60,
+                                                            ".MuiCardHeader-action": {alignSelf: 'center'}
+                                                        }}
+                                                        title={
+                                                            <Stack direction={"row"} alignItems={"center"}
+                                                                   spacing={1}>
+                                                                <Typography
+                                                                    color={"text.primary"} fontWeight={700}
+                                                                    fontSize={14}
+                                                                    sx={{
+                                                                        whiteSpace: "nowrap",
+                                                                        overflow: "hidden",
+                                                                        textOverflow: "ellipsis",
+                                                                        width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : "auto",
+                                                                    }}>
+                                                                    {t(`tabs.${column.name}`)}
+                                                                </Typography>
 
-                                                    <Badge
-                                                        sx={{pl: 1}}
-                                                        invisible={!(boardData[column.name].length > 0 && index !== 2)}
-                                                        badgeContent={boardData[column.name].length}
-                                                        color="info"/>
-                                                </Stack>
-                                            }
-                                            action={<Stack direction={"row"} alignItems={"center"}
-                                                           spacing={1}>
-                                                {columns[index].id === "3" &&
-                                                    <IconButton
-                                                        size={"small"}
-                                                        onClick={event => handleSortData(event)}>
-                                                        <IconUrl width={20} height={20}
-                                                                 path={"sort"}/>
-                                                    </IconButton>}
+                                                                <Badge
+                                                                    sx={{pl: 1}}
+                                                                    invisible={!(boardData[column.name].length > 0 && index !== 2)}
+                                                                    badgeContent={boardData[column.name].length}
+                                                                    color="info"/>
+                                                            </Stack>
+                                                        }
+                                                        action={<Stack direction={"row"} alignItems={"center"}
+                                                                       spacing={1}>
+                                                            {columns[index].id === "3" &&
+                                                                <IconButton
+                                                                    size={"small"}
+                                                                    onClick={event => handleSortData(event)}>
+                                                                    <IconUrl width={20} height={20}
+                                                                             path={"sort"}/>
+                                                                </IconButton>}
 
-                                                {columns[index].id === "5" &&
-                                                    <Stack direction={"row"} alignItems={"center"}
-                                                           justifyContent={"flex-end"}
-                                                           sx={{height: 28}}>
-                                                        <CustomSwitch
-                                                            className="custom-switch"
-                                                            name="active"
-                                                            onChange={handleUnpaidFilter}
-                                                            checked={isUnpaidFilter}
-                                                        />
-                                                        <Typography variant={"body2"}
-                                                                    fontSize={12}>{t("tabs.payed")}</Typography>
-                                                    </Stack>
-                                                }
-                                                {!!columns[index].action && columns[index].action}
-                                            </Stack>}
+                                                            {columns[index].id === "5" &&
+                                                                <Stack direction={"row"} alignItems={"center"}
+                                                                       justifyContent={"flex-end"}
+                                                                       sx={{height: 28}}>
+                                                                    <CustomSwitch
+                                                                        className="custom-switch"
+                                                                        name="active"
+                                                                        onChange={handleUnpaidFilter}
+                                                                        checked={isUnpaidFilter}
+                                                                    />
+                                                                    <Typography variant={"body2"}
+                                                                                fontSize={12}>{t("tabs.payed")}</Typography>
+                                                                </Stack>
+                                                            }
+                                                            {!!columns[index].action && columns[index].action}
+                                                        </Stack>}
+                                                    />
+                                                </Card>
+                                            </Title>
+                                        </Header>
+                                        <Column
+                                            {...{handleEvent, index}}
+                                            id={column.name}
+                                            column={boardData[column.name]}
                                         />
-                                    </Card>
-                                </Title>
-                            </Header>
-                            <BoardList
-                                {...{handleEvent}}
-                                listId={column.name}
-                                quotes={boardData[column.name]}
-                                useClone
-                            />
-                        </Grid>
-                    ))}
-                </Grid>
-            </DragDropContext>
-        </ParentContainer>)
+                                    </Grid>
+                                ))}
+                            </Grid>
+                            {provided.placeholder}
+                        </Container>
+                    )}
+                </Droppable>
+            </ParentContainer>
+        </DragDropContext>)
 }
 
 export default Board;
