@@ -57,7 +57,6 @@ const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) 
 export default function BoardList({...props}) {
     const {
         listId = 'LIST',
-        listType,
         quotes,
         title,
         useClone,

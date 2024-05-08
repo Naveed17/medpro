@@ -254,7 +254,6 @@ function Board({...props}) {
                             <BoardList
                                 {...{handleEvent}}
                                 listId={column.name}
-                                listType="group"
                                 quotes={boardData[column.name]}
                                 useClone
                             />
