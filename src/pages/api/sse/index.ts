@@ -13,38 +13,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const session = await getServerSession(req, res, authOptions);
+    if (session) {
+        const {data: user} = session as Session;
+        const roles = (user as UserDataResponse)?.general_information.roles;
+        const general_information = (user as UserDataResponse).general_information;
 
-    const {data: user} = session as Session;
-    const roles = (user as UserDataResponse)?.general_information.roles;
-    const general_information = (user as UserDataResponse).general_information;
+        const url = new URL(`${process.env.MERCURE_API_URL}.well-known/mercure`);
+        url.searchParams.append('topic', `${process.env.MERCURE_API_URL}${roles[0]}-${general_information.uuid}`);
 
-    const url = new URL(`${process.env.MERCURE_API_URL}.well-known/mercure`);
-    url.searchParams.append('topic', `${process.env.MERCURE_API_URL}${roles[0]}-${general_information.uuid}`);
+        const evtSource = new EventSource(url.toString(), {
+            headers: {
+                'Authorization': `Bearer ${process.env.MERCURE_JWT_TOKEN}`
+            }
+        })
 
-    const evtSource = new EventSource(url.toString(), {
-        headers: {
-            'Authorization': `Bearer ${process.env.MERCURE_JWT_TOKEN}`
+        evtSource.onopen = () => {
+            res.write(`event: message\nopenConnection: true\n\n`)
+        };
+
+        evtSource.onmessage = (e: MessageEvent<any>) => {
+            if (e?.data) {
+                res.write(`event: message\ndata: ${e.data}\n\n`)
+            }
         }
-    })
 
-    evtSource.onopen = () => {
-        res.write(`event: message\nopenConnection: true\n\n`)
-    };
-
-    evtSource.onmessage = (e: MessageEvent<any>) => {
-        if (e?.data) {
-            res.write(`event: message\ndata: ${e.data}\n\n`)
+        evtSource.onerror = (e: Event) => {
+            evtSource.close()
+            res.write(`event: error\ndata: ${JSON.stringify(e)}\n\n`)
         }
+
+        req.socket.on("close", () => {
+            evtSource.close()
+            res.end()
+        })
+    } else {
+        res.send({
+            error: "You must be sign in to view the protected content on this page.",
+        })
     }
-
-    evtSource.onerror = (e: Event) => {
-        evtSource.close()
-        res.write(`event: error\ndata: ${JSON.stringify(e)}\n\n`)
-    }
-
-    req.socket.on("close", () => {
-        evtSource.close()
-        res.end()
-    })
-
 }
