@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import React, {ReactElement, useContext, useEffect, useRef, useState} from "react";
 //components
-import {NoDataCard, timerSelector, WaitingRoomMobileCard} from "@features/card";
+import {NoDataCard, resetTimer, timerSelector, WaitingRoomMobileCard} from "@features/card";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
@@ -305,6 +305,10 @@ function WaitingRoom() {
                 // refresh on going api
                 mutateWaitingRoom();
                 mutateOnGoing();
+                if (status === "11") {
+                    dispatch(resetTimer());
+                    dispatch(resetAppointment());
+                }
             }
         });
     }
@@ -357,6 +361,25 @@ function WaitingRoom() {
         handleClose();
     }
 
+    const handleFinishConsultation = (event: any) => {
+        const form = new FormData();
+        form.append("status", "5");
+        form.append("action", "end_consultation");
+        updateAppointmentStatus({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.uuid}/data/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateWaitingRoom();
+                mutateOnGoing();
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+            }
+        });
+    }
+
     const handleDeleteAppointment = () => {
         setLoadingRequest(true);
         const params = new FormData();
@@ -394,10 +417,6 @@ function WaitingRoom() {
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
             data: params
-        }, {
-            onSuccess: () => {
-
-            }
         })
 
         setAnchorEl(null);
@@ -413,25 +432,20 @@ function WaitingRoom() {
     };
 
     const handleDragEvent = (result: DropResult, item: BoardModel) => {
-        console.log("result", result, item)
         switch (result.destination?.droppableId) {
             case "ongoing":
                 startConsultation(item.content);
                 break;
             case "finished":
-
+                handleFinishConsultation(item.content);
                 break;
             default:
-                console.error(result.destination);
+                handleAppointmentStatus(
+                    item.content.uuid,
+                    columns.current.find(column => result.destination?.droppableId === column.name)?.id,
+                    (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);
                 break;
         }
-        if (result.destination?.droppableId === "ongoing") {
-            //startConsultation(item.content);
-        }
-        /*handleAppointmentStatus(
-            item.content.uuid,
-            columns.current.find(column => result.destination?.droppableId === column.name)?.id,
-            (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);*/
     }
 
     const showDoc = (doc: any) => {
@@ -522,6 +536,9 @@ function WaitingRoom() {
                 break;
             case "LEAVE_WAITING_ROOM":
                 handleAppointmentStatus(data.row.uuid as string, '1');
+                break;
+            case "RESET_ONGOING_CONSULTATION":
+                handleAppointmentStatus(data.row.uuid as string, '11');
                 break;
             case "NEXT_CONSULTATION":
                 nextConsultation(data.row);

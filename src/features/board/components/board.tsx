@@ -148,18 +148,21 @@ function Board({...props}) {
 
         // skip drag to 3 and 4 column
         const columnsId = columns.find((column: any) => column.name === destination.droppableId).id.split(',');
-        console.log("result", result, columnsId)
-        if (["5"].some(id => columnsId.includes(id))) {
+        if ((["5"].some(id => columnsId.includes(id)) && source.droppableId !== "ongoing") ||
+            (!["5"].some(id => columnsId.includes(id)) && source.droppableId === "ongoing")) {
             return;
         }
 
-        const data = reorderQuoteMap({
-            quoteMap: boardData,
-            source,
-            destination,
-        });
+        if (!["4"].some(id => columnsId.includes(id)) ||
+            (["4", "8"].some(id => columnsId.includes(id)) && boardData[destination.droppableId].length === 0)) {
+            const data = reorderQuoteMap({
+                quoteMap: boardData,
+                source,
+                destination,
+            });
 
-        setBoardData(data.quoteMap);
+            setBoardData(data.quoteMap);
+        }
 
         handleDragEvent(result, boardData[source.droppableId][source.index]);
 
@@ -174,7 +177,7 @@ function Board({...props}) {
                         id: item.uuid,
                         content: {
                             ...item,
-                            isDraggable: (![4, 8, 5].includes(item.status) && !item.patient?.isArchived)
+                            isDraggable: (![5].includes(item.status) && !item.patient?.isArchived)
                         },
                         column: columns.find((column: BoardColumnsModel) => column.id.split(",").includes(itemGroup[0])),
                     })
