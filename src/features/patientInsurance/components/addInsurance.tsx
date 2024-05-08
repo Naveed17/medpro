@@ -152,7 +152,7 @@ const AddInsurance = ({...props}) => {
     const router = useRouter();
     const {t: commonTranslation} = useTranslation("common");
 
-    const [selected, setSelected] = useState<InsuranceModel | null>(pi ? pi.insurance : null);
+    const [selected, setSelected] = useState<InsuranceModel | null>(pi ? insurances.find(insc => insc.uuid === pi.insurance.uuid) as InsuranceModel : null);
     const [boxes, setBoxes] = useState<InsuranceBoxModel[]>([]);
     const [selectedBox, setSelectedBox] = useState<InsuranceBoxModel | null>(null);
     const [apcisList, setApcisList] = useState<ApciModel[]>([]);

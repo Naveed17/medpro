@@ -1,5 +1,5 @@
 import TableCell from "@mui/material/TableCell";
-import {Button, Checkbox, IconButton, Paper, Stack, Typography} from "@mui/material";
+import {Button, Checkbox, IconButton, Paper, Stack, Tooltip, Typography} from "@mui/material";
 import {Theme, useTheme} from "@mui/material/styles";
 import {Otable, TableRowStyled} from "@features/table";
 import React, {useState} from "react";
@@ -9,9 +9,7 @@ import InputBaseStyled from "../overrides/inputBaseStyled";
 import {debounce} from "lodash";
 import {SetLoading} from "@features/toolbar";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {ImageHandler} from "@features/image";
 import {useInsurances} from "@lib/hooks/rest";
-import Icon from "@themes/urlIcon";
 
 const headCells: readonly HeadCell[] = [
     {
@@ -93,18 +91,25 @@ function CIPMedicalProceduresRow({...props}) {
                             {row.act.name}
                         </Typography>
                         {
-                            row.insurances.length > 0 && <IconButton onClick={() => setCollapse(!collapse)}>
-                                <ImageHandler
-                                    alt={insurances[0]?.insurance.name}
-                                    src={allInsurances.find((insurance: any) => insurance.uuid === row.insurance_act)?.logoUrl?.url}/>
-                            <Icon src={"ic-expand-more"}></Icon>
-                            </IconButton>
+                            row.insurances.length > 0 &&
+                            <Tooltip
+                                title={row.insurance_act}>
+                                <IconButton onClick={() => setCollapse(!collapse)}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    {row.insurance_act  ? <img
+                                            alt={"insurance name"}
+                                            width={20} height={20}
+                                            src={allInsurances.find((insurance: any) => insurance.uuid === row.insurances.find((insc:InsuranceModel) => insc.uuid === row.insurance_act)?.insurance.uuid)?.logoUrl?.url}/> :
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={"/static/icons/Med-logo.png"} width={20} height={20} alt={"empty"}/>
+                                    }                                </IconButton>
+                            </Tooltip>
                         }
                     </Stack>
                 </TableCell>
                 <TableCell align="center">
 
-                    <InputBaseStyled
+                    {row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -137,12 +142,12 @@ function CIPMedicalProceduresRow({...props}) {
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    />
+                    /> : <Typography>{row.fees}</Typography>}
 
 
                 </TableCell>
                 <TableCell align="center">
-                    <InputBaseStyled
+                    {row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -175,10 +180,10 @@ function CIPMedicalProceduresRow({...props}) {
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    />
+                    /> : <Typography>{row.contribution}</Typography>}
                 </TableCell>
                 <TableCell align="center">
-                    <InputBaseStyled
+                    {row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -188,7 +193,7 @@ function CIPMedicalProceduresRow({...props}) {
                         }}
                         readOnly={!row.selected}
                         id={row.uuid}
-                        value={row.patient_part}
+                        value={row.patientPart}
                         placeholder={"--"}
                         autoFocus={selected === row.uuid}
                         onFocus={(event) => {
@@ -205,13 +210,13 @@ function CIPMedicalProceduresRow({...props}) {
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e: any) => {
                             if (!isNaN(e.currentTarget.value)) {
-                                row.patient_part = Number(e.currentTarget.value);
+                                row.patientPart = Number(e.currentTarget.value);
                                 editMotif(row, "change", e.currentTarget.value);
                                 dispatch(SetLoading(true))
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    />
+                    /> : <Typography>{row.patientPart}</Typography>}
                 </TableCell>
                 <TableCell align={"center"}>
                     {row.selected && row.uuid !== 'consultation_type' ? (

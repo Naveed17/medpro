@@ -133,12 +133,12 @@ function FeesTab({...props}) {
             },*/ ...mpActs]
 
             res.acts && res.acts.map((act: any) => {
-
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
                 if (index > -1) {
                     _acts[index].selected = true
                     _acts[index].qte = act.qte;
                     _acts[index].fees = act.price;
+                    _acts[index].insurance_act = act.insurance_act;
                     _acts[index].patientPart = act.patientPart;
                     _acts[index].contribution = act.refund;
                 }
@@ -163,15 +163,14 @@ function FeesTab({...props}) {
         let _total = 0
         actsList.filter((act: any) => act.selected).forEach((act: any) => {
             _total += act.fees * act.qte
-            console.log("act",act)
             _acts.push({
                 act_uuid: act.uuid,
                 name: act.act.name,
                 qte: act.qte,
                 price: act.fees,
-                ...(act.insurance_act &&{insurance_act: act.insurance_act}),
-                ...(act.patient_part &&{patient_part: act.patient_part}),
-                ...(act.refund &&{refund: act.refund})
+                ...(act.insurance_act && {insurance_act: act.insurance_act}),
+                ...(act.patient_part && {patient_part: act.patient_part}),
+                ...(act.refund && {refund: act.refund})
             });
         });
         setTotal(_total);
@@ -308,6 +307,18 @@ function FeesTab({...props}) {
                                         </Typography>
                                         <Typography fontWeight={700}>
                                             {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.contribution) : 0), 0)} {devise}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: 'none', width: 1}}>
+                                <CardContent>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                                        <Typography variant="body2">
+                                            {t("table.patient_part")}
+                                        </Typography>
+                                        <Typography fontWeight={700}>
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.patientPart) : 0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
