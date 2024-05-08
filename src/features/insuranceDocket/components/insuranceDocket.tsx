@@ -1,15 +1,8 @@
 import React, {useState} from 'react';
 import InsuranceStyled from "@features/patientInsurance/components/overrides/insuranceStyled";
-import {Box, Collapse, IconButton, Stack, Typography} from "@mui/material";
-import {NoDataCard} from "@features/card";
-import AddIcon from "@mui/icons-material/Add";
-import AddInsurance from "@features/patientInsurance/components/addInsurance";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import CardInsurance from "@features/patientInsurance/components/cardInsurance";
 import {useTranslation} from "next-i18next";
 import {Otable} from "@features/table";
 import {DesktopContainer} from "@themes/desktopConainter";
-import {useInsurances} from "@lib/hooks/rest";
 import {useRequestQuery} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
@@ -52,7 +45,7 @@ const headCells = [
 ];
 
 const InsuranceDocket = ({...props}) => {
-    const {patientInsurances,mutatePatientInsurances,patient} = props;
+    const {patientInsurances, mutatePatientInsurances, patient} = props;
 
     const {t} = useTranslation(["patient", "common"]);
 
@@ -69,7 +62,7 @@ const InsuranceDocket = ({...props}) => {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
 
-    const {data: httpInsurances,mutate} = useRequestQuery({
+    const {data: httpInsurances, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
     });
@@ -83,7 +76,7 @@ const InsuranceDocket = ({...props}) => {
         router.push(`cashbox/insurance/${data.uuid}`)
     }
 
-        return (
+    return (
         <InsuranceStyled spacing={1}>
             <DesktopContainer>
                 <Otable

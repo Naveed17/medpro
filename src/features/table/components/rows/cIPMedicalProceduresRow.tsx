@@ -10,6 +10,7 @@ import {debounce} from "lodash";
 import {SetLoading} from "@features/toolbar";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {useInsurances} from "@lib/hooks/rest";
+import IconUrl from "@themes/urlIcon";
 
 const headCells: readonly HeadCell[] = [
     {
@@ -55,9 +56,9 @@ function CIPMedicalProceduresRow({...props}) {
     }
 
     const handleChangeInsurance = (insurance: any) => {
-        row.insurance_act = insurance.uuid;
-        row.patient_part = insurance.patient_part
-        row.refund = insurance.refund
+        row.insurance_act = row.insurance_act === insurance.uuid ? null :  insurance.uuid;
+        row.patient_part = row.insurance_act === insurance.uuid ? 0 : insurance.patient_part;
+        row.refund = row.insurance_act === insurance.uuid ? 0 : insurance.refund;
         editMotif(row, "change");
         handleEvent()
         setCollapse(false)
@@ -101,7 +102,7 @@ function CIPMedicalProceduresRow({...props}) {
                                             width={20} height={20}
                                             src={allInsurances.find((insurance: any) => insurance.uuid === row.insurance)?.logoUrl?.url}/> :
                                         // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={"/static/icons/Med-logo.png"} width={20} height={20} alt={"empty"}/>
+                                        <IconUrl path={"ic-assurance"} width={20} height={20}/>
                                     }                                </IconButton>
                             </Tooltip>
                         }
