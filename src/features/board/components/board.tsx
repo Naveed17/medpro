@@ -3,10 +3,10 @@ import {
 } from "react-beautiful-dnd";
 import React, {useCallback, useEffect, useState} from "react";
 import styled from '@emotion/styled';
-import {BoardList, setIsDragging} from "@features/board";
+import {BoardList} from "@features/board";
 import {Badge, Card, CardHeader, Grid, IconButton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
 import IconUrl from "@themes/urlIcon";
 import {CustomSwitch} from "@features/buttons";
