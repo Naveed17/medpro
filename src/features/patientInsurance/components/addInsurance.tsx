@@ -171,6 +171,7 @@ const AddInsurance = ({...props}) => {
 
     const {trigger} = useRequestQueryMutation("/insurance/agreements");
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
+    const {trigger: triggerConvention} = useRequestQueryMutation("/insurance/conv");
 
     const handleUpdatePatient = () => {
         console.log(JSON.stringify(prepareInsurancesData({
@@ -232,7 +233,7 @@ const AddInsurance = ({...props}) => {
     }
 
     const getConvention = (insurance_uuid: string) => {
-        trigger({
+        triggerConvention({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${insurance_uuid}/conventions/${router.locale}`
         }, {
