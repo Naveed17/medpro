@@ -148,7 +148,8 @@ function Board({...props}) {
 
         // skip drag to 3 and 4 column
         const columnsId = columns.find((column: any) => column.name === destination.droppableId).id.split(',');
-        if (["4", "5"].some(id => columnsId.includes(id))) {
+        console.log("result", result, columnsId)
+        if (["5"].some(id => columnsId.includes(id))) {
             return;
         }
 

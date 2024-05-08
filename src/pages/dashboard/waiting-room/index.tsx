@@ -137,9 +137,9 @@ function WaitingRoom() {
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
-        {index: 0, key: "startTime", value: "start-time", checked: agenda?.waitingRoomDisplay === 0},
-        {index: 1, key: "arrivalTime", value: "arrival-time", checked: agenda?.waitingRoomDisplay === 1},
-        {index: 2, key: "estimatedStartTime", value: "smart-list", checked: agenda?.waitingRoomDisplay === 2}
+        {index: 0, key: "startTime", value: "start-time"},
+        {index: 1, key: "arrivalTime", value: "arrival-time"},
+        {index: 2, key: "estimatedStartTime", value: "smart-list"}
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
@@ -413,10 +413,25 @@ function WaitingRoom() {
     };
 
     const handleDragEvent = (result: DropResult, item: BoardModel) => {
-        handleAppointmentStatus(
+        console.log("result", result, item)
+        switch (result.destination?.droppableId) {
+            case "ongoing":
+                startConsultation(item.content);
+                break;
+            case "finished":
+
+                break;
+            default:
+                console.error(result.destination);
+                break;
+        }
+        if (result.destination?.droppableId === "ongoing") {
+            //startConsultation(item.content);
+        }
+        /*handleAppointmentStatus(
             item.content.uuid,
             columns.current.find(column => result.destination?.droppableId === column.name)?.id,
-            (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);
+            (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);*/
     }
 
     const showDoc = (doc: any) => {
@@ -684,6 +699,7 @@ function WaitingRoom() {
                     width: 20
                 }}/>
         }]);
+
     const Toolbar = () => (
         <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
             <CardHeader
@@ -748,6 +764,24 @@ function WaitingRoom() {
             setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next, boardFilterData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (agenda) {
+            let sort;
+            switch (agenda?.waitingRoomDisplay) {
+                case 1:
+                    sort = "arrival-time";
+                    break;
+                case 2:
+                    sort = "smart-list";
+                    break;
+                default:
+                    sort = "start-time";
+                    break;
+            }
+            dispatch(setSortTime(sort));
+        }
+    }, [agenda, dispatch]);
 
     useEffect(() => {
         dispatch(toggleSideBar(true));
@@ -1136,7 +1170,7 @@ function WaitingRoom() {
                                 <Box
                                     component={Radio}
                                     checkedIcon={<TripOriginRoundedIcon/>}
-                                    checked
+                                    checked={option.value === boardFilterData.sort}
                                     sx={{
                                         width: 17, height: 17, mr: '5px', ml: '-2px',
                                         '& .MuiSvgIcon-root': {
