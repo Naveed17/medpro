@@ -130,7 +130,7 @@ function BoardItem({...props}) {
             data-rbd-drag-handle-draggable-id={quote?.id}
             data-index={index}
             aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
-            <Card
+            {quote?.content && <Card
                 {...(quote.content.status === 4 && {
                     onClick: (event: React.MouseEvent<any>) => {
                         event.stopPropagation();
@@ -463,7 +463,7 @@ function BoardItem({...props}) {
                         }
                     </Stack>
                 </CardContent>
-            </Card>
+            </Card>}
         </Container>
     );
 }
