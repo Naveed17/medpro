@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
-import React, {ReactElement, useContext, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useRef, useState} from "react";
 //components
-import {NoDataCard, timerSelector, WaitingRoomMobileCard} from "@features/card";
+import {NoDataCard, resetTimer, timerSelector, WaitingRoomMobileCard} from "@features/card";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
@@ -59,7 +59,7 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
+import {Board, boardSelector, setIsDragging, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton, CustomSwitch} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -137,9 +137,9 @@ function WaitingRoom() {
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
-        {index: 0, key: "startTime", value: "start-time", checked: agenda?.waitingRoomDisplay === 0},
-        {index: 1, key: "arrivalTime", value: "arrival-time", checked: agenda?.waitingRoomDisplay === 1},
-        {index: 2, key: "estimatedStartTime", value: "smart-list", checked: agenda?.waitingRoomDisplay === 2}
+        {index: 0, key: "startTime", value: "start-time"},
+        {index: 1, key: "arrivalTime", value: "arrival-time"},
+        {index: 2, key: "estimatedStartTime", value: "smart-list"}
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
@@ -169,6 +169,7 @@ function WaitingRoom() {
 
     const {
         data: httpWaitingRoomsResponse,
+        isLoading: isWaitingRoomsLoading,
         mutate: mutateWaitingRoom
     } = useRequestQuery(agenda ? {
         method: "GET",
@@ -302,8 +303,12 @@ function WaitingRoom() {
         }, {
             onSuccess: () => {
                 // refresh on going api
-                mutateOnGoing();
                 mutateWaitingRoom();
+                mutateOnGoing();
+                if (status === "11") {
+                    dispatch(resetTimer());
+                    dispatch(resetAppointment());
+                }
             }
         });
     }
@@ -356,6 +361,25 @@ function WaitingRoom() {
         handleClose();
     }
 
+    const handleFinishConsultation = (event: any) => {
+        const form = new FormData();
+        form.append("status", "5");
+        form.append("action", "end_consultation");
+        updateAppointmentStatus({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.uuid}/data/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateWaitingRoom();
+                mutateOnGoing();
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+            }
+        });
+    }
+
     const handleDeleteAppointment = () => {
         setLoadingRequest(true);
         const params = new FormData();
@@ -393,10 +417,6 @@ function WaitingRoom() {
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
             data: params
-        }, {
-            onSuccess: () => {
-
-            }
         })
 
         setAnchorEl(null);
@@ -412,10 +432,20 @@ function WaitingRoom() {
     };
 
     const handleDragEvent = (result: DropResult, item: BoardModel) => {
-        handleAppointmentStatus(
-            item.content.uuid,
-            columns.find(column => result.destination?.droppableId === column.name)?.id,
-            (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);
+        switch (result.destination?.droppableId) {
+            case "ongoing":
+                startConsultation(item.content);
+                break;
+            case "finished":
+                handleFinishConsultation(item.content);
+                break;
+            default:
+                handleAppointmentStatus(
+                    item.content.uuid,
+                    columns.current.find(column => result.destination?.droppableId === column.name)?.id,
+                    (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);
+                break;
+        }
     }
 
     const showDoc = (doc: any) => {
@@ -506,6 +536,9 @@ function WaitingRoom() {
                 break;
             case "LEAVE_WAITING_ROOM":
                 handleAppointmentStatus(data.row.uuid as string, '1');
+                break;
+            case "RESET_ONGOING_CONSULTATION":
+                handleAppointmentStatus(data.row.uuid as string, '11');
                 break;
             case "NEXT_CONSULTATION":
                 nextConsultation(data.row);
@@ -627,7 +660,7 @@ function WaitingRoom() {
         });
     }
 
-    const columns: any[] = [
+    const columns = useRef<any[]>([
         {
             id: '1',
             name: 'today-rdv',
@@ -682,7 +715,8 @@ function WaitingRoom() {
                     ml: 'auto',
                     width: 20
                 }}/>
-        }];
+        }]);
+
     const Toolbar = () => (
         <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
             <CardHeader
@@ -702,14 +736,14 @@ function WaitingRoom() {
                         m: 0,
                     }
                 }}
-                avatar={columns[1].icon}
-                {...(columns[1].action && {action: columns[1].action})}
+                avatar={columns.current[1].icon}
+                {...(columns.current[1].action && {action: columns.current[1].action})}
                 title={
                     <Stack direction='row' alignItems='center' spacing={3}>
                         <Typography
                             color={"text.primary"} fontWeight={700}
                             fontSize={14}>
-                            {t(`tabs.${columns[1].name}`)}
+                            {t(`tabs.${columns.current[1].name}`)}
                             <Label variant="filled" color="info"
                                    sx={{ml: 1, height: 'auto', p: .6, minWidth: 20, fontWeight: 400}}>
                                 {waitingRoomsGroup[3]?.length ?? ""}
@@ -749,6 +783,24 @@ function WaitingRoom() {
     }, [httpWaitingRoomsResponse, is_next, boardFilterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        if (agenda) {
+            let sort;
+            switch (agenda?.waitingRoomDisplay) {
+                case 1:
+                    sort = "arrival-time";
+                    break;
+                case 2:
+                    sort = "smart-list";
+                    break;
+                default:
+                    sort = "start-time";
+                    break;
+            }
+            dispatch(setSortTime(sort));
+        }
+    }, [agenda, dispatch]);
+
+    useEffect(() => {
         dispatch(toggleSideBar(true));
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
@@ -774,21 +826,22 @@ function WaitingRoom() {
                     setTabIndex,
                     setPatientDetailDrawer,
                     nextConsultation,
-                    columns,
+                    columns: columns.current,
                     is_next,
                     isActive
                 }}/>
             </SubHeader>
             <Box>
-                <LinearProgress sx={{
-                    visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
-                }} color="warning"/>
+                <LinearProgress
+                    sx={{
+                        visibility: !httpWaitingRoomsResponse || loading || isWaitingRoomsLoading ? "visible" : "hidden"
+                    }} color="warning"/>
 
                 <Box className="container">
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
-                                {...{columns, handleDragEvent, handleSortData, handleUnpaidFilter}}
+                                {...{columns: columns.current, handleDragEvent, handleSortData, handleUnpaidFilter}}
                                 isUnpaidFilter={boardFilterData.unpaid}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
@@ -820,13 +873,13 @@ function WaitingRoom() {
                                                         m: 0,
                                                     }
                                                 }}
-                                                avatar={columns[0].icon}
-                                                {...(columns[0].action && {action: columns[0].action})}
+                                                avatar={columns.current[0].icon}
+                                                {...(columns.current[0].action && {action: columns.current[0].action})}
                                                 title={
                                                     <Typography
                                                         color={"text.primary"} fontWeight={700}
                                                         fontSize={14}>
-                                                        {t(`tabs.${columns[0].name}`)}
+                                                        {t(`tabs.${columns.current[0].name}`)}
                                                         <Label variant="filled" color="info"
                                                                sx={{ml: 1, height: 'auto', p: .6, minWidth: 20}}>
                                                             {waitingRoomsGroup[1].length}
@@ -1134,7 +1187,7 @@ function WaitingRoom() {
                                 <Box
                                     component={Radio}
                                     checkedIcon={<TripOriginRoundedIcon/>}
-                                    checked
+                                    checked={option.value === boardFilterData.sort}
                                     sx={{
                                         width: 17, height: 17, mr: '5px', ml: '-2px',
                                         '& .MuiSvgIcon-root': {

@@ -2,7 +2,8 @@ import {createReducer} from '@reduxjs/toolkit';
 import {
     setSortTime,
     setIsUnpaid,
-    setOrderSort
+    setOrderSort,
+    setIsDragging
 } from './actions';
 
 export type BoardProps = {
@@ -10,7 +11,8 @@ export type BoardProps = {
         sort: string;
         order: string;
         unpaid: boolean;
-    }
+    },
+    isDragging: boolean,
 };
 
 const initialState: BoardProps = {
@@ -18,8 +20,8 @@ const initialState: BoardProps = {
         sort: 'start-time',
         order: "asscending",
         unpaid: false
-    }
-
+    },
+    isDragging: false
 };
 
 export const BoardReducer = createReducer(initialState, builder => {
@@ -29,5 +31,7 @@ export const BoardReducer = createReducer(initialState, builder => {
         state.filter.unpaid = action.payload;
     }).addCase(setOrderSort, (state, action) => {
         state.filter.order = action.payload;
+    }).addCase(setIsDragging, (state, action) => {
+        state.isDragging = action.payload;
     });
 });
