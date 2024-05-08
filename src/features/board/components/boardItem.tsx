@@ -115,9 +115,11 @@ function BoardItem({...props}) {
 
     return (
         <Container
-            isDragging={isDragging}
-            isGroupedOver={isGroupedOver}
-            isClone={isClone}
+            {...{
+                isGroupedOver,
+                isDragging,
+                isClone
+            }}
             colors={quote?.column?.colors}
             ref={provided?.innerRef}
             {...provided?.draggableProps}

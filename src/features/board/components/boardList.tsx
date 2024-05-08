@@ -7,14 +7,15 @@ import type {
     DraggableProvided,
     DraggableStateSnapshot,
 } from 'react-beautiful-dnd';
-import {BoardItem, grid, heightOffset} from "@features/board";
+import {BoardItem, boardSelector, grid, heightOffset} from "@features/board";
 import ReactDOM from "react-dom";
 import {List} from 'react-virtualized';
+import {useAppSelector} from "@lib/redux/hooks";
 
 // Using a higher order function so that we can look up the quotes data to retrieve
 // our quote from within the rowRender function
 // eslint-disable-next-line react/display-name
-const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) => {
+const getRowRender = (quotes: any[], handleEvent: any, isDragging: boolean) => ({index, style}: any) => {
     const quote = quotes[index];
     // We are rendering an extra item for the placeholder
     // Do this we increased our data set size to include one 'fake' item
@@ -62,6 +63,8 @@ export default function BoardList({...props}) {
         useClone,
         handleEvent
     } = props;
+
+    const {isDragging} = useAppSelector(boardSelector);
 
     const ColumnContainer = styled.div`
         opacity: ${({isDropDisabled}: { isDropDisabled: Boolean }) => (isDropDisabled ? 0.5 : 'inherit')};
@@ -138,7 +141,7 @@ export default function BoardList({...props}) {
                             style={{
                                 transition: 'background-color 0.2s ease'
                             }}
-                            rowRenderer={getRowRender(quotes, handleEvent)}
+                            rowRenderer={getRowRender(quotes, handleEvent, isDragging)}
                         />
                     );
                 }}
