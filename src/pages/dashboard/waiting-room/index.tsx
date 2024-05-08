@@ -1,5 +1,5 @@
 import {GetStaticProps} from "next";
-import React, {ReactElement, useContext, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useRef, useState} from "react";
 //components
 import {NoDataCard, timerSelector, WaitingRoomMobileCard} from "@features/card";
 // next-i18next
@@ -169,6 +169,7 @@ function WaitingRoom() {
 
     const {
         data: httpWaitingRoomsResponse,
+        isLoading: isWaitingRoomsLoading,
         mutate: mutateWaitingRoom
     } = useRequestQuery(agenda ? {
         method: "GET",
@@ -414,7 +415,7 @@ function WaitingRoom() {
     const handleDragEvent = (result: DropResult, item: BoardModel) => {
         handleAppointmentStatus(
             item.content.uuid,
-            columns.find(column => result.destination?.droppableId === column.name)?.id,
+            columns.current.find(column => result.destination?.droppableId === column.name)?.id,
             (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);
     }
 
@@ -627,7 +628,7 @@ function WaitingRoom() {
         });
     }
 
-    const columns: any[] = [
+    const columns = useRef<any[]>([
         {
             id: '1',
             name: 'today-rdv',
@@ -682,7 +683,7 @@ function WaitingRoom() {
                     ml: 'auto',
                     width: 20
                 }}/>
-        }];
+        }]);
     const Toolbar = () => (
         <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
             <CardHeader
@@ -702,14 +703,14 @@ function WaitingRoom() {
                         m: 0,
                     }
                 }}
-                avatar={columns[1].icon}
-                {...(columns[1].action && {action: columns[1].action})}
+                avatar={columns.current[1].icon}
+                {...(columns.current[1].action && {action: columns.current[1].action})}
                 title={
                     <Stack direction='row' alignItems='center' spacing={3}>
                         <Typography
                             color={"text.primary"} fontWeight={700}
                             fontSize={14}>
-                            {t(`tabs.${columns[1].name}`)}
+                            {t(`tabs.${columns.current[1].name}`)}
                             <Label variant="filled" color="info"
                                    sx={{ml: 1, height: 'auto', p: .6, minWidth: 20, fontWeight: 400}}>
                                 {waitingRoomsGroup[3]?.length ?? ""}
@@ -774,21 +775,22 @@ function WaitingRoom() {
                     setTabIndex,
                     setPatientDetailDrawer,
                     nextConsultation,
-                    columns,
+                    columns: columns.current,
                     is_next,
                     isActive
                 }}/>
             </SubHeader>
             <Box>
-                <LinearProgress sx={{
-                    visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
-                }} color="warning"/>
+                <LinearProgress
+                    sx={{
+                        visibility: !httpWaitingRoomsResponse || loading || isWaitingRoomsLoading ? "visible" : "hidden"
+                    }} color="warning"/>
 
                 <Box className="container">
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
-                                {...{columns, handleDragEvent, handleSortData, handleUnpaidFilter}}
+                                {...{columns: columns.current, handleDragEvent, handleSortData, handleUnpaidFilter}}
                                 isUnpaidFilter={boardFilterData.unpaid}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
@@ -820,13 +822,13 @@ function WaitingRoom() {
                                                         m: 0,
                                                     }
                                                 }}
-                                                avatar={columns[0].icon}
-                                                {...(columns[0].action && {action: columns[0].action})}
+                                                avatar={columns.current[0].icon}
+                                                {...(columns.current[0].action && {action: columns.current[0].action})}
                                                 title={
                                                     <Typography
                                                         color={"text.primary"} fontWeight={700}
                                                         fontSize={14}>
-                                                        {t(`tabs.${columns[0].name}`)}
+                                                        {t(`tabs.${columns.current[0].name}`)}
                                                         <Label variant="filled" color="info"
                                                                sx={{ml: 1, height: 'auto', p: .6, minWidth: 20}}>
                                                             {waitingRoomsGroup[1].length}

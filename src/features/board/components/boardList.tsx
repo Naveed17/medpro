@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
 import {Droppable, Draggable} from 'react-beautiful-dnd';
 import type {
@@ -16,7 +16,6 @@ import {List} from 'react-virtualized';
 // eslint-disable-next-line react/display-name
 const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) => {
     const quote = quotes[index];
-
     // We are rendering an extra item for the placeholder
     // Do this we increased our data set size to include one 'fake' item
     if (!quote) {
@@ -57,9 +56,6 @@ const getRowRender = (quotes: any[], handleEvent: any) => ({index, style}: any) 
 
 export default function BoardList({...props}) {
     const {
-        ignoreContainerClipping,
-        isDropDisabled,
-        isCombineEnabled,
         listId = 'LIST',
         listType,
         quotes,
@@ -77,34 +73,38 @@ export default function BoardList({...props}) {
         flex-direction: column;
     `;
 
-    const getRowHeight = useCallback((data: any) => {
+    const getRowHeight = (data: any) => {
         const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height;
         let defaultHeight;
         switch (data?.column.id.toString()) {
             case "1":
             case "4,8":
-                defaultHeight = 65;
+                if (data.content.startTime === "00:00") {
+                    defaultHeight = 50;
+                } else {
+                    defaultHeight = 65;
+                }
                 break;
             case "3":
-                defaultHeight = 87;
+                if (data.content.startTime === "00:00") {
+                    defaultHeight = 65;
+                } else {
+                    defaultHeight = 87;
+                }
                 break;
             default:
                 defaultHeight = 70;
                 break;
         }
         return ((elementHeight && elementHeight >= defaultHeight) ? elementHeight : defaultHeight) + heightOffset
-    }, []);
+    };
 
     return (
         <ColumnContainer>
             {title}
             <Droppable
                 droppableId={listId}
-                type={listType}
                 mode="virtual"
-                ignoreContainerClipping={ignoreContainerClipping}
-                isDropDisabled={isDropDisabled}
-                isCombineEnabled={isCombineEnabled}
                 renderClone={useClone && ((provided, snapshot, descriptor) => (
                     <BoardItem
                         style={{margin: 0}}

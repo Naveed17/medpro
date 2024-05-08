@@ -124,7 +124,8 @@ function BoardItem({...props}) {
             {...provided?.dragHandleProps}
             style={getStyle(provided, style)}
             data-is-dragging={isDragging}
-            data-testid={quote?.id}
+            data-rbd-drag-handle-context-id={provided.dragHandleProps?.["data-rbd-drag-handle-context-id"]}
+            data-rbd-drag-handle-draggable-id={quote?.id}
             data-index={index}
             aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
             <Card
