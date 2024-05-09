@@ -102,13 +102,13 @@ function BoardList({...props}) {
                 const itemCount: number = snapshot.isUsingPlaceholder ? quotes.length + 1 : quotes.length;
                 return (
                     <VariableSizeList
-                        height={600}
+                        height={660}
                         onItemsRendered={() => {
                             listRef.current?.resetAfterIndex(0);
                         }}
                         itemCount={itemCount}
                         itemSize={index => getRowHeight(quotes[index])}
-                        width={320}
+                        width={window.innerWidth > 1600 ? 440 : 320}
                         ref={listRef}
                         outerRef={droppableProvided.innerRef}
                         style={{
