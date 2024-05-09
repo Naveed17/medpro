@@ -115,16 +115,19 @@ function BoardItem({...props}) {
 
     return (
         <Container
-            isDragging={isDragging}
-            isGroupedOver={isGroupedOver}
-            isClone={isClone}
+            {...{
+                isGroupedOver,
+                isDragging,
+                isClone
+            }}
             colors={quote?.column?.colors}
             ref={provided?.innerRef}
             {...provided?.draggableProps}
             {...provided?.dragHandleProps}
             style={getStyle(provided, style)}
             data-is-dragging={isDragging}
-            data-testid={quote?.id}
+            data-rbd-drag-handle-context-id={provided.dragHandleProps?.["data-rbd-drag-handle-context-id"]}
+            data-rbd-drag-handle-draggable-id={quote?.id}
             data-index={index}
             aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
             <Card
