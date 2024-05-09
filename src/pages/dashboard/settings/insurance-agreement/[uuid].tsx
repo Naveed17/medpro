@@ -52,7 +52,7 @@ const Toolbar = (props: any) => {
     )
 }
 
-function Actes() {
+function InsuranceDetailActs() {
     const router = useRouter();
     const {t} = useTranslation("settings", {keyPrefix: 'insurance.config'});
     const {apcis} = useApci(router.query.name as string);
@@ -295,12 +295,6 @@ function Actes() {
     );
 }
 
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
-    return {
-        paths: [], //indicates that no page needs be created at build time
-        fallback: "blocking", //indicates the type of fallback
-    };
-};
 export const getStaticProps: GetStaticProps = async ({locale}) => {
 
     return {
@@ -316,10 +310,16 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     }
 };
 
-export default Actes;
+export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
+    return {
+        paths: [], //indicates that no page needs be created at build time
+        fallback: "blocking", //indicates the type of fallback
+    };
+};
+export default InsuranceDetailActs;
 
-Actes.auth = true;
+InsuranceDetailActs.auth = true;
 
-Actes.getLayout = function getLayout(page: ReactElement) {
+InsuranceDetailActs.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };

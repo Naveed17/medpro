@@ -158,7 +158,7 @@ function CIPMedicalProceduresRow({...props}) {
                         }}
                         readOnly={!row.selected}
                         id={row.uuid}
-                        value={row.contribution}
+                        value={row.contribution | 0}
                         placeholder={"--"}
                         autoFocus={selected === row.uuid}
                         onFocus={(event) => {
@@ -194,7 +194,7 @@ function CIPMedicalProceduresRow({...props}) {
                         }}
                         readOnly={!row.selected}
                         id={row.uuid}
-                        value={row.patientPart}
+                        value={row.patientPart | 0}
                         placeholder={"--"}
                         autoFocus={selected === row.uuid}
                         onFocus={(event) => {
