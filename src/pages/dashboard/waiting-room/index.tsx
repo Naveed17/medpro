@@ -374,8 +374,10 @@ function WaitingRoom() {
                 // refresh on going api
                 mutateWaitingRoom();
                 mutateOnGoing();
-                dispatch(resetTimer());
-                dispatch(resetAppointment());
+                if (event.status !== 8) {
+                    dispatch(resetTimer());
+                    dispatch(resetAppointment());
+                }
             }
         });
     }
