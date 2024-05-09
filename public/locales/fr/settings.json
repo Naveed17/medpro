@@ -258,6 +258,7 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Analyse",
+      "title": "Bilan & Analyses",
       "table": {
         "name": "Nom",
         "action": "Action",
@@ -1009,6 +1010,9 @@
   "documents": {
     "config": {
       "path": "Paramètres > Documents ",
+      "page_title": "Documents",
+      "create_layout": "Créer une présentation",
+      "modify_layout": "Modifier la présentation",
       "header": "En-tête",
       "footer": "Bas de page",
       "age": "Age",

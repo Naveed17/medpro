@@ -65,7 +65,7 @@ function Settings() {
                                             <IconUrl width={20} height={20} path={item.icon} color={router.pathname.includes(item.href) ? theme.palette.primary.main : theme.palette.text.secondary} />
                                         </ListItemIcon>
                                         <ListItemText primary={t('menu.' + item.name)} />
-                                        <Badge badgeContent={4} color="warning" />
+                                        <Badge badgeContent={4} color="warning" sx={{ ml: .5, mr: item.submenu.length > 0 ? 1 : 3 }} />
                                         {item.submenu.length > 0 && <IconUrl className="arrow-down" path="ic-outline-arrow-down" />}
                                     </ListItemButton>
                                 </ListItem>

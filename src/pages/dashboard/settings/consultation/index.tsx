@@ -56,33 +56,32 @@ function Consultation() {
     return (
         <>
             <SubHeader>
-                <Stack mt={2} spacing={2}>
+                <Stack spacing={2} mt={2}>
                     <Breadcrumbs data={breadcrumbsDataMap} />
-                    <Stack spacing={1}>
-                        <Typography variant="subtitle1" fontWeight={600}>
-                            {t("consultation.title")}
-                        </Typography>
-                        <Tabs
-                            value={tabIndex}
-                            onChange={tabChange}
-                            variant="scrollable"
-                            scrollButtons={false}
-                            aria-label="scrollable auto tabs">
-                            {stepperData.map(
-                                (
-                                    v,
-                                    i
-                                ) => (
-                                    <Tab
-                                        key={i}
-                                        label={t('menu.' + v.name)}
-                                        {...a11yProps(i)}
-                                    />
-                                )
-                            )}
-                        </Tabs>
-                    </Stack>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                        {t("consultation.title")}
+                    </Typography>
+                    <Tabs
+                        value={tabIndex}
+                        onChange={tabChange}
+                        variant="scrollable"
+                        scrollButtons={false}
+                        aria-label="scrollable auto tabs">
+                        {stepperData.map(
+                            (
+                                v,
+                                i
+                            ) => (
+                                <Tab
+                                    key={i}
+                                    label={t('menu.' + v.name)}
+                                    {...a11yProps(i)}
+                                />
+                            )
+                        )}
+                    </Tabs>
                 </Stack>
+
             </SubHeader>
             <Stack className="container">
                 <TabPanel padding={0} index={tabIndex} value={0}>

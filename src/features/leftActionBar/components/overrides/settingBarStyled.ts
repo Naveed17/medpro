@@ -42,8 +42,6 @@ const SettingBarStyled = styled("div")(({theme}) => ({
                 },
             },
             ".MuiBadge-root":{
-            marginLeft:theme.spacing(.5),
-            marginRight:theme.spacing(1),
             ".MuiBadge-badge":{
                 position:'static',
                 transform:'none',
