@@ -41,6 +41,15 @@ const SettingBarStyled = styled("div")(({theme}) => ({
                     fontWeight:500,
                 },
             },
+            ".MuiBadge-root":{
+            marginLeft:theme.spacing(.5),
+            marginRight:theme.spacing(1),
+            ".MuiBadge-badge":{
+                position:'static',
+                transform:'none',
+                color:theme.palette.common.white
+            }
+            }
         },
         "&.active": {
             backgroundColor: theme.palette.primary.lighter,
@@ -74,7 +83,6 @@ const SettingBarStyled = styled("div")(({theme}) => ({
         },
         "@media(max-height: 750px)": {
             height: "auto",
-            marginBottom: "2px",
         },
         [`@media (max-width: ${MobileContainer}px)`]: {
             "& .MuiListItemButton-root": {
@@ -99,6 +107,7 @@ const SettingBarStyled = styled("div")(({theme}) => ({
     },
     ".sub-menu":{
             borderRadius: theme.shape.borderRadius,
+            marginBottom:4,
             '.MuiListItemText-primary':{
              color:theme.palette.text.secondary,
              fontWeight:500,

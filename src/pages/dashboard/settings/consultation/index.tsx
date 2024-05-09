@@ -9,7 +9,7 @@ import { LoadingScreen } from "@features/loadingScreen";
 import { a11yProps } from "@lib/hooks";
 import { SettingConfig, leftActionBarSelector, setTabIndex } from "@features/leftActionBar";
 import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { TabPanel } from "@features/tabPanel";
+import { ActFeesPanel, AnalysesPanel, DrugsPanel, InsurancePanel, MedicalImagingPanel, MotifTypesPanel, MotifsPanel, SheetsPanel, TabPanel } from "@features/tabPanel";
 
 function Consultation() {
     const dispatch = useAppDispatch();
@@ -58,11 +58,31 @@ function Consultation() {
             </SubHeader>
             <Stack className="container">
                 <TabPanel padding={0} index={tabIndex} value={0}>
-
+                    <ActFeesPanel />
                 </TabPanel>
                 <TabPanel padding={0} index={tabIndex} value={1}>
-
+                    <InsurancePanel />
                 </TabPanel>
+                <TabPanel padding={0} index={tabIndex} value={2}>
+                    <MotifsPanel />
+                </TabPanel>
+                <TabPanel padding={0} index={tabIndex} value={3}>
+                    <SheetsPanel />
+                </TabPanel>
+                <TabPanel padding={0} index={tabIndex} value={4}>
+                    <MotifTypesPanel />
+                </TabPanel>
+                <TabPanel padding={0} index={tabIndex} value={5}>
+                    <DrugsPanel />
+                </TabPanel>
+                <TabPanel padding={0} index={tabIndex} value={6}>
+                    <AnalysesPanel />
+                </TabPanel>
+                <TabPanel padding={0} index={tabIndex} value={7}>
+                    <MedicalImagingPanel />
+                </TabPanel>
+
+
             </Stack>
         </>
     )

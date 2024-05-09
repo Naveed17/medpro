@@ -4,7 +4,7 @@
     "profile": "Profil",
     "acts": "Actes",
     "motifs": "Motifs",
-    "consultation": "Fiche consultation",
+    "consultation": "Consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
     "cabinet": "Cabinet",
@@ -25,11 +25,10 @@
     "plan_billing": "Plan & Facturation",
     "general": "Général",
     "preferences": "Préférences",
-    "schedule_and_location": "Horaire et lieu",
+    "schedule-and-location": "Horaire et lieu",
     "location": "Lieu",
     "leave_and_absence": "Congés et absences",
     "time_off_types": "Types de congés",
-    "rdv": "Consultation",
     "insurance": "Assurance",
     "sheets": "Fiches"
   },
@@ -114,6 +113,7 @@
   "motif": {
     "config": {
       "add": "Ajouter",
+      "title": "Motifs de consultation",
       "path": "Paramètres > Motifs de consultation",
       "dialog": {
         "title": "Supprimer le motif",
@@ -140,7 +140,8 @@
         "icon": "Icône",
         "minutes": "Minutes",
         "hours": "Heures",
-        "hour": "Heure"
+        "hour": "Heure",
+        "status": "Statut"
       }
     },
     "dialog": {
@@ -167,6 +168,7 @@
   "motifType": {
     "config": {
       "add": "Ajouter",
+      "title": "Types des consultations",
       "path": "Paramètres > Types des consultations",
       "table": {
         "name": "Nom",
@@ -210,6 +212,7 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Médicaments",
+      "title": "Médicaments",
       "table": {
         "name": "Nom",
         "action": "Action",
@@ -297,6 +300,7 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Imagerie médicale",
+      "title": "Imagerie médicale",
       "table": {
         "name": "Nom",
         "action": "Action",
@@ -958,6 +962,7 @@
   "templates": {
     "config": {
       "path": "Paramètres > Personaliser la suivi du consultation",
+      "title": "Suivi de la consultation",
       "add": "Ajouter un modèle",
       "delete-dialog-title": "Supprimer modale",
       "delete": "Supprimer",

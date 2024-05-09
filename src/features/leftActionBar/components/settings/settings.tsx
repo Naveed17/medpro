@@ -11,6 +11,7 @@ import {
     ListItemText,
     Collapse,
     useTheme,
+    Badge,
 } from "@mui/material";
 // utils
 
@@ -52,7 +53,6 @@ function Settings() {
                             //      field={`settings__${item.href.split('/')[3]}__show` as any}>
                             <>
                                 <ListItem
-
                                     key={"menu-" + item.name}
                                     {...(item.disable && { sx: { display: "none" } })}
                                     className={router.pathname.includes(item.href) ? 'active' : ''}
@@ -65,6 +65,7 @@ function Settings() {
                                             <IconUrl width={20} height={20} path={item.icon} color={router.pathname.includes(item.href) ? theme.palette.primary.main : theme.palette.text.secondary} />
                                         </ListItemIcon>
                                         <ListItemText primary={t('menu.' + item.name)} />
+                                        <Badge badgeContent={4} color="warning" />
                                         {item.submenu.length > 0 && <IconUrl className="arrow-down" path="ic-outline-arrow-down" />}
                                     </ListItemButton>
                                 </ListItem>

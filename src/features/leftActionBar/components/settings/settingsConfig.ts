@@ -102,9 +102,13 @@ const settingsData = {
              {
                 name:"analysis",
                 disable: false
+            },
+            {
+                name:"medical_imaging",
+                disable: false
             }
         ]
-    }
+    },
         // {
         //     name: "profile",
         //     icon: "setting/ic-patient",
@@ -148,12 +152,13 @@ const settingsData = {
         //     href: "/dashboard/settings/places",
         //     disable: true
         // },
-        // {
-        //     name: "configdoc",
-        //     icon: "setting/ic-document",
-        //     href: "/dashboard/settings/templates",
-        //     disable: false
-        // },
+        {
+            name: "configdoc",
+            icon: "setting/ic-document",
+            href: "/dashboard/settings/templates",
+            disable: false,
+            submenu:[]
+        },
         // {
         //     name: "type",
         //     icon: "setting/ic-reasons",
@@ -220,13 +225,14 @@ const settingsData = {
         //     href: "/dashboard/settings/instructions",
         //     disable: true
         // },
-        // {
-        //     name: "import-data",
-        //     icon: "setting/ic-import",
-        //     fill: "default",
-        //     href: "/dashboard/settings/data",
-        //     disable: false
-        // },
+        {
+            name: "import-data",
+            icon: "setting/ic-import",
+            fill: "default",
+            href: "/dashboard/settings/data",
+            disable: false,
+            submenu:[]
+        },
         //  {
         //      name: "app_lock",
         //      icon: "ic-cloc",
