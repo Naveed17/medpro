@@ -147,7 +147,7 @@ export default function Table(theme) {
           },
         },
         stickyHeader: {
-          backgroundColor: theme.palette.info.main,
+          backgroundColor: theme.palette.grey[50],
         },
         body: {
           backgroundColor: theme.palette.background.paper,

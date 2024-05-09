@@ -16,6 +16,12 @@ export default function Tabs(theme) {
             "&.Mui-selected": {
               color: theme.palette.primary.main,
             },
+            ".MuiTab-iconWrapper": {
+              ".MuiBadge-badge": {
+                position: 'static',
+                transform: 'none'
+              }
+            }
           },
           "&.tabs-bg-white": {
             position: "sticky",
@@ -28,7 +34,7 @@ export default function Tabs(theme) {
             },
           },
           "&.custom-tabs": {
-            minHeight: 32,
+            minHeight: 40,
             ".MuiTabs-flexContainer": {
               gap: theme.spacing(.5),
               "& .MuiTab-root": {

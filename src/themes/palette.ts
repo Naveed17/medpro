@@ -8,7 +8,7 @@ function createGradient(color1: string, color2: string) {
 // SETUP COLORS
 const PRIMARY = {
   lighter: "#E6F7FE",
-  light: '#60BCE6',
+  light: '#BAE2F6',
   main: "#0696D6",
   dark: "#034665",
   darker: "#022C3F",
@@ -158,7 +158,7 @@ const COMMON = {
   back: { ...BACK, contrastText: GREY[600] },
   grey: GREY,
   gradients: GRADIENTS,
-  divider: "#C8D4E2",
+  divider: GREY[200],
   action: {
     hover: GREY[500_8],
     selected: GREY[500_16],
@@ -174,7 +174,7 @@ const palette = {
   ...COMMON,
   text: {
     primary: "#1B2746",
-    secondary: "#4D5966",
+    secondary: GREY[700],
     disabled: COMMON.action.disabled,
   },
   background: {

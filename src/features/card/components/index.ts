@@ -71,3 +71,6 @@ export * from './agendaTimelineCard';
 export * from './drugMobileCard';
 export * from './appointmentHistoryContent';
 export * from './appointmentHistoryPreview';
+export * from './nextRdvCard';
+export * from './prevRdvCard';
+export * from './transactionsMobileCard'
