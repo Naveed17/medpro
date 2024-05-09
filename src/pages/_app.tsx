@@ -12,7 +12,6 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "leaflet/dist/leaflet.css";
-import 'react-virtualized/styles.css';
 // import moment locales
 import "moment/locale/ar-tn";
 import "moment/locale/fr";
