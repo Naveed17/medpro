@@ -302,15 +302,14 @@ function WaitingRoom() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/status/${router.locale}`
         }, {
             onSuccess: () => {
+                // refresh on going api
+                mutateWaitingRoom();
+                mutateOnGoing();
+
                 if (status === "11") {
                     dispatch(resetTimer());
                     dispatch(resetAppointment());
                 }
-                setTimeout(() => {
-                    // refresh on going api
-                    mutateWaitingRoom();
-                    mutateOnGoing();
-                }, 0);
             }
         });
     }
