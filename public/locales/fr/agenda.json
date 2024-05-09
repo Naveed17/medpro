@@ -295,7 +295,8 @@
     "cancel-dialog": {
       "title": "Annuler RDV",
       "sub-title": "Voulez-vous vraiment annuler le RDV?",
-      "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+      "description": "Un SMS sera envoyé automatiquement au patient pour l'informer de l'annulation.",
+      "notice": "Envoyer un avis d'annulation au patient.",
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },

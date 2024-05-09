@@ -184,9 +184,9 @@ function BoardItem({...props}) {
                                             minWidth: '2rem',
                                             minHeight: '.4rem'
                                         }}
-                                        {...(quote.content.startTime === "00:00" && {color: 'warning'})}
+                                        color={(quote.content.startTime === "00:00" ? 'warning' : (duration >= -1 && ![4, 5].includes(quote.content.status) ? 'expire' : 'primary')) as any}
                                         variant={"contained"}
-                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}{!isDragging ? `-${index + 1}` : ""}</Button>}
+                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : (duration >= -1 && ![4, 5].includes(quote.content.status) ? 'RR' : 'AR')}{!isDragging ? `-${index + 1}` : ""}</Button>}
                                     <Tooltip
                                         title={`${quote.content.patient.firstName} ${quote.content.patient.lastName}`}>
                                         <Typography

@@ -105,7 +105,7 @@ function Board({...props}) {
         const target: any = {
             ...current[source.index],
             content: {
-                ...current[source.index].content,
+                ...current[source.index]?.content,
                 status: parseInt(columns.find((column: BoardColumnsModel) => column.name === destination.droppableId)?.id)
             }
         };
@@ -290,9 +290,12 @@ function Board({...props}) {
                                             </Title>
                                         </Header>
                                         <Column
-                                            {...{handleEvent, index}}
-                                            id={column.name}
-                                            column={boardData[column.name]}
+                                            {...{
+                                                handleEvent,
+                                                index,
+                                                id: column.name,
+                                                column: boardData[column.name]
+                                            }}
                                         />
                                     </Grid>
                                 ))}
