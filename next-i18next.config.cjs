@@ -45,7 +45,7 @@ module.exports = {
                     },
                 }
             }] : [])],
-        backends: isBrowser ? [LocalStorageBackend, ...(isDev ? [firestoreBackend] : [])] : [],
+        backends: isBrowser ? [LocalStorageBackend, ...(!isDev ? [firestoreBackend] : [])] : [],
     },
     serializeConfig: false,
     partialBundledLanguages: isBrowser && true,
