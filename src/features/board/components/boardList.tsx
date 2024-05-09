@@ -84,6 +84,10 @@ function BoardList({...props}) {
         }
     }, [index]);
 
+    useLayoutEffect(() => {
+        !!quotes?.length && listRef?.current?.resetAfterIndex?.(0);
+    }, [quotes]);
+
     return (
         <Droppable
             droppableId={listId}
@@ -103,9 +107,6 @@ function BoardList({...props}) {
                 return (
                     <VariableSizeList
                         height={660}
-                        onItemsRendered={() => {
-                            listRef.current?.resetAfterIndex(0);
-                        }}
                         itemCount={itemCount}
                         itemSize={index => getRowHeight(quotes[index])}
                         width={window.innerWidth > 1600 ? 440 : 320}
