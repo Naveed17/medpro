@@ -1,88 +1,62 @@
-import React from 'react';
-import styled from '@emotion/styled';
+import React, {useLayoutEffect, useRef} from 'react';
 import {Droppable, Draggable} from 'react-beautiful-dnd';
 import type {
     DroppableProvided,
-    DroppableStateSnapshot,
-    DraggableProvided,
-    DraggableStateSnapshot,
+    DroppableStateSnapshot
 } from 'react-beautiful-dnd';
-import {BoardItem, boardSelector, grid, heightOffset} from "@features/board";
-import ReactDOM from "react-dom";
-import {List} from 'react-virtualized';
-import {useAppSelector} from "@lib/redux/hooks";
+import {BoardItem, grid, heightOffset} from "@features/board";
+import {areEqual, VariableSizeList} from "react-window";
 
-// Using a higher order function so that we can look up the quotes data to retrieve
-// our quote from within the rowRender function
-// eslint-disable-next-line react/display-name
-const getRowRender = (quotes: any[], handleEvent: any, isDragging: boolean) => ({index, style}: any) => {
-    const quote = quotes[index];
+const Row = React.memo(function Row(props) {
+    const {data: {quotes, handleEvent}, index, style} = props as any;
+    const item = quotes[index];
+
     // We are rendering an extra item for the placeholder
-    // Do this we increased our data set size to include one 'fake' item
-    if (!quote) {
+    if (!item) {
         return null;
     }
 
     // Faking some nice spacing around the items
     const patchedStyle = {
         ...style,
-        left: 0,
-        top: style.top,
-        width: style.width,
+        left: style.left + grid,
+        top: style.top + grid,
+        width: `calc(${style.width} - ${grid * 2}px)`,
         height: style.height - grid,
     };
 
     return (
-        <div key={index} style={patchedStyle}>
-            <Draggable key={quote.id} draggableId={quote.id} index={index} isDragDisabled={!quote?.content.isDraggable}>
-                {(
-                    dragProvided: DraggableProvided,
-                    dragSnapshot: DraggableStateSnapshot,
-                ) => (
-                    <BoardItem
-                        {...{
-                            index,
-                            quote,
-                            isDragging: dragSnapshot.isDragging,
-                            isGroupedOver: Boolean(dragSnapshot.combineTargetFor),
-                            provided: dragProvided,
-                            handleEvent
-                        }}
-                    />
-                )}
-            </Draggable>
-        </div>
+        <Draggable draggableId={item.id} index={index} key={item.id} isDragDisabled={!item?.content.isDraggable}>
+            {(provided, snapshot) =>
+                <BoardItem
+                    {...{
+                        index,
+                        provided,
+                        style: patchedStyle,
+                        handleEvent
+                    }}
+                    isDragging={snapshot.isDragging}
+                    quote={item}/>}
+        </Draggable>
     );
-};
+}, areEqual);
 
-export default function BoardList({...props}) {
+function BoardList({...props}) {
     const {
+        index,
         listId = 'LIST',
         quotes,
-        title,
-        useClone,
         handleEvent
     } = props;
 
-    const {isDragging} = useAppSelector(boardSelector);
-
-    const ColumnContainer = styled.div`
-        opacity: ${({isDropDisabled}: { isDropDisabled: Boolean }) => (isDropDisabled ? 0.5 : 'inherit')};
-        height: ${typeof window !== "undefined" && window.innerHeight > 800 ? '75vh' : '67vh'};
-        flex-shrink: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-    `;
-
     const getRowHeight = (data: any) => {
-        const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height;
+        const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"] .MuiCardContent-root`)[0]?.getBoundingClientRect().height;
         let defaultHeight;
         switch (data?.column.id.toString()) {
             case "1":
             case "4,8":
                 if (data.content.startTime === "00:00") {
-                    defaultHeight = 50;
+                    defaultHeight = 56;
                 } else {
                     defaultHeight = 65;
                 }
@@ -101,51 +75,55 @@ export default function BoardList({...props}) {
         return ((elementHeight && elementHeight >= defaultHeight) ? elementHeight : defaultHeight) + heightOffset
     };
 
+    const listRef = useRef<any>();
+
+    useLayoutEffect(() => {
+        const list = listRef.current;
+        if (list) {
+            list.scrollTo(0);
+        }
+    }, [index]);
+
+    useLayoutEffect(() => {
+        !!quotes?.length && listRef?.current?.resetAfterIndex?.(0);
+    }, [quotes]);
+
     return (
-        <ColumnContainer>
-            {title}
-            <Droppable
-                droppableId={listId}
-                mode="virtual"
-                renderClone={useClone && ((provided, snapshot, descriptor) => (
-                    <BoardItem
-                        style={{margin: 0}}
-                        {...{
-                            handleEvent,
-                            quote: quotes[descriptor.source.index],
-                            provided,
-                            isDragging: snapshot.isDragging
-                        }}></BoardItem>
-                ))}>
-                {(droppableProvided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
-                    const itemCount: number = snapshot.isUsingPlaceholder ? quotes.length + 1 : quotes.length;
-                    return (
-                        <List
-                            height={600}
-                            rowCount={itemCount}
-                            rowHeight={params => getRowHeight(quotes[params.index])}
-                            width={600}
-                            autoContainerWidth
-                            autoWidth
-                            ref={(ref) => {
-                                // react-virtualized has no way to get the list's ref that I can
-                                //  we use the `ReactDOM.findDOMNode(ref)` escape hatch to get the ref
-                                if (ref) {
-                                    // eslint-disable-next-line react/no-find-dom-node
-                                    const whatHasMyLifeComeTo = ReactDOM.findDOMNode(ref);
-                                    if (whatHasMyLifeComeTo instanceof HTMLElement) {
-                                        droppableProvided.innerRef(whatHasMyLifeComeTo);
-                                    }
-                                }
-                            }}
-                            style={{
-                                transition: 'background-color 0.2s ease'
-                            }}
-                            rowRenderer={getRowRender(quotes, handleEvent, isDragging)}
-                        />
-                    );
-                }}
-            </Droppable>
-        </ColumnContainer>
+        <Droppable
+            droppableId={listId}
+            mode="virtual"
+            renderClone={((provided, snapshot, descriptor) => (
+                <BoardItem
+                    style={{margin: 0}}
+                    {...{
+                        handleEvent,
+                        quote: quotes[descriptor.source.index],
+                        provided,
+                        isDragging: snapshot.isDragging
+                    }}></BoardItem>
+            ))}>
+            {(droppableProvided: DroppableProvided, snapshot: DroppableStateSnapshot) => {
+                const itemCount: number = snapshot.isUsingPlaceholder ? quotes.length + 1 : quotes.length;
+                return (
+                    <VariableSizeList
+                        height={660}
+                        itemCount={itemCount}
+                        itemSize={index => getRowHeight(quotes[index])}
+                        width={window.innerWidth > 1600 ? 440 : 320}
+                        ref={listRef}
+                        outerRef={droppableProvided.innerRef}
+                        style={{
+                            transition: 'background-color 0.2s ease',
+                            // We add this spacing so that when we drop into an empty list we will animate to the correct visual position.
+                            padding: grid,
+                        }}
+                        itemData={{quotes, handleEvent}}>
+                        {Row}
+                    </VariableSizeList>
+                );
+            }}
+        </Droppable>
     );
 }
+
+export default React.memo(BoardList);

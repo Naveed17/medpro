@@ -59,7 +59,7 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {Board, boardSelector, setIsDragging, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
+import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton, CustomSwitch} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -305,6 +305,7 @@ function WaitingRoom() {
                 // refresh on going api
                 mutateWaitingRoom();
                 mutateOnGoing();
+
                 if (status === "11") {
                     dispatch(resetTimer());
                     dispatch(resetAppointment());
@@ -374,8 +375,10 @@ function WaitingRoom() {
                 // refresh on going api
                 mutateWaitingRoom();
                 mutateOnGoing();
-                dispatch(resetTimer());
-                dispatch(resetAppointment());
+                if (event.status !== 8) {
+                    dispatch(resetTimer());
+                    dispatch(resetAppointment());
+                }
             }
         });
     }
