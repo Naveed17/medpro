@@ -86,6 +86,7 @@ function BoardItem({...props}) {
         index,
         handleEvent
     } = props;
+
     const theme = useTheme();
     const {data: session} = useSession();
     const {t: commonTranslation} = useTranslation(["common", "waitingRoom"]);

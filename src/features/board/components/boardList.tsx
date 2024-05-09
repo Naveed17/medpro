@@ -4,7 +4,7 @@ import type {
     DroppableProvided,
     DroppableStateSnapshot
 } from 'react-beautiful-dnd';
-import {BoardItem, heightOffset} from "@features/board";
+import {BoardItem, grid, heightOffset} from "@features/board";
 import {areEqual, VariableSizeList} from "react-window";
 
 const Row = React.memo(function Row(props) {
@@ -16,9 +16,27 @@ const Row = React.memo(function Row(props) {
         return null;
     }
 
+    // Faking some nice spacing around the items
+    const patchedStyle = {
+        ...style,
+        left: style.left + grid,
+        top: style.top + grid,
+        width: `calc(${style.width} - ${grid * 2}px)`,
+        height: style.height - grid,
+    };
+
     return (
         <Draggable draggableId={item.id} index={index} key={item.id} isDragDisabled={!item?.content.isDraggable}>
-            {provided => <BoardItem {...{index, provided, style, handleEvent, windowWidth, setSize}} quote={item}/>}
+            {(provided, snapshot) =>
+                <BoardItem
+                    {...{
+                        index,
+                        provided,
+                        style: patchedStyle,
+                        handleEvent
+                    }}
+                    isDragging={snapshot.isDragging}
+                    quote={item}/>}
         </Draggable>
     );
 }, areEqual);
@@ -32,7 +50,7 @@ function BoardList({...props}) {
     } = props;
 
     const getRowHeight = (data: any) => {
-        const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"]`)[0]?.getBoundingClientRect().height;
+        const elementHeight = document.querySelectorAll(`[data-rbd-draggable-id="${data?.id}"] .MuiCardContent-root`)[0]?.getBoundingClientRect().height;
         let defaultHeight;
         switch (data?.column.id.toString()) {
             case "1":
@@ -40,21 +58,21 @@ function BoardList({...props}) {
                 if (data.content.startTime === "00:00") {
                     defaultHeight = 56;
                 } else {
-                    defaultHeight = 76;
+                    defaultHeight = 65;
                 }
                 break;
             case "3":
                 if (data.content.startTime === "00:00") {
-                    defaultHeight = 76;
+                    defaultHeight = 65;
                 } else {
                     defaultHeight = 87;
                 }
                 break;
             default:
-                defaultHeight = 76;
+                defaultHeight = 70;
                 break;
         }
-        return ((elementHeight && elementHeight >= defaultHeight) ? elementHeight : (defaultHeight + heightOffset))
+        return ((elementHeight && elementHeight >= defaultHeight) ? elementHeight : defaultHeight) + heightOffset
     };
 
     const listRef = useRef<any>();
@@ -85,11 +103,19 @@ function BoardList({...props}) {
                 return (
                     <VariableSizeList
                         height={600}
+                        onItemsRendered={props1 => {
+                            listRef.current?.resetAfterIndex(0);
+                        }}
                         itemCount={itemCount}
                         itemSize={index => getRowHeight(quotes[index])}
                         width={320}
                         ref={listRef}
                         outerRef={droppableProvided.innerRef}
+                        style={{
+                            transition: 'background-color 0.2s ease',
+                            // We add this spacing so that when we drop into an empty list we will animate to the correct visual position.
+                            padding: grid,
+                        }}
                         itemData={{quotes, handleEvent}}>
                         {Row}
                     </VariableSizeList>
