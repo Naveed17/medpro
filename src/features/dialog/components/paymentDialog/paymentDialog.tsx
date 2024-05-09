@@ -183,6 +183,7 @@ function PaymentDialog({...props}) {
         });
     }
 
+/*
     const addInsuranceTransaction = (uuid:string) => {
 
         const form = new FormData();
@@ -208,6 +209,7 @@ function PaymentDialog({...props}) {
             },
         });
     }
+*/
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -421,7 +423,7 @@ function PaymentDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} sm={8}>
                     <Stack spacing={1}>
-                        <Stack spacing={1}
+                        {/*<Stack spacing={1}
                                style={{borderBottom: `1px solid ${theme.palette.grey["200"]}`, paddingBottom: 10}}>
                             <Typography fontWeight={600} mb={1}>
                                 {t("dialog.insurance")}
@@ -454,7 +456,7 @@ function PaymentDialog({...props}) {
                                         </Stack>
                                     </Stack>))}
                             </Stack>
-                        </Stack>
+                        </Stack>*/}
 
                         <Stack direction={{xs: "column", sm: "row"}}
                                alignItems="center"

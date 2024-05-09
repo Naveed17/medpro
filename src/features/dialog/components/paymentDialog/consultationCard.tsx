@@ -23,7 +23,7 @@ function ConsultationCard({...props}) {
                         <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.appointments')}</Typography>
                     </Stack>
                 </Stack>
-                <div style={{maxHeight: "32vh", overflowX: "auto"}}>
+                <div style={{maxHeight: "46vh", overflowX: "auto"}}>
                     {allApps.filter((a1: { uuid: string; }) => !appointments.some((a2: {
                         uuid: string;
                     }) => a1.uuid === a2.uuid))

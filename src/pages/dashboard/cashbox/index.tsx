@@ -90,6 +90,7 @@ function Cashbox() {
     const [ca, setCA] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
     const [totalCheck, setTotalCheck] = useState(0);
+    const [insuranceTotal, setInsuranceTotal] = useState(0);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const [loading, setLoading] = useState(true);
@@ -155,6 +156,12 @@ function Cashbox() {
             mobile_icon: "ic-cash-light-green",
             amount: total,
             title: "total_profit",
+        },
+        {
+            icon: "ic-assurance",
+            mobile_icon: "ic-assurance",
+            amount: insuranceTotal,
+            title: "insurance",
         },
         {
             icon: "ic-cash-light-blue",
@@ -355,11 +362,13 @@ function Cashbox() {
     };
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
+        console.log(data);
         setTotal(data.total_amount);
         setTotalCash(data.period_cash);
         setTotalCheck(data.period_check);
         setCA(data.appointment_total);
         setUnpaid(data.appointment_rest_total);
+        setInsuranceTotal(data.total_insurance_amount);
         /*
             setToReceive(data.total_insurance_amount);
             setCollected(data.total_collected);*/
