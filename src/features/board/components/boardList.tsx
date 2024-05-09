@@ -8,7 +8,7 @@ import {BoardItem, grid, heightOffset} from "@features/board";
 import {areEqual, VariableSizeList} from "react-window";
 
 const Row = React.memo(function Row(props) {
-    const {data: {quotes, handleEvent, windowWidth, setSize}, index, style} = props as any;
+    const {data: {quotes, handleEvent}, index, style} = props as any;
     const item = quotes[index];
 
     // We are rendering an extra item for the placeholder
@@ -103,7 +103,7 @@ function BoardList({...props}) {
                 return (
                     <VariableSizeList
                         height={600}
-                        onItemsRendered={props1 => {
+                        onItemsRendered={() => {
                             listRef.current?.resetAfterIndex(0);
                         }}
                         itemCount={itemCount}
