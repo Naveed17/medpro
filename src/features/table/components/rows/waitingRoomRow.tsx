@@ -29,6 +29,7 @@ import {agendaSelector} from "@features/calendar";
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
     const {roles, setLoading, openMenu, tabIndex} = data;
+
     const theme = useTheme();
 
     const {next: is_next} = useAppSelector(dashLayoutSelector);
