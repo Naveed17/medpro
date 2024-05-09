@@ -10,16 +10,41 @@ import { a11yProps } from "@lib/hooks";
 import { SettingConfig, leftActionBarSelector, setTabIndex } from "@features/leftActionBar";
 import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
 import { ActFeesPanel, AnalysesPanel, DrugsPanel, InsurancePanel, MedicalImagingPanel, MotifTypesPanel, MotifsPanel, SheetsPanel, TabPanel } from "@features/tabPanel";
+import { Breadcrumbs } from "@features/breadcrumbs";
+import { capitalize } from "lodash";
+const breadcrumbsData = [
+    {
+        title: "Settings",
+        href: "/dashboard/settings"
+    },
+    {
+        title: 'Consultation',
+        href: '/dashboard/settings/consultation'
+    },
+    {
+        title: "",
+        href: null
+    }
 
+]
 function Consultation() {
-    const dispatch = useAppDispatch();
-    const { tabIndex } = useAppSelector(leftActionBarSelector) ?? 0;
-    const { t, ready, i18n } = useTranslation("settings");
 
+    const { tabIndex } = useAppSelector(leftActionBarSelector) ?? 0;
+    const dispatch = useAppDispatch();
+    const { t, ready, i18n } = useTranslation("settings");
     const tabChange = (event: React.SyntheticEvent, newValue: number) => {
         dispatch(setTabIndex(newValue))
     }
     const stepperData = SettingConfig.dashboard.find(v => v.name === "consultation")?.submenu ?? [];
+    const breadcrumbsDataMap = breadcrumbsData.map((item, i) => {
+        if (breadcrumbsData.length - 1 === i) {
+            item.title = stepperData[tabIndex].name;
+            item.title = capitalize(item.title.replace(/_/g, ' '))
+
+        }
+        return item;
+
+    })
     useEffect(() => {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
@@ -31,29 +56,32 @@ function Consultation() {
     return (
         <>
             <SubHeader>
-                <Stack spacing={1}>
-                    <Typography variant="subtitle1" fontWeight={600}>
-                        {t("consultation.title")}
-                    </Typography>
-                    <Tabs
-                        value={tabIndex}
-                        onChange={tabChange}
-                        variant="scrollable"
-                        scrollButtons={false}
-                        aria-label="scrollable auto tabs">
-                        {stepperData.map(
-                            (
-                                v,
-                                i
-                            ) => (
-                                <Tab
-                                    key={i}
-                                    label={t('menu.' + v.name)}
-                                    {...a11yProps(i)}
-                                />
-                            )
-                        )}
-                    </Tabs>
+                <Stack mt={2} spacing={2}>
+                    <Breadcrumbs data={breadcrumbsDataMap} />
+                    <Stack spacing={1}>
+                        <Typography variant="subtitle1" fontWeight={600}>
+                            {t("consultation.title")}
+                        </Typography>
+                        <Tabs
+                            value={tabIndex}
+                            onChange={tabChange}
+                            variant="scrollable"
+                            scrollButtons={false}
+                            aria-label="scrollable auto tabs">
+                            {stepperData.map(
+                                (
+                                    v,
+                                    i
+                                ) => (
+                                    <Tab
+                                        key={i}
+                                        label={t('menu.' + v.name)}
+                                        {...a11yProps(i)}
+                                    />
+                                )
+                            )}
+                        </Tabs>
+                    </Stack>
                 </Stack>
             </SubHeader>
             <Stack className="container">
