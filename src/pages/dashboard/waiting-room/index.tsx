@@ -65,7 +65,7 @@ import {CustomIconButton, CustomSwitch} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
-    appointmentSelector, resetAppointment,
+    appointmentSelector, resetAppointment, setAppointmentPatient,
     setAppointmentSubmit,
     TabPanel
 } from "@features/tabPanel";
@@ -458,7 +458,7 @@ function WaitingRoom() {
                 certifUuid: doc.certificate[0].uuid,
                 content: doc.certificate[0].content,
                 doctor: doc.name,
-                patient: `${patient?.firstName} ${patient?.lastName}`,
+                patient: `${doc.certificate[0]?.patient?.firstName} ${doc.certificate[0]?.patient?.lastName}`,
                 days: doc.days,
                 description: doc.description,
                 createdAt: doc.createdAt,
@@ -471,17 +471,21 @@ function WaitingRoom() {
         } else {
             let info = doc
             let uuidDoc = "";
+            let patient;
             switch (doc.documentType) {
                 case "prescription":
                     info = doc.prescription[0].prescription_has_drugs;
+                    patient = doc.prescription[0]?.patient;
                     uuidDoc = doc.prescription[0].uuid
                     break;
                 case "requested-analysis":
                     info = doc.requested_Analyses[0]['requested_analyses_has_analyses'];
+                    patient = doc.requested_Analyses[0]?.patient;
                     uuidDoc = doc.requested_Analyses[0].uuid;
                     break;
                 case "requested-medical-imaging":
                     info = doc.medical_imaging[0]['requested_medical_imaging_has_medical_imaging'];
+                    patient = doc.medical_imaging[0]?.patient;
                     uuidDoc = doc.medical_imaging[0].uuid;
                     break;
             }
@@ -661,6 +665,11 @@ function WaitingRoom() {
                 setOpenAddPrescriptionDialog(false);
             }
         });
+    }
+
+    const closeDocPreviewDialog = () => {
+        setOpenDocPreviewDialog(false);
+        dispatch(setAppointmentPatient(null));
     }
 
     const columns = useRef<any[]>([
@@ -1567,8 +1576,8 @@ function WaitingRoom() {
                 direction={'ltr'}
                 sx={{p: 0}}
                 title={t("config.doc_detail_title", {ns: "patient"})}
-                onClose={() => setOpenDocPreviewDialog(false)}
-                dialogClose={() => setOpenDocPreviewDialog(false)}
+                onClose={closeDocPreviewDialog}
+                dialogClose={closeDocPreviewDialog}
             />
 
             <Menu
