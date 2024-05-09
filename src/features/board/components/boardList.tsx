@@ -17,7 +17,7 @@ const Row = React.memo(function Row(props) {
     }
 
     return (
-        <Draggable draggableId={item.id} index={index} key={item.id}>
+        <Draggable draggableId={item.id} index={index} key={item.id} isDragDisabled={!item?.content.isDraggable}>
             {provided => <BoardItem {...{index, provided, style, handleEvent, windowWidth, setSize}} quote={item}/>}
         </Draggable>
     );

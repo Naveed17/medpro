@@ -14,8 +14,7 @@ import {CustomSwitch} from "@features/buttons";
 const ParentContainer = styled.div`
     margin-top: -1rem;
     padding-bottom: 1rem;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
