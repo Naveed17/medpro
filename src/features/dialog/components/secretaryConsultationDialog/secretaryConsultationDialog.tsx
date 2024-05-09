@@ -471,6 +471,7 @@ function SecretaryConsultationDialog({...props}) {
                         open={openPaymentDialog}
                         data={{
                             patient,
+                            app_uuid,
                             setOpenPaymentDialog,
                             mutatePatient
                         }}

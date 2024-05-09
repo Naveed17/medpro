@@ -43,7 +43,7 @@ const PatientInsurance = ({...props}) => {
 
             <Collapse in={addNew}>
                 <Box className={"insurance-box"}>
-                    <AddInsurance {...{t, setAddNew,mutatePatientInsurances,patient}}/>
+                    {addNew && <AddInsurance {...{t, setAddNew, mutatePatientInsurances, patient}}/>}
                 </Box>
             </Collapse>
 
@@ -53,8 +53,16 @@ const PatientInsurance = ({...props}) => {
                         <CardInsurance {...{pi,t, setSelectedInsurance,urlMedicalEntitySuffix,medicalEntityHasUser,patient,mutatePatientInsurances}}/>
                     </Collapse>
                     <Collapse in={selectedInsurance === pi.insurance.uuid}>
-                        <AddInsurance {...{t, pi, setAddNew,patient,mutatePatientInsurances,requestAction:"PUT",setSelectedInsurance}}/>
-                    </Collapse>
+                        {selectedInsurance === pi.insurance.uuid && <AddInsurance {...{
+                            t,
+                            pi,
+                            setAddNew,
+                            patient,
+                            mutatePatientInsurances,
+                            requestAction: "PUT",
+                            setSelectedInsurance
+                        }}/>
+                        }                    </Collapse>
                 </Box>
             ))}
 

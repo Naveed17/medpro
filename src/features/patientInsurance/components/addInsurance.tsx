@@ -156,7 +156,7 @@ const AddInsurance = ({...props}) => {
     const [boxes, setBoxes] = useState<InsuranceBoxModel[]>([]);
     const [selectedBox, setSelectedBox] = useState<InsuranceBoxModel | null>(null);
     const [apcisList, setApcisList] = useState<ApciModel[]>([]);
-    const [apcis, setApcis] = useState<string[]>([]);
+    const [apcis, setApcis] = useState<string[]>(pi ? pi.apci?.map((a: { uuid: string }) => a.uuid) : []);
     const [conventions, setConventions] = useState<any[]>([]);
     const [selectedConv, setSelectedConv] = useState<any>(null);
     const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({

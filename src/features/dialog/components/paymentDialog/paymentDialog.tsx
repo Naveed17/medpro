@@ -49,7 +49,7 @@ const LoadingScreen = dynamic(
 
 function PaymentDialog({...props}) {
     const {data} = props;
-    const {patient, setOpenPaymentDialog, mutatePatient = null} = data;
+    const {patient, setOpenPaymentDialog, mutatePatient = null,app_uuid} = data;
 
     const theme = useTheme<Theme>();
     const {data: session} = useSession();
@@ -183,6 +183,32 @@ function PaymentDialog({...props}) {
         });
     }
 
+    const addInsuranceTransaction = (uuid:string) => {
+
+        const form = new FormData();
+        form.append("cash_box", selectedBoxes[0].uuid);
+        form.append("type_transaction", TransactionType[0].value);
+        form.append("amount", "50");
+        form.append("patient", patient.uuid);
+        form.append("insurance", uuid);
+        form.append("transaction_data", JSON.stringify([
+            {
+                appointment: app_uuid,
+                amount: "50"
+            }
+        ]));
+
+        triggerAppointmentEdit({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: (rest) => {
+               console.log(rest)
+            },
+        });
+    }
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
         const refList = document.getElementById("trList");
@@ -257,8 +283,9 @@ function PaymentDialog({...props}) {
         <PaymentDialogStyled>
             <Grid container spacing={{xs: 2, md: 6}}>
                 <Grid item xs={12} sm={4}>
-                    <Stack spacing={1} >
-                        <Stack direction={"row"} justifyContent={"space-between"} style={{borderBottom:`1px solid ${theme.palette.grey["200"]}`,paddingBottom:10}}>
+                    <Stack spacing={1}>
+                        <Stack direction={"row"} justifyContent={"space-between"}
+                               style={{borderBottom: `1px solid ${theme.palette.grey["200"]}`, paddingBottom: 10}}>
                             <Stack spacing={2} direction="row" alignItems="center">
                                 <Avatar
                                     sx={{width: 40, height: 40}}
@@ -386,33 +413,46 @@ function PaymentDialog({...props}) {
                                 />
                                 <Typography fontWeight={"bold"}
                                             color={'#1B2746'}>{t('dialog.no_transaction')}</Typography>
-                                <Typography fontSize={13} color={'#1B2746'} textAlign={"center"}>{t('dialog.add_now')}</Typography>
+                                <Typography fontSize={13} color={'#1B2746'}
+                                            textAlign={"center"}>{t('dialog.add_now')}</Typography>
                             </Stack>
                         }
                     </Stack>
                 </Grid>
                 <Grid item xs={12} sm={8}>
                     <Stack spacing={1}>
-                        <Stack spacing={1} style={{borderBottom:`1px solid ${theme.palette.grey["200"]}`,paddingBottom:10}}>
+                        <Stack spacing={1}
+                               style={{borderBottom: `1px solid ${theme.palette.grey["200"]}`, paddingBottom: 10}}>
                             <Typography fontWeight={600} mb={1}>
                                 {t("dialog.insurance")}
                             </Typography>
-                            <Stack direction={"row"} spacing={1} borderRadius={2} style={{
-                                border:`1px solid ${theme.palette.primary.main}`,
-                                padding:10,
-                                width:"fit-content"
-                            }}>
-                                <Checkbox checked={true}/>
-{/*
-                                <img src={''} alt={'insurance icon'}/>
-*/}
-                                <Stack >
-                                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                        <Typography fontSize={16} fontWeight={"bold"}>CNAM</Typography>
-                                        <Label color={"info"} variant="filled" sx={{borderRadius:1}}>Lui même</Label>
-                                    </Stack>
-                                    <Typography color={"#B5B5C3"}>Assurance expire le 24/09/2024</Typography>
-                                </Stack>
+                            <Stack direction={"row"} spacing={1}>
+                                {patient.insurances.map((insurance: any) => (
+                                    <Stack direction={"row"}
+                                           key={insurance.uuid}
+                                           spacing={1}
+                                           borderRadius={2}
+                                           style={{
+                                               border: `1px solid ${theme.palette.primary.main}`,
+                                               padding: 10,
+                                               width: "fit-content"
+                                           }}>
+                                        <Checkbox onChange={(ev) => {
+                                            if (ev.target.checked)
+                                                addInsuranceTransaction(insurance.insuranceBook.medicalEntityHasInsurance.uuid)
+                                        }
+                                        }/>
+                                        <Stack>
+                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                <Typography fontSize={16}
+                                                            fontWeight={"bold"}>{insurance.insurance.name}</Typography>
+                                                <Label color={"info"} variant="filled"
+                                                       sx={{borderRadius: 1}}>{insurance.insuranceBook.insuredPerson ? insurance.insuranceBook.insuredPerson : "Lui même"}</Label>
+                                            </Stack>
+                                            <Typography color={"#B5B5C3"}>Assurance expire
+                                                le {insurance.insuranceBook.endDate}</Typography>
+                                        </Stack>
+                                    </Stack>))}
                             </Stack>
                         </Stack>
 
@@ -426,10 +466,10 @@ function PaymentDialog({...props}) {
                             <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__create"}>
                                 <IconButton aria-controls={open ? "basic-menu" : undefined}
                                             aria-haspopup="true"
-                                            style={{backgroundColor: theme.palette.primary.main,borderRadius:8}}
+                                            style={{backgroundColor: theme.palette.primary.main, borderRadius: 8}}
                                             aria-expanded={open ? "true" : undefined}
                                             onClick={handleClick}>
-                                    <AddIcon style={{color:"white"}}/>
+                                    <AddIcon style={{color: "white"}}/>
                                 </IconButton>
                             </Can>
                             <Menu
