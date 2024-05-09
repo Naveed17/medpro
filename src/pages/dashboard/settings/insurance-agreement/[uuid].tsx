@@ -53,8 +53,8 @@ const Toolbar = (props: any) => {
 }
 
 function InsuranceDetailActs() {
-    const router = useRouter();
-    const {t} = useTranslation("settings", {keyPrefix: 'insurance.config'});
+   // const router = useRouter();
+    /*const {t} = useTranslation("settings", {keyPrefix: 'insurance.config'});
     const {apcis} = useApci(router.query.name as string);
     const [search, setSearch] = React.useState("");
     const [mainActes, setMainActes] = useState<any>([]);
@@ -186,10 +186,10 @@ function InsuranceDetailActs() {
             setLoading(false);
         }
     }, [httpActs]); // eslint-disable-line react-hooks/exhaustive-deps
-
+*/
     return (
         <>
-            <SubHeader>
+            {/*<SubHeader>
                 <RootStyled>
                     <p style={{margin: 0}}>{t("path.update")}</p>
                 </RootStyled>
@@ -290,7 +290,7 @@ function InsuranceDetailActs() {
                         </LoadingButton>
                     </>
                 }
-            />
+            />*/}
         </>
     );
 }
