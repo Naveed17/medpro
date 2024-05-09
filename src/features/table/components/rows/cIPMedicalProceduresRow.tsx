@@ -56,9 +56,15 @@ function CIPMedicalProceduresRow({...props}) {
     }
 
     const handleChangeInsurance = (insurance: any) => {
-        row.insurance_act = row.insurance_act === insurance.uuid ? null :  insurance.uuid;
-        row.patient_part = row.insurance_act === insurance.uuid ? 0 : insurance.patient_part;
-        row.refund = row.insurance_act === insurance.uuid ? 0 : insurance.refund;
+        if (row.insurance_act === insurance.uuid) {
+            row.insurance_act = null;
+            row.patient_part = 0;
+            row.refund = 0;
+        } else {
+            row.insurance_act = insurance.uuid;
+            row.patient_part = insurance.patient_part;
+            row.refund = insurance.refund;
+        }
         editMotif(row, "change");
         handleEvent()
         setCollapse(false)

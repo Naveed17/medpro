@@ -161,10 +161,10 @@ function InsuranceAndAgreement() {
                 break;
             case "ON_ROUTE":
                 event.preventDefault();
-                router.push({
+                router.push(`/dashboard/settings/insurance-agreement/${data.uuid}`)/*{
                     pathname: `/dashboard/settings/insurance-agreement/${data.uuid}`,
                     ...(data.insurance && {query: {name: data.insurance.uuid}})
-                });
+                });*/
         }
     }
     const handleCloseMenu = () => {
