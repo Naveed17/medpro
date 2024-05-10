@@ -45,6 +45,8 @@ function Antecedent({...props}) {
                                 startDate: string;
                                 start: string;
                                 endDate: string;
+                                start: string;
+                                end: string;
                                 note: string;
                                 ascendantOf: string;
                                 response: string | any[];
@@ -55,7 +57,7 @@ function Antecedent({...props}) {
                             <ListItem
                                 style={{border: "1px dashed #DDD", borderRadius: 5, marginTop: 5, paddingLeft: 10}}
                                 key={`list-${index}`}>
-                                <Stack spacing={1}>
+                                <Stack spacing={1} onClick={()=>handleOpen(antecedent)}>
                                     <Typography variant="body2" style={{cursor: 'pointer'}}>
                                         {item.name}{" "}<span>{item.response ? typeof item.response === "string" ? !item.response.includes("{") && ' | ' + item.response : item.response.length > 0 ? ' | ' + item.response[0]?.value : '' : ''}</span>
                                         {item.note && <span>{` | ${item.note}`}</span>}
@@ -79,12 +81,27 @@ function Antecedent({...props}) {
                                                     style={{fontWeight: "bold"}}>{item.endDate}</span></Typography>
                                             </Stack>}
                                         </Stack>}
+                                    {(item.start || item.end) &&
+                                        <Stack direction={"row"} spacing={2} alignItems={"center"}>
+                                            {item.start &&
+                                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                                    <Icon path="ic-agenda" height={11} width={11}/>
+                                                    <Typography fontSize={11}>{t('start')} <span
+                                                        style={{fontWeight: "bold"}}>{item.start}</span></Typography>
+                                                </Stack>}
+                                            {item.end && <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                                <Icon path="ic-agenda" height={11} width={11}/>
+                                                <Typography fontSize={11}>{t('end')} <span
+                                                    style={{fontWeight: "bold"}}>{item.end}</span></Typography>
+                                            </Stack>}
+                                        </Stack>}
                                 </Stack>
 
 
                                 <IconButton
                                     size="small"
-                                    onClick={() => {
+                                    onClick={(ev) => {
+                                        ev.stopPropagation()
                                         medicalEntityHasUser && setSelected({
                                             title: t('askRemove'),
                                             subtitle: "",
