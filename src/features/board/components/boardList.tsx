@@ -19,9 +19,9 @@ const Row = React.memo(function Row(props) {
     // Faking some nice spacing around the items
     const patchedStyle = {
         ...style,
-        left: style.left + grid,
+        left: style.left,
         top: style.top + grid,
-        width: `calc(${style.width} - ${grid * 2}px)`,
+        width: style.width,
         height: style.height - grid,
     };
 
@@ -43,7 +43,6 @@ const Row = React.memo(function Row(props) {
 
 function BoardList({...props}) {
     const {
-        index,
         listId = 'LIST',
         quotes,
         handleEvent
@@ -57,6 +56,8 @@ function BoardList({...props}) {
             case "4,8":
                 if (data.content.startTime === "00:00") {
                     defaultHeight = 56;
+                } else if (data?.content.status === 8) {
+                    defaultHeight = 87;
                 } else {
                     defaultHeight = 65;
                 }
@@ -76,13 +77,6 @@ function BoardList({...props}) {
     };
 
     const listRef = useRef<any>();
-
-    useLayoutEffect(() => {
-        const list = listRef.current;
-        if (list) {
-            list.scrollTo(0);
-        }
-    }, [index]);
 
     useLayoutEffect(() => {
         !!quotes?.length && listRef?.current?.resetAfterIndex?.(0);
@@ -108,14 +102,13 @@ function BoardList({...props}) {
                     <VariableSizeList
                         height={660}
                         itemCount={itemCount}
+                        estimatedItemSize={70}
                         itemSize={index => getRowHeight(quotes[index])}
-                        width={window.innerWidth > 1600 ? 440 : 320}
+                        width={"auto"}
                         ref={listRef}
                         outerRef={droppableProvided.innerRef}
                         style={{
-                            transition: 'background-color 0.2s ease',
-                            // We add this spacing so that when we drop into an empty list we will animate to the correct visual position.
-                            padding: grid,
+                            transition: 'background-color 0.2s ease'
                         }}
                         itemData={{quotes, handleEvent}}>
                         {Row}

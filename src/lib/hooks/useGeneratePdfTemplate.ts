@@ -1,6 +1,6 @@
-import {degrees, PDFDocument, rgb} from "pdf-lib";
+import {degrees, PDFDocument, PDFFont, rgb} from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
-import {PsychomotorDevelopmentXY, signs} from "@lib/constants";
+import {arabicRegExp, PsychomotorDevelopmentXY, signs} from "@lib/constants";
 import {useCallback} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -31,6 +31,13 @@ function useGeneratePdfTemplate() {
         //load font and embed it to pdf document
         const fontBytes = await fetch("/static/fonts/KidsBoys/KidsBoys.otf").then((res) => res.arrayBuffer());
         const customFont = await pdfDoc.embedFont(fontBytes);
+        //load arabic font and embed it to pdf document
+        let arabicFontBytes: ArrayBuffer;
+        let arabicCustomFont: PDFFont;
+        if (arabicRegExp.test(patient.firstName) || arabicRegExp.test(patient.lastName)) {
+            arabicFontBytes = await fetch("/static/fonts/arabic/arabic_regular.ttf").then((res) => res.arrayBuffer());
+            arabicCustomFont = await pdfDoc.embedFont(arabicFontBytes);
+        }
         // load template pdf
         const docFile = await fetch(`/static/files/bebe-template-${patient.gender === "M" ? 'bleu' : 'pink'}.pdf`).then((res) => res.arrayBuffer());
         const templatePdfDoc = await PDFDocument.load(docFile);
@@ -57,12 +64,13 @@ function useGeneratePdfTemplate() {
                 font: customFont,
                 color: textColor
             })
+            const isArabicFont = arabicRegExp.test(patient.firstName) || arabicRegExp.test(patient.lastName);
             copiedPages[0].drawText(`${patient.firstName} ${patient.lastName}`, {
                 x: 170,
-                y: 344,
-                size: 16,
+                y: isArabicFont ? 346 : 344,
+                size: isArabicFont ? 14 : 16,
                 rotate: degrees(2),
-                font: customFont,
+                font: isArabicFont ? arabicCustomFont : customFont,
                 color: textColor
             })
             copiedPages[0].drawText(`née le ${patient.birthdate}`, {
@@ -73,14 +81,14 @@ function useGeneratePdfTemplate() {
                 font: customFont,
                 color: textColor
             })
-           /* copiedPages[0].drawText(`Ma Maman Salma & Mon Papa Sélim`, {
-                x: 110,
-                y: 310,
-                size: 12,
-                rotate: degrees(2),
-                font: customFont,
-                color: textColor
-            })*/
+            /* copiedPages[0].drawText(`Ma Maman Salma & Mon Papa Sélim`, {
+                 x: 110,
+                 y: 310,
+                 size: 12,
+                 rotate: degrees(2),
+                 font: customFont,
+                 color: textColor
+             })*/
             // Draw bebe weight / size
             const weight = Object.values(sheet.poids.data).slice(-1)[0] as string;
             copiedPages[0].drawText(`${weight} Kg`, {
@@ -144,16 +152,18 @@ function useGeneratePdfTemplate() {
             }
             // Get doctor QR code
             const canvas = document.getElementById('qr-canva')?.children[0] as HTMLCanvasElement;
-            const contentDataURL = canvas?.toDataURL('image/png');
-            const qrCodeBytes = await fetch(contentDataURL).then((res) => res.arrayBuffer());
-            const pngImage = await pdfDoc.embedPng(qrCodeBytes);
-            const pngImageDims = pngImage.scale(0.3);
-            copiedPages[0].drawImage(pngImage, {
-                x: 308.5,
-                y: 32,
-                width: pngImageDims.width,
-                height: pngImageDims.height,
-            })
+            if (canvas) {
+                const contentDataURL = canvas?.toDataURL('image/png');
+                const qrCodeBytes = await fetch(contentDataURL).then((res) => res.arrayBuffer());
+                const pngImage = await pdfDoc.embedPng(qrCodeBytes);
+                const pngImageDims = pngImage.scale(0.3);
+                copiedPages[0].drawImage(pngImage, {
+                    x: 308.5,
+                    y: 32,
+                    width: pngImageDims.width,
+                    height: pngImageDims.height,
+                })
+            }
             // Draw doctor details
             copiedPages[0].drawText(`${medical_professional?.civility.shortName} ${medical_professional?.publicName}`, {
                 x: 718,

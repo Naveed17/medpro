@@ -74,6 +74,7 @@ function ModifyUser() {
     const [tabIndex, setTabIndex] = useState(0);
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
+    const [canUpdateProfile, setCanUpdateProfile] = useState(true);
     const [selectedFeatureEntity, setSelectedFeatureEntity] = useState<any>(null);
     const [loadingReq, setLoadingReq] = useState(false);
 
@@ -184,7 +185,7 @@ function ModifyUser() {
         },
         validationSchema: validationSchema[tabIndex],
         onSubmit: async (values) => {
-            setLoading(true);
+            //setLoading(true);
             const form = new FormData();
             if (tabIndex === 0) {
                 form.append('username', values.name);
@@ -242,14 +243,16 @@ function ModifyUser() {
                 }
 
                 triggerUserUpdate({
-                    method: feature?.profile || permissions.length === 0 ? "PUT" : "POST",
+                    method: !!feature?.profile ? "PUT" : "POST",
                     url: `${urlMedicalEntitySuffix}/features/${selectedFeature}/profiles${feature?.profile ? `/${feature?.profile}` : ""}/${router.locale}`,
                     data: form
                 }, {
                     onSuccess: (result) => {
                         const profileUuid = (result?.data as HttpResponse)?.data?.uuid;
                         enqueueSnackbar(t(`users.alert.updated-role`), {variant: "success"});
-                        setFieldValue(`roles[${selectedFeature}][${featureIndex}].profile`, profileUuid ?? null);
+                        if (permissions.length === 0 || !!profileUuid) {
+                            setFieldValue(`roles[${selectedFeature}][${featureIndex}].profile`, profileUuid ?? null);
+                        }
                         setLoading(false);
                     },
                     onError: () => {
@@ -284,6 +287,18 @@ function ModifyUser() {
         const file = acceptedFiles[0];
         setFieldValue("picture.url", URL.createObjectURL(file));
         setFieldValue("picture.file", file);
+    }
+
+    const getFeatureStatus = () => {
+        const featureIndex = selectedFeatureEntity ? values.roles[selectedFeature].findIndex((feature: FeatureModel) => feature.featureEntity?.uuid === selectedFeatureEntity.uuid) : 0;
+        if (values.roles[selectedFeature] && values.roles[selectedFeature][featureIndex]) {
+            const feature = values.roles[selectedFeature][featureIndex];
+
+            const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                [...(permissions ?? []),
+                    ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+            return !feature?.profile && permissions.length === 0;
+        } else return false
     }
 
     const HandleFeatureSelect = (slug: string, hasProfile?: boolean, entity?: any) => {
@@ -859,6 +874,7 @@ function ModifyUser() {
                                             {loadingReq && <FacebookCircularProgress size={24}/>}
                                             <LoadingButton
                                                 {...{loading}}
+                                                disabled={getFeatureStatus()}
                                                 loadingPosition={"start"}
                                                 type="submit"
                                                 sx={{minWidth: 130}}
