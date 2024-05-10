@@ -43,7 +43,6 @@ function Antecedent({...props}) {
                                 uuid: string;
                                 name: string;
                                 startDate: string;
-                                start: string;
                                 endDate: string;
                                 start: string;
                                 end: string;
