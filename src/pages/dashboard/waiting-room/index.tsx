@@ -48,7 +48,13 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry, deleteAppointmentOptionsData, WaitingHeadCells, WaitingTodayCells} from "@lib/constants";
+import {
+    DefaultCountry,
+    deleteAppointmentOptionsData,
+    EnvPattern,
+    WaitingHeadCells,
+    WaitingTodayCells
+} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {LoadingButton} from "@mui/lab";
 import {
@@ -413,14 +419,17 @@ function WaitingRoom() {
 
     const handleSortSelect = (item: any) => {
         dispatch(setSortTime(item.value));
+        const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
-        const params = new FormData();
-        params.append('waitingRoomDisplay', item.index.toString());
-        medicalEntityHasUser && updateAgendaConfig({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
-            data: params
-        })
+        if (!prodEnv) {
+            const params = new FormData();
+            params.append('waitingRoomDisplay', item.index.toString());
+            medicalEntityHasUser && updateAgendaConfig({
+                method: "PATCH",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
+                data: params
+            })
+        }
 
         setAnchorEl(null);
     };
