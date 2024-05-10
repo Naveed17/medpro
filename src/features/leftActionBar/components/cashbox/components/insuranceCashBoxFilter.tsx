@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
+import {Box, Checkbox, FormControl, FormControlLabel, MenuItem, TextField, Typography} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import Switch from "@mui/material/Switch";
 
 function InsuranceCashBoxFilter({...props}) {
     const {t, OnSearch} = props;
@@ -15,6 +16,7 @@ function InsuranceCashBoxFilter({...props}) {
     const {insurances} = useAppSelector(cashBoxSelector);
 
     const [queryState, setQueryState] = useState<any>({
+        hasNoInsurance: false,
         insurances: []
     });
 
@@ -22,6 +24,8 @@ function InsuranceCashBoxFilter({...props}) {
 
     const handleInsuranceChange = (insurances: any[]) => {
         setQueryState({
+            ...queryState,
+            ...(insurances.length > 0 && {hasNoInsurance: false}),
             insurances
         });
 
@@ -36,6 +40,7 @@ function InsuranceCashBoxFilter({...props}) {
             OnSearch({
                 query: {
                     ...queryState,
+                    hasNoInsurance: false,
                     insurances
                 }
             });
@@ -43,13 +48,13 @@ function InsuranceCashBoxFilter({...props}) {
     }
 
     const handleSelectAll = (insurances: any): void => {
-        setQueryState(insurances);
+        setQueryState({...queryState, insurances});
         handleInsuranceChange(insurances.insurance);
     }
 
     useEffect(() => {
         if (insurances) {
-            setQueryState({insurances});
+            setQueryState({...queryState, insurances});
         }
     }, [insurances]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -66,6 +71,7 @@ function InsuranceCashBoxFilter({...props}) {
                     id={"assurance"}
                     multiple
                     autoHighlight
+                    disabled={queryState.hasNoInsurance}
                     filterSelectedOptions
                     limitTags={3}
                     noOptionsText={"Aucune assurance"}
@@ -97,6 +103,39 @@ function InsuranceCashBoxFilter({...props}) {
                         </FormControl>)}
                 />
             </MuiAutocompleteSelectAll.Provider>
+            <>
+                <Typography variant="body2" color="text.secondary" mt={1}>
+                    {t("is_not_insured_patient")}
+                </Typography>
+
+                <FormControlLabel
+                    sx={{
+                        ml: .2,
+                        my: 1,
+                        '& .MuiSwitch-thumb': {
+                            boxShadow: theme => theme.customShadows.filterButton,
+                            width: 16,
+                            height: 16,
+                        }
+                    }}
+                    control={
+                        <Switch
+                            color="warning"
+                            size="small"
+                            checked={queryState.hasNoInsurance}
+                            onChange={event => {
+                                setQueryState({...queryState, hasNoInsurance: event.target.checked});
+                                OnSearch({
+                                    query: {
+                                        ...queryState,
+                                        ...(event.target.checked && {insurances: null}),
+                                        hasNoInsurance: event.target.checked
+                                    }
+                                });
+                            }}
+                        />}
+                    label={<Typography sx={{fontSize: 12}}> {t(`is_not_insured`)}</Typography>}/>
+            </>
         </Box>)
 }
 

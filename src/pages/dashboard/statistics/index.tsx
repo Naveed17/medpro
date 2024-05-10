@@ -112,7 +112,7 @@ function Statistics() {
     const {rdv_type, act_by_rdv, motif_by_consult} = state
     const appointmentStats = ((statsAppointmentHttp as HttpResponse)?.data ?? []) as any;
     const start = moment().add(1, `${viewChart}s` as any);
-    const durations = Array.from({length: 12}, (_, i) => moment(start.subtract(1, `${viewChart}s` as any)).set({
+    const durations = Array.from({length: 12}, (_) => moment(start.subtract(1, `${viewChart}s` as any)).set({
         ...(viewChart === "month" && {date: 1}),
         hour: 0,
         minute: 0,
@@ -189,14 +189,11 @@ function Statistics() {
 
     useEffect(() => {
         dispatch(toggleSideBar(true));
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["stats", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>

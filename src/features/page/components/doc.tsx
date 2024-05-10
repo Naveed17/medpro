@@ -56,14 +56,14 @@ function Doc({...props}) {
         let elx = "";
         switch (state.type) {
             case "prescription":
-                state.info.map((el: any, index: number) => {
+                state.info.forEach((el: any, index: number) => {
                     const child = document.createElement('p');
                     child.append();
-                    elx += `<p>${index + 1} • ${el?.drugName ?? ""} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}</p>`
+                    elx += `<p style="font-weight: bold">${index + 1} • ${el?.drugName ?? ""} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}</p>`
                     el.cycles.map((cycle: any) => {
                         let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                         if (cycle.duration)
-                            val += ` pendant ${cycle.duration} ${(cycle.durationType)}`
+                            val += ` pendant ${cycle.duration} ${t(cycle.durationType)}`
                         if (cycle.note)
                             val += ` (${cycle.note})`;
                         const child = document.createElement('p');
@@ -78,7 +78,7 @@ function Doc({...props}) {
             case "requested-analysis":
                 const value = `<p>Prière de faire les explorations biologiques suivantes à ${state.patient} :</p>`
                 elx += value
-                state.info.map((el: any) => {
+                state.info.forEach((el: any) => {
                     elx += `<p>• ${el.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
@@ -88,7 +88,7 @@ function Doc({...props}) {
             case "requested-medical-imaging":
                 const val = `<p>Prière de faire les explorations radiologiques suivantes à ${state.patient} :</p>`
                 elx += val
-                state.info.map((el: any) => {
+                state.info.forEach((el: any) => {
                     elx += `<p>• ${el?.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
@@ -105,7 +105,7 @@ function Doc({...props}) {
                                     <td class="act-table-title">QTE</td>
                                     <td class="act-table-title">TOTAL</td>
                                 </tr>`
-                state.info.map((el: any, index: number) => {
+                state.info.forEach((el: any, index: number) => {
                     total += el.qte * el.fees;
                     elx += `<tr style="background: ${theme.palette.info.main};border-radius: 10px">
                                         <td class="act-table-item" style="padding: 20px;font-weight: bold;border-top-left-radius:  ${index === 0 ? "10px" : 0};border-bottom-left-radius: ${index === state.info.length - 1 ? "10px" : 0}">${el.act.name}</td>
@@ -129,8 +129,8 @@ function Doc({...props}) {
                 let odp = "";
                 let ogp = ""
 
-                state.info.map((el: any) => {
-                    subTitle.map(key => {
+                state.info.forEach((el: any) => {
+                    subTitle.forEach(key => {
                         od += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
                         og += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
                         odp += `${t(key)} : ${el.pfp[0].od[key] ? el.pfp[0].od[key] : ' - '}  `;
@@ -150,7 +150,7 @@ function Doc({...props}) {
                 let ogl = ""
                 const st = ['sphere', 'cylindre', 'axe']
 
-                state.info.map((el: any) => {
+                state.info.forEach((el: any) => {
                     st.forEach(key => {
                         odl += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
                         ogl += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;

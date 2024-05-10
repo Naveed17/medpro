@@ -158,7 +158,8 @@ function Cashbox() {
                     OnSearch={(data: any) => {
                         dispatch(setInsurances(data.query.insurances ?? []));
                         dispatch(setFilterCB({
-                            insurances: data.query?.insurances?.map((insurance: any) => insurance.uuid).join(',') ?? ""
+                            insurances: data.query?.insurances?.map((insurance: any) => insurance.uuid).join(',') ?? "",
+                            not_insured_patient: data.query?.hasNoInsurance ?? false,
                         }));
                     }}/>
                 ,

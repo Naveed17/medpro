@@ -28,24 +28,24 @@ module.exports = {
     backend: {
         backendOptions: [{
             expirationTime: 60 * 60 * 1000, // 1 hour
-        }, {
-            firestore: firestore,
-            collectionName: "i18next",
-            languageFieldName: "locales",
-            namespaceFieldName: "ns",
-            dataFieldName: "data",
-            debug: isDev,
-            firestoreModule: {
-                isModular: true,
-                functions: {
-                    collection,
-                    query,
-                    where,
-                    getDocs
-                },
-            }
-        }],
-        backends: isBrowser ? [LocalStorageBackend, firestoreBackend] : [],
+        },
+            ...(!isDev ? [{
+                firestore,
+                collectionName: "i18next",
+                languageFieldName: "locales",
+                namespaceFieldName: "ns",
+                dataFieldName: "data",
+                firestoreModule: {
+                    isModular: true,
+                    functions: {
+                        collection,
+                        query,
+                        where,
+                        getDocs
+                    },
+                }
+            }] : [])],
+        backends: isBrowser ? [LocalStorageBackend, ...(!isDev ? [firestoreBackend] : [])] : [],
     },
     serializeConfig: false,
     partialBundledLanguages: isBrowser && true,

@@ -45,12 +45,12 @@ function InfoStep({...props}) {
                 onSuccess: (result) => {
                     const user = (result?.data as HttpResponse)?.data;
                     if (user?.username) {
-                        setFieldValue("email", event.target.value);
                         setFieldValue("user_exist", true);
                         setFieldValue("name", user?.username);
                     } else {
                         setFieldValue("user_exist", false);
                     }
+                    setFieldValue("email", event.target.value);
                 },
                 onSettled: () => setLoading(false)
             });

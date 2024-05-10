@@ -96,7 +96,7 @@
     },
     "no-data": {
       "event": {
-        "title": "Veuillez ajouter votre première rendez-vous",
+        "title": "Veuillez ajouter votre premier rendez-vous",
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"
@@ -215,6 +215,7 @@
         "assurance-num-error": "Le numéro d'assurance est obligatoire",
         "assurance-type-error": "Veuillez sélectionner l'assurance",
         "email": "E-mail",
+        "relation": "Relation",
         "email-placeholder": "Saisissez l'adresse e-mail du patient",
         "cin": "CIN",
         "cin-placeholder": "Saisir la CIN du patient",
@@ -230,6 +231,7 @@
         "description": "",
         "add-new": "Ajouter un autre patient",
         "add-appo": "Ajouter RDV",
+        "add-contact": "Ajouter un contact",
         "register": "Enregistrer",
         "return": "Retourner à",
         "dialog": {
@@ -293,7 +295,8 @@
     "cancel-dialog": {
       "title": "Annuler RDV",
       "sub-title": "Voulez-vous vraiment annuler le RDV?",
-      "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+      "description": "Un SMS sera envoyé automatiquement au patient pour l'informer de l'annulation.",
+      "notice": "Envoyer un avis d'annulation au patient.",
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },

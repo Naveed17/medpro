@@ -76,7 +76,7 @@ function Pediatrician18Charts({...props}) {
         let dashArray: number[] = [];
 
         if (sheet && sheet.taille && height) {
-            Object.keys(sheet.taille.data).map(date => {
+            Object.keys(sheet.taille.data).forEach(date => {
                 const nbYear = moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "years")
                 let item = patientHeight.find(w => w.x === nbYear);
                 if (item) item.y = sheet.taille.data[date]
@@ -96,7 +96,7 @@ function Pediatrician18Charts({...props}) {
         }
 
         if (sheet && sheet.poids && weight) {
-            Object.keys(sheet.poids.data).map((date: string) => {
+            Object.keys(sheet.poids.data).forEach((date: string) => {
                 const nbYear = moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "years")
                 let item = patientWeight.find(w => w.x === nbYear);
                 if (nbYear > 0) {

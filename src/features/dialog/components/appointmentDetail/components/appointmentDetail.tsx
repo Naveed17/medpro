@@ -252,13 +252,13 @@ function AppointmentDetail({...props}) {
 
                                             <ListItem className={"appointment-text"}>
                                                 <IconUrl
-                                                    path="ic-tel-green-filled"
+                                                    path={appointment?.extendedProps.patient.contact?.length > 0 && appointment?.extendedProps.patient.contact[0]?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
                                                     className="ic-tell"
                                                 />
                                                 {appointment?.extendedProps.patient.contact?.length > 0 ?
                                                     <Link
                                                         underline="none"
-                                                        href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
+                                                        href={`${appointment?.extendedProps.patient.contact[0]?.isWhatsapp ? "https://wa.me/" : "tel:"}${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
                                                         sx={{ml: 1, fontSize: 12}}
                                                         variant="caption"
                                                         color="text.primary"

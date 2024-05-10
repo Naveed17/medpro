@@ -33,7 +33,7 @@ import {DatePicker} from "@features/datepicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {CountrySelect} from "@features/countrySelect";
-import {DefaultCountry, SocialInsured} from "@lib/constants";
+import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
@@ -224,6 +224,12 @@ function AddPatientStep2({...props}) {
             value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
             type: "phone",
             contact_type: contacts[0].uuid,
+            is_whatsapp: phoneData.isWhatsapp,
+            contact_relation: PatientContactRelation.find(relation => relation.key === phoneData.relation)?.value,
+            contact_social: {
+                first_name: phoneData.firstName,
+                last_name: phoneData.lastName
+            },
             is_public: false,
             is_support: false
         }))));
@@ -387,7 +393,7 @@ function AddPatientStep2({...props}) {
                                         sx={{color: "text.secondary"}}
                                         options={countriesData}
                                         loading={countriesData.length === 0}
-                                        getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                        getOptionLabel={(option: any) => option?.name ?? ""}
                                         isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                         renderOption={(props, option) => (
                                             <Stack key={`nationality-${option.uuid}`}>
@@ -470,7 +476,7 @@ function AddPatientStep2({...props}) {
                                         sx={{color: "text.secondary"}}
                                         options={countriesData.filter(country => country.hasState)}
                                         loading={countriesData.length === 0}
-                                        getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                        getOptionLabel={(option: any) => option?.name ?? ""}
                                         isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                         renderOption={(props, option) => (
                                             <Stack key={`country-${option.uuid}`}>
@@ -542,7 +548,7 @@ function AddPatientStep2({...props}) {
                                                 sx={{color: "text.secondary"}}
                                                 options={states ? states : []}
                                                 loading={states?.length === 0}
-                                                getOptionLabel={(option) => option?.name ? option.name : ""}
+                                                getOptionLabel={(option) => option?.name ?? ""}
                                                 isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                 renderOption={(props, option) => (
                                                     <Stack key={`region-${option.uuid}`}>
@@ -613,7 +619,6 @@ function AddPatientStep2({...props}) {
                                             onChangeData={(event: any) => {
                                                 if (event?.inputValue || typeof event === "string") {
                                                     // Create a new value from the user input
-                                                    console.log("onChangeData: Create", event)
                                                     setLoadingReq(true);
                                                     const params = new FormData();
                                                     params.append("name", event?.inputValue ?? event);
@@ -663,9 +668,7 @@ function AddPatientStep2({...props}) {
                                                 if (inputValue !== "" && !isExisting) {
                                                     filtered.push({
                                                         inputValue,
-                                                        name: `${t(
-                                                            "add"
-                                                        )} "${inputValue}"`,
+                                                        name: `${t("add-patient.add")} "${inputValue}"`,
                                                         isVerified: false,
                                                     });
                                                 }
@@ -853,7 +856,7 @@ function AddPatientStep2({...props}) {
                                                         options={socialInsurances}
                                                         groupBy={(option: any) => option.grouped}
                                                         sx={{minWidth: 460}}
-                                                        getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                        getOptionLabel={(option: any) => option?.label ?? ""}
                                                         isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
                                                         renderGroup={(params) => {
                                                             return (
@@ -891,7 +894,7 @@ function AddPatientStep2({...props}) {
                                                             }}
                                                             id={"assurance"}
                                                             options={insurances ? insurances : []}
-                                                            getOptionLabel={option => option?.name ? option.name : ""}
+                                                            getOptionLabel={option => option?.name ?? ""}
                                                             isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                             renderOption={(params, option) => (
                                                                 <Stack key={`assurance-${option.uuid}`}>
