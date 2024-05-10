@@ -74,7 +74,6 @@ function ModifyUser() {
     const [tabIndex, setTabIndex] = useState(0);
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
-    const [canUpdateProfile, setCanUpdateProfile] = useState(true);
     const [selectedFeatureEntity, setSelectedFeatureEntity] = useState<any>(null);
     const [loadingReq, setLoadingReq] = useState(false);
 
