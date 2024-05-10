@@ -252,7 +252,7 @@ function AppointmentDetail({...props}) {
 
                                             <ListItem className={"appointment-text"}>
                                                 <IconUrl
-                                                    path="ic-tel-green-filled"
+                                                    path={appointment?.extendedProps.patient.contact?.length > 0 && appointment?.extendedProps.patient.contact[0]?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
                                                     className="ic-tell"
                                                 />
                                                 {appointment?.extendedProps.patient.contact?.length > 0 ?
