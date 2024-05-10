@@ -49,7 +49,7 @@ const LoadingScreen = dynamic(
 
 function PaymentDialog({...props}) {
     const {data} = props;
-    const {patient, setOpenPaymentDialog, mutatePatient = null,app_uuid} = data;
+    const {patient, setOpenPaymentDialog, mutatePatient = null} = data;
 
     const theme = useTheme<Theme>();
     const {data: session} = useSession();

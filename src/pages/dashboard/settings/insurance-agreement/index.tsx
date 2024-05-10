@@ -161,7 +161,7 @@ function InsuranceAndAgreement() {
                 break;
             case "ON_ROUTE":
                 event.preventDefault();
-                router.push(`/dashboard/settings/insurance-agreement/new/${data.uuid}`)/*{
+                router.push(`/dashboard/settings/insurance-agreement/new/${data.uuid}?name=${data.insurance.uuid}`)/*{
                     pathname: `/dashboard/settings/insurance-agreement/${data.uuid}`,
                     ...(data.insurance && {query: {name: data.insurance.uuid}})
                 });*/
@@ -382,7 +382,6 @@ function InsuranceAndAgreement() {
                                 disabled={currentStep === 0 && ((agreement?.type === "insurance" && !agreement?.insurance?.uuid) || (agreement?.type === "agreement" && !agreement?.name))}
                                 onClick={() => {
                                     saveChanges("")
-                                    console.log(selectedRow)
                                 }}>
                                 {t("dialog.edit")}
                             </Button>: <Button

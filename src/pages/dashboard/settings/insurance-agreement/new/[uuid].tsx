@@ -8,6 +8,19 @@ import useApci from "@lib/hooks/rest/useApci";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {Box, Button, DialogTitle, Paper, Stack, Theme, Toolbar} from "@mui/material";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {Otable} from "@features/table";
+import {SubHeader} from "@features/subHeader";
+import {MobileContainer} from "@themes/mobileContainer";
+import {ActMobileCard} from "@features/card";
+import {SubFooter} from "@features/subFooter";
+import IconUrl from "@themes/urlIcon";
+import {LoadingButton} from "@mui/lab";
+import CloseIcon from "@mui/icons-material/Close";
+import {RootStyled} from "@features/toolbar";
+import {Dialog as MedDialog} from "@features/dialog";
+import {Add} from "@mui/icons-material";
 
 function InscDetail() {
 
@@ -147,7 +160,106 @@ function InscDetail() {
 
     return (
         <>
-            hello
+            <SubHeader>
+                <RootStyled>
+                    <p style={{margin: 0}}>{t("path.update")}</p>
+                </RootStyled>
+                <Button
+                    onClick={() => {
+                        setOpen(true)
+                    }}
+                    startIcon={<Add/>}
+                    variant="contained"
+                >
+                    {t("add")}
+                </Button>
+            </SubHeader>
+
+            <Box className="container">
+                <DesktopContainer>
+                    <Otable
+                        headers={headCells}
+                        rows={mainActes}
+                        from={"act-row-insurance"}
+                        {...{
+                            t,
+                            loading,
+                            handleChange,
+                            handleEvent,
+                            apcis,
+                            mutate,
+                            setLoading,
+                            trigger,
+                            urlMedicalEntitySuffix,
+                            medicalEntityHasUser,
+                            router
+                        }}
+                        total={httpActs?.data.currentPage}
+                        totalPages={httpActs?.data.totalPages}
+                        pagination
+                    />
+                </DesktopContainer>
+                <MobileContainer>
+                    <Paper component={Stack} spacing={1} sx={{p: 2, borderRadius: 1}}>
+                        {/*<Toolbar {...{t, search, handleSearch}} />*/}
+                        {
+                            mainActes.map((act: ActModel) => (
+                                <React.Fragment key={act.uuid}>
+                                    <ActMobileCard row={act} {...{t, loading, handleChange}} />
+                                </React.Fragment>
+                            ))
+                        }
+                    </Paper>
+                </MobileContainer>
+                <Box p={4}>
+                    <SubFooter sx={{".MuiToolbar-root": {justifyContent: 'flex-end'}}}>
+                        <Button startIcon={<IconUrl path="ic-check"/>} variant="contained">
+                            {t("save")}
+                        </Button>
+                    </SubFooter>
+                </Box>
+            </Box>
+
+            <MedDialog
+                action={"add-act"}
+                open={open}
+                data={{t, newAct, setNewAct, apcis, mainActes}}
+                dialogClose={() => {
+                    setOpen(false)
+                }}
+                onClose={() => {
+                    setOpen(false)
+                }}
+                headerDialog={
+                    <DialogTitle
+                        sx={{
+                            backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                            position: "relative",
+                        }}
+                        id="scroll-dialog-title">
+                        {t("act")}
+                    </DialogTitle>
+                }
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => {
+                                setOpen(false)
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            disabled={!newAct}
+                            variant="contained"
+                            onClick={save}>
+                            {t("save")}
+                        </LoadingButton>
+                    </>
+                }
+            />
         </>
     );
 }
