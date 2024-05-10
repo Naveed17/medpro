@@ -43,6 +43,7 @@ function Antecedent({...props}) {
                                 uuid: string;
                                 name: string;
                                 startDate: string;
+                                start: string;
                                 endDate: string;
                                 note: string;
                                 ascendantOf: string;
@@ -70,7 +71,7 @@ function Antecedent({...props}) {
                                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                                     <Icon path="ic-agenda" height={11} width={11}/>
                                                     <Typography fontSize={11}>{t('start')} <span
-                                                        style={{fontWeight: "bold"}}>{item.startDate}</span></Typography>
+                                                        style={{fontWeight: "bold"}}>{item.start?.replace("-", "/") ?? item.startDate}</span></Typography>
                                                 </Stack>}
                                             {item.endDate && <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                                 <Icon path="ic-agenda" height={11} width={11}/>
