@@ -117,10 +117,10 @@ const AddInsurance = ({...props}) => {
         enableReinitialize: true,
         initialValues: {
             insurance: {
-                insurance_book: pi ? pi.insuranceBook?.insuranceNumber : "",
+                insurance_book: pi && pi.insuranceBook ?pi.insuranceBook?.insuranceNumber : "",
                 insurance_book_uuid: pi ? pi.insuranceBook?.uuid : "",
-                start_date: pi ? new Date(moment(pi.insuranceBook?.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
-                end_date: pi ? new Date(moment(pi.insuranceBook?.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
+                start_date: pi && pi.insuranceBook ? new Date(moment(pi.insuranceBook?.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
+                end_date: pi && pi.insuranceBook ? new Date(moment(pi.insuranceBook?.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
                 insurance_key: "",
                 insurance_number: pi ? pi.insuranceNumber : "",
                 insurance_uuid: pi ? pi.insurance.uuid : "",
@@ -181,7 +181,7 @@ const AddInsurance = ({...props}) => {
             medical_entity_has_insurance: selectedConv ? selectedConv.uuid : "",
             contact: contacts?.length > 0 && contacts[0].uuid
         })[0]))
-        const params = new FormData();
+       const params = new FormData();
         params.append('insurance', JSON.stringify(prepareInsurancesData({
             insurances: [values.insurance],
             box: selectedBox ? selectedBox.uuid : "",
@@ -294,7 +294,7 @@ const AddInsurance = ({...props}) => {
                         variant="outlined"
                         placeholder={t("insurance.book_placeholder")}
                         size="small"
-                        value={getFieldProps(`insurance.insurance_book`)?.value || null}
+                        value={getFieldProps(`insurance.insurance_book`)?.value}
                         onChange={(ev) => {
                             setFieldValue(`insurance.insurance_book`, ev.target.value);
                         }}
@@ -313,7 +313,8 @@ const AddInsurance = ({...props}) => {
                                             setBoxes(el.boxes)
                                             setFieldValue(`insurance.insurance_uuid`, el.uuid);
                                         }
-                                    }
+                                    } else
+                                        setFieldValue(`insurance.insurance_book_uuid`, "");
                                 }
                             });
                         }}

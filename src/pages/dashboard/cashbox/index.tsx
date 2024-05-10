@@ -158,12 +158,6 @@ function Cashbox() {
             title: "total_profit",
         },
         {
-            icon: "ic-assurance",
-            mobile_icon: "ic-assurance",
-            amount: insuranceTotal,
-            title: "insurance",
-        },
-        {
             icon: "ic-cash-light-blue",
             mobile_icon: "ic-cash-light-blue",
             amount: totalCash,
@@ -174,6 +168,12 @@ function Cashbox() {
             mobile_icon: "ic-cheque-light-blue",
             amount: totalCheck,
             title: "cheque_cashed",
+        },
+        {
+            icon: "ic-insurance-light",
+            mobile_icon: "ic-insurance-light",
+            amount: insuranceTotal,
+            title: "insurance",
         },
     ];
     const isAddAppointment = false;
@@ -362,16 +362,14 @@ function Cashbox() {
     };
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
-        console.log(data);
+
         setTotal(data.total_amount);
         setTotalCash(data.period_cash);
         setTotalCheck(data.period_check);
         setCA(data.appointment_total);
         setUnpaid(data.appointment_rest_total);
         setInsuranceTotal(data.total_insurance_amount);
-        /*
-            setToReceive(data.total_insurance_amount);
-            setCollected(data.total_collected);*/
+
         txtGenerator();
         if (data.transactions) {
             setRows(data.transactions);
@@ -565,15 +563,14 @@ function Cashbox() {
                     mb={0.6}
                     display="grid"
                     sx={{gap: 1.2, px: 1}}
-                    gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}>
+                    gridTemplateColumns={`repeat(${isMobile ? "2" : "6"},minmax(0,1fr))`}>
                     {topCard.map((card, idx) => (
                         <Card sx={{border: "none"}} key={idx}>
                             <CardContent sx={{px: isMobile ? 1.75 : 2}}>
                                 <Stack
-                                    direction="row"
+                                    direction="column"
                                     {...(mode !== "normal" && {className: "blur-text"})}
-                                    alignItems="center"
-                                    spacing={{xs: 1, md: 2}}>
+                                    spacing={{xs: 1}}>
                                     <ImageHandler
                                         src={`/static/icons/${
                                             isMobile ? card.mobile_icon : card.icon
