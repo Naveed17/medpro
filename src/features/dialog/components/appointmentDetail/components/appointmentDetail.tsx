@@ -258,7 +258,7 @@ function AppointmentDetail({...props}) {
                                                 {appointment?.extendedProps.patient.contact?.length > 0 ?
                                                     <Link
                                                         underline="none"
-                                                        href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
+                                                        href={`${appointment?.extendedProps.patient.contact[0]?.isWhatsapp ? "https://wa.me/" : "tel:"}${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
                                                         sx={{ml: 1, fontSize: 12}}
                                                         variant="caption"
                                                         color="text.primary"
