@@ -40,12 +40,11 @@ function SendEmailDialog({...props}) {
         enableReinitialize: true,
         initialValues: {
             receiver: patient?.email ?? "",
-            subject: title,
-            content: "Objet : Compte rendu médical confidentiel de M. " + patient.firstName + " " + patient.lastName + "\n" +
+            subject: `${title} confidentiel de ${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "}.${patient.firstName} ${patient.lastName}`,
+            content:
+                (patient.gender === "F" ? "Chère " : "Cher ") + patient.firstName + " " + patient.lastName + ",\n" +
                 "\n" +
-                "Cher " + patient.firstName + " " + patient.lastName + ",\n" +
-                "\n" +
-                "En tant que médecin traitant de M. " + patient.firstName + " " + patient.lastName + ", je vous adresse le compte rendu médical de celui-ci en pièce jointe. Je vous prie de noter que ce document contient des informations confidentielles et est destiné uniquement à votre consultation.\n" +
+                "En tant que médecin traitant de M. " + patient.firstName + " " + patient.lastName + ", je vous adresse '" + title.toLowerCase() + "' de celui-ci en pièce jointe. Je vous prie de noter que ce document contient des informations confidentielles et est destiné uniquement à votre consultation.\n" +
                 "\n" +
                 "Si vous avez reçu ce courriel par erreur ou si vous n'êtes pas le destinataire prévu, je vous demande de ne pas ouvrir, copier ou divulguer le contenu du fichier joint. Je vous serais reconnaissant de bien vouloir nous notifier immédiatement de cette erreur et de supprimer cette communication de votre messagerie électronique.\n" +
                 "\n" +

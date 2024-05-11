@@ -1004,7 +1004,8 @@ function DocumentDetailDialog({...props}) {
                     patient,
                     preview: previewDoc,
                     loading: loadingReq,
-                    title: state?.title ?? "", t,
+                    title: state?.title ?? (t(state?.type) ?? ""),
+                    t,
                     handleSendEmail
                 }}
                 onClose={() => setSendEmailDrawer(false)}
