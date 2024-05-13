@@ -13,7 +13,7 @@ import {
     IconButton, Menu,
     MenuItem,
     MenuList, Stack,
-    Toolbar, Typography,
+    Toolbar, Tooltip, Typography,
     useMediaQuery, useTheme
 } from "@mui/material";
 // components
@@ -52,6 +52,7 @@ import {partition} from "lodash";
 import Can from "@features/casl/can";
 import {Label} from "@features/label";
 import {useChannel} from "ably/react";
+import ExpireTooltip from "@features/topNavBar/components/expireTooltip/expireTooltip";
 
 let deferredPrompt: any;
 
@@ -67,6 +68,7 @@ function TopNavBar({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -77,12 +79,12 @@ function TopNavBar({...props}) {
     const {isActive, event} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
-        import_data, allowNotification, pending: nbPendingAppointment
+        import_data, allowNotification, pending: nbPendingAppointment,
+        medicalEntityHasUser
     } = useAppSelector(dashLayoutSelector);
-    const {direction} = useAppSelector(configSelector);
+    const {direction, slowConnexion} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
     const {switchConsultationDialog, action: dialogAction} = useAppSelector(navBarSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -456,6 +458,15 @@ function TopNavBar({...props}) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
+                            {slowConnexion && <ExpireTooltip
+                                title={commonTranslation("slow-connection")}>
+                                <Avatar
+                                    className="animate-flicker"
+                                    sx={{mr: 2, backgroundColor: 'expire.main', width: 30, height: 30}}>
+                                    <IconUrl path={"ic-linear-airdrop"} width={25} height={25}/>
+                                </Avatar>
+                            </ExpireTooltip>}
+
                             {!allowNotification &&
                                 <WarningTooltip
                                     title={commonTranslation("notif_alert")}>
