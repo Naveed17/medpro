@@ -749,7 +749,7 @@ function Cashbox() {
                                         </Typography>
                                         <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                     </Stack>
-                                    {rows.length > 0 &&
+                                    {/*{rows.length > 0 &&
                                         <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
                                             <Button startIcon={<IconUrl path="ic-export-new"/>}
                                                     color="info"
@@ -758,7 +758,7 @@ function Cashbox() {
                                                 {t("export")}
                                             </Button>
                                         </Can>
-                                    }
+                                    }*/}
                                 </Stack>
                                 <InsuranceDocket/>
                             </CardContent>

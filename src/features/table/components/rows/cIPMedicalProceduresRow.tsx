@@ -92,28 +92,30 @@ function CIPMedicalProceduresRow({...props}) {
                         />
                     </Stack>
                 </TableCell>
+
                 <TableCell>
                     <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"}>
                         <Typography fontWeight={500} color='text.primary'>
                             {row.act.name}
                         </Typography>
+
                         {
                             row.insurances.length > 0 &&
-                            <Tooltip
-                                title={allInsurances.find((insurance: any) => insurance.uuid === row.insurance)?.name}>
-                                <IconButton disabled={!row.selected} onClick={() => setCollapse(!collapse)}>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    {row.insurance ? <img
-                                            alt={"insurance name"}
-                                            width={20} height={20}
-                                            src={allInsurances.find((insurance: any) => insurance.uuid === row.insurance)?.logoUrl?.url}/> :
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <IconUrl path={"ic-assurance"} width={20} height={20}/>
-                                    }                                </IconButton>
-                            </Tooltip>
+
+                            <IconButton disabled={!row.selected} onClick={() => setCollapse(!collapse)}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                {row.insurance ? <img
+                                        alt={"insurance name"}
+                                        width={20} height={20}
+                                        src={allInsurances.find((insurance: any) => insurance.uuid === row.insurance)?.logoUrl?.url}/> :
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <IconUrl path={"ic-assurance"} width={20} height={20}/>
+                                }
+                            </IconButton>
                         }
                     </Stack>
                 </TableCell>
+
                 <TableCell align="center">
 
                     {row.selected ? <InputBaseStyled
@@ -293,14 +295,14 @@ function CIPMedicalProceduresRow({...props}) {
                 </TableCell>
 
                 <TableCell align={"center"}>
-                <span style={{
+                <Typography style={{
                     fontWeight: "bold",
                     color: "black"
-                }}>{row.qte ? row.fees * row.qte : row.fees}</span>
+                }}>{row.qte ? row.fees * row.qte : row.fees}</Typography>
                 </TableCell>
             </TableRowStyled>
 
-            {collapse && <TableRowStyled className="row-collapse">
+           {collapse && <TableRowStyled className="row-collapse">
                 <TableCell colSpan={7}
                            style={{
                                backgroundColor: "none",

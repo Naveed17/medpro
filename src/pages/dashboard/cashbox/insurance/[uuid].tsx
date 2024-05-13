@@ -257,21 +257,18 @@ function ConsultationInProgress() {
 
     const uuid = router.query.uuid;
 
-    const {data: httpDocket, mutate} = useRequestQuery({
+    const {data: httpDocket} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/insurance-dockets/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/${router.locale}`,
     })
 
-    console.log(httpDocket)
-
+/*
     const {data: httpInsurances} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
     });
+*/
 
-    const insuranceList = httpInsurances?.data;
-
-    console.log(insuranceList)
 
     const tabsData = [
         ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
@@ -297,9 +294,8 @@ function ConsultationInProgress() {
     }
 
     useEffect(() => {
-        if (httpDocket) {
-            console.log(httpDocket)
-        }
+            console.log("dockets",httpDocket)
+
     }, [httpDocket]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (

@@ -55,7 +55,7 @@ function AgreementsRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.finDate}
+                        {row.endDate}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
