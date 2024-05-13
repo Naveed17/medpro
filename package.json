@@ -42,7 +42,7 @@
     "@pqina/flip": "^1.8.1",
     "@react-pdf/renderer": "^3.4.4",
     "@reduxjs/toolkit": "^2.2.0",
-    "@sentry/nextjs": "^8.0.0",
+    "@sentry/nextjs": "^7.114.0",
     "@serwist/next": "^9.0.2",
     "@serwist/precaching": "^9.0.2",
     "@serwist/sw": "^9.0.2",
