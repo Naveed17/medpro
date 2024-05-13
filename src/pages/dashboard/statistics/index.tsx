@@ -87,7 +87,7 @@ function Statistics() {
         }
     })
     const [schedules, setSchedules] = useState<any>([]);
-    console.log(schedules)
+
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-stats/${router.locale}?format=${viewChart}`
