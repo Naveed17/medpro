@@ -1,3 +1,10 @@
+## [4.24.1](https://github.com/SmartMedSA/med-pro/compare/v4.24.0...v4.24.1) (2024-05-12)
+
+
+### Bug Fixes
+
+* request.headers.split is not a function sentry ([4350b9c](https://github.com/SmartMedSA/med-pro/commit/4350b9ca95acbf91494f64c1579a9c35acf6fffe))
+
 # [4.24.0](https://github.com/SmartMedSA/med-pro/compare/v4.23.7...v4.24.0) (2024-05-11)
 
 
