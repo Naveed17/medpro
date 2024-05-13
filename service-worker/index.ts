@@ -1,5 +1,5 @@
-import {PrecacheController, PrecacheEntry} from "@serwist/precaching";
-import {Serwist} from "@serwist/sw";
+import type {PrecacheEntry} from "serwist";
+import {Serwist} from "serwist";
 import {defaultCache} from "@serwist/next/worker";
 
 declare const self: ServiceWorkerGlobalScope & {
@@ -10,17 +10,12 @@ declare const self: ServiceWorkerGlobalScope & {
 };
 
 const serwist = new Serwist({
-    precacheController: new PrecacheController({
-        concurrentPrecaching: 10,
-    }),
-});
-
-serwist.install({
     precacheEntries: self.__SW_MANIFEST,
-    cleanupOutdatedCaches: true,
     skipWaiting: true,
     clientsClaim: true,
     navigationPreload: true,
     disableDevLogs: true,
     runtimeCaching: process.env.NODE_ENV === "development" ? undefined : defaultCache
 });
+
+serwist.addEventListeners();
