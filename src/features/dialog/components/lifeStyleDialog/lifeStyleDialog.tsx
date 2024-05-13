@@ -485,7 +485,9 @@ function LifeStyleDialog({...props}) {
                                             }) => ant.slug === action).uuid,
                                             uuid: res.uuid,
                                             value_type: -1,
-                                            multiple: false
+                                            multiple: false,
+                                            hideStartTime:true,
+                                            hideEndTime:true
                                         })
                                         setState([...state, {
                                             uuid: res.uuid,
