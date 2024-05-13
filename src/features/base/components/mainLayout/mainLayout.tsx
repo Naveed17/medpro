@@ -41,7 +41,13 @@ import {DefaultCountry, EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
-import {isAppleDevise, isSupported, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {
+    isAppleDevise,
+    isSupported,
+    useCalculateCnxSpeed,
+    useInvalidateQueries,
+    useMedicalEntitySuffix
+} from "@lib/hooks";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
@@ -71,7 +77,7 @@ function MainLayout({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-    //useCalculateCnxSpeed(); // Check speed connection
+    useCalculateCnxSpeed(); // Check speed connection
     const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);

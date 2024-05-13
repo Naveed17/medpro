@@ -9,7 +9,6 @@ export default async function server_env(req: NextApiRequest, res: NextApiRespon
     if (session) {
         res.send(JSON.stringify(process.env[key], null, 2))
     } else {
-
         res.send({
             error: "You must be sign in to view the protected content on this page.",
         })

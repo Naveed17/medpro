@@ -6,6 +6,7 @@ interface MedicalProfessionalModel {
     sendSms?: boolean;
     isValid: boolean;
     publicName: string;
+    email: string;
     registrationStep: number;
     civility: CivilityModel;
     languages: MedicalProfessionalLanguageModel[];
