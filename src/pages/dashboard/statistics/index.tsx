@@ -169,7 +169,7 @@ function Statistics() {
                         if (statsPerPeriod.common_start_time[day[1]]) {
                             schedulesData.push({
                                 x: t(`days.${day[0]}`, {ns: "common"}),
-                                y: [parseFloat(statsPerPeriod.common_start_time[day[1]]?.replace(":", ".")), parseFloat(statsPerPeriod.common_end_time[day[1]]?.replace(":", "."))]
+                                y: [moment.duration(statsPerPeriod.common_start_time[day[1]]).asHours(), moment.duration(statsPerPeriod.common_end_time[day[1]]).asHours()]
                             })
                         }
                     }
@@ -386,18 +386,30 @@ function Statistics() {
                                                         chart: {
                                                             height: 350,
                                                             type: 'rangeBar',
-                                                            zoom: {
-                                                                enabled: false
+                                                            distributed: true,
+                                                            dataLabels: {
+                                                                hideOverflowingLabels: false
                                                             }
                                                         },
+                                                        dataLabels: {
+                                                            enabled: false,
+                                                            textAnchor: 'start',
+                                                            formatter: function (val: string, opt: any) {
+                                                                const duration = moment.duration(val, 'hours');
+                                                                return `${duration.hours()}:${duration.minutes()} h`
+                                                            },
+                                                        },
                                                         tooltip: {
-                                                            custom: ({series, seriesIndex, dataPointIndex, w}: any) => {
+                                                            custom: ({seriesIndex, dataPointIndex, w}: any) => {
                                                                 const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
                                                                 return renderToString(
                                                                     <Card>
                                                                         <CardContent>
                                                                             <Typography
-                                                                                variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => `${item.toFixed(2).replace(".", ":")} h ${index === 0 ? '- ' : ''}`)}
+                                                                                variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => {
+                                                                                const duration = moment.duration(item, 'hours');
+                                                                                return `${duration.hours()}:${duration.minutes()} h ${index === 0 ? '- ' : ''}`
+                                                                            })}
                                                                             </Typography>
                                                                         </CardContent>
                                                                     </Card>);
@@ -420,7 +432,7 @@ function Statistics() {
                                                         },
                                                         plotOptions: {
                                                             bar: {
-                                                                columnWidth: '46%',
+                                                                columnWidth: '48%',
                                                                 borderRadius: 3
                                                             }
                                                         },
@@ -428,7 +440,8 @@ function Statistics() {
                                                             labels: {
                                                                 show: true,
                                                                 formatter: (val: string) => {
-                                                                    return `${val} h`;
+                                                                    const duration = moment.duration(val, 'hours');
+                                                                    return `${duration.hours()}:${duration.minutes()} h`;
                                                                 }
                                                             }
                                                         },
@@ -1490,19 +1503,53 @@ function Statistics() {
                                             options={merge(ChartsOption(), {
                                                 chart: {
                                                     height: 350,
-                                                    type: 'rangeBar',
-                                                    zoom: {
-                                                        enabled: false
+                                                    type: 'rangeBar'
+                                                },
+                                                bar: {
+                                                    dataLabels: {
+                                                        position: 'top'
                                                     }
                                                 },
+                                                dataLabels: {
+                                                    enabled: true,
+                                                    textAnchor: 'start',
+                                                    formatter: function (val: string, opt: any) {
+                                                        const startTime = schedules[opt.dataPointIndex].y[0];
+                                                        const durationStart = moment.duration(startTime, 'hours');
+                                                        const durationEnd = moment.duration(val, 'hours');
+                                                        return `${durationStart.hours()}:${durationStart.minutes()} h - ${durationEnd.hours()}:${durationEnd.minutes()} h`
+                                                    },
+                                                    offsetX: -44,
+                                                    dropShadow: {
+                                                        enabled: true,
+                                                        opacity: 0.5
+                                                    },
+                                                    style: {
+                                                        colors: ['#333'],
+                                                        fontSize: '12px',
+                                                        fontWeight: 'bold',
+                                                    },
+                                                    background: {
+                                                        enabled: true,
+                                                        color: theme.palette.primary.main,
+                                                        borderRadius: 4,
+                                                        padding: 4,
+                                                        opacity: 0.9,
+                                                        borderWidth: 1,
+                                                        borderColor: '#fff'
+                                                    },
+                                                },
                                                 tooltip: {
-                                                    custom: ({series, seriesIndex, dataPointIndex, w}: any) => {
+                                                    custom: ({seriesIndex, dataPointIndex, w}: any) => {
                                                         const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
                                                         return renderToString(
                                                             <Card>
                                                                 <CardContent>
                                                                     <Typography
-                                                                        variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => `${item.toFixed(2).replace(".", ":")} h ${index === 0 ? '- ' : ''}`)}
+                                                                        variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => {
+                                                                        const duration = moment.duration(item, 'hours');
+                                                                        return `${duration.hours()}:${duration.minutes()} h ${index === 0 ? '- ' : ''}`
+                                                                    })}
                                                                     </Typography>
                                                                 </CardContent>
                                                             </Card>);
@@ -1525,7 +1572,7 @@ function Statistics() {
                                                 },
                                                 plotOptions: {
                                                     bar: {
-                                                        columnWidth: '14%',
+                                                        columnWidth: '48%',
                                                         borderRadius: 3
                                                     }
                                                 },
@@ -1533,7 +1580,8 @@ function Statistics() {
                                                     labels: {
                                                         show: true,
                                                         formatter: (val: string) => {
-                                                            return `${val} h`;
+                                                            const duration = moment.duration(val, 'hours');
+                                                            return `${duration.hours()}:${duration.minutes()} h`;
                                                         }
                                                     }
                                                 },
