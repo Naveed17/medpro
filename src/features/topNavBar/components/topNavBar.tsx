@@ -13,7 +13,7 @@ import {
     IconButton, Menu,
     MenuItem,
     MenuList, Stack,
-    Toolbar, Tooltip, Typography,
+    Toolbar, Typography,
     useMediaQuery, useTheme
 } from "@mui/material";
 // components
