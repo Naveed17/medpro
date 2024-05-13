@@ -44,6 +44,7 @@ import {useCountries} from "@lib/hooks/rest";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {renderToString} from "react-dom/server";
 
 const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 
@@ -85,8 +86,8 @@ function Statistics() {
             ]
         }
     })
-    const [schedules, setSchedules] = useState<any>(null);
-
+    const [schedules, setSchedules] = useState<any>([]);
+    console.log(schedules)
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-stats/${router.locale}?format=${viewChart}`
@@ -162,13 +163,20 @@ function Statistics() {
                 "SUN": "Sunday"
             }
             let schedules: any = {}
+            let schedulesData: any = []
             Object.entries(days).forEach(
                 day => {
                     if (statsPerPeriod.common_start_time && statsPerPeriod.common_end_time) {
                         schedules[day[0]] = statsPerPeriod.common_start_time[day[1]] ? convertDurationToMin(statsPerPeriod.common_start_time[day[1]], statsPerPeriod.common_end_time[day[1]]) : 0
+                        if (statsPerPeriod.common_start_time[day[1]]) {
+                            schedulesData.push({
+                                x: t(`days.${day[0]}`, {ns: "common"}),
+                                y: [parseFloat(statsPerPeriod.common_start_time[day[1]]?.replace(":", ".")), parseFloat(statsPerPeriod.common_end_time[day[1]]?.replace(":", "."))]
+                            })
+                        }
                     }
                 })
-            setSchedules(schedules)
+            setSchedules(schedulesData)
         }
     }, [statsPerPeriod]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -374,46 +382,61 @@ function Statistics() {
                                             </Stack>
                                             <ChartStyled>
                                                 <Chart
-                                                    type='bar'
-                                                    series={
-                                                        [
-                                                            {
-                                                                name: 'Temps de travail de la journée',
-                                                                data: (schedules ? Object.values(schedules) : []) as any[]
-                                                            }
-                                                        ]
-                                                    }
+                                                    type='rangeBar'
+                                                    series={[{data: schedules}]}
                                                     options={merge(ChartsOption(), {
                                                         chart: {
-                                                            type: 'bar',
-                                                            stacked: true,
+                                                            height: 350,
+                                                            type: 'rangeBar',
+                                                            zoom: {
+                                                                enabled: false
+                                                            }
+                                                        },
+                                                        tooltip: {
+                                                            custom: ({series, seriesIndex, dataPointIndex, w}: any) => {
+                                                                const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+                                                                return renderToString(
+                                                                    <Card>
+                                                                        <CardContent>
+                                                                            <Typography
+                                                                                variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => `${item.toFixed(2).replace(".", ":")} h ${index === 0 ? '- ' : ''}`)}
+                                                                            </Typography>
+                                                                        </CardContent>
+                                                                    </Card>);
+                                                            }
+                                                        },
+                                                        fill: {
+                                                            opacity: 1
+                                                        },
+                                                        grid: {
+                                                            xaxis: {
+                                                                lines: {
+                                                                    show: true
+                                                                }
+                                                            },
+                                                            yaxis: {
+                                                                lines: {
+                                                                    show: false
+                                                                }
+                                                            },
                                                         },
                                                         plotOptions: {
                                                             bar: {
-                                                                horizontal: false,
-                                                                borderRadius: 3,
-                                                                columnWidth: '30%',
-                                                            },
+                                                                columnWidth: '46%',
+                                                                borderRadius: 3
+                                                            }
                                                         },
                                                         yaxis: {
                                                             labels: {
                                                                 show: true,
                                                                 formatter: (val: string) => {
-                                                                    return val + "h";
+                                                                    return `${val} h`;
                                                                 }
                                                             }
                                                         },
                                                         xaxis: {
-                                                            type: 'day',
-                                                            categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
-                                                        },
-                                                        fill: {
-                                                            opacity: 1
-                                                        },
-                                                        legend: {
-                                                            show: false
+                                                            tickPlacement: 'on'
                                                         }
-
                                                     }) as any}
                                                     height={240}
                                                 />
@@ -480,7 +503,7 @@ function Statistics() {
                                                                 <Typography lineHeight={1} fontWeight={600}
                                                                             fontSize={24}
                                                                             variant="subtitle1">
-                                                                    --
+                                                                    {statsPerPeriod ? statsPerPeriod["waiting_time"] : "--"}
                                                                 </Typography>
                                                                 <Typography variant="caption">
                                                                     min
@@ -1464,48 +1487,61 @@ function Statistics() {
 
                                     <ChartStyled>
                                         <Chart
-                                            type='bar'
-                                            series={
-                                                [
-                                                    {
-                                                        name: 'Temps de travail de la journée',
-                                                        data: (schedules ? Object.values(schedules) : []) as any[]
-                                                    }
-                                                ]
-                                            }
+                                            type='rangeBar'
+                                            series={[{data: schedules}]}
                                             options={merge(ChartsOption(), {
                                                 chart: {
-                                                    type: 'bar',
-                                                    stacked: true,
-
+                                                    height: 350,
+                                                    type: 'rangeBar',
+                                                    zoom: {
+                                                        enabled: false
+                                                    }
                                                 },
-                                                plotOptions: {
-                                                    bar: {
-                                                        horizontal: false,
-                                                        borderRadius: 3,
-                                                        columnWidth: '10%',
-                                                    },
-                                                },
-                                                xaxis: {
-                                                    type: 'day',
-                                                    categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'
-                                                    ],
-                                                },
-                                                yaxis: {
-                                                    labels: {
-                                                        show: true,
-                                                        formatter: (val: string) => {
-                                                            return val + "h";
-                                                        }
+                                                tooltip: {
+                                                    custom: ({series, seriesIndex, dataPointIndex, w}: any) => {
+                                                        const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+                                                        return renderToString(
+                                                            <Card>
+                                                                <CardContent>
+                                                                    <Typography
+                                                                        variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => `${item.toFixed(2).replace(".", ":")} h ${index === 0 ? '- ' : ''}`)}
+                                                                    </Typography>
+                                                                </CardContent>
+                                                            </Card>);
                                                     }
                                                 },
                                                 fill: {
                                                     opacity: 1
                                                 },
-                                                legend: {
-                                                    show: false
+                                                grid: {
+                                                    xaxis: {
+                                                        lines: {
+                                                            show: true
+                                                        }
+                                                    },
+                                                    yaxis: {
+                                                        lines: {
+                                                            show: false
+                                                        }
+                                                    },
+                                                },
+                                                plotOptions: {
+                                                    bar: {
+                                                        columnWidth: '14%',
+                                                        borderRadius: 3
+                                                    }
+                                                },
+                                                yaxis: {
+                                                    labels: {
+                                                        show: true,
+                                                        formatter: (val: string) => {
+                                                            return `${val} h`;
+                                                        }
+                                                    }
+                                                },
+                                                xaxis: {
+                                                    tickPlacement: 'on'
                                                 }
-
                                             }) as any}
                                             height={240}
                                         />
