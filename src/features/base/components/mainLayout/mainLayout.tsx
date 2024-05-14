@@ -319,7 +319,7 @@ function MainLayout({...props}) {
         if (typeof window !== "undefined" && window?.UpscopeLoad && general_information && process.env.NODE_ENV !== 'development') {
             fetchAndActivate(remoteConfig).then(() => {
                 const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
-                if (!config.upscope) {
+                if (config.upscope) {
                     window.UpscopeLoad(window, window.Upscope, document);
                     window.Upscope('init');
                     window.Upscope('updateConnection', {
