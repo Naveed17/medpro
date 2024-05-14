@@ -120,7 +120,6 @@ function Statistics() {
         millisecond: 0
     })).reverse();
     const appointmentPerPeriod = (appointmentStats?.period ? durations.map(duration => appointmentStats.period[`${duration.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
-    const appointmentPerPeriodKeys = (appointmentStats?.period ? Object.keys(appointmentStats.period) : []) as any[];
     const motifPerPeriod = (appointmentStats?.motif ?? []) as any[];
     const actPerPeriod = (appointmentStats?.act ?? []) as any[];
     const typePerPeriod = (appointmentStats?.type ?? []) as any[];
@@ -299,8 +298,8 @@ function Statistics() {
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
-                                                            categories: appointmentPerPeriodKeys.map(date =>
-                                                                startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).slice(-12)
+                                                            categories: durations.map(date =>
+                                                                startCase(date.format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', '')))
                                                         },
                                                         tooltip: {x: {show: false}, marker: {show: false}},
                                                         colors: ['#1BC47D', '#FEC400'],
@@ -967,8 +966,8 @@ function Statistics() {
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
-                                                            categories: appointmentPerPeriodKeys.map(date =>
-                                                                startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).slice(-12)
+                                                            categories: durations.map(date =>
+                                                                startCase(date.format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', '')))
                                                         },
                                                         tooltip: {x: {show: false}, marker: {show: false}},
                                                         colors: ['#1BC47D', '#FEC400'],
