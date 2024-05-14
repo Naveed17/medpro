@@ -264,7 +264,7 @@ function AppointmentListMobile({...props}) {
                                         !prepareContextMenu(dataFilter.action, {
                                             ...event,
                                             status: event?.status
-                                        } as EventModal, roles))}
+                                        } as EventModal))}
                                     onClickItem={handleMenuClick}
                                     button={
                                         <IconButton

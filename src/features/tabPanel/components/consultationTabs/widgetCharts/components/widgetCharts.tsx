@@ -19,7 +19,7 @@ function WidgetCharts({...props}) {
 
     const getData = () => {
         let res: string[] = [];
-        Object.keys(sheet[selectedKey].data).map(val => res.push(sheet[selectedKey].data[val]))
+        Object.keys(sheet[selectedKey].data).forEach(val => res.push(sheet[selectedKey].data[val]))
         return res
     }
 

@@ -337,9 +337,11 @@ export const PsychomotorDevelopmentXY = [
     {
         key: "premiere_dent",
         coordinates: {
-            startDate: {x: 405, y: 438, size: 12}
+            start: {x: 405, y: 438, size: 12}
         }
     }
 ]
 
 export const signs = ['Bélier: Le Bélier', 'Taureau: Le Taureau', 'Gémeaux: Les Gémeaux', 'Cancer: Le Crabe', 'Lion: Le Lion', 'Vierge: La Vierge', 'Balance: La Balance', 'Scorpion: Le Scorpion', 'Sagittaire: Le Sagittaire', 'Capricorne: Le Capricorne', 'Verseau: Le Verseau', 'Poissons: Les Poissons'];
+
+export const arabicRegExp = /[\u0600-\u06FF]/;

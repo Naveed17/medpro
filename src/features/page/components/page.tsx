@@ -310,7 +310,7 @@ function Page({...props}) {
                             setBlockDrag(false)
                         }}>
 
-                        <div id={`title${id}`} style={{textAlign: "center"}} onClick={(ev) => {
+                        <div id={`title${id}`} style={{textAlign: "center",fontWeight:"bold"}} onClick={(ev) => {
                             ev.stopPropagation()
                             setSelectedElement("title")
                         }}>
@@ -429,7 +429,9 @@ function Page({...props}) {
                             setBlockDrag(false)
                         }}>
 
-                        <div id={`patient${id}`} onClick={(ev) => {
+                        <div id={`patient${id}`}
+                             style={{fontWeight:"bold"}}
+                             onClick={(ev) => {
                             ev.stopPropagation()
                             setSelectedElement("patient")
                         }}>

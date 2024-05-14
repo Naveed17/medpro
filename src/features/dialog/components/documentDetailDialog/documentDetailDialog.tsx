@@ -219,6 +219,8 @@ function DocumentDetailDialog({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
+    const medical_professional = (user as UserDataResponse).medical_professional;
+    const roles = (user as UserDataResponse)?.general_information.roles;
 
     const {trigger: triggerDocumentUpdate} = useRequestQueryMutation("/documents/update");
     const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/documents/delete");
@@ -489,7 +491,7 @@ function DocumentDetailDialog({...props}) {
         setLoadingReq(true);
         const form = new FormData();
         form.append('receiver', data.receiver);
-        form.append('sender', general_information.email);
+        form.append('sender', !roles.includes('ROLE_SECRETARY') ? general_information.email : (medical_professional?.email ?? ""));
         form.append('subject', data.subject);
         form.append('content', data.content);
         if (data.withFile) {
@@ -1004,7 +1006,8 @@ function DocumentDetailDialog({...props}) {
                     patient,
                     preview: previewDoc,
                     loading: loadingReq,
-                    title: state?.title ?? "", t,
+                    title: state?.title ?? (t(state?.type) ?? ""),
+                    t,
                     handleSendEmail
                 }}
                 onClose={() => setSendEmailDrawer(false)}

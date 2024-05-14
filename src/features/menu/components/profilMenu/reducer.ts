@@ -17,10 +17,9 @@ const initialState: MenuState = {
 };
 
 export const ProfileMenuReducer = createReducer(initialState, builder => {
-    builder
-        .addCase(openMenu, (state, action) => {
-            state.opened = action.payload;
-        }).addCase(logout, (state, action) => {
+    builder.addCase(openMenu, (state, action) => {
+        state.opened = action.payload;
+    }).addCase(logout, (state, action) => {
         if (action.payload.redirect) {
             state.logout = action.payload.path;
             signOut({redirect: true, callbackUrl: "/api/auth/signout"});

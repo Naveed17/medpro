@@ -44,6 +44,7 @@ import {useCountries} from "@lib/hooks/rest";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {renderToString} from "react-dom/server";
 
 const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 
@@ -85,7 +86,7 @@ function Statistics() {
             ]
         }
     })
-    const [schedules, setSchedules] = useState<any>(null);
+    const [schedules, setSchedules] = useState<any>([]);
 
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",
@@ -161,14 +162,19 @@ function Statistics() {
                 "SAT": "Saturday",
                 "SUN": "Sunday"
             }
-            let schedules: any = {}
+            let schedulesData: any = []
             Object.entries(days).forEach(
                 day => {
                     if (statsPerPeriod.common_start_time && statsPerPeriod.common_end_time) {
-                        schedules[day[0]] = statsPerPeriod.common_start_time[day[1]] ? convertDurationToMin(statsPerPeriod.common_start_time[day[1]], statsPerPeriod.common_end_time[day[1]]) : 0
+                        if (statsPerPeriod.common_start_time[day[1]]) {
+                            schedulesData.push({
+                                x: t(`days.${day[0]}`, {ns: "common"}),
+                                y: [moment.duration(statsPerPeriod.common_start_time[day[1]]).asHours(), moment.duration(statsPerPeriod.common_end_time[day[1]]).asHours()]
+                            })
+                        }
                     }
                 })
-            setSchedules(schedules)
+            setSchedules(schedulesData)
         }
     }, [statsPerPeriod]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -374,46 +380,74 @@ function Statistics() {
                                             </Stack>
                                             <ChartStyled>
                                                 <Chart
-                                                    type='bar'
-                                                    series={
-                                                        [
-                                                            {
-                                                                name: 'Temps de travail de la journée',
-                                                                data: (schedules ? Object.values(schedules) : []) as any[]
-                                                            }
-                                                        ]
-                                                    }
+                                                    type='rangeBar'
+                                                    series={[{data: schedules}]}
                                                     options={merge(ChartsOption(), {
                                                         chart: {
-                                                            type: 'bar',
-                                                            stacked: true,
+                                                            height: 350,
+                                                            type: 'rangeBar',
+                                                            distributed: true,
+                                                            dataLabels: {
+                                                                hideOverflowingLabels: false
+                                                            }
+                                                        },
+                                                        dataLabels: {
+                                                            enabled: false,
+                                                            textAnchor: 'start',
+                                                            formatter: function (val: string, opt: any) {
+                                                                const duration = moment.duration(val, 'hours');
+                                                                return `${duration.hours()}:${duration.minutes()} h`
+                                                            },
+                                                        },
+                                                        tooltip: {
+                                                            custom: ({seriesIndex, dataPointIndex, w}: any) => {
+                                                                const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+                                                                return renderToString(
+                                                                    <Card>
+                                                                        <CardContent>
+                                                                            <Typography
+                                                                                variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => {
+                                                                                const duration = moment.duration(item, 'hours');
+                                                                                return `${duration.hours()}:${duration.minutes()} h ${index === 0 ? '- ' : ''}`
+                                                                            })}
+                                                                            </Typography>
+                                                                        </CardContent>
+                                                                    </Card>);
+                                                            }
+                                                        },
+                                                        fill: {
+                                                            opacity: 1
+                                                        },
+                                                        grid: {
+                                                            xaxis: {
+                                                                lines: {
+                                                                    show: true
+                                                                }
+                                                            },
+                                                            yaxis: {
+                                                                lines: {
+                                                                    show: false
+                                                                }
+                                                            },
                                                         },
                                                         plotOptions: {
                                                             bar: {
-                                                                horizontal: false,
-                                                                borderRadius: 3,
-                                                                columnWidth: '30%',
-                                                            },
+                                                                columnWidth: '48%',
+                                                                borderRadius: 3
+                                                            }
                                                         },
                                                         yaxis: {
                                                             labels: {
                                                                 show: true,
                                                                 formatter: (val: string) => {
-                                                                    return val + "h";
+                                                                    const duration = moment.duration(val, 'hours');
+                                                                    return `${duration.hours()}:${duration.minutes()} h`;
                                                                 }
                                                             }
                                                         },
                                                         xaxis: {
-                                                            type: 'day',
-                                                            categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
-                                                        },
-                                                        fill: {
-                                                            opacity: 1
-                                                        },
-                                                        legend: {
-                                                            show: false
+                                                            tickPlacement: 'on'
                                                         }
-
                                                     }) as any}
                                                     height={240}
                                                 />
@@ -480,7 +514,7 @@ function Statistics() {
                                                                 <Typography lineHeight={1} fontWeight={600}
                                                                             fontSize={24}
                                                                             variant="subtitle1">
-                                                                    --
+                                                                    {statsPerPeriod ? statsPerPeriod["waiting_time"] : "--"}
                                                                 </Typography>
                                                                 <Typography variant="caption">
                                                                     min
@@ -1464,48 +1498,96 @@ function Statistics() {
 
                                     <ChartStyled>
                                         <Chart
-                                            type='bar'
-                                            series={
-                                                [
-                                                    {
-                                                        name: 'Temps de travail de la journée',
-                                                        data: (schedules ? Object.values(schedules) : []) as any[]
-                                                    }
-                                                ]
-                                            }
+                                            type='rangeBar'
+                                            series={[{data: schedules}]}
                                             options={merge(ChartsOption(), {
                                                 chart: {
-                                                    type: 'bar',
-                                                    stacked: true,
-
+                                                    height: 350,
+                                                    type: 'rangeBar'
                                                 },
-                                                plotOptions: {
-                                                    bar: {
-                                                        horizontal: false,
-                                                        borderRadius: 3,
-                                                        columnWidth: '10%',
+                                                bar: {
+                                                    dataLabels: {
+                                                        position: 'top'
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: true,
+                                                    textAnchor: 'start',
+                                                    formatter: function (val: string, opt: any) {
+                                                        const startTime = schedules[opt.dataPointIndex].y[0];
+                                                        const durationStart = moment.duration(startTime, 'hours');
+                                                        const durationEnd = moment.duration(val, 'hours');
+                                                        return `${durationStart.hours()}:${durationStart.minutes()} h - ${durationEnd.hours()}:${durationEnd.minutes()} h`
+                                                    },
+                                                    offsetX: -44,
+                                                    dropShadow: {
+                                                        enabled: true,
+                                                        opacity: 0.5
+                                                    },
+                                                    style: {
+                                                        colors: ['#333'],
+                                                        fontSize: '12px',
+                                                        fontWeight: 'bold',
+                                                    },
+                                                    background: {
+                                                        enabled: true,
+                                                        color: theme.palette.primary.main,
+                                                        borderRadius: 4,
+                                                        padding: 4,
+                                                        opacity: 0.9,
+                                                        borderWidth: 1,
+                                                        borderColor: '#fff'
                                                     },
                                                 },
-                                                xaxis: {
-                                                    type: 'day',
-                                                    categories: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'
-                                                    ],
-                                                },
-                                                yaxis: {
-                                                    labels: {
-                                                        show: true,
-                                                        formatter: (val: string) => {
-                                                            return val + "h";
-                                                        }
+                                                tooltip: {
+                                                    custom: ({seriesIndex, dataPointIndex, w}: any) => {
+                                                        const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+                                                        return renderToString(
+                                                            <Card>
+                                                                <CardContent>
+                                                                    <Typography
+                                                                        variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => {
+                                                                        const duration = moment.duration(item, 'hours');
+                                                                        return `${duration.hours()}:${duration.minutes()} h ${index === 0 ? '- ' : ''}`
+                                                                    })}
+                                                                    </Typography>
+                                                                </CardContent>
+                                                            </Card>);
                                                     }
                                                 },
                                                 fill: {
                                                     opacity: 1
                                                 },
-                                                legend: {
-                                                    show: false
+                                                grid: {
+                                                    xaxis: {
+                                                        lines: {
+                                                            show: true
+                                                        }
+                                                    },
+                                                    yaxis: {
+                                                        lines: {
+                                                            show: false
+                                                        }
+                                                    },
+                                                },
+                                                plotOptions: {
+                                                    bar: {
+                                                        columnWidth: '48%',
+                                                        borderRadius: 3
+                                                    }
+                                                },
+                                                yaxis: {
+                                                    labels: {
+                                                        show: true,
+                                                        formatter: (val: string) => {
+                                                            const duration = moment.duration(val, 'hours');
+                                                            return `${duration.hours()}:${duration.minutes()} h`;
+                                                        }
+                                                    }
+                                                },
+                                                xaxis: {
+                                                    tickPlacement: 'on'
                                                 }
-
                                             }) as any}
                                             height={240}
                                         />
