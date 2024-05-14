@@ -18,6 +18,8 @@ declare global {
 
         Upscope(action: String, options?: any): void
 
+        UpscopeLoad(window: Window, Upscope: any, document: Document): void
+
         usetifulTags: Object
     }
 
