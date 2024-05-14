@@ -1,3 +1,20 @@
+# [4.25.0](https://github.com/SmartMedSA/med-pro/compare/v4.24.1...v4.25.0) (2024-05-13)
+
+
+### Bug Fixes
+
+* secretary sender issues ([72c6c1c](https://github.com/SmartMedSA/med-pro/commit/72c6c1c2e46211d389c1137817746b91a4bf2217))
+* serwist update dependency ([e01d441](https://github.com/SmartMedSA/med-pro/commit/e01d441fc917312a1e8582b3a6de9983239b6e56))
+* serwist update dependency ([036a486](https://github.com/SmartMedSA/med-pro/commit/036a4861066549dd9f6d65cde8c9aa58f5e079b9))
+* stats data issues ([3285a95](https://github.com/SmartMedSA/med-pro/commit/3285a956584ca841538b6f5a1a8876a2c30220f7))
+* stats start end time ranges ([a1a2521](https://github.com/SmartMedSA/med-pro/commit/a1a25211cd4ed61734f9ad243f40ad55bd6309ec))
+* update dependency ([21465fa](https://github.com/SmartMedSA/med-pro/commit/21465fa21e27fb564b9576ea880b37fef09e93c0))
+
+
+### Features
+
+* check connexion status ([0dee72e](https://github.com/SmartMedSA/med-pro/commit/0dee72e6be935bf47932cc3380b512de3a4b5017))
+
 ## [4.24.1](https://github.com/SmartMedSA/med-pro/compare/v4.24.0...v4.24.1) (2024-05-12)
 
 
