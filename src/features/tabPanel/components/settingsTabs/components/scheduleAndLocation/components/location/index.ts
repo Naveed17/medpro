@@ -1,1 +1,1 @@
-export {default as LocationPanel} from './location'
+export {default as LocationPanel} from './locationPanel'

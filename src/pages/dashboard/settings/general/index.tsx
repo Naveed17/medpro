@@ -37,7 +37,7 @@ function General() {
     const stepperData = SettingConfig.dashboard.find(v => v.name === "general")?.submenu ?? [];
     const breadcrumbsDataMap = breadcrumbsData.map((item, i) => {
         if (breadcrumbsData.length - 1 === i) {
-            item.title = stepperData[tabIndex].name;
+            item.title = stepperData[tabIndex]?.name;
             item.title = capitalize(item.title.replace(/_/g, ' '))
 
         }

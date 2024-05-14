@@ -345,6 +345,7 @@
       "cancel": "Annuler",
       "path": "Paramètres > Lieux de consultation",
       "remove": "Supprimer un lieu",
+      "title": "Lieux",
       "askRemove": "Voulez vous vraiment supprimer ce lieu ?",
       "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de ce lieu",
       "table": {
