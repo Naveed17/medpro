@@ -393,7 +393,7 @@ function Statistics() {
                                                         dataLabels: {
                                                             enabled: false,
                                                             textAnchor: 'start',
-                                                            formatter: function (val: string, opt: any) {
+                                                            formatter: function (val: string) {
                                                                 const duration = moment.duration(val, 'hours');
                                                                 return `${duration.hours()}:${duration.minutes()} h`
                                                             },
