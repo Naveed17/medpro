@@ -3,6 +3,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from '@sentry/nextjs';
+import {EnvPattern} from "./src/lib/constants";
 
 const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
 const PATH_URL = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_API_URL;
@@ -11,7 +12,7 @@ Sentry.init({
     dsn: SENTRY_DSN,
     // Adjust this value in production, or use tracesSampler for greater control, For development purposes you can keep it at 1.0. For production it is better to decrease this to 0.1
     tracesSampleRate: 0.1,
-    enabled: !["localhost", "develop", "master"].some(element => PATH_URL.includes(element)),
+    enabled: !EnvPattern.some(element => PATH_URL.includes(element)),
     // This sets the sample rate to be 10%. You may want this to be 100% while
     // in development and sample at a lower rate in production
     replaysSessionSampleRate: 0.1,

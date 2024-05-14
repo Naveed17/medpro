@@ -829,7 +829,6 @@ function PersonalInfo({...props}) {
                                             <Skeleton width={100}/>
                                         ) : (
                                             <AsyncAutoComplete
-                                                loading={loadingRequest}
                                                 value={values.civilStatus}
                                                 {...(editable && {
                                                     sx: {

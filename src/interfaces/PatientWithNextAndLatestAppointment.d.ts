@@ -10,6 +10,8 @@ interface PatientWithNextAndLatestAppointment {
     account: AccountModel;
     gender: string;
     cin: string;
+    addressedBy: string;
+    civilStatus: string;
     profession: string;
     familyDoctor: string;
     insurances: PatientInsuranceModel[];
