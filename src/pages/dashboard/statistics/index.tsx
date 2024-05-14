@@ -28,7 +28,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
-import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {CalendarViewButton} from "@features/buttons";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
@@ -142,12 +142,6 @@ function Statistics() {
         "f": "female",
         "m": "male",
         "u": "other"
-    }
-
-    const convertDurationToMin = (startTime: string, endTime: string) => {
-        const duration = getDiffDuration(`${moment().format("DD-MM-YYY")} ${startTime}`, 1, false, `${moment().format("DD-MM-YYY")} ${endTime}`);
-        const durationEntity = duration.split(" ");
-        return durationEntity[1] === 'h' ? parseFloat(durationEntity[0]) : parseFloat((parseFloat(durationEntity[0]) * 0.01).toFixed(2))
     }
 
     useEffect(() => {
