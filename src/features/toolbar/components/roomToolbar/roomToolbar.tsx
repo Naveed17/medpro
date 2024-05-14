@@ -1,4 +1,4 @@
-import { Stack, useMediaQuery, Button, Tabs, Tab, Badge, Avatar, useTheme } from '@mui/material'
+import { Stack, useMediaQuery, Button, Tabs, Tab, Badge, Avatar, useTheme, Typography } from '@mui/material'
 import { DrawerBottom } from '@features/drawerBottom';
 import { WaitingRoom } from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
@@ -16,7 +16,16 @@ import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { agendaSelector, setNavigatorMode } from "@features/calendar";
 import { ToggleButtonStyled } from "@features/toolbar";
-
+import { Breadcrumbs } from '@features/breadcrumbs';
+const breadcrumbsData = [
+    {
+        title: "Queue Management",
+        href: "/dashboard/waiting-room"
+    },
+    {
+        title: "Overview"
+    }
+]
 function RoomToolbar({ ...props }) {
     const {
         t,
@@ -58,33 +67,41 @@ function RoomToolbar({ ...props }) {
     }, [setTabIndex]);
 
     return (
+
+
         <Stack
             sx={{
                 ".tabs-bg-white.tabs-bg-white": {
                     borderTopWidth: 0,
                 }
-            }} direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
-            <Tabs
-                value={tabIndex}
-                onChange={handleStepperIndexChange}
-                variant="scrollable"
-                aria-label="basic tabs example"
-                className="tabs-bg-white">
-                {tabsContent.map((tabHeader, tabHeaderIndex) => (
-                    <Tab
-                        key={`tabHeader-${tabHeaderIndex}`}
-                        disableRipple
-                        label={t(`tabs.${tabHeader.title}`)}
+            }} direction='row' justifyContent="space-between" mt={1} mb={isMobile ? 0 : 1} width={1} alignItems="center">
+            <Stack spacing={1}>
+                <Breadcrumbs data={[...breadcrumbsData]} />
+                <Typography variant='subtitle1'>{t("subheader.title")}</Typography>
+                {isMobile && (
+                    <Tabs
+                        value={tabIndex}
+                        onChange={handleStepperIndexChange}
+                        variant="scrollable"
+                        aria-label="basic tabs example"
+                        className="tabs-bg-white">
+                        {tabsContent.map((tabHeader, tabHeaderIndex) => (
+                            <Tab
+                                key={`tabHeader-${tabHeaderIndex}`}
+                                disableRipple
+                                label={t(`tabs.${tabHeader.title}`)}
 
-                        {...a11yProps(tabHeaderIndex)}
-                        {...(isMobile && {
-                            sx: {
-                                display: tabHeader.title === 'overview' ? 'none' : 'inline-flex'
-                            }
-                        })}
-                    />)
+                                {...a11yProps(tabHeaderIndex)}
+                                {...(isMobile && {
+                                    sx: {
+                                        display: tabHeader.title === 'overview' ? 'none' : 'inline-flex'
+                                    }
+                                })}
+                            />)
+                        )}
+                    </Tabs>
                 )}
-            </Tabs>
+            </Stack>
             <Stack direction='row' alignItems="center" spacing={1}>
                 {isMobile && (
                     <React.Fragment>
@@ -224,6 +241,7 @@ function RoomToolbar({ ...props }) {
                 </ToggleButtonStyled>
             </Stack>
         </Stack>
+
     )
 }
 
