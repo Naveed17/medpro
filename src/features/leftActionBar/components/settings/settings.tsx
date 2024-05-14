@@ -49,9 +49,8 @@ function Settings() {
                 <nav aria-label="main mailbox folders">
                     <List>
                         {settingsData[hasAdminAccess ? "admin" : "dashboard"].map((item: any) => (
-                            // <Can key={item.name} I={"read"} a={"settings"}
-                            //      field={`settings__${item.href.split('/')[3]}__show` as any}>
-                            <>
+                            <Can key={item.name} I={"read"} a={"settings"}
+                                field={`settings__${item.href.split('/')[3]}__show` as any}>
                                 <ListItem
                                     key={"menu-" + item.name}
                                     {...(item.disable && { sx: { display: "none" } })}
@@ -82,8 +81,7 @@ function Settings() {
                                         </List>
                                     </Collapse>
                                 }
-                            </>
-                            // </Can>
+                            </Can>
                         ))}
                     </List>
                 </nav>
