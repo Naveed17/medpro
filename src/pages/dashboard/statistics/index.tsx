@@ -28,7 +28,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
-import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {CalendarViewButton} from "@features/buttons";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
@@ -120,7 +120,6 @@ function Statistics() {
         millisecond: 0
     })).reverse();
     const appointmentPerPeriod = (appointmentStats?.period ? durations.map(duration => appointmentStats.period[`${duration.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
-    const appointmentPerPeriodKeys = (appointmentStats?.period ? Object.keys(appointmentStats.period) : []) as any[];
     const motifPerPeriod = (appointmentStats?.motif ?? []) as any[];
     const actPerPeriod = (appointmentStats?.act ?? []) as any[];
     const typePerPeriod = (appointmentStats?.type ?? []) as any[];
@@ -143,12 +142,6 @@ function Statistics() {
         "f": "female",
         "m": "male",
         "u": "other"
-    }
-
-    const convertDurationToMin = (startTime: string, endTime: string) => {
-        const duration = getDiffDuration(`${moment().format("DD-MM-YYY")} ${startTime}`, 1, false, `${moment().format("DD-MM-YYY")} ${endTime}`);
-        const durationEntity = duration.split(" ");
-        return durationEntity[1] === 'h' ? parseFloat(durationEntity[0]) : parseFloat((parseFloat(durationEntity[0]) * 0.01).toFixed(2))
     }
 
     useEffect(() => {
@@ -299,8 +292,8 @@ function Statistics() {
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
-                                                            categories: appointmentPerPeriodKeys.map(date =>
-                                                                startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).slice(-12)
+                                                            categories: durations.map(date =>
+                                                                startCase(date.format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', '')))
                                                         },
                                                         tooltip: {x: {show: false}, marker: {show: false}},
                                                         colors: ['#1BC47D', '#FEC400'],
@@ -394,7 +387,7 @@ function Statistics() {
                                                         dataLabels: {
                                                             enabled: false,
                                                             textAnchor: 'start',
-                                                            formatter: function (val: string, opt: any) {
+                                                            formatter: function (val: string) {
                                                                 const duration = moment.duration(val, 'hours');
                                                                 return `${duration.hours()}:${duration.minutes()} h`
                                                             },
@@ -967,8 +960,8 @@ function Statistics() {
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
-                                                            categories: appointmentPerPeriodKeys.map(date =>
-                                                                startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).slice(-12)
+                                                            categories: durations.map(date =>
+                                                                startCase(date.format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', '')))
                                                         },
                                                         tooltip: {x: {show: false}, marker: {show: false}},
                                                         colors: ['#1BC47D', '#FEC400'],
