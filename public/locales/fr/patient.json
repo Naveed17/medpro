@@ -438,6 +438,7 @@
     "addInsurance": "Cliquez sur le bouton « + » pour ajouter assurance",
     "expire": "Expire le",
     "edit": "Modifier",
-    "save": "Enregistrer"
+    "save": "Enregistrer",
+    "add": "Ajouter"
   }
 }

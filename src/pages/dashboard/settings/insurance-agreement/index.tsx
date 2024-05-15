@@ -288,7 +288,7 @@ function InsuranceAndAgreement() {
             <MedDialog
                 action={"agreement"}
                 open={openAgreementDialog}
-                data={{t, devise, stepperData, collapse,selectedRow}}
+                data={{t, devise, stepperData, collapse,selectedRow,agreements}}
                 direction={direction}
                 sx={{bgcolor: theme.palette.background.default}}
                 dialogClose={() => {

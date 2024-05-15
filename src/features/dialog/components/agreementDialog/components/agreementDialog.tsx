@@ -10,7 +10,7 @@ import {Insurance} from "@features/stepper/components/insurance";
 import {useInsurances} from "@lib/hooks/rest";
 
 function AgreementDialog({...props}) {
-    const {data: {t, devise, stepperData, collapse = false, selectedRow}} = props;
+    const {data: {t, devise, stepperData, collapse = false, selectedRow,agreements}} = props;
 
     const {insurances} = useInsurances();
 
@@ -103,7 +103,7 @@ function AgreementDialog({...props}) {
                         </Stack>
                         <Stack>
                             <AnimatePresence mode="wait">
-                                <Insurance {...{t, devise, formik, collapse, selected: values.selected, insurances}} />
+                                <Insurance {...{t, devise, formik, collapse, selected: values.selected, insurances,agreements}} />
                             </AnimatePresence>
                         </Stack>
                     </Form>

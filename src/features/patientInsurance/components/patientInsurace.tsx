@@ -7,11 +7,17 @@ import AddInsurance from "@features/patientInsurance/components/addInsurance";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import CardInsurance from "@features/patientInsurance/components/cardInsurance";
 import {useTranslation} from "next-i18next";
+import {prepareInsurancesData} from "@lib/hooks";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
 
 const PatientInsurance = ({...props}) => {
-    const {patientInsurances,mutatePatientInsurances,patient,urlMedicalEntitySuffix,medicalEntityHasUser} = props;
+    const {patientInsurances, mutatePatientInsurances, patient, urlMedicalEntitySuffix, medicalEntityHasUser} = props;
 
     const {t} = useTranslation(["patient", "common"]);
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
+    const {trigger: triggerDelete} = useRequestQueryMutation("/insurance/delete");
+    const router = useRouter();
 
     const noAppData = {
         mainIcon: "ic-assurance",
@@ -21,6 +27,55 @@ const PatientInsurance = ({...props}) => {
 
     const [addNew, setAddNew] = useState(false);
     const [selectedInsurance, setSelectedInsurance] = useState("");
+
+
+    const handleUpdatePatient = ({...props}) => {
+        console.log(props)
+        const {
+            values,
+            selectedBox,
+            apcis,
+            contacts,
+            selectedConv,
+            requestAction,
+            setSelected,
+            setSelectedConv,
+            resetForm,
+            pi
+        } = props
+
+        const params = new FormData();
+        params.append('insurance', JSON.stringify(prepareInsurancesData({
+            insurances: [{...values.insurance,box: selectedBox ? selectedBox.uuid : "",
+                apcis,contact: contacts?.length > 0 && contacts[0].uuid,medical_entity_has_insurance: selectedConv ? selectedConv.uuid : ""}],
+        })[0]));
+
+        medicalEntityHasUser && triggerPatientUpdate({
+            method: requestAction,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${pi.uuid}/` : ""}${router.locale}`,
+            data: params
+        }, {
+            onSuccess: () => {
+                setAddNew(false)
+                setSelected(null);
+                setSelectedConv(null)
+                resetForm();
+                setSelectedInsurance && setSelectedInsurance("");
+                mutatePatientInsurances && mutatePatientInsurances();
+            }
+        })
+    }
+
+    const deleteInsurance = (uuid:string)=>{
+        medicalEntityHasUser && triggerDelete({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${uuid}/${router.locale}`,
+        }, {
+            onSuccess: () => {
+                mutatePatientInsurances && mutatePatientInsurances();
+            }
+        })
+    }
 
     return (
         <InsuranceStyled spacing={1}>
@@ -43,26 +98,23 @@ const PatientInsurance = ({...props}) => {
 
             <Collapse in={addNew}>
                 <Box className={"insurance-box"}>
-                    {addNew && <AddInsurance {...{t, setAddNew, mutatePatientInsurances, patient}}/>}
+                    {addNew && <AddInsurance {...{handleUpdatePatient}}/>}
                 </Box>
             </Collapse>
 
             {patientInsurances?.map((pi: any) => (
                 <Box key={pi.uuid} className={"insurance-box"}>
                     <Collapse in={selectedInsurance !== pi.insurance.uuid}>
-                        <CardInsurance {...{pi,t, setSelectedInsurance,urlMedicalEntitySuffix,medicalEntityHasUser,patient,mutatePatientInsurances}}/>
+                        <CardInsurance {...{
+                            pi,t, setSelectedInsurance,deleteInsurance
+                        }}/>
                     </Collapse>
                     <Collapse in={selectedInsurance === pi.insurance.uuid}>
-                        {selectedInsurance === pi.insurance.uuid && <AddInsurance {...{
-                            t,
-                            pi,
-                            setAddNew,
-                            patient,
-                            mutatePatientInsurances,
-                            requestAction: "PUT",
-                            setSelectedInsurance
-                        }}/>
-                        }                    </Collapse>
+                        {
+                            selectedInsurance === pi.insurance.uuid &&
+                            <AddInsurance {...{handleUpdatePatient, pi, requestAction: "PUT"}}/>
+                        }
+                    </Collapse>
                 </Box>
             ))}
 

@@ -81,7 +81,7 @@ function InsuranceAgreementRow({...props}) {
                                 type: row.mutual ===""?'insurance':'agreement',
                                 insurance: row.insurance,
                                 label: row.label,
-                                name:row.insurance.name,
+                                name:row.insurance ? row.insurance.name : row.mutual,
                                 startDate: moment(row.startDate,'DD-MM-YYYY'),
                                 endDate: moment(row.endDate,'DD-MM-YYYY'),
                                 acts: []

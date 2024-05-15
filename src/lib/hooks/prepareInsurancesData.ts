@@ -1,7 +1,7 @@
 import moment from "moment/moment";
 
 export const prepareInsurancesData = ({...props}) => {
-    const {insurances, box,apcis, contact,medical_entity_has_insurance} = props;
+    const {insurances} = props;
     const UpdatedInsurances: any[] = [];
 
     insurances.map((insurance: InsurancesModel) => {
@@ -21,9 +21,7 @@ export const prepareInsurancesData = ({...props}) => {
             ...(insurance.start_date && {start_date: moment(insurance.start_date).format('DD/MM/YYYY')}),
             ...(insurance.end_date && {end_date: moment(insurance.end_date).format('DD/MM/YYYY')}),
             ...(insurance.insurance_book_uuid && {insurance_book: insurance.insurance_book_uuid}),
-            box,
-            medical_entity_has_insurance,
-            ...(apcis.length > 0 && {apci: apcis.join(',')}),
+            ...(insurance.apcis && insurance.apcis.length > 0 && {apci: insurance.apcis.join(',')}),
             ...(insurance.insurance_type !== "0" && {
                 insurance_social: {
                     ...insurance.insurance_social,
@@ -31,7 +29,7 @@ export const prepareInsurancesData = ({...props}) => {
                     ...(phone && {
                         phone: {
                             ...insurance.insurance_social?.phone,
-                            contact_type: contact,
+                            contact_type: insurance.contact,
                             value: phone as string
                         }
                     })

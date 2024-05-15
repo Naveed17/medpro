@@ -8,10 +8,8 @@ import {useRouter} from "next/router";
 
 const CardInsurance = ({...props}) => {
 
-    const {pi,t, setSelectedInsurance,urlMedicalEntitySuffix,medicalEntityHasUser,patient,mutatePatientInsurances} = props;
+    const {pi,t, setSelectedInsurance,deleteInsurance} = props;
     const {insurances} = useInsurances()
-    const {trigger: triggerDelete} = useRequestQueryMutation("/insurance/delete");
-    const router = useRouter();
 
     const theme = useTheme();
     return (
@@ -43,14 +41,7 @@ const CardInsurance = ({...props}) => {
                 <IconButton
                     onClick={event => {
                         event.stopPropagation();
-                        medicalEntityHasUser && triggerDelete({
-                            method: "DELETE",
-                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${pi.uuid}/${router.locale}`,
-                        }, {
-                            onSuccess: () => {
-                                mutatePatientInsurances && mutatePatientInsurances();
-                            }
-                        })
+                        deleteInsurance(pi.uuid)
                     }}
                     size="small">
                     <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>

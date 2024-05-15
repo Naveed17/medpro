@@ -17,7 +17,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import IconUrl from "@themes/urlIcon";
 import {useContactType, useInsurances} from "@lib/hooks/rest";
 import {useRequestQueryMutation} from "@lib/axios";
-import {prepareInsurancesData, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
@@ -53,14 +53,18 @@ const GroupItems = styled('ul')({
 });
 
 const AddInsurance = ({...props}) => {
-    const {t, pi, setAddNew, patient, requestAction = "POST", mutatePatientInsurances, setSelectedInsurance} = props;
+    const { pi, requestAction = "POST", handleUpdatePatient} = props;
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
+    const router = useRouter();
+
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {contacts} = useContactType();
+    const {t} = useTranslation(["patient", "common"]);
+
 
     const RegisterPatientSchema = Yup.object().shape({
         insurances: Yup.array().of(
@@ -117,13 +121,13 @@ const AddInsurance = ({...props}) => {
         enableReinitialize: true,
         initialValues: {
             insurance: {
-                insurance_book: pi && pi.insuranceBook ?pi.insuranceBook?.insuranceNumber : "",
-                insurance_book_uuid: pi ? pi.insuranceBook?.uuid : "",
+                insurance_book: pi && pi.insuranceBook ? pi.insuranceBook?.insuranceNumber : "",
+                insurance_book_uuid: pi && pi.insuranceBook ? pi.insuranceBook?.uuid : "",
                 start_date: pi && pi.insuranceBook ? new Date(moment(pi.insuranceBook?.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
                 end_date: pi && pi.insuranceBook ? new Date(moment(pi.insuranceBook?.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
                 insurance_key: "",
-                insurance_number: pi ? pi.insuranceNumber : "",
-                insurance_uuid: pi ? pi.insurance.uuid : "",
+                insurance_number: pi && pi.insuranceNumber ? pi.insuranceNumber : "",
+                insurance_uuid: pi && pi.insurance? pi.insurance.uuid : "",
                 insurance_type: pi ? pi.type.toString() : "",
                 insurance_social: {
                     firstName: pi && pi.insuredPerson ? pi.insuredPerson.firstName : "",
@@ -144,12 +148,11 @@ const AddInsurance = ({...props}) => {
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
-            handleUpdatePatient();
+            handleUpdatePatient({...{values, selectedBox, apcis, contacts, selectedConv, requestAction, setSelected, setSelectedConv, resetForm, pi}});
         }
     });
 
     const {insurances} = useInsurances();
-    const router = useRouter();
     const {t: commonTranslation} = useTranslation("common");
 
     const [selected, setSelected] = useState<InsuranceModel | null>(pi ? insurances.find(insc => insc.uuid === pi.insurance.uuid) as InsuranceModel : null);
@@ -170,41 +173,8 @@ const AddInsurance = ({...props}) => {
     const phoneInputRef = useRef(null);
 
     const {trigger} = useRequestQueryMutation("/insurance/agreements");
-    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
     const {trigger: triggerConvention} = useRequestQueryMutation("/insurance/conv");
 
-    const handleUpdatePatient = () => {
-        console.log(JSON.stringify(prepareInsurancesData({
-            insurances: [values.insurance],
-            box: selectedBox ? selectedBox.uuid : "",
-            apcis,
-            medical_entity_has_insurance: selectedConv ? selectedConv.uuid : "",
-            contact: contacts?.length > 0 && contacts[0].uuid
-        })[0]))
-       const params = new FormData();
-        params.append('insurance', JSON.stringify(prepareInsurancesData({
-            insurances: [values.insurance],
-            box: selectedBox ? selectedBox.uuid : "",
-            apcis,
-            medical_entity_has_insurance: selectedConv ? selectedConv.uuid : "",
-            contact: contacts?.length > 0 && contacts[0].uuid
-        })[0]));
-
-        medicalEntityHasUser && triggerPatientUpdate({
-            method: requestAction,
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${pi.uuid}/` : ""}${router.locale}`,
-            data: params
-        }, {
-            onSuccess: () => {
-                setAddNew(false)
-                setSelected(null);
-                setSelectedConv(null)
-                resetForm();
-                setSelectedInsurance && setSelectedInsurance("");
-                mutatePatientInsurances && mutatePatientInsurances();
-            }
-        })
-    }
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
@@ -279,6 +249,7 @@ const AddInsurance = ({...props}) => {
                         size="small"
                         value={getFieldProps(`insurance.insurance_number`)?.value || null}
                         onChange={(ev) => {
+                            console.log(ev.target.value)
                             setFieldValue(`insurance.insurance_number`, ev.target.value);
                         }}
                         fullWidth/>
@@ -654,7 +625,9 @@ const AddInsurance = ({...props}) => {
             </Stack>}
 
             <Button variant={"contained"}
-                    onClick={handleUpdatePatient}>{t(pi ? t('insurance.edit') : t('insurance.save'))}</Button>
+                    onClick={()=>{
+                        handleUpdatePatient({...{values, selectedBox, apcis, contacts, selectedConv, requestAction, setSelected, setSelectedConv, resetForm, pi}});
+                    }}>{t(pi ? t('insurance.edit') : t('insurance.add'))}</Button>
         </Stack>
     );
 }

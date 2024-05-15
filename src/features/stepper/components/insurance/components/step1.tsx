@@ -1,4 +1,4 @@
-import {Collapse, Stack, TextField, Typography,} from "@mui/material";
+import {Collapse, ListItem, ListItemText, Stack, TextField, Typography,} from "@mui/material";
 import {motion} from "framer-motion";
 import {DatePicker} from "@features/datepicker";
 import React from "react";
@@ -9,8 +9,10 @@ import Autocomplete from "@mui/material/Autocomplete";
 import IconUrl from "@themes/urlIcon";
 
 function Step1({...props}) {
-    const {t, collapse, insurances} = props;
+    const {t, collapse, insurances, agreements} = props;
+    const agreementList = agreements.filter((ag: any) => ag.insurance?.isConvention)
     const {agreement} = useAppSelector(stepperSelector);
+
     const dispatch = useAppDispatch();
 
     return (
@@ -43,28 +45,46 @@ function Step1({...props}) {
                         popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
                         size={"small"}
                         onChange={(event, newValue) => {
-                            let _agreement = {...agreement}
-                            _agreement.insurance = newValue
-                            dispatch(SetAgreement(_agreement))
-                            /* setFieldValue("insurance", {
-                                 ...values.insurance,
-                                 select_insurance: newValue
-                             });*/
+                            dispatch(SetAgreement({...agreement, insurance: newValue}))
                         }}
                         renderInput={(params) => (
-                            <TextField {...params} placeholder={t('dialog.stepper.select_insurance')} variant="outlined"/>
+                            <TextField {...params} placeholder={t('dialog.stepper.select_insurance')}
+                                       variant="outlined"/>
                         )}
-                    /> : <TextField
+                    /> : <Autocomplete
+                        id={"role"}
+                        autoHighlight
+                        size="small"
+                        options={agreementList}
+                        freeSolo
                         value={agreement?.name}
-                        onChange={(event) => {
-                            let _agreement = {...agreement}
-                            _agreement.name = event.target.value
-                            dispatch(SetAgreement(_agreement))
+                        onInputChange={(ev, newVal) => dispatch(SetAgreement({...agreement, name: newVal}))}
+                        getOptionLabel={(option) => {
+                            if (typeof option === 'string') {
+                                const item = agreementList.find((al:{mutual:string}) => al.mutual === option)
+                                SetAgreement({...agreement, insurance: item ? item.insurance: null})
+                                return option;
+                            }
+                            if (option.inputValue) {
+                                return option.inputValue;
+                            }
+                            return option.mutual;
                         }}
-                        placeholder={t("dialog.stepper.name")}
-                    />}
-
-
+                        renderOption={(props, option) => (
+                            <ListItem {...props}>
+                                <ListItemText primary={option?.mutual}/>
+                            </ListItem>
+                        )}
+                        sx={{color: "text.secondary"}}
+                        renderInput={params =>
+                            <TextField
+                                {...params}
+                                color={"info"}
+                                sx={{paddingLeft: 0}}
+                                placeholder={t("dialog.stepper.name")}
+                                variant="outlined"
+                                fullWidth/>}/>
+                    }
                 </Stack>
                 <Stack spacing={0.5} width={1}>
                     <Typography variant="body2" color="text.secondary">
@@ -72,11 +92,7 @@ function Step1({...props}) {
                     </Typography>
                     <TextField
                         value={agreement?.label}
-                        onChange={(event) => {
-                            let _agreement = {...agreement}
-                            _agreement.label = event.target.value
-                            dispatch(SetAgreement(_agreement))
-                        }}
+                        onChange={(event) => dispatch(SetAgreement({...agreement, label: event.target.value}))}
                         placeholder={t("dialog.stepper.placeholer_description")}
                     />
                 </Stack>
@@ -88,12 +104,7 @@ function Step1({...props}) {
                     </Typography>
                     <DatePicker
                         value={agreement?.startDate}
-                        onChange={(newValue: any) => {
-                            let _agreement = {...agreement}
-                            _agreement.startDate = newValue;
-                            dispatch(SetAgreement(_agreement))
-                        }}
-                    />
+                        onChange={(newValue: any) => dispatch(SetAgreement({...agreement, startDate: newValue}))}/>
                 </Stack>
                 <Stack spacing={0.5} width={1}>
                     <Typography variant="body2" color="text.secondary">

@@ -3,7 +3,8 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
 import {
-    Autocomplete, Avatar,
+    Autocomplete,
+    Avatar,
     Box,
     Button,
     Card,
@@ -15,7 +16,9 @@ import {
     FormHelperText,
     Grid,
     IconButton,
-    InputAdornment, ListItem, ListItemText,
+    InputAdornment,
+    ListItem,
+    ListItemText,
     MenuItem,
     Stack,
     TextField,
@@ -45,6 +48,9 @@ import {useTranslation} from "next-i18next";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {AsyncAutoComplete} from "@features/autoComplete";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import AddIcon from "@mui/icons-material/Add";
+import AddInsurance from "@features/patientInsurance/components/addInsurance";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -73,6 +79,7 @@ function AddPatientStep2({...props}) {
     const phoneInputRef = useRef(null);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
+    console.log(insurances)
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true", contacts.length > 0);
 
@@ -85,11 +92,9 @@ function AddPatientStep2({...props}) {
     const [collapse, setCollapse] = useState<String[]>(["patient-info"])
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
-    const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
-        ...Insured,
-        grouped: commonTranslation(`social_insured.${Insured.grouped}`),
-        label: commonTranslation(`social_insured.${Insured.label}`)
-    })));
+    const [addNew, setAddNew] = useState(false);
+
+    const [patientInsurances, setPatientInsurances] = useState<any>([]);
     const [loadingReq, setLoadingReq] = useState(false);
 
     const RegisterSchema = Yup.object().shape({
@@ -241,7 +246,7 @@ function AddPatientStep2({...props}) {
             [router.locale as string]: values.address
         }));
         form.append('insurance', JSON.stringify(prepareInsurancesData({
-            insurances: values.insurance,
+            insurances: patientInsurances,
             contact: contacts[0].uuid
         })));
         form.append('email', values.email);
@@ -310,6 +315,32 @@ function AddPatientStep2({...props}) {
         formik.setFieldValue("insurance", insurance);
     };
 
+    const handleUpdatePatient  = ({...props}) => {
+        console.log(props)
+        const {
+            values,
+            selectedBox,
+            apcis,
+            contacts,
+            selectedConv,
+            setSelected,
+            setSelectedConv,
+            resetForm
+        } = props
+
+        setPatientInsurances([...patientInsurances,{...values.insurance,box: selectedBox ? selectedBox.uuid : "",
+            apcis,contact: contacts?.length > 0 && contacts[0].uuid,medical_entity_has_insurance: selectedConv ? selectedConv.uuid : ""}])
+        setAddNew(false);
+        setSelected(null);
+        setSelectedConv(null)
+        resetForm();
+    }
+
+    const deleteInsurance = (uuid:string) => {
+        console.log(uuid)
+        console.log(patientInsurances)
+    }
+
     useEffect(() => {
         if (countries?.length > 0) {
             const defaultCountry = countries.find(country => country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
@@ -328,6 +359,10 @@ function AddPatientStep2({...props}) {
             setFieldValue("region", professionalState.uuid);
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(()=>{
+        console.log("patientInsurances",patientInsurances)
+    },[patientInsurances])
 
     return (
         <FormikProvider value={formik}>
@@ -770,29 +805,60 @@ function AddPatientStep2({...props}) {
                         </Stack>
                     </Collapse>
                     <Divider sx={{mt: 4}}/>
-                    <Stack my={2} sx={{cursor: 'pointer'}} onClick={() => {
-                        const newCollapse = [...collapse];
-                        if (collapse.includes("insurance-info")) {
-                            const index = collapse.indexOf("insurance-info");
-                            newCollapse.splice(index, 1);
-                            setCollapse(newCollapse);
-                        } else {
-                            newCollapse.push('insurance-info');
-                            setCollapse(newCollapse);
-                        }
-                    }} direction='row' alignItems='center' justifyContent='space-between'>
-                        <Typography variant="h6" color="text.primary">
+                    <Stack my={2} sx={{cursor: 'pointer'}} direction='row' alignItems={"center"} spacing={1}>
+                        <IconButton
+                            onClick={() => setAddNew(prev => !prev)}
+                            color={"success"}
+                            className="success-light"
+                            sx={{
+                                mr: 1.5,
+                                "& svg": {
+                                    width: 20,
+                                    height: 20,
+                                },
+                            }}>
+                            {addNew ? <CloseRoundedIcon/> : <AddIcon/>}
+                        </IconButton>
+                        <Typography color="text.primary">
                             {t("add-patient.insurance-info")}
                         </Typography>
-                        <Box sx={{
-                            '.react-svg': {
-                                transform: collapse.includes("insurance-info") ? "scale(1)" : 'scale(-1)'
-                            }
-                        }}>
-                            <Icon path="ic-up-arrow"/>
-                        </Box>
                     </Stack>
-                    <Collapse in={collapse.includes("insurance-info")}>
+
+                    <Collapse in={addNew}>
+                        <Box className={"insurance-box"}>
+                            {addNew && <AddInsurance {...{handleUpdatePatient}}/>}
+                        </Box>
+                    </Collapse>
+
+                    {
+                        patientInsurances.map((pi:any) => (
+                            <Stack key={pi.uuid} direction={"row"} className={"insurance-box"}>
+                                <IconButton
+                                    onClick={() => setAddNew(prev => !prev)}
+                                    color={"error"}
+                                    className="error-light"
+                                    sx={{
+                                        mr: 1.5,
+                                        width: 30,
+                                        height: 30,
+                                        "& svg": {
+                                            width: 20,
+                                            height: 20,
+                                        },
+                                    }}>
+                                    <AddIcon/>
+                                </IconButton>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img width={25} height={25} src={insurances.find(ins => ins.uuid === pi.insurance_uuid)?.logoUrl.url} alt={"insurance logo"}/>
+                                <Stack>
+                                    <Typography>{insurances.find(ins => ins.uuid === pi.insurance_uuid)?.name}</Typography>
+                                    <Typography>{pi.insurance_number}</Typography>
+                                </Stack>
+                            </Stack>
+                        ))
+                    }
+
+                    {/*<Collapse in={collapse.includes("insurance-info")}>
                         <Box>
                             <Typography sx={{mb: 1.5, textTransform: "capitalize"}}>
                                 <IconButton
@@ -812,256 +878,259 @@ function AddPatientStep2({...props}) {
                                 {t("add-patient.assurance")}
                             </Typography>
                             <Box>
-                                {values.insurance.map((
-                                    val: { insurance_number: string; insurance_uuid: string; },
-                                    index: number) => (
-                                    <Card key={index} sx={{marginBottom: 2}}>
-                                        <CardHeader
-                                            sx={{
-                                                "& .MuiCardHeader-action": {
-                                                    marginTop: 0
-                                                }
-                                            }}
-                                            action={
-                                                <IconButton
-                                                    size={"small"}
-                                                    onClick={() => handleRemoveInsurance(index)}
-                                                    className="error-light"
-                                                    sx={{
-                                                        mr: 1.5,
-                                                        mt: .3,
-                                                        "& svg": {
-                                                            width: 20,
-                                                            height: 20,
-                                                            "& path": {
-                                                                fill: (theme) => theme.palette.text.primary,
-                                                            },
-                                                        },
-                                                    }}
-                                                >
-                                                    <Icon path="ic-moin"/>
-                                                </IconButton>
-                                            }
-                                            avatar={
-                                                <Stack direction={"row"} alignItems={"center"}>
-                                                    <Autocomplete
+                                {
+                                    values.insurance.map((
+                                        val: { insurance_number: string; insurance_uuid: string; },
+                                        index: number) => (
+                                        <Card key={index} sx={{marginBottom: 2}}>
+                                            <CardHeader
+                                                sx={{
+                                                    "& .MuiCardHeader-action": {
+                                                        marginTop: 0
+                                                    }
+                                                }}
+                                                action={
+                                                    <IconButton
                                                         size={"small"}
-                                                        value={getFieldProps(`insurance[${index}].insurance_type`) ?
-                                                            socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
-                                                        onChange={(event, insurance: any) => {
-                                                            setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
-                                                            setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
+                                                        onClick={() => handleRemoveInsurance(index)}
+                                                        className="error-light"
+                                                        sx={{
+                                                            mr: 1.5,
+                                                            mt: .3,
+                                                            "& svg": {
+                                                                width: 20,
+                                                                height: 20,
+                                                                "& path": {
+                                                                    fill: (theme) => theme.palette.text.primary,
+                                                                },
+                                                            },
                                                         }}
-                                                        id={"assure"}
-                                                        options={socialInsurances}
-                                                        groupBy={(option: any) => option.grouped}
-                                                        sx={{minWidth: 460}}
-                                                        getOptionLabel={(option: any) => option?.label ?? ""}
-                                                        isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
-                                                        renderGroup={(params) => {
-                                                            return (
-                                                                <li key={params.key}>
-                                                                    {(params.children as Array<any>)?.length > 1 &&
-                                                                        <GroupHeader
-                                                                            sx={{marginLeft: 0.8}}>{params.group}</GroupHeader>}
-                                                                    <GroupItems {...(
-                                                                        (params.children as Array<any>)?.length > 1 &&
-                                                                        {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
-                                                                </li>)
-                                                        }}
-                                                        renderInput={(params) => {
-                                                            return (<TextField {...params}
-                                                                               placeholder={t("add-patient.patient-placeholder")}/>)
-                                                        }}
-                                                    />
-                                                </Stack>
-                                            }/>
-                                        <CardContent sx={{padding: "0 16px 16px"}}>
-                                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                {t("add-patient.assurance-social")}
-                                            </Typography>
-                                            <Grid
-                                                container
-                                                spacing={2}>
-                                                <Grid item xs={12} md={4}>
-                                                    <FormControl fullWidth>
+                                                    >
+                                                        <Icon path="ic-moin"/>
+                                                    </IconButton>
+                                                }
+                                                avatar={
+                                                    <Stack direction={"row"} alignItems={"center"}>
                                                         <Autocomplete
                                                             size={"small"}
-                                                            value={insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) ?
-                                                                insurances.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) : ""}
+                                                            value={getFieldProps(`insurance[${index}].insurance_type`) ?
+                                                                socialInsurances.find(insuranceType => insuranceType.value === getFieldProps(`insurance[${index}].insurance_type`).value) : ""}
                                                             onChange={(event, insurance: any) => {
-                                                                setFieldValue(`insurance[${index}].insurance_uuid`, insurance?.uuid);
+                                                                setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
+                                                                setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                             }}
-                                                            id={"assurance"}
-                                                            options={insurances ? insurances : []}
-                                                            getOptionLabel={option => option?.name ?? ""}
-                                                            isOptionEqualToValue={(option: any, value) => option.name === value.name}
-                                                            renderOption={(params, option) => (
-                                                                <Stack key={`assurance-${option.uuid}`}>
-                                                                    <MenuItem
-                                                                        {...params}
-
-                                                                        value={option.uuid}>
-                                                                        <Avatar
-                                                                            sx={{
-                                                                                width: 20,
-                                                                                height: 20,
-                                                                                borderRadius: 0.4
-                                                                            }}
-                                                                            alt={"insurance"}
-                                                                            src={option.logoUrl.url}
-                                                                        />
-                                                                        <Typography
-                                                                            sx={{ml: 1}}>{option.name}</Typography>
-                                                                    </MenuItem>
-                                                                </Stack>
-                                                            )}
+                                                            id={"assure"}
+                                                            options={socialInsurances}
+                                                            groupBy={(option: any) => option.grouped}
+                                                            sx={{minWidth: 460}}
+                                                            getOptionLabel={(option: any) => option?.label ?? ""}
+                                                            isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
+                                                            renderGroup={(params) => {
+                                                                return (
+                                                                    <li key={params.key}>
+                                                                        {(params.children as Array<any>)?.length > 1 &&
+                                                                            <GroupHeader
+                                                                                sx={{marginLeft: 0.8}}>{params.group}</GroupHeader>}
+                                                                        <GroupItems {...(
+                                                                            (params.children as Array<any>)?.length > 1 &&
+                                                                            {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
+                                                                    </li>)
+                                                            }}
                                                             renderInput={(params) => {
-                                                                const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
-                                                                params.InputProps.startAdornment = insurance && (
-                                                                    <InputAdornment position="start">
-                                                                        {insurance?.logoUrl &&
+                                                                return (<TextField {...params}
+                                                                                   placeholder={t("add-patient.patient-placeholder")}/>)
+                                                            }}
+                                                        />
+                                                    </Stack>
+                                                }/>
+                                            <CardContent sx={{padding: "0 16px 16px"}}>
+                                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                    {t("add-patient.assurance-social")}
+                                                </Typography>
+                                                <Grid
+                                                    container
+                                                    spacing={2}>
+                                                    <Grid item xs={12} md={4}>
+                                                        <FormControl fullWidth>
+                                                            <Autocomplete
+                                                                size={"small"}
+                                                                value={insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) ?
+                                                                    insurances.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value) : ""}
+                                                                onChange={(event, insurance: any) => {
+                                                                    setFieldValue(`insurance[${index}].insurance_uuid`, insurance?.uuid);
+                                                                }}
+                                                                id={"assurance"}
+                                                                options={insurances ? insurances : []}
+                                                                getOptionLabel={option => option?.name ?? ""}
+                                                                isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                                                renderOption={(params, option) => (
+                                                                    <Stack key={`assurance-${option.uuid}`}>
+                                                                        <MenuItem
+                                                                            {...params}
+
+                                                                            value={option.uuid}>
                                                                             <Avatar
                                                                                 sx={{
                                                                                     width: 20,
                                                                                     height: 20,
                                                                                     borderRadius: 0.4
                                                                                 }}
-                                                                                alt="insurance"
-                                                                                src={insurance?.logoUrl.url}
-                                                                            />}
-                                                                    </InputAdornment>
-                                                                );
+                                                                                alt={"insurance"}
+                                                                                src={option.logoUrl.url}
+                                                                            />
+                                                                            <Typography
+                                                                                sx={{ml: 1}}>{option.name}</Typography>
+                                                                        </MenuItem>
+                                                                    </Stack>
+                                                                )}
+                                                                renderInput={(params) => {
+                                                                    const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
+                                                                    params.InputProps.startAdornment = insurance && (
+                                                                        <InputAdornment position="start">
+                                                                            {insurance?.logoUrl &&
+                                                                                <Avatar
+                                                                                    sx={{
+                                                                                        width: 20,
+                                                                                        height: 20,
+                                                                                        borderRadius: 0.4
+                                                                                    }}
+                                                                                    alt="insurance"
+                                                                                    src={insurance?.logoUrl.url}
+                                                                                />}
+                                                                        </InputAdornment>
+                                                                    );
 
-                                                                return <TextField color={"info"}
-                                                                                  {...params}
-                                                                                  sx={{paddingLeft: 0}}
-                                                                                  placeholder={t("add-patient.assurance-placeholder")}
-                                                                                  variant="outlined"
-                                                                                  fullWidth/>;
-                                                            }}/>
-                                                        {touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_uuid && (
-                                                            <FormHelperText error sx={{px: 2, mx: 0}}>
-                                                                {(errors.insurance as any)[index].insurance_uuid}
-                                                            </FormHelperText>
-                                                        )}
-                                                    </FormControl>
-                                                </Grid>
-                                                <Grid item xs={12} md={8}>
-                                                    <Stack direction="row" spacing={2}>
-                                                        <MyTextInput
-                                                            variant="outlined"
-                                                            placeholder={t("add-patient.assurance-phone-error")}
-                                                            size="small"
-                                                            error={Boolean(touched.insurance &&
-                                                                (touched.insurance as any)[index]?.insurance_number &&
-                                                                errors.insurance && (errors.insurance as any)[index]?.insurance_number)}
-                                                            helperText={touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_number}
-                                                            fullWidth
-                                                            {...getFieldProps(`insurance[${index}].insurance_number`)}
-                                                        />
-
-                                                    </Stack>
-                                                </Grid>
-                                            </Grid>
-                                        </CardContent>
-                                        <Collapse in={getFieldProps(`insurance[${index}].expand`).value} timeout="auto"
-                                                  unmountOnExit>
-                                            <CardContent sx={{paddingTop: 0}} className={"insurance-section"}>
-                                                <Box mb={1}>
-                                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                        {t("add-patient.first-name")}
-                                                    </Typography>
-                                                    <TextField
-                                                        placeholder={t("add-patient.first-name-placeholder")}
-                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.firstName)}
-                                                        helperText={
-                                                            Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.firstName)
-                                                                ? String((errors.insurance as any)[index].insurance_social.firstName)
-                                                                : undefined
-                                                        }
-                                                        variant="outlined"
-                                                        size="small"
-                                                        fullWidth
-                                                        {...getFieldProps(`insurance[${index}].insurance_social.firstName`)}
-                                                    />
-                                                </Box>
-                                                <Box mb={1}>
-                                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                        {t("add-patient.last-name")}
-                                                    </Typography>
-                                                    <TextField
-                                                        placeholder={t("add-patient.last-name-placeholder")}
-                                                        variant="outlined"
-                                                        size="small"
-                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.lastName)}
-                                                        helperText={
-                                                            Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.lastName)
-                                                                ? String((errors.insurance as any)[index].insurance_social.lastName)
-                                                                : undefined
-                                                        }
-                                                        fullWidth
-                                                        {...getFieldProps(`insurance[${index}].insurance_social.lastName`)}
-                                                    />
-                                                </Box>
-                                                <Box mb={1} sx={{
-                                                    "& .MuiOutlinedInput-root button": {
-                                                        padding: "5px",
-                                                        minHeight: "auto",
-                                                        height: "auto",
-                                                        minWidth: "auto"
-                                                    }
-                                                }}>
-                                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                            {t("add-patient.birthdate")}
-                                                        </Typography>
-                                                        <DatePicker
-                                                            value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
-                                                            onChange={(date: Date) => {
-                                                                if (moment(date).isValid()) {
-                                                                    setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                                }
-                                                            }}
-                                                            inputFormat="dd/MM/yyyy"
-                                                        />
-                                                    </LocalizationProvider>
-                                                </Box>
-                                                <Box>
-                                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                        {t("add-patient.telephone")}
-                                                    </Typography>
-                                                    <Grid container spacing={2}>
-                                                        <Grid item md={6} lg={4} xs={12}>
-                                                            <CountrySelect
-                                                                initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
-                                                                    getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) : DefaultCountry}
-                                                                onSelect={(state: any) => {
-                                                                    setFieldValue(`insurance[${index}].insurance_social.phone.value`, "");
-                                                                    setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone);
+                                                                    return <TextField color={"info"}
+                                                                                      {...params}
+                                                                                      sx={{paddingLeft: 0}}
+                                                                                      placeholder={t("add-patient.assurance-placeholder")}
+                                                                                      variant="outlined"
+                                                                                      fullWidth/>;
                                                                 }}/>
-                                                        </Grid>
-                                                        <Grid item md={6} lg={8} xs={12}>
-                                                            <PhoneInput
-                                                                ref={phoneInputRef}
-                                                                international
+                                                            {touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_uuid && (
+                                                                <FormHelperText error sx={{px: 2, mx: 0}}>
+                                                                    {(errors.insurance as any)[index].insurance_uuid}
+                                                                </FormHelperText>
+                                                            )}
+                                                        </FormControl>
+                                                    </Grid>
+                                                    <Grid item xs={12} md={8}>
+                                                        <Stack direction="row" spacing={2}>
+                                                            <MyTextInput
+                                                                variant="outlined"
+                                                                placeholder={t("add-patient.assurance-phone-error")}
+                                                                size="small"
+                                                                error={Boolean(touched.insurance &&
+                                                                    (touched.insurance as any)[index]?.insurance_number &&
+                                                                    errors.insurance && (errors.insurance as any)[index]?.insurance_number)}
+                                                                helperText={touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_number}
                                                                 fullWidth
-                                                                error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.phone)}
-                                                                withCountryCallingCode
-                                                                {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
-                                                                    {
-                                                                        helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
-                                                                            getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
-                                                                    })}
-                                                                country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
-                                                                    getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value)?.code :
-                                                                    doctor_country.code) as any}
-                                                                value={getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
-                                                                    getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}
-                                                                onChange={value => setFieldValue(`insurance[${index}].insurance_social.phone.value`, value)}
-                                                                inputComponent={CustomInput as any}
+                                                                {...getFieldProps(`insurance[${index}].insurance_number`)}
                                                             />
-                                                            {/*<TextField
+
+                                                        </Stack>
+                                                    </Grid>
+                                                </Grid>
+                                            </CardContent>
+                                            <Collapse in={getFieldProps(`insurance[${index}].expand`).value}
+                                                      timeout="auto"
+                                                      unmountOnExit>
+                                                <CardContent sx={{paddingTop: 0}} className={"insurance-section"}>
+                                                    <Box mb={1}>
+                                                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                            {t("add-patient.first-name")}
+                                                        </Typography>
+                                                        <TextField
+                                                            placeholder={t("add-patient.first-name-placeholder")}
+                                                            error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.firstName)}
+                                                            helperText={
+                                                                Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.firstName)
+                                                                    ? String((errors.insurance as any)[index].insurance_social.firstName)
+                                                                    : undefined
+                                                            }
+                                                            variant="outlined"
+                                                            size="small"
+                                                            fullWidth
+                                                            {...getFieldProps(`insurance[${index}].insurance_social.firstName`)}
+                                                        />
+                                                    </Box>
+                                                    <Box mb={1}>
+                                                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                            {t("add-patient.last-name")}
+                                                        </Typography>
+                                                        <TextField
+                                                            placeholder={t("add-patient.last-name-placeholder")}
+                                                            variant="outlined"
+                                                            size="small"
+                                                            error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.lastName)}
+                                                            helperText={
+                                                                Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.lastName)
+                                                                    ? String((errors.insurance as any)[index].insurance_social.lastName)
+                                                                    : undefined
+                                                            }
+                                                            fullWidth
+                                                            {...getFieldProps(`insurance[${index}].insurance_social.lastName`)}
+                                                        />
+                                                    </Box>
+                                                    <Box mb={1} sx={{
+                                                        "& .MuiOutlinedInput-root button": {
+                                                            padding: "5px",
+                                                            minHeight: "auto",
+                                                            height: "auto",
+                                                            minWidth: "auto"
+                                                        }
+                                                    }}>
+                                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                            <Typography variant="body2" color="text.secondary"
+                                                                        gutterBottom>
+                                                                {t("add-patient.birthdate")}
+                                                            </Typography>
+                                                            <DatePicker
+                                                                value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
+                                                                onChange={(date: Date) => {
+                                                                    if (moment(date).isValid()) {
+                                                                        setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                    }
+                                                                }}
+                                                                inputFormat="dd/MM/yyyy"
+                                                            />
+                                                        </LocalizationProvider>
+                                                    </Box>
+                                                    <Box>
+                                                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                            {t("add-patient.telephone")}
+                                                        </Typography>
+                                                        <Grid container spacing={2}>
+                                                            <Grid item md={6} lg={4} xs={12}>
+                                                                <CountrySelect
+                                                                    initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                        getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) : DefaultCountry}
+                                                                    onSelect={(state: any) => {
+                                                                        setFieldValue(`insurance[${index}].insurance_social.phone.value`, "");
+                                                                        setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone);
+                                                                    }}/>
+                                                            </Grid>
+                                                            <Grid item md={6} lg={8} xs={12}>
+                                                                <PhoneInput
+                                                                    ref={phoneInputRef}
+                                                                    international
+                                                                    fullWidth
+                                                                    error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.phone)}
+                                                                    withCountryCallingCode
+                                                                    {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
+                                                                        {
+                                                                            helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                                getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
+                                                                        })}
+                                                                    country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                        getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value)?.code :
+                                                                        doctor_country.code) as any}
+                                                                    value={getFieldProps(`insurance[${index}].insurance_social.phone.value`) ?
+                                                                        getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}
+                                                                    onChange={value => setFieldValue(`insurance[${index}].insurance_social.phone.value`, value)}
+                                                                    inputComponent={CustomInput as any}
+                                                                />
+                                                                <TextField
                                                                 variant="outlined"
                                                                 size="small"
                                                                 {...getFieldProps(`insurance[${index}].insurance_social.phone.value`)}
@@ -1079,17 +1148,18 @@ function AddPatientStep2({...props}) {
                                                                         </InputAdornment>
                                                                     ),
                                                                 }}
-                                                            />*/}
+                                                            />
+                                                            </Grid>
                                                         </Grid>
-                                                    </Grid>
-                                                </Box>
-                                            </CardContent>
-                                        </Collapse>
-                                    </Card>
-                                ))}
+                                                    </Box>
+                                                </CardContent>
+                                            </Collapse>
+                                        </Card>
+                                    ))
+                                }
                             </Box>
                         </Box>
-                    </Collapse>
+                    </Collapse>*/}
 
                 </div>
                 <Stack

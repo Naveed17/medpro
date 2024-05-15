@@ -9,4 +9,6 @@ interface InsurancesModel {
     insurance_book_uuid?:string;
     start_date?:string;
     end_date?:string;
+    apcis?:string[];
+    contact:string;
 }
