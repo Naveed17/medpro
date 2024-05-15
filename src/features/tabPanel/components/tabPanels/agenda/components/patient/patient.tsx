@@ -97,6 +97,8 @@ function Patient({...props}) {
         patient.cin && form.append('id_card', patient.cin);
         patient.note && form.append('note', patient.note);
         form.append('profession', patient.profession);
+        patient.addressedBy?.uuid && form.append('addressed_by', patient.addressedBy.uuid);
+        patient.civilStatus?.uuid && form.append('civil_status', patient.civilStatus.uuid);
 
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",

@@ -1,11 +1,11 @@
 import React from "react";
-import { Box, MenuItem, Button, Typography, useTheme } from "@mui/material";
+import {Box, MenuItem, Button, Typography, useTheme} from "@mui/material";
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddIcon from "@mui/icons-material/Add";
-import { StyledMenu } from "@features/buttons";
+import {StyledMenu} from "@features/buttons";
 
-function ModelSwitchButton({ ...props }) {
-    const { onClickEvent, t, editModel, lastPrescriptions, drugs, ...rest } = props;
+function ModelSwitchButton({...props}) {
+    const {onClickEvent, t, editModel, lastPrescriptions, drugs, ...rest} = props;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const theme = useTheme();
@@ -37,8 +37,8 @@ function ModelSwitchButton({ ...props }) {
             <Button
                 sx={{
                     ".MuiButton-startIcon": {
-                        mr: { xs: 0, md: 1 },
-                        ml: { xs: 0, md: -0.5 }
+                        mr: {xs: 0, md: 1},
+                        ml: {xs: 0, md: -0.5}
                     }
                 }}
                 {...rest}
@@ -49,8 +49,8 @@ function ModelSwitchButton({ ...props }) {
                 variant="contained"
                 disableElevation
                 onClick={handleClick}
-                startIcon={<AddIcon />}>
-                <Typography display={{ xs: 'none', md: 'block' }}>{t('add_model')}</Typography>
+                startIcon={<AddIcon/>}>
+                <Typography display={{xs: 'none', md: 'block'}}>{t('add_model')}</Typography>
             </Button>
             <StyledMenu
                 id="switch-button"
@@ -87,15 +87,14 @@ function ModelSwitchButton({ ...props }) {
                 }}
                 anchorEl={anchorEl}
                 open={open}
-                onClose={handleClose}
-            >
+                onClose={handleClose}>
                 {lastPrescriptions.length > 0 && <MenuItem onClick={handleSetLastPrescription} disableRipple>
-                    <FastForwardOutlinedIcon />
+                    <FastForwardOutlinedIcon/>
                     {t("last_prescription")}
                 </MenuItem>}
                 <MenuItem disabled={drugs?.length === 0} onClick={handleSetPrescriptionModel} disableRipple>
-                    <AddIcon />
-                    {t("createAsModel", { ns: "consultation" })}
+                    <AddIcon/>
+                    {t("createAsModel", {ns: "consultation"})}
                 </MenuItem>
             </StyledMenu>
         </Box>

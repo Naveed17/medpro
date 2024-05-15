@@ -1,3 +1,33 @@
+## [4.25.1](https://github.com/SmartMedSA/med-pro/compare/v4.25.0...v4.25.1) (2024-05-14)
+
+
+### Bug Fixes
+
+* comment consultation reasons stats ([d9c1286](https://github.com/SmartMedSA/med-pro/commit/d9c128607b0325a8aabef1be9e4eddf1979ca452))
+* sentry migration to v8 ([dc3951c](https://github.com/SmartMedSA/med-pro/commit/dc3951c263aa18da627f264a3a32d23d28cc3388))
+* stats duration undefined issues ([9410b26](https://github.com/SmartMedSA/med-pro/commit/9410b265ad85f5ec94583945432d5094e8c95edc))
+* update .env dist ([632d22e](https://github.com/SmartMedSA/med-pro/commit/632d22e473ddeabc85a35fce10592b8d1b22465a))
+* upscope update loading behavior ([bc57f4a](https://github.com/SmartMedSA/med-pro/commit/bc57f4a2e4a92b4193bcd4f35204b036538fe9da))
+* upscope update loading behavior ([3a86902](https://github.com/SmartMedSA/med-pro/commit/3a8690226caa7375289d29998520b1805e079814))
+* upscope update loading behavior ([a92ce5f](https://github.com/SmartMedSA/med-pro/commit/a92ce5f4a6992fddcd8afc952d90cccc1e4f9949))
+
+# [4.25.0](https://github.com/SmartMedSA/med-pro/compare/v4.24.1...v4.25.0) (2024-05-13)
+
+
+### Bug Fixes
+
+* secretary sender issues ([72c6c1c](https://github.com/SmartMedSA/med-pro/commit/72c6c1c2e46211d389c1137817746b91a4bf2217))
+* serwist update dependency ([e01d441](https://github.com/SmartMedSA/med-pro/commit/e01d441fc917312a1e8582b3a6de9983239b6e56))
+* serwist update dependency ([036a486](https://github.com/SmartMedSA/med-pro/commit/036a4861066549dd9f6d65cde8c9aa58f5e079b9))
+* stats data issues ([3285a95](https://github.com/SmartMedSA/med-pro/commit/3285a956584ca841538b6f5a1a8876a2c30220f7))
+* stats start end time ranges ([a1a2521](https://github.com/SmartMedSA/med-pro/commit/a1a25211cd4ed61734f9ad243f40ad55bd6309ec))
+* update dependency ([21465fa](https://github.com/SmartMedSA/med-pro/commit/21465fa21e27fb564b9576ea880b37fef09e93c0))
+
+
+### Features
+
+* check connexion status ([0dee72e](https://github.com/SmartMedSA/med-pro/commit/0dee72e6be935bf47932cc3380b512de3a4b5017))
+
 ## [4.24.1](https://github.com/SmartMedSA/med-pro/compare/v4.24.0...v4.24.1) (2024-05-12)
 
 

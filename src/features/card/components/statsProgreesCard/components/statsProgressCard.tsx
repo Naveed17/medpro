@@ -3,33 +3,12 @@ import {
     Card,
     CardContent,
     IconButton,
-    LinearProgress,
-    LinearProgressProps,
     Stack,
-    Typography,
-    linearProgressClasses,
-    styled
+    Typography
 } from '@mui/material'
 import IconUrl from '@themes/urlIcon'
 import React from 'react'
-
-interface ProgressProps extends LinearProgressProps {
-    bgcolor?: string;
-}
-
-
-const BorderLinearProgress = styled(LinearProgress)<ProgressProps>(({theme, bgcolor}) => ({
-    borderRadius: 5,
-    height: 6,
-    [`&.${linearProgressClasses.colorPrimary}`]: {
-        backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
-    },
-    [`& .${linearProgressClasses.bar}`]: {
-        borderRadius: 5,
-        backgroundColor: bgcolor
-
-    },
-}));
+import {BorderLinearProgressStyled} from "@features/card";
 
 function StatsProgressCard({...props}) {
     const {
@@ -96,7 +75,7 @@ function StatsProgressCard({...props}) {
                                 </Typography>
 
                             </Stack>
-                            <BorderLinearProgress bgcolor={item.color} variant="determinate" value={item.value}/>
+                            <BorderLinearProgressStyled bgcolor={item.color} variant="determinate" value={item.value}/>
                         </Stack>
                     ))}
                 </Stack>
