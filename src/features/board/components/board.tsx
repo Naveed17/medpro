@@ -1,15 +1,15 @@
 import {
     DragDropContext, Draggable, DraggableLocation, Droppable, DropResult
 } from "react-beautiful-dnd";
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from '@emotion/styled';
-import {BoardList} from "@features/board";
-import {Badge, Card, CardHeader, Grid, IconButton, Stack, Typography} from "@mui/material";
-import {useTranslation} from "next-i18next";
-import {useAppSelector} from "@lib/redux/hooks";
-import {sideBarSelector} from "@features/menu";
+import { BoardList } from "@features/board";
+import { Badge, Button, ButtonGroup, Card, CardHeader, Grid, IconButton, Stack, Theme, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { useTranslation } from "next-i18next";
+import { useAppSelector } from "@lib/redux/hooks";
+import { sideBarSelector } from "@features/menu";
 import IconUrl from "@themes/urlIcon";
-import {CustomSwitch} from "@features/buttons";
+import { CustomIconButton, CustomSwitch } from "@features/buttons";
 
 const ParentContainer = styled.div`
     margin-top: -1rem;
@@ -49,7 +49,7 @@ const Title = styled.h4`
 `;
 
 const Column = React.memo(function Column(props) {
-    const {id, column, index, handleEvent} = props as any;
+    const { id, column, index, handleEvent } = props as any;
     return (
         <Draggable draggableId={id} index={index}>
             {provided => (
@@ -60,14 +60,14 @@ const Column = React.memo(function Column(props) {
                     <h3 className="column-title" {...provided.dragHandleProps}>
                         {column.title}
                     </h3>
-                    <BoardList listId={id} quotes={column} {...{index, handleEvent}} />
+                    <BoardList listId={id} quotes={column} {...{ index, handleEvent }} />
                 </div>
             )}
         </Draggable>
     );
 });
 
-function Board({...props}) {
+function Board({ ...props }) {
     const {
         columns,
         data,
@@ -78,10 +78,18 @@ function Board({...props}) {
         handleUnpaidFilter
     } = props;
 
-    const {t} = useTranslation('waitingRoom');
-    const {opened} = useAppSelector(sideBarSelector);
-
+    const { t } = useTranslation('waitingRoom');
+    const { opened } = useAppSelector(sideBarSelector);
+    const theme: Theme = useTheme()
     const [boardData, setBoardData] = useState<any>({});
+    const [status, setStatus] = React.useState<string | null>('All');
+    console.log(status)
+    const handleStatus = (
+        event: React.MouseEvent<HTMLElement>,
+        newAlignment: string | null,
+    ) => {
+        setStatus(newAlignment);
+    };
 
     const getByColumn = (column: any, items: any[]): any[] =>
         items.filter((data: any) => data.column === column);
@@ -96,10 +104,10 @@ function Board({...props}) {
     };
 
     const reorderQuoteMap = ({
-                                 quoteMap,
-                                 source,
-                                 destination,
-                             }: any) => {
+        quoteMap,
+        source,
+        destination,
+    }: any) => {
         const current: any[] = [...quoteMap[source.droppableId]];
         const next: any[] = [...quoteMap[destination.droppableId]];
         const target: any = {
@@ -230,57 +238,79 @@ function Board({...props}) {
                                         <Header>
                                             <Title
                                                 aria-label={`${column.name} quote list`}>
-                                                <Card>
+                                                <Card sx={{ border: (theme: Theme) => `1px solid ${theme.palette.grey[200]}`, }}>
                                                     <CardHeader
-                                                        avatar={columns[index].icon}
+                                                        avatar={
+                                                            <CustomIconButton size="small" sx={{ minWidth: 32, minHeight: 32, bgcolor: (theme: Theme) => theme.palette.primary.lighter }}>
+                                                                {columns[index].icon}
+                                                            </CustomIconButton>
+
+                                                        }
+
                                                         sx={{
-                                                            minHeight: 60,
-                                                            ".MuiCardHeader-action": {alignSelf: 'center'}
+                                                            p: 1,
+                                                            ".MuiCardHeader-avatar": { mr: 1 },
+                                                            ".MuiCardHeader-action": { alignSelf: 'center' }
                                                         }}
                                                         title={
                                                             <Stack direction={"row"} alignItems={"center"}
-                                                                   spacing={1}>
+                                                                spacing={(boardData[column.name].length > 0 && index !== 2) ? 2 : 0}
+                                                            >
                                                                 <Typography
                                                                     color={"text.primary"} fontWeight={700}
                                                                     fontSize={14}
+
                                                                     sx={{
                                                                         whiteSpace: "nowrap",
                                                                         overflow: "hidden",
                                                                         textOverflow: "ellipsis",
-                                                                        width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : "auto",
+                                                                        width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : 'auto',
                                                                     }}>
                                                                     {t(`tabs.${column.name}`)}
                                                                 </Typography>
 
                                                                 <Badge
-                                                                    sx={{pl: 1}}
+                                                                    sx={{ pl: 1 }}
                                                                     invisible={!(boardData[column.name].length > 0 && index !== 2)}
                                                                     badgeContent={boardData[column.name].length}
-                                                                    color="info"/>
+                                                                    color="info" />
+                                                                <IconUrl path="ic-outline-arrow-right" width={16} height={16} />
                                                             </Stack>
                                                         }
                                                         action={<Stack direction={"row"} alignItems={"center"}
-                                                                       spacing={1}>
+                                                            spacing={1}>
                                                             {columns[index].id === "3" &&
                                                                 <IconButton
                                                                     size={"small"}
                                                                     onClick={event => handleSortData(event)}>
                                                                     <IconUrl width={20} height={20}
-                                                                             path={"sort"}/>
+                                                                        path={"sort"} />
                                                                 </IconButton>}
 
                                                             {columns[index].id === "5" &&
                                                                 <Stack direction={"row"} alignItems={"center"}
-                                                                       justifyContent={"flex-end"}
-                                                                       sx={{height: 28}}>
-                                                                    <CustomSwitch
+                                                                    justifyContent={"flex-end"}
+                                                                    sx={{ height: 28 }}>
+                                                                    {/* <CustomSwitch
                                                                         className="custom-switch"
                                                                         name="active"
                                                                         onChange={handleUnpaidFilter}
                                                                         checked={isUnpaidFilter}
-                                                                    />
-                                                                    <Typography variant={"body2"}
-                                                                                fontSize={12}>{t("tabs.payed")}</Typography>
+                                                                    /> */}
+                                                                    <ToggleButtonGroup
+                                                                        size="small"
+                                                                        value={status}
+                                                                        onChange={handleStatus}
+                                                                        exclusive
+                                                                        sx={{ '.Mui-selected': { '&.Mui-selected': { bgcolor: theme.palette.grey[200], "&:hover": { bgcolor: theme.palette.grey[200] } } } }}
+                                                                    >
+                                                                        <ToggleButton sx={{ p: .5, px: 1, color: 'text.primary', minWidth: 48 }} value="All">
+                                                                            {t('all', { ns: 'common' })}
+                                                                        </ToggleButton>
+                                                                        <ToggleButton sx={{ p: .5, px: 1, minWidth: 48 }} value="unpaid">
+                                                                            <IconUrl path="ic-filled-money-remove" width={16} height={16} color={theme.palette.text.secondary} />
+                                                                        </ToggleButton>
+                                                                    </ToggleButtonGroup>
                                                                 </Stack>
                                                             }
                                                             {!!columns[index].action && columns[index].action}

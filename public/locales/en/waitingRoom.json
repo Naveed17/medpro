@@ -111,5 +111,15 @@
   "end_of_consultation_with": "End of Consultation with",
   "finish_the_consutation": "Are you sure you want to finish the consultation?",
   "type_the_instruction_for_the_secretary": "Type the instruction for the secretary",
-  "type_instruction_for_the_secretary": "Type instruction for the secretary"
+  "type_instruction_for_the_secretary": "Type instruction for the secretary",
+  "appointments": "Rendez-vous",
+  "absent": "Absent",
+  "confirmed": "Confirmé",
+  "waiting": "Attente",
+  "completed": "Complété",
+  "total_received": "Total reçu",
+  "billed_consultation": "Consultation facturée",
+  "paid": "payée",
+  "unpaid": "Non payée",
+  "estimated_end_time": "Heure de fin estimée"
 }

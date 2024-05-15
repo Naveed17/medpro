@@ -5,7 +5,7 @@ import Icon from '@themes/urlIcon'
 import React, { SyntheticEvent, useCallback, useState } from 'react';
 import { MobileContainer } from '@themes/mobileContainer';
 import { a11yProps } from "@lib/hooks";
-import { MinMaxWindowButton, minMaxWindowSelector } from '@features/buttons';
+import { CustomIconButton, MinMaxWindowButton, minMaxWindowSelector } from '@features/buttons';
 import { LoadingButton } from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -148,7 +148,7 @@ function RoomToolbar({ ...props }) {
                 <WaitingRoom />
             </DrawerBottom>
 
-            <Stack direction={"row"} alignItems={"center"} mb={.5} spacing={1}>
+            <Stack direction={"row"} alignItems={"center"} spacing={1}>
                 {(is_next && isWindowMax) &&
                     <LoadingButton
                         disableRipple
@@ -227,6 +227,19 @@ function RoomToolbar({ ...props }) {
                 }
                 {roles.includes('ROLE_SECRETARY') && <MinMaxWindowButton />}
 
+
+                <Stack p={1.275} maxHeight={40} px={2} bgcolor={theme.palette.grey[50]} borderRadius={1} direction={"row"} alignItems={"center"} spacing={2}>
+                    <CustomIconButton style={{ minWidth: 16, minHeight: 16, padding: 0, borderRadius: 6, backgroundColor: theme.palette.grey[700] }}>
+                        <IconUrl width={9} height={9} color="white" path={"ic-outline-arrow-left"} />
+                    </CustomIconButton>
+                    <Typography fontWeight={500} color="text.secondary">8, May 2024</Typography>
+                    <CustomIconButton style={{ minWidth: 16, minHeight: 16, padding: 0, borderRadius: 6, backgroundColor: theme.palette.grey[700] }}>
+                        <IconUrl width={9} height={9} color="white" path={"ic-outline-arrow-right"} />
+                    </CustomIconButton>
+                </Stack>
+                <CustomIconButton sx={{ bgcolor: theme.palette.grey[100], border: 1, borderColor: theme.palette.grey[300] }}>
+                    <IconUrl width={16} height={16} path={"ic-filled-chart-square"} />
+                </CustomIconButton>
                 <ToggleButtonStyled
                     id="toggle-button"
                     value="toggle"
@@ -234,13 +247,18 @@ function RoomToolbar({ ...props }) {
                     className={"toggle-button"}
                     sx={{
                         ...(mode !== "normal" && { border: "none" }),
-                        background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
+                        background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500'],
+                        minWidth: 40,
+                        minHeight: 40,
                     }}>
                     <IconUrl width={19} height={19}
                         path={"ic-eye-slash"} {...(mode !== "normal" && { color: "white" })} />
                 </ToggleButtonStyled>
+                <CustomIconButton color="primary">
+                    <IconUrl width={16} height={16} path={"ic-plus"} color="white" />
+                </CustomIconButton>
             </Stack>
-        </Stack>
+        </Stack >
 
     )
 }
