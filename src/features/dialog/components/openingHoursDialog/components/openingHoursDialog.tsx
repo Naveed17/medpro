@@ -1,7 +1,6 @@
 import {FormHelperText, TextField, Typography} from "@mui/material";
 import React from "react";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dialogOpeningHoursSelector, setOpeningData} from "@features/dialog";
@@ -29,32 +28,28 @@ function OpeningHoursDialog({...props}) {
 
             <Typography>{t('lieux.new.date-range')}</Typography>
 
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                    openTo="month"
-                    views={['year', 'month', 'day']}
-                    renderInput={(props) => <TextField {...props} />}
-                    label={t('lieux.new.startDate')}
-                    inputFormat={"dd/MM/yyyy"}
-                    value={startDate}
-                    onChange={(newValue) => {
-                        dispatch(setOpeningData({startDate: newValue as Date}));
-                    }}
-                />
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                    openTo="month"
-                    views={['year', 'month', 'day']}
-                    renderInput={(props) => <TextField {...props} />}
-                    label={t('lieux.new.endDate')}
-                    inputFormat={"dd/MM/yyyy"}
-                    value={endDate}
-                    onChange={(newValue) => {
-                        dispatch(setOpeningData({endDate: newValue as Date}));
-                    }}
-                />
-            </LocalizationProvider>
+            <DatePicker
+                openTo="month"
+                views={['year', 'month', 'day']}
+                label={t('lieux.new.startDate')}
+                format={"dd/MM/yyyy"}
+                value={startDate}
+                onChange={(newValue) => {
+                    dispatch(setOpeningData({startDate: newValue as Date}));
+                }}
+            />
+
+            <DatePicker
+                openTo="month"
+                views={['year', 'month', 'day']}
+                label={t('lieux.new.endDate')}
+                format={"dd/MM/yyyy"}
+                value={endDate}
+                onChange={(newValue) => {
+                    dispatch(setOpeningData({endDate: newValue as Date}));
+                }}
+            />
+
             {moment(startDate).diff(endDate) > 0 && <FormHelperText error sx={{px: 2, mx: 0}}>
                 {t('lieux.new.date-error')}
             </FormHelperText>}

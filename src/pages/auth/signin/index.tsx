@@ -2,12 +2,8 @@ import {signIn, useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import React, {useEffect, useState} from "react";
-import {Redirect} from "@features/redirect";
 
 function SignIn() {
     const {data: session, status} = useSession();
@@ -28,15 +24,15 @@ function SignIn() {
         }
     });
 
-    if (loading) return (<LoadingScreen button text={"loading-error"}/>);
+    return (<LoadingScreen text={"loading"}/>);
 
-    return (
-        status === "unauthenticated" ?
-            <LoadingScreen
-                button
-                {...{color: "error", ...(error && {text: "loading-error"})}}
-            /> :
-            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`}/>)
+    /*    return (
+            status === "unauthenticated" ?
+                <LoadingScreen
+                    button
+                    {...{color: "error", ...(error && {text: "loading-error"})}}
+                /> :
+                <Redirect to={features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`}/>)*/
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({

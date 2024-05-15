@@ -24,8 +24,7 @@ import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
 import Select from '@mui/material/Select';
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
+import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
@@ -392,25 +391,24 @@ function PersonalInfo({...props}) {
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
-                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                <DatePicker
-                                                    readOnly={!editable}
-                                                    inputFormat={"dd/MM/yyyy"}
-                                                    mask="__/__/____"
-                                                    value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
-                                                    onChange={date => {
-                                                        const dateInput = moment(date);
-                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
-                                                        if (dateInput.isValid()) {
-                                                            const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
-                                                            setFieldValue("old", old > 120 ? "" : old);
-                                                        } else {
-                                                            setFieldValue("old", "");
-                                                        }
-                                                    }}
-                                                    renderInput={(params) => <TextField size={"small"} {...params} />}
-                                                />
-                                            </LocalizationProvider>
+                                            <DatePicker
+                                                readOnly={!editable}
+                                                format={"dd/MM/yyyy"}
+                                                value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
+                                                onChange={date => {
+                                                    const dateInput = moment(date);
+                                                    setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
+                                                    if (dateInput.isValid()) {
+                                                        const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                        setFieldValue("old", old > 120 ? "" : old);
+                                                    } else {
+                                                        setFieldValue("old", "");
+                                                    }
+                                                }}
+                                                slots={{
+                                                    textField: (params) => <TextField size={"small"} {...params} />
+                                                }}
+                                            />
                                         )}
                                     </Grid>
                                 </Stack>

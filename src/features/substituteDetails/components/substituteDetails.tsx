@@ -4,8 +4,7 @@ import {Typography, Stack, TextField, Grid, Button} from '@mui/material'
 import {styled} from '@mui/material/styles';
 import React from "react";
 import {useTranslation} from "next-i18next";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider, TimePicker as MuiTimePicker} from '@mui/x-date-pickers';
+import {TimePicker as MuiTimePicker} from '@mui/x-date-pickers';
 
 import {LoadingScreen} from "@features/loadingScreen";
 
@@ -150,19 +149,15 @@ function SubstituteDetails({...props}) {
                         </Typography>
                     </Grid>
                     <Grid key={'time'} item xs={12} lg={5}>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <MuiTimePicker
-                                ampm={false}
-                                openTo="hours"
-                                views={["hours", "minutes"]}
-                                inputFormat="HH:mm"
-                                mask="__:__"
-                                onChange={(newValue) => {
-                                    setFieldValue('time_start', newValue);
-                                }}
-                                renderInput={(params) => <TextField {...params} />}
-                                value={values.time_start}/>
-                        </LocalizationProvider>
+                        <MuiTimePicker
+                            ampm={false}
+                            openTo="hours"
+                            views={["hours", "minutes"]}
+                            format="HH:mm"
+                            onChange={(newValue) => {
+                                setFieldValue('time_start', newValue);
+                            }}
+                            value={values.time_start}/>
                     </Grid>
                 </Grid>
 
@@ -190,19 +185,15 @@ function SubstituteDetails({...props}) {
                         </Typography>
                     </Grid>
                     <Grid key={'time'} item xs={12} lg={5}>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <MuiTimePicker
-                                ampm={false}
-                                openTo="hours"
-                                views={["hours", "minutes"]}
-                                inputFormat="HH:mm"
-                                mask="__:__"
-                                onChange={(newValue) => {
-                                    setFieldValue('time_end', newValue);
-                                }}
-                                renderInput={(params) => <TextField {...params} />}
-                                value={values.time_end}/>
-                        </LocalizationProvider>
+                        <MuiTimePicker
+                            ampm={false}
+                            openTo="hours"
+                            views={["hours", "minutes"]}
+                            format="HH:mm"
+                            onChange={(newValue) => {
+                                setFieldValue('time_end', newValue);
+                            }}
+                            value={values.time_end}/>
                     </Grid>
                 </Grid>
 

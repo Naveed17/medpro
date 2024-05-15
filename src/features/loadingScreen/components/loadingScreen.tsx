@@ -128,15 +128,14 @@ function LoadingScreen({...props}) {
                     {(button && text !== "loading") && (
                         <Button
                             onClick={() => {
-                                if (process.env.NODE_ENV !== "development") {
-                                    clearBrowserCache().then(async () => {
-                                        if (text === "loading-error-404") {
-                                            await router.push("/dashboard/agenda");
-                                        } else {
-                                            await update({refreshAccessToken: true});
-                                        }
-                                    });
-                                }
+                                clearBrowserCache().then(async () => {
+                                    if (text === "loading-error-404") {
+                                        await router.push("/dashboard/agenda");
+                                    } else {
+                                        await update({refreshAccessToken: true});
+                                    }
+                                });
+
                                 if (OnClick) {
                                     OnClick(color);
                                 }

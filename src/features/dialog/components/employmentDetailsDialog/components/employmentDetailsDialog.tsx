@@ -1,13 +1,10 @@
-import { Stack, TextField, Typography } from '@mui/material'
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import AgendaIcon from '@themes/overrides/icons/agendaIcon';
+import {Stack, TextField, Typography} from '@mui/material'
+import {DatePicker} from '@mui/x-date-pickers';
 import DatePickerIcon from '@themes/overrides/icons/datePickerIcon';
-import WeekIcon from '@themes/overrides/icons/weekIcon';
-import React, { useState } from 'react'
+import React, {useState} from 'react'
 
-function EmploymentDetailsDialog({ ...props }) {
-    const { data: { t } } = props;
+function EmploymentDetailsDialog({...props}) {
+    const {data: {t}} = props;
     const [date, setDate] = useState<any>({
         startDate: "",
         endDate: ""
@@ -20,27 +17,23 @@ function EmploymentDetailsDialog({ ...props }) {
                         {t(`dialog.${item}`)}
                         <Typography variant='caption' color='error'>*</Typography>
                     </Typography>
-                    <LocalizationProvider
-                        dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            components={{
-                                OpenPickerIcon: DatePickerIcon
-                            }}
-                            renderInput={(props) =>
+                    <DatePicker
+                        slots={{
+                            openPickerIcon: DatePickerIcon,
+                            textField: (props) =>
                                 <TextField
 
-                                    fullWidth size={"small"} {...props} />}
-                            inputFormat={"dd-MM-yyyy"}
-                            value={date[item] || ""}
-                            onChange={(newValue) => {
-                                setDate({ ...date, [item]: newValue });
-                            }}
+                                    fullWidth size={"small"} {...props} />
+                        }}
+                        format={"dd-MM-yyyy"}
+                        value={date[item] || ""}
+                        onChange={(newValue) => {
+                            setDate({...date, [item]: newValue});
+                        }}
 
-                        />
-                    </LocalizationProvider>
+                    />
                 </Stack>
             ))}
-
         </Stack>
     )
 }

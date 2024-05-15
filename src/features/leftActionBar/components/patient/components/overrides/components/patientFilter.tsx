@@ -14,8 +14,7 @@ import moment from "moment-timezone";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import MaleRoundedIcon from '@mui/icons-material/MaleRounded';
 import FemaleRoundedIcon from '@mui/icons-material/FemaleRounded';
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
+import {DatePicker} from "@mui/x-date-pickers";
 import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
@@ -170,39 +169,37 @@ function PatientFilter({...props}) {
                                     <InputLabel shrink sx={{mt: 2}}>
                                         {t(`${keyPrefix}${lab.label}`)}
                                     </InputLabel>
-                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                        <DatePicker
-                                            value={queryState.birthdate}
-                                            inputFormat="dd/MM/yyyy"
-                                            components={{
-                                                OpenPickerIcon: CalendarPickerIcon
-                                            }}
-                                            onChange={date => {
-                                                setFieldValue("birthdate", date);
-                                                if (date && date.toString() !== "Invalid Date" && date.getFullYear() > 1000) {
-                                                    onSearchChange({
-                                                        query: {
-                                                            ...filter?.patient,
-                                                            birthdate: moment(date).format("DD-MM-YYYY"),
-                                                        },
-                                                    });
-                                                } else {
-                                                    const query = _.omit(queryState, "birthdate");
-                                                    const queryGlobal = _.omit(filter?.patient, [lab.label]);
-                                                    onSearchChange({
-                                                        query: {
-                                                            ...query,
-                                                            ...queryGlobal
-                                                        }
-                                                    });
-                                                }
-                                            }}
-                                            renderInput={(params) =>
+                                    <DatePicker
+                                        value={queryState.birthdate}
+                                        format="dd/MM/yyyy"
+                                        onChange={date => {
+                                            setFieldValue("birthdate", date);
+                                            if (date && date.toString() !== "Invalid Date" && date.getFullYear() > 1000) {
+                                                onSearchChange({
+                                                    query: {
+                                                        ...filter?.patient,
+                                                        birthdate: moment(date).format("DD-MM-YYYY"),
+                                                    },
+                                                });
+                                            } else {
+                                                const query = _.omit(queryState, "birthdate");
+                                                const queryGlobal = _.omit(filter?.patient, [lab.label]);
+                                                onSearchChange({
+                                                    query: {
+                                                        ...query,
+                                                        ...queryGlobal
+                                                    }
+                                                });
+                                            }
+                                        }}
+                                        slots={{
+                                            openPickerIcon: CalendarPickerIcon,
+                                            textField: (params) =>
                                                 <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                                                     <TextField {...params} fullWidth/>
-                                                </FormControl>}
-                                        />
-                                    </LocalizationProvider>
+                                                </FormControl>
+                                        }}
+                                    />
                                 </Box>
                             )}
                         </Fragment>

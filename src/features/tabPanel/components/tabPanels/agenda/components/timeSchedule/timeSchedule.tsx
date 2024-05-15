@@ -32,8 +32,7 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {AnimatePresence, motion} from "framer-motion";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider, StaticTimePicker} from '@mui/x-date-pickers';
+import {StaticTimePicker} from '@mui/x-date-pickers';
 import CloseIcon from "@mui/icons-material/Close";
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -450,51 +449,47 @@ function TimeSchedule({...props}) {
                                     }
 
                                     {changeTime &&
-                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                            <StaticTimePicker
-                                                {...(!isMobile && {orientation: "landscape"})}
-                                                className={"time-picker-schedule"}
-                                                ampmInClock={false}
-                                                //componentsProps={{ actionBar: { actions: [] } }}
-                                                components={{
-                                                    ActionBar: () => <DialogActions>
-                                                        <Button
-                                                            size={"small"}
-                                                            disabled={!customTime}
-                                                            onClick={() => {
-                                                                changeDateRef.current = false;
-                                                                setChangeTime(false);
-                                                                onTimeSlotChange(moment(customTime).format("HH:mm"));
-                                                            }}
-                                                            startIcon={<ScheduleRoundedIcon/>}>
-                                                            {t("stepper-1.confirm-time")}
-                                                        </Button>
-                                                        <Button
-                                                            size={"small"}
-                                                            color={"black"}
-                                                            onClick={() => {
-                                                                changeDateRef.current = false;
-                                                                setChangeTime(false);
-                                                            }}
-                                                            startIcon={<CloseIcon/>}>
-                                                            {t("stepper-1.cancel-time")}
-                                                        </Button>
-                                                    </DialogActions>
-                                                }}
-                                                ampm={false}
-                                                maxTime={new Date(0, 0, 0, 20, 0)}
-                                                minTime={new Date(0, 0, 0, 8)}
-                                                shouldDisableTime={(timeValue, clockType) => {
-                                                    return clockType === "minutes" && (timeValue % 5 !== 0);
-                                                }}
-                                                displayStaticWrapperAs="mobile"
-                                                value={customTime}
-                                                onChange={(newValue) => {
-                                                    setCustomTime(newValue);
-                                                }}
-                                                renderInput={(params) => <TextField {...params} />}
-                                            />
-                                        </LocalizationProvider>
+                                        <StaticTimePicker
+                                            {...(!isMobile && {orientation: "landscape"})}
+                                            className={"time-picker-schedule"}
+                                            ampmInClock={false}
+                                            slots={{
+                                                actionBar: () => <DialogActions>
+                                                    <Button
+                                                        size={"small"}
+                                                        disabled={!customTime}
+                                                        onClick={() => {
+                                                            changeDateRef.current = false;
+                                                            setChangeTime(false);
+                                                            onTimeSlotChange(moment(customTime).format("HH:mm"));
+                                                        }}
+                                                        startIcon={<ScheduleRoundedIcon/>}>
+                                                        {t("stepper-1.confirm-time")}
+                                                    </Button>
+                                                    <Button
+                                                        size={"small"}
+                                                        color={"black"}
+                                                        onClick={() => {
+                                                            changeDateRef.current = false;
+                                                            setChangeTime(false);
+                                                        }}
+                                                        startIcon={<CloseIcon/>}>
+                                                        {t("stepper-1.cancel-time")}
+                                                    </Button>
+                                                </DialogActions>
+                                            }}
+                                            ampm={false}
+                                            maxTime={new Date(0, 0, 0, 20, 0)}
+                                            minTime={new Date(0, 0, 0, 8)}
+                                            shouldDisableTime={(timeValue, clockType) => {
+                                                return clockType === "minutes" && (timeValue.getHours() % 5 !== 0);
+                                            }}
+                                            displayStaticWrapperAs="mobile"
+                                            value={customTime}
+                                            onChange={(newValue) => {
+                                                setCustomTime(newValue);
+                                            }}
+                                        />
                                     }
                                 </Grid>
                             </Grid>
