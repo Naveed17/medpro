@@ -24,7 +24,7 @@ import {useTranslation} from "next-i18next";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {Theme, useTheme} from "@mui/material/styles";
-import {useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Otable} from "@features/table";
 import {DefaultCountry} from "@lib/constants";
@@ -38,6 +38,8 @@ import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {ArchiveInsuranceMobileCard, InsuranceAppointMobileCard} from "@features/card";
+import {useInsurances} from "@lib/hooks/rest";
+import {saveAs} from "file-saver";
 
 function ConsultationInProgress() {
     const router = useRouter();
@@ -246,23 +248,30 @@ function ConsultationInProgress() {
     //***** SELECTORS ****//
     const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {trigger} = useRequestQueryMutation("/docket/create");
 
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+    const {insurances} = useInsurances()
 
     const [selectedTab, setSelectedTab] = useState("global");
 
-    const uuid = router.query.uuid;
+    const uuid = router.query.uuid as string;
 
     const {data: httpDocket} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/insurance-dockets/insurance/${uuid}/${router.locale}`,
     })
 
-/*
+    const {data: httpInsuranceConv} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}`,
+    })
+
+    /*
     const {data: httpInsurances} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
@@ -290,7 +299,37 @@ function ConsultationInProgress() {
     }
 
     const createDockets = () => {
+        const form = new FormData();
+        form.append('insurance', uuid);
+        form.append('start_date', "16-05-2024");
+        form.append('end_date', "16-05-2024");
+        form.append('status', "1");
+        form.append('name', "Docket 16/05/2024 - 16/05/2024");
 
+        trigger({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/insurance-dockets/${router.locale}`,
+            data:form
+        }, {
+            onSuccess: (res) => {
+                console.log(res)
+            }
+        });
+    }
+
+    const exportDoc = () => {
+         trigger(
+                {
+                    method: "GET",
+                    url: `${urlMedicalEntitySuffix}/insurance-dockets/export/${router.locale}`,
+                },
+                {
+                    onSuccess: (result) => {
+                        const buffer = Buffer.from(result.data, "base64");
+                        saveAs(new Blob([buffer]), "transaction.xlsx");
+                    },
+                }
+            );
     }
 
     useEffect(() => {
@@ -310,8 +349,10 @@ function ConsultationInProgress() {
                            alignItems={{xs: 'flex-start', md: 'center'}}>
                         <Stack direction='row' alignItems='center' spacing={1}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="/static/img/assurance-1.png" width={60} alt={"insurance logo"}/>
-                            <Typography variant="subtitle2" fontWeight={700}>CNAM</Typography>
+                            <img width={30}
+                                 alt={"insurance icon"}
+                                 src={insurances.find(insc => insc.uuid === uuid)?.logoUrl.url}/>
+                            <Typography variant="subtitle2" fontWeight={700}>{insurances.find(insc => insc.uuid === uuid)?.name}</Typography>
                         </Stack>
                         <Stack ml={2}
                                width={1}
@@ -323,10 +364,10 @@ function ConsultationInProgress() {
                             <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
                                 <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
-                                        {t("code")} CNAM
+                                        {t("code")} {insurances.find(insc => insc.uuid === uuid)?.name}
                                     </Typography>
                                     <Typography fontSize={13} fontWeight={600} component="div">
-                                        030000303333
+                                        -
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -336,7 +377,7 @@ function ConsultationInProgress() {
                                         {t("reference_center")}
                                     </Typography>
                                     <Typography fontSize={13} fontWeight={600} component="div">
-                                        Tunis
+                                        -
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -348,7 +389,7 @@ function ConsultationInProgress() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                            10/10/2022
+                                            -
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -361,7 +402,7 @@ function ConsultationInProgress() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                            10/10/2022
+                                            -
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -484,7 +525,7 @@ function ConsultationInProgress() {
                                         startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
                                 <Button fullWidth={isMobile} variant="grey"
                                         startIcon={<IconUrl path="ic-printer-new"/>}>{t("print")}</Button>
-                                <Button fullWidth={isMobile} variant="grey"
+                                <Button fullWidth={isMobile} variant="grey" onClick={()=> exportDoc}
                                         startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
                             </Stack>
                         </Stack>

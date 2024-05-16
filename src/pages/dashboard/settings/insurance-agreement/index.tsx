@@ -167,13 +167,14 @@ function InsuranceAndAgreement() {
                 });*/
         }
     }
+
     const handleCloseMenu = () => {
         setContextMenu(null);
     }
 
     const saveChanges = (from:string) => {
         const form = new FormData();
-        form.append("insurance", agreement.insurance ? agreement.insurance.uuid : "")
+        form.append("insurance", agreement.insurance && agreement.insurance.uuid ? agreement.insurance.uuid : "")
         form.append("name", agreement.label)
         form.append("mutual", agreement.name ? agreement.name : "")
         form.append("start_date", agreement.startDate ? moment(agreement.startDate).format("DD/MM/YYYY") : moment().format("DD/MM/YYYY"))

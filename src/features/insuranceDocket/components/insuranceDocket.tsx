@@ -18,7 +18,7 @@ const headCells = [
         align: "left",
         sortable: true,
     },
-    {
+/*    {
         id: "label",
         numeric: false,
         disablePadding: false,
@@ -41,7 +41,7 @@ const headCells = [
         label: "end_date",
         align: "center",
         sortable: false,
-    }
+    }*/
 ];
 
 const InsuranceDocket = ({...props}) => {
@@ -64,15 +64,13 @@ const InsuranceDocket = ({...props}) => {
 
     const {data: httpInsurances, mutate} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/list/${router.locale}`,
     });
-
     const insuranceList = httpInsurances?.data;
-    console.log(insuranceList);
 
     const handleTableActions = (props: { action: string, event: MouseEvent, data: any }) => {
-        const {action, event, data} = props;
-        console.log(data)
+        const {data} = props;
+        console.log(data.uuid)
         router.push(`cashbox/insurance/${data.uuid}`)
     }
 
@@ -80,7 +78,6 @@ const InsuranceDocket = ({...props}) => {
         <InsuranceStyled spacing={1}>
             <DesktopContainer>
                 <Otable
-                    /*toolbar={<Toolbar {...{t, search, handleSearch}} />}*/
                     headers={headCells}
                     rows={insuranceList}
                     handleEvent={handleTableActions}
