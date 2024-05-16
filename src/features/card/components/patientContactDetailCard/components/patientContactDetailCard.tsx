@@ -641,7 +641,7 @@ function PatientContactDetailCard({...props}) {
                                                                                 options={contactRelations}
                                                                                 getOptionLabel={(option: any) => option?.label ? option.label : ""}
                                                                                 isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
-                                                                                renderOption={(params, option, {selected}) => (
+                                                                                renderOption={(params, option) => (
                                                                                     <MenuItem
                                                                                         {...params}
                                                                                         value={option.key}>
