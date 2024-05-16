@@ -194,11 +194,8 @@ function PatientFilter({...props}) {
                                         }}
                                         slots={{
                                             openPickerIcon: CalendarPickerIcon,
-                                            textField: (params) =>
-                                                <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
-                                                    <TextField {...params} fullWidth/>
-                                                </FormControl>
                                         }}
+                                        slotProps={{textField: {fullWidth: true}}}
                                     />
                                 </Box>
                             )}

@@ -37,7 +37,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
-import {checkObjectChange, flattenObject, useMedicalEntitySuffix} from "@lib/hooks";
+import {checkObjectChange, flattenObject, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {LoadingScreen} from "@features/loadingScreen";
 import {ToggleButtonStyled} from "@features/toolbar";
@@ -48,7 +48,7 @@ const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelec
 
 function PatientContactDetailCard({...props}) {
     const {
-        patient, mutatePatientList = null, mutateAgenda = null,
+        patient, contactData, mutatePatientList = null, mutateAgenda = null,
         loading, contacts, countries_api, editable: defaultEditStatus, setEditable
     } = props;
 
@@ -60,6 +60,7 @@ function PatientContactDetailCard({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation(["patient", "common"]);
@@ -95,15 +96,7 @@ function PatientContactDetailCard({...props}) {
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
-    const {
-        data: httpPatientContactResponse,
-        mutate: mutatePatientContact
-    } = useRequestQuery(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/contact/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
 
-    const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
     const initialValue = {
         country: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.country?.uuid : "",
         region: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.uuid : "",
@@ -204,7 +197,7 @@ function PatientContactDetailCard({...props}) {
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);
-                mutatePatientContact();
+                invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/contact/${router.locale}`]);
                 mutatePatientList && mutatePatientList();
                 mutateAgenda && mutateAgenda();
                 if (appointment) {

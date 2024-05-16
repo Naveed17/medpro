@@ -19,18 +19,14 @@ function EmploymentDetailsDialog({...props}) {
                     </Typography>
                     <DatePicker
                         slots={{
-                            openPickerIcon: DatePickerIcon,
-                            textField: (props) =>
-                                <TextField
-
-                                    fullWidth size={"small"} {...props} />
+                            openPickerIcon: DatePickerIcon
                         }}
+                        slotProps={{textField: {size: "small"}}}
                         format={"dd-MM-yyyy"}
                         value={date[item] || ""}
                         onChange={(newValue) => {
                             setDate({...date, [item]: newValue});
                         }}
-
                     />
                 </Stack>
             ))}

@@ -36,6 +36,7 @@ import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} f
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {AsyncAutoComplete} from "@features/autoComplete";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -394,7 +395,7 @@ function PersonalInfo({...props}) {
                                             <DatePicker
                                                 readOnly={!editable}
                                                 format={"dd/MM/yyyy"}
-                                                value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
+                                                value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY").toDate() : null}
                                                 onChange={date => {
                                                     const dateInput = moment(date);
                                                     setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
@@ -406,8 +407,9 @@ function PersonalInfo({...props}) {
                                                     }
                                                 }}
                                                 slots={{
-                                                    textField: (params) => <TextField size={"small"} {...params} />
+                                                    openPickerIcon: CalendarPickerIcon,
                                                 }}
+                                                slotProps={{textField: {size: "small"}}}
                                             />
                                         )}
                                     </Grid>

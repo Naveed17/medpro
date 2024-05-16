@@ -245,7 +245,6 @@ function LifeStyleDialog({...props}) {
                                                                             data.start = newValue;
                                                                             setState([...state])
                                                                         }}
-
                                                                     />
                                                                 }
                                                                 {/*End time*/}

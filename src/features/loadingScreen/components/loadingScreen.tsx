@@ -133,6 +133,7 @@ function LoadingScreen({...props}) {
                                         await router.push("/dashboard/agenda");
                                     } else {
                                         await update({refreshAccessToken: true});
+                                        router.reload();
                                     }
                                 });
 

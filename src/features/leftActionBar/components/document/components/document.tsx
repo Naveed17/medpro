@@ -356,19 +356,20 @@ function Document() {
                             onChange={date => {
                                 dispatch(setOcrData({date}));
                             }}
-                            slots={{
-                                textField: (params) =>
-                                    <FormControl
-                                        sx={{
-                                            "& .MuiOutlinedInput-root button": {
-                                                padding: "5px",
-                                                minHeight: "auto",
-                                                height: "auto",
-                                                minWidth: "auto",
-                                            }
-                                        }} component="form" fullWidth onSubmit={e => e.preventDefault()}>
-                                        <TextField {...params} fullWidth/>
-                                    </FormControl>
+                            slotProps={{
+                                textField: {
+                                    sx: {
+                                        "& .MuiOutlinedInput-root button": {
+                                            padding: "5px",
+                                            minHeight: "auto",
+                                            height: "auto",
+                                            minWidth: "auto",
+                                        }
+                                    },
+                                    component: "form",
+                                    fullWidth: true,
+                                    onSubmit: (e) => e.preventDefault()
+                                }
                             }}
                         />
                     </Box>

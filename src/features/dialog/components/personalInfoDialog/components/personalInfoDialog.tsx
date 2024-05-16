@@ -212,12 +212,13 @@ function PersonalInfoDialog({...props}) {
                             </Typography>
 
                             <DatePicker
-                                slots={{
-                                    textField: (props) =>
-                                        <TextField
-                                            error={Boolean(touched.birthday && errors.birthday)}
-                                            helperText={touched.birthday && errors.birthday}
-                                            fullWidth size={"small"} {...props} />
+                                slotProps={{
+                                    textField: {
+                                        error: Boolean(touched.birthday && errors.birthday),
+                                        helperText: touched.birthday && errors.birthday,
+                                        fullWidth:true,
+                                        size:"small"
+                                    }
                                 }}
                                 format={"dd-MM-yyyy"}
                                 value={values?.birthday ?? null}

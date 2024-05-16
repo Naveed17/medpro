@@ -6,7 +6,6 @@ import {Divider, IconButton, Stack, Theme, Typography, useMediaQuery, useTheme} 
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import {
-    DateCalendar,
     PickersCalendarHeaderProps,
     PickersDay,
     PickersDayProps,
@@ -19,8 +18,6 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {MobileContainer as smallScreen} from "@lib/constants";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ChevronLeft, ChevronRight} from "@mui/icons-material";
-import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import {styled} from '@mui/material/styles';
 import {startCase} from "lodash";
 
@@ -108,7 +105,6 @@ function CalendarPickers({...props}) {
     });
 
     const handleDateChange = useCallback((date: Date | null) => {
-        console.log("handleDateChange", date);
         onDateChange(date);
     }, [onDateChange])
 

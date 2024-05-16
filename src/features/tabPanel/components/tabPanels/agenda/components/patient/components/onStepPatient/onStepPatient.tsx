@@ -54,6 +54,7 @@ import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
 import {AsyncAutoComplete} from "@features/autoComplete";
 import SortIcon from "@themes/overrides/icons/sortIcon";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -555,7 +556,7 @@ function OnStepPatient({...props}) {
                                     {t("date-of-birth")}
                                 </Typography>
                                 <DatePicker
-                                    value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY") : null}
+                                    value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
                                     format="dd/MM/yyyy"
                                     onChange={(date) => {
                                         const dateInput = moment(date);
@@ -574,13 +575,16 @@ function OnStepPatient({...props}) {
                                         }
                                     }}
                                     slots={{
-                                        textField: (params) => <TextField
-                                            {...params}
-                                            {...((values.birthdate !== null || error) && {
+                                        openPickerIcon: CalendarPickerIcon
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            ...((values.birthdate !== null || error) && {
                                                 error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
                                                 ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
-                                            })}
-                                            fullWidth/>
+                                            })
+                                        }
                                     }}
                                 />
                             </Grid>

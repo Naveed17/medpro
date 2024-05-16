@@ -693,7 +693,7 @@ function DocumentDetailDialog({...props}) {
         </div>
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-    console.log(medical_professional)
+
     return (
         <DocumentDetailDialogStyled>
             {(loading || isPrinting) && <Card className={'loading-card'}>

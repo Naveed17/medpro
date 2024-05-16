@@ -1,4 +1,4 @@
-import React, {ChangeEvent, memo, useRef, useState} from "react";
+import React, {ChangeEvent, memo, useEffect, useRef, useState} from "react";
 import * as Yup from "yup";
 import {useFormik, Form, FormikProvider} from "formik";
 import {
@@ -14,7 +14,7 @@ import {
     Stack,
     FormHelperText,
     IconButton,
-    Avatar, useTheme, InputAdornment, Autocomplete, MenuItem, Checkbox,
+    Avatar, useTheme, InputAdornment, Autocomplete, MenuItem, Checkbox, TextFieldProps,
 } from "@mui/material";
 import {
     addPatientSelector, CustomInput,
@@ -23,7 +23,7 @@ import {
 } from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useTranslation} from "next-i18next";
-import moment from "moment-timezone";
+import moment, {Moment} from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
 import Icon from "@themes/urlIcon";
 import {CountrySelect} from "@features/countrySelect";
@@ -41,11 +41,26 @@ import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import AddIcon from "@mui/icons-material/Add";
 import {ToggleButtonStyled} from "@features/toolbar";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
+
+function CustomTextField(params: TextFieldProps & { values: any, error: boolean, helperText: string }) {
+    const {values, error, helperText} = params;
+    return (
+        <TextField
+            fullWidth
+            {...params}
+            {...((values.birthdate !== null || error) && {
+                error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
+                ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText})
+            })}
+        />
+    );
+}
 
 function AddPatientStep1({...props}) {
     const {
@@ -78,6 +93,8 @@ function AddPatientStep1({...props}) {
         ...relation,
         label: commonTranslation(`social_insured.${relation.label}`)
     })));
+    const [datePickerValue, setDatePickerValue] = React.useState<Moment | null>(null);
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -454,8 +471,7 @@ function AddPatientStep1({...props}) {
                                     {t("date-of-birth")}
                                 </Typography>
                                 <DatePicker
-                                    value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY") : null}
-                                    format="dd/MM/yyyy"
+                                    value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
                                     onChange={(date) => {
                                         const dateInput = moment(date);
                                         setFieldValue("birthdate", dateInput.isValid() ? {
@@ -473,13 +489,16 @@ function AddPatientStep1({...props}) {
                                         }
                                     }}
                                     slots={{
-                                        textField: (params) => <TextField
-                                            {...params}
-                                            {...((values.birthdate !== null || error) && {
+                                        openPickerIcon: CalendarPickerIcon,
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            ...((values.birthdate !== null || error) && {
                                                 error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
                                                 ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
-                                            })}
-                                            fullWidth/>
+                                            })
+                                        }
                                     }}
                                 />
                             </Grid>
