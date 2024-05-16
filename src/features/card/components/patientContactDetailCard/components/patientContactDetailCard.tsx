@@ -594,8 +594,8 @@ function PatientContactDetailCard({...props}) {
                                             <Grid key={index} item md={12} sm={12} xs={12}>
                                                 <Stack direction="row" alignItems="self-start">
                                                     <Grid item md={index === 0 ? 11 : 10}
-                                                          sm={index === 0 ? 11 : 10}
-                                                          xs={index === 0 ? 11 : 10}
+                                                          sm={12}
+                                                          xs={12}
                                                           sx={{
                                                               "& .Input-select": {
                                                                   marginLeft: "-0.8rem"
@@ -607,7 +607,7 @@ function PatientContactDetailCard({...props}) {
                                                             <fieldset>
                                                                 <legend>
                                                                     <Typography
-                                                                        mr={isMobile ? 1.6 : 2.4}
+                                                                        mr={isMobile ? 1 : 2.4}
                                                                         className="label"
                                                                         variant="body2"
                                                                         color="text.secondary">
@@ -618,7 +618,7 @@ function PatientContactDetailCard({...props}) {
                                                                        alignContent={"center"}
                                                                        spacing={editable ? (Boolean(errors.phones && (errors.phones as any)[index]) ? 3 : 1) : .5}>
                                                                     <Stack direction={"row"} alignItems={"flex-start"}
-                                                                           spacing={1.2}
+                                                                           spacing={0}
                                                                            sx={{width: "100%"}}
                                                                            {...(editable && {
                                                                                sx: {
@@ -649,7 +649,7 @@ function PatientContactDetailCard({...props}) {
                                                                                     </MenuItem>)}
                                                                                 renderInput={(params) => {
                                                                                     return (<TextField {...params}
-                                                                                                       placeholder={t("add-patient.relation-placeholder")}/>)
+                                                                                                       placeholder={t("config.add-patient.relation-placeholder")}/>)
                                                                                 }}
                                                                             />
                                                                         </Grid>
@@ -672,6 +672,11 @@ function PatientContactDetailCard({...props}) {
                                                                                             position="start"
                                                                                             sx={{
                                                                                                 maxWidth: "3rem",
+                                                                                                ...((isMobile || !editable) && {
+                                                                                                    "& .MuiAutocomplete-root": {
+                                                                                                        width: 20
+                                                                                                    },
+                                                                                                }),
                                                                                                 "& .MuiOutlinedInput-notchedOutline": {
                                                                                                     outline: "none",
                                                                                                     borderColor: "transparent"
@@ -784,7 +789,7 @@ function PatientContactDetailCard({...props}) {
                                                             </fieldset>
                                                         )}
                                                     </Grid>
-                                                    <Grid item xs={12} md={index === 0 ? 1 : 2}>
+                                                    <Grid item xs={index === 0 ? 1 : 2} md={index === 0 ? 1 : 2}>
                                                         <Stack
                                                             direction={"row"}
                                                             justifyContent={"center"}
