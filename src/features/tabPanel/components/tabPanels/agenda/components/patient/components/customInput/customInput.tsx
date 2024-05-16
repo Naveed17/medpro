@@ -6,11 +6,7 @@ const CustomInput = React.forwardRef(function custom(props, ref) {
         <TextField
             {...props}
             inputRef={ref}
-            sx={{
-                "& .MuiInputBase-root": {
-                    paddingLeft: 0,
-                }
-            }}
+            {...((props as any).InputProps.sx && {sx: (props as any).InputProps.sx})}
             fullWidth
         />
     )

@@ -667,6 +667,11 @@ function PatientContactDetailCard({...props}) {
                                                                                             getFieldProps(`phones[${index}].value`).value : ""}`
                                                                                     })}
                                                                                 InputProps={{
+                                                                                    sx: {
+                                                                                        "& .MuiInputBase-root": {
+                                                                                            paddingLeft: 0
+                                                                                        }
+                                                                                    },
                                                                                     startAdornment: (
                                                                                         <InputAdornment
                                                                                             position="start"

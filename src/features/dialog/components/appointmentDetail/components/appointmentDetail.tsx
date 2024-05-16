@@ -257,6 +257,7 @@ function AppointmentDetail({...props}) {
                                                         />
                                                         <Link
                                                             underline="none"
+                                                            {...(contact?.isWhatsapp && {target: "_blank"})}
                                                             href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
                                                             sx={{ml: 1, fontSize: 12}}
                                                             variant="caption"
