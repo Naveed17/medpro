@@ -1,31 +1,21 @@
-import {useAppSelector} from "@lib/redux/hooks";
-import {configSelector} from "@features/base";
-import TextField from "@mui/material/TextField";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
-import {LocaleFnsProvider} from "@lib/localization";
-import dayjs,{ Dayjs } from 'dayjs';
-function BasicDatePicker({...props}) {
-    const {onChange, value = dayjs(new Date(), 'DD/MM/YYYY', true) as Dayjs | null} = props;
-    const {locale} = useAppSelector(configSelector);
+import {DatePicker} from '@mui/x-date-pickers';
+import dayjs, {Dayjs} from 'dayjs';
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
+function BasicDatePicker({...props}) {
+    const {onChange, inputFormat = null, value = dayjs(new Date(), 'DD/MM/YYYY', true) as Dayjs | null} = props;
     return (
-        <LocalizationProvider
-            dateAdapter={AdapterDateFns}
-            adapterLocale={LocaleFnsProvider(locale)}
-        >
-            <DatePicker
-                {...props}
-                inputFormat={"dd/MM/yyyy"}
-                mask="__/__/____"
-                value={value}
-                onChange={(newValue) => {
-                    onChange(newValue);
-                }}
-                renderInput={(params) => <TextField {...params} fullWidth/>}
-                
-            />
-        </LocalizationProvider>
+        <DatePicker
+            {...props}
+            format={inputFormat ?? "dd/MM/yyyy"}
+            value={value}
+            onChange={(newValue) => {
+                onChange(newValue);
+            }}
+            slots={{
+                openPickerIcon: CalendarPickerIcon,
+            }}
+        />
     );
 }
 

@@ -6,6 +6,7 @@ const CustomInput = React.forwardRef(function custom(props, ref) {
         <TextField
             {...props}
             inputRef={ref}
+            {...((props as any).InputProps.sx && {sx: (props as any).InputProps.sx})}
             fullWidth
         />
     )

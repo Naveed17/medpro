@@ -22,8 +22,7 @@ export const ProfileMenuReducer = createReducer(initialState, builder => {
     }).addCase(logout, (state, action) => {
         if (action.payload.redirect) {
             state.logout = action.payload.path;
-            signOut({redirect: true, callbackUrl: "/api/auth/signout"});
-            // window.location.href = action.payload.path;
+            signOut({redirect: false}).then(() => window.location.href = action.payload.path);
         } else {
             signOut({redirect: false});
         }

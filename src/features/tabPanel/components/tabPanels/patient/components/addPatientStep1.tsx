@@ -1,4 +1,4 @@
-import React, {ChangeEvent, memo, useRef, useState} from "react";
+import React, {ChangeEvent, memo, useEffect, useRef, useState} from "react";
 import * as Yup from "yup";
 import {useFormik, Form, FormikProvider} from "formik";
 import {
@@ -14,7 +14,7 @@ import {
     Stack,
     FormHelperText,
     IconButton,
-    Avatar, useTheme, InputAdornment, Autocomplete, MenuItem, Checkbox,
+    Avatar, useTheme, InputAdornment, Autocomplete, MenuItem, Checkbox, TextFieldProps,
 } from "@mui/material";
 import {
     addPatientSelector, CustomInput,
@@ -23,33 +23,44 @@ import {
 } from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useTranslation} from "next-i18next";
-import moment from "moment-timezone";
-
-
+import moment, {Moment} from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
-
 import Icon from "@themes/urlIcon";
 import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/image";
-import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
+import {DefaultCountry, PatientContactRelation} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
+import {DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from "react-phone-number-input/input";
 import {useRequestQueryMutation} from "@lib/axios";
 import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import AddIcon from "@mui/icons-material/Add";
 import {ToggleButtonStyled} from "@features/toolbar";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
+
+function CustomTextField(params: TextFieldProps & { values: any, error: boolean, helperText: string }) {
+    const {values, error, helperText} = params;
+    return (
+        <TextField
+            fullWidth
+            {...params}
+            {...((values.birthdate !== null || error) && {
+                error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
+                ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText})
+            })}
+        />
+    );
+}
 
 function AddPatientStep1({...props}) {
     const {
@@ -82,6 +93,8 @@ function AddPatientStep1({...props}) {
         ...relation,
         label: commonTranslation(`social_insured.${relation.label}`)
     })));
+    const [datePickerValue, setDatePickerValue] = React.useState<Moment | null>(null);
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -457,36 +470,37 @@ function AddPatientStep1({...props}) {
                                     component="span">
                                     {t("date-of-birth")}
                                 </Typography>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY") : null}
-                                        inputFormat="dd/MM/yyyy"
-                                        mask="__/__/____"
-                                        onChange={(date) => {
-                                            const dateInput = moment(date);
-                                            setFieldValue("birthdate", dateInput.isValid() ? {
-                                                day: dateInput.format("DD"),
-                                                month: dateInput.format("MM"),
-                                                year: dateInput.format("YYYY"),
-                                            } : null);
-                                            if (dateInput.isValid()) {
-                                                setError(false);
-                                                const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
-                                                setFieldValue("old", old > 120 ? "" : old);
-                                            } else {
-                                                setError(date !== null);
-                                                setFieldValue("old", "");
-                                            }
-                                        }}
-                                        renderInput={(params) => <TextField
-                                            {...params}
-                                            {...((values.birthdate !== null || error) && {
+                                <DatePicker
+                                    value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
+                                    onChange={(date) => {
+                                        const dateInput = moment(date);
+                                        setFieldValue("birthdate", dateInput.isValid() ? {
+                                            day: dateInput.format("DD"),
+                                            month: dateInput.format("MM"),
+                                            year: dateInput.format("YYYY"),
+                                        } : null);
+                                        if (dateInput.isValid()) {
+                                            setError(false);
+                                            const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                            setFieldValue("old", old > 120 ? "" : old);
+                                        } else {
+                                            setError(date !== null);
+                                            setFieldValue("old", "");
+                                        }
+                                    }}
+                                    slots={{
+                                        openPickerIcon: CalendarPickerIcon,
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            ...((values.birthdate !== null || error) && {
                                                 error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
                                                 ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
-                                            })}
-                                            fullWidth/>}
-                                    />
-                                </LocalizationProvider>
+                                            })
+                                        }
+                                    }}
+                                />
                             </Grid>
                             <Grid item xs={6} md={4}>
                                 <Typography

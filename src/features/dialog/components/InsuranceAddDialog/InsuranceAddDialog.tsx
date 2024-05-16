@@ -290,8 +290,7 @@ function InsuranceAddDialog({...props}) {
                                                 </Typography>
                                                 <FormControl
                                                     fullWidth
-                                                    error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.birthday)}
-                                                >
+                                                    error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.birthday)}>
                                                     <CustomDatePicker
                                                         value={values.insurances[index].insurance_social?.birthday ?
                                                             moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
