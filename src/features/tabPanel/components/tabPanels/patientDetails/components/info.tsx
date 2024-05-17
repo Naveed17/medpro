@@ -4,8 +4,7 @@ import { Avatar, AvatarGroup, Card, CardContent, CardHeader, InputAdornment, Sta
 import { Form, FormikProvider, useFormik } from 'formik'
 import { CustomIconButton } from '@features/buttons'
 import IconUrl from '@themes/urlIcon'
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DatePicker } from '@mui/x-date-pickers'
 import moment from 'moment-timezone'
 import DatePickerIcon from '@themes/overrides/icons/datePickerIcon'
 import PhoneInput from 'react-phone-number-input/input'
@@ -148,21 +147,21 @@ function Info({ ...props }) {
                                                         <Typography color={theme.palette.grey[500]} fontWeight={500}>
                                                             {t("birthdate")}
                                                         </Typography>
-                                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                            <DatePicker
-                                                                components={{
-                                                                    OpenPickerIcon: CalendarIcon
-                                                                }}
-                                                                inputFormat={"dd/MM/yyyy"}
-                                                                mask="__/__/____"
-                                                                value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
-                                                                onChange={date => {
-                                                                    const dateInput = moment(date);
-                                                                    setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
-                                                                }}
-                                                                renderInput={(params) => <TextField size={"small"} {...params} />}
-                                                            />
-                                                        </LocalizationProvider>
+
+                                                        <DatePicker
+                                                            slots={{
+                                                                openPickerIcon: CalendarIcon,
+                                                            }}
+                                                            slotProps={{ textField: { size: "small" } }}
+                                                            format={"dd/MM/yyyy"}
+                                                            value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY").toDate() : null}
+                                                            onChange={date => {
+                                                                const dateInput = moment(date);
+                                                                setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
+                                                            }}
+
+                                                        />
+
                                                     </Stack>
                                                 </Stack>
                                             </Stack>
