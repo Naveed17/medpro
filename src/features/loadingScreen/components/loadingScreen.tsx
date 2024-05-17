@@ -84,8 +84,9 @@ function LoadingScreen({...props}) {
                     </Box>
 
                     {text === "loading" && (
-                        <Box>
+                        <Stack direction={"row"} alignItems={"center"}>
                             <motion.div
+                                style={{display: "flex"}}
                                 variants={container}
                                 initial="hidden"
                                 animate="visible">
@@ -104,7 +105,7 @@ function LoadingScreen({...props}) {
                                     />
                                 ))}
                             </motion.div>
-                        </Box>
+                        </Stack>
                     )}
 
                     {text !== "loading" && (

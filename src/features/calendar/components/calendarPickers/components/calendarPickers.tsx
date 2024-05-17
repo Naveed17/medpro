@@ -72,7 +72,7 @@ function CustomCalendarHeader(props: PickersCalendarHeaderProps<any>) {
                 <Typography variant="body2"
                             fontSize={20}>{startCase(currentMonthMoment.format('MMM YYYY'))}</Typography>
                 <Stack spacing={1} direction="row">
-                    <IconButton onClick={selectNextMonth} title="Next month">
+                    <IconButton onClick={selectNextMonth} title="Next month" >
                         <ChevronRight color="text" sx={{ml: 'auto', color: "text.secondary"}}/>
                     </IconButton>
                 </Stack>
