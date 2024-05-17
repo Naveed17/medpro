@@ -18,6 +18,8 @@ declare global {
 
         Upscope(action: String, options?: any): void
 
+        UpscopeLoad(window: Window, Upscope: any, document: Document): void
+
         usetifulTags: Object
     }
 
@@ -30,6 +32,7 @@ declare module "next-auth" {
     interface Session {
         data: any;
         accessToken: string;
+        idToken: string;
         error: string;
     }
 }

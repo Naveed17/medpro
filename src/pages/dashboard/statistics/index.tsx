@@ -28,7 +28,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
-import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {CalendarViewButton} from "@features/buttons";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
@@ -39,7 +39,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {TabPanel} from "@features/tabPanel";
 import NumberIcon from "@themes/overrides/icons/numberIcon";
 import TimerIcon from "@themes/overrides/icons/timerIcon";
-import {StatsProgressCard} from "@features/card";
+import {BorderLinearProgressStyled, StatsProgressCard} from "@features/card";
 import {useCountries} from "@lib/hooks/rest";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
@@ -87,6 +87,7 @@ function Statistics() {
         }
     })
     const [schedules, setSchedules] = useState<any>([]);
+    const [selectedConsultationReason, setSelectedConsultationReason] = useState<any>(null);
 
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",
@@ -120,8 +121,8 @@ function Statistics() {
         millisecond: 0
     })).reverse();
     const appointmentPerPeriod = (appointmentStats?.period ? durations.map(duration => appointmentStats.period[`${duration.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
-    const appointmentPerPeriodKeys = (appointmentStats?.period ? Object.keys(appointmentStats.period) : []) as any[];
     const motifPerPeriod = (appointmentStats?.motif ?? []) as any[];
+    console.log("motifPerPeriod", motifPerPeriod);
     const actPerPeriod = (appointmentStats?.act ?? []) as any[];
     const typePerPeriod = (appointmentStats?.type ?? []) as any[];
     const statsPerPeriod = (appointmentStats?.stats ?? null) as any;
@@ -143,12 +144,6 @@ function Statistics() {
         "f": "female",
         "m": "male",
         "u": "other"
-    }
-
-    const convertDurationToMin = (startTime: string, endTime: string) => {
-        const duration = getDiffDuration(`${moment().format("DD-MM-YYY")} ${startTime}`, 1, false, `${moment().format("DD-MM-YYY")} ${endTime}`);
-        const durationEntity = duration.split(" ");
-        return durationEntity[1] === 'h' ? parseFloat(durationEntity[0]) : parseFloat((parseFloat(durationEntity[0]) * 0.01).toFixed(2))
     }
 
     useEffect(() => {
@@ -299,8 +294,8 @@ function Statistics() {
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
-                                                            categories: appointmentPerPeriodKeys.map(date =>
-                                                                startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).slice(-12)
+                                                            categories: durations.map(date =>
+                                                                startCase(date.format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', '')))
                                                         },
                                                         tooltip: {x: {show: false}, marker: {show: false}},
                                                         colors: ['#1BC47D', '#FEC400'],
@@ -394,7 +389,7 @@ function Statistics() {
                                                         dataLabels: {
                                                             enabled: false,
                                                             textAnchor: 'start',
-                                                            formatter: function (val: string, opt: any) {
+                                                            formatter: function (val: string) {
                                                                 const duration = moment.duration(val, 'hours');
                                                                 return `${duration.hours()}:${duration.minutes()} h`
                                                             },
@@ -967,8 +962,8 @@ function Statistics() {
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
-                                                            categories: appointmentPerPeriodKeys.map(date =>
-                                                                startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).slice(-12)
+                                                            categories: durations.map(date =>
+                                                                startCase(date.format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', '')))
                                                         },
                                                         tooltip: {x: {show: false}, marker: {show: false}},
                                                         colors: ['#1BC47D', '#FEC400'],
@@ -1598,6 +1593,130 @@ function Statistics() {
                     </Grid>
 
                 </TabPanel>
+                {/*<TabPanel padding={.3} value={value} index={4}>
+                    <Grid container spacing={2} mb={3}>
+                        <Grid xs={12} item md={6}>
+                            <Card
+                                sx={{
+                                    borderRadius: "12px",
+                                    border: "none",
+                                    boxShadow: theme.shadows[5],
+                                    height: 1
+                                }}>
+                                <CardContent sx={{pb: 0}}>
+                                    <Stack direction={"row"} spacing={1.2} alignItems={"center"} width={1} mb={2}>
+                                        <IconUrl path={"ic-consultation-reasons"}/>
+                                        <Stack>
+                                            <Typography fontWeight={600} fontSize={24} variant="caption">
+                                                {motifPerPeriod.length}
+                                            </Typography>
+                                            <Typography fontSize={{md: 11, xl: 12}} fontWeight={500} variant="body2">
+                                                {t("reason")}
+                                            </Typography>
+                                        </Stack>
+                                    </Stack>
+                                    {motifPerPeriod.map((motif: any, index: number) => (
+                                        <Stack spacing={.3} key={index} mb={1}>
+                                            <Card
+                                                sx={{
+                                                    ...(motif.key === selectedConsultationReason?.key && {backgroundColor: "#E6F7FE"}),
+                                                    border: "none",
+                                                    cursor: "pointer"
+                                                }}
+                                                onClick={() => {
+                                                    setSelectedConsultationReason(motif)
+                                                }}>
+                                                <CardContent>
+                                                    <Stack direction='row' alignItems='center'
+                                                           justifyContent='space-between'>
+                                                        <Typography variant="body2"
+                                                                    fontWeight={800}>{startCase(t(motif.key))}</Typography>
+                                                        <Typography fontSize={20} fontWeight={600}
+                                                                    lineHeight={1.2}>{motif.doc_count}
+                                                        </Typography>
+                                                    </Stack>
+                                                    <BorderLinearProgressStyled bgcolor={"#ff5b6e"}
+                                                                                variant="determinate"
+                                                                                value={motif.doc_count}/>
+                                                </CardContent>
+                                            </Card>
+                                        </Stack>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid xs={12} item md={6}>
+                            <Stack>
+                                <Card
+                                    sx={{
+                                        borderRadius: "12px",
+                                        border: "none",
+                                        boxShadow: theme.shadows[5],
+                                        height: 1
+                                    }}>
+                                    <CardContent sx={{pb: 0}}>
+                                        <Stack mb={1}>
+                                            <Typography fontWeight={600} fontSize={24} variant="caption">
+                                                {startCase(t(selectedConsultationReason?.key)) ?? "--"}
+                                            </Typography>
+                                            <Typography fontSize={{md: 11, xl: 12}} fontWeight={500} variant="body2">
+                                                {t("consultation_reson", {ns: "common"})}
+                                            </Typography>
+                                        </Stack>
+
+                                        <Stack direction="row" alignItems={"center"} sx={{width: "100%"}} spacing={1.2}>
+                                            <Card
+                                                sx={{
+                                                    border: `1px dotted ${theme.palette.grey['A300']}`,
+                                                    cursor: "pointer",
+                                                    width: "100%"
+                                                }}>
+                                                <CardContent>
+                                                    <Stack direction='row' alignItems='center'
+                                                           justifyContent='space-between'>
+                                                        <Typography variant="body2"
+                                                                    fontWeight={800}>{startCase(t("count"))}</Typography>
+                                                        <Typography fontSize={20} fontWeight={600}
+                                                                    lineHeight={1.2}>{selectedConsultationReason?.doc_count}
+                                                        </Typography>
+                                                    </Stack>
+
+                                                    <BorderLinearProgressStyled bgcolor={"#ff5b6e"}
+                                                                                variant="determinate"
+                                                                                value={selectedConsultationReason?.doc_count}/>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card
+                                                sx={{
+                                                    border: `1px dotted ${theme.palette.grey['A300']}`,
+                                                    cursor: "pointer",
+                                                    width: "100%"
+                                                }}>
+                                                <CardContent>
+                                                    <Stack direction='row' alignItems='center'
+                                                           justifyContent='space-between'>
+                                                        <Typography variant="body2"
+                                                                    fontWeight={800}>{startCase(t("duration"))}</Typography>
+                                                        <Typography fontSize={16} fontWeight={600}
+                                                                    lineHeight={1.2}>{selectedConsultationReason?.mean_duration} min
+                                                        </Typography>
+                                                    </Stack>
+
+                                                    <BorderLinearProgressStyled bgcolor={"#ff5b6e"}
+                                                                                variant="determinate"
+                                                                                value={selectedConsultationReason?.mean_duration}/>
+                                                </CardContent>
+                                            </Card>
+                                        </Stack>
+
+                                    </CardContent>
+                                </Card>
+                            </Stack>
+
+                        </Grid>
+                    </Grid>
+                </TabPanel>*/}
             </Box>
         </>
     )

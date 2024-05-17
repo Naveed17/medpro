@@ -1,3 +1,16 @@
+## [4.25.1](https://github.com/SmartMedSA/med-pro/compare/v4.25.0...v4.25.1) (2024-05-14)
+
+
+### Bug Fixes
+
+* comment consultation reasons stats ([d9c1286](https://github.com/SmartMedSA/med-pro/commit/d9c128607b0325a8aabef1be9e4eddf1979ca452))
+* sentry migration to v8 ([dc3951c](https://github.com/SmartMedSA/med-pro/commit/dc3951c263aa18da627f264a3a32d23d28cc3388))
+* stats duration undefined issues ([9410b26](https://github.com/SmartMedSA/med-pro/commit/9410b265ad85f5ec94583945432d5094e8c95edc))
+* update .env dist ([632d22e](https://github.com/SmartMedSA/med-pro/commit/632d22e473ddeabc85a35fce10592b8d1b22465a))
+* upscope update loading behavior ([bc57f4a](https://github.com/SmartMedSA/med-pro/commit/bc57f4a2e4a92b4193bcd4f35204b036538fe9da))
+* upscope update loading behavior ([3a86902](https://github.com/SmartMedSA/med-pro/commit/3a8690226caa7375289d29998520b1805e079814))
+* upscope update loading behavior ([a92ce5f](https://github.com/SmartMedSA/med-pro/commit/a92ce5f4a6992fddcd8afc952d90cccc1e4f9949))
+
 # [4.25.0](https://github.com/SmartMedSA/med-pro/compare/v4.24.1...v4.25.0) (2024-05-13)
 
 

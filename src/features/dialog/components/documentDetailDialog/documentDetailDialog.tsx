@@ -78,7 +78,7 @@ function DocumentDetailDialog({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix, medical_professional} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -219,7 +219,6 @@ function DocumentDetailDialog({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
-    const medical_professional = (user as UserDataResponse).medical_professional;
     const roles = (user as UserDataResponse)?.general_information.roles;
 
     const {trigger: triggerDocumentUpdate} = useRequestQueryMutation("/documents/update");

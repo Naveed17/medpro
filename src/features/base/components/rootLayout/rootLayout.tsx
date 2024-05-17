@@ -8,9 +8,17 @@ import {firebaseCloudSdk} from "@lib/firebase";
 import smartlookClient from "smartlook-client";
 import {useRouter} from "next/router";
 import moment from "moment-timezone";
+import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
+import {useAppSelector} from "@lib/redux/hooks";
+import {configSelector} from "@features/base";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFnsV3";
+import {LocaleFnsProvider} from "@lib/localization";
 
 function RootLayout({children}: LayoutProps) {
     const router = useRouter();
+
+    const {locale} = useAppSelector(configSelector);
+
     // Use the dashLayout defined at the page level, if available
     moment.tz.setDefault(moment.tz.guess());
     moment.locale(router.locale);
@@ -42,7 +50,12 @@ function RootLayout({children}: LayoutProps) {
                 mode="popLayout"
                 onExitComplete={() => window.scrollTo(0, 0)}>
                 <ErrorBoundary>
-                    {children}
+                    {/* Localization date picker */}
+                    <LocalizationProvider
+                        adapterLocale={LocaleFnsProvider(locale)}
+                        dateAdapter={AdapterDateFns}>
+                        {children}
+                    </LocalizationProvider>
                 </ErrorBoundary>
             </AnimatePresence>
         </>

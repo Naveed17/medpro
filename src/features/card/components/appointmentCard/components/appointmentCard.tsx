@@ -27,14 +27,13 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions, useInvalidateQueries} from "@lib/hooks";
 import {debounce} from "lodash";
-import {LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
 import moment from "moment-timezone";
-import {LocaleFnsProvider} from "@lib/localization";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function AppointmentCard({...props}) {
     const {patientId = null, handleOnDataUpdated = null, onMoveAppointment = null, t, roles} = props;
@@ -42,11 +41,14 @@ function AppointmentCard({...props}) {
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {data: session} = useSession();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {locale} = useAppSelector(configSelector);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
+
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse)?.medical_professional as MedicalProfessionalModel;
 
     const [editConsultation, setConsultation] = useState(false);
     const [data, setData] = useState({
@@ -69,8 +71,8 @@ function AppointmentCard({...props}) {
         smsLang: "fr",
         rappel: "1",
         rappelType: "2",
-        smsRappel: false,
-        timeRappel: moment().toDate()
+        smsRappel: !!medical_professional?.sendSms,
+        timeRappel: moment("17:00", "HH:mm").toDate()
     });
     const [selectedReason, setSelectedReason] = useState<ConsultationReasonModel[]>([]);
     const [typeEvent, setTypeEvent] = useState("");
@@ -196,11 +198,11 @@ function AppointmentCard({...props}) {
             smsLang: updatedData.reminder?.length > 0 ? updatedData.reminder[0].reminderLanguage : "fr",
             rappel: updatedData.reminder?.length > 0 ? updatedData.reminder[0].numberOfDay : "1",
             rappelType: updatedData.reminder?.length > 0 ? updatedData.reminder[0].type : "2",
-            smsRappel: updatedData.reminder?.length > 0,
-            timeRappel: (updatedData.reminder?.length > 0 ? moment(`${updatedData.reminder[0].date} ${updatedData.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment()).toDate()
+            smsRappel: medical_professional?.sendSms ?? updatedData.reminder?.length > 0,
+            timeRappel: (updatedData.reminder?.length > 0 ? moment(`${updatedData.reminder[0].date} ${updatedData.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment("17:00", "HH:mm")).toDate()
         }));
         setTimeout(() => setData(updatedData));
-    }, [appointment])
+    }, [appointment]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <RootStyled>
@@ -260,7 +262,8 @@ function AppointmentCard({...props}) {
                                             sx={{p: .5}}>{children}</Button>}>
                                         <Stack spacing={2} direction="row" alignItems="center">
                                             <Stack spacing={0.5} direction="row" alignItems="center">
-                                                <IconUrl path="ic-agenda-jour" width={18} heigth={18} color={theme.palette.primary.main}/>
+                                                <IconUrl path="ic-agenda-jour" width={18} heigth={18}
+                                                         color={theme.palette.primary.main}/>
                                                 <Typography className="time-slot">
                                                     {data?.date}
                                                 </Typography>
@@ -527,33 +530,29 @@ function AppointmentCard({...props}) {
                                                 <Typography variant="body1" color="text.primary" px={1.2} mt={0}>
                                                     {t("steppers.stepper-3.to", {ns: "agenda"})}
                                                 </Typography>
-                                                <LocalizationProvider
-                                                    adapterLocale={LocaleFnsProvider(locale)}
-                                                    dateAdapter={AdapterDateFns}>
-                                                    <MobileTimePicker
-                                                        ampm={false}
-                                                        value={reminder.timeRappel}
-                                                        onChange={(newValue) => {
-                                                            setReminder({
-                                                                ...reminder,
-                                                                init: false,
-                                                                timeRappel: newValue as Date
-                                                            })
-                                                        }}
-                                                        renderInput={(params) => (
-                                                            <TextField
-                                                                {...params}
-                                                                InputProps={{
-                                                                    endAdornment: (
-                                                                        <InputAdornment position="end">
-                                                                            <SortIcon/>
-                                                                        </InputAdornment>
-                                                                    ),
-                                                                }}
-                                                            />
-                                                        )}
-                                                    />
-                                                </LocalizationProvider>
+                                                <MobileTimePicker
+                                                    ampm={false}
+                                                    value={reminder.timeRappel}
+                                                    onChange={(newValue) => {
+                                                        setReminder({
+                                                            ...reminder,
+                                                            init: false,
+                                                            timeRappel: newValue as Date
+                                                        })
+                                                    }}
+                                                    slots={{
+                                                        textField: (params) => <TextField
+                                                            {...params}
+                                                            InputProps={{
+                                                                endAdornment: (
+                                                                    <InputAdornment position="end">
+                                                                        <SortIcon/>
+                                                                    </InputAdornment>
+                                                                ),
+                                                            }}
+                                                        />
+                                                    }}
+                                                />
                                             </Stack>}
                                     </Stack>
                                 </ListItem>

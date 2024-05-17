@@ -89,7 +89,6 @@ function AppointmentDetail({...props}) {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {trigger} = useRequestQueryMutation("/payment/cashbox");
 
-
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [canManageActions] = useState<boolean>(![
         "/dashboard/patient",
@@ -182,7 +181,8 @@ function AppointmentDetail({...props}) {
                                 sx={{width: "100%"}}
                                 justifyContent="space-between"
                                 alignItems="flex-start">
-                                <Stack sx={{width: "100%"}} spacing={2} direction="row" alignItems="flex-start">
+                                <Stack sx={{width: "100%"}} spacing={2} direction="row"
+                                       alignItems="flex-start" {...(!appointment?.extendedProps.patient.contact && {pb: .8})}>
                                     <Box position="relative">
                                         <Avatar
                                             src={
@@ -193,9 +193,7 @@ function AppointmentDetail({...props}) {
                                                         : "/static/icons/women-avatar.svg"
                                             }
                                             sx={{
-                                                "& .injected-svg": {
-                                                    margin: 0,
-                                                },
+                                                "& .injected-svg": {margin: 0},
                                                 width: 54,
                                                 height: 54,
                                                 borderRadius: 1,
@@ -251,24 +249,28 @@ function AppointmentDetail({...props}) {
                                             )}
 
                                             <ListItem className={"appointment-text"}>
-                                                <IconUrl
-                                                    path={appointment?.extendedProps.patient.contact?.length > 0 && appointment?.extendedProps.patient.contact[0]?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
-                                                    className="ic-tell"
-                                                />
-                                                {appointment?.extendedProps.patient.contact?.length > 0 ?
-                                                    <Link
-                                                        underline="none"
-                                                        href={`${appointment?.extendedProps.patient.contact[0]?.isWhatsapp ? "https://wa.me/" : "tel:"}${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
-                                                        sx={{ml: 1, fontSize: 12}}
-                                                        variant="caption"
-                                                        color="text.primary"
-                                                        fontWeight={400}>
-                                                        <Stack direction={"row"} alignItems={"center"}>
-                                                            {appointment?.extendedProps.patient.contact[0].value}
-                                                        </Stack>
-                                                    </Link>
-                                                    : <Skeleton sx={{ml: 1}} width={100} height={14} variant="rounded"/>
-                                                }
+                                                {appointment?.extendedProps.patient.contact?.map((contact: ContactModel, index: number) =>
+                                                    <Stack key={index} direction={"row"} mr={2} alignItems={"center"}>
+                                                        <IconUrl
+                                                            path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                                            className="ic-tell"
+                                                        />
+                                                        <Link
+                                                            underline="none"
+                                                            {...(contact?.isWhatsapp && {target: "_blank"})}
+                                                            href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                                            sx={{ml: 1, fontSize: 12}}
+                                                            variant="caption"
+                                                            color="text.primary"
+                                                            fontWeight={400}>
+                                                            <Stack direction={"row"} alignItems={"center"}>
+                                                                {contact.code} {contact.value}
+                                                            </Stack>
+                                                        </Link>
+                                                    </Stack>
+                                                )}
+                                                {loading &&
+                                                    <Skeleton sx={{ml: 1}} width={100} height={14} variant="rounded"/>}
                                             </ListItem>
                                         </List>
                                     </Stack>

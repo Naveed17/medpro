@@ -37,7 +37,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
-import {checkObjectChange, flattenObject, useMedicalEntitySuffix} from "@lib/hooks";
+import {checkObjectChange, flattenObject, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {LoadingScreen} from "@features/loadingScreen";
 import {ToggleButtonStyled} from "@features/toolbar";
@@ -48,7 +48,7 @@ const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelec
 
 function PatientContactDetailCard({...props}) {
     const {
-        patient, mutatePatientList = null, mutateAgenda = null,
+        patient, contactData, mutatePatientList = null, mutateAgenda = null,
         loading, contacts, countries_api, editable: defaultEditStatus, setEditable
     } = props;
 
@@ -60,6 +60,7 @@ function PatientContactDetailCard({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation(["patient", "common"]);
@@ -95,15 +96,7 @@ function PatientContactDetailCard({...props}) {
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
-    const {
-        data: httpPatientContactResponse,
-        mutate: mutatePatientContact
-    } = useRequestQuery(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/contact/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
 
-    const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
     const initialValue = {
         country: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.country?.uuid : "",
         region: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.uuid : "",
@@ -204,7 +197,7 @@ function PatientContactDetailCard({...props}) {
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);
-                mutatePatientContact();
+                invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/contact/${router.locale}`]);
                 mutatePatientList && mutatePatientList();
                 mutateAgenda && mutateAgenda();
                 if (appointment) {
@@ -601,8 +594,8 @@ function PatientContactDetailCard({...props}) {
                                             <Grid key={index} item md={12} sm={12} xs={12}>
                                                 <Stack direction="row" alignItems="self-start">
                                                     <Grid item md={index === 0 ? 11 : 10}
-                                                          sm={index === 0 ? 11 : 10}
-                                                          xs={index === 0 ? 11 : 10}
+                                                          sm={12}
+                                                          xs={12}
                                                           sx={{
                                                               "& .Input-select": {
                                                                   marginLeft: "-0.8rem"
@@ -614,7 +607,7 @@ function PatientContactDetailCard({...props}) {
                                                             <fieldset>
                                                                 <legend>
                                                                     <Typography
-                                                                        mr={isMobile ? 1.6 : 2.4}
+                                                                        mr={isMobile ? 1 : 2.4}
                                                                         className="label"
                                                                         variant="body2"
                                                                         color="text.secondary">
@@ -625,7 +618,7 @@ function PatientContactDetailCard({...props}) {
                                                                        alignContent={"center"}
                                                                        spacing={editable ? (Boolean(errors.phones && (errors.phones as any)[index]) ? 3 : 1) : .5}>
                                                                     <Stack direction={"row"} alignItems={"flex-start"}
-                                                                           spacing={1.2}
+                                                                           spacing={0}
                                                                            sx={{width: "100%"}}
                                                                            {...(editable && {
                                                                                sx: {
@@ -648,7 +641,7 @@ function PatientContactDetailCard({...props}) {
                                                                                 options={contactRelations}
                                                                                 getOptionLabel={(option: any) => option?.label ? option.label : ""}
                                                                                 isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
-                                                                                renderOption={(params, option, {selected}) => (
+                                                                                renderOption={(params, option) => (
                                                                                     <MenuItem
                                                                                         {...params}
                                                                                         value={option.key}>
@@ -656,7 +649,7 @@ function PatientContactDetailCard({...props}) {
                                                                                     </MenuItem>)}
                                                                                 renderInput={(params) => {
                                                                                     return (<TextField {...params}
-                                                                                                       placeholder={t("add-patient.relation-placeholder")}/>)
+                                                                                                       placeholder={t("config.add-patient.relation-placeholder")}/>)
                                                                                 }}
                                                                             />
                                                                         </Grid>
@@ -674,11 +667,21 @@ function PatientContactDetailCard({...props}) {
                                                                                             getFieldProps(`phones[${index}].value`).value : ""}`
                                                                                     })}
                                                                                 InputProps={{
+                                                                                    sx: {
+                                                                                        "& .MuiInputBase-root": {
+                                                                                            paddingLeft: 0
+                                                                                        }
+                                                                                    },
                                                                                     startAdornment: (
                                                                                         <InputAdornment
                                                                                             position="start"
                                                                                             sx={{
                                                                                                 maxWidth: "3rem",
+                                                                                                ...((isMobile || !editable) && {
+                                                                                                    "& .MuiAutocomplete-root": {
+                                                                                                        width: 20
+                                                                                                    },
+                                                                                                }),
                                                                                                 "& .MuiOutlinedInput-notchedOutline": {
                                                                                                     outline: "none",
                                                                                                     borderColor: "transparent"
@@ -791,7 +794,7 @@ function PatientContactDetailCard({...props}) {
                                                             </fieldset>
                                                         )}
                                                     </Grid>
-                                                    <Grid item xs={12} md={index === 0 ? 1 : 2}>
+                                                    <Grid item xs={index === 0 ? 1 : 2} md={index === 0 ? 1 : 2}>
                                                         <Stack
                                                             direction={"row"}
                                                             justifyContent={"center"}

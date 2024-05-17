@@ -30,8 +30,6 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {styled} from "@mui/material/styles";
 import {DatePicker} from "@features/datepicker";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider} from '@mui/x-date-pickers';
 import {CountrySelect} from "@features/countrySelect";
 import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -1012,20 +1010,18 @@ function AddPatientStep2({...props}) {
                                                         minWidth: "auto"
                                                     }
                                                 }}>
-                                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                            {t("add-patient.birthdate")}
-                                                        </Typography>
-                                                        <DatePicker
-                                                            value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
-                                                            onChange={(date: Date) => {
-                                                                if (moment(date).isValid()) {
-                                                                    setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                                }
-                                                            }}
-                                                            inputFormat="dd/MM/yyyy"
-                                                        />
-                                                    </LocalizationProvider>
+                                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                        {t("add-patient.birthdate")}
+                                                    </Typography>
+                                                    <DatePicker
+                                                        value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
+                                                        onChange={(date: Date) => {
+                                                            if (moment(date).isValid()) {
+                                                                setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                            }
+                                                        }}
+                                                        format="dd/MM/yyyy"
+                                                    />
                                                 </Box>
                                                 <Box>
                                                     <Typography variant="body2" color="text.secondary" gutterBottom>

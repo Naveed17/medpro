@@ -14,7 +14,7 @@ import {
     Grid,
     IconButton,
     IconButtonProps,
-    InputAdornment,
+    InputAdornment, ListItem, ListItemText,
     MenuItem,
     Radio,
     RadioGroup,
@@ -30,7 +30,7 @@ import {addPatientSelector, appointmentSelector, CustomInput} from "@features/ta
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
-import {useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -40,8 +40,7 @@ import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/consta
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
@@ -53,6 +52,9 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {ToggleButtonStyled} from "@features/toolbar";
 import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
+import {AsyncAutoComplete} from "@features/autoComplete";
+import SortIcon from "@themes/overrides/icons/sortIcon";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -260,6 +262,8 @@ function OnStepPatient({...props}) {
             address: address.length > 0 && address[0]?.street ? address[0]?.street : patient.step2.address,
             email: selectedPatient ? selectedPatient.email : patient.step2.email,
             cin: selectedPatient ? selectedPatient?.idCard : patient.step2.cin,
+            addressedBy: selectedPatient && selectedPatient.addressedBy?.length > 0 ? selectedPatient.addressedBy[0] : "",
+            civilStatus: selectedPatient && selectedPatient.civilStatus && selectedPatient.civilStatus !== "null" ? selectedPatient.civilStatus : "",
             profession: selectedPatient ? selectedPatient?.profession : patient.step2.profession,
             family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : patient.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
@@ -312,6 +316,7 @@ function OnStepPatient({...props}) {
     })));
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
+    const [loadingRequestAddressedBy, setLoadingRequestAddressedBy] = useState(false);
 
     const {data: httpStatesResponse} = useRequestQuery(expanded && values.country ? {
         method: "GET",
@@ -322,6 +327,8 @@ function OnStepPatient({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
+
+    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
     const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state ?? null;
@@ -548,36 +555,38 @@ function OnStepPatient({...props}) {
                                     component="span">
                                     {t("date-of-birth")}
                                 </Typography>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY") : null}
-                                        inputFormat="dd/MM/yyyy"
-                                        mask="__/__/____"
-                                        onChange={(date) => {
-                                            const dateInput = moment(date);
-                                            setFieldValue("birthdate", dateInput.isValid() ? {
-                                                day: dateInput.format("DD"),
-                                                month: dateInput.format("MM"),
-                                                year: dateInput.format("YYYY"),
-                                            } : null);
-                                            if (dateInput.isValid()) {
-                                                setError(false);
-                                                const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
-                                                setFieldValue("old", old > 120 ? "" : old);
-                                            } else {
-                                                setError(date !== null);
-                                                setFieldValue("old", "");
-                                            }
-                                        }}
-                                        renderInput={(params) => <TextField
-                                            {...params}
-                                            {...((values.birthdate !== null || error) && {
+                                <DatePicker
+                                    value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
+                                    format="dd/MM/yyyy"
+                                    onChange={(date) => {
+                                        const dateInput = moment(date);
+                                        setFieldValue("birthdate", dateInput.isValid() ? {
+                                            day: dateInput.format("DD"),
+                                            month: dateInput.format("MM"),
+                                            year: dateInput.format("YYYY"),
+                                        } : null);
+                                        if (dateInput.isValid()) {
+                                            setError(false);
+                                            const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                            setFieldValue("old", old > 120 ? "" : old);
+                                        } else {
+                                            setError(date !== null);
+                                            setFieldValue("old", "");
+                                        }
+                                    }}
+                                    slots={{
+                                        openPickerIcon: CalendarPickerIcon
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            ...((values.birthdate !== null || error) && {
                                                 error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
                                                 ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
-                                            })}
-                                            fullWidth/>}
-                                    />
-                                </LocalizationProvider>
+                                            })
+                                        }
+                                    }}
+                                />
                             </Grid>
                             <Grid item xs={6} md={4}>
                                 <Typography
@@ -1264,20 +1273,17 @@ function OnStepPatient({...props}) {
                                                                         gutterBottom>
                                                                 {t("birthday")}
                                                             </Typography>
-                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                                <DatePicker
-                                                                    value={values.insurance[index]?.insurance_social?.birthday ?
-                                                                        moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
-                                                                    onChange={(date) => {
-                                                                        if (moment(date).isValid()) {
-                                                                            setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                                        }
-                                                                    }}
-                                                                    inputFormat="dd/MM/yyyy"
-                                                                    renderInput={(params) => <TextField {...params}
-                                                                                                        fullWidth/>}
-                                                                />
-                                                            </LocalizationProvider>
+
+                                                            <DatePicker
+                                                                value={values.insurance[index]?.insurance_social?.birthday ?
+                                                                    moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
+                                                                onChange={(date) => {
+                                                                    if (moment(date).isValid()) {
+                                                                        setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                    }
+                                                                }}
+                                                                format="dd/MM/yyyy"
+                                                            />
                                                         </Box>
                                                         <Box>
                                                             <Typography variant="body2" color="text.secondary"
@@ -1325,65 +1331,185 @@ function OnStepPatient({...props}) {
                                 />
                             </Box>
                         </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("email")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("email-placeholder")}
-                                type="email"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("email")}
-                                value={getFieldProps("email") ? getFieldProps("email").value : ""}
-                                error={Boolean(touched.email && errors.email)}
-                                helperText={
-                                    Boolean(touched.email && errors.email)
-                                        ? String(errors.email)
-                                        : undefined
-                                }
-                            />
+                        <Box className={"inner-box"}>
+                            <Grid container spacing={2}>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("email")}
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("email-placeholder")}
+                                        type="email"
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("email")}
+                                        value={getFieldProps("email") ? getFieldProps("email").value : ""}
+                                        error={Boolean(touched.email && errors.email)}
+                                        helperText={
+                                            Boolean(touched.email && errors.email)
+                                                ? String(errors.email)
+                                                : undefined
+                                        }
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("cin")}
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("cin-placeholder")}
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("cin")}
+                                        value={getFieldProps("cin").value ?? ""}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("cin")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("cin-placeholder")}
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("cin")}
-                                value={getFieldProps("cin").value ?? ""}
-                            />
+                        <Box className={"inner-box"}>
+                            <Grid container spacing={2}>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("profession")}
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("profession-placeholder")}
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("profession")}
+                                        value={getFieldProps("profession") ? getFieldProps("profession").value : ""}
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("family_doctor")}
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("family_doctor-placeholder")}
+                                        type="text"
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("family_doctor")}
+                                        value={getFieldProps("family_doctor") ? getFieldProps("family_doctor").value : ""}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("profession")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("profession-placeholder")}
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("profession")}
-                                value={getFieldProps("profession") ? getFieldProps("profession").value : ""}
-                            />
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("family_doctor")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("family_doctor-placeholder")}
-                                type="text"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("family_doctor")}
-                                value={getFieldProps("family_doctor") ? getFieldProps("family_doctor").value : ""}
-                            />
+                        <Box className={"inner-box"}>
+                            <Grid container spacing={2}>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("addressed-by")}
+                                    </Typography>
+                                    <AsyncAutoComplete
+                                        freeSolo
+                                        loading={loadingRequestAddressedBy}
+                                        value={values.addressedBy}
+                                        url={`${urlMedicalEntitySuffix}/addressedBy/${router.locale}`}
+                                        onChangeData={(event: any) => {
+                                            if (event?.inputValue || typeof event === "string") {
+                                                // Create a new value from the user input
+                                                setLoadingRequestAddressedBy(true);
+                                                const params = new FormData();
+                                                params.append("name", event?.inputValue ?? event);
+                                                triggerAddressedBy({
+                                                    method: "POST",
+                                                    url: `${urlMedicalEntitySuffix}/addressedBy/${router.locale}`,
+                                                    data: params
+                                                }, {
+                                                    onSuccess: (result) => {
+                                                        const data = (result?.data as HttpResponse)?.data;
+                                                        console.log("data", data);
+                                                        setFieldValue("addressedBy", {
+                                                            uuid: data?.uuid,
+                                                            name: event?.inputValue ?? event
+                                                        });
+                                                    },
+                                                    onSettled: () => setLoadingRequestAddressedBy(false)
+                                                })
+                                            } else {
+                                                setFieldValue("addressedBy", event);
+                                            }
+                                        }}
+                                        getOptionLabel={(option: any) => {
+                                            // Value selected with enter, right from the input
+                                            if (typeof option === "string") {
+                                                return option;
+                                            }
+                                            // Add "xxx" option created dynamically
+                                            if (option.inputValue) {
+                                                return option.inputValue;
+                                            }
+                                            // Regular option
+                                            return option.name;
+                                        }}
+                                        filterOptions={(options: any, params: any) => {
+                                            const {inputValue} = params;
+                                            const filtered = options.filter((option: any) =>
+                                                option.name
+                                                    .toLowerCase()
+                                                    .includes(inputValue.toLowerCase())
+                                            );
+                                            // Suggest the creation of a new value
+                                            const isExisting = options.some(
+                                                (option: any) =>
+                                                    inputValue.toLowerCase() ===
+                                                    option.name.toLowerCase()
+                                            );
+                                            if (inputValue !== "" && !isExisting) {
+                                                filtered.push({
+                                                    inputValue,
+                                                    name: `${t("add")} "${inputValue}"`,
+                                                    isVerified: false,
+                                                });
+                                            }
+                                            return filtered;
+                                        }}
+                                        renderOption={(props: any, option: any) => (
+                                            <ListItem {...props}>
+                                                <ListItemText primary={`${option?.name}`}/>
+                                            </ListItem>
+                                        )}
+                                        isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                        placeholder={t("addressed-by-placeholder")}
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("civil-status")}
+                                    </Typography>
+                                    <AsyncAutoComplete
+                                        value={values.civilStatus}
+                                        url={`api/public/civil-status/${router.locale}`}
+                                        onChangeData={(event: any) => {
+                                            setFieldValue("civilStatus", event);
+                                        }}
+                                        getOptionLabel={(option: any) => {
+                                            // Value selected with enter, right from the input
+                                            if (typeof option === "string") {
+                                                return option;
+                                            }
+                                            // Add "xxx" option created dynamically
+                                            if (option.inputValue) {
+                                                return option.inputValue;
+                                            }
+                                            // Regular option
+                                            return option.name;
+                                        }}
+                                        renderOption={(props: any, option: any) => (
+                                            <ListItem {...props}>
+                                                <ListItemText primary={`${option?.name}`}/>
+                                            </ListItem>
+                                        )}
+                                        isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                        placeholder={t("civil-status-placeholder")}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Box>
                     </Collapse>
                 </Stack>

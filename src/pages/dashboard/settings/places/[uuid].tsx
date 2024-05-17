@@ -208,8 +208,8 @@ function PlacesDetail() {
         initialValues: {
             name: row ? (row.address.location.name as string) : "",
             address: row ? (row.address.street as string) : "",
-            postalCode: row ? row.address.postalCode : "",
-            town: row ? row.address.state.uuid : "",
+            postalCode: row ? (row.address?.postalCode ?? "") : "",
+            town: row ? (row.address?.state?.uuid ?? "") : "",
             city: "",
             phones: contacts.map(contact => ({
                 code: contact.code,
@@ -299,7 +299,7 @@ function PlacesDetail() {
     const initialCites = (adr: any) => {
         triggerPlaceUpdate({
             method: "GET",
-            url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
+            url: `/api/public/places/state/${adr.address?.state?.uuid}/cities/${router.locale}`
         }, {
             onSuccess: (r: any) => {
                 setCities(r.data.data);

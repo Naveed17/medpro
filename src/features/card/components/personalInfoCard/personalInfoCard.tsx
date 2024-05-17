@@ -24,8 +24,7 @@ import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
 import Select from '@mui/material/Select';
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
+import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
@@ -37,6 +36,7 @@ import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} f
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {AsyncAutoComplete} from "@features/autoComplete";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -392,25 +392,25 @@ function PersonalInfo({...props}) {
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
-                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                <DatePicker
-                                                    readOnly={!editable}
-                                                    inputFormat={"dd/MM/yyyy"}
-                                                    mask="__/__/____"
-                                                    value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
-                                                    onChange={date => {
-                                                        const dateInput = moment(date);
-                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
-                                                        if (dateInput.isValid()) {
-                                                            const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
-                                                            setFieldValue("old", old > 120 ? "" : old);
-                                                        } else {
-                                                            setFieldValue("old", "");
-                                                        }
-                                                    }}
-                                                    renderInput={(params) => <TextField size={"small"} {...params} />}
-                                                />
-                                            </LocalizationProvider>
+                                            <DatePicker
+                                                readOnly={!editable}
+                                                format={"dd/MM/yyyy"}
+                                                value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY").toDate() : null}
+                                                onChange={date => {
+                                                    const dateInput = moment(date);
+                                                    setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
+                                                    if (dateInput.isValid()) {
+                                                        const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                        setFieldValue("old", old > 120 ? "" : old);
+                                                    } else {
+                                                        setFieldValue("old", "");
+                                                    }
+                                                }}
+                                                slots={{
+                                                    openPickerIcon: CalendarPickerIcon,
+                                                }}
+                                                slotProps={{textField: {size: "small"}}}
+                                            />
                                         )}
                                     </Grid>
                                 </Stack>
@@ -829,7 +829,6 @@ function PersonalInfo({...props}) {
                                             <Skeleton width={100}/>
                                         ) : (
                                             <AsyncAutoComplete
-                                                loading={loadingRequest}
                                                 value={values.civilStatus}
                                                 {...(editable && {
                                                     sx: {
