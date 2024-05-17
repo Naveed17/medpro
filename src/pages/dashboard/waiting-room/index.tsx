@@ -21,7 +21,11 @@ import {
     CardContent,
     ButtonGroup,
     Breadcrumbs,
-    Link
+    Link,
+    Snackbar,
+    Alert,
+    Chip,
+    AlertTitle
 } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
 import { RoomToolbar } from "@features/toolbar";
@@ -1027,7 +1031,7 @@ function WaitingRoom() {
                                                 <CustomIconButton sx={{ bgcolor: theme.palette.primary.lighter }}>
                                                     <IconUrl width={20} height={20} path="ic-filled-logout" color={theme.palette.primary.main} />
                                                 </CustomIconButton>
-                                                <Typography fontWeight={600} color="primary.darker">{t("estimated_end_time")}</Typography>
+                                                <Typography fontWeight={600} textAlign='center' color="primary.darker">{t("estimated_end_time")}</Typography>
                                                 <Typography variant="h5" lineHeight={1}>20.00</Typography>
                                             </Stack>
                                         </CardContent>
@@ -1813,6 +1817,28 @@ function WaitingRoom() {
                     </MenuItem>
                 ))}
             </Menu>
+            <Snackbar
+                open={true}
+                autoHideDuration={5000}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    severity="expire"
+                    icon={<Label variant="filled" color="expire">Alert</Label>}
+                    sx={{ width: '100%', maxWidth: 512, bgcolor: 'expire.lighter', border: 'none' }}
+                >
+                    <AlertTitle>Consultation Time Alert</AlertTitle>
+                    <Typography color="text.secondary">
+                        Your consultation time is about to end. Would you like to extend the consultation duration?
+                    </Typography>
+                    <Stack mt={2} direction='row' justifyContent='flex-end' spacing={1}>
+                        <Button size="small" variant="white" >Close</Button>
+                        <Button sx={{ px: 2 }} startIcon={
+                            <IconUrl path="ic-filled-alarm-add" width={16} height={16} color="white" />
+                        } size="small" variant="contained" color="expire">+5 minutes</Button>
+                    </Stack>
+                </Alert>
+            </Snackbar>
         </>
     )
         ;

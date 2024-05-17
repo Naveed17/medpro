@@ -64,11 +64,13 @@ declare module "@mui/material/Button" {
         text: true;
         white: true;
         black: true;
+        expire:true;
     }
 }
 declare module "@mui/material/Alert" {
     interface AlertPropsColorOverrides {
-        primary:true
+        primary:true;
+        expire:true;
        
     }
 }

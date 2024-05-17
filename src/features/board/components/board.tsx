@@ -83,7 +83,6 @@ function Board({ ...props }) {
     const theme: Theme = useTheme()
     const [boardData, setBoardData] = useState<any>({});
     const [status, setStatus] = React.useState<string | null>('All');
-    console.log(status)
     const handleStatus = (
         event: React.MouseEvent<HTMLElement>,
         newAlignment: string | null,

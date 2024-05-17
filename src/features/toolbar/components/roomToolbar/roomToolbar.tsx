@@ -4,6 +4,7 @@ import { WaitingRoom } from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
 import React, { SyntheticEvent, useCallback, useState } from 'react';
 import { MobileContainer } from '@themes/mobileContainer';
+import { MobileContainer as SmContainer } from '@lib/constants';
 import { a11yProps } from "@lib/hooks";
 import { CustomIconButton, MinMaxWindowButton, minMaxWindowSelector } from '@features/buttons';
 import { LoadingButton } from "@mui/lab";
@@ -17,6 +18,7 @@ import { useSession } from "next-auth/react";
 import { agendaSelector, setNavigatorMode } from "@features/calendar";
 import { ToggleButtonStyled } from "@features/toolbar";
 import { Breadcrumbs } from '@features/breadcrumbs';
+import moment from "moment-timezone";
 const breadcrumbsData = [
     {
         title: "Queue Management",
@@ -39,7 +41,7 @@ function RoomToolbar({ ...props }) {
         is_next,
         isActive
     } = props;
-    const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(`(max-width:${SmContainer}px)`);
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const { data: session } = useSession();
@@ -61,7 +63,15 @@ function RoomToolbar({ ...props }) {
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }))
     ]);
+    const [currentDate, setCurrentDate] = useState(new Date());
 
+    const handlePreviousDate = () => {
+        setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 1)));
+    };
+
+    const handleNextDate = () => {
+        setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 1)));
+    };
     const handleStepperIndexChange = useCallback((event: SyntheticEvent, newValue: number) => {
         setTabIndex(newValue);
     }, [setTabIndex]);
@@ -74,7 +84,7 @@ function RoomToolbar({ ...props }) {
                 ".tabs-bg-white.tabs-bg-white": {
                     borderTopWidth: 0,
                 }
-            }} direction='row' justifyContent="space-between" mt={1} mb={isMobile ? 0 : 1} width={1} alignItems="center">
+            }} direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" mt={1} mb={isMobile ? 0 : 1} width={1} alignItems={{ xs: 'flex-start', sm: 'row' }}>
             <Stack spacing={1}>
                 <Breadcrumbs data={[...breadcrumbsData]} />
                 <Typography variant='subtitle1'>{t("subheader.title")}</Typography>
@@ -84,6 +94,7 @@ function RoomToolbar({ ...props }) {
                         onChange={handleStepperIndexChange}
                         variant="scrollable"
                         aria-label="basic tabs example"
+                        sx={{ "&.MuiTabs-root": { mt: { xs: 6.25, sm: 0 } } }}
                         className="tabs-bg-white">
                         {tabsContent.map((tabHeader, tabHeaderIndex) => (
                             <Tab
@@ -148,7 +159,13 @@ function RoomToolbar({ ...props }) {
                 <WaitingRoom />
             </DrawerBottom>
 
-            <Stack direction={"row"} alignItems={"center"} spacing={1}>
+            <Stack sx={{
+                position: { xs: 'absolute', sm: 'static' }, bottom: { xs: 50, sm: 0 }, [theme.breakpoints.between("sm", "md")]: {
+                    position: 'absolute',
+                    right: 16,
+                    top: -36
+                }
+            }} direction={"row"} alignItems={"center"} spacing={1}>
                 {(is_next && isWindowMax) &&
                     <LoadingButton
                         disableRipple
@@ -229,11 +246,15 @@ function RoomToolbar({ ...props }) {
 
 
                 <Stack p={1.275} maxHeight={40} px={2} bgcolor={theme.palette.grey[50]} borderRadius={1} direction={"row"} alignItems={"center"} spacing={2}>
-                    <CustomIconButton style={{ minWidth: 16, minHeight: 16, padding: 0, borderRadius: 6, backgroundColor: theme.palette.grey[700] }}>
+                    <CustomIconButton
+                        onClick={handlePreviousDate}
+                        style={{ minWidth: 16, minHeight: 16, padding: 0, borderRadius: 6, backgroundColor: theme.palette.grey[700] }}>
                         <IconUrl width={9} height={9} color="white" path={"ic-outline-arrow-left"} />
                     </CustomIconButton>
-                    <Typography fontWeight={500} color="text.secondary">8, May 2024</Typography>
-                    <CustomIconButton style={{ minWidth: 16, minHeight: 16, padding: 0, borderRadius: 6, backgroundColor: theme.palette.grey[700] }}>
+                    <Typography fontWeight={500} color="text.secondary">{moment(currentDate).format('DD-MMMM-YYYY')}</Typography>
+                    <CustomIconButton
+                        onClick={handleNextDate}
+                        style={{ minWidth: 16, minHeight: 16, padding: 0, borderRadius: 6, backgroundColor: theme.palette.grey[700] }}>
                         <IconUrl width={9} height={9} color="white" path={"ic-outline-arrow-right"} />
                     </CustomIconButton>
                 </Stack>

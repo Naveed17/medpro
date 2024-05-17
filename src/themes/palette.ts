@@ -55,11 +55,11 @@ const ERROR = {
 };
 
 const EXPIRE = {
-  lighter: "#ffc15a",
-  light: "#ffc15a",
-  main: "#e79029",
-  dark: "#b06200",
-  darker: "#b06200",
+  lighter: "#FFF8EB",
+  light: "#FFE3B0",
+  main: "#FF9500",
+  dark: "#996000",
+  darker: "#332200",
 };
 
 const BACK = {

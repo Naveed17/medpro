@@ -10,21 +10,20 @@ import {
     Stack,
     Typography,
     useTheme,
-    alpha, Tooltip
+    alpha, Tooltip,
+    PaletteColor,
+    Badge
 } from "@mui/material";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
 import { useAppSelector } from "@lib/redux/hooks";
 import { timerSelector } from "@features/card";
 import moment from "moment-timezone";
-import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { dashLayoutSelector } from "@features/base";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import Icon from "@themes/urlIcon";
 import { agendaSelector, AppointmentStatus } from "@features/calendar";
-import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTranslation } from "next-i18next";
 import { getDiffDuration } from "@lib/hooks";
@@ -32,6 +31,7 @@ import { Label } from "@features/label";
 import { sideBarSelector } from "@features/menu";
 import { IconButtonStyled } from "@features/board";
 import Can from "@features/casl/can";
+import { CustomIconButton } from '@features/buttons';
 
 const imageSize: number = 40;
 
@@ -113,7 +113,7 @@ function BoardItem({ ...props }) {
             clearInterval(interval);
         };
     }, [time]);
-
+    console.log(quote.content.status)
     return (
         <Container
             {...{
@@ -167,11 +167,37 @@ function BoardItem({ ...props }) {
                                 <Box display='flex'
                                     sx={{
                                         svg: {
-                                            width: 22,
-                                            height: 22
+                                            width: 16,
+                                            height: 16
                                         }
                                     }}>
-                                    {!isDragging && AppointmentStatus[quote.content.status].icon}
+                                    {!isDragging &&
+                                        <CustomIconButton
+                                            size="small"
+                                            sx={{
+                                                p: 1,
+                                                borderRadius: 3,
+                                                bgcolor: (theme.palette[AppointmentStatus[quote.content.status]?.classColor as keyof typeof theme.palette] as PaletteColor).main,
+                                                "&:hover": {
+                                                    bgcolor: (theme.palette[AppointmentStatus[quote.content.status]?.classColor as keyof typeof theme.palette] as PaletteColor).main
+                                                },
+                                                ...(AppointmentStatus[quote.content.status].classColor === "success" && {
+                                                    bgcolor: theme.palette.success.lighter,
+                                                    "&:hover": theme.palette.success.lighter
+
+                                                }),
+                                                ...(AppointmentStatus[quote.content.status].classColor === "primary" && {
+                                                    bgcolor: theme.palette.primary.lighter
+
+                                                })
+
+
+                                            }}
+
+                                        >
+                                            {AppointmentStatus[quote.content.status].icon}
+                                        </CustomIconButton>
+                                    }
                                 </Box>}
                             <Stack spacing={.4}>
                                 <Stack direction={"row"} alignItems={"center"}>
@@ -298,7 +324,7 @@ function BoardItem({ ...props }) {
                                         </Can>
                                         <Tooltip
                                             title={commonTranslation("confirm", { ns: "waitingRoom" })}>
-                                            <IconButton
+                                            <CustomIconButton
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                     action: "CONFIRM_APPOINTMENT",
                                                     row: quote.content,
@@ -307,13 +333,13 @@ function BoardItem({ ...props }) {
                                                 size={"small"}
                                                 disableFocusRipple
                                                 sx={{
-                                                    background: theme.palette.primary.main,
-                                                    borderRadius: 1,
-                                                    width: 30,
-                                                    height: 30
+                                                    background: theme.palette.success.lighter,
+                                                    "&:hover": { background: theme.palette.success.lighter },
+                                                    p: 1,
+
                                                 }}>
-                                                <CheckIcon fontSize={"small"} htmlColor={"white"} />
-                                            </IconButton>
+                                                <IconUrl path="ic-filled-tick-circle" color={theme.palette.success.main} width={16} height={16} />
+                                            </CustomIconButton>
                                         </Tooltip>
                                     </>
                                 }
@@ -321,7 +347,7 @@ function BoardItem({ ...props }) {
                                     <>
                                         <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
                                             <Tooltip title={commonTranslation("start", { ns: "waitingRoom" })}>
-                                                <IconButton
+                                                <CustomIconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                         action: "START_CONSULTATION",
                                                         row: quote.content,
@@ -329,27 +355,27 @@ function BoardItem({ ...props }) {
                                                     })}
                                                     size={"small"}
                                                     sx={{
-                                                        border: `1px solid ${theme.palette.divider}`,
-                                                        borderRadius: 1
+                                                        p: 1
                                                     }}>
-                                                    <PlayCircleIcon fontSize={"small"} />
-                                                </IconButton>
+                                                    <IconUrl path="ic-filled-play-1" width={16} height={16} color={theme.palette.grey[700]} />
+                                                </CustomIconButton>
                                             </Tooltip>
                                         </Can>
                                         <Tooltip
                                             title={commonTranslation("add_patient_to_waiting_room", { ns: "waitingRoom" })}>
-                                            <IconButton
+                                            <CustomIconButton
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                     action: "ENTER_WAITING_ROOM",
                                                     row: quote.content,
                                                     event
                                                 })}
                                                 size={"small"}
+                                                color="primary"
                                                 disableFocusRipple
-                                                sx={{ background: theme.palette.primary.main, borderRadius: 1 }}>
-                                                <IconUrl color={"white"} width={20} height={20}
-                                                    path="ic_waiting_room" />
-                                            </IconButton>
+                                                sx={{ p: 1 }}>
+                                                <IconUrl color={"white"} width={16} height={16}
+                                                    path="ic-filled-sofa" />
+                                            </CustomIconButton>
                                         </Tooltip>
                                     </>
                                 }
@@ -357,8 +383,8 @@ function BoardItem({ ...props }) {
                                     <Tooltip
                                         title={commonTranslation("next", { ns: "waitingRoom" })}>
                                         <span>
-                                            <IconButton
-                                                onClick={(event) => handleEvent({
+                                            <CustomIconButton
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                     action: "NEXT_CONSULTATION",
                                                     row: { ...quote.content, is_next: !!is_next },
                                                     event
@@ -366,40 +392,54 @@ function BoardItem({ ...props }) {
                                                 size={"small"}
                                                 disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
                                                 sx={{
-                                                    border: `1px solid ${theme.palette.divider}`,
-                                                    borderRadius: 1,
+                                                    p: 1,
                                                     ...(is_next && {
                                                         background: theme.palette.primary.main,
                                                         border: "none"
                                                     }),
                                                 }}>
-                                                {!is_next && <ArrowForwardRoundedIcon fontSize={"small"} />}
+                                                {!is_next && <IconUrl path="ic-filled-arrow-right" color={theme.palette.grey[700]} width={16} height={16} />}
                                                 {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"} />}
-                                            </IconButton>
+                                            </CustomIconButton>
                                         </span>
                                     </Tooltip>
                                     <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
                                         <Tooltip
                                             title={commonTranslation("start", { ns: "waitingRoom" })}>
                                             <span>
-                                                <IconButton
+                                                <CustomIconButton
                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                                         action: "START_CONSULTATION",
                                                         row: quote.content,
                                                         event
                                                     })}
                                                     size={"small"}
+                                                    color="primary"
                                                     sx={{
-                                                        p: .85,
-                                                        border: `1px solid ${theme.palette.divider}`,
-                                                        borderRadius: 1
+                                                        p: 1
                                                     }}>
-                                                    <IconUrl path={"ic-play-audio-black"} />
-                                                </IconButton>
+                                                    <IconUrl path={"ic-filled-play-1"} color="white" width={16} height={16} />
+                                                </CustomIconButton>
                                             </span>
                                         </Tooltip>
                                     </Can>
                                 </>}
+                                {
+                                    quote.content.status === 4 && <Stack direction='row' alignItems='center' spacing={.5}>
+                                        <Tooltip
+                                            title={"title"}>
+                                            <CustomIconButton size="small" sx={{ p: 1 }}>
+                                                <IconUrl path="ic-filled-pause" color={theme.palette.grey[700]} width={16} height={16} />
+                                            </CustomIconButton>
+                                        </Tooltip>
+                                        <Tooltip
+                                            title={"title"}>
+                                            <CustomIconButton size="small" color="error" sx={{ p: 1 }}>
+                                                <IconUrl path="ic-filled-stop" color={"white"} width={16} height={16} />
+                                            </CustomIconButton>
+                                        </Tooltip>
+                                    </Stack>
+                                }
                                 {(quote.content.status === 5 && quote?.content.restAmount !== 0) &&
                                     <Stack direction='row' spacing={.5}>
                                         {(!opened && quote.content.prescriptions.length > 0) &&
@@ -441,23 +481,64 @@ function BoardItem({ ...props }) {
                                             </IconButton>
                                         </Tooltip>
                                     </Stack>}
+                                {
+                                    quote.content.status === 5 && <Stack direction='row' alignItems='center' spacing={.5}>
+                                        <Tooltip
+                                            title={"title"}>
+                                            <CustomIconButton size="small" sx={{ p: 1, bgcolor: theme.palette.primary.lighter }}>
+                                                <IconUrl path="ic-filled-note" color={theme.palette.primary.main} width={16} height={16} />
+                                            </CustomIconButton>
+                                        </Tooltip>
+                                        <Tooltip
+                                            title={"title"}>
+                                            <CustomIconButton size="small" sx={{ p: 1 }} color="primary">
+                                                <IconUrl path="ic-filled-money-add" color={"white"} width={16} height={16} />
+                                            </CustomIconButton>
+                                        </Tooltip>
+                                    </Stack>
+                                }
+                                {
+                                    quote.content.status === 8 && <Stack direction='row' alignItems='center' spacing={.5}>
+                                        <Tooltip
+                                            title={"title"}>
+                                            <CustomIconButton size="small" color="error" sx={{ p: 1 }}>
+                                                <IconUrl path="ic-filled-stop" color={"white"} width={16} height={16} />
+                                            </CustomIconButton>
+                                        </Tooltip>
+                                        <Tooltip
+                                            title={"title"}>
+                                            <CustomIconButton size="small" sx={{ p: 1, bgcolor: theme.palette.primary.lighter }}>
+                                                <IconUrl path="ic-filled-Resume" color={theme.palette.primary.main} width={16} height={16} />
+                                            </CustomIconButton>
+                                        </Tooltip>
+                                    </Stack>
+                                }
                                 {!quote.content.patient?.isArchived &&
                                     <Tooltip
                                         title={commonTranslation("plus", { ns: "waitingRoom" })}>
-                                        <IconButton
-                                            disableRipple
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                event.stopPropagation();
-                                                handleEvent({
-                                                    action: "OPEN-POPOVER",
-                                                    row: quote.content,
-                                                    event
-                                                })
-                                            }}
-                                            sx={{ display: "block", borderRadius: 1, mr: .5 }}
-                                            size="small">
-                                            <Icon path="more-vert" width={16} height={16} />
-                                        </IconButton>
+                                        <Badge badgeContent={4} color="warning" sx={{
+                                            ".MuiBadge-badge": {
+                                                right: 6,
+                                                border: `2px solid ${theme.palette.background.paper}`,
+                                                height: 24,
+                                                borderRadius: 5
+                                            }
+                                        }}>
+                                            <IconButton
+                                                disableRipple
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                    event.stopPropagation();
+                                                    handleEvent({
+                                                        action: "OPEN-POPOVER",
+                                                        row: quote.content,
+                                                        event
+                                                    })
+                                                }}
+                                                sx={{ display: "block", borderRadius: 1, mr: .5 }}
+                                                size="small">
+                                                <Icon path="more-vert" width={16} height={16} />
+                                            </IconButton>
+                                        </Badge>
                                     </Tooltip>
                                 }
                             </Stack>
