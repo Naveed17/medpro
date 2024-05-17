@@ -3,6 +3,7 @@ import {Stack} from "@mui/material";
 
 const PatientDetailStyled = styled(Stack)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
+    minWidth: 726,
     ".container": {
         backgroundColor: theme.palette.background.default,
         "& div[role='tabpanel']": {
