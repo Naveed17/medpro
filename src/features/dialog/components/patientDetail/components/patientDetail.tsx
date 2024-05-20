@@ -2,20 +2,29 @@ import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetailsCard} from "@features/card";
+
+const PersonalInfoPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.PersonalInfoPanel))
+const TransactionPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.TransactionPanel))
+const HistoryPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.HistoryPanel))
+const DocumentsPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.DocumentsPanel))
+const NotesPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.NotesPanel))
+const PatientFile = dynamic(() =>
+    import('@features/files').then((mod) => mod.PatientFile))
+
 import {
     addPatientSelector,
-    DocumentsPanel,
     EventType,
-    HistoryPanel,
     Instruction,
-    NotesPanel,
-    PersonalInfoPanel,
     resetAppointment,
     setAppointmentPatient,
     setOpenUploadDialog,
     TabPanel,
-    TimeSchedule,
-    TransactionPanel
+    TimeSchedule
 } from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
@@ -40,7 +49,6 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
-import {PatientFile} from "@features/files/components/patientFile";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {
     useAntecedentTypes,
@@ -59,6 +67,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {LoadingScreen} from "@features/loadingScreen";
 import {AbilityContext} from "@features/casl/can";
 import {setPermissions} from "@features/casl";
+import dynamic from "next/dynamic";
 
 function a11yProps(index: number) {
     return {

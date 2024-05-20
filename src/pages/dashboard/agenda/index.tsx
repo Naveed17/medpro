@@ -1314,6 +1314,11 @@ function Agenda() {
 
                 <Drawer
                     anchor={"right"}
+                    PaperProps={{
+                        sx: {
+                            width: {xs: "100%", md: 726},
+                        }
+                    }}
                     open={openPatientDrawer}
                     dir={direction}
                     onClose={cleanDrawData}>
