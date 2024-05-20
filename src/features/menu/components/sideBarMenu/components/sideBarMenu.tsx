@@ -7,7 +7,7 @@ import {
     List,
     ListItem,
     ListItemIcon,
-    ListItemText,
+    ListItemText, Stack,
     Toolbar,
     Tooltip,
     Zoom,
@@ -33,7 +33,7 @@ import {
     ListItemTextStyled,
     logout,
     MainMenuStyled,
-    MobileDrawerStyled, openNewFeaturesDialog,
+    MobileDrawerStyled,
     sideBarSelector,
     toggleMobileBar,
 } from "@features/menu";
@@ -50,7 +50,6 @@ import { motion } from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import Can from "@features/casl/can";
 import { minMaxWindowSelector } from "@features/buttons";
-import NewFeatureIcon from "@themes/overrides/icons/newFeatureIcon";
 
 const { sidebarItems, adminSidebarItems } = siteHeader;
 
@@ -124,8 +123,8 @@ function SideBarMenu({ children }: LayoutProps) {
 
     const drawer = (
         <div>
-            <Link href="https://www.med.tn/">
-                <Box className={"med-logo"} sx={{ marginTop: 1 }}>
+            <Stack alignItems="center" pt={1.5} mb={0}>
+                <Link href="https://www.med.tn/">
                     <Image
                         height={38}
                         width={38}
@@ -133,13 +132,14 @@ function SideBarMenu({ children }: LayoutProps) {
                         src="/static/icons/Med-logo_.svg"
                         priority
                     />
-                </Box>
-            </Link>
+                </Link>
+            </Stack>
+
 
             <List
                 component={"ul"}
                 onMouseLeave={() => setCurrentIndex(null)}
-                sx={{ overflow: 'hidden', px: 1.5 }}>
+                sx={{ overflow: 'hidden', px: 1.5, mt: 1 }}>
                 {menuItems?.map((item, i) => (
                     <ConditionalWrapper
                         key={item.name}
