@@ -7,6 +7,7 @@ import IconUrl from "@themes/urlIcon";
 
 function InsuranceAppointmentRow({...props}) {
     const {row, isItemSelected, t, loading, handleClick, selected, data} = props;
+    const {devise} = data;
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
     const dispatch = useAppDispatch();
     const handleCheckItem = (isItemSelected: boolean, row: any) => {
@@ -65,22 +66,17 @@ function InsuranceAppointmentRow({...props}) {
             </TableCell>
             <TableCell align="center">
                 {row ? (
-                    <Typography className="ellipsis" fontSize={13} fontWeight={600} color="text.primary">
-                        {row.name}
-                    </Typography>
+                    <Stack direction='row' alignItems='center' spacing={1}>
+                        <IconUrl path="ic-time"/>
+                        <Typography fontSize={13} fontWeight={600} color="text.primary">
+                            {row.time}
+                        </Typography>
+                    </Stack>
                 ) : (
                     <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
-            <TableCell align="center">
-                {row ? (
-                    <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.quality}
-                    </Typography>
-                ) : (
-                    <Skeleton variant="text" width={100}/>
-                )}
-            </TableCell>
+
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
@@ -90,42 +86,18 @@ function InsuranceAppointmentRow({...props}) {
                     <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
+
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.apci}
+                        {row.amount} {devise}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
-            <TableCell align="center">
-                {row ? (
-                    <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.amount}
-                    </Typography>
-                ) : (
-                    <Skeleton variant="text" width={100}/>
-                )}
-            </TableCell>
-            <TableCell align="center">
-                {row ? (
-                    <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.patientPart}
-                    </Typography>
-                ) : (
-                    <Skeleton variant="text" width={100}/>
-                )}
-            </TableCell>
-            <TableCell align="center">
-                {row ? (
-                    <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.remb}
-                    </Typography>
-                ) : (
-                    <Skeleton variant="text" width={100}/>
-                )}
-            </TableCell>
+
+
         </TableRowStyled>
     );
 }

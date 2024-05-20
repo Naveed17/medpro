@@ -238,8 +238,9 @@
     "balance": "Solde",
     "transfer": "Virement",
     "table": {
-      "memberNo": "N° d’adhérent",
+      "memberNo": "N° d'adhérent",
       "date": "Date",
+      "time": "Heure",
       "name": "Nom et prénom",
       "quality": "Qualité",
       "act": "Acte",

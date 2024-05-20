@@ -218,14 +218,27 @@
     "export": "Exporter",
     "stat": "Statistique",
     "table": {
+      "memberNo": "Member no",
       "date": "Date",
+      "time": "Time",
       "name": "Name",
       "quality": "Quality",
-      "act": "Acte",
+      "act": "Act",
       "apci": "APCI",
-      "amount": "Montant",
+      "amount": "Amount",
       "patientPart": "Part patient",
-      "remb": "Remboursement"
+      "remb": "Remb",
+      "dateArc": "Date Arch.",
+      "refSlip": "Ref.",
+      "ref": "Ref.",
+      "start_date": "Start date",
+      "end_date": "End date",
+      "act_reject": "Rej act.",
+      "mtt_requested": "Requested amount",
+      "mtt_granted": "granted",
+      "balance": "Balance",
+      "vir": "Vir."
     }
+
   }
 }

@@ -51,6 +51,7 @@ function InsuranceDetail() {
             uuid: '001',
             memberNo: "018523951077",
             date: "10/10/2022",
+            time:"09:00" ,
             name: "walid Tanazefti",
             quality: "Assuré",
             act: "C",
@@ -170,34 +171,36 @@ function InsuranceDetail() {
             align: "left",
         },
         {
-            id: "name",
+            id: "time",
             numeric: true,
             disablePadding: false,
-            label: "name",
+            label: "time",
             sortable: true,
             align: "left",
         },
-        {
+        /*{
             id: "quality",
             numeric: true,
             disablePadding: false,
             label: "quality",
             sortable: true,
             align: "center",
-        },
-        {
-            id: "act",
-            numeric: true,
-            disablePadding: false,
-            label: "act",
-            sortable: true,
-            align: "center",
-        },
+        },*/
+       /*
         {
             id: "apci",
             numeric: true,
             disablePadding: false,
             label: "apci",
+            sortable: true,
+            align: "center",
+        },*/
+
+        {
+            id: "act",
+            numeric: true,
+            disablePadding: false,
+            label: "act",
             sortable: true,
             align: "center",
         },
@@ -209,7 +212,7 @@ function InsuranceDetail() {
             sortable: true,
             align: "center",
         },
-        {
+       /* {
             id: "patientPart",
             numeric: true,
             disablePadding: false,
@@ -223,7 +226,7 @@ function InsuranceDetail() {
             label: "remb",
             sortable: true,
             align: "center",
-        },
+        },*/
     ];
     const topCard = [
         {
@@ -254,7 +257,7 @@ function InsuranceDetail() {
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
-    //const devise = doctor_country.currency?.name;
+    const devise = doctor_country.currency?.name;
     const {insurances} = useInsurances()
     const {filterCB} = useAppSelector(cashBoxSelector);
     const [selectedTab, setSelectedTab] = useState("global");
@@ -546,7 +549,7 @@ function InsuranceDetail() {
                         </Stack>
                         <DesktopContainer>
                             <Otable
-                                {...{t,select:rowsSelected}}
+                                {...{t,select:rowsSelected,devise}}
                                 headers={headCells}
                                 //handleEvent={handleTableActions}
                                 rows={[...rows]}
