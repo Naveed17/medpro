@@ -33,13 +33,12 @@ import {AbilityContext} from "@features/casl/can";
 import {ImageHandler} from "@features/image";
 import {TabPanel} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {ArchiveInsuranceMobileCard, InsuranceAppointMobileCard} from "@features/card";
 import {useInsurances} from "@lib/hooks/rest";
 import {saveAs} from "file-saver";
+import {cashBoxSelector} from "@features/leftActionBar";
 
 function ConsultationInProgress() {
     const router = useRouter();
@@ -256,8 +255,9 @@ function ConsultationInProgress() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const {insurances} = useInsurances()
-
+    const {filterCB} = useAppSelector(cashBoxSelector);
     const [selectedTab, setSelectedTab] = useState("global");
+    const [selectedRows, setSelectedRows] = useState([]);
 
     const uuid = router.query.uuid as string;
 
@@ -268,15 +268,14 @@ function ConsultationInProgress() {
 
     const {data: httpInsuranceConv} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
 
-    /*
     const {data: httpInsurances} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
     });
-*/
+
 
 
     const tabsData = [
@@ -288,10 +287,10 @@ function ConsultationInProgress() {
             label: "archived",
             value: "archived"
         }] : []),
-        ...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
+        /*...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
             label: "stat",
             value: "stat"
-        }] : [])
+        }] : [])*/
     ];
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
@@ -309,7 +308,7 @@ function ConsultationInProgress() {
         trigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/insurance-dockets/${router.locale}`,
-            data:form
+            data: form
         }, {
             onSuccess: (res) => {
                 console.log(res)
@@ -318,22 +317,22 @@ function ConsultationInProgress() {
     }
 
     const exportDoc = () => {
-         trigger(
-                {
-                    method: "GET",
-                    url: `${urlMedicalEntitySuffix}/insurance-dockets/export/${router.locale}`,
+        trigger(
+            {
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/insurance-dockets/export/${router.locale}`,
+            },
+            {
+                onSuccess: (result) => {
+                    const buffer = Buffer.from(result.data, "base64");
+                    saveAs(new Blob([buffer]), "transaction.xlsx");
                 },
-                {
-                    onSuccess: (result) => {
-                        const buffer = Buffer.from(result.data, "base64");
-                        saveAs(new Blob([buffer]), "transaction.xlsx");
-                    },
-                }
-            );
+            }
+        );
     }
 
     useEffect(() => {
-            console.log("dockets",httpDocket)
+        console.log("dockets", httpDocket)
 
     }, [httpDocket]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -352,7 +351,8 @@ function ConsultationInProgress() {
                             <img width={30}
                                  alt={"insurance icon"}
                                  src={insurances.find(insc => insc.uuid === uuid)?.logoUrl.url}/>
-                            <Typography variant="subtitle2" fontWeight={700}>{insurances.find(insc => insc.uuid === uuid)?.name}</Typography>
+                            <Typography variant="subtitle2"
+                                        fontWeight={700}>{insurances.find(insc => insc.uuid === uuid)?.name}</Typography>
                         </Stack>
                         <Stack ml={2}
                                width={1}
@@ -525,13 +525,13 @@ function ConsultationInProgress() {
                                         startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
                                 <Button fullWidth={isMobile} variant="grey"
                                         startIcon={<IconUrl path="ic-printer-new"/>}>{t("print")}</Button>
-                                <Button fullWidth={isMobile} variant="grey" onClick={()=> exportDoc}
+                                <Button fullWidth={isMobile} variant="grey" onClick={() => exportDoc}
                                         startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
                             </Stack>
                         </Stack>
                         <DesktopContainer>
                             <Otable
-                                {...{t}}
+                                {...{t,select:selectedRows,setSelectedRows}}
                                 headers={headCells}
                                 //handleEvent={handleTableActions}
                                 rows={[...rows]}
@@ -614,7 +614,7 @@ function ConsultationInProgress() {
                     </MobileContainer>
                 </Card>
             </TabPanel>
-            <TabPanel padding={1} value={selectedTab} index={"stat"}>
+            {/*<TabPanel padding={1} value={selectedTab} index={"stat"}>
                 <Stack spacing={2}>
                     <Card>
                         <CardContent>
@@ -711,28 +711,18 @@ function ConsultationInProgress() {
                                        alignItems={{xs: 'flex-start', md: 'center'}} justifyContent='space-between'>
                                     <Typography variant="subtitle1" fontWeight={700}>{t("recipes")}</Typography>
                                     <Stack direction='row' alignItems='center' spacing={1}>
-                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <DatePicker
-                                                renderInput={(props) => <TextField sx={{maxWidth: 180}} {...props} />}
-                                                inputFormat={"dd/MM/yyyy"}
-                                                onChange={function (value: unknown, keyboardInputValue?: string | undefined): void {
-                                                    throw new Error("Function not implemented.");
-                                                }} value={undefined}
+                                                format={"dd/MM/yyyy"}
+                                                 value={undefined}
                                             />
-                                        </LocalizationProvider>
                                         <Typography fontSize={12} fontWeight={500}>
                                             {t("upto")}
                                         </Typography>
-                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                            <DatePicker
 
-                                                renderInput={(props) => <TextField sx={{maxWidth: 180}} {...props} />}
-                                                inputFormat={"dd/MM/yyyy"}
-                                                onChange={function (value: unknown, keyboardInputValue?: string | undefined): void {
-                                                    throw new Error("Function not implemented.");
-                                                }} value={undefined}
-                                            />
-                                        </LocalizationProvider>
+                                        <DatePicker
+                                            format={"dd/MM/yyyy"}
+                                            value={undefined}
+                                        />
                                     </Stack>
                                 </Stack>
                                 <Stack
@@ -836,7 +826,7 @@ function ConsultationInProgress() {
                         </CardContent>
                     </Card>
                 </Stack>
-            </TabPanel>
+            </TabPanel>*/}
 
         </Stack>
     );

@@ -760,7 +760,7 @@ function Cashbox() {
                                         </Can>
                                     }*/}
                                 </Stack>
-                                <InsuranceDocket/>
+                                <InsuranceDocket {...{filterCB}}/>
                             </CardContent>
                         </Card>
                     </Stack>

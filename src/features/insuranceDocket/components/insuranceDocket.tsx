@@ -18,14 +18,6 @@ const headCells = [
         align: "left",
         sortable: true,
     },
-/*    {
-        id: "label",
-        numeric: false,
-        disablePadding: false,
-        label: "label",
-        align: "center",
-        sortable: true,
-    },
     {
         id: "start_date",
         numeric: false,
@@ -41,11 +33,28 @@ const headCells = [
         label: "end_date",
         align: "center",
         sortable: false,
-    }*/
+    },
+    {
+        id: "total",
+        numeric: false,
+        disablePadding: false,
+        label: "total",
+        align: "center",
+        sortable: true,
+    },
+/*    {
+        id: "label",
+        numeric: false,
+        disablePadding: false,
+        label: "label",
+        align: "center",
+        sortable: true,
+    },
+    */
 ];
 
 const InsuranceDocket = ({...props}) => {
-    const {patientInsurances, mutatePatientInsurances, patient} = props;
+    const {patientInsurances, mutatePatientInsurances, patient,filterCB} = props;
 
     const {t} = useTranslation(["patient", "common"]);
 
@@ -55,16 +64,13 @@ const InsuranceDocket = ({...props}) => {
         description: "insurance.addInsurance"
     };
 
-    const [addNew, setAddNew] = useState(false);
-    const [selectedInsurance, setSelectedInsurance] = useState("");
-
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
 
     const {data: httpInsurances, mutate} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/list/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/list/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     });
     const insuranceList = httpInsurances?.data;
 

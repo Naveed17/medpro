@@ -1073,21 +1073,19 @@ function AddPatientStep2({...props}) {
                                                             minWidth: "auto"
                                                         }
                                                     }}>
-                                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                             <Typography variant="body2" color="text.secondary"
                                                                         gutterBottom>
                                                                 {t("add-patient.birthdate")}
                                                             </Typography>
                                                             <DatePicker
-                                                                value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
+                                                                value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate()}
                                                                 onChange={(date: Date) => {
                                                                     if (moment(date).isValid()) {
                                                                         setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
                                                                     }
                                                                 }}
-                                                                inputFormat="dd/MM/yyyy"
+                                                                format="dd/MM/yyyy"
                                                             />
-                                                        </LocalizationProvider>
                                                     </Box>
                                                     <Box>
                                                         <Typography variant="body2" color="text.secondary" gutterBottom>

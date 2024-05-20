@@ -1,12 +1,13 @@
 import { TableRowStyled, setSelectedRows, tableActionSelector } from "@features/table";
-import React from "react";
+import React, {useEffect} from "react";
 import TableCell from "@mui/material/TableCell";
 import { Checkbox, Skeleton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
 import IconUrl from "@themes/urlIcon";
 
 function InsuranceAppointmentRow({ ...props }) {
-    const { row, isItemSelected, t, loading, handleClick, selected } = props;
+    const { row, isItemSelected, t, loading, handleClick, selected,data } = props;
+    const {setSelectedRows} = data
     const { tableState: { rowsSelected } } = useAppSelector(tableActionSelector);
     const dispatch = useAppDispatch();
     const handleCheckItem = (isItemSelected: boolean, row: PatientModel) => {
@@ -16,6 +17,10 @@ function InsuranceAppointmentRow({ ...props }) {
             dispatch(setSelectedRows(rowsSelected.filter((item: any) => item.uuid !== row.uuid)))
         }
     }
+
+    useEffect(()=>{
+        console.log(rowsSelected)
+    },[rowsSelected])
     const theme = useTheme()
     return (
         <TableRowStyled
@@ -30,14 +35,14 @@ function InsuranceAppointmentRow({ ...props }) {
                 ) : (
                     <Checkbox
                         color="primary"
-                        checked={selected.some((uuid: any) => uuid === row.uuid)}
+                        checked={rowsSelected.some((uuid: any) => uuid === row.uuid)}
                         inputProps={{
                             "aria-labelledby": row.uuid,
                         }}
                         onChange={(ev) => {
                             ev.stopPropagation();
                             handleClick(row.uuid);
-                            handleCheckItem(ev.target.checked, row);
+                            handleCheckItem(ev.target.checked, row.uuid);
                         }}
                     />
                 )}

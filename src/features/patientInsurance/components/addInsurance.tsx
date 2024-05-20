@@ -35,7 +35,6 @@ import {CustomInput} from "@features/tabPanel";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import moment from "moment-timezone";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
@@ -504,20 +503,18 @@ const AddInsurance = ({...props}) => {
                                     minWidth: "auto"
                                 }
                             }}>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <Typography variant="body2" color="text.secondary" gutterBottom>
                                         {t("config.add-patient.birthdate")}
                                     </Typography>
                                     <DatePicker
-                                        value={moment(getFieldProps(`insurance.insurance_social.birthday`).value, "DD-MM-YYYY")}
+                                        value={moment(getFieldProps(`insurance.insurance_social.birthday`).value, "DD-MM-YYYY").toDate()}
                                         onChange={(date: Date) => {
                                             if (moment(date).isValid()) {
                                                 setFieldValue(`insurance.insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
                                             }
                                         }}
-                                        inputFormat="dd/MM/yyyy"
+                                        format="dd/MM/yyyy"
                                     />
-                                </LocalizationProvider>
                             </Box>
                             <Box>
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
