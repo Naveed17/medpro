@@ -131,7 +131,7 @@ function PlacesDetail() {
     const dispatch = useAppDispatch();
     const theme = useTheme();
 
-    const {t} = useTranslation(["settings", "common"]);
+    const {t, ready, i18n} = useTranslation(["settings", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const dialogOpeningHoursData = useAppSelector(dialogOpeningHoursSelector);
@@ -480,6 +480,11 @@ function PlacesDetail() {
             setCheck(false);
         }
     }, [check, row]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -1125,7 +1130,6 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await getServerTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
             "settings",
         ])),
     },
