@@ -26,7 +26,7 @@ import {useRouter} from "next/router";
 import {Theme, useTheme} from "@mui/material/styles";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
-import {Otable} from "@features/table";
+import {Otable, tableActionSelector} from "@features/table";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {AbilityContext} from "@features/casl/can";
@@ -61,6 +61,7 @@ function ConsultationInProgress() {
         }
     ])
     const theme = useTheme() as Theme
+
     const headCellsArchiveSlip: readonly any[] = [
 
         {
@@ -243,21 +244,20 @@ function ConsultationInProgress() {
         }
     ]
 
-    const {t, i18n} = useTranslation("payment", {keyPrefix: "insurances"});
+    const {t} = useTranslation("payment", {keyPrefix: "insurances"});
     //***** SELECTORS ****//
-    const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {trigger} = useRequestQueryMutation("/docket/create");
+    const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
 
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
-    const devise = doctor_country.currency?.name;
+    //const devise = doctor_country.currency?.name;
     const {insurances} = useInsurances()
     const {filterCB} = useAppSelector(cashBoxSelector);
     const [selectedTab, setSelectedTab] = useState("global");
-    const [selectedRows, setSelectedRows] = useState([]);
 
     const uuid = router.query.uuid as string;
 
@@ -270,14 +270,8 @@ function ConsultationInProgress() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
-
-    const {data: httpInsurances} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
-    });
-
-
-
+    const conv = httpInsuranceConv.data;
+    console.log(conv)
     const tabsData = [
         ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
             label: "global",
@@ -300,10 +294,11 @@ function ConsultationInProgress() {
     const createDockets = () => {
         const form = new FormData();
         form.append('insurance', uuid);
-        form.append('start_date', "16-05-2024");
-        form.append('end_date', "16-05-2024");
+        form.append('start_date', filterCB.start_date);
+        form.append('end_date', filterCB.end_date);
         form.append('status', "1");
-        form.append('name', "Docket 16/05/2024 - 16/05/2024");
+        form.append('name', `Bordereau ${filterCB.start_date} - ${filterCB.end_date}`);
+        form.append('appointments', rowsSelected.map(rs => rs.uuid).join(','));
 
         trigger({
             method: "POST",
@@ -321,6 +316,21 @@ function ConsultationInProgress() {
             {
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/insurance-dockets/export/${router.locale}`,
+            },
+            {
+                onSuccess: (result) => {
+                    const buffer = Buffer.from(result.data, "base64");
+                    saveAs(new Blob([buffer]), "apps.xlsx");
+                },
+            }
+        );
+    }
+
+    const printDoc = () => {
+        trigger(
+            {
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/insurance-dockets/print/${router.locale}`,
             },
             {
                 onSuccess: (result) => {
@@ -389,7 +399,7 @@ function ConsultationInProgress() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                            -
+                                            {conv[0].startDate}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -402,7 +412,7 @@ function ConsultationInProgress() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                            -
+                                            {conv[0].endDate}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -523,7 +533,7 @@ function ConsultationInProgress() {
                                         onClick={createDockets}
                                         variant="grey"
                                         startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
-                                <Button fullWidth={isMobile} variant="grey"
+                                <Button fullWidth={isMobile} variant="grey" onClick={() => printDoc}
                                         startIcon={<IconUrl path="ic-printer-new"/>}>{t("print")}</Button>
                                 <Button fullWidth={isMobile} variant="grey" onClick={() => exportDoc}
                                         startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
@@ -531,7 +541,7 @@ function ConsultationInProgress() {
                         </Stack>
                         <DesktopContainer>
                             <Otable
-                                {...{t,select:selectedRows,setSelectedRows}}
+                                {...{t,select:rowsSelected}}
                                 headers={headCells}
                                 //handleEvent={handleTableActions}
                                 rows={[...rows]}

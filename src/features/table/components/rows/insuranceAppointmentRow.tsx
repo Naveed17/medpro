@@ -1,16 +1,15 @@
-import { TableRowStyled, setSelectedRows, tableActionSelector } from "@features/table";
+import {setSelectedRows, tableActionSelector, TableRowStyled} from "@features/table";
 import React, {useEffect} from "react";
 import TableCell from "@mui/material/TableCell";
-import { Checkbox, Skeleton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import {Checkbox, Skeleton, Stack, Typography, useTheme} from "@mui/material";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import IconUrl from "@themes/urlIcon";
 
-function InsuranceAppointmentRow({ ...props }) {
-    const { row, isItemSelected, t, loading, handleClick, selected,data } = props;
-    const {setSelectedRows} = data
-    const { tableState: { rowsSelected } } = useAppSelector(tableActionSelector);
+function InsuranceAppointmentRow({...props}) {
+    const {row, isItemSelected, t, loading, handleClick, selected, data} = props;
+    const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
     const dispatch = useAppDispatch();
-    const handleCheckItem = (isItemSelected: boolean, row: PatientModel) => {
+    const handleCheckItem = (isItemSelected: boolean, row: any) => {
         if (isItemSelected) {
             dispatch(setSelectedRows([...rowsSelected, row]))
         } else {
@@ -18,10 +17,6 @@ function InsuranceAppointmentRow({ ...props }) {
         }
     }
 
-    useEffect(()=>{
-        console.log(rowsSelected)
-    },[rowsSelected])
-    const theme = useTheme()
     return (
         <TableRowStyled
             hover
@@ -31,18 +26,18 @@ function InsuranceAppointmentRow({ ...props }) {
             selected={isItemSelected}>
             <TableCell padding="checkbox">
                 {loading ? (
-                    <Skeleton variant="circular" width={28} height={28} />
+                    <Skeleton variant="circular" width={28} height={28}/>
                 ) : (
                     <Checkbox
                         color="primary"
-                        checked={rowsSelected.some((uuid: any) => uuid === row.uuid)}
+                        checked={rowsSelected.some((el: any) => el.uuid === row.uuid)}
                         inputProps={{
                             "aria-labelledby": row.uuid,
                         }}
                         onChange={(ev) => {
                             ev.stopPropagation();
                             handleClick(row.uuid);
-                            handleCheckItem(ev.target.checked, row.uuid);
+                            handleCheckItem(ev.target.checked, row);
                         }}
                     />
                 )}
@@ -53,19 +48,19 @@ function InsuranceAppointmentRow({ ...props }) {
                         {row.memberNo}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="left">
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1}>
-                        <IconUrl path="ic-agenda-jour" />
+                        <IconUrl path="ic-agenda-jour"/>
                         <Typography fontSize={13} fontWeight={600} color="text.primary">
                             {row.date}
                         </Typography>
                     </Stack>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -74,7 +69,7 @@ function InsuranceAppointmentRow({ ...props }) {
                         {row.name}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -83,7 +78,7 @@ function InsuranceAppointmentRow({ ...props }) {
                         {row.quality}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -92,7 +87,7 @@ function InsuranceAppointmentRow({ ...props }) {
                         {row.act}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -101,7 +96,7 @@ function InsuranceAppointmentRow({ ...props }) {
                         {row.apci}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -110,7 +105,7 @@ function InsuranceAppointmentRow({ ...props }) {
                         {row.amount}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -119,7 +114,7 @@ function InsuranceAppointmentRow({ ...props }) {
                         {row.patientPart}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -128,7 +123,7 @@ function InsuranceAppointmentRow({ ...props }) {
                         {row.remb}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
         </TableRowStyled>
