@@ -84,8 +84,9 @@ function LoadingScreen({...props}) {
                     </Box>
 
                     {text === "loading" && (
-                        <Box>
+                        <Stack direction={"row"} alignItems={"center"}>
                             <motion.div
+                                style={{display: "flex"}}
                                 variants={container}
                                 initial="hidden"
                                 animate="visible">
@@ -104,7 +105,7 @@ function LoadingScreen({...props}) {
                                     />
                                 ))}
                             </motion.div>
-                        </Box>
+                        </Stack>
                     )}
 
                     {text !== "loading" && (
@@ -128,15 +129,15 @@ function LoadingScreen({...props}) {
                     {(button && text !== "loading") && (
                         <Button
                             onClick={() => {
-                                if (process.env.NODE_ENV !== "development") {
-                                    clearBrowserCache().then(async () => {
-                                        if (text === "loading-error-404") {
-                                            await router.push("/dashboard/agenda");
-                                        } else {
-                                            await update({refreshAccessToken: true});
-                                        }
-                                    });
-                                }
+                                clearBrowserCache().then(async () => {
+                                    if (text === "loading-error-404") {
+                                        await router.push("/dashboard/agenda");
+                                    } else {
+                                        await update({refreshAccessToken: true});
+                                        router.reload();
+                                    }
+                                });
+
                                 if (OnClick) {
                                     OnClick(color);
                                 }

@@ -113,58 +113,9 @@ function ScheduledShiftsDialog() {
                                 <Stack direction='row' spacing={1} alignItems='center' width={1}
                                        key={"shift-" + ItemIndex}>
                                     <TimePicker
-                                        components={{
-                                            OpenPickerIcon: () => <Typography>From</Typography>
-                                        }}
-                                        ampm={false}
-                                        openTo="hours"
-                                        views={["hours", "minutes"]}
-                                        inputFormat="HH:mm"
-                                        mask="__:__"
-                                        value={shiftItem.startTime}
-                                        onChange={(newValue) => {
-                                            setState(state.map((innerItem, idx) => {
-                                                if (index === idx) {
-                                                    innerItem.timeShifts[ItemIndex].startTime = newValue;
-                                                }
-                                                return innerItem;
-                                            }))
-
-                                        }}
-                                        renderInput={(params) => <TextField sx={{
-                                            ".MuiInputBase-root": {
-                                                flexDirection: 'row-reverse',
-                                                input: {
-                                                    textAlign: "right",
-                                                    fontWeight: 600
-                                                }
-                                            }
-                                        }} fullWidth {...params} />}
-                                    />
-                                    <TimePicker
-                                        components={{
-                                            OpenPickerIcon: () => <Typography>To</Typography>
-                                        }}
-                                        ampm={false}
-                                        openTo="hours"
-                                        views={["hours", "minutes"]}
-                                        inputFormat="HH:mm"
-                                        mask="__:__"
-                                        value={shiftItem.endTime}
-                                        onChange={(newValue) => {
-                                            setState(state.map((innerItem, idx) => {
-                                                if (index === idx) {
-                                                    innerItem.timeShifts[ItemIndex].endTime = newValue;
-                                                }
-                                                return innerItem;
-
-
-                                            }))
-
-
-                                        }}
-                                        renderInput={(params) => <TextField
-                                            sx={{
+                                        slots={{
+                                            openPickerIcon: () => <Typography>From</Typography>,
+                                            textField: (params) => <TextField sx={{
                                                 ".MuiInputBase-root": {
                                                     flexDirection: 'row-reverse',
                                                     input: {
@@ -172,42 +123,96 @@ function ScheduledShiftsDialog() {
                                                         fontWeight: 600
                                                     }
                                                 }
-                                            }}
-                                            fullWidth {...params} />}
+                                            }} fullWidth {...params} />
+                                        }}
+                                        ampm={false}
+                                        openTo="hours"
+                                        views={["hours", "minutes"]}
+                                        format="HH:mm"
+                                        value={shiftItem.startTime}
+                                        onChange={(newValue) => {
+                                            setState(state.map((innerItem, idx) => ({
+                                                ...innerItem,
+                                                ...(index === idx && {
+                                                    timeShifts: {
+                                                        ...innerItem.timeShifts,
+                                                        [ItemIndex]: {
+                                                            ...innerItem.timeShifts[ItemIndex],
+                                                            startTime: newValue as any
+                                                        }
+                                                    }
+                                                })
+                                            })))
+
+                                        }}
                                     />
-                                    {
-                                        ItemIndex === 0 ? (
-                                            <CustomIconButton color="success"
-                                                              onClick={() => {
-                                                                  setState(state.map((innerItem, idx) => {
-                                                                      if (index === idx) {
-                                                                          innerItem.timeShifts.push({
-                                                                              startTime: null,
-                                                                              endTime: null
-                                                                          });
-                                                                      }
-                                                                      return innerItem;
-                                                                  }))
-                                                              }}
+                                    <TimePicker
+                                        slots={{
+                                            openPickerIcon: () => <Typography>To</Typography>,
+                                            textField: (params) => <TextField
+                                                sx={{
+                                                    ".MuiInputBase-root": {
+                                                        flexDirection: 'row-reverse',
+                                                        input: {
+                                                            textAlign: "right",
+                                                            fontWeight: 600
+                                                        }
+                                                    }
+                                                }}
+                                                fullWidth {...params} />
+                                        }}
+                                        ampm={false}
+                                        openTo="hours"
+                                        views={["hours", "minutes"]}
+                                        format="HH:mm"
+                                        value={shiftItem.endTime}
+                                        onChange={(newValue) => {
+                                            setState(state.map((innerItem, idx) => ({
+                                                ...innerItem,
+                                                ...(index === idx && {
+                                                    timeShifts: {
+                                                        ...innerItem.timeShifts,
+                                                        [ItemIndex]: {
+                                                            ...innerItem.timeShifts[ItemIndex],
+                                                            endTime: newValue as any
+                                                        }
+                                                    }
+                                                })
+                                            })))
+                                        }}
+                                    />
+                                    {ItemIndex === 0 ? (
+                                        <CustomIconButton color="success"
+                                                          onClick={() => {
+                                                              setState(state.map((innerItem, idx) => {
+                                                                  if (index === idx) {
+                                                                      innerItem.timeShifts.push({
+                                                                          startTime: null,
+                                                                          endTime: null
+                                                                      });
+                                                                  }
+                                                                  return innerItem;
+                                                              }))
+                                                          }}
 
-                                            >
-                                                <AddIcon/>
-                                            </CustomIconButton>
-                                        ) : (
-                                            <CustomIconButton color="error"
-                                                              onClick={() => {
-                                                                  setState(state.map((innerItem, idx) => {
-                                                                      if (index === idx) {
-                                                                          innerItem.timeShifts.splice(ItemIndex, 1);
-                                                                      }
-                                                                      return innerItem;
-                                                                  }))
-                                                              }}
+                                        >
+                                            <AddIcon/>
+                                        </CustomIconButton>
+                                    ) : (
+                                        <CustomIconButton color="error"
+                                                          onClick={() => {
+                                                              setState(state.map((innerItem, idx) => {
+                                                                  if (index === idx) {
+                                                                      innerItem.timeShifts.splice(ItemIndex, 1);
+                                                                  }
+                                                                  return innerItem;
+                                                              }))
+                                                          }}
 
-                                            >
-                                                <IconUrl path="ic-delete" color="white"/>
-                                            </CustomIconButton>
-                                        )
+                                        >
+                                            <IconUrl path="ic-delete" color="white"/>
+                                        </CustomIconButton>
+                                    )
                                     }
 
                                 </Stack>

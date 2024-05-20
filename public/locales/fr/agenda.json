@@ -216,6 +216,7 @@
         "assurance-type-error": "Veuillez sélectionner l'assurance",
         "email": "E-mail",
         "relation": "Relation",
+        "relation-placeholder": "Relation",
         "email-placeholder": "Saisissez l'adresse e-mail du patient",
         "cin": "CIN",
         "cin-placeholder": "Saisir la CIN du patient",

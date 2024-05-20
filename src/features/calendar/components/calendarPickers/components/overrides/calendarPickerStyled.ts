@@ -11,7 +11,23 @@ const CalendarPickerStyled = styled(Box)(({theme}) => ({
     "& .MuiPickersCalendarHeader-label": {
         textTransform: "capitalize"
     },
-    "& .MuiPickerStaticWrapper-root": {
+    "& .MuiPickersLayout-root": {
+        minWidth: "auto"
+    },
+    "& .MuiDateCalendar-root, .MuiYearCalendar-root": {
+        width: "auto",
+        maxHeight: 350,
+        height: "auto"
+    },
+    "& .MuiDayCalendar-root, .MuiPickersLayout-root": {
+        height: 350
+    }, "& .MuiDayCalendar-slideTransition": {
+        height: 'inherit'
+    },
+    "& .MuiPickersYear-root": {
+        flexBasis: "33%"
+    },
+    "& .MuiPickerStaticWrapper-root, .MuiPickersLayout-contentWrapper": {
         backgroundColor: "transparent",
         minWidth: "auto",
         "& > div > div": {

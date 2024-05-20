@@ -33,8 +33,6 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {styled} from "@mui/material/styles";
 import {DatePicker} from "@features/datepicker";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider} from '@mui/x-date-pickers';
 import {CountrySelect} from "@features/countrySelect";
 import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -79,7 +77,6 @@ function AddPatientStep2({...props}) {
     const phoneInputRef = useRef(null);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
-    console.log(insurances)
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true", contacts.length > 0);
 
@@ -359,10 +356,6 @@ function AddPatientStep2({...props}) {
             setFieldValue("region", professionalState.uuid);
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(()=>{
-        console.log("patientInsurances",patientInsurances)
-    },[patientInsurances])
 
     return (
         <FormikProvider value={formik}>

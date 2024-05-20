@@ -9,15 +9,11 @@ import {
     Card,
     CardContent,
     CardHeader,
-    Checkbox,
-    FormControlLabel,
-    Grid, Menu, MenuItem,
+    Menu, MenuItem,
     Stack,
-    TextField,
     Typography
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
-import Link from "next/link";
 import {useTheme} from "@mui/material/styles";
 import styles from '../styles/Home.module.scss'
 import {LoadingScreen} from "@features/loadingScreen";
@@ -92,64 +88,7 @@ function Home() {
             :
             <Box className={styles.container} dir={dir}>
                 <main className={styles.main}>
-                    {!session && (<Grid item xs={12} md={12}>
-                        <Box mt={-2}>
-                            <Typography
-                                sx={{fontSize: "28px", mb: 3}}
-                                textAlign="center"
-                                component="h6"
-                                fontFamily="Poppins-ExtraBold">
-                                {t('login.sign_title')}
-                            </Typography>
-                            <Typography textAlign="center">
-                                {t('login.sign_sub_title_1')} <br/>
-                                {t('login.sign_sub_title_2')}
-                            </Typography>
-
-                            <Button sx={{'& img': {mr: 2}, fontFamily: 'Poppins', fontSize: '16px', mt: 2}}
-                                    startIcon={<Box component="img" width={20} height={20}
-                                                    src="/static/icons/Med-logo_.svg"/>}
-                                    variant={"google"}
-                                    fullWidth>
-                                {t('login.sign_med_connect')}
-                            </Button>
-                            <Box sx={{
-                                height: '2px',
-                                backgroundColor: 'divider',
-                                mt: 5,
-                                mb: 8,
-                                width: '75%',
-                                mx: 'auto',
-                                position: 'relative',
-                                '& p': {
-                                    position: 'absolute',
-                                    px: 1.5,
-                                    backgroundColor: theme.palette.background.default,
-                                    left: '50%',
-                                    color: "#C9C8C8",
-                                    transform: 'translateX(-50%)',
-                                    top: -10
-                                }
-                            }}>
-                                <Typography>
-                                    {t('login.sign_divider')}
-                                </Typography>
-                            </Box>
-                            <Box>
-                                <TextField sx={{background: '#F9F9FB'}} fullWidth
-                                           placeholder={t('login.sign_email_placeholder')}/>
-                                <TextField sx={{background: '#F9F9FB', mt: 1.2}} fullWidth
-                                           placeholder={t('login.sign_pass_placeholder')}/>
-                                <Box sx={{display: 'flex', justifyContent: "space-between", alignItems: 'center'}}>
-                                    <FormControlLabel control={<Checkbox/>} label={t('login.sign_forget_pass')}
-                                                      sx={{mr: '7px'}}/>
-                                    <Link href="/"> {t('login.sign_reset_pass')}</Link>
-                                </Box>
-                            </Box>
-                            <Button size="large" fullWidth sx={{mt: 9}}
-                                    variant="contained"> {t('login.sign_connect_btn')}</Button>
-                        </Box>
-                    </Grid>)}
+                    {!session && <LoadingScreen/>}
                     {session?.user && (
                         <>
                             <Card sx={{

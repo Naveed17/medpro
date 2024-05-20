@@ -42,7 +42,13 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
-import {useAntecedentTypes, useFeaturePermissions, useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
+import {
+    useAntecedentTypes,
+    useContactType, useCountries,
+    useFeaturePermissions,
+    useProfilePhoto,
+    useSendNotification
+} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
@@ -83,6 +89,8 @@ function PatientDetail({...props}) {
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {permissions} = useFeaturePermissions("patient", true);
     const ability = useContext(AbilityContext);
+    const {contacts} = useContactType();
+    const {countries: countries_api} = useCountries("nationality=true");
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -171,6 +179,15 @@ function PatientDetail({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/antecedents/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
+
+    const {
+        data: httpPatientContactResponse
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/contact/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
+    const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -332,6 +349,9 @@ function PatientDetail({...props}) {
             title: "tabs.personal-info",
             children: <PersonalInfoPanel loading={!patient} {...{
                 patient,
+                contactData,
+                contacts,
+                countries_api,
                 mutatePatientDetails,
                 mutatePatientList,
                 antecedentsData,
@@ -434,6 +454,7 @@ function PatientDetail({...props}) {
                         loading={!patient}
                         {...{
                             isBeta,
+                            contactData,
                             patient,
                             onConsultation,
                             antecedentsData,

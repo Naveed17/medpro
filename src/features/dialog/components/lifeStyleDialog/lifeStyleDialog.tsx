@@ -29,8 +29,7 @@ import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/Antece
 import IconUrl from "@themes/urlIcon";
 
 import {LoadingScreen} from "@features/loadingScreen";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {DatePicker} from "@mui/x-date-pickers";
 
 function LifeStyleDialog({...props}) {
     const router = useRouter();
@@ -235,43 +234,32 @@ function LifeStyleDialog({...props}) {
                                                                 }
                                                             </Stack>
 
-                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                                <Stack spacing={1} mt={2} direction={'row'}>
-
-
-                                                                    {/*Start date*/}
-                                                                    {!list.hideStart &&
-                                                                        <DatePicker
-                                                                            renderInput={(props) =>
-                                                                                <TextField
-                                                                                    size={"small"} {...props} />}
-                                                                            label={t('start')}
-                                                                            inputFormat={"dd-MM-yyyy"}
-                                                                            value={data.start || ""}
-                                                                            onChange={(newValue) => {
-                                                                                data.start = newValue;
-                                                                                setState([...state])
-                                                                            }}
-
-                                                                        />
-                                                                    }
-                                                                    {/*End time*/}
-                                                                    {!list.hideEnd &&
-                                                                        <DatePicker
-                                                                            renderInput={(props) =>
-                                                                                <TextField
-                                                                                    size={"small"} {...props} />}
-                                                                            label={t('end')}
-                                                                            inputFormat={"dd-MM-yyyy"}
-                                                                            value={data.end || ""}
-                                                                            onChange={(newValue) => {
-                                                                                data.end = newValue
-                                                                                setState([...state])
-                                                                            }}
-                                                                        />
-                                                                    }
-                                                                </Stack>
-                                                            </LocalizationProvider>
+                                                            <Stack spacing={1} mt={2} direction={'row'}>
+                                                                {/*Start date*/}
+                                                                {!list.hideStart &&
+                                                                    <DatePicker
+                                                                        label={t('start')}
+                                                                        format={"dd-MM-yyyy"}
+                                                                        value={data.start || ""}
+                                                                        onChange={(newValue) => {
+                                                                            data.start = newValue;
+                                                                            setState([...state])
+                                                                        }}
+                                                                    />
+                                                                }
+                                                                {/*End time*/}
+                                                                {!list.hideEnd &&
+                                                                    <DatePicker
+                                                                        label={t('end')}
+                                                                        format={"dd-MM-yyyy"}
+                                                                        value={data.end || ""}
+                                                                        onChange={(newValue) => {
+                                                                            data.end = newValue
+                                                                            setState([...state])
+                                                                        }}
+                                                                    />
+                                                                }
+                                                            </Stack>
 
                                                             {action === 'family_antecedents' &&
                                                                 <Stack spacing={1} direction={'row'}>
@@ -486,8 +474,8 @@ function LifeStyleDialog({...props}) {
                                             uuid: res.uuid,
                                             value_type: -1,
                                             multiple: false,
-                                            hideStartTime:true,
-                                            hideEndTime:true
+                                            hideStartTime: true,
+                                            hideEndTime: true
                                         })
                                         setState([...state, {
                                             uuid: res.uuid,

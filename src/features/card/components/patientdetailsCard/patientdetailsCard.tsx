@@ -5,7 +5,7 @@ import {
     Button,
     Grid,
     IconButton,
-    InputBase,
+    InputBase, Link,
     Skeleton,
     Stack,
     Tooltip,
@@ -47,6 +47,7 @@ import Can from "@features/casl/can";
 function PatientDetailsCard({...props}) {
     const {
         isBeta,
+        contactData,
         patient,
         patientPhoto,
         mutatePatientList,
@@ -335,54 +336,56 @@ function PatientDetailsCard({...props}) {
                                                         <Skeleton variant="text" width={150}/>
                                                     ) : (
                                                         <>
-                                                            {patient?.birthdate && <Stack
-                                                                className={"date-birth"}
-                                                                direction={isMobile ? "column" : "row"}
-                                                                alignItems="center">
-                                                                <Stack direction={"row"} alignItems="center">
-                                                                    <IconUrl width={"13"} height={"14"}
-                                                                             path="ic-anniverssaire"/>
-                                                                    <Box
-                                                                        sx={{
-                                                                            input: {
-                                                                                color: theme.palette.text.secondary,
-                                                                            },
-                                                                        }}>
-                                                                        <MaskedInput
-                                                                            readOnly
-                                                                            style={{
-                                                                                border: "none",
-                                                                                outline: "none",
-                                                                                width: 75,
-                                                                            }}
-                                                                            mask={[
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                                "-",
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                                "-",
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                            ]}
-                                                                            placeholderChar={"\u2000"}
-                                                                            {...getFieldProps("birthdate")}
-                                                                            showMask
-                                                                        />
-                                                                    </Box>
+                                                            {patient?.birthdate &&
+                                                                <Stack
+                                                                    className={"date-birth"}
+                                                                    direction={isMobile ? "column" : "row"}
+                                                                    alignItems="center">
+                                                                    <Stack direction={"row"} alignItems="center">
+                                                                        <IconUrl width={"16"} height={"16"}
+                                                                                 path="ic-anniverssaire"/>
+                                                                        <Box
+                                                                            sx={{
+                                                                                input: {
+                                                                                    color: theme.palette.text.secondary
+                                                                                },
+                                                                            }}>
+                                                                            <MaskedInput
+                                                                                readOnly
+                                                                                style={{
+                                                                                    fontSize: 13,
+                                                                                    marginLeft: 4,
+                                                                                    border: "none",
+                                                                                    outline: "none",
+                                                                                    width: 80,
+                                                                                }}
+                                                                                mask={[
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                    "-",
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                    "-",
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                ]}
+                                                                                placeholderChar={"\u2000"}
+                                                                                {...getFieldProps("birthdate")}
+                                                                                showMask
+                                                                            />
+                                                                        </Box>
+                                                                    </Stack>
+                                                                    {patient?.birthdate &&
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            color="text.secondary"
+                                                                            component="span">
+                                                                            -{" "}
+                                                                            ({" "}{getBirthdayFormat(patient, t)}{" "})
+                                                                        </Typography>}
                                                                 </Stack>
-
-                                                                {patient?.birthdate &&
-                                                                    <Typography
-                                                                        variant="body2"
-                                                                        color="text.secondary"
-                                                                        component="span">
-                                                                        -{" "}
-                                                                        ({" "}{getBirthdayFormat(patient, t)}{" "})
-                                                                    </Typography>}
-                                                            </Stack>
                                                             }
                                                         </>
                                                     )}
@@ -413,6 +416,36 @@ function PatientDetailsCard({...props}) {
                                                             </Typography>
                                                         </Stack>}
                                                 </Stack>
+
+                                                <Stack my={.2} direction={"row"}>
+                                                    {contactData?.contact?.map((contact: ContactModel, index: number) =>
+                                                        <Stack key={index}
+                                                               direction={"row"}
+                                                               mr={2}
+                                                               spacing={.5}
+                                                               alignItems={"center"}>
+                                                            <IconUrl
+                                                                width={"16"}
+                                                                height={"16"}
+                                                                path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                                                className="ic-tell"
+                                                            />
+                                                            <Link
+                                                                underline="none"
+                                                                href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                                                sx={{ml: 1, fontSize: 12}}
+                                                                variant="caption"
+                                                                color="text.primary"
+                                                                fontWeight={400}>
+                                                                <Stack direction={"row"}
+                                                                       alignItems={"center"}>
+                                                                    {contact.code} {contact.value}
+                                                                </Stack>
+                                                            </Link>
+                                                        </Stack>
+                                                    )}
+                                                </Stack>
+
 
                                                 {(patient?.familyDoctor && !isMobile) && (loading ? (
                                                     <Skeleton variant="text" width={150}/>
@@ -547,7 +580,6 @@ function PatientDetailsCard({...props}) {
                                                                         }}
                                                                         placeholder={"-"}
                                                                         {...getFieldProps("fiche_id")} />
-
                                                                 </Stack>
                                                             )}
                                                         </Typography>
