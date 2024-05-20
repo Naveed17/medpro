@@ -244,7 +244,7 @@ function InsuranceDetail() {
         }
     ]
 
-    const {t} = useTranslation("payment", {keyPrefix: "insurances"});
+    const {t,i18n} = useTranslation("payment", {keyPrefix: "insurances"});
     //***** SELECTORS ****//
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {trigger} = useRequestQueryMutation("/docket/create");
@@ -270,8 +270,8 @@ function InsuranceDetail() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
-    const conv = httpInsuranceConv.data;
-    console.log(conv)
+    const conv = (httpInsuranceConv as HttpResponse)?.data?? [];
+
     const tabsData = [
         ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
             label: "global",
@@ -345,6 +345,11 @@ function InsuranceDetail() {
         console.log("dockets", httpDocket)
 
     }, [httpDocket]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Stack spacing={1} padding={2}>
