@@ -40,7 +40,7 @@ import {useInsurances} from "@lib/hooks/rest";
 import {saveAs} from "file-saver";
 import {cashBoxSelector} from "@features/leftActionBar";
 
-function ConsultationInProgress() {
+function InsuranceDetail() {
     const router = useRouter();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -862,10 +862,10 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     };
 }
 
-export default ConsultationInProgress;
+export default InsuranceDetail;
 
-ConsultationInProgress.auth = true;
+InsuranceDetail.auth = true;
 
-ConsultationInProgress.getLayout = function getLayout(page: ReactElement) {
+InsuranceDetail.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 }
