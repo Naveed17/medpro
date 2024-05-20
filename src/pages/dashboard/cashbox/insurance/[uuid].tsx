@@ -404,7 +404,7 @@ function InsuranceDetail() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                            {conv[0].startDate}
+                                            {conv.length > 0 && conv[0].startDate}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -417,7 +417,7 @@ function InsuranceDetail() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                            {conv[0].endDate}
+                                            {conv.length > 0 && conv[0].endDate}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
