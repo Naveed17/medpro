@@ -580,11 +580,11 @@ function Statistics() {
                                                                style={{
                                                                    position: "absolute",
                                                                    left: "30%",
-                                                                   top: "40%"
+                                                                   top: "38%"
                                                                }}
                                                                alt={"earth"}
-                                                               width={120}
-                                                               height={30}/>
+                                                               width={window.innerWidth * 0.09}
+                                                               height={window.innerHeight * 0.1}/>
                                                         <ChartStyled>
                                                             <Chart
                                                                 type='donut'
@@ -1276,12 +1276,12 @@ function Statistics() {
                                                 <Image src={"/static/img/earth.png"}
                                                        style={{
                                                            position: "absolute",
-                                                           left: "30%",
-                                                           top: "26%"
+                                                           left: "33%",
+                                                           top: "28%"
                                                        }}
                                                        alt={"earth"}
-                                                       width={220}
-                                                       height={30}/>
+                                                       width={window.innerWidth * 0.13}
+                                                       height={window.innerHeight * 0.12}/>
                                                 <ChartStyled>
                                                     <Chart
                                                         type='donut'
