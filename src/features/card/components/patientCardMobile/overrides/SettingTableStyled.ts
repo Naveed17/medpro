@@ -3,18 +3,22 @@ import {styled} from "@mui/material/styles";
 const SettingTableStyled = styled(`div`)(({theme}) => ({
     marginBottom: 8,
     " & .patient-config-list": {
+       
         paddingTop: 0,
         paddingBottom: 0,
         "& .MuiListItem-root": {
-            backgroundColor: theme.palette.background.paper,
-            borderWidth: "1px 1px 1px 4px",
-            borderColor: "#dddddd",
-            borderStyle: "solid",
+            backgroundColor:theme.palette.primary.lighter,
+            borderWidth: "1px",
+            borderColor: theme.palette.primary.light,
+            borderStyle: "dashed",
             padding: "8px",
             paddingLeft: "16px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "flex-start",
+            ".MuiListItemAvatar-root":{
+                minWidth:30,
+            },
             "&.pending": {
                 borderLeftColor: theme.palette.warning.main,
             },

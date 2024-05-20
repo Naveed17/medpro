@@ -2,6 +2,7 @@
   "pending": "Rdv en attente",
   "enter-waiting-room": "Ajouter à la salle d’attente",
   "leave-waiting-room": "Quitter la salle d’attente",
+  "add-new-rdv": "Prendre un nouveau rendez-vous",
   "add": "Ajouter RDV",
   "add-quick": "Ajout rapide",
   "add_leave": "Ajouter un congé",
@@ -134,7 +135,10 @@
     },
     "stepper-1": {
       "title": "Réservez un créneau horaire",
+      "time": "Heure",
+      "date": "Date",
       "sub-title": "Créneau horaire",
+      "time-picker": "Horloge de poche",
       "reason-consultation": "Motif",
       "reason-consultation-placeholder": "Choisissez votre motif",
       "practitioner": "Praticien",

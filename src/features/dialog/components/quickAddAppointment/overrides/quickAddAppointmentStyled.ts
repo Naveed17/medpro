@@ -12,6 +12,13 @@ const QuickAddAppointmentStyled = styled(Stack)(({theme}) => ({
         //height: 40,
         // marginLeft: ".5rem"
     },
+    ".MuiCardHeader-root":{
+        padding:0,
+        paddingBottom:theme.spacing(2),
+        ".MuiCardHeader-action":{
+            alignSelf:'center'
+        }
+    },
     "@media (max-width: 1024px)": {
         minWidth: 0,
     }
