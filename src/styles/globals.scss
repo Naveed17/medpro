@@ -685,3 +685,8 @@ fieldset {
   color: #7C878E;
   font-size: 18px;
 }
+ol, ul, menu {
+  list-style: none;
+  margin: 0;
+  padding: revert;
+}

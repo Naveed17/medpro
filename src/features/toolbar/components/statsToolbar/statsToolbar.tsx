@@ -2,7 +2,7 @@ import {a11yProps} from "@lib/hooks";
 import {Tab, Tabs} from "@mui/material";
 import {useTranslation} from "next-i18next";
 
-const tabsData = ["tab_all", "tab_rdv", "tab_patients", "tab_working_time"] //, "consultation_reasons"
+const tabsData = ["tab_all", "tab_rdv", "tab_patients", "tab_working_time", "consultation_reasons"]
 
 function StatsToolbar({...props}) {
     const {value, handleChange} = props;
