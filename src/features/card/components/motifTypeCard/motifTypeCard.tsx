@@ -1,5 +1,5 @@
 import React from 'react'
-import {Typography, IconButton, Box, List, ListItem, ListItemIcon, useTheme, Stack} from "@mui/material";
+import {Typography, IconButton, Box, List, ListItem, useTheme, Stack} from "@mui/material";
 import RootStyled from './overrides/rootStyled';
 import IconUrl from "@themes/urlIcon";
 import {IconsTypes} from "@features/calendar";
