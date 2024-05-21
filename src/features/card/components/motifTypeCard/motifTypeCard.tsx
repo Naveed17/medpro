@@ -7,7 +7,7 @@ import {ModelDot} from "@features/modelDot";
 import Can from "@features/casl/can";
 
 function MotifTypeCard({...props}) {
-    const {data, t, handleDrawer} = props;
+    const {data, handleDrawer} = props;
     const theme = useTheme();
 
     return (
