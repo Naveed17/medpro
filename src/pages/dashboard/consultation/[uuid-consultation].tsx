@@ -34,7 +34,7 @@ import {
 } from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
-import {getBirthdayFormat, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {alpha, Theme} from "@mui/material/styles";
 import {AppToolbar} from "@features/toolbar/components/appToolbar";
@@ -68,7 +68,12 @@ import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
 import {useSession} from "next-auth/react";
 import {DrawerBottom} from "@features/drawerBottom";
-import {ConsultationFilter} from "@features/leftActionBar";
+import {
+    consultationContentSelector,
+    ConsultationFilter,
+    setContentPatient,
+    setContentUploadDialog
+} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
@@ -139,6 +144,7 @@ function ConsultationInProgress() {
         isPaused
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, i18n} = useTranslation("consultation");
     //***** SELECTORS ****//
@@ -148,8 +154,7 @@ function ConsultationInProgress() {
     const {selectedDialog, record} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
-
-
+    const {uploadDialog, patient: patientUploadDocs} = useAppSelector(consultationContentSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {
         type,
@@ -359,7 +364,6 @@ function ConsultationInProgress() {
     const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
     const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
     const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
-
     // ********** Requests ********** \\
     const changeModel = (prop: ModalModel, ind: number, index: number) => {
         selectedModel.default_modal = prop;
@@ -443,7 +447,7 @@ function ConsultationInProgress() {
                 type: card.documentType,
                 createdAt: card.createdAt,
                 description: card.description,
-                info: info,
+                info,
                 detectedType: card.type,
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 uuidDoc: uuidDoc,
@@ -977,12 +981,15 @@ function ConsultationInProgress() {
                 break;
             case "add_a_document":
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append(`files[${file.type}][]`, file?.file as any, file?.name);
+                    form.append(`${patientUploadDocs ? "document" : "files"}[${file.type}][]`, file?.file as any, file?.name);
                 });
-
+                url = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
+                if (medicalEntityHasUser && patientUploadDocs) {
+                    url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientUploadDocs?.uuid}/documents/${router.locale}`
+                }
                 triggerDrugsUpdate({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
+                    url,
                     data: form
                 }, {
                     onSuccess: () => {
@@ -991,11 +998,21 @@ function ConsultationInProgress() {
                             root: "all",
                             message: " ",
                             content: JSON.stringify({
-                                mutate: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
+                                mutate: url,
                                 fcm_session: jti
                             })
                         });
-                        mutateDoc()
+                        if (patientUploadDocs) {
+                            invalidateQueries([url]);
+                        } else {
+                            mutateDoc();
+                        }
+                    },
+                    onSettled: () => {
+                        if (patientUploadDocs) {
+                            dispatch(setContentPatient(null));
+                            dispatch(setContentUploadDialog(false))
+                        }
                     }
                 });
                 print && setOpenDialog(true);
@@ -1093,6 +1110,10 @@ function ConsultationInProgress() {
         setInfo(null);
         setPendingDocuments(pdoc);
         dispatch(SetSelectedDialog(null))
+        if (patientUploadDocs) {
+            dispatch(setContentPatient(null));
+            dispatch(setContentUploadDialog(false));
+        }
     };
 
     const showPreview = (action: string) => {
@@ -1162,7 +1183,6 @@ function ConsultationInProgress() {
             data: form
         });
     }
-
     //%%%%%% %%%%%%%
     const move = (source: any, destination: any, droppableSource: any, droppableDestination: any) => {
         const sourceClone = Array.from(source);
@@ -1206,6 +1226,14 @@ function ConsultationInProgress() {
         }
     }
     //%%%%%% %%%%%%%
+    useEffect(() => {
+        if (uploadDialog) {
+            setInfo("add_a_document");
+            setState({name: "", description: "", type: "", files: []});
+            setOpenDialogSave(true);
+            setOpenDialog(true);
+        }
+    }, [uploadDialog]);
 
     useEffect(() => {
         if (!recordingBlob || !saveAudio) return;
