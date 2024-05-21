@@ -554,7 +554,6 @@ function InsuranceDetail() {
                         </MobileContainer>
                     </Card>
                 </Stack>
-
             </TabPanel>
             <TabPanel padding={1} value={selectedTab} index={"archived"}>
                 <Card>

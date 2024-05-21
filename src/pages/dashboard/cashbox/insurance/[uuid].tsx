@@ -13,13 +13,13 @@ import {
     DialogActions,
     FormControl,
     Grid,
-    IconButton,
+    IconButton, InputAdornment,
     List,
     ListItem,
     ListItemText,
-    MenuItem,
+    MenuItem, Select,
     Skeleton,
-    Stack,
+    Stack, Tab, Tabs, tabsClasses,
     TextField,
     ToggleButton,
     ToggleButtonGroup,
@@ -63,9 +63,15 @@ import {useSession} from "next-auth/react";
 import {AbilityContext} from "@features/casl/can";
 import {useInsurances} from "@lib/hooks/rest";
 import {cashBoxSelector} from "@features/leftActionBar";
-import {tableActionSelector} from "@features/table";
+import {Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
 import {saveAs} from "file-saver";
+import IconUrl from "@themes/urlIcon";
+import {TabPanel} from "@features/tabPanel";
+import {ImageHandler} from "@features/image";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import {InsuranceAppointMobileCard} from "@features/card";
 
 function InscDetail() {
 
@@ -269,7 +275,7 @@ function InscDetail() {
         url: `${urlMedicalEntitySuffix}/insurance-dockets/insurance/${uuid}/${router.locale}`,
     })
 
-    const {data: httpAppointments} = useRequestQuery({
+    const {data: httpAppointments, mutate:mutateApp} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/insurances/appointments/${uuid}/${router.locale}`,
     })
@@ -316,6 +322,7 @@ function InscDetail() {
         }, {
             onSuccess: () => {
                 mutate()
+                mutateApp();
             }
         });
     }
@@ -371,9 +378,219 @@ function InscDetail() {
     }, [appointments])
 
     return (
-        <>
-           ok
-        </>
+        <Stack spacing={1} padding={2}>
+            <Card>
+                <CardContent>
+                    <Stack direction={{xs: "column", md: "row"}}
+                           {...(isMobile && {
+                               spacing: 2
+                           })}
+                           position='relative'
+                           alignItems={{xs: 'flex-start', md: 'center'}}>
+                        <Stack direction='row' alignItems='center' spacing={1}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img width={30}
+                                 alt={"insurance icon"}
+                                 src={insurances.find(insc => insc.uuid === uuid)?.logoUrl.url}/>
+                            <Typography variant="subtitle2"
+                                        fontWeight={700}>{insurances.find(insc => insc.uuid === uuid)?.name}</Typography>
+                        </Stack>
+                        <Stack ml={2}
+                               width={1}
+                               display="grid"
+                               sx={{gap: 1.2}}
+                               gridTemplateColumns={`repeat(${isMobile ? "1" : "4"},minmax(0,1fr))`}
+
+                        >
+                            <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
+                                <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
+                                    <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
+                                        {t("code")} {insurances.find(insc => insc.uuid === uuid)?.name}
+                                    </Typography>
+                                    <Typography fontSize={13} fontWeight={600} component="div">
+                                        -
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
+                                <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
+                                    <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
+                                        {t("reference_center")}
+                                    </Typography>
+                                    <Typography fontSize={13} fontWeight={600} component="div">
+                                        -
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
+                                <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
+                                    <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
+                                        {t("start_date")}
+                                    </Typography>
+                                    <Stack direction='row' alignItems='center' spacing={.5}>
+                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
+                                        <Typography fontSize={13} fontWeight={600} component="div">
+                                            {conv.length > 0 && conv[0].startDate}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: `1px dashed ${theme.palette.divider}`}}>
+                                <CardContent sx={{py: 1, '&.MuiCardContent-root:last-child': {pb: 1}}}>
+                                    <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
+                                        {t("end_date")}
+                                    </Typography>
+                                    <Stack direction='row' alignItems='center' spacing={.5}>
+                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
+                                        <Typography fontSize={13} fontWeight={600} component="div">
+                                            {conv.length > 0 && conv[0].endDate}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Stack>
+                        {/* <IconButton disableRipple sx={{
+                            ml: 1, ...(isMobile && {
+                                position: 'absolute',
+                                top: -12,
+                                right: 0
+                            })
+                        }}>
+                            <IconUrl path="ic-edit-pen" width={20} height={20} color={theme.palette.text.primary} />
+                        </IconButton>*/}
+                    </Stack>
+                </CardContent>
+                <Tabs
+                    value={selectedTab}
+                    onChange={handleChangeTab}
+                    sx={{
+                        width: {xs: "100%", md: "50%"},
+                        px: 2,
+                        [`& .${tabsClasses.scrollButtons}`]: {
+                            "&.Mui-disabled": {opacity: 0.5},
+                        },
+                        marginTop: "8px",
+                    }}
+                    scrollButtons={true}
+                    indicatorColor="primary">
+                    {tabsData.map((tab) => (
+                        <Tab
+                            key={tab.label}
+                            value={tab.label}
+                            label={t(tab.label)}
+                            sx={{
+                                '&.Mui-selected': {
+                                    color: 'primary.main'
+                                }
+                            }}
+                        />
+                    ))}
+                </Tabs>
+            </Card>
+            <TabPanel padding={1} value={selectedTab} index={"global"}>
+                <Stack spacing={2}>
+                    <Stack
+                        mb={0.6}
+                        display="grid"
+                        sx={{gap: 1.2}}
+                        gridTemplateColumns={`repeat(${isMobile ? "2" : "3"},minmax(0,1fr))`}>
+                        {topCard.map((card, idx) => (
+                            <Card sx={{border: "none"}} key={idx}>
+                                <CardContent sx={{px: isMobile ? 1.75 : 2}}>
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={{xs: 1, md: 2}}>
+                                        <ImageHandler
+                                            src={`/static/icons/${card.icon
+                                            }.svg`}
+                                            alt={card.title}
+                                            width={isMobile ? 24 : 40}
+                                            height={isMobile ? 24 : 40}
+                                        />
+                                        <Stack direction={isMobile ? "column-reverse" : "column"}>
+                                            <Typography variant="h6" fontWeight={700}>
+                                                {card.amount}
+                                            </Typography>
+                                            <Typography variant="body2" fontSize={11} textTransform="capitalize">
+                                                {t(card.title)}
+                                            </Typography>
+                                        </Stack>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </Stack>
+                    <Card>
+                        <Stack p={2} direction={{xs: 'column', md: 'row'}} alignItems='center'
+                               justifyContent='space-between' spacing={1}>
+                            <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center'
+                                   spacing={1} {...(isMobile && {
+                                width: 1
+                            })}>
+                                <FormControl fullWidth size="small" sx={{minWidth: 100}}>
+                                    <Select id="demo-simple-select"
+                                            value={'all'}
+                                            renderValue={selected => {
+                                                if (selected.length === 0) {
+                                                    return <Typography fontSize={12}>{t("select")}</Typography>
+                                                } else {
+                                                    return <Typography fontSize={12}>{t("all")}</Typography>
+                                                }
+                                            }
+                                            }
+
+                                    >
+                                        <MenuItem value="all">{t("all")}</MenuItem>
+
+                                    </Select>
+                                </FormControl>
+                                <FormControl fullWidth size="small" sx={{minWidth: {xs: "auto", md: 300}}}>
+                                    <TextField fullWidth={isMobile} InputProps={{
+                                        startAdornment: <InputAdornment position="start">
+                                            <IconUrl path="ic-search" width={16} height={16}/>
+                                        </InputAdornment>
+                                    }} placeholder={t("search")}/>
+                                </FormControl>
+                            </Stack>
+                            <Stack direction='row' alignItems='center' spacing={1}
+                                   {...(isMobile && {
+                                       width: 1
+                                   })}
+                            >
+                                <Button fullWidth={isMobile}
+                                        onClick={createDockets}
+                                        variant="grey"
+                                        startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
+                                <Button fullWidth={isMobile} variant="grey" onClick={() => printDoc}
+                                        startIcon={<IconUrl path="ic-printer-new"/>}>{t("print")}</Button>
+                                <Button fullWidth={isMobile} variant="grey" onClick={() => exportDoc}
+                                        startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
+                            </Stack>
+                        </Stack>
+                        <DesktopContainer>
+                            <Otable
+                                {...{t, select: rowsSelected, devise}}
+                                headers={headCells}
+                                //handleEvent={handleTableActions}
+                                rows={[...rows]}
+                                total={0}
+                                totalPages={1}
+                                from={"insurance-appointment"}
+                                pagination
+                            />
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={2} p={2}>
+                                {rows.map((item, index) => (
+                                    <InsuranceAppointMobileCard key={index} t={t} row={item}/>
+                                ))}
+                            </Stack>
+                        </MobileContainer>
+                    </Card>
+                </Stack>
+            </TabPanel>
+        </Stack>
     );
 }
 
