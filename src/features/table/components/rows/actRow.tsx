@@ -105,7 +105,7 @@ function ActRow({...props}) {
                     }}
                 /> : <Typography>{contribution ? contribution : "-"}</Typography>}
             </TableCell>
-            <TableCell align={"center"}>
+            {apcis.length > 0 && <TableCell align={"center"}>
                 {apcis.length > 0 ? <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
@@ -142,8 +142,8 @@ function ActRow({...props}) {
                             {apci.code}
                         </MenuItem>
                     ))}
-                </Select>: <Typography>-</Typography>}
-            </TableCell>
+                </Select> : <Typography>-</Typography>}
+            </TableCell>}
         </TableRowStyled>
     );
 }

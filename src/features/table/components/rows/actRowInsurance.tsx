@@ -3,21 +3,21 @@ import {Button, IconButton, MenuItem, Select, SelectChangeEvent, Skeleton, Typog
 import {TableRowStyled} from "@features/table";
 import InputBaseStyled from "../overrides/inputBaseStyled";
 import React, {useState} from "react";
-import {useAppSelector} from "@lib/redux/hooks";
-import {stepperSelector} from "@features/stepper";
 import IconUrl from "@themes/urlIcon";
 
 function ActRowInsurance({...props}) {
     const {row, handleChange, t, handleEvent, loading, data} = props;
     const {apcis, mutate, setLoading, trigger, urlMedicalEntitySuffix, medicalEntityHasUser, router} = data
-    const {agreement} = useAppSelector(stepperSelector);
+    //const {agreement} = useAppSelector(stepperSelector);
     //const _act = agreement.acts.find((act: any) => act.uuid === row.uuid)
     const theme = useTheme();
+
     const [fees, setFees] = useState(row.fees);
     const [patient_part, setPatient_part] = useState(row.patient_part);
     const [refund, setRefund] = useState(row.refund);
     const [selected, setSelected] = useState(false);
-    const [apci, setApci] = useState<string[]>(typeof row.apci === 'string' ? row.apci.split(',') : row.apci.map((item:any) => item.uuid));
+    const [apci, setApci] = useState<string[]>(typeof row.apci === 'string' ? row.apci.split(',') : row.apci.map((item: any) => item.uuid));
+
     const handleSelect = (event: SelectChangeEvent<typeof apci>) => {
         const {
             target: {value},
@@ -26,6 +26,7 @@ function ActRowInsurance({...props}) {
         handleChange(row)
         setApci(typeof value === 'string' ? value.split(',') : value);
     };
+
     const getCode = (uuids: string[]) => {
         let codes: string[] = [];
         uuids.map(uuid => codes.push(apcis.find((apci: { uuid: string }) => apci.uuid === uuid).code))
@@ -105,7 +106,7 @@ function ActRowInsurance({...props}) {
                     }}
                 /> : <Typography>{patient_part ? patient_part : "-"}</Typography>}
             </TableCell>
-            <TableCell align={"center"}>
+            {apcis.length > 0 && <TableCell align={"center"}>
                 {selected ? <Select
                     labelId="demo-multiple-name-label"
                     id="demo-multiple-name"
@@ -145,7 +146,7 @@ function ActRowInsurance({...props}) {
                     ))}
                 </Select> : <Typography>{getCode(apci).join(',')}</Typography>}
 
-            </TableCell>
+            </TableCell>}
             <TableCell align={"center"}>
                 {selected ? <>
                     <Button size={"small"}

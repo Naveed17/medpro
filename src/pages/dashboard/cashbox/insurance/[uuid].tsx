@@ -19,7 +19,6 @@ import {
     useMediaQuery
 } from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
 import {useTranslation} from "next-i18next";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
@@ -48,10 +47,10 @@ function InsuranceDetail() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const [rows, setRows] = useState([
         {
-            uuid: '001',
+            uuid: '1ef1751e-4416-64ee-bdba-561277abb897',
             memberNo: "018523951077",
             date: "10/10/2022",
-            time:"09:00" ,
+            time: "09:00",
             name: "walid Tanazefti",
             quality: "Assuré",
             act: "C",
@@ -64,7 +63,6 @@ function InsuranceDetail() {
     const theme = useTheme() as Theme
 
     const headCellsArchiveSlip: readonly any[] = [
-
         {
             id: "dateArc",
             numeric: false,
@@ -79,23 +77,23 @@ function InsuranceDetail() {
             disablePadding: true,
             label: "refSlip",
             sortable: true,
-            align: "left",
+            align: "center",
         },
-        {
-            id: "ref",
-            numeric: true,
-            disablePadding: false,
-            label: "ref",
-            sortable: true,
-            align: "left",
-        },
+        /* {
+             id: "ref",
+             numeric: true,
+             disablePadding: false,
+             label: "ref",
+             sortable: true,
+             align: "left",
+         },*/
         {
             id: "start_date",
             numeric: true,
             disablePadding: false,
             label: "start_date",
             sortable: true,
-            align: "left",
+            align: "center",
         },
         {
             id: "end_date",
@@ -103,15 +101,15 @@ function InsuranceDetail() {
             disablePadding: false,
             label: "end_date",
             sortable: true,
-            align: "left",
+            align: "center",
         },
         {
             id: "act_reject",
             numeric: true,
             disablePadding: false,
-            label: "act_reject",
+            label: "status",
             sortable: true,
-            align: "left",
+            align: "center",
         },
         {
             id: "mtt_requested",
@@ -119,31 +117,31 @@ function InsuranceDetail() {
             disablePadding: false,
             label: "mtt_requested",
             sortable: true,
-            align: "left",
-        },
-        {
-            id: "mtt_granted",
-            numeric: true,
-            disablePadding: false,
-            label: "mtt_granted",
-            sortable: true,
-            align: "left",
-        },
-        {
-            id: "balance",
-            numeric: true,
-            disablePadding: false,
-            label: "balance",
-            sortable: true,
-            align: "left",
-        }, {
-            id: "vir",
-            numeric: true,
-            disablePadding: false,
-            label: "vir",
-            sortable: true,
             align: "center",
         },
+        /*        {
+                    id: "mtt_granted",
+                    numeric: true,
+                    disablePadding: false,
+                    label: "mtt_granted",
+                    sortable: true,
+                    align: "left",
+                },
+                {
+                    id: "balance",
+                    numeric: true,
+                    disablePadding: false,
+                    label: "balance",
+                    sortable: true,
+                    align: "left",
+                }, {
+                    id: "vir",
+                    numeric: true,
+                    disablePadding: false,
+                    label: "vir",
+                    sortable: true,
+                    align: "center",
+                },*/
     ];
     const headCells: readonly any[] = [
         {
@@ -186,15 +184,15 @@ function InsuranceDetail() {
             sortable: true,
             align: "center",
         },*/
-       /*
-        {
-            id: "apci",
-            numeric: true,
-            disablePadding: false,
-            label: "apci",
-            sortable: true,
-            align: "center",
-        },*/
+        /*
+         {
+             id: "apci",
+             numeric: true,
+             disablePadding: false,
+             label: "apci",
+             sortable: true,
+             align: "center",
+         },*/
 
         {
             id: "act",
@@ -212,21 +210,21 @@ function InsuranceDetail() {
             sortable: true,
             align: "center",
         },
-       /* {
-            id: "patientPart",
-            numeric: true,
-            disablePadding: false,
-            label: "patientPart",
-            sortable: true,
-            align: "center",
-        }, {
-            id: "remb",
-            numeric: true,
-            disablePadding: false,
-            label: "remb",
-            sortable: true,
-            align: "center",
-        },*/
+        /* {
+             id: "patientPart",
+             numeric: true,
+             disablePadding: false,
+             label: "patientPart",
+             sortable: true,
+             align: "center",
+         }, {
+             id: "remb",
+             numeric: true,
+             disablePadding: false,
+             label: "remb",
+             sortable: true,
+             align: "center",
+         },*/
     ];
     const topCard = [
         {
@@ -247,7 +245,7 @@ function InsuranceDetail() {
         }
     ]
 
-    const {t,i18n} = useTranslation("payment", {keyPrefix: "insurances"});
+    const {t, i18n} = useTranslation("payment", {keyPrefix: "insurances"});
     //***** SELECTORS ****//
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {trigger} = useRequestQueryMutation("/docket/create");
@@ -261,10 +259,11 @@ function InsuranceDetail() {
     const {insurances} = useInsurances()
     const {filterCB} = useAppSelector(cashBoxSelector);
     const [selectedTab, setSelectedTab] = useState("global");
+    const [dockets, setDockets] = useState([]);
 
     const uuid = router.query.uuid as string;
 
-    const {data: httpDocket} = useRequestQuery({
+    const {data: httpDocket, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/insurance-dockets/insurance/${uuid}/${router.locale}`,
     })
@@ -273,7 +272,7 @@ function InsuranceDetail() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
-    const conv = (httpInsuranceConv as HttpResponse)?.data?? [];
+    const conv = (httpInsuranceConv as HttpResponse)?.data ?? [];
 
     const tabsData = [
         ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
@@ -308,8 +307,8 @@ function InsuranceDetail() {
             url: `${urlMedicalEntitySuffix}/insurance-dockets/${router.locale}`,
             data: form
         }, {
-            onSuccess: (res) => {
-                console.log(res)
+            onSuccess: () => {
+                mutate()
             }
         });
     }
@@ -346,7 +345,8 @@ function InsuranceDetail() {
 
     useEffect(() => {
         console.log("dockets", httpDocket)
-
+        if (httpDocket)
+            setDockets(httpDocket.data)
     }, [httpDocket]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -549,7 +549,7 @@ function InsuranceDetail() {
                         </Stack>
                         <DesktopContainer>
                             <Otable
-                                {...{t,select:rowsSelected,devise}}
+                                {...{t, select: rowsSelected, devise}}
                                 headers={headCells}
                                 //handleEvent={handleTableActions}
                                 rows={[...rows]}
@@ -618,7 +618,7 @@ function InsuranceDetail() {
                             {...{t}}
                             headers={headCellsArchiveSlip}
                             //handleEvent={handleTableActions}
-                            rows={['1']}
+                            rows={dockets}
                             total={0}
                             totalPages={1}
                             from={"archive-insurance-slip"}

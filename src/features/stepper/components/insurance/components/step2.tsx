@@ -5,62 +5,65 @@ import useMPActs from "@lib/hooks/rest/useMPacts";
 import {Otable, setSelectedRows} from "@features/table";
 import {SetAgreement, stepperSelector} from "@features/stepper";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import useApci from "@lib/hooks/rest/useApci";
 
 
 function Step2({...props}) {
     const {t, devise} = props;
     const {agreement} = useAppSelector(stepperSelector);
+    const {apcis} = useApci(agreement?.insurance?.uuid)
 
     const headCells = [
-        {
-            id: "select-all",
-            numeric: false,
-            disablePadding: true,
-            label: "select",
-            sortable: false,
-            align: "left",
-        },
-        {
-            id: "act",
-            numeric: false,
-            disablePadding: false,
-            label: "act",
-            align: "left",
-            sortable: true,
-        },
-        {
-            id: "fees",
-            numeric: false,
-            disablePadding: false,
-            label: "fees",
-            align: "center",
-            sortable: false,
-        },
-        {
-            id: "rem_amount",
-            numeric: true,
-            disablePadding: false,
-            label: "rem_amount",
-            align: "center",
-            sortable: false,
-        },
-        {
-            id: "patient_share",
-            numeric: true,
-            disablePadding: false,
-            label: "patient_share",
-            align: "center",
-            sortable: false,
-        },
-        {
-            id: "apci",
-            numeric: false,
-            disablePadding: false,
-            label: "apci",
-            align: "center",
-            sortable: false,
-        },
-    ];
+            {
+                id: "select-all",
+                numeric: false,
+                disablePadding: true,
+                label: "select",
+                sortable: false,
+                align: "left",
+            },
+            {
+                id: "act",
+                numeric: false,
+                disablePadding: false,
+                label: "act",
+                align: "left",
+                sortable: true,
+            },
+            {
+                id: "fees",
+                numeric: false,
+                disablePadding: false,
+                label: "fees",
+                align: "center",
+                sortable: false,
+            },
+            {
+                id: "rem_amount",
+                numeric: true,
+                disablePadding: false,
+                label: "rem_amount",
+                align: "center",
+                sortable: false,
+            },
+            {
+                id: "patient_share",
+                numeric: true,
+                disablePadding: false,
+                label: "patient_share",
+                align: "center",
+                sortable: false,
+            },
+            ...(apcis.length > 0 ? [{
+                id: "apci",
+                numeric: false,
+                disablePadding: false,
+                label: "apci",
+                align: "center",
+                sortable: false,
+            }]:[]),
+        ]
+    ;
 
     const {acts} = useMPActs({noPagination: true})
     const dispatch = useAppDispatch();

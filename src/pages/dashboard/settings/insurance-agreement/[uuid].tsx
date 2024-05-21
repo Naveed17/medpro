@@ -8,7 +8,7 @@ import useApci from "@lib/hooks/rest/useApci";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {Box, Button, DialogTitle, Paper, Stack, Theme, Toolbar} from "@mui/material";
+import {Box, Button, DialogTitle, Paper, Stack, Theme} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {Otable} from "@features/table";
 import {SubHeader} from "@features/subHeader";
@@ -74,14 +74,15 @@ function InscDetail() {
             align: "center",
             sortable: false,
         },
-        {
+        ...(apcis.length > 0 ? [{
             id: "apci",
             numeric: false,
             disablePadding: false,
             label: "apci",
             align: "center",
             sortable: false,
-        }, {
+        }]:[]),
+        {
             id: "action",
             numeric: false,
             disablePadding: false,
