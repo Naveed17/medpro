@@ -36,7 +36,7 @@ import {TabPanel} from "@features/tabPanel";
 import {ImageHandler} from "@features/image";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {InsuranceAppointMobileCard} from "@features/card";
+import {InsuranceAppointMobileCard, NoDataCard} from "@features/card";
 
 function InscDetail() {
 
@@ -324,9 +324,8 @@ function InscDetail() {
     }
 
     useEffect(() => {
-        console.log("dockets", httpDocket)
         if (httpDocket)
-            setDockets(httpDocket.data)
+            setDockets(httpDocket.data.reverse())
     }, [httpDocket]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -529,16 +528,23 @@ function InscDetail() {
                             >
                                 <Button fullWidth={isMobile}
                                         onClick={createDockets}
+                                        disabled={rowsSelected.length === 0}
                                         variant="grey"
                                         startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
-                                <Button fullWidth={isMobile} variant="grey" onClick={() => printDoc}
+                                <Button fullWidth={isMobile}
+                                        variant="grey"
+                                        disabled={rowsSelected.length === 0}
+                                        onClick={() => printDoc}
                                         startIcon={<IconUrl path="ic-printer-new"/>}>{t("print")}</Button>
-                                <Button fullWidth={isMobile} variant="grey" onClick={() => exportDoc}
+                                <Button fullWidth={isMobile}
+                                        variant="grey"
+                                        disabled={rowsSelected.length === 0}
+                                        onClick={() => exportDoc}
                                         startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
                             </Stack>
                         </Stack>
                         <DesktopContainer>
-                            <Otable
+                            {rows.length > 0 ? <Otable
                                 {...{t, select: rowsSelected, devise}}
                                 headers={headCells}
                                 //handleEvent={handleTableActions}
@@ -549,7 +555,11 @@ function InscDetail() {
                                 totalPages={1}
                                 from={"insurance-appointment"}
                                 pagination
-                            />
+                            /> :  <NoDataCard ns={"payment"} t={t} data={{
+                                mainIcon: "agenda/ic-agenda-+",
+                                title: "no-data.title",
+                                description: "no-data.description",
+                            }}/>}
                         </DesktopContainer>
                         <MobileContainer>
                             <Stack spacing={2} p={2}>
@@ -613,7 +623,7 @@ function InscDetail() {
                     </Stack>
                     <DesktopContainer>
                         <Otable
-                            {...{t}}
+                            {...{t,devise}}
                             headers={headCellsArchiveSlip}
                             //handleEvent={handleTableActions}
                             rows={dockets.filter((ev: any) => {

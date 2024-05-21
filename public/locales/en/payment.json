@@ -212,11 +212,11 @@
     "nbAct": "Nb act",
     "amount": "Amount",
     "global": "Global",
-    "archived": "Bordereaux archivés",
-    "print": "Imprimer",
-    "archive": "Archiver",
-    "export": "Exporter",
-    "stat": "Statistique",
+    "archived": "Archived slips",
+    "print": "Print",
+    "archive": "Archive",
+    "export": "Export",
+    "stat": "Statistical",
     "table": {
       "memberNo": "Member no",
       "date": "Date",
@@ -239,7 +239,10 @@
       "mtt_granted": "granted",
       "balance": "Balance",
       "vir": "Vir."
+    },
+    "no-data": {
+      "title": "No Appointment",
+      "description": "no transaction relating to this insurance"
     }
-
   }
 }

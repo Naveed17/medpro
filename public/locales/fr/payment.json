@@ -259,6 +259,10 @@
       "mtt_granted": "Mtt accordé",
       "balance": "Solde",
       "vir": "Vir."
+    },
+    "no-data": {
+      "title": "Aucun RDV",
+      "description": "aucune transaction relative à cette assurance"
     }
   }
 }

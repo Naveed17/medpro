@@ -1,10 +1,14 @@
-import { TableRowStyled } from "@features/table";
+import {TableRowStyled} from "@features/table";
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import { Skeleton, Typography, useTheme } from "@mui/material";
+import {IconButton, Skeleton, Stack, Typography, useTheme} from "@mui/material";
+import IconUrl from "@themes/urlIcon";
+import {Theme} from "@mui/material/styles";
 
-function ArchiveSlipRow({ ...props }) {
-    const { row } = props;
+function ArchiveSlipRow({...props}) {
+    const {row, data} = props;
+    const {devise} = data
+    const theme = useTheme() as Theme
 
     return (
         <TableRowStyled hover>
@@ -14,7 +18,7 @@ function ArchiveSlipRow({ ...props }) {
                         {row.createdAt}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -23,7 +27,7 @@ function ArchiveSlipRow({ ...props }) {
                         {row.name}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             {/*<TableCell align="left">
@@ -41,7 +45,7 @@ function ArchiveSlipRow({ ...props }) {
                         {row.startDate}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -50,7 +54,7 @@ function ArchiveSlipRow({ ...props }) {
                         {row.endDate}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
@@ -59,16 +63,25 @@ function ArchiveSlipRow({ ...props }) {
                         {row.status}
                     </Typography>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
                 {row ? (
-                    <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.total}
-                    </Typography>
+                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"}>
+                        <Typography fontSize={13} fontWeight={600} color="text.primary">
+                            {row.total ? row.total : "-"} {devise}
+                        </Typography>
+
+                        <IconButton
+                            size="small"
+                            className="btn-edit"
+                            sx={{mr: {md: 1}}}>
+                            <IconUrl color={theme.palette.text.secondary} path="ic-printer-new"/>
+                        </IconButton>
+                    </Stack>
                 ) : (
-                    <Skeleton variant="text" width={100} />
+                    <Skeleton variant="text" width={100}/>
                 )}
 
             </TableCell>
