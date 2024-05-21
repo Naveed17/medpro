@@ -593,7 +593,7 @@ function PatientContactDetailCard({...props}) {
                                     render={() => (values.phones.map((phone: any, index: number) => (
                                             <Grid key={index} item md={12} sm={12} xs={12}>
                                                 <Stack direction="row" alignItems="self-start">
-                                                    <Grid item md={index === 0 ? 11 : 10}
+                                                    <Grid item md={index === 0 || !editable ? 11 : 10}
                                                           sm={12}
                                                           xs={12}
                                                           sx={{
@@ -616,7 +616,7 @@ function PatientContactDetailCard({...props}) {
                                                                 </legend>
                                                                 <Stack alignItems={"center"}
                                                                        alignContent={"center"}
-                                                                       spacing={editable ? (Boolean(errors.phones && (errors.phones as any)[index]) ? 3 : 1) : .5}>
+                                                                       spacing={editable ? (Boolean(errors.phones && (errors.phones as any)[index]) ? 3 : 1) : 0}>
                                                                     <Stack direction={"row"} alignItems={"flex-start"}
                                                                            spacing={0}
                                                                            sx={{width: "100%"}}
@@ -725,76 +725,83 @@ function PatientContactDetailCard({...props}) {
                                                                             />}
                                                                         </Grid>
                                                                     </Stack>
-                                                                    {values.phones[index].relation !== "himself" &&
-                                                                        <Grid container spacing={.5}>
-                                                                            <Grid item md={6} sm={6} xs={12}>
-                                                                                <Stack
-                                                                                    direction="row"
-                                                                                    spacing={1}
-                                                                                    alignItems="center">
-                                                                                    <Grid item md={2.5} sm={6} xs={3}>
-                                                                                        <Typography
-                                                                                            className="label"
-                                                                                            variant="body2"
-                                                                                            color="text.secondary"
-                                                                                            noWrap>
-                                                                                            {t("config.add-patient.first-name")}
-                                                                                        </Typography>
-                                                                                    </Grid>
-                                                                                    <Grid
-                                                                                        {...(editable && {className: "grid-border"})}
-                                                                                        item md={9.5} sm={6} xs={9}>
-                                                                                        {loading ? (
-                                                                                            <Skeleton variant="text"/>
-                                                                                        ) : (
-                                                                                            <InputBase
-                                                                                                fullWidth
-                                                                                                color={"info"}
-                                                                                                placeholder={t("config.add-patient.first-name-placeholder")}
-                                                                                                readOnly={!editable}
-                                                                                                {...getFieldProps(`phones[${index}].firstName`)}
-                                                                                            />
-                                                                                        )}
-                                                                                    </Grid>
-                                                                                </Stack>
-                                                                            </Grid>
-                                                                            <Grid item md={6} sm={6} xs={12}>
-                                                                                <Stack
-                                                                                    ml={1}
-                                                                                    direction="row"
-                                                                                    spacing={1}
-                                                                                    alignItems="center">
-                                                                                    <Grid item md={2} sm={6} xs={3}>
-                                                                                        <Typography
-                                                                                            className="label"
-                                                                                            variant="body2"
-                                                                                            color="text.secondary"
-                                                                                            noWrap>
-                                                                                            {t("config.add-patient.last-name")}
-                                                                                        </Typography>
-                                                                                    </Grid>
-                                                                                    <Grid
-                                                                                        {...(editable && {className: "grid-border"})}
-                                                                                        item md={10} sm={6} xs={9}>
-                                                                                        {loading ? (
-                                                                                            <Skeleton variant="text"/>
-                                                                                        ) : (
-                                                                                            <InputBase
-                                                                                                fullWidth
-                                                                                                placeholder={t("config.add-patient.last-name-placeholder")}
-                                                                                                readOnly={!editable}
-                                                                                                {...getFieldProps(`phones[${index}].lastName`)}
-                                                                                            />
-                                                                                        )}
-                                                                                    </Grid>
-                                                                                </Stack>
-                                                                            </Grid>
-                                                                        </Grid>}
+                                                                    <Stack direction={"row"} alignItems={"flex-start"}
+                                                                           pl={1.8}
+                                                                           spacing={0}
+                                                                           sx={{width: "100%"}}>
+                                                                        {values.phones[index].relation !== "himself" &&
+                                                                            <Grid container spacing={.5}>
+                                                                                <Grid item md={6} sm={6} xs={12}>
+                                                                                    <Stack
+                                                                                        direction="row"
+                                                                                        spacing={1}
+                                                                                        alignItems="center">
+                                                                                        <Grid item md={2.5} sm={6} xs={3}>
+                                                                                            <Typography
+                                                                                                className="label"
+                                                                                                variant="body2"
+                                                                                                color="text.secondary"
+                                                                                                noWrap>
+                                                                                                {t("config.add-patient.first-name")}
+                                                                                            </Typography>
+                                                                                        </Grid>
+                                                                                        <Grid
+                                                                                            {...(editable && {className: "grid-border"})}
+                                                                                            item md={9.5} sm={6} xs={9}>
+                                                                                            {loading ? (
+                                                                                                <Skeleton variant="text"/>
+                                                                                            ) : (
+                                                                                                <InputBase
+                                                                                                    fullWidth
+                                                                                                    size={"small"}
+                                                                                                    color={"info"}
+                                                                                                    placeholder={t("config.add-patient.first-name-placeholder")}
+                                                                                                    readOnly={!editable}
+                                                                                                    {...getFieldProps(`phones[${index}].firstName`)}
+                                                                                                />
+                                                                                            )}
+                                                                                        </Grid>
+                                                                                    </Stack>
+                                                                                </Grid>
+                                                                                <Grid item md={6} sm={6} xs={12}>
+                                                                                    <Stack
+                                                                                        ml={1}
+                                                                                        direction="row"
+                                                                                        spacing={1}
+                                                                                        alignItems="center">
+                                                                                        <Grid item md={2} sm={6} xs={3}>
+                                                                                            <Typography
+                                                                                                className="label"
+                                                                                                variant="body2"
+                                                                                                color="text.secondary"
+                                                                                                noWrap>
+                                                                                                {t("config.add-patient.last-name")}
+                                                                                            </Typography>
+                                                                                        </Grid>
+                                                                                        <Grid
+                                                                                            {...(editable && {className: "grid-border"})}
+                                                                                            item md={10} sm={6} xs={9}>
+                                                                                            {loading ? (
+                                                                                                <Skeleton variant="text"/>
+                                                                                            ) : (
+                                                                                                <InputBase
+                                                                                                    fullWidth
+                                                                                                    placeholder={t("config.add-patient.last-name-placeholder")}
+                                                                                                    readOnly={!editable}
+                                                                                                    {...getFieldProps(`phones[${index}].lastName`)}
+                                                                                                />
+                                                                                            )}
+                                                                                        </Grid>
+                                                                                    </Stack>
+                                                                                </Grid>
+                                                                            </Grid>}
+                                                                    </Stack>
                                                                 </Stack>
                                                             </fieldset>
                                                         )}
                                                     </Grid>
-                                                    <Grid item xs={index === 0 ? 1 : 2} md={index === 0 ? 1 : 2}>
+                                                    <Grid item xs={index === 0 || !editable ? 1 : 2}
+                                                          md={index === 0 || !editable ? 1 : 2}>
                                                         <Stack
                                                             direction={"row"}
                                                             justifyContent={"center"}
