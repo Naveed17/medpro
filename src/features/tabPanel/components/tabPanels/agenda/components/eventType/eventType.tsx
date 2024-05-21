@@ -2,7 +2,7 @@ import { TextIconRadio } from "@features/buttons";
 import {
     Box,
     FormControlLabel, Grid,
-    LinearProgress, List, ListItemText,
+    List, ListItemText,
     MenuItem,
     RadioGroup,
     Select,
@@ -61,12 +61,6 @@ function EventType({ ...props }) {
 
     return (
         <>
-            <LinearProgress
-                sx={{
-                    visibility: !appointmentTypes ? "visible" : "hidden",
-                }}
-                color="warning"
-            />
             <Box className="inner-section type-time-slot" sx={{ width: "100%" }}>
                 <FormControlStyled
                     sx={{ padding: 0 }}

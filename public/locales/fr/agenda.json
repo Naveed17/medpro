@@ -139,6 +139,7 @@
       "date": "Date",
       "sub-title": "Créneau horaire",
       "time-picker": "Horloge de poche",
+      "visit-type": "Type de visite",
       "reason-consultation": "Motif",
       "reason-consultation-placeholder": "Choisissez votre motif",
       "practitioner": "Praticien",
@@ -163,7 +164,7 @@
       }
     },
     "stepper-2": {
-      "title": "Choisissez le patient",
+      "title": "Patient",
       "sub-title": "vous devez ajouter un patient",
       "add_button": "Ajouter un nouveau patient",
       "search_placeholder": "Chercher un patient",

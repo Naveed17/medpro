@@ -1,42 +1,42 @@
 import Typography from "@mui/material/Typography";
-import React, {useState} from "react";
-import {useTranslation} from "next-i18next";
-import {Box} from "@mui/material";
+import React, { useState } from "react";
+import { useTranslation } from "next-i18next";
+import { Box } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, setStepperIndex} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {AutoCompleteButton} from "@features/buttons";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {appointmentSelector, OnStepPatient, setAppointmentPatient} from "@features/tabPanel";
-import {dashLayoutSelector, setOngoing} from "@features/base";
-import {useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString} from "@lib/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {LoadingScreen} from "@features/loadingScreen";
-import {PatientContactRelation} from "@lib/constants";
+import { agendaSelector, setStepperIndex } from "@features/calendar";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { AutoCompleteButton } from "@features/buttons";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { appointmentSelector, OnStepPatient, setAppointmentPatient } from "@features/tabPanel";
+import { dashLayoutSelector, setOngoing } from "@features/base";
+import { useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString } from "@lib/hooks";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import { LoadingScreen } from "@features/loadingScreen";
+import { PatientContactRelation } from "@lib/constants";
 
-function Patient({...props}) {
-    const {onNext, onBack, select, onPatientSearch, handleAddPatient = null} = props;
+function Patient({ ...props }) {
+    const { onNext, onBack, select, onPatientSearch, handleAddPatient = null } = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
 
-    const {patient: selectedPatient} = useAppSelector(appointmentSelector);
-    const {currentStepper} = useAppSelector(agendaSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const { patient: selectedPatient } = useAppSelector(appointmentSelector);
+    const { currentStepper } = useAppSelector(agendaSelector);
+    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
 
-    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
+    const { t, ready } = useTranslation("agenda", { keyPrefix: "steppers" });
 
-    const {data: httpPatientResponse, mutate: mutatePatients, isLoading} = useRequestQuery(medicalEntityHasUser ? {
+    const { data: httpPatientResponse, mutate: mutatePatients, isLoading } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`
     } : null, ReactQueryNoValidateConfig);
 
-    const {trigger: triggerAddPatient} = useRequestQueryMutation("agenda/patient/add");
+    const { trigger: triggerAddPatient } = useRequestQueryMutation("agenda/patient/add");
 
     const handleOnClick = () => {
         setAddPatient(true);
@@ -106,19 +106,19 @@ function Patient({...props}) {
             data: form
         }, {
             onSuccess: (res: any) => {
-                const {data: patient} = res;
-                const {status, data: patientData} = patient;
+                const { data: patient } = res;
+                const { status, data: patientData } = patient;
                 if (status === "success") {
                     if (!selectedPatient) {
                         dispatch(setAppointmentPatient(patientData.data));
                         // mutate last id after creation
-                        dispatch(setOngoing({last_fiche_id: increaseNumberInString(patientData.data.fiche_id)}));
+                        dispatch(setOngoing({ last_fiche_id: increaseNumberInString(patientData.data.fiche_id) }));
                     }
                     setAddPatient(false);
                     handleAddPatient && handleAddPatient(false);
                     mutatePatients().then(result => {
-                        const {data: patients} = result
-                        const {data: patientList} = (patients as any)?.data as HttpResponse;
+                        const { data: patients } = result
+                        const { data: patientList } = (patients as any)?.data as HttpResponse;
                         if (selectedPatient) {
                             dispatch(setAppointmentPatient(
                                 patientList.find((patient: PatientModel) => patient.uuid === selectedPatient.uuid)));
@@ -131,19 +131,15 @@ function Patient({...props}) {
 
     const patients = (httpPatientResponse as HttpResponse)?.data as PatientModel[] ?? [];
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <div>
             {!addPatient ?
                 <>
                     <Box className="inner-section">
-                        <Typography sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
+                        <Typography sx={{ fontSize: "1rem", fontWeight: "bold", mt: 3, mb: 1 }} color="text.primary">
                             {t("stepper-2.title")}
-                        </Typography>
-                        <Typography variant="body1" sx={{textTransform: 'uppercase'}} color="text.primary" mt={3}
-                                    mb={1}>
-                            {t("stepper-2.sub-title")}
                         </Typography>
                         <AutoCompleteButton
                             onSearchChange={handleSearchChange}
@@ -151,7 +147,7 @@ function Patient({...props}) {
                             OnOpenSelect={handlePatientSearch}
                             translation={t}
                             loading={isLoading}
-                            data={patients}/>
+                            data={patients} />
                     </Box>
                     {!select && <Paper
                         sx={{
@@ -182,14 +178,14 @@ function Patient({...props}) {
                 </>
                 :
                 <OnStepPatient
-                    {...{handleAddPatient}}
+                    {...{ handleAddPatient }}
                     translationKey={"agenda"}
                     translationPrefix={"steppers.stepper-2.patient"}
                     onClose={() => {
                         handleAddPatient && handleAddPatient(false);
                         setAddPatient(false);
                     }}
-                    OnSubmit={submitNewPatient}/>
+                    OnSubmit={submitNewPatient} />
             }
         </div>
     )

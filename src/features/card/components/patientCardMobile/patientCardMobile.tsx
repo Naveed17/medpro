@@ -38,7 +38,6 @@ export default function MobileTable({ ...props }) {
                 <ListItem
                     component="div"
                     disablePadding
-                    className={item.status}
                     sx={{
                         borderRadius:
                             !size && size !== "small" ? "0px 10px 10px 0px" : "6px",
@@ -47,14 +46,11 @@ export default function MobileTable({ ...props }) {
                         <Icon path="ic-outline-agenda-tick" width={20} height={20} />
                     </ListItemAvatar>
                     <ListItemIcon>
-                        <Label color="primary" variant="filled">
-                            fsadf
+                        <Label sx={{ bgcolor: item.color, }} className="consultation-label" variant="filled">
+                            {item.name}
                         </Label>
                     </ListItemIcon>
-                    <Box sx={{ mr: "4px" }}>
-                        <Typography variant="body1" color="text.primary">
-                            {item.name}
-                        </Typography>
+                    <Box sx={{ mr: .5, ml: 1 }}>
                         {!size && size !== "small" && (
                             <Typography
                                 sx={{
@@ -114,7 +110,7 @@ export default function MobileTable({ ...props }) {
                             </Typography>
                         </Box>
                     </Box>
-                    <Box>
+                    <Box sx={{ ml: 'auto' }}>
                         {contextMenuList ? <div>
                             <Popover
                                 open={openTooltip}

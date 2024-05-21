@@ -1,18 +1,18 @@
 import RootStyled from './overrides/RootStyled'
-import {Box, Button, ClickAwayListener} from "@mui/material";
+import { Box, Button, ClickAwayListener } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
-import {useCallback, useEffect, useState} from "react";
-import {PatientAppointmentCard} from "@features/card";
-import {AutoComplete} from "@features/autoComplete";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import { useCallback, useEffect, useState } from "react";
+import { PatientAppointmentCard } from "@features/card";
+import { AutoComplete } from "@features/autoComplete";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { appointmentSelector, setAppointmentPatient } from "@features/tabPanel";
+import { useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { dashLayoutSelector } from "@features/base";
+import { useMedicalEntitySuffix } from "@lib/hooks";
 
-function AutoCompleteButton({...props}) {
+function AutoCompleteButton({ ...props }) {
     const {
         translation,
         data,
@@ -26,12 +26,12 @@ function AutoCompleteButton({...props}) {
 
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
 
-    const {patient: initData} = useAppSelector(appointmentSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const { patient: initData } = useAppSelector(appointmentSelector);
+    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
 
-    const {trigger: PatientDetailsTrigger} = useRequestQueryMutation("patient/data");
+    const { trigger: PatientDetailsTrigger } = useRequestQueryMutation("patient/data");
 
     const [focus, setFocus] = useState(true);
     const [patient, setPatient] = useState<PatientWithNextAndLatestAppointment | null>(initData);
@@ -50,7 +50,7 @@ function AutoCompleteButton({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`
         }, {
             onSuccess: (result: any) => {
-                const {status} = result?.data;
+                const { status } = result?.data;
                 const patient = (result?.data as HttpResponse)?.data;
                 if (status === "success") {
                     dispatch(setAppointmentPatient(patient as any));
@@ -79,32 +79,23 @@ function AutoCompleteButton({...props}) {
     return (
         <RootStyled>
             {!patient ? (
-                    <>
-                        {!focus &&
-                            <Button variant="outlined" size="large" fullWidth className='btn-add' onClick={handleClick}>
-                                <AddIcon/>
-                            </Button>}
-
-                        {focus &&
-                            <ClickAwayListener onClickAway={handleClickAway}>
-                                <Box sx={{mb: 4}} className="autocomplete-container">
-                                    <AutoComplete
-                                        {...{data,defaultValue, loading, onSearchChange, size}}
-                                        onAddPatient={handleOnClickAction}
-                                        t={translation}
-                                        onSelectData={onSubmitPatient}
-                                    />
-                                </Box>
-                            </ClickAwayListener>
-                        }
-                    </>
-                ) :
+                <>
+                    <Box sx={{ mb: 4 }} className="autocomplete-container">
+                        <AutoComplete
+                            {...{ data, defaultValue, loading, onSearchChange, size }}
+                            onAddPatient={handleOnClickAction}
+                            t={translation}
+                            onSelectData={onSubmitPatient}
+                        />
+                    </Box>
+                </>
+            ) :
                 <PatientAppointmentCard
                     key={patient.uuid}
                     item={patient}
                     listing
-                    {...(size === 'medium' && {onEdit: onEditPatient})}
-                    onReset={onSubmitPatient}/>}
+                    {...(size === 'medium' && { onEdit: onEditPatient })}
+                    onReset={onSubmitPatient} />}
         </RootStyled>
     )
 }

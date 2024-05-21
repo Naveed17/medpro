@@ -10,13 +10,8 @@ const RootStyled = styled('div')(({ theme }) => ({
         }
     },
     '& .autocomplete-container': {
-        backgroundColor: theme.palette.common.white,
-        border: `1px solid ${theme.palette.divider}`,
-        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-        borderRadius: 8,
-        padding: 10,
         position: 'relative',
-        overflowY: 'hidden',
+        overflow: 'hidden',
     }
 }))
 

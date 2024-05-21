@@ -19,18 +19,9 @@ const SettingTableStyled = styled(`div`)(({theme}) => ({
             ".MuiListItemAvatar-root":{
                 minWidth:30,
             },
-            "&.pending": {
-                borderLeftColor: theme.palette.warning.main,
-            },
-            "&.warning": {
-                borderLeftColor: theme.palette.warning.main,
-            },
-            "&.completed": {
-                borderLeftColor: theme.palette.success.main,
-            },
-            "&.error": {
-                borderLeftColor: theme.palette.error.main,
-            },
+            ".consultation-label":{
+                color:theme.palette.common.white
+            }
         },
         "& .settings-icon": {
             transform: "rotate(90deg)",

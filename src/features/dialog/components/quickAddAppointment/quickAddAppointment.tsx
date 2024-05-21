@@ -27,11 +27,11 @@ function QuickAddAppointment({ ...props }) {
                 }
             />
             <Divider sx={{ mb: 2, mx: -3 }} />
-            <Stack spacing={1}>
+            <Stack>
                 <Typography variant="subtitle2" fontSize={18} fontWeight={600}>{t('filter.appointment')}</Typography>
-                <EventType select defaultType={0} />
+                <TimeSchedule select {...{ withoutDateTime }} />
             </Stack>
-            <TimeSchedule select {...{ withoutDateTime }} />
+
             <Patient
                 select
                 {...{ handleAddPatient }}
