@@ -18,7 +18,7 @@ function QuickAddAppointment({ ...props }) {
                         <IconUrl path="ic-filled-agenda" color={theme.palette.primary.main} width={32} height={32} />
                     </CustomIconButton>
                 }
-                title={<Typography variant="h6" fontSize={18}>{t('add')}</Typography>}
+                title={<Typography variant="h6" lineHeight={1} fontSize={18}>{t('add')}</Typography>}
                 subheader={<Typography fontWeight={500} color={theme.palette.grey[500]} variant="subtitle2">{t('add-new-rdv')}</Typography>}
                 action={
                     <IconButton>
@@ -26,21 +26,20 @@ function QuickAddAppointment({ ...props }) {
                     </IconButton>
                 }
             />
-            <Divider sx={{ mb: 2, mx: -3 }} />
-            <Stack>
+            <Divider sx={{ mb: 2, }} />
+            <Stack p={3}>
                 <Typography variant="subtitle2" fontSize={18} fontWeight={600}>{t('filter.appointment')}</Typography>
                 <TimeSchedule select {...{ withoutDateTime }} />
+                <Patient
+                    select
+                    {...{ handleAddPatient }}
+                    onPatientSearch={() => {
+                        setTimeout(() => {
+                            (bottomRef.current as unknown as HTMLElement)?.scrollIntoView({ behavior: 'smooth' });
+                        }, 300);
+                    }} />
+                <div ref={bottomRef} />
             </Stack>
-
-            <Patient
-                select
-                {...{ handleAddPatient }}
-                onPatientSearch={() => {
-                    setTimeout(() => {
-                        (bottomRef.current as unknown as HTMLElement)?.scrollIntoView({ behavior: 'smooth' });
-                    }, 300);
-                }} />
-            <div ref={bottomRef} />
         </QuickAddAppointmentStyled>
     )
 }

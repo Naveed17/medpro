@@ -5,7 +5,9 @@ const RootStyled = styled('div')(({theme}) => ({
     border:`1px solid ${theme.palette.primary.light}`,
     backgroundColor:theme.palette.primary.lighter,
     "&.btn-add-patient":{
-    minHeight:35
+    minHeight:35,
+    paddingTop:10.83,
+    paddingBottom:10.83,
 }
    },
     

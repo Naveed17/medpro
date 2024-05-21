@@ -28,7 +28,7 @@ function AutoComplete({ ...props }) {
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
-    const [focus, setFocus] = useState(true);
+    const [focus, setFocus] = useState(false);
 
     const onChangeInput = useCallback((value: string) => {
         onSearchChange(value);
