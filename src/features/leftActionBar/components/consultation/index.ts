@@ -1,2 +1,4 @@
-export {default as ConsultationFilter} from './consultation';
-export {default as Antecedent} from './antecedent';
+export * from './components';
+export * from './actions';
+export * from './selectors';
+export * from './reducer';

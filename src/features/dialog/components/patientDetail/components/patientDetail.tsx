@@ -17,12 +17,10 @@ const PatientFile = dynamic(() =>
     import('@features/files').then((mod) => mod.PatientFile))
 
 import {
-    addPatientSelector,
     EventType,
     Instruction,
     resetAppointment,
     setAppointmentPatient,
-    setOpenUploadDialog,
     TabPanel,
     TimeSchedule
 } from "@features/tabPanel";
@@ -68,6 +66,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {AbilityContext} from "@features/casl/can";
 import {setPermissions} from "@features/casl";
 import dynamic from "next/dynamic";
+import {useAudioRecorder} from "react-audio-voice-recorder";
 
 function a11yProps(index: number) {
     return {
@@ -105,7 +104,6 @@ function PatientDetail({...props}) {
     const {t: translate} = useTranslation("consultation");
 
     const {direction} = useAppSelector(configSelector);
-    const {openUploadDialog} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         config: agenda,
@@ -149,6 +147,7 @@ function PatientDetail({...props}) {
     });
     const [wallet, setWallet] = useState(0);
     const [rest, setRest] = useState(0);
+    const [openUploadDialog, setOpenUploadDialog] = useState(false);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -210,7 +209,7 @@ function PatientDetail({...props}) {
                 setIsAdd(!isAdd)
                 break;
             case "import-document":
-                dispatch(setOpenUploadDialog(true));
+                setOpenUploadDialog(true);
                 break;
         }
     }
@@ -353,6 +352,10 @@ function PatientDetail({...props}) {
         setOpenDialog(true);
     }
 
+    const handleCloseUploadDialog = () => {
+        setOpenUploadDialog(false);
+    }
+
     const tabsContent = [
         ...(ability.can('manage', 'patients', 'patients__patient__details__informations') ? [{
             title: "tabs.personal-info",
@@ -391,7 +394,7 @@ function PatientDetail({...props}) {
                     patient,
                     patientId,
                     handleTabChange: (index: number) => setDocumentViewIndex(index),
-                    setOpenUploadDialog: (ev: boolean) => dispatch(setOpenUploadDialog(ev)),
+                    setOpenUploadDialog: (ev: boolean) => setOpenUploadDialog(ev),
                     mutatePatientDetails,
                     loadingRequest,
                     setLoadingRequest
@@ -543,7 +546,7 @@ function PatientDetail({...props}) {
                         }}>
 
 
-                        <LoadingButton onClick={() => dispatch(setOpenUploadDialog(true))}
+                        <LoadingButton onClick={() => setOpenUploadDialog(true)}
                                        sx={{
                                            borderColor: 'divider',
                                            bgcolor: theme => theme.palette.grey['A500'],
@@ -663,20 +666,14 @@ function PatientDetail({...props}) {
                         direction={"ltr"}
                         sx={{minHeight: 400}}
                         title={t("doc_detail_title")}
-                        dialogClose={() => {
-                            dispatch(setOpenUploadDialog(false));
-                        }}
-                        onClose={() => {
-                            dispatch(setOpenUploadDialog(false));
-                        }}
+                        dialogClose={handleCloseUploadDialog}
+                        onClose={handleCloseUploadDialog}
                         actionDialog={
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
                                    width={"100%"}>
                                 <Button
                                     variant={"text-black"}
-                                    onClick={() => {
-                                        dispatch(setOpenUploadDialog(false));
-                                    }}
+                                    onClick={handleCloseUploadDialog}
                                     startIcon={<CloseIcon/>}>
                                     {t("add-patient.cancel")}
                                 </Button>
@@ -684,7 +681,7 @@ function PatientDetail({...props}) {
                                     disabled={loadingFiles}
                                     variant="contained"
                                     onClick={() => {
-                                        dispatch(setOpenUploadDialog(false));
+                                        handleCloseUploadDialog();
                                         handleUploadDocuments();
                                     }}
                                     startIcon={<IconUrl path="iconfinder_save"/>}>

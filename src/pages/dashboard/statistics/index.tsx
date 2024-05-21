@@ -710,7 +710,7 @@ function Statistics() {
                                                 width: 1
                                             }}>
                                             <CardContent>
-                                                <Typography mb={7} variant="subtitle1"
+                                                <Typography mb={{xs: 1, md: 7}} variant="subtitle1"
                                                             fontWeight={700}>{t("patient_by_age")}</Typography>
                                                 <ChartStyled>
                                                     <Chart
@@ -767,9 +767,10 @@ function Statistics() {
                                                     />
                                                 </ChartStyled>
                                                 <Stack alignItems='center'
-                                                       direction={{xs: "column", md: 'row'}}
+                                                       direction={'row'}
                                                        justifyContent='center'
                                                        pt={4}
+                                                       pb={{xs: 6, md: 0}}
                                                        spacing={1}>
                                                     {patientPerAge?.map((gender: any, index: number) =>
                                                         <Chip
@@ -795,7 +796,7 @@ function Statistics() {
                                             }}>
                                             <CardContent>
                                                 <Typography
-                                                    mb={7} variant="subtitle1"
+                                                    mb={{xs: 1, md: 7}} variant="subtitle1"
                                                     fontWeight={700}>{t("patient_by_gender")}</Typography>
                                                 <ChartStyled>
                                                     <Chart
