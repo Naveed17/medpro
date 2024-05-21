@@ -243,15 +243,17 @@ function InscDetail() {
 
     const {data: httpAppointments, mutate: mutateApp} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/insurances/appointments/${uuid}/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/insurances/appointments/${uuid}/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
     const appointments = (httpAppointments as HttpResponse)?.data ?? null;
 
+/*
     const {data: httpInsuranceConv} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
     const conv = (httpInsuranceConv as HttpResponse)?.data ?? [];
+*/
 
     const tabsData = [
         ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
@@ -395,7 +397,7 @@ function InscDetail() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                            {conv.length > 0 && conv[0].startDate}
+                                           -
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -408,7 +410,7 @@ function InscDetail() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                            {conv.length > 0 && conv[0].endDate}
+                                            -
                                         </Typography>
                                     </Stack>
                                 </CardContent>
