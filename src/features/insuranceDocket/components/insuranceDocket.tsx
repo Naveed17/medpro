@@ -18,7 +18,7 @@ const headCells = [
         align: "left",
         sortable: true,
     },
-    {
+    /*{
         id: "start_date",
         numeric: false,
         disablePadding: false,
@@ -33,7 +33,7 @@ const headCells = [
         label: "end_date",
         align: "center",
         sortable: false,
-    },
+    },*/
     {
         id: "total",
         numeric: false,

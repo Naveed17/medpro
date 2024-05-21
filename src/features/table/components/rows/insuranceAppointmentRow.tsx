@@ -1,12 +1,13 @@
 import {setSelectedRows, tableActionSelector, TableRowStyled} from "@features/table";
-import React, {useEffect} from "react";
+import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {Checkbox, Skeleton, Stack, Typography, useTheme} from "@mui/material";
+import {Checkbox, Skeleton, Stack, Typography} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import IconUrl from "@themes/urlIcon";
 
 function InsuranceAppointmentRow({...props}) {
-    const {row, isItemSelected, t, loading, handleClick, selected, data} = props;
+    const {row, isItemSelected, loading, handleClick, data} = props;
+
     const {devise} = data;
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
     const dispatch = useAppDispatch();
@@ -46,7 +47,16 @@ function InsuranceAppointmentRow({...props}) {
             <TableCell align="left">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.memberNo}
+                        {row.patient.insurance.insurance_book_number}
+                    </Typography>
+                ) : (
+                    <Skeleton variant="text" width={100}/>
+                )}
+            </TableCell>
+            <TableCell align="left">
+                {row ? (
+                    <Typography fontSize={13} fontWeight={600} color="text.primary">
+                        {`${row.patient.first_name} ${row.patient.last_name}`}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
@@ -80,17 +90,35 @@ function InsuranceAppointmentRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.act}
+                        {row.apci}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
 
+           {/* <TableCell align="center">
+                {row ? (
+                    <Typography fontSize={13} fontWeight={600} color="text.primary">
+                        {row.patient_part} {devise}
+                    </Typography>
+                ) : (
+                    <Skeleton variant="text" width={100}/>
+                )}
+            </TableCell>
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.amount} {devise}
+                        {row.refund} {devise}
+                    </Typography>
+                ) : (
+                    <Skeleton variant="text" width={100}/>
+                )}
+            </TableCell>*/}
+            <TableCell align="center">
+                {row ? (
+                    <Typography fontSize={13} fontWeight={600} color="text.primary">
+                        {row.refund} {devise}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>

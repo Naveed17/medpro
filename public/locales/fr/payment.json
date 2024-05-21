@@ -209,7 +209,7 @@
   "addTransaction": "Cliquez sur le bouton + pour ajouter une transaction",
   "insurances_key": "Assurances",
   "insurances": {
-    "nbConsult": "N°consultation",
+    "nbConsult": "consultations",
     "nbAct": "Nbre Acte",
     "amount": "Montant",
     "global": "Bordereau global",

@@ -208,7 +208,7 @@
   "addTransaction": "Click on the + button to add a transaction",
   "insurances_key": "Insurances",
   "insurances": {
-    "nbConsult": "N°consultation",
+    "nbConsult": "Consultations",
     "nbAct": "Nb act",
     "amount": "Amount",
     "global": "Global",

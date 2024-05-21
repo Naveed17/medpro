@@ -34,14 +34,8 @@ console.log(row)
                     <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
-            <TableCell>
-
-            </TableCell>
-            <TableCell>
-
-            </TableCell>
-            <TableCell>
-
+            <TableCell align={"center"}>
+                {row.total}
             </TableCell>
         </TableRowStyled>
     );
