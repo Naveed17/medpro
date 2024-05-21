@@ -250,6 +250,7 @@
       "remb": "Montant de Remb.",
       "dateArc": "Date Arch.",
       "refSlip": "Réf. bordereau",
+      "status": "Status",
       "ref": "Réf.",
       "start_date": "Date début",
       "end_date": "Date fin",

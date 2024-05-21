@@ -5,11 +5,9 @@ import { Skeleton, Typography, useTheme } from "@mui/material";
 
 function ArchiveSlipRow({ ...props }) {
     const { row } = props;
-    return (
-        <TableRowStyled
-            hover
-        >
 
+    return (
+        <TableRowStyled hover>
             <TableCell align="left">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
@@ -67,7 +65,7 @@ function ArchiveSlipRow({ ...props }) {
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        -
+                        {row.total}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100} />

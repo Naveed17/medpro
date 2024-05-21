@@ -1,63 +1,28 @@
 import {GetStaticPaths, GetStaticProps} from "next";
-import React, {ReactElement, useContext, useEffect, useRef, useState} from "react";
-import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {useFormik} from "formik";
 import {
-    Box,
     Button,
     Card,
     CardContent,
-    Checkbox,
-    Collapse,
-    DialogActions,
     FormControl,
-    Grid,
-    IconButton, InputAdornment,
-    List,
-    ListItem,
-    ListItemText,
-    MenuItem, Select,
-    Skeleton,
-    Stack, Tab, Tabs, tabsClasses,
+    InputAdornment,
+    Stack,
+    Tab,
+    Tabs,
+    tabsClasses,
     TextField,
-    ToggleButton,
-    ToggleButtonGroup,
-    Tooltip,
     Typography,
     useMediaQuery,
     useTheme
 } from "@mui/material";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSnackbar} from "notistack";
-import {useReactToPrint} from "react-to-print";
-import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
-import {UploadFile} from "@features/uploadFile";
-import {FileuploadProgress} from "@features/progressUI";
-import Zoom from "@mui/material/Zoom";
-import PreviewA4 from "@features/files/components/previewA4";
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
-import {Editor} from '@tinymce/tinymce-react';
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/toolbar";
-import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import ModeEditOutlineRoundedIcon from '@mui/icons-material/ModeEditOutlineRounded';
-import {Dialog} from "@features/dialog";
 import {Theme} from "@mui/material/styles";
-import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@lib/redux/hooks";
-import Autocomplete from "@mui/material/Autocomplete";
-import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {DefaultCountry, tinymcePlugins, tinymceToolbar} from "@lib/constants";
-
-import {LoadingScreen} from "@features/loadingScreen";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {DefaultCountry} from "@lib/constants";
 import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 import {useSession} from "next-auth/react";
 import {AbilityContext} from "@features/casl/can";
@@ -248,6 +213,7 @@ function InscDetail() {
     const [total_acts, setTotalActs] = useState([]);
     const [total_appointment, setTotalAppointment] = useState([]);
     const [rows, setRows] = useState([])
+    const [search, setSearch] = useState("")
 
     const topCard = [
         {
@@ -275,7 +241,7 @@ function InscDetail() {
         url: `${urlMedicalEntitySuffix}/insurance-dockets/insurance/${uuid}/${router.locale}`,
     })
 
-    const {data: httpAppointments, mutate:mutateApp} = useRequestQuery({
+    const {data: httpAppointments, mutate: mutateApp} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/insurances/appointments/${uuid}/${router.locale}`,
     })
@@ -528,7 +494,7 @@ function InscDetail() {
                                    spacing={1} {...(isMobile && {
                                 width: 1
                             })}>
-                                <FormControl fullWidth size="small" sx={{minWidth: 100}}>
+                                {/*<FormControl fullWidth size="small" sx={{minWidth: 100}}>
                                     <Select id="demo-simple-select"
                                             value={'all'}
                                             renderValue={selected => {
@@ -544,13 +510,16 @@ function InscDetail() {
                                         <MenuItem value="all">{t("all")}</MenuItem>
 
                                     </Select>
-                                </FormControl>
+                                </FormControl>*/}
                                 <FormControl fullWidth size="small" sx={{minWidth: {xs: "auto", md: 300}}}>
-                                    <TextField fullWidth={isMobile} InputProps={{
-                                        startAdornment: <InputAdornment position="start">
-                                            <IconUrl path="ic-search" width={16} height={16}/>
-                                        </InputAdornment>
-                                    }} placeholder={t("search")}/>
+                                    <TextField fullWidth={isMobile}
+                                               value={search}
+                                               onChange={(ev) => setSearch(ev.target.value)}
+                                               InputProps={{
+                                                   startAdornment: <InputAdornment position="start">
+                                                       <IconUrl path="ic-search" width={16} height={16}/>
+                                                   </InputAdornment>
+                                               }} placeholder={t("search")}/>
                                 </FormControl>
                             </Stack>
                             <Stack direction='row' alignItems='center' spacing={1}
@@ -573,7 +542,9 @@ function InscDetail() {
                                 {...{t, select: rowsSelected, devise}}
                                 headers={headCells}
                                 //handleEvent={handleTableActions}
-                                rows={[...rows]}
+                                rows={rows.filter((ev: any) => {
+                                    return `${ev.patient.first_name} ${ev.patient.last_name}`.toLowerCase().includes(search.toLowerCase())
+                                })}
                                 total={0}
                                 totalPages={1}
                                 from={"insurance-appointment"}
@@ -589,6 +560,72 @@ function InscDetail() {
                         </MobileContainer>
                     </Card>
                 </Stack>
+            </TabPanel>
+            <TabPanel padding={1} value={selectedTab} index={"archived"}>
+                <Card>
+                    <Stack p={2} direction={{xs: 'column', md: 'row'}} alignItems='center'
+                           justifyContent='space-between' spacing={1}>
+                        <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center' spacing={1} {...(isMobile && {
+                            width: 1
+                        })}>
+                            {/*
+                            <FormControl fullWidth size="small" sx={{minWidth: 100}}>
+                                <Select id="demo-simple-select"
+                                        value={'all'}
+                                        renderValue={selected => {
+                                            if (selected.length === 0) {
+                                                return <Typography fontSize={12}>{t("select")}</Typography>
+                                            } else {
+                                                return <Typography fontSize={12}>{t("all")}</Typography>
+                                            }
+                                        }
+                                        }
+
+                                >
+                                    <MenuItem value="all">{t("all")}</MenuItem>
+
+                                </Select>
+                            </FormControl>
+*/}
+                            <FormControl fullWidth size="small" sx={{minWidth: {xs: "auto", md: 300}}}>
+                                <TextField fullWidth={isMobile}
+                                           value={search}
+                                           onChange={(ev) => setSearch(ev.target.value)}
+                                           InputProps={{
+                                               startAdornment: <InputAdornment position="start">
+                                                   <IconUrl path="ic-search" width={16} height={16}/>
+                                               </InputAdornment>
+                                           }} placeholder={t("search")}/>
+                            </FormControl>
+                        </Stack>
+                        <Stack direction='row' alignItems='center' spacing={1}
+                               {...(isMobile && {
+                                   width: 1
+                               })}
+                        >
+                            {/*
+                            <Button fullWidth={isMobile} variant="grey"
+                                    startIcon={<IconUrl path="ic-printer-new"/>}>{t("print")}</Button>
+                            <Button fullWidth={isMobile} variant="grey"
+                                    startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
+*/}
+                        </Stack>
+                    </Stack>
+                    <DesktopContainer>
+                        <Otable
+                            {...{t}}
+                            headers={headCellsArchiveSlip}
+                            //handleEvent={handleTableActions}
+                            rows={dockets.filter((ev: any) => {
+                                return ev.name?.toLowerCase().includes(search.toLowerCase())
+                            })}
+                            total={0}
+                            totalPages={1}
+                            from={"archive-insurance-slip"}
+                            pagination
+                        />
+                    </DesktopContainer>
+                </Card>
             </TabPanel>
         </Stack>
     );
