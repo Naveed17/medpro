@@ -429,7 +429,7 @@ function PatientContactDetailCard({...props}) {
                                                                 sx={{
                                                                     width: 26,
                                                                     height: 18,
-                                                                    borderRadius: 0.4
+                                                                    borderRadius: 0.6
                                                                 }}
                                                                 alt={"flags"}
                                                                 src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
@@ -445,7 +445,7 @@ function PatientContactDetailCard({...props}) {
                                                                     sx={{
                                                                         width: 24,
                                                                         height: 16,
-                                                                        borderRadius: 0.4,
+                                                                        borderRadius: 0.6,
                                                                         ml: ".5rem",
                                                                         mr: -.8
                                                                     }}
@@ -593,7 +593,8 @@ function PatientContactDetailCard({...props}) {
                                     render={() => (values.phones.map((phone: any, index: number) => (
                                             <Grid key={index} item md={12} sm={12} xs={12}>
                                                 <Stack direction="row" alignItems="self-start">
-                                                    <Grid item md={index === 0 || !editable ? 11 : 10}
+                                                    <Grid item md={index === 0 || !editable ? 12 : 10}
+                                                          {...(!editable && {className: 'grid-container-border'})}
                                                           sm={12}
                                                           xs={12}
                                                           sx={{
@@ -623,7 +624,7 @@ function PatientContactDetailCard({...props}) {
                                                                            {...(editable && {
                                                                                sx: {
                                                                                    border: `1px solid ${theme.palette.grey['A100']}`,
-                                                                                   borderRadius: .4,
+                                                                                   borderRadius: .6,
                                                                                    height: 38,
                                                                                    width: "100%"
                                                                                }
@@ -668,8 +669,8 @@ function PatientContactDetailCard({...props}) {
                                                                                     })}
                                                                                 InputProps={{
                                                                                     sx: {
-                                                                                        "& .MuiInputBase-root": {
-                                                                                            paddingLeft: 0
+                                                                                        "& .MuiOutlinedInput-root input": {
+                                                                                            paddingLeft: 1
                                                                                         }
                                                                                     },
                                                                                     startAdornment: (
@@ -691,31 +692,44 @@ function PatientContactDetailCard({...props}) {
                                                                                                     boxShadow: "none!important"
                                                                                                 },
                                                                                             }}>
-                                                                                            <CountrySelect
-                                                                                                showCountryFlagOnly={true}
-                                                                                                sx={{
-                                                                                                    ...(isMobile && {
-                                                                                                        "& .MuiInputAdornment-root": {
-                                                                                                            width: 20
-                                                                                                        }
-                                                                                                    }),
-                                                                                                    ...(!editable && {
-                                                                                                        "& .MuiAutocomplete-endAdornment": {
-                                                                                                            display: "none"
-                                                                                                        }
-                                                                                                    })
-                                                                                                }}
-                                                                                                readOnly={!editable}
-                                                                                                {...(isMobile && {small: true})}
-                                                                                                initCountry={{
-                                                                                                    code: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
-                                                                                                    name: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
-                                                                                                    phone: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
-                                                                                                }}
-                                                                                                onSelect={(state: any) => {
-                                                                                                    setFieldValue(`phones[${index}].value`, "");
-                                                                                                    setFieldValue(`phones[${index}].code`, state.phone);
-                                                                                                }}/>
+                                                                                            <Stack direction={'row'}
+                                                                                                   alignItems={"center"}
+                                                                                                   spacing={3}>
+                                                                                                <CountrySelect
+                                                                                                    showCountryFlagOnly={true}
+                                                                                                    sx={{
+                                                                                                        ...(isMobile && {
+                                                                                                            "& .MuiInputAdornment-root": {
+                                                                                                                width: 20
+                                                                                                            }
+                                                                                                        }),
+                                                                                                        ...(!editable && {
+                                                                                                            "& .MuiAutocomplete-endAdornment": {
+                                                                                                                display: "none"
+                                                                                                            }
+                                                                                                        })
+                                                                                                    }}
+                                                                                                    readOnly={!editable}
+                                                                                                    {...(isMobile && {small: true})}
+                                                                                                    initCountry={{
+                                                                                                        code: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                                                        name: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                                                        phone: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
+                                                                                                    }}
+                                                                                                    onSelect={(state: any) => {
+                                                                                                        setFieldValue(`phones[${index}].value`, "");
+                                                                                                        setFieldValue(`phones[${index}].code`, state.phone);
+                                                                                                    }}/>
+                                                                                                {(phone?.isWhatsapp && !editable) &&
+                                                                                                    <IconUrl
+                                                                                                        sx={{ml: 5}}
+                                                                                                        width={"16"}
+                                                                                                        height={"16"}
+                                                                                                        path={"ic-whatsapp"}
+                                                                                                        className="ic-tell"
+                                                                                                    />}
+                                                                                            </Stack>
+
                                                                                         </InputAdornment>)
                                                                                 }}
                                                                                 country={getCountryByCode(phone.code)?.code as any}
@@ -800,8 +814,9 @@ function PatientContactDetailCard({...props}) {
                                                             </fieldset>
                                                         )}
                                                     </Grid>
-                                                    <Grid item xs={index === 0 || !editable ? 1 : 2}
-                                                          md={index === 0 || !editable ? 1 : 2}>
+                                                    {editable && <Grid
+                                                        item xs={index === 0 ? 1 : 2}
+                                                        md={index === 0 ? 1 : 2}>
                                                         <Stack
                                                             direction={"row"}
                                                             justifyContent={"center"}
@@ -843,12 +858,12 @@ function PatientContactDetailCard({...props}) {
                                                                 <Icon path="ic-moin"/>
                                                             </IconButton>}
                                                         </Stack>
-                                                    </Grid>
+                                                    </Grid>}
                                                 </Stack>
                                             </Grid>
                                         )
                                     ))}/>
-                                <Button size={"small"} sx={{width: 100}} onClick={handleAddPhone}
+                                <Button size={"small"} sx={{width: 100, mt: 1}} onClick={handleAddPhone}
                                         startIcon={<AddIcon/>}>
                                     {t("config.add-patient.add")}
                                 </Button>

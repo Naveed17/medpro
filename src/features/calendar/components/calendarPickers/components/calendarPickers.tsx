@@ -114,7 +114,7 @@ function CalendarPickers({...props}) {
         <CalendarPickerStyled>
             <StaticDatePicker
                 {...props}
-                disabled={disabled}
+                {...{disabled}}
                 displayStaticWrapperAs="desktop"
                 slots={{
                     day: CustomPickersDay as any,

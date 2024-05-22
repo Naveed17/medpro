@@ -1391,8 +1391,10 @@ function WaitingRoom() {
                                         margin={2}>{t(`dialogs.delete-dialog.description`, {ns: "common"})}</Typography>
 
                             <Grid container spacing={1}>
-                                {deleteAppointmentOptions.map((option: any, index: number) =>
-                                    <Grid key={option.key} item md={4} xs={12}>
+                                {deleteAppointmentOptions.filter(option => !(row?.status === 1 && option.key === "delete-transaction")).map((option: any, index: number) =>
+                                    <Grid key={option.key} item
+                                          md={12 / deleteAppointmentOptions.filter(option => !(row?.status === 1 && option.key === "delete-transaction")).length}
+                                          xs={12}>
                                         <Card
                                             sx={{
                                                 padding: 1,
