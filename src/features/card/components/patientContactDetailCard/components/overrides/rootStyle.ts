@@ -47,7 +47,7 @@ const RootStyled = styled(Card)(({theme}) => ({
     "& .grid-border": {
         width: "100%",
         border: `1px solid ${theme.palette.grey['A100']}`,
-        borderRadius: 4,
+        borderRadius: 6,
         height: 38,
         "& .MuiInputBase-root": {
             paddingLeft: 12
@@ -57,6 +57,11 @@ const RootStyled = styled(Card)(({theme}) => ({
         overflow: "hidden",
         whiteSpace: "nowrap",
         textOverflow: "ellipsis"
+    },
+    "& .grid-container-border": {
+        borderRadius: 8,
+        border: `1px dashed ${theme.palette.grey['A100']}`,
+        padding: '6px 0'
     }
 }));
 export default RootStyled

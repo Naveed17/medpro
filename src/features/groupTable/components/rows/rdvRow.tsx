@@ -11,7 +11,7 @@ import {
 import {NoDataCard, RDVCard, RDVMobileCard, RDVPreviousCard, timerSelector} from "@features/card";
 // utils
 import {useTranslation} from "next-i18next";
-import _ from "lodash";
+import _, {uniqueId} from "lodash";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Dialog, preConsultationSelector} from "@features/dialog";
@@ -28,6 +28,7 @@ import {LoadingButton} from "@mui/lab";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {FacebookCircularProgress} from "@features/progressUI";
 import {deleteAppointmentOptionsData} from "@lib/constants";
+import Can from "@features/casl/can";
 
 function RDVRow({...props}) {
     const {data: {patient, translate, closePatientDialog}} = props;
@@ -457,16 +458,20 @@ function RDVRow({...props}) {
                             vertical: 'top',
                             horizontal: 'right',
                         }}>
-                        {popoverActions.map((v: any, index) => (
-                            <MenuItem
-                                key={index}
-                                className="popover-item"
-                                onClick={() => OnMenuActions(v.action)}>
-                                {v.icon}
-                                <Typography fontSize={15} sx={{color: "#fff"}}>
-                                    {commonTranslation(v.title)}
-                                </Typography>
-                            </MenuItem>
+                        {popoverActions.map((context: any, index) => (
+                            <Can key={index}
+                                 I={"manage"}
+                                 a={context.feature as any} {...(context.permission !== "*" && {field: context.permission})}>
+                                <MenuItem
+                                    key={index}
+                                    className="popover-item"
+                                    onClick={() => OnMenuActions(context.action)}>
+                                    {context.icon}
+                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                        {commonTranslation(context.title)}
+                                    </Typography>
+                                </MenuItem>
+                            </Can>
                         ))}
                     </Menu>
                 </>
