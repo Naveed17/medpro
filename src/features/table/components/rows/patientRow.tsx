@@ -274,7 +274,11 @@ function PatientRow({...props}) {
                                                         (insurance: any) =>
                                                             insurance.uuid ===
                                                             insuranceItem?.insurance.uuid
-                                                    ).logoUrl.url}
+                                                    ).logoUrl.url ? insurances.find(
+                                                        (insurance: any) =>
+                                                            insurance.uuid ===
+                                                            insuranceItem?.insurance.uuid
+                                                    ).logoUrl.url : '/static/icons/ic-assurance.svg'}
                                                     alt={insuranceItem?.name}/>}
                                         </Avatar>
                                     </Tooltip>

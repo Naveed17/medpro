@@ -12,24 +12,25 @@ import moment from "moment/moment";
 
 function InsuranceAgreementRow({...props}) {
     const {row, handleEvent, data} = props;
-    const {setAgreementDialog,setSelectedRow} = data;
+    const {setAgreementDialog, setSelectedRow} = data;
 
     const {insurances} = useInsurances()
     const theme = useTheme()
     const dispatch = useAppDispatch();
+    const url = row && row.insurance ?insurances.find(insc => insc.uuid === row.insurance?.uuid)?.logoUrl.url : '';
 
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1}>
-                        {row.insurance && insurances.length > 0 && <Tooltip title={row.name}>
+                        <Tooltip title={row.name}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img style={{width: 30}}
                                  alt={row.name}
-                                 src={insurances.find(insc => insc.uuid === row.insurance.uuid)?.logoUrl.url}/>
+                                 src={row.insurance && insurances.length > 0 && url ? url : "/static/icons/ic-assurance.svg"}/>
 
-                        </Tooltip>}
+                        </Tooltip>
                         <Typography fontWeight={600} color="text.primary">
                             {row.insurance ? row.insurance.name : row.mutual}
                         </Typography>
@@ -78,12 +79,12 @@ function InsuranceAgreementRow({...props}) {
                                 size={"small"}>Ajouter acts ({row.acts})</Button>
                         <IconButton size="small" onClick={() => {
                             dispatch(SetAgreement({
-                                type: row.mutual ===""?'insurance':'agreement',
+                                type: row.mutual === "" ? 'insurance' : 'agreement',
                                 insurance: row.insurance,
                                 label: row.label,
-                                name:row.insurance ? row.insurance.name : row.mutual,
-                                startDate: moment(row.startDate,'DD-MM-YYYY'),
-                                endDate: moment(row.endDate,'DD-MM-YYYY'),
+                                name: row.insurance ? row.insurance.name : row.mutual,
+                                startDate: moment(row.startDate, 'DD-MM-YYYY'),
+                                endDate: moment(row.endDate, 'DD-MM-YYYY'),
                                 acts: []
                             }))
                             setSelectedRow(row)

@@ -3,12 +3,10 @@ import {IconButton, Stack, Typography, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useInsurances} from "@lib/hooks/rest";
 import {SocialInsured} from "@lib/constants";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
 
 const CardInsurance = ({...props}) => {
 
-    const {pi,t, setSelectedInsurance,deleteInsurance} = props;
+    const {pi, t, setSelectedInsurance, deleteInsurance} = props;
     const {insurances} = useInsurances()
 
     const theme = useTheme();
@@ -17,15 +15,18 @@ const CardInsurance = ({...props}) => {
             <Stack>
                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                     <Typography className={"name"}>{pi.insurance.name}</Typography>
-                    <Typography className={"title"}>{t(`social_insured.${SocialInsured.find(si =>si.value == pi.type)?.label}`, {ns: "common"})}</Typography>
+                    <Typography
+                        className={"title"}>{t(`social_insured.${SocialInsured.find(si => si.value == pi.type)?.label}`, {ns: "common"})}</Typography>
                 </Stack>
                 <Stack direction={"row"} spacing={1}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img width={25} height={25} src={insurances.find(insurance => pi.insurance.uuid === insurance.uuid)?.logoUrl.url}
+                    <img width={25} height={25}
+                         src={insurances.find(insurance => pi.insurance.uuid === insurance.uuid)?.logoUrl.url ?insurances.find(insurance => pi.insurance.uuid === insurance.uuid)?.logoUrl.url : "/static/icons/ic-assurance.svg"}
                          alt={"insurance image"}/>
                     <Stack>
                         <Typography className={"number"}>{pi.insuranceNumber}</Typography>
-                        {pi.insuranceBook?.endDate && <Typography className={"expireIn"}>{t('insurance.expire', {ns: "patient"})} {pi.insuranceBook.endDate}</Typography>}
+                        {pi.insuranceBook?.endDate && <Typography
+                            className={"expireIn"}>{t('insurance.expire', {ns: "patient"})} {pi.insuranceBook.endDate}</Typography>}
                     </Stack>
                 </Stack>
             </Stack>

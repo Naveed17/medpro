@@ -1,7 +1,7 @@
 import {Collapse, ListItem, ListItemText, Stack, TextField, Typography,} from "@mui/material";
 import {motion} from "framer-motion";
 import {DatePicker} from "@features/datepicker";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Step2 from "./step2";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetAgreement, stepperSelector} from "@features/stepper";
@@ -10,10 +10,41 @@ import IconUrl from "@themes/urlIcon";
 
 function Step1({...props}) {
     const {t, collapse, insurances, agreements} = props;
-    const agreementList = agreements.filter((ag: any) => ag.insurance?.isConvention)
+
+
+    const agreementList = agreements.filter((ag: any) => ag.insurance?.isConvention).reduce((acc:any, current:any) => {
+        const x = acc.find((item:any) => item.mutual === current.mutual);
+        if (!x) {
+            acc.push(current);
+        }
+        return acc;
+    }, []);
+
     const {agreement} = useAppSelector(stepperSelector);
 
+    let [selectedAgreement, setSelectedAgreement] = useState(agreement?.name ||'');
+
     const dispatch = useAppDispatch();
+
+    const handleInputChange = (event:any, newInputValue:any) => {
+        setSelectedAgreement(newInputValue);
+    };
+
+    const handleChange = (event:any, newValue:any) => {
+        if (newValue && typeof newValue === 'object') {
+            setSelectedAgreement(newValue); // Assuming 'mutual' is the value you want from the selected option
+        } else {
+            setSelectedAgreement(newValue);
+        }
+    };
+
+    useEffect(()=>{
+        if (selectedAgreement && typeof selectedAgreement === 'object') {
+            console.log(selectedAgreement)
+            dispatch(SetAgreement({...agreement, insurance: selectedAgreement,name:selectedAgreement.mutual}))
+        }        else
+            dispatch(SetAgreement({...agreement, insurance: null,name:selectedAgreement}))
+    },[selectedAgreement])
 
     return (
         <Stack component={motion.div}
@@ -58,11 +89,16 @@ function Step1({...props}) {
                         options={agreementList}
                         freeSolo
                         value={agreement?.name}
-                        onInputChange={(ev, newVal) => dispatch(SetAgreement({...agreement, name: newVal}))}
+                        onInputChange={handleInputChange}
+                        onChange={handleChange}
+
+                        /*onInputChange={(ev, newVal) => {
+                            console.log("newVal",newVal)
+
+                            dispatch(SetAgreement({...agreement, name: newVal}))
+                        }}*/
                         getOptionLabel={(option) => {
                             if (typeof option === 'string') {
-                                const item = agreementList.find((al:{mutual:string}) => al.mutual === option)
-                                SetAgreement({...agreement, insurance: item ? item.insurance: null})
                                 return option;
                             }
                             if (option.inputValue) {

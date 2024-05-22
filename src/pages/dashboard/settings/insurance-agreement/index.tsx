@@ -36,7 +36,7 @@ import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import moment from "moment/moment";
 
 const stepperData = [
@@ -117,6 +117,8 @@ function InsuranceAndAgreement() {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {trigger} = useRequestQueryMutation("/insurance");
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+
     const {t, ready} = useTranslation("settings", {keyPrefix: "insurance.config"});
     const {data: user} = session as Session;
 
@@ -200,6 +202,7 @@ function InsuranceAndAgreement() {
                         acts: []
                     }))
                     mutate()
+                    invalidateQueries([`/api/public/insurances/${router.locale}?MedicalEntity=${medical_entity.uuid}`])
                     dispatch(setStepperIndex(0))
                     if (from !=="next")
                         setAgreementDialog(false)

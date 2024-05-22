@@ -240,6 +240,84 @@ const AddInsurance = ({...props}) => {
                         className="label"
                         variant="body2"
                         color="text.secondary">
+                        {t("insurance.agreement")}
+                    </Typography>
+
+                    {insurances && <Autocomplete
+                        options={insurances}
+                        getOptionLabel={(option) => option.name}
+                        value={selected}
+                        popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
+                        size={"small"}
+                        isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
+                        onChange={(event, newValue) => {
+                            setSelected(newValue)
+                            if (newValue) {
+                                setFieldValue(`insurance.insurance_uuid`, newValue.uuid);
+                                setBoxes(newValue.boxes)
+                            } else {
+                                setBoxes([])
+                                setSelectedBox(null)
+                            }
+                        }}
+                        renderInput={(params) => (
+                            <TextField {...params} placeholder={t('insurance.select')} variant="outlined"/>
+                        )}
+                    />}
+                </Stack>
+
+                {boxes.length > 0 && <Stack spacing={1} style={{width: "100%"}}>
+                    <Typography
+                        className="label"
+                        variant="body2"
+                        color="text.secondary">
+                        {t("insurance.cashbox")}
+                    </Typography>
+                    <Autocomplete
+                        options={boxes}
+                        getOptionLabel={(option) => option.slug}
+                        isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
+                        value={selectedBox}
+                        popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
+                        size={"small"}
+                        onChange={(event, newValue) => setSelectedBox(newValue)}
+                        renderInput={(params) => (
+                            <TextField {...params} placeholder={t('insurance.cashbox_placeholder')} variant="outlined"/>
+                        )}
+                    />
+                </Stack>}
+
+            </Stack>
+            {conventions.length > 0 && <Stack spacing={1} style={{width: "100%"}}>
+                <Typography
+                    className="label"
+                    variant="body2"
+                    color="text.secondary">
+                    {t("insurance.convention")}
+                </Typography>
+
+                <Autocomplete
+                    options={conventions}
+                    getOptionLabel={(option) => option.name ? option.name : ""}
+                    value={selectedConv}
+                    popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
+                    size={"small"}
+                    isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
+                    onChange={(event, newValue) => {
+                        setSelectedConv(newValue)
+                    }}
+                    renderInput={(params) => (
+                        <TextField {...params} placeholder={t('insurance.select')} variant="outlined"/>
+                    )}
+                />
+            </Stack>}
+
+            <Stack direction={"row"} spacing={1}>
+                <Stack spacing={1} style={{width: "100%"}}>
+                    <Typography
+                        className="label"
+                        variant="body2"
+                        color="text.secondary">
                         {t("insurance.member")}
                     </Typography>
                     <TextField
@@ -325,84 +403,6 @@ const AddInsurance = ({...props}) => {
                     />
                 </Stack>
             </Stack>
-
-            <Stack direction={"row"} spacing={1}>
-                <Stack spacing={1} style={{width: "100%"}}>
-                    <Typography
-                        className="label"
-                        variant="body2"
-                        color="text.secondary">
-                        {t("insurance.agreement")}
-                    </Typography>
-
-                    {insurances && <Autocomplete
-                        options={insurances}
-                        getOptionLabel={(option) => option.name}
-                        value={selected}
-                        popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
-                        size={"small"}
-                        isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
-                        onChange={(event, newValue) => {
-                            setSelected(newValue)
-                            if (newValue) {
-                                setFieldValue(`insurance.insurance_uuid`, newValue.uuid);
-                                setBoxes(newValue.boxes)
-                            } else {
-                                setBoxes([])
-                                setSelectedBox(null)
-                            }
-                        }}
-                        renderInput={(params) => (
-                            <TextField {...params} placeholder={t('insurance.select')} variant="outlined"/>
-                        )}
-                    />}
-                </Stack>
-
-                {boxes.length > 0 && <Stack spacing={1} style={{width: "100%"}}>
-                    <Typography
-                        className="label"
-                        variant="body2"
-                        color="text.secondary">
-                        {t("insurance.cashbox")}
-                    </Typography>
-                    <Autocomplete
-                        options={boxes}
-                        getOptionLabel={(option) => option.slug}
-                        isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
-                        value={selectedBox}
-                        popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
-                        size={"small"}
-                        onChange={(event, newValue) => setSelectedBox(newValue)}
-                        renderInput={(params) => (
-                            <TextField {...params} placeholder={t('insurance.cashbox_placeholder')} variant="outlined"/>
-                        )}
-                    />
-                </Stack>}
-
-            </Stack>
-            {conventions.length > 0 && <Stack spacing={1} style={{width: "100%"}}>
-                <Typography
-                    className="label"
-                    variant="body2"
-                    color="text.secondary">
-                    {t("insurance.convention")}
-                </Typography>
-
-                <Autocomplete
-                    options={conventions}
-                    getOptionLabel={(option) => option.name ? option.name : ""}
-                    value={selectedConv}
-                    popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
-                    size={"small"}
-                    isOptionEqualToValue={(option: any, value: any) => option.uuid === value.uuid}
-                    onChange={(event, newValue) => {
-                        setSelectedConv(newValue)
-                    }}
-                    renderInput={(params) => (
-                        <TextField {...params} placeholder={t('insurance.select')} variant="outlined"/>
-                    )}
-                />
-            </Stack>}
 
             <Stack direction={"row"} spacing={1}>
                 <Stack spacing={1} style={{width: "100%"}}>
