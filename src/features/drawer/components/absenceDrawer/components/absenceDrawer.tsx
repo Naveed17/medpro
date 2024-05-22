@@ -10,6 +10,7 @@ import {setAbsenceData, absenceDrawerSelector} from "@features/drawer";
 import {NoDataCard} from "@features/card";
 import {MobileContainer as smallScreen} from "@lib/constants";
 import * as Yup from "yup";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 function AbsenceDrawer({...props}) {
     const {t, main = false} = props;
@@ -109,13 +110,16 @@ function AbsenceDrawer({...props}) {
                                         dispatch(setAbsenceData({startDate: event}));
                                     }}
                                     slots={{
-                                        textField: (params) => <TextField
-                                            {...params}
-                                            {...((values.startDate !== null) && {
+                                        openPickerIcon: CalendarPickerIcon
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            ...((values.startDate !== null) && {
                                                 error: Boolean(errors.startDate),
-                                                helperText: t(errors.startDate)
-                                            })}
-                                            size={"small"}/>
+                                                ...(errors.startDate && {helperText: t("dialogs.absence-dialog.datetime-required")})
+                                            })
+                                        }
                                     }}
                                     value={values.startDate}/>
                             </FormControl>
@@ -136,13 +140,16 @@ function AbsenceDrawer({...props}) {
                                         dispatch(setAbsenceData({"endDate": event}));
                                     }}
                                     slots={{
-                                        textField: (params) => <TextField
-                                            {...params}
-                                            {...((values.endDate !== null) && {
+                                        openPickerIcon: CalendarPickerIcon
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            ...((values.endDate !== null) && {
                                                 error: Boolean(errors.endDate),
-                                                helperText: t(errors.endDate)
-                                            })}
-                                            size={"small"}/>
+                                                ...(errors.endDate && {helperText: t("dialogs.absence-dialog.end-after-start-time")})
+                                            }),
+                                        }
                                     }}
                                     value={values.endDate}/>
                             </FormControl>
