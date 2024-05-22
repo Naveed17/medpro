@@ -44,7 +44,7 @@ function Step1({...props}) {
             dispatch(SetAgreement({...agreement, insurance: selectedAgreement,name:selectedAgreement.mutual}))
         }        else
             dispatch(SetAgreement({...agreement, insurance: null,name:selectedAgreement}))
-    },[selectedAgreement])
+    },[selectedAgreement]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Stack component={motion.div}
