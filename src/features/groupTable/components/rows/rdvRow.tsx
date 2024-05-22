@@ -11,7 +11,7 @@ import {
 import {NoDataCard, RDVCard, RDVMobileCard, RDVPreviousCard, timerSelector} from "@features/card";
 // utils
 import {useTranslation} from "next-i18next";
-import _, {uniqueId} from "lodash";
+import _ from "lodash";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Dialog, preConsultationSelector} from "@features/dialog";
