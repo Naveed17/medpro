@@ -1082,7 +1082,7 @@ function Agenda() {
     });
 
     if (!ready) return (<LoadingScreen button text={"loading"}/>);
-
+    console.log("event", event)
     return (
         <>
             <SubHeader
@@ -1493,8 +1493,10 @@ function Agenda() {
                                             margin={2}>{t(`dialogs.${actionDialog}-dialog.description`)}</Typography>
 
                                 {actionDialog === "delete" ? <Grid container spacing={1}>
-                                        {deleteAppointmentOptions.map((option: any, index: number) =>
-                                            <Grid key={option.key} item md={4} xs={12}>
+                                        {deleteAppointmentOptions.filter(option => !(event?.extendedProps?.status?.key === "CONFIRMED" && option.key === "delete-transaction")).map((option: any, index: number) =>
+                                            <Grid key={option.key} item
+                                                  md={12 / deleteAppointmentOptions.filter(option => !(event?.extendedProps?.status?.key === "CONFIRMED" && option.key === "delete-transaction")).length}
+                                                  xs={12}>
                                                 <Card
                                                     sx={{
                                                         padding: 1,

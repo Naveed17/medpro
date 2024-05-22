@@ -163,6 +163,7 @@ function RDVRow({...props}) {
     }
 
     const OnMenuActions = (action: string) => {
+        console.log(action);
         switch (action) {
             case "onConsultationDetail":
                 handleStartConsultation();
@@ -189,6 +190,8 @@ function RDVRow({...props}) {
             case "onPatientNoShow":
                 handleAppointmentStatus(appointmentData?.uuid as string, '10');
                 break;
+            case "onLeaveWaitingRoom":
+                handleAppointmentStatus(appointmentData?.uuid as string, '1');
         }
         handleClose();
     }
@@ -531,8 +534,10 @@ function RDVRow({...props}) {
                                         margin={2}>{commonTranslation(`dialogs.delete-dialog.description`)}</Typography>
 
                             <Grid container spacing={1}>
-                                {deleteAppointmentOptions.map((option: any, index: number) =>
-                                    <Grid key={option.key} item md={4} xs={12}>
+                                {deleteAppointmentOptions.filter(option => !(appointmentData?.status === 1 && option.key === "delete-transaction")).map((option: any, index: number) =>
+                                    <Grid key={option.key} item
+                                          md={12 / deleteAppointmentOptions.filter(option => !(appointmentData?.status === 1 && option.key === "delete-transaction")).length}
+                                          xs={12}>
                                         <Card
                                             sx={{
                                                 padding: 1,
