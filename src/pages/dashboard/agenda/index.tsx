@@ -1082,7 +1082,7 @@ function Agenda() {
     });
 
     if (!ready) return (<LoadingScreen button text={"loading"}/>);
-    console.log("event", event)
+
     return (
         <>
             <SubHeader
