@@ -815,7 +815,8 @@ function PatientContactDetailCard({...props}) {
                                                         )}
                                                     </Grid>
                                                     {editable && <Grid
-                                                        item xs={index === 0 ? 1 : 2}
+                                                        item
+                                                        xs={index === 0 ? 1 : 2}
                                                         md={index === 0 ? 1 : 2}>
                                                         <Stack
                                                             direction={"row"}
@@ -824,7 +825,7 @@ function PatientContactDetailCard({...props}) {
                                                             spacing={1.2}
                                                             sx={{
                                                                 position: "relative",
-                                                                top: "1.6rem"
+                                                                top: "1.3rem"
                                                             }}>
                                                             <ToggleButtonStyled
                                                                 disabled={!editable}
