@@ -137,8 +137,8 @@ function Patient({ ...props }) {
         <div>
             {!addPatient ?
                 <>
-                    <Box className="inner-section">
-                        <Typography sx={{ fontSize: "1rem", fontWeight: "bold", mt: 3, mb: 1 }} color="text.primary">
+                    <Box className="inner-section" mt={3}>
+                        <Typography sx={{ fontSize: "1rem", fontWeight: "bold", mb: 1 }} color="text.primary">
                             {t("stepper-2.title")}
                         </Typography>
                         <AutoCompleteButton

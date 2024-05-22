@@ -49,6 +49,11 @@ export default function Switch(theme) {
               },
 
             },
+            ".Mui-checked": {
+              "& + .MuiSwitch-track": {
+                opacity: 1
+              }
+            },
             '& .MuiSwitch-thumb': {
               boxShadow: 'none',
               backgroundColor: theme.palette.common.white,

@@ -111,6 +111,11 @@
     }
   },
   "steppers": {
+    "sms-rem-text": "Programmer un rappel par SMS pour le patient",
+    "lang-label": "Langue du SMS",
+    "day": "Jour",
+    "time": "Heure",
+    "instr": "Type Instruction pour le patient",
     "tabs": {
       "tab-1": "Type",
       "tab-2": "Créneau horaire",
@@ -156,6 +161,9 @@
       "change-time": "Modifier l'heure",
       "confirm-time": "Confirmer",
       "cancel-time": "Annuler",
+      "time-slot-off": "Sans heure",
+      "time-slot-off-desc": "Créneau horaire désactivé. Souhaitez-vous l'activer ?",
+      "turn-on": "Ajouter un créneau horaire",
       "duration": {
         "title": "Durée de consultation",
         "hours": "heures",
@@ -169,6 +177,9 @@
       "add_button": "Ajouter un nouveau patient",
       "search_placeholder": "Chercher un patient",
       "patient": {
+        "title": "Patient",
+        "referred_by": "Saisi par",
+        "select_referred_by": "Sélectionner la référence",
         "personal-info": "Informations",
         "invalidDate": "La date est invalide",
         "additional-information": "Informations supplémentaires",

@@ -119,6 +119,7 @@ function TimeSchedule({ ...props }) {
     const [loadingReq, setLoadingReq] = useState(false);
     const [moreDate, setMoreDate] = useState(moreDateRef.current);
     const [changeTime, setChangeTime] = useState(changeDateRef.current);
+    const [timeSlotActive, setTimeSlotActive] = useState<boolean>(false)
     const [time, setTime] = useState("");
     const [limit, setLimit] = useState(16);
     const [timeAvailable, setTimeAvailable] = useState(false);
@@ -301,7 +302,7 @@ function TimeSchedule({ ...props }) {
                         {children}
                     </Stack>
                 }>
-                <Box className="inner-section">
+                <Stack className="inner-section">
                     {!select && <Typography variant="h6" color="text.primary">
                         {t("stepper-1.title")}
                     </Typography>}
@@ -399,7 +400,7 @@ function TimeSchedule({ ...props }) {
                                     </FormControl>
                                 </Grid>
                             </Grid>
-                            <Grid container spacing={3} sx={{ height: "auto" }}>
+                            <Grid container spacing={1} sx={{ height: "auto" }}>
                                 <Grid item md={6} xs={12}>
                                     <Typography color="grey.500" mt={1} variant="body1" mb={1}>
                                         {t("stepper-1.date")}
@@ -416,7 +417,7 @@ function TimeSchedule({ ...props }) {
                                     item
                                     md={6} xs={12}>
                                     <Stack direction={"row"} alignItems={"center"}
-                                        justifyContent={"space-between"} mt={.5}>
+                                        justifyContent={"space-between"} mt="-1px">
                                         <Typography variant="body1" align={"center"} color="grey.500">
                                             {t("stepper-1.time")}
                                         </Typography>
@@ -432,90 +433,115 @@ function TimeSchedule({ ...props }) {
                                             }}>
                                             <IconUrl color={theme.palette.primary.main} path="ic-edit-patient" />
                                         </IconButton> */}
-                                        <Switch className="custom-switch" />
+                                        <Switch className="custom-switch"
+                                            checked={timeSlotActive}
+                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                setTimeSlotActive(event.target.checked);
+                                            }}
+                                        />
                                     </Stack>
-                                    <Tabs
-                                        value={selectTime}
-                                        onChange={handleChangeTime}
-                                        sx={{
-                                            borderBottom: 1, borderColor: 'divider',
-                                            mb: 2
-                                        }}
+                                    <Stack border={1} borderColor='divider' borderRadius={1} pb={2} maxHeight={300} height={1}>
+                                        <Tabs
+                                            value={selectTime}
+                                            onChange={handleChangeTime}
+                                            sx={{
+                                                borderBottom: 1, borderColor: 'divider',
+                                                mb: 2
+                                            }}
 
-                                    >
+                                        >
 
-                                        <Tab value="time-slot" label={t("stepper-1.time-slot")} />
-                                        <Tab value="time-picker" label={t("stepper-1.time-picker")} />
-                                    </Tabs>
-                                    <AnimatePresence>
-                                        {selectTime === "time-slot" &&
-                                            <motion.div
-                                                key={'slot'}
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ ease: "easeIn", duration: .2 }}>
-                                                <TimeSlot
-                                                    {...{ t }}
-                                                    sx={{ width: 248, margin: "auto" }}
-                                                    loading={!date || loading}
-                                                    data={timeSlots}
-                                                    limit={limit}
-                                                    onChange={onTimeSlotChange}
-                                                    OnShowMore={() => setLimit(limit * 2)}
-                                                    value={time}
-                                                    seeMore={limit < timeSlots.length}
-                                                    seeMoreText={t("stepper-1.see-more")}
-                                                />
-                                            </motion.div>
+                                            <Tab value="time-slot" label={t("stepper-1.time-slot")} />
+                                            <Tab value="time-picker" label={t("stepper-1.time-picker")} />
+                                        </Tabs>
+                                        <AnimatePresence>
+                                            {selectTime === "time-slot" &&
+                                                <motion.div
+                                                    key={'slot'}
+                                                    style={{ padding: 4, overflow: 'hidden', overflowY: 'auto' }}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ ease: "easeIn", duration: .2 }}>
+                                                    {timeSlotActive ?
+                                                        <TimeSlot
+                                                            {...{ t }}
+                                                            sx={{ width: 236, margin: "auto" }}
+                                                            loading={!date || loading}
+                                                            data={timeSlots}
+                                                            limit={limit}
+                                                            onChange={onTimeSlotChange}
+                                                            OnShowMore={() => setLimit(limit * 2)}
+                                                            value={time}
+                                                            seeMore={limit < timeSlots.length}
+                                                            seeMoreText={t("stepper-1.see-more")}
+                                                        /> :
+                                                        <Stack p={2} spacing={1.5} alignItems="center">
+                                                            <IconUrl path="ic-filled-alarm-off" color={theme.palette.grey[500]} width={56} height={56} />
+                                                            <Typography variant="body1" fontWeight={600} color="grey.900">{t("stepper-1.time-slot-off")}</Typography>
+                                                            <Typography textAlign='center' color="grey.400">{t("stepper-1.time-slot-off-desc")}</Typography>
+                                                            <Button variant="contained"
+                                                                size="small"
+                                                                onClick={() => {
+                                                                    setTimeSlotActive(true);
+                                                                }}
+                                                            >{t("stepper-1.turn-on")}</Button>
+                                                        </Stack>
+                                                    }
+                                                </motion.div>
 
-                                        }
-                                        {selectTime === "time-picker" &&
-                                            <motion.div
-                                                key={'picker'}
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ ease: "easeIn", duration: .2 }}>
-                                                <TimePicker
-                                                    {...(!isMobile && { orientation: "landscape" })}
-                                                    className={"time-picker-schedule"}
-                                                    ampmInClock={false}
-                                                    ampm={true}
-                                                    maxTime={new Date(0, 0, 0, 20, 0)}
-                                                    minTime={new Date(0, 0, 0, 8)}
-                                                    shouldDisableTime={(timeValue, clockType) => {
-                                                        return clockType === "minutes" && (timeValue.getMinutes() % 5 !== 0);
-                                                    }}
+                                            }
+                                            {selectTime === "time-picker" &&
+                                                <motion.div
+                                                    key={'picker'}
+                                                    style={{ padding: 8 }}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ ease: "easeIn", duration: .2 }}>
+                                                    <TimePicker
+                                                        {...(!isMobile && { orientation: "landscape" })}
+                                                        className={"time-picker-schedule"}
+                                                        ampmInClock={false}
+                                                        ampm={true}
+                                                        maxTime={new Date(0, 0, 0, 20, 0)}
+                                                        minTime={new Date(0, 0, 0, 8)}
+                                                        shouldDisableTime={(timeValue, clockType) => {
+                                                            return clockType === "minutes" && (timeValue.getMinutes() % 5 !== 0);
+                                                        }}
 
-                                                    value={customTime}
-                                                    onChange={(newValue) => {
-                                                        setCustomTime(newValue);
-                                                    }}
-                                                    slotProps={{
-                                                        actionBar: {
-                                                            customTime,
-                                                            t,
-                                                            setChangeTime,
-                                                            changeDateRef,
-                                                            onTimeSlotChange
-                                                        } as any
-                                                    }}
-                                                    slots={{
-                                                        actionBar: ActionList as any
-                                                    }}
+                                                        value={customTime}
+                                                        onChange={(newValue) => {
+                                                            setCustomTime(newValue);
+                                                        }}
+                                                        slotProps={{
+                                                            actionBar: {
+                                                                customTime,
+                                                                t,
+                                                                setChangeTime,
+                                                                changeDateRef,
+                                                                onTimeSlotChange
+                                                            } as any
+                                                        }}
+                                                        slots={{
+                                                            actionBar: ActionList as any
+                                                        }}
 
-                                                />
-                                            </motion.div>
-                                        }
+                                                    />
+                                                </motion.div>
+                                            }
 
-                                    </AnimatePresence>
+                                        </AnimatePresence>
+                                    </Stack>
                                 </Grid>
                             </Grid>
                         </>
                     }
-
-                    {((timeAvailable || recurringDates.length > 0) && !withoutDateTime) &&
-                        <AnimatePresence>
+                    <AnimatePresence>
+                        {((timeAvailable || recurringDates.length > 0) && !withoutDateTime) &&
                             <motion.div
+                                key="date-time"
+                                {...(recurringDates.length > 0 && {
+                                    style: { marginTop: 16 }
+                                })}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ ease: "easeIn", duration: .2 }}>
@@ -550,9 +576,10 @@ function TimeSchedule({ ...props }) {
                                         variant="text">{t("stepper-1.add-more-date")}</Button>}
                                 <div ref={bottomRef} />
                             </motion.div>
-                        </AnimatePresence>
-                    }
-                </Box>
+
+                        }
+                    </AnimatePresence>
+                </Stack>
             </ConditionalWrapper>
 
 

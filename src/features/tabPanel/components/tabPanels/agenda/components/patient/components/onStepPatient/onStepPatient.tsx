@@ -1,4 +1,4 @@
-import {FieldArray, Form, FormikProvider, useFormik} from "formik";
+import { FieldArray, Form, FormikProvider, useFormik } from "formik";
 import {
     Autocomplete,
     Avatar,
@@ -18,45 +18,46 @@ import {
     MenuItem,
     Radio,
     RadioGroup,
+    Select,
     Stack,
     TextField,
     Typography,
     useTheme
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, {memo, useEffect, useRef, useState} from "react";
-import {useAppSelector} from "@lib/redux/hooks";
-import {addPatientSelector, appointmentSelector, CustomInput} from "@features/tabPanel";
+import React, { memo, useEffect, useRef, useState } from "react";
+import { useAppSelector } from "@lib/redux/hooks";
+import { addPatientSelector, appointmentSelector, CustomInput, InputStyled } from "@features/tabPanel";
 import * as Yup from "yup";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import Icon from "@themes/urlIcon";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {styled} from "@mui/material/styles";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { styled } from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {isValidPhoneNumber} from "libphonenumber-js";
-import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
-import {dashLayoutSelector} from "@features/base";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
-import {DatePicker} from "@mui/x-date-pickers";
+import { isValidPhoneNumber } from "libphonenumber-js";
+import { countries as dialCountries } from "@features/countrySelect/countries";
+import { DefaultCountry, PatientContactRelation, SocialInsured } from "@lib/constants";
+import { dashLayoutSelector } from "@features/base";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { DatePicker } from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
-import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
-import {ImageHandler} from "@features/image";
-import {LoadingButton} from "@mui/lab";
-import {CountrySelect} from "@features/countrySelect";
-import {arrayUniqueByKey, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {LoadingScreen} from "@features/loadingScreen";
-import {ToggleButtonStyled} from "@features/toolbar";
+import { useContactType, useCountries, useInsurances } from "@lib/hooks/rest";
+import { ImageHandler } from "@features/image";
+import { LoadingButton } from "@mui/lab";
+import { CountrySelect } from "@features/countrySelect";
+import { arrayUniqueByKey, getBirthday, useMedicalEntitySuffix } from "@lib/hooks";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import { LoadingScreen } from "@features/loadingScreen";
+import { ToggleButtonStyled } from "@features/toolbar";
 import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
-import {AsyncAutoComplete} from "@features/autoComplete";
+import { AsyncAutoComplete } from "@features/autoComplete";
 import SortIcon from "@themes/overrides/icons/sortIcon";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
-const GroupHeader = styled('div')(({theme}) => ({
+const GroupHeader = styled('div')(({ theme }) => ({
     position: 'sticky',
     top: '-8px',
     padding: '4px 10px',
@@ -72,7 +73,7 @@ interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;
 }
 
-export const MyTextInput: any = memo(({...props}) => {
+export const MyTextInput: any = memo(({ ...props }) => {
     return (
         <TextField {...props} />
     );
@@ -80,9 +81,9 @@ export const MyTextInput: any = memo(({...props}) => {
 MyTextInput.displayName = "TextField";
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
-    const {expand, ...other} = props;
+    const { expand, ...other } = props;
     return <IconButton {...other} />;
-})(({theme, expand}) => ({
+})(({ theme, expand }) => ({
     "& .MuiTypography-root": {
         fontSize: 12
     },
@@ -95,7 +96,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
     }
 }));
 
-function OnStepPatient({...props}) {
+function OnStepPatient({ ...props }) {
     const {
         onClose,
         handleAddPatient = null,
@@ -104,24 +105,24 @@ function OnStepPatient({...props}) {
         translationPrefix = "add-patient",
     } = props;
 
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     const router = useRouter();
     const theme = useTheme();
     const topRef = useRef(null);
     const phoneInputRef = useRef(null);
-    const {insurances} = useInsurances();
-    const {contacts} = useContactType();
-    const {countries} = useCountries("nationality=true");
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { insurances } = useInsurances();
+    const { contacts } = useContactType();
+    const { countries } = useCountries("nationality=true");
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
 
-    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
-    const {t: commonTranslation} = useTranslation("common");
+    const { t, ready } = useTranslation(translationKey, { keyPrefix: translationPrefix });
+    const { t: commonTranslation } = useTranslation("common");
 
-    const {patient: selectedPatient} = useAppSelector(appointmentSelector);
-    const {stepsData: patient} = useAppSelector(addPatientSelector);
-    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+    const { patient: selectedPatient } = useAppSelector(appointmentSelector);
+    const { stepsData: patient } = useAppSelector(addPatientSelector);
+    const { last_fiche_id } = useAppSelector(dashLayoutSelector);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const locations = medical_entity?.location ?? null;
@@ -219,6 +220,8 @@ function OnStepPatient({...props}) {
 
     const formik = useFormik({
         initialValues: {
+            avatar: '',
+            ref_by: "",
             fiche_id: selectedPatient
                 ? selectedPatient.fiche_id ? selectedPatient.fiche_id : ""
                 : last_fiche_id,//patient.step1.fiche_id,
@@ -296,11 +299,11 @@ function OnStepPatient({...props}) {
         onSubmit: async (values) => {
             if (OnSubmit) {
                 setLoading(true);
-                OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
+                OnSubmit({ ...values, contact: contacts[0], countryCode: selectedCountry });
             }
         },
     });
-    const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps, setValues} = formik;
+    const { values, handleSubmit, touched, errors, setFieldValue, getFieldProps, setValues } = formik;
 
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [contactRelations] = useState(PatientContactRelation.map(relation => ({
@@ -318,17 +321,17 @@ function OnStepPatient({...props}) {
     const [error, setError] = useState<boolean>(false);
     const [loadingRequestAddressedBy, setLoadingRequestAddressedBy] = useState(false);
 
-    const {data: httpStatesResponse} = useRequestQuery(expanded && values.country ? {
+    const { data: httpStatesResponse } = useRequestQuery(expanded && values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpProfessionalLocationResponse} = useRequestQuery((expanded && locations && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+    const { data: httpProfessionalLocationResponse } = useRequestQuery((expanded && locations && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
+    const { trigger: triggerAddressedBy } = useRequestQueryMutation("/patient/addressed-by/add");
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
     const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state ?? null;
@@ -379,7 +382,10 @@ function OnStepPatient({...props}) {
         }];
         formik.setFieldValue("insurance", insurance);
     };
-
+    const handleDrop = (acceptedFiles: FileList) => {
+        const file = acceptedFiles[0];
+        setFieldValue("avatar", URL.createObjectURL(file));
+    }
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
     }
@@ -410,7 +416,7 @@ function OnStepPatient({...props}) {
             errors.hasOwnProperty("lastName") ||
             errors.hasOwnProperty("phones") ||
             errors.hasOwnProperty("gender")) {
-            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+            (topRef.current as unknown as HTMLElement)?.scrollIntoView({ behavior: 'smooth' });
         }
     }, [errors, touched]);
 
@@ -420,7 +426,7 @@ function OnStepPatient({...props}) {
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <FormikProvider value={formik}>
@@ -436,27 +442,89 @@ function OnStepPatient({...props}) {
                 autoComplete="off"
                 noValidate
                 onSubmit={handleSubmit}>
-                <Stack spacing={2} className="inner-section">
-                    <div ref={topRef}/>
+                <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 1, overflow: "visible" }}>
+                    {t("title")}
+                </Typography>
+                <Stack spacing={2} className="inner-section" sx={{ border: `1px dashed ${theme.palette.divider}`, borderRadius: 1 }} p={2} >
+                    <div ref={topRef} />
                     <Box>
-                        <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
-                            {t("personal-info")}
-                        </Typography>
+                        <Stack direction="row" alignItems="flex-end" spacing={2}>
+                            <Avatar
+                                sx={{ width: 70, height: 70, cursor: 'pointer' }}
+                                component='label'
+                                htmlFor="contained-button-file"
+                                src={values.avatar}
+                            >
+                                <InputStyled
+                                    onChange={(e) => handleDrop(e.target.files as FileList)}
+                                    id="contained-button-file"
+                                    type="file"
+                                />
+                                <IconUrl path="ic-linear-camera-add" width={28} height={28} />
+                            </Avatar>
+                            <Stack>
+                                <Typography fontWeight={500} variant="body2" color="text.secondary" gutterBottom>
+                                    {t("fiche")}
+                                </Typography>
+                                <TextField
+                                    sx={{
+                                        "& .MuiOutlinedInput-root": {
+                                            background: theme.palette.grey[50],
+                                        }
+                                    }}
+                                    placeholder={t("fiche-placeholder")}
+                                    variant="outlined"
+                                    size="small"
+                                    fullWidth
+                                    {...getFieldProps("fiche_id")}
+                                />
+                            </Stack>
+                            <Stack>
+                                <Typography fontWeight={500} variant="body2" color="text.secondary" gutterBottom>
+                                    {t("referred_by")}
+                                </Typography>
+                                <FormControl variant="outlined" fullWidth sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                        background: theme.palette.common.white,
+                                    }
+                                }}>
+                                    <Select
+                                        fullWidth
+                                        id="sms-input"
+                                        displayEmpty
+                                        size='small'
+                                        value={values.ref_by}
+                                        onChange={(res) => {
+                                            setFieldValue("ref_by", res.target.value);
+                                        }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return (
+                                                    <Typography color={'text.secondary'}>{t("select_referred_by")}</Typography>
+                                                )
 
-                        <Box mb={2}>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("fiche")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("fiche-placeholder")}
-                                type="email"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("fiche_id")}
-                            />
-                        </Box>
-                        <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
+                                            };
+                                            return (
+                                                <Typography color={'text.secondary'}>{selected}</Typography>
+                                            )
+
+
+                                        }}
+
+                                    >
+                                        {[1, 2, 3].map((time) => (
+                                            <MenuItem
+                                                key={time}
+                                                value={time}
+                                            >
+                                                {time}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Stack>
+                        </Stack>
+                        {/* <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                                 {t("gender")} {" "}
                                 <Typography component="span" color="error">
@@ -464,79 +532,127 @@ function OnStepPatient({...props}) {
                                 </Typography>
                             </Typography>
                             <RadioGroup row aria-label="gender"
-                                        sx={{
-                                            ml: ".2rem"
-                                        }}
-                                        {...getFieldProps("gender")}>
+                                sx={{
+                                    ml: ".2rem"
+                                }}
+                                {...getFieldProps("gender")}>
                                 <FormControlLabel
                                     value={1}
-                                    control={<Radio size="small"/>}
+                                    control={<Radio size="small" />}
                                     label={t("mr")}
                                 />
                                 <FormControlLabel
                                     value={2}
-                                    control={<Radio size="small"/>}
+                                    control={<Radio size="small" />}
                                     label={t("mrs")}
                                 />
                             </RadioGroup>
                             {(touched.gender && errors.gender) &&
                                 <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
-                        </FormControl>
+                        </FormControl> */}
                     </Box>
                     <Box className={"inner-box"}>
                         <Grid container spacing={2}>
-                            <Grid item md={6} xs={12}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                    component="span">
-                                    {t("first-name")}{" "}
-                                    <Typography component="span" color="error">
-                                        *
+                            <Grid item md={3} xs={12}>
+                                <Stack>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("gender")} {" "}
+                                        <Typography component="span" color="error">
+                                            *
+                                        </Typography>
                                     </Typography>
-                                </Typography>
-                                <TextField
-                                    variant="outlined"
-                                    placeholder={t("first-name-placeholder")}
-                                    size="small"
-                                    fullWidth
-                                    {...getFieldProps("firstName")}
-                                    error={Boolean(touched.firstName && errors.firstName)}
-                                />
-                                {Boolean(touched.firstName && errors.firstName) &&
-                                    <FormHelperText error sx={{maxWidth: "280px"}}>
-                                        {String(errors.firstName)}
-                                    </FormHelperText>}
+                                    <Select
+                                        fullWidth
+                                        id="sms-input"
+                                        displayEmpty
+                                        size='small'
+                                        value={values.gender}
+                                        onChange={(res) => {
+                                            setFieldValue("gender", res.target.value);
+                                        }}
+                                        renderValue={(selected) => {
+                                            if (!selected) {
+                                                return (
+                                                    <Typography color={'text.secondary'}>{t("gender")}</Typography>
+                                                )
+
+                                            };
+                                            return (
+                                                <Typography color={'text.secondary'}>{selected}</Typography>
+                                            )
+
+
+                                        }}
+
+                                    >
+                                        {["mr", "mrs"].map((gender) => (
+                                            <MenuItem
+                                                key={gender}
+                                                value={gender}
+                                            >
+                                                {t(gender)}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    {(touched.gender && errors.gender) &&
+                                        <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
+                                </Stack>
                             </Grid>
-                            <Grid item md={6} xs={12}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                    component="span">
-                                    {t("last-name")}{" "}
-                                    <Typography component="span" color="error">
-                                        *
-                                    </Typography>
-                                </Typography>
-                                <TextField
-                                    variant="outlined"
-                                    placeholder={t("last-name-placeholder")}
-                                    size="small"
-                                    fullWidth
-                                    {...getFieldProps("lastName")}
-                                    error={Boolean(touched.lastName && errors.lastName)}
-                                />
-                                {Boolean(touched.lastName && errors.lastName) &&
-                                    <FormHelperText error sx={{maxWidth: "280px"}}>
-                                        {String(errors.lastName)}
-                                    </FormHelperText>}
+                            <Grid item md={9} xs={12}>
+                                <Grid container spacing={2}>
+                                    <Grid item md={6} xs={12}>
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            gutterBottom
+                                        >
+                                            {t("first-name")}{" "}
+                                            <Typography component="span" color="error">
+                                                *
+                                            </Typography>
+                                        </Typography>
+                                        <TextField
+                                            variant="outlined"
+                                            placeholder={t("first-name-placeholder")}
+                                            size="small"
+                                            fullWidth
+                                            {...getFieldProps("firstName")}
+                                            error={Boolean(touched.firstName && errors.firstName)}
+                                        />
+                                        {Boolean(touched.firstName && errors.firstName) &&
+                                            <FormHelperText error sx={{ maxWidth: "280px" }}>
+                                                {String(errors.firstName)}
+                                            </FormHelperText>}
+                                    </Grid>
+                                    <Grid item md={6} xs={12}>
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            gutterBottom>
+                                            {t("last-name")}{" "}
+                                            <Typography component="span" color="error">
+                                                *
+                                            </Typography>
+                                        </Typography>
+                                        <TextField
+                                            variant="outlined"
+                                            placeholder={t("last-name-placeholder")}
+                                            size="small"
+                                            fullWidth
+                                            {...getFieldProps("lastName")}
+                                            error={Boolean(touched.lastName && errors.lastName)}
+                                        />
+                                        {Boolean(touched.lastName && errors.lastName) &&
+                                            <FormHelperText error sx={{ maxWidth: "280px" }}>
+                                                {String(errors.lastName)}
+                                            </FormHelperText>}
+                                    </Grid>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Box>
 
-                    <Box
+                    {/* <Box
                         className={"inner-box"}
                         sx={{
                             "& .MuiOutlinedInput-root button": {
@@ -582,7 +698,7 @@ function OnStepPatient({...props}) {
                                             fullWidth: true,
                                             ...((values.birthdate !== null || error) && {
                                                 error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
-                                                ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
+                                                ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && { helperText: t('invalidDate') })
                                             })
                                         }
                                     }}
@@ -618,13 +734,13 @@ function OnStepPatient({...props}) {
                                 />
                             </Grid>
                         </Grid>
-                    </Box>
+                    </Box> */}
 
-                    <Stack sx={{m: 1}} spacing={2}>
+                    <Stack spacing={2}>
                         {values.phones.map((phoneObject, index: number) => (
-                            <fieldset key={index}>
-                                <Box m={1.2}>
-                                    <Grid container spacing={{xs: 1, md: 2}}>
+                            <Stack key={index}>
+                                <Box>
+                                    <Grid container spacing={{ xs: 1, md: 2 }}>
                                         <Grid item xs={6} md={4}>
                                             <Box>
                                                 <Typography
@@ -648,7 +764,7 @@ function OnStepPatient({...props}) {
                                                     options={contactRelations}
                                                     getOptionLabel={(option: any) => option?.label ? option.label : ""}
                                                     isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
-                                                    renderOption={(params, option, {selected}) => (
+                                                    renderOption={(params, option, { selected }) => (
                                                         <MenuItem
                                                             {...params}
                                                             value={option.key}>
@@ -656,7 +772,7 @@ function OnStepPatient({...props}) {
                                                         </MenuItem>)}
                                                     renderInput={(params) => {
                                                         return (<TextField {...params}
-                                                                           placeholder={t("add-patient.relation-placeholder")}/>)
+                                                            placeholder={t("add-patient.relation-placeholder")} />)
                                                     }}
                                                 />
                                             </Box>
@@ -710,10 +826,10 @@ function OnStepPatient({...props}) {
                                                         ),
                                                     }}
                                                     {...(values.phones[index].phone?.length > 0 &&
-                                                        {
-                                                            helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
-                                                                getFieldProps(`phones[${index}].phone`).value : ""}`
-                                                        })}
+                                                    {
+                                                        helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                            getFieldProps(`phones[${index}].phone`).value : ""}`
+                                                    })}
                                                     error={Boolean(errors.phones && (errors.phones as any)[index])}
                                                     country={phoneObject.dial?.code.toUpperCase() as any}
                                                     value={getFieldProps(`phones[${index}].phone`) ?
@@ -739,11 +855,11 @@ function OnStepPatient({...props}) {
                                                     className={"toggle-button"}
                                                     sx={{
                                                         minWidth: 34,
-                                                        ...(values.phones[index].isWhatsapp && {border: "none"}),
+                                                        ...(values.phones[index].isWhatsapp && { border: "none" }),
                                                         background: values.phones[index].isWhatsapp ? theme.palette.primary.main : theme.palette.grey['A500']
                                                     }}>
                                                     <IconUrl width={19} height={19}
-                                                             path={`ic-whatsapp${values.phones[index].isWhatsapp ? '-white' : ''}`}/>
+                                                        path={`ic-whatsapp${values.phones[index].isWhatsapp ? '-white' : ''}`} />
                                                 </ToggleButtonStyled>
 
                                                 {index > 0 && <IconButton
@@ -758,13 +874,13 @@ function OnStepPatient({...props}) {
                                                             },
                                                         },
                                                     }}>
-                                                    <Icon path="ic-moin"/>
+                                                    <Icon path="ic-moin" />
                                                 </IconButton>}
                                             </Stack>
                                         </Grid>
                                     </Grid>
                                     {values.phones[index].relation !== "himself" &&
-                                        <Grid container spacing={{xs: 1, md: 2}} pt={1}>
+                                        <Grid container spacing={{ xs: 1, md: 2 }} pt={1}>
                                             <Grid item md={6} xs={12} lg={6}>
                                                 <Box>
                                                     <Typography
@@ -809,11 +925,11 @@ function OnStepPatient({...props}) {
                                             </Grid>
                                         </Grid>}
                                 </Box>
-                            </fieldset>
+                            </Stack>
 
                         ))}
                     </Stack>
-                    <Button size={"small"} sx={{width: 160}} onClick={handleAddPhone} startIcon={<AddIcon/>}>
+                    <Button size={"small"} sx={{ width: 160 }} onClick={handleAddPhone} startIcon={<AddIcon />}>
                         {t("add-contact")}
                     </Button>
 
@@ -826,7 +942,7 @@ function OnStepPatient({...props}) {
                             onClick={handleExpandClick}
                             aria-expanded={expanded}
                             aria-label="show more">
-                            <ExpandMoreIcon/>
+                            <ExpandMoreIcon />
                             <Typography>{expanded ? t("less-detail") : t("more-detail")}</Typography>
                         </ExpandMore>
                     </Box>
@@ -854,7 +970,7 @@ function OnStepPatient({...props}) {
                                     size="small"
                                     value={(countriesData.find(country => country.uuid === values.nationality) ?? null) as any}
                                     onChange={(e, v: any) => setFieldValue("nationality", v.uuid)}
-                                    sx={{color: "text.secondary"}}
+                                    sx={{ color: "text.secondary" }}
                                     options={countriesData}
                                     loading={countriesData.length === 0}
                                     getOptionLabel={(option: any) => option?.name ?? ""}
@@ -870,7 +986,7 @@ function OnStepPatient({...props}) {
                                                 alt={"flags"}
                                                 src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                             />}
-                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                            <Typography sx={{ ml: 1 }}>{option.name}</Typography>
                                         </MenuItem>
                                     )}
                                     renderInput={params => {
@@ -892,15 +1008,15 @@ function OnStepPatient({...props}) {
                                         );
 
                                         return <TextField color={"info"}
-                                                          {...params}
-                                                          sx={{paddingLeft: 0}}
-                                                          placeholder={t("nationality")}
-                                                          variant="outlined" fullWidth/>;
-                                    }}/>
+                                            {...params}
+                                            sx={{ paddingLeft: 0 }}
+                                            placeholder={t("nationality")}
+                                            variant="outlined" fullWidth />;
+                                    }} />
                             </FormControl>
                         </Box>
-                        <fieldset style={{marginBottom: 10}}>
-                            <legend style={{fontWeight: "bold"}}>{t("address-group")}</legend>
+                        <fieldset style={{ marginBottom: 10, padding: 8 }}>
+                            <legend style={{ fontWeight: "bold" }}>{t("address-group")}</legend>
                             <Box>
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
                                     {t("address")}
@@ -934,7 +1050,7 @@ function OnStepPatient({...props}) {
                                         onChange={(e, v: any) => {
                                             setFieldValue("country", v.uuid);
                                         }}
-                                        sx={{color: "text.secondary"}}
+                                        sx={{ color: "text.secondary" }}
                                         options={countriesData.filter(country => country.hasState)}
                                         loading={countriesData.length === 0}
                                         getOptionLabel={(option: any) => option?.name ?? ""}
@@ -953,7 +1069,7 @@ function OnStepPatient({...props}) {
                                                     alt={"flags"}
                                                     src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                                 />}
-                                                <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                <Typography sx={{ ml: 1 }}>{option.name}</Typography>
                                             </MenuItem>
                                         )}
                                         renderInput={params => {
@@ -975,11 +1091,11 @@ function OnStepPatient({...props}) {
                                             );
 
                                             return <TextField color={"info"}
-                                                              {...params}
-                                                              sx={{paddingLeft: 0}}
-                                                              placeholder={t("country-placeholder")}
-                                                              variant="outlined" fullWidth/>;
-                                        }}/>
+                                                {...params}
+                                                sx={{ paddingLeft: 0 }}
+                                                placeholder={t("country-placeholder")}
+                                                variant="outlined" fullWidth />;
+                                        }} />
                                 </FormControl>
                             </Box>
                             <Box>
@@ -1004,7 +1120,7 @@ function OnStepPatient({...props}) {
                                                     setFieldValue("region", state.uuid);
                                                     setFieldValue("zip_code", state.zipCode);
                                                 }}
-                                                sx={{color: "text.secondary"}}
+                                                sx={{ color: "text.secondary" }}
                                                 options={states}
                                                 loading={states?.length === 0}
                                                 getOptionLabel={(option) => option?.name ?? ""}
@@ -1014,16 +1130,16 @@ function OnStepPatient({...props}) {
                                                         {...props}
                                                         key={option.uuid}
                                                         value={option.uuid}>
-                                                        <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                        <Typography sx={{ ml: 1 }}>{option.name}</Typography>
                                                     </MenuItem>
                                                 )}
                                                 renderInput={params => <TextField color={"info"}
-                                                                                  {...params}
-                                                                                  placeholder={t("region-placeholder")}
-                                                                                  sx={{paddingLeft: 0}}
-                                                                                  variant="outlined" fullWidth/>}/>
+                                                    {...params}
+                                                    placeholder={t("region-placeholder")}
+                                                    sx={{ paddingLeft: 0 }}
+                                                    variant="outlined" fullWidth />} />
                                             {errors.region && (
-                                                <FormHelperText error sx={{mx: 0}}>
+                                                <FormHelperText error sx={{ mx: 0 }}>
                                                     {errors.region as string}
                                                 </FormHelperText>
                                             )}
@@ -1050,7 +1166,7 @@ function OnStepPatient({...props}) {
                             </Box>
                         </fieldset>
                         <Box>
-                            <Typography sx={{mt: 1.5, mb: 1, textTransform: "capitalize"}}>
+                            <Typography sx={{ mt: 1.5, mb: 1, textTransform: "capitalize" }}>
                                 <IconButton
                                     onClick={handleAddInsurance}
                                     className="success-light"
@@ -1063,18 +1179,18 @@ function OnStepPatient({...props}) {
                                         },
                                     }}
                                 >
-                                    <Icon path="ic-plus"/>
+                                    <Icon path="ic-plus" />
                                 </IconButton>
                                 {t("assurance")}
                             </Typography>
-                            <Box sx={{mb: 1.5}}>
+                            <Box sx={{ mb: 1.5 }}>
                                 <FieldArray
                                     name={"insurance"}
                                     render={() => (
                                         values.insurance.map((
                                             val: any,
                                             index: number) => (
-                                            <Card key={index} sx={{marginBottom: 2}}>
+                                            <Card key={index} sx={{ marginBottom: 2 }}>
                                                 <CardHeader
                                                     sx={{
                                                         "& .MuiCardHeader-action": {
@@ -1097,7 +1213,7 @@ function OnStepPatient({...props}) {
                                                                 },
                                                             }}
                                                         >
-                                                            <Icon path="ic-moin"/>
+                                                            <Icon path="ic-moin" />
                                                         </IconButton>
                                                     }
                                                     avatar={
@@ -1113,7 +1229,7 @@ function OnStepPatient({...props}) {
                                                                 id={"assure"}
                                                                 options={socialInsurances}
                                                                 groupBy={(option: any) => option.grouped}
-                                                                sx={{minWidth: 500}}
+                                                                sx={{ minWidth: 500 }}
                                                                 getOptionLabel={(option: any) => option?.label ?? ""}
                                                                 isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
                                                                 renderGroup={(params) => {
@@ -1121,20 +1237,20 @@ function OnStepPatient({...props}) {
                                                                         <li key={params.key}>
                                                                             {(params.children as Array<any>)?.length > 1 &&
                                                                                 <GroupHeader
-                                                                                    sx={{marginLeft: 0.8}}>{params.group}</GroupHeader>}
+                                                                                    sx={{ marginLeft: 0.8 }}>{params.group}</GroupHeader>}
                                                                             <GroupItems {...(
                                                                                 (params.children as Array<any>)?.length > 1 &&
-                                                                                {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
+                                                                                { sx: { marginLeft: 2 } })}>{params.children}</GroupItems>
                                                                         </li>)
                                                                 }}
                                                                 renderInput={(params) => {
                                                                     return (<TextField {...params}
-                                                                                       placeholder={t("patient-placeholder")}/>)
+                                                                        placeholder={t("patient-placeholder")} />)
                                                                 }}
                                                             />
                                                         </Stack>
-                                                    }/>
-                                                <CardContent sx={{padding: "0 16px 16px"}}>
+                                                    } />
+                                                <CardContent sx={{ padding: "0 16px 16px" }}>
                                                     <Typography variant="body2" color="text.secondary" gutterBottom>
                                                         {t("assurance-social")}
                                                     </Typography>
@@ -1165,7 +1281,7 @@ function OnStepPatient({...props}) {
                                                                                     src={insuranceItem?.logoUrl.url}
                                                                                 />}
                                                                             <Typography
-                                                                                sx={{ml: 1}}>{insuranceItem.name}</Typography>
+                                                                                sx={{ ml: 1 }}>{insuranceItem.name}</Typography>
                                                                         </MenuItem>)}
                                                                     renderInput={(params) => {
                                                                         const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
@@ -1180,15 +1296,15 @@ function OnStepPatient({...props}) {
                                                                         );
 
                                                                         return <TextField color={"info"}
-                                                                                          {...params}
-                                                                                          sx={{paddingLeft: 0}}
-                                                                                          placeholder={t("assurance-placeholder")}
-                                                                                          variant="outlined"
-                                                                                          fullWidth/>;
-                                                                    }}/>
+                                                                            {...params}
+                                                                            sx={{ paddingLeft: 0 }}
+                                                                            placeholder={t("assurance-placeholder")}
+                                                                            variant="outlined"
+                                                                            fullWidth />;
+                                                                    }} />
 
                                                                 {touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_uuid && (
-                                                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                                                    <FormHelperText error sx={{ px: 2, mx: 0 }}>
                                                                         {(errors.insurance as any)[index].insurance_uuid}
                                                                     </FormHelperText>
                                                                 )}
@@ -1213,12 +1329,12 @@ function OnStepPatient({...props}) {
                                                     </Grid>
                                                 </CardContent>
                                                 <Collapse in={getFieldProps(`insurance[${index}].expand`).value}
-                                                          timeout="auto"
-                                                          unmountOnExit>
-                                                    <CardContent sx={{paddingTop: 0}} className={"insurance-section"}>
+                                                    timeout="auto"
+                                                    unmountOnExit>
+                                                    <CardContent sx={{ paddingTop: 0 }} className={"insurance-section"}>
                                                         <Box mb={1}>
                                                             <Typography variant="body2" color="text.secondary"
-                                                                        gutterBottom>
+                                                                gutterBottom>
                                                                 {t("first-name")}
                                                             </Typography>
                                                             <TextField
@@ -1239,7 +1355,7 @@ function OnStepPatient({...props}) {
                                                         </Box>
                                                         <Box mb={1}>
                                                             <Typography variant="body2" color="text.secondary"
-                                                                        gutterBottom>
+                                                                gutterBottom>
                                                                 {t("last-name")}
                                                             </Typography>
                                                             <TextField
@@ -1270,7 +1386,7 @@ function OnStepPatient({...props}) {
                                                             }}>
 
                                                             <Typography variant="body2" color="text.secondary"
-                                                                        gutterBottom>
+                                                                gutterBottom>
                                                                 {t("birthday")}
                                                             </Typography>
 
@@ -1287,7 +1403,7 @@ function OnStepPatient({...props}) {
                                                         </Box>
                                                         <Box>
                                                             <Typography variant="body2" color="text.secondary"
-                                                                        gutterBottom>
+                                                                gutterBottom>
                                                                 {t("telephone")}
                                                             </Typography>
                                                             <Grid container spacing={2}>
@@ -1299,7 +1415,7 @@ function OnStepPatient({...props}) {
                                                                         onSelect={(state: any) => {
                                                                             setFieldValue(`insurance[${index}].insurance_social.phone.value`, "")
                                                                             setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
-                                                                        }}/>
+                                                                        }} />
                                                                 </Grid>
                                                                 <Grid item md={6} lg={8} xs={12}>
                                                                     <PhoneInput
@@ -1309,10 +1425,10 @@ function OnStepPatient({...props}) {
                                                                         error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.phone)}
                                                                         withCountryCallingCode
                                                                         {...(getFieldProps(`insurance[${index}].insurance_social.phone.value`) &&
-                                                                            {
-                                                                                helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
-                                                                                    getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
-                                                                            })}
+                                                                        {
+                                                                            helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`insurance[${index}].insurance_social.phone.value`)?.value ?
+                                                                                getFieldProps(`insurance[${index}].insurance_social.phone.value`).value : ""}`
+                                                                        })}
                                                                         country={(getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
                                                                             getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value)?.code :
                                                                             doctor_country.code) as any}
@@ -1448,7 +1564,7 @@ function OnStepPatient({...props}) {
                                             return option.name;
                                         }}
                                         filterOptions={(options: any, params: any) => {
-                                            const {inputValue} = params;
+                                            const { inputValue } = params;
                                             const filtered = options.filter((option: any) =>
                                                 option.name
                                                     .toLowerCase()
@@ -1471,7 +1587,7 @@ function OnStepPatient({...props}) {
                                         }}
                                         renderOption={(props: any, option: any) => (
                                             <ListItem {...props}>
-                                                <ListItemText primary={`${option?.name}`}/>
+                                                <ListItemText primary={`${option?.name}`} />
                                             </ListItem>
                                         )}
                                         isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
@@ -1502,7 +1618,7 @@ function OnStepPatient({...props}) {
                                         }}
                                         renderOption={(props: any, option: any) => (
                                             <ListItem {...props}>
-                                                <ListItemText primary={`${option?.name}`}/>
+                                                <ListItemText primary={`${option?.name}`} />
                                             </ListItem>
                                         )}
                                         isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
@@ -1536,7 +1652,7 @@ function OnStepPatient({...props}) {
                         {t("cancel")}
                     </Button>
                     <LoadingButton
-                        {...{loading}}
+                        {...{ loading }}
                         disabled={error}
                         variant="contained" type="submit" color="primary">
                         {t("next")}

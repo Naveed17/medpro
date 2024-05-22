@@ -5,6 +5,7 @@ const QuickAddAppointmentStyled = styled(Stack)(({theme}) => ({
     height: '100vh',
     minWidth: "45vw",
     overflowY: 'scroll',
+    maxWidth: '45vw',
     background: theme.palette.common.white,
     '& .MuiAvatar-root': {
         //width: 40,
