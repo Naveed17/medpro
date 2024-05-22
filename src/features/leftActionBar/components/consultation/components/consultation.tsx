@@ -39,7 +39,7 @@ import {ExpandAbleCard} from "@features/card";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useInsurances, useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import Content from "@features/leftActionBar/components/consultation/content";
+import Content from "@features/leftActionBar/components/consultation/components/content";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";

@@ -83,48 +83,6 @@ function OHead({ ...props }) {
                                         </Box>
                                     ) : null}
                                 </TableSortLabel>
-                                {/*{headCell.id === "duration" && (
-                  <Stack direction="row" width={1} ml={2}>
-                    <Checkbox
-                      checked={state?.duration}
-                      onChange={(e) => {
-                        handleChange(e.target.checked, headCell.id);
-                      }}
-                      inputProps={{ "aria-label": "controlled" }}
-                      size="small"
-                      name="durationEnable"
-                    />
-                    <TextField
-                      id="outlined-select-currency-native"
-                      select
-                      size="small"
-                      fullWidth
-                      value={state && state[headCell.id]}
-                      name={headCell.id}
-                      //onChange={handleChange}
-                      SelectProps={{
-                        native: true,
-                      }}
-                    >
-                      <option value={10}>10 min</option>
-                      <option value={20}>20 min</option>
-                      <option value={30}>30 min</option>
-                    </TextField>
-                  </Stack>
-                )}*/}
-                                {/*{(headCell.id === "delay_min" ||
-                    headCell.id === "delay_max" ||
-                    headCell.id === "isEnabled") && (
-                    <Switch
-                        checked={Boolean(state && state[headCell.id])}
-                        name={headCell.id}
-                        onChange={(e) => {
-                          handleChange(e.target.value, headCell.id);
-                        }}
-                        inputProps={{"aria-label": "controlled"}}
-                        sx={{m: headCell.id === "isEnabled" ? "auto" : 0}}
-                    />
-                )}*/}
                             </TableCell>
                         )}
                     </React.Fragment>

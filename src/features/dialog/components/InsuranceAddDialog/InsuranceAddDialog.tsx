@@ -298,7 +298,7 @@ function InsuranceAddDialog({...props}) {
                                                             const dateInput = moment(date);
                                                             setFieldValue(`insurances[${index}].insurance_social.birthday`, dateInput.isValid() ? dateInput.format('DD-MM-YYYY') : "");
                                                         }}
-                                                        inputFormat="dd/MM/yyyy"
+                                                        format="dd/MM/yyyy"
                                                     />
                                                 </FormControl>
                                             </Stack>

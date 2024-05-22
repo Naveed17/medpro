@@ -61,6 +61,11 @@ const PersonalInfoStyled = styled(Box)(({theme}) => ({
         height: "auto",
         minWidth: "auto",
         right: "-0.5rem"
+    },
+    "& .MuiInputBase-root.Mui-error": {
+        border: "1px dashed",
+        borderRadius: 4,
+        borderColor: theme.palette.error.main
     }
 }));
 
