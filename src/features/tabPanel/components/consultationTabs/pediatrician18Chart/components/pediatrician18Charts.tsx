@@ -14,7 +14,6 @@ import {merge} from "lodash";
 import {ChartsOption} from "@features/charts";
 import {useGeneratePdfTemplate} from "@lib/hooks";
 
-
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
 function Pediatrician18Charts({...props}) {

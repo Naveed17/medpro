@@ -691,3 +691,7 @@ ol, ul, menu {
   margin: 0;
   padding: revert;
 }
+
+table{
+  border-collapse: inherit;
+}

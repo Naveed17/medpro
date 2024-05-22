@@ -81,14 +81,18 @@ function useGeneratePdfTemplate() {
                 font: customFont,
                 color: textColor
             })
-            /* copiedPages[0].drawText(`Ma Maman Salma & Mon Papa Sélim`, {
-                 x: 110,
-                 y: 310,
-                 size: 12,
-                 rotate: degrees(2),
-                 font: customFont,
-                 color: textColor
-             })*/
+            // Draw Bebe parents names
+            const patientParents = patient.contact.reduce((text, contact) => text = contact.contactRelation === 3 ? `${text.length > 0 ? `${text} &` : ""} Ma Maman ${contact.contactSocial?.lastName}` : (contact.contactRelation === 2 ? `${text.length > 0 ? `${text} &` : ""} Mon Papa ${contact.contactSocial?.lastName}` : text), "");
+            if (patientParents.length > 0) {
+                copiedPages[0].drawText(patientParents, {
+                    x: patient.contact.filter(contact => [3, 2].includes(contact.contactRelation as number)).length === 2 ? 88 : 136,
+                    y: 310,
+                    size: 12,
+                    rotate: degrees(2),
+                    font: customFont,
+                    color: textColor
+                })
+            }
             // Draw bebe weight / size
             const weight = Object.values(sheet.poids.data).slice(-1)[0] as string;
             copiedPages[0].drawText(`${weight} Kg`, {
@@ -97,7 +101,7 @@ function useGeneratePdfTemplate() {
                 size: 14,
                 font: customFont,
                 color: textColor
-            })
+            });
             const size = Object.values(sheet.taille.data).slice(-1)[0]?.toString();
             copiedPages[0].drawText(`${size?.slice(-3, 1) ?? "0"} m ${size?.slice(-2)}`, {
                 x: 216,
@@ -105,7 +109,7 @@ function useGeneratePdfTemplate() {
                 size: 14,
                 font: customFont,
                 color: textColor
-            })
+            });
             // Draw bebe eye color
             /*copiedPages[0].drawCircle({
                 x: 91.2,
@@ -122,7 +126,7 @@ function useGeneratePdfTemplate() {
                 size: 14,
                 font: customFont,
                 color: textColor
-            })
+            });
             // Draw bebe photo
             if (patient?.hasPhoto) {
                 const photoURL = (patient?.hasPhoto as any).url?.url as string;
