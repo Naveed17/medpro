@@ -11,7 +11,6 @@ import IconUrl from "@themes/urlIcon";
 function Step1({...props}) {
     const {t, collapse, insurances, agreements} = props;
 
-
     const agreementList = agreements.filter((ag: any) => ag.insurance?.isConvention).reduce((acc:any, current:any) => {
         const x = acc.find((item:any) => item.mutual === current.mutual);
         if (!x) {
@@ -40,8 +39,7 @@ function Step1({...props}) {
 
     useEffect(()=>{
         if (selectedAgreement && typeof selectedAgreement === 'object') {
-            console.log(selectedAgreement)
-            dispatch(SetAgreement({...agreement, insurance: selectedAgreement,name:selectedAgreement.mutual}))
+            dispatch(SetAgreement({...agreement, insurance: selectedAgreement.insurance,name:selectedAgreement.mutual}))
         }        else
             dispatch(SetAgreement({...agreement, insurance: null,name:selectedAgreement}))
     },[selectedAgreement]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -91,12 +89,6 @@ function Step1({...props}) {
                         value={agreement?.name}
                         onInputChange={handleInputChange}
                         onChange={handleChange}
-
-                        /*onInputChange={(ev, newVal) => {
-                            console.log("newVal",newVal)
-
-                            dispatch(SetAgreement({...agreement, name: newVal}))
-                        }}*/
                         getOptionLabel={(option) => {
                             if (typeof option === 'string') {
                                 return option;
