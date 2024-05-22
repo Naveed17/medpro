@@ -832,7 +832,7 @@ function WaitingRoom() {
     });
 
     if (!ready) return (<LoadingScreen button text={"loading"}/>);
-    console.log("row", row)
+
     return (
         <>
             <SubHeader
