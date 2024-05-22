@@ -163,7 +163,6 @@ function RDVRow({...props}) {
     }
 
     const OnMenuActions = (action: string) => {
-        console.log(action);
         switch (action) {
             case "onConsultationDetail":
                 handleStartConsultation();
