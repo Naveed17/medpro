@@ -203,7 +203,8 @@
     "addavance": "Ajouter avance",
     "later": "Terminer plus tard",
     "appointments": "Consultations",
-    "insurance": "Assurance / Convention"
+    "insurance": "Assurance / Convention",
+    "convention": "Conventions"
   },
   "noTransaction": "Aucune transaction",
   "addTransaction": "Cliquez sur le bouton + pour ajouter une transaction",
@@ -215,7 +216,7 @@
     "global": "Bordereau global",
     "archived": "Bordereaux archivés",
     "print": "Imprimer",
-    "archive": "Generer",
+    "archive": "Générer",
     "export": "Exporter",
     "stat": "Statistique",
     "code": "Code",

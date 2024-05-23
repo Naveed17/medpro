@@ -1753,10 +1753,8 @@ function ConsultationInProgress() {
                     padding={{xs: 1, md: 0}}
                     direction={{xs: "column", md: "row"}}
                     alignItems="flex-end"
-                    justifyContent={
-                        selectedTab === "medical_procedures" ? "space-between" : "flex-end"
-                    }>
-                    {selectedTab === "medical_procedures" && (
+                    justifyContent={"flex-end"}>
+                    {/*{selectedTab === "medical_procedures" && (
                         <Stack direction="row" alignItems={"center"}>
                             <Stack
                                 direction="row"
@@ -1775,7 +1773,7 @@ function ConsultationInProgress() {
                                 </Stack>}
                             </Stack>
                         </Stack>
-                    )}
+                    )}*/}
 
                     {sheet?.status !== 5 && <LoadingButton
                         disabled={loading}

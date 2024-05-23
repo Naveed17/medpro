@@ -6,7 +6,7 @@ import IconUrl from "@themes/urlIcon";
 import {Theme} from "@mui/material/styles";
 
 function ArchiveSlipRow({...props}) {
-    const {row, data} = props;
+    const {row, data,handleEvent} = props;
     const {devise} = data
     const theme = useTheme() as Theme
 
@@ -76,6 +76,7 @@ function ArchiveSlipRow({...props}) {
                         <IconButton
                             size="small"
                             className="btn-edit"
+                            onClick={()=>handleEvent(row.uuid)}
                             sx={{mr: {md: 1}}}>
                             <IconUrl color={theme.palette.text.secondary} path="ic-printer-new"/>
                         </IconButton>

@@ -11,10 +11,10 @@ import {useRouter} from "next/router";
 
 const headCells = [
     {
-        id: "name",
+        id: "insurance",
         numeric: false,
         disablePadding: true,
-        label: "name",
+        label: "insurance",
         align: "left",
         sortable: true,
     },
@@ -35,7 +35,7 @@ const headCells = [
         sortable: false,
     },*/
     {
-        id: "total",
+        id: "amount",
         numeric: false,
         disablePadding: false,
         label: "total",
@@ -54,9 +54,9 @@ const headCells = [
 ];
 
 const InsuranceDocket = ({...props}) => {
-    const {patientInsurances, mutatePatientInsurances, patient,filterCB} = props;
+    const {filterCB} = props;
 
-    const {t} = useTranslation(["patient", "common"]);
+    const {t} = useTranslation(["payment", "common"]);
 
     const noAppData = {
         mainIcon: "ic-assurance",
@@ -73,10 +73,8 @@ const InsuranceDocket = ({...props}) => {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/list/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     });
     const insuranceList = httpInsurances?.data;
-
     const handleTableActions = (props: { action: string, event: MouseEvent, data: any }) => {
         const {data} = props;
-        console.log(data.uuid)
         router.push(`cashbox/insurance/${data.uuid}`)
     }
 

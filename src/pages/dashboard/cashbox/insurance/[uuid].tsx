@@ -170,6 +170,14 @@ function InscDetail() {
             sortable: true,
             align: "center",
         },
+        {
+            id: "acts",
+            numeric: true,
+            disablePadding: false,
+            label: "acts",
+            sortable: true,
+            align: "center",
+        },
         /*         {
                      id: "patientPart",
                      numeric: true,
@@ -240,14 +248,13 @@ function InscDetail() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/insurance-dockets/insurance/${uuid}/${router.locale}`,
     })
-
     const {data: httpAppointments, mutate: mutateApp} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/insurances/appointments/${uuid}/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
     const appointments = (httpAppointments as HttpResponse)?.data ?? null;
 
-/*
+    /*
     const {data: httpInsuranceConv} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
@@ -288,23 +295,25 @@ function InscDetail() {
             url: `${urlMedicalEntitySuffix}/insurance-dockets/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => {
+            onSuccess: (res) => {
+                exportDoc(res.data.data.uuid);
                 mutate()
                 mutateApp();
+                setSelectedTab("archived")
             }
         });
     }
 
-    const exportDoc = () => {
+    const exportDoc = (uuid: string) => {
         trigger(
             {
                 method: "GET",
-                url: `${urlMedicalEntitySuffix}/insurance-dockets/export/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/export/${router.locale}`,
             },
             {
                 onSuccess: (result) => {
                     const buffer = Buffer.from(result.data, "base64");
-                    saveAs(new Blob([buffer]), "apps.xlsx");
+                    saveAs(new Blob([buffer]), "transaction.pdf");
                 },
             }
         );
@@ -397,7 +406,7 @@ function InscDetail() {
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         <Typography fontSize={13} fontWeight={600} component="div">
-                                           -
+                                            -
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -533,6 +542,7 @@ function InscDetail() {
                                         disabled={rowsSelected.length === 0}
                                         variant="grey"
                                         startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
+                                {/*
                                 <Button fullWidth={isMobile}
                                         variant="grey"
                                         disabled={rowsSelected.length === 0}
@@ -543,6 +553,7 @@ function InscDetail() {
                                         disabled={rowsSelected.length === 0}
                                         onClick={() => exportDoc}
                                         startIcon={<IconUrl path="ic-export-new"/>}>{t("export")}</Button>
+*/}
                             </Stack>
                         </Stack>
                         <DesktopContainer>
@@ -557,7 +568,7 @@ function InscDetail() {
                                 totalPages={1}
                                 from={"insurance-appointment"}
                                 pagination
-                            /> :  <NoDataCard ns={"payment"} t={t} data={{
+                            /> : <NoDataCard ns={"payment"} t={t} data={{
                                 mainIcon: "agenda/ic-agenda-+",
                                 title: "no-data.title",
                                 description: "no-data.description",
@@ -625,9 +636,9 @@ function InscDetail() {
                     </Stack>
                     <DesktopContainer>
                         <Otable
-                            {...{t,devise}}
+                            {...{t, devise}}
                             headers={headCellsArchiveSlip}
-                            //handleEvent={handleTableActions}
+                            handleEvent={(ev: any) => exportDoc(ev)}
                             rows={dockets.filter((ev: any) => {
                                 return ev.name?.toLowerCase().includes(search.toLowerCase())
                             })}

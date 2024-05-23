@@ -9,7 +9,7 @@ import {useInsurances} from "@lib/hooks/rest";
 
 function AgreementsRow({...props}) {
     const {row, handleEvent} = props;
-console.log(row)
+
     const {insurances} = useInsurances()
     const theme = useTheme()
     return (

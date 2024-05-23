@@ -90,17 +90,17 @@ function InsuranceAppointmentRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.apci}
+                        {row.acts.map((act:any) => act.apci).filter(Boolean).join(',')}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
 
-           {/* <TableCell align="center">
+            <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.patient_part} {devise}
+                        {row.acts.map((act:any) => act.code).join(',')}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
@@ -109,16 +109,7 @@ function InsuranceAppointmentRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.refund} {devise}
-                    </Typography>
-                ) : (
-                    <Skeleton variant="text" width={100}/>
-                )}
-            </TableCell>*/}
-            <TableCell align="center">
-                {row ? (
-                    <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        {row.refund} {devise}
+                        {row.totalActAmount} {devise}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
