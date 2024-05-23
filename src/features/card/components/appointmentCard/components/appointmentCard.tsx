@@ -27,12 +27,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions, useInvalidateQueries} from "@lib/hooks";
 import {debounce} from "lodash";
-import {LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
 import moment from "moment-timezone";
-import {LocaleFnsProvider} from "@lib/localization";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useSession} from "next-auth/react";
@@ -48,7 +45,6 @@ function AppointmentCard({...props}) {
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {locale} = useAppSelector(configSelector);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
@@ -534,33 +530,29 @@ function AppointmentCard({...props}) {
                                                 <Typography variant="body1" color="text.primary" px={1.2} mt={0}>
                                                     {t("steppers.stepper-3.to", {ns: "agenda"})}
                                                 </Typography>
-                                                <LocalizationProvider
-                                                    adapterLocale={LocaleFnsProvider(locale)}
-                                                    dateAdapter={AdapterDateFns}>
-                                                    <MobileTimePicker
-                                                        ampm={false}
-                                                        value={reminder.timeRappel}
-                                                        onChange={(newValue) => {
-                                                            setReminder({
-                                                                ...reminder,
-                                                                init: false,
-                                                                timeRappel: newValue as Date
-                                                            })
-                                                        }}
-                                                        renderInput={(params) => (
-                                                            <TextField
-                                                                {...params}
-                                                                InputProps={{
-                                                                    endAdornment: (
-                                                                        <InputAdornment position="end">
-                                                                            <SortIcon/>
-                                                                        </InputAdornment>
-                                                                    ),
-                                                                }}
-                                                            />
-                                                        )}
-                                                    />
-                                                </LocalizationProvider>
+                                                <MobileTimePicker
+                                                    ampm={false}
+                                                    value={reminder.timeRappel}
+                                                    onChange={(newValue) => {
+                                                        setReminder({
+                                                            ...reminder,
+                                                            init: false,
+                                                            timeRappel: newValue as Date
+                                                        })
+                                                    }}
+                                                    slots={{
+                                                        textField: (params) => <TextField
+                                                            {...params}
+                                                            InputProps={{
+                                                                endAdornment: (
+                                                                    <InputAdornment position="end">
+                                                                        <SortIcon/>
+                                                                    </InputAdornment>
+                                                                ),
+                                                            }}
+                                                        />
+                                                    }}
+                                                />
                                             </Stack>}
                                     </Stack>
                                 </ListItem>

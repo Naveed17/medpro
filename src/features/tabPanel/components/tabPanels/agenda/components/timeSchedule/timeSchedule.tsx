@@ -32,8 +32,7 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {AnimatePresence, motion} from "framer-motion";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider, StaticTimePicker} from '@mui/x-date-pickers';
+import {PickersActionBarProps, StaticTimePicker} from '@mui/x-date-pickers';
 import CloseIcon from "@mui/icons-material/Close";
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -44,6 +43,43 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+
+function ActionList(props: PickersActionBarProps & {
+    customTime: Date | null,
+    t: any,
+    changeDateRef: any,
+    setChangeTime: any,
+    onTimeSlotChange: any
+}) {
+    const {customTime, t, setChangeTime, changeDateRef, onTimeSlotChange, className} = props;
+
+    return (
+        // Propagate the className such that CSS selectors can be applied
+        <DialogActions className={className}>
+            <Button
+                size={"small"}
+                disabled={!customTime}
+                onClick={() => {
+                    changeDateRef.current = false;
+                    setChangeTime(false);
+                    onTimeSlotChange(moment(customTime).format("HH:mm"));
+                }}
+                startIcon={<ScheduleRoundedIcon/>}>
+                {t("stepper-1.confirm-time")}
+            </Button>
+            <Button
+                size={"small"}
+                color={"black"}
+                onClick={() => {
+                    changeDateRef.current = false;
+                    setChangeTime(false);
+                }}
+                startIcon={<CloseIcon/>}>
+                {t("stepper-1.cancel-time")}
+            </Button>
+        </DialogActions>
+    );
+}
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select, withoutDateTime} = props;
@@ -450,51 +486,34 @@ function TimeSchedule({...props}) {
                                     }
 
                                     {changeTime &&
-                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                            <StaticTimePicker
-                                                {...(!isMobile && {orientation: "landscape"})}
-                                                className={"time-picker-schedule"}
-                                                ampmInClock={false}
-                                                //componentsProps={{ actionBar: { actions: [] } }}
-                                                components={{
-                                                    ActionBar: () => <DialogActions>
-                                                        <Button
-                                                            size={"small"}
-                                                            disabled={!customTime}
-                                                            onClick={() => {
-                                                                changeDateRef.current = false;
-                                                                setChangeTime(false);
-                                                                onTimeSlotChange(moment(customTime).format("HH:mm"));
-                                                            }}
-                                                            startIcon={<ScheduleRoundedIcon/>}>
-                                                            {t("stepper-1.confirm-time")}
-                                                        </Button>
-                                                        <Button
-                                                            size={"small"}
-                                                            color={"black"}
-                                                            onClick={() => {
-                                                                changeDateRef.current = false;
-                                                                setChangeTime(false);
-                                                            }}
-                                                            startIcon={<CloseIcon/>}>
-                                                            {t("stepper-1.cancel-time")}
-                                                        </Button>
-                                                    </DialogActions>
-                                                }}
-                                                ampm={false}
-                                                maxTime={new Date(0, 0, 0, 20, 0)}
-                                                minTime={new Date(0, 0, 0, 8)}
-                                                shouldDisableTime={(timeValue, clockType) => {
-                                                    return clockType === "minutes" && (timeValue % 5 !== 0);
-                                                }}
-                                                displayStaticWrapperAs="mobile"
-                                                value={customTime}
-                                                onChange={(newValue) => {
-                                                    setCustomTime(newValue);
-                                                }}
-                                                renderInput={(params) => <TextField {...params} />}
-                                            />
-                                        </LocalizationProvider>
+                                        <StaticTimePicker
+                                            {...(!isMobile && {orientation: "landscape"})}
+                                            className={"time-picker-schedule"}
+                                            ampmInClock={false}
+                                            ampm={false}
+                                            maxTime={new Date(0, 0, 0, 20, 0)}
+                                            minTime={new Date(0, 0, 0, 8)}
+                                            shouldDisableTime={(timeValue, clockType) => {
+                                                return clockType === "minutes" && (timeValue.getMinutes() % 5 !== 0);
+                                            }}
+                                            displayStaticWrapperAs="mobile"
+                                            value={customTime}
+                                            onChange={(newValue) => {
+                                                setCustomTime(newValue);
+                                            }}
+                                            slotProps={{
+                                                actionBar: {
+                                                    customTime,
+                                                    t,
+                                                    setChangeTime,
+                                                    changeDateRef,
+                                                    onTimeSlotChange
+                                                } as any
+                                            }}
+                                            slots={{
+                                                actionBar: ActionList as any
+                                            }}
+                                        />
                                     }
                                 </Grid>
                             </Grid>
@@ -559,8 +578,7 @@ function TimeSchedule({...props}) {
                     borderWidth: "0px",
                     textAlign: "right",
                 }}
-                className="action"
-            >
+                className="action">
                 <Button
                     size="medium"
                     variant="text-primary"
@@ -568,8 +586,7 @@ function TimeSchedule({...props}) {
                     sx={{
                         mr: 1,
                     }}
-                    onClick={() => onBack(currentStepper)}
-                >
+                    onClick={() => onBack(currentStepper)}>
                     {t("back")}
                 </Button>
                 <Button
@@ -577,8 +594,7 @@ function TimeSchedule({...props}) {
                     variant="contained"
                     color="primary"
                     disabled={recurringDates.length === 0}
-                    onClick={onNextStep}
-                >
+                    onClick={onNextStep}>
                     {t("next")}
                 </Button>
             </Paper>}

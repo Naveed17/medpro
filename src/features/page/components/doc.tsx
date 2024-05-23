@@ -59,7 +59,7 @@ function Doc({...props}) {
                 state.info.forEach((el: any, index: number) => {
                     const child = document.createElement('p');
                     child.append();
-                    elx += `<p style="font-weight: bold">${index + 1} • ${el?.drugName ?? ""} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}</p>`
+                    elx += `<p style="font-weight: bold; margin-top: 15px">${index + 1} • ${el?.drugName ?? ""} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}</p>`
                     el.cycles.map((cycle: any) => {
                         let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                         if (cycle.duration)
@@ -182,7 +182,7 @@ function Doc({...props}) {
                     txt = txt?.replaceAll('{tel}', state.tel)
                 txt = txt?.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                 txt = txt?.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
-                txt = txt?.replaceAll('&nbsp;', '')
+
                 data.content.content = txt;
                 setData({...data})
             }

@@ -9,7 +9,7 @@ import {
     Button,
     CardContent,
     Collapse,
-    IconButton,
+    IconButton, Link,
     List,
     ListItem,
     ListItemIcon,
@@ -39,7 +39,7 @@ import {ExpandAbleCard} from "@features/card";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useInsurances, useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import Content from "@features/leftActionBar/components/consultation/content";
+import Content from "@features/leftActionBar/components/consultation/components/content";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -262,22 +262,32 @@ function Consultation() {
                                         fontWeight: 500,
                                         width: 100
                                     }}>
-                                    {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
+                                    {capitalizeFirst(`${patient?.firstName ?? ""} ${patient?.lastName ?? ""}`)}
                                 </Typography>
-                                {patient?.contact && patient?.contact?.length > 0 &&
-                                    <Typography
-                                        component="div"
-                                        sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            "& .react-svg": {mr: 0.8},
-                                            mb: 0.3,
-                                        }}
-                                        variant="body2"
-                                        color="primary.main">
-                                        <Icon path="ic-phone"/>{patient?.contact[0]}
-                                    </Typography>
-                                }
+
+                                {patient?.contact?.map((contact: ContactModel, index: number) =>
+                                    <Stack key={index} direction={"row"} mb={.5} alignItems={"center"}>
+                                        <IconUrl
+                                            width={16}
+                                            height={16}
+                                            path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                            className="ic-tell"
+                                        />
+                                        <Link
+                                            underline="none"
+                                            {...(contact?.isWhatsapp && {target: "_blank"})}
+                                            href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                            variant="caption"
+                                            color="text.primary"
+                                            ml={.5}
+                                            fontSize={10}
+                                            fontWeight={"bold"}>
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                {contact.code} {contact.value}
+                                            </Stack>
+                                        </Link>
+                                    </Stack>
+                                )}
                                 {patient?.birthdate && <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                     <Icon path="ic-anniverssaire"/>
                                     <Typography variant="body2" sx={{

@@ -51,7 +51,6 @@ import Icon from "@themes/urlIcon";
 import {
     DefaultCountry,
     deleteAppointmentOptionsData,
-    EnvPattern,
     WaitingHeadCells,
     WaitingTodayCells
 } from "@lib/constants";
@@ -419,17 +418,14 @@ function WaitingRoom() {
 
     const handleSortSelect = (item: any) => {
         dispatch(setSortTime(item.value));
-        const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
-        if (!prodEnv) {
-            const params = new FormData();
-            params.append('waitingRoomDisplay', item.index.toString());
-            medicalEntityHasUser && updateAgendaConfig({
-                method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
-                data: params
-            })
-        }
+        const params = new FormData();
+        params.append('waitingRoomDisplay', item.index.toString());
+        medicalEntityHasUser && updateAgendaConfig({
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
+            data: params
+        })
 
         setAnchorEl(null);
     };
@@ -1391,8 +1387,10 @@ function WaitingRoom() {
                                         margin={2}>{t(`dialogs.delete-dialog.description`, {ns: "common"})}</Typography>
 
                             <Grid container spacing={1}>
-                                {deleteAppointmentOptions.map((option: any, index: number) =>
-                                    <Grid key={option.key} item md={4} xs={12}>
+                                {deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).map((option: any, index: number) =>
+                                    <Grid key={option.key} item
+                                          md={12 / deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).length}
+                                          xs={12}>
                                         <Card
                                             sx={{
                                                 padding: 1,

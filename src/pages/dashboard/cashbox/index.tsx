@@ -489,7 +489,7 @@ function Cashbox() {
 
     useEffect(() => {
         //reload resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment", 'menu', "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading"}/>);
@@ -840,6 +840,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
             fallback: false,
             ...(await serverSideTranslations(context.locale as string, [
                 "common",
+                'menu',
                 "payment",
             ])),
         },
