@@ -30,6 +30,27 @@ const poppins = Poppins({
 
 type SupportedLocales = keyof typeof locales;
 
+const isBrowser = typeof document !== "undefined";
+let insertionPoint: any;
+
+if (isBrowser) {
+    const emotionInsertionPoint = document.querySelector(
+        'meta[name="emotion-insertion-point"]',
+    );
+    insertionPoint = emotionInsertionPoint ?? undefined;
+}
+
+const cacheRtl = createCache({
+    key: "mui-style-rtl",
+    stylisPlugins: [prefixer, rtlPlugin],
+    insertionPoint,
+});
+
+const cacheLtr = createCache({
+    key: "mui-style-ltr",
+    insertionPoint,
+});
+
 function ThemeConfig({children}: LayoutProps) {
     const {mode} = useAppSelector(configSelector);
     const router = useRouter();
@@ -85,7 +106,7 @@ function ThemeConfig({children}: LayoutProps) {
     themeWithLocale.components = componentsOverride(themeWithLocale);
 
     return (
-        <CacheProvider value={styleCache}>
+        <CacheProvider value={dir === 'rtl' ? cacheRtl : cacheLtr}>
             <ThemeProvider theme={themeWithLocale}>
                 <CssBaseline/>
                 <main dir={dir} className={`${poppins.className}`}>

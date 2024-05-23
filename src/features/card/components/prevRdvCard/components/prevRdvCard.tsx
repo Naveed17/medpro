@@ -95,7 +95,7 @@ function PrevRdvCard() {
                                 <Stack spacing={.5}>
                                     <Typography color={theme.palette.grey[500]} fontWeight={500}>{t("disease")}</Typography>
                                     <Typography fontWeight={500} color={'text.secondary'}>
-                                        The Allergic List is currently empty. To start documenting Allergic, simply click the 'Add' button. Thank you!
+                                        The Allergic List is currently empty. To start documenting Allergic, simply click the Add button. Thank you!
                                     </Typography>
                                 </Stack>
                                 <Stack spacing={.5}>

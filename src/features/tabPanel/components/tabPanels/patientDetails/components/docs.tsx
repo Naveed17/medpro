@@ -1,12 +1,26 @@
 import React from 'react'
 import RootStyled from './overrides/rootStyle'
-import { Badge, Box, Card, CardContent, CardHeader, CardMedia, FormControl, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
-import { CustomIconButton } from '@features/buttons'
+import {
+    Badge,
+    Box,
+    Card,
+    CardContent,
+    CardHeader,
+    CardMedia,
+    FormControl,
+    InputAdornment,
+    Stack,
+    Tab,
+    Tabs,
+    TextField,
+    Typography
+} from '@mui/material'
+import {CustomIconButton} from '@features/buttons'
 import IconUrl from '@themes/urlIcon'
-import { a11yProps } from '@lib/hooks'
+import {a11yProps} from '@lib/hooks'
 
-function Docs({ ...props }) {
-    const { t, theme } = props;
+function Docs({...props}) {
+    const {t, theme} = props;
     const [currentTab, setCurrentTab] = React.useState(0);
     const handleTabsChange = (event: React.SyntheticEvent, newValue: number) => {
         setCurrentTab(newValue);
@@ -21,7 +35,7 @@ function Docs({ ...props }) {
                     </Typography>}
                     action={
                         <CustomIconButton color="primary">
-                            <IconUrl path="ic-plus" width={16} height={16} color={theme.palette.common.white} />
+                            <IconUrl path="ic-plus" width={16} height={16} color={theme.palette.common.white}/>
                         </CustomIconButton>
 
                     }
@@ -31,16 +45,18 @@ function Docs({ ...props }) {
                         <Tabs
                             variant="scrollable"
                             scrollButtons="auto"
-                            className='custom-tabs' value={currentTab} onChange={handleTabsChange} aria-label="patients tabs">
+                            className='custom-tabs' value={currentTab} onChange={handleTabsChange}
+                            aria-label="patients tabs">
                             {["medical_doc", "personal_doc"].map((title: string, tabHeaderIndex: number) =>
                                 <Tab key={`tabHeaderIndex-${tabHeaderIndex}`}
-                                    icon={
-                                        <Badge badgeContent={4} color={tabHeaderIndex === currentTab ? "primary" : "info"}>
-                                            <Box />
-                                        </Badge>}
+                                     icon={
+                                         <Badge badgeContent={4}
+                                                color={tabHeaderIndex === currentTab ? "primary" : "info"}>
+                                             <Box/>
+                                         </Badge>}
 
-                                    iconPosition='end'
-                                    label={t("tabs." + title)} {...a11yProps(tabHeaderIndex)} />)}
+                                     iconPosition='end'
+                                     label={t("tabs." + title)} {...a11yProps(tabHeaderIndex)} />)}
                         </Tabs>
                         <Stack direction='row' spacing={1} width={1}>
                             <TextField
@@ -48,26 +64,25 @@ function Docs({ ...props }) {
                                 fullWidth
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start">
-                                        <IconUrl path="ic-search" />
+                                        <IconUrl path="ic-search"/>
                                     </InputAdornment>,
-                                }} />
+                                }}/>
                             <CustomIconButton>
-                                <IconUrl path="ic-outline-filter" />
+                                <IconUrl path="ic-outline-filter"/>
                             </CustomIconButton>
                         </Stack>
                     </Stack>
                     <Stack display='grid'
-                        sx={{
-                            gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
-                            gap: 2,
-                            mt: 3
-                        }}
-                    >
+                           sx={{
+                               gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+                               gap: 2,
+                               mt: 3
+                           }}>
                         <Card className='doc-card'>
                             <CardMedia
-                                component={Box}
-                                children={<IconUrl path="ic-folder" width={34} height={34} />}
-                            />
+                                component={Box}>
+                                <IconUrl path="ic-folder" width={34} height={34}/>
+                            </CardMedia>
                             <CardContent>
                                 <Stack spacing={.5}>
                                     <Typography fontWeight={500}>
@@ -81,9 +96,9 @@ function Docs({ ...props }) {
                         </Card>
                         <Card className='doc-card'>
                             <CardMedia
-                                component={Box}
-                                children={<IconUrl path="folder-open" width={34} height={34} />}
-                            />
+                                component={Box}>
+                                <IconUrl path="folder-open" width={34} height={34}/>
+                            </CardMedia>
                             <CardContent>
                                 <Stack spacing={.5}>
                                     <Typography fontWeight={500}>
@@ -97,9 +112,9 @@ function Docs({ ...props }) {
                         </Card>
                         <Card className='doc-card'>
                             <CardMedia
-                                component={Box}
-                                children={<img src="/static/img/rapport.png" />}
-                            />
+                                component={Box}>
+                                <img alt="rapport" src="/static/img/rapport.png"/>
+                            </CardMedia>
                             <CardContent>
                                 <Stack spacing={.5}>
                                     <Typography fontWeight={500}>
