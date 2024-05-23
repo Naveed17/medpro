@@ -72,6 +72,7 @@
   "status": "Status",
   "paid": "Payée",
   "unpaid": "Non Payée",
+  "free": "GRATUITE",
   "partially": "Partiellement payée",
   "transactions": "Transactions",
   "date_time": "Date et heure",
