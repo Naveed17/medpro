@@ -51,7 +51,6 @@ import Icon from "@themes/urlIcon";
 import {
     DefaultCountry,
     deleteAppointmentOptionsData,
-    EnvPattern,
     WaitingHeadCells,
     WaitingTodayCells
 } from "@lib/constants";
