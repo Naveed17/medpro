@@ -1,6 +1,6 @@
 import React from "react";
 import {WidgetForm} from "@features/widget";
-import {DragDropContext, Draggable as DraggableDnd, Droppable} from "react-beautiful-dnd";
+import {DragDropContext, Draggable as DraggableDnd, Droppable} from "@hello-pangea/dnd";
 import {MyCardStyled, MyHeaderCardStyled} from "@features/subHeader";
 import {
     Box,

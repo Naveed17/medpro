@@ -76,7 +76,7 @@ import { Board, boardSelector, borderRadius, setIsUnpaid, setOrderSort, setSortT
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import { CustomIconButton, CustomSwitch } from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { DropResult } from "react-beautiful-dnd";
+import { DropResult } from "@hello-pangea/dnd";
 import {
     appointmentSelector, resetAppointment, setAppointmentPatient,
     setAppointmentSubmit,

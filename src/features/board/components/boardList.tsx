@@ -1,9 +1,9 @@
 import React, {useLayoutEffect, useRef} from 'react';
-import {Droppable, Draggable} from 'react-beautiful-dnd';
+import {Droppable, Draggable} from '@hello-pangea/dnd';
 import type {
     DroppableProvided,
     DroppableStateSnapshot
-} from 'react-beautiful-dnd';
+} from '@hello-pangea/dnd';
 import {BoardItem, grid, heightOffset} from "@features/board";
 import {areEqual, VariableSizeList} from "react-window";
 

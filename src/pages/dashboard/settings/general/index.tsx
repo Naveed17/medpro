@@ -28,7 +28,7 @@ const breadcrumbsData = [
 ]
 function General() {
     const dispatch = useAppDispatch();
-    const { tabIndex } = useAppSelector(leftActionBarSelector) ?? 0;
+    const { tabIndex } = useAppSelector(leftActionBarSelector);
     const { t, ready, i18n } = useTranslation("settings");
 
     const tabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -48,7 +48,9 @@ function General() {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
         return () => {
-            dispatch(setTabIndex(0))
+            if(tabIndex !== 0) {
+                // dispatch(setTabIndex(0))
+            }
         }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
     if (!ready) return (<LoadingScreen button text={"loading-error"} />);

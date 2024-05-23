@@ -1,16 +1,17 @@
-import React, { ReactElement, useEffect } from "react";
-import { DashLayout } from "@features/base";
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { SubHeader } from "@features/subHeader";
-import { Stack, Tab, Tabs, Typography, capitalize } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import { LoadingScreen } from "@features/loadingScreen";
-import { a11yProps } from "@lib/hooks";
-import { SettingConfig, leftActionBarSelector, setTabIndex } from "@features/leftActionBar";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { HolidaysPanel, LocationPanel, TabPanel, } from "@features/tabPanel";
-import { Breadcrumbs } from "@features/breadcrumbs";
+import React, {ReactElement, useEffect} from "react";
+import {DashLayout} from "@features/base";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import {SubHeader} from "@features/subHeader";
+import {Stack, Tab, Tabs, Typography, capitalize} from "@mui/material";
+import {useTranslation} from "next-i18next";
+import {LoadingScreen} from "@features/loadingScreen";
+import {a11yProps} from "@lib/hooks";
+import {SettingConfig, leftActionBarSelector, setTabIndex} from "@features/leftActionBar";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {HolidaysPanel, LocationPanel, TabPanel,} from "@features/tabPanel";
+import {Breadcrumbs} from "@features/breadcrumbs";
+
 const breadcrumbsData = [
     {
         title: "Settings",
@@ -26,10 +27,11 @@ const breadcrumbsData = [
     }
 
 ]
+
 function ScheduleAndLocation() {
     const dispatch = useAppDispatch();
-    const { tabIndex } = useAppSelector(leftActionBarSelector) ?? 0;
-    const { t, ready, i18n } = useTranslation("settings");
+    const {tabIndex} = useAppSelector(leftActionBarSelector);
+    const {t, ready, i18n} = useTranslation("settings");
 
     const tabChange = (event: React.SyntheticEvent, newValue: number) => {
         dispatch(setTabIndex(newValue))
@@ -48,15 +50,17 @@ function ScheduleAndLocation() {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
         return () => {
-            dispatch(setTabIndex(0))
+            if (tabIndex !== 0) {
+                //dispatch(setTabIndex(0))
+            }
         }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
-    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <>
             <SubHeader>
                 <Stack spacing={2} mt={2}>
-                    <Breadcrumbs data={breadcrumbsDataMap} />
+                    <Breadcrumbs data={breadcrumbsDataMap}/>
                     <Typography variant="subtitle1" fontWeight={600}>
                         {t("scheduleAndLocation.title")}
                     </Typography>
@@ -83,17 +87,17 @@ function ScheduleAndLocation() {
             </SubHeader>
             <Stack className="container">
                 <TabPanel padding={0} index={tabIndex} value={0}>
-                    <LocationPanel />
+                    <LocationPanel/>
                 </TabPanel>
                 <TabPanel padding={0} index={tabIndex} value={1}>
-                    <HolidaysPanel />
+                    <HolidaysPanel/>
                 </TabPanel>
             </Stack>
         </>
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))

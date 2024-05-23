@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import styled from '@emotion/styled';
-import {DraggableProvided} from "react-beautiful-dnd";
+import {DraggableProvided} from "@hello-pangea/dnd";
 import {
     Box,
     Button,
@@ -11,8 +11,7 @@ import {
     Typography,
     useTheme,
     alpha, Tooltip,
-    PaletteColor,
-    Badge
+    PaletteColor
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useAppSelector} from "@lib/redux/hooks";

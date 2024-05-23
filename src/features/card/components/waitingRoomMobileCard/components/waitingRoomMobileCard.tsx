@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { DraggableProvided } from "react-beautiful-dnd";
+import { DraggableProvided } from "@hello-pangea/dnd";
 import {
     Box,
     Button,

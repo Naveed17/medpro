@@ -1,6 +1,6 @@
 import {
     DragDropContext, Draggable, DraggableLocation, Droppable, DropResult
-} from "react-beautiful-dnd";
+} from "@hello-pangea/dnd";
 import React, { useCallback, useEffect, useState } from "react";
 import styled from '@emotion/styled';
 import { BoardList } from "@features/board";
@@ -237,15 +237,13 @@ function Board({ ...props }) {
                                         <Header>
                                             <Title
                                                 aria-label={`${column.name} quote list`}>
-                                                <Card sx={{ border: (theme: Theme) => `1px solid ${theme.palette.grey[200]}`, }}>
+                                                <Card sx={{ border: (theme: Theme) => `1px solid ${theme.palette.grey[200]}`}}>
                                                     <CardHeader
                                                         avatar={
                                                             <CustomIconButton size="small" sx={{ minWidth: 32, minHeight: 32, bgcolor: (theme: Theme) => theme.palette.primary.lighter }}>
                                                                 {columns[index].icon}
                                                             </CustomIconButton>
-
                                                         }
-
                                                         sx={{
                                                             p: 1,
                                                             ".MuiCardHeader-avatar": { mr: 1 },
@@ -253,8 +251,7 @@ function Board({ ...props }) {
                                                         }}
                                                         title={
                                                             <Stack direction={"row"} alignItems={"center"}
-                                                                spacing={(boardData[column.name].length > 0 && index !== 2) ? 2 : 0}
-                                                            >
+                                                                spacing={(boardData[column.name].length > 0 && index !== 2) ? 2 : 0}>
                                                                 <Typography
                                                                     color={"text.primary"} fontWeight={700}
                                                                     fontSize={14}

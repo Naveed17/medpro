@@ -145,6 +145,8 @@ function ConsultationInProgress() {
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const nodeRef = React.useRef(null);
+    const nodeRefMedia = React.useRef(null);
 
     const {t, i18n} = useTranslation("consultation");
     //***** SELECTORS ****//
@@ -1362,18 +1364,20 @@ function ConsultationInProgress() {
 
     return (
         <>
-            {sheet?.patient && openHistoryDialog && !isMobile && <Draggable bounds="body">
-                <div style={{
-                    position: "absolute",
-                    top: 80,
-                    left: 10,
-                    width: "50%",
-                    borderRadius: 5,
-                    zIndex: 999,
-                    border: `1px solid ${theme.palette.grey["200"]}`,
-                    background: 'white',
-                    transform: "translate(220px, 133px)"
-                }}>
+            {sheet?.patient && openHistoryDialog && !isMobile && <Draggable nodeRef={nodeRef} bounds="body">
+                <div
+                    ref={nodeRef}
+                    style={{
+                        position: "absolute",
+                        top: 80,
+                        left: 10,
+                        width: "50%",
+                        borderRadius: 5,
+                        zIndex: 999,
+                        border: `1px solid ${theme.palette.grey["200"]}`,
+                        background: 'white',
+                        transform: "translate(220px, 133px)"
+                    }}>
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} spacing={1} sx={{
                         bgcolor: theme.palette.primary.main,
                         padding: 2,
@@ -1395,339 +1399,346 @@ function ConsultationInProgress() {
                     </div>
 
                 </div>
-            </Draggable>}
+            </Draggable>
+            }
 
-            {isHistory && <AppointHistoryContainerStyled> <Toolbar>
-                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
-                       width={"100%"}>
-                    <Stack spacing={1.5} direction="row" alignItems="center">
-                        <IconUrl path={'ic-speaker'}/>
-                        {!isMobile &&
-                            <Typography>{t('consultationIP.updateHistory')} {patient?.firstName} {patient?.lastName}, <b>{sheet?.date}</b>.</Typography>}
+            {
+                isHistory && <AppointHistoryContainerStyled> <Toolbar>
+                    <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
+                           width={"100%"}>
+                        <Stack spacing={1.5} direction="row" alignItems="center">
+                            <IconUrl path={'ic-speaker'}/>
+                            {!isMobile &&
+                                <Typography>{t('consultationIP.updateHistory')} {patient?.firstName} {patient?.lastName}, <b>{sheet?.date}</b>.</Typography>}
+                        </Stack>
+                        <LoadingButton
+                            disabled={false}
+                            loading={false}
+                            loadingPosition="start"
+                            onClick={closeHistory}
+                            className="btn-action"
+                            color="warning"
+                            size="small"
+                            startIcon={<IconUrl path="ic-retour"/>}>
+                            {t('consultationIP.back')}
+                        </LoadingButton>
                     </Stack>
-                    <LoadingButton
-                        disabled={false}
-                        loading={false}
-                        loadingPosition="start"
-                        onClick={closeHistory}
-                        className="btn-action"
-                        color="warning"
-                        size="small"
-                        startIcon={<IconUrl path="ic-retour"/>}>
-                        {t('consultationIP.back')}
-                    </LoadingButton>
-                </Stack>
-            </Toolbar></AppointHistoryContainerStyled>}
-            {tabsData.length > 0 && <SubHeader sx={isHistory && {
-                backgroundColor: alpha(theme.palette.warning.main, 0.2),
-                borderLeft: `2px solid${theme.palette.warning.main}`,
-                borderRight: `2px solid${theme.palette.warning.main}`,
-                boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.1)'
-            }}>
-                <AppToolbar
-                    {...{
-                        selectedTab,
-                        setInfo,
-                        setState,
-                        setOpenDialog,
-                        setOpenDialogSave,
-                        tabsData,
-                        selectedDialog,
-                        agenda,
-                        app_uuid,
-                        patient,
-                        handleChangeTab,
-                        isMobile,
-                        changes,
-                        anchorEl,
-                        loading,
-                        setAnchorEl,
-                        dialog, setDialog,
-                        setFilterDrawer,
-                        startRecord,
-                        nbDoc,
-                        prescription, checkUp, imagery,
-                        showDocument, setShowDocument
-                    }}
-                    setPatientShow={() => setFilterDrawer(!drawer)}
-                />
-            </SubHeader>}
+                </Toolbar></AppointHistoryContainerStyled>
+            }
+            {
+                tabsData.length > 0 && <SubHeader sx={isHistory && {
+                    backgroundColor: alpha(theme.palette.warning.main, 0.2),
+                    borderLeft: `2px solid${theme.palette.warning.main}`,
+                    borderRight: `2px solid${theme.palette.warning.main}`,
+                    boxShadow: '0px 8px 15px rgba(0, 0, 0, 0.1)'
+                }}>
+                    <AppToolbar
+                        {...{
+                            selectedTab,
+                            setInfo,
+                            setState,
+                            setOpenDialog,
+                            setOpenDialogSave,
+                            tabsData,
+                            selectedDialog,
+                            agenda,
+                            app_uuid,
+                            patient,
+                            handleChangeTab,
+                            isMobile,
+                            changes,
+                            anchorEl,
+                            loading,
+                            setAnchorEl,
+                            dialog, setDialog,
+                            setFilterDrawer,
+                            startRecord,
+                            nbDoc,
+                            prescription, checkUp, imagery,
+                            showDocument, setShowDocument
+                        }}
+                        setPatientShow={() => setFilterDrawer(!drawer)}
+                    />
+                </SubHeader>
+            }
 
 
-            {<HistoryAppointementContainer {...{isHistory, loading}}>
-                <Grid container>
-                    <Grid item xs={12} md={showDocument ? 10 : 12}>
-                        <Box style={{paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : ""}}
-                             id={"container-tab"}
-                             className="container-scroll scrollbar-hidden">
-                            <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
-                                <HistoryTab
-                                    {...{
-                                        patient: {
-                                            uuid: sheet?.patient,
-                                            ...patient
-                                        },
-                                        dispatch,
-                                        t,
-                                        session,
-                                        acts,
-                                        direction,
-                                        mutate: mutatePatient,
-                                        setOpenDialog,
-                                        showDoc,
-                                        setState,
-                                        setInfo,
-                                        router,
-                                        modelData: sheetModal?.data,
-                                        date: sheet?.date,
-                                        setIsViewerOpen,
-                                        setSelectedTab,
-                                        appuuid: app_uuid,
-                                        trigger: triggerAppointmentEdit
-                                    }}
-                                />
-                            </TabPanel>
-                            <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                                {sheetExam && fullOb && <Card><MyCardStyled style={{border: 0}}>
-                                    <ConsultationDetailCard
+            {
+                <HistoryAppointementContainer {...{isHistory, loading}}>
+                    <Grid container>
+                        <Grid item xs={12} md={showDocument ? 10 : 12}>
+                            <Box style={{paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                                 id={"container-tab"}
+                                 className="container-scroll scrollbar-hidden">
+                                <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
+                                    <HistoryTab
                                         {...{
-                                            changes,
-                                            setChanges,
-                                            app_uuid,
-                                            exam: sheetExam,
-                                            hasDataHistory,
-                                            seeHistory,
-                                            closed: closeExam,
-                                            setCloseExam,
-                                            isClose,
-                                            agenda,
-                                            mutateSheetData,
-                                            fullOb, setFullOb,
-                                            trigger: triggerAppointmentEdit,
-                                            loading
+                                            patient: {
+                                                uuid: sheet?.patient,
+                                                ...patient
+                                            },
+                                            dispatch,
+                                            t,
+                                            session,
+                                            acts,
+                                            direction,
+                                            mutate: mutatePatient,
+                                            setOpenDialog,
+                                            showDoc,
+                                            setState,
+                                            setInfo,
+                                            router,
+                                            modelData: sheetModal?.data,
+                                            date: sheet?.date,
+                                            setIsViewerOpen,
+                                            setSelectedTab,
+                                            appuuid: app_uuid,
+                                            trigger: triggerAppointmentEdit
                                         }}
-                                        handleClosePanel={(v: boolean) => setCloseExam(v)}
                                     />
-                                </MyCardStyled></Card>
-                                }
-                                {!fullOb && <>
-                                    {!isMobile &&
-                                        <ConsultationCard {...{
-                                            cards,
-                                            setCards,
-                                            onDragEnd,
-                                            getListStyle,
-                                            getItemStyle,
-                                            selectedModel,
-                                            sheetExam,
-                                            closeExam,
-                                            theme,
-                                            sheet,
-                                            changes,
-                                            setChanges,
-                                            setIsClose,
-                                            app_uuid,
-                                            mutateSheetData,
-                                            hasDataHistory,
-                                            seeHistory,
-                                            setCloseExam,
-                                            dispatch,
-                                            printGlasses,
-                                            isClose,
-                                            session,
-                                            changeModel,
-                                            acts,
-                                            loading,
-                                            urlMedicalEntitySuffix,
-                                            direction,
-                                            setOpenDialog,
-                                            showDoc,
-                                            sheetModal,
-                                            setState,
-                                            mutatePatient,
-                                            setInfo,
-                                            setSelectedModel,
-                                            router,
-                                            setActs,
-                                            previousData,
-                                            setIsViewerOpen,
-                                            setSelectedTab,
-                                            models,
-                                            t,
-                                            triggerAppointmentEdit,
-                                            agenda,
-                                            fullOb,
-                                            setFullOb,
-                                            patient
-                                        }} />}
-                                    {isMobile &&
-                                        <ConsultationCard {...{
-                                            cards: mobileCards,
-                                            setCards: setMobileCards,
-                                            onDragEnd,
-                                            getListStyle,
-                                            getItemStyle,
-                                            selectedModel,
-                                            sheetExam,
-                                            closeExam,
-                                            theme,
-                                            sheet,
-                                            changes,
-                                            setChanges,
-                                            setIsClose,
-                                            app_uuid,
-                                            mutateSheetData,
-                                            hasDataHistory,
-                                            seeHistory,
-                                            setCloseExam,
-                                            dispatch,
-                                            printGlasses,
-                                            isClose,
-                                            session,
-                                            changeModel,
-                                            acts,
-                                            loading,
-                                            urlMedicalEntitySuffix,
-                                            direction,
-                                            setOpenDialog,
-                                            showDoc,
-                                            sheetModal,
-                                            setState,
-                                            mutatePatient,
-                                            setInfo,
-                                            setSelectedModel,
-                                            router,
-                                            setActs,
-                                            previousData,
-                                            setIsViewerOpen,
-                                            setSelectedTab,
-                                            models,
-                                            t,
-                                            triggerAppointmentEdit,
-                                            agenda,
-                                            fullOb,
-                                            setFullOb,
-                                            patient
-                                        }} />
+                                </TabPanel>
+                                <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
+                                    {sheetExam && fullOb && <Card><MyCardStyled style={{border: 0}}>
+                                        <ConsultationDetailCard
+                                            {...{
+                                                changes,
+                                                setChanges,
+                                                app_uuid,
+                                                exam: sheetExam,
+                                                hasDataHistory,
+                                                seeHistory,
+                                                closed: closeExam,
+                                                setCloseExam,
+                                                isClose,
+                                                agenda,
+                                                mutateSheetData,
+                                                fullOb, setFullOb,
+                                                trigger: triggerAppointmentEdit,
+                                                loading
+                                            }}
+                                            handleClosePanel={(v: boolean) => setCloseExam(v)}
+                                        />
+                                    </MyCardStyled></Card>
                                     }
-                                </>}
-                            </TabPanel>
-                            <TabPanel padding={1} value={selectedTab} index={"documents"}>
-                                <LinearProgress sx={{
-                                    marginTop: '-0.5rem',
-                                    visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
-                                }} color="warning"/>
-                                <DocumentsTab
-                                    {...{
-                                        documents,
-                                        mutateDoc,
-                                        mutateSheetData,
-                                        setSelectedAudio,
-                                        setDeleteAudio,
-                                        showDoc,
-                                        router,
+                                    {!fullOb && <>
+                                        {!isMobile &&
+                                            <ConsultationCard {...{
+                                                cards,
+                                                setCards,
+                                                onDragEnd,
+                                                getListStyle,
+                                                getItemStyle,
+                                                selectedModel,
+                                                sheetExam,
+                                                closeExam,
+                                                theme,
+                                                sheet,
+                                                changes,
+                                                setChanges,
+                                                setIsClose,
+                                                app_uuid,
+                                                mutateSheetData,
+                                                hasDataHistory,
+                                                seeHistory,
+                                                setCloseExam,
+                                                dispatch,
+                                                printGlasses,
+                                                isClose,
+                                                session,
+                                                changeModel,
+                                                acts,
+                                                loading,
+                                                urlMedicalEntitySuffix,
+                                                direction,
+                                                setOpenDialog,
+                                                showDoc,
+                                                sheetModal,
+                                                setState,
+                                                mutatePatient,
+                                                setInfo,
+                                                setSelectedModel,
+                                                router,
+                                                setActs,
+                                                previousData,
+                                                setIsViewerOpen,
+                                                setSelectedTab,
+                                                models,
+                                                t,
+                                                triggerAppointmentEdit,
+                                                agenda,
+                                                fullOb,
+                                                setFullOb,
+                                                patient
+                                            }} />}
+                                        {isMobile &&
+                                            <ConsultationCard {...{
+                                                cards: mobileCards,
+                                                setCards: setMobileCards,
+                                                onDragEnd,
+                                                getListStyle,
+                                                getItemStyle,
+                                                selectedModel,
+                                                sheetExam,
+                                                closeExam,
+                                                theme,
+                                                sheet,
+                                                changes,
+                                                setChanges,
+                                                setIsClose,
+                                                app_uuid,
+                                                mutateSheetData,
+                                                hasDataHistory,
+                                                seeHistory,
+                                                setCloseExam,
+                                                dispatch,
+                                                printGlasses,
+                                                isClose,
+                                                session,
+                                                changeModel,
+                                                acts,
+                                                loading,
+                                                urlMedicalEntitySuffix,
+                                                direction,
+                                                setOpenDialog,
+                                                showDoc,
+                                                sheetModal,
+                                                setState,
+                                                mutatePatient,
+                                                setInfo,
+                                                setSelectedModel,
+                                                router,
+                                                setActs,
+                                                previousData,
+                                                setIsViewerOpen,
+                                                setSelectedTab,
+                                                models,
+                                                t,
+                                                triggerAppointmentEdit,
+                                                agenda,
+                                                fullOb,
+                                                setFullOb,
+                                                patient
+                                            }} />
+                                        }
+                                    </>}
+                                </TabPanel>
+                                <TabPanel padding={1} value={selectedTab} index={"documents"}>
+                                    <LinearProgress sx={{
+                                        marginTop: '-0.5rem',
+                                        visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
+                                    }} color="warning"/>
+                                    <DocumentsTab
+                                        {...{
+                                            documents,
+                                            mutateDoc,
+                                            mutateSheetData,
+                                            setSelectedAudio,
+                                            setDeleteAudio,
+                                            showDoc,
+                                            router,
+                                            t
+                                        }}></DocumentsTab>
+                                </TabPanel>
+                                <TabPanel padding={1} value={selectedTab} index={"medical_procedures"}>
+                                    <FeesTab {...{
+                                        acts,
+                                        setActs,
+                                        mpActs,
+                                        status: sheet?.status,
+                                        urlMedicalEntitySuffix,
+                                        agenda: agenda?.uuid,
+                                        app_uuid,
+                                        total,
+                                        setTotal,
+                                        devise,
+                                        mutatePatient,
                                         t
-                                    }}></DocumentsTab>
-                            </TabPanel>
-                            <TabPanel padding={1} value={selectedTab} index={"medical_procedures"}>
-                                <FeesTab {...{
-                                    acts,
-                                    setActs,
-                                    mpActs,
-                                    status: sheet?.status,
-                                    urlMedicalEntitySuffix,
-                                    agenda: agenda?.uuid,
-                                    app_uuid,
-                                    total,
-                                    setTotal,
-                                    devise,
-                                    mutatePatient,
-                                    t
-                                }} />
-                            </TabPanel>
+                                    }} />
+                                </TabPanel>
+                            </Box>
+                        </Grid>
+                        <Grid item md={showDocument ? 2 : 0} padding={1}>
+                            {showDocument && <DocumentPreview {...{
+                                allDocs: changes.filter(ch => ch.index !== undefined && !ch.checked),
+                                documents,
+                                showDocument,
+                                showDoc,
+                                theme,
+                                showPreview,
+                                t,
+                            }} />}
+                        </Grid>
+                    </Grid>
+                    <DrawerBottom
+                        handleClose={() => setFilterDrawer(false)}
+                        open={filterdrawer}
+                        title={null}>
+                        <ConsultationFilter/>
+                    </DrawerBottom>
+
+                    <Stack
+                        direction={{md: "row", xs: "column"}}
+                        position="fixed"
+                        sx={{right: 10, bottom: 70, zIndex: 999}}
+                        spacing={2}>
+                        {pendingDocuments?.map((item: any) => (
+                            <React.Fragment key={item.id}>
+                                <PendingDocumentCard
+                                    data={item}
+                                    t={t}
+                                    onClick={() => {
+                                        openDialogue(item);
+                                    }}
+                                    closeDocument={(v: number) =>
+                                        setPendingDocuments(
+                                            pendingDocuments.filter((card: any) => card.id !== v)
+                                        )
+                                    }
+                                />
+                            </React.Fragment>
+                        ))}
+                    </Stack>
+
+                    <Drawer
+                        anchor={"right"}
+                        open={openAddDrawer}
+                        dir={direction}
+                        onClose={() => {
+                            dispatch(openDrawer({type: "add", open: false}));
+                        }}>
+                        <Box height={"100%"}>
+                            <CustomStepper
+                                {...{currentStepper, t}}
+                                modal={"consultation"}
+                                OnTabsChange={handleStepperChange}
+                                OnSubmitStepper={submitStepper}
+                                OnCustomAction={handleTableActions}
+                                stepperData={EventStepper}
+                                scroll
+                                minWidth={726}/>
                         </Box>
-                    </Grid>
-                    <Grid item md={showDocument ? 2 : 0} padding={1}>
-                        {showDocument && <DocumentPreview {...{
-                            allDocs: changes.filter(ch => ch.index !== undefined && !ch.checked),
-                            documents,
-                            showDocument,
-                            showDoc,
-                            theme,
-                            showPreview,
-                            t,
-                        }} />}
-                    </Grid>
-                </Grid>
-                <DrawerBottom
-                    handleClose={() => setFilterDrawer(false)}
-                    open={filterdrawer}
-                    title={null}>
-                    <ConsultationFilter/>
-                </DrawerBottom>
+                    </Drawer>
 
-                <Stack
-                    direction={{md: "row", xs: "column"}}
-                    position="fixed"
-                    sx={{right: 10, bottom: 70, zIndex: 999}}
-                    spacing={2}>
-                    {pendingDocuments?.map((item: any) => (
-                        <React.Fragment key={item.id}>
-                            <PendingDocumentCard
-                                data={item}
-                                t={t}
-                                onClick={() => {
-                                    openDialogue(item);
-                                }}
-                                closeDocument={(v: number) =>
-                                    setPendingDocuments(
-                                        pendingDocuments.filter((card: any) => card.id !== v)
-                                    )
-                                }
-                            />
-                        </React.Fragment>
-                    ))}
-                </Stack>
+                    <Drawer
+                        anchor={"right"}
+                        open={openChat}
+                        dir={direction}
+                        sx={{
+                            "& .MuiPaper-root": {
+                                width: {xs: "100%", sm: "40%"}
+                            }
+                        }}
+                        onClose={() => {
+                            setOpenChat(false)
+                        }}>
+                        <ChatDiscussionDialog data={{
+                            session, app_uuid, setOpenChat, patient: {...patient, uuid: sheet?.patient},
+                            setInfo, setOpenDialog, router, setState, mutateDoc
+                        }}/>
+                    </Drawer>
 
-                <Drawer
-                    anchor={"right"}
-                    open={openAddDrawer}
-                    dir={direction}
-                    onClose={() => {
-                        dispatch(openDrawer({type: "add", open: false}));
-                    }}>
-                    <Box height={"100%"}>
-                        <CustomStepper
-                            {...{currentStepper, t}}
-                            modal={"consultation"}
-                            OnTabsChange={handleStepperChange}
-                            OnSubmitStepper={submitStepper}
-                            OnCustomAction={handleTableActions}
-                            stepperData={EventStepper}
-                            scroll
-                            minWidth={726}/>
-                    </Box>
-                </Drawer>
-
-                <Drawer
-                    anchor={"right"}
-                    open={openChat}
-                    dir={direction}
-                    sx={{
-                        "& .MuiPaper-root": {
-                            width: {xs: "100%", sm: "40%"}
-                        }
-                    }}
-                    onClose={() => {
-                        setOpenChat(false)
-                    }}>
-                    <ChatDiscussionDialog data={{
-                        session, app_uuid, setOpenChat, patient: {...patient, uuid: sheet?.patient},
-                        setInfo, setOpenDialog, router, setState, mutateDoc
-                    }}/>
-                </Drawer>
-
-            </HistoryAppointementContainer>}
+                </HistoryAppointementContainer>
+            }
 
             <SubFooter>
                 <Stack
@@ -1875,133 +1886,134 @@ function ConsultationInProgress() {
             />
 
 
-            {info && (
-                <Dialog
-                    action={info}
-                    open={openDialog}
-                    {...(!["medical_prescription", "medical_prescription_cycle"].includes(info) && {
-                            PaperProps: {
-                                sx: {
-                                    overflow: 'hidden'
+            {
+                info && (
+                    <Dialog
+                        action={info}
+                        open={openDialog}
+                        {...(!["medical_prescription", "medical_prescription_cycle"].includes(info) && {
+                                PaperProps: {
+                                    sx: {
+                                        overflow: 'hidden'
+                                    }
                                 }
                             }
-                        }
-                    )}
-                    data={{
-                        appuuid: app_uuid,
-                        patient,
-                        state,
-                        sheetExam,
-                        setState,
-                        t,
-                        setOpenDialog,
-                        setPendingDocuments,
-                        pendingDocuments,
-                        setPrescription
-                    }}
-                    size={["add_vaccin"].includes(info) ? "sm" : "xl"}
-                    direction={direction}
-                    sx={{height: info === "insurance_document_print" ? 600 : 480}}
-                    {...(info === "document_detail" && {
-                        sx: {height: 480, p: 0},
-                    })}
-                    {...(info === "write_certif" && {enableFullScreen: true})}
-                    title={t(`consultationIP.${info === "document_detail" ? "doc_detail_title" : info}`)}
-                    {...(info === "document_detail" && {
-                        onClose: handleCloseDialog,
-                    })}
-                    dialogClose={handleCloseDialog}
-                    {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
-                        headerDialog: (<DialogTitle
-                                sx={{
-                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
-                                    position: "relative",
-                                }}
-                                id="scroll-dialog-title">
-                                <Stack direction={{xs: 'column', sm: 'row'}} justifyContent={"space-between"}
-                                       alignItems={{xs: 'flex-start', sm: 'center'}}>
-                                    {t(`consultationIP.${info}`)}
-                                    <SwitchPrescriptionUI {...{t, keyPrefix: "consultationIP", handleSwitchUI}} />
-                                </Stack>
-                            </DialogTitle>
-                        ),
-                        sx: {
-                            p: 1.5,
-                            /*overflowX: 'hidden',
-                            overflowY: 'hidden'*/
-                        }
+                        )}
+                        data={{
+                            appuuid: app_uuid,
+                            patient,
+                            state,
+                            sheetExam,
+                            setState,
+                            t,
+                            setOpenDialog,
+                            setPendingDocuments,
+                            pendingDocuments,
+                            setPrescription
+                        }}
+                        size={["add_vaccin"].includes(info) ? "sm" : "xl"}
+                        direction={direction}
+                        sx={{height: info === "insurance_document_print" ? 600 : 480}}
+                        {...(info === "document_detail" && {
+                            sx: {height: 480, p: 0},
+                        })}
+                        {...(info === "write_certif" && {enableFullScreen: true})}
+                        title={t(`consultationIP.${info === "document_detail" ? "doc_detail_title" : info}`)}
+                        {...(info === "document_detail" && {
+                            onClose: handleCloseDialog,
+                        })}
+                        dialogClose={handleCloseDialog}
+                        {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
+                            headerDialog: (<DialogTitle
+                                    sx={{
+                                        position: "relative",
+                                    }}
+                                    id="scroll-dialog-title">
+                                    <Stack direction={{xs: 'column', sm: 'row'}} justifyContent={"space-between"}
+                                           alignItems={{xs: 'flex-start', sm: 'center'}}>
+                                        {t(`consultationIP.${info}`)}
+                                        <SwitchPrescriptionUI {...{t, keyPrefix: "consultationIP", handleSwitchUI}} />
+                                    </Stack>
+                                </DialogTitle>
+                            ),
+                            sx: {
+                                p: 1.5,
+                                /*overflowX: 'hidden',
+                                overflowY: 'hidden'*/
+                            }
 
-                    })}
-                    {...(info === 'write_certif' && {
-                        actionDialog: (
-                            <Stack sx={{width: "100%"}} direction={"row"} justifyContent={"flex-end"}>
-                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
-                                    {t("consultationIP.cancel")}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={handleSaveCertif}
-                                    disabled={info.includes("medical_prescription") && state?.length === 0}
-                                    startIcon={<SaveRoundedIcon/>}>
-                                    {t("consultationIP.save")}
-                                </Button>
-                            </Stack>
-                        )
-                    })}
-                    actionDialog={
-                        info ? (
-                            <Stack sx={{width: "100%"}}
-                                   direction={"row"}
-                                   {...(info === "medical_prescription_cycle" && {
-                                       direction: {xs: 'column', sm: 'row'},
-
-                                   })}
-                                   justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
-                                {info === "medical_prescription_cycle" &&
-                                    <Button sx={{alignSelf: 'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
-                                        dispatch(handleDrawerAction("addDrug"));
-                                    }}>
-                                        {t("consultationIP.add_drug")}
-                                    </Button>}
-                                <Stack direction={"row"} justifyContent={{xs: 'space-between', sm: 'flex-start'}}
-                                       spacing={1.2}
-                                       {...(info === "medical_prescription_cycle" && {
-                                           mt: {xs: 1, md: 0}
-                                       })}>
-                                    <Button
-                                        color={"black"}
-                                        variant={"text"}
-                                        onClick={handleCloseDialog}
-                                        startIcon={<CloseIcon/>}>
+                        })}
+                        {...(info === 'write_certif' && {
+                            actionDialog: (
+                                <Stack sx={{width: "100%"}} direction={"row"} justifyContent={"flex-end"}>
+                                    <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("consultationIP.cancel")}
                                     </Button>
-                                    {(info !== "insurance_document_print" && openDialogSave) && <>
-                                        <Button
-                                            color={"info"}
-                                            variant="outlined"
-                                            onClick={() => handleSaveDialog(false)}
-                                            disabled={state?.length === 0}
-                                            startIcon={
-                                                <IconUrl
-                                                    {...(state?.length === 0 && {color: "white"})}
-                                                    path={"iconfinder_save"}/>}>
-                                            {t("consultationIP.save")}
-                                        </Button>
-                                        {info !== "add_a_document" && <Button
-                                            variant="contained"
-                                            sx={{width: {xs: 1, sm: 'auto'}}}
-                                            onClick={() => handleSaveDialog()}
-                                            disabled={state?.length === 0}
-                                            startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
-                                            {t("consultationIP.save_print")}
-                                        </Button>}
-                                    </>}
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleSaveCertif}
+                                        disabled={info.includes("medical_prescription") && state?.length === 0}
+                                        startIcon={<SaveRoundedIcon/>}>
+                                        {t("consultationIP.save")}
+                                    </Button>
                                 </Stack>
-                            </Stack>
-                        ) : null
-                    }
-                />
-            )}
+                            )
+                        })}
+                        actionDialog={
+                            info ? (
+                                <Stack sx={{width: "100%"}}
+                                       direction={"row"}
+                                       {...(info === "medical_prescription_cycle" && {
+                                           direction: {xs: 'column', sm: 'row'},
+
+                                       })}
+                                       justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
+                                    {info === "medical_prescription_cycle" &&
+                                        <Button sx={{alignSelf: 'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
+                                            dispatch(handleDrawerAction("addDrug"));
+                                        }}>
+                                            {t("consultationIP.add_drug")}
+                                        </Button>}
+                                    <Stack direction={"row"} justifyContent={{xs: 'space-between', sm: 'flex-start'}}
+                                           spacing={1.2}
+                                           {...(info === "medical_prescription_cycle" && {
+                                               mt: {xs: 1, md: 0}
+                                           })}>
+                                        <Button
+                                            color={"black"}
+                                            variant={"text"}
+                                            onClick={handleCloseDialog}
+                                            startIcon={<CloseIcon/>}>
+                                            {t("consultationIP.cancel")}
+                                        </Button>
+                                        {(info !== "insurance_document_print" && openDialogSave) && <>
+                                            <Button
+                                                color={"info"}
+                                                variant="outlined"
+                                                onClick={() => handleSaveDialog(false)}
+                                                disabled={state?.length === 0}
+                                                startIcon={
+                                                    <IconUrl
+                                                        {...(state?.length === 0 && {color: "white"})}
+                                                        path={"iconfinder_save"}/>}>
+                                                {t("consultationIP.save")}
+                                            </Button>
+                                            {info !== "add_a_document" && <Button
+                                                variant="contained"
+                                                sx={{width: {xs: 1, sm: 'auto'}}}
+                                                onClick={() => handleSaveDialog()}
+                                                disabled={state?.length === 0}
+                                                startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
+                                                {t("consultationIP.save_print")}
+                                            </Button>}
+                                        </>}
+                                    </Stack>
+                                </Stack>
+                            ) : null
+                        }
+                    />
+                )
+            }
 
             <Drawer
                 anchor={"right"}
@@ -2022,159 +2034,103 @@ function ConsultationInProgress() {
                 />
             </Drawer>
 
-            {isViewerOpen.length > 0 && (
-                <ImageViewer
-                    src={[isViewerOpen, isViewerOpen]}
-                    currentIndex={0}
-                    disableScroll={false}
-                    backgroundStyle={{
-                        backgroundColor: "rgba(6, 150, 214,0.5)",
-                    }}
-                    closeOnClickOutside={true}
-                    onClose={closeImageViewer}
-                />
-            )}
+            {
+                isViewerOpen.length > 0 && (
+                    <ImageViewer
+                        src={[isViewerOpen, isViewerOpen]}
+                        currentIndex={0}
+                        disableScroll={false}
+                        backgroundStyle={{
+                            backgroundColor: "rgba(6, 150, 214,0.5)",
+                        }}
+                        closeOnClickOutside={true}
+                        onClose={closeImageViewer}
+                    />
+                )
+            }
 
-            {/* {!isMobile && <Draggable bounds="body">
-                <Fab sx={{
-                    position: "fixed",
-                    bottom: 82,
-                    right: 30
-                }}
-                     size={"small"}
-                     onClick={() => {
-                         setOpenChat(true)
-                     }}
-                     color={"primary"}
-                     aria-label="edit">
-                    <IconUrl path={'ic-chatbot'}/>
-                </Fab>
-            </Draggable>}*/}
-
-            {(record || selectedAudio !== null) && <Draggable bounds="body" cancel=".btn-action">
-                <CardMedia
-                    sx={{
-                        position: "fixed",
-                        zIndex: 9999,
-                        bottom: 76,
-                        right: 85
-                    }}>
-                    <RecondingBoxStyled
-                        id={"record"}
-                        direction={"row"}
-                        spacing={1}
-                        style={{width: "100%", padding: 10}}>
-                        {selectedAudio === null ?
-                            <>
-                                {!saveAudioSection ?
-                                    <Stack className={'record-container'} direction={"row"} alignItems={"center"}
-                                           {...((isPaused || saveAudio) && {sx: {"& .record-button .react-svg": {height: 16}}})}
-                                           spacing={2}>
-                                        <Fab
-                                            size={"small"}
-                                            component={motion.div}
-                                            {...((isPaused || saveAudio) && {className: "is-paused"})}
-                                            sx={{
-                                                height: 30,
-                                                minHeight: 30,
-                                                minWidth: 90,
-                                                boxShadow: "none",
-                                                p: 1,
-                                                svg: {
-                                                    fontSize: 18,
-                                                    path: {
-                                                        fill: "white",
-                                                    },
-                                                }
-                                            }}
-                                            layout
-                                            transition={{
-                                                delay: 0.5,
-                                                x: {duration: 0.2},
-                                                default: {ease: "linear"},
-                                            }}
-                                            color={(isPaused || saveAudio) ? "white" : "error"}
-                                            variant={"extended"}>
-                                            {(isPaused || saveAudio) ? <Avatar
-                                                src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
+            {
+                (record || selectedAudio !== null) &&
+                <Draggable nodeRef={nodeRefMedia} bounds="body" cancel=".btn-action">
+                    <CardMedia
+                        ref={nodeRefMedia}
+                        sx={{
+                            position: "fixed",
+                            zIndex: 9999,
+                            bottom: 76,
+                            right: 85
+                        }}>
+                        <RecondingBoxStyled
+                            id={"record"}
+                            direction={"row"}
+                            spacing={1}
+                            style={{width: "100%", padding: 10}}>
+                            {selectedAudio === null ?
+                                <>
+                                    {!saveAudioSection ?
+                                        <Stack className={'record-container'} direction={"row"} alignItems={"center"}
+                                               {...((isPaused || saveAudio) && {sx: {"& .record-button .react-svg": {height: 16}}})}
+                                               spacing={2}>
+                                            <Fab
+                                                size={"small"}
+                                                component={motion.div}
+                                                {...((isPaused || saveAudio) && {className: "is-paused"})}
                                                 sx={{
-                                                    mr: .5,
-                                                    width: 20,
-                                                    height: 20,
-                                                    borderRadius: 20
-                                                }}/> : <MicIcon/>}
-                                            <div className={"recording-text"}
-                                                 id={'timer'}
-                                                 style={{fontSize: 14, ...((isPaused || saveAudio) && {color: theme.palette.text.primary})}}>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</div>
-                                            {(!isPaused && !saveAudio) && <div className="recording-circle"></div>}
-                                        </Fab>
+                                                    height: 30,
+                                                    minHeight: 30,
+                                                    minWidth: 90,
+                                                    boxShadow: "none",
+                                                    p: 1,
+                                                    svg: {
+                                                        fontSize: 18,
+                                                        path: {
+                                                            fill: "white",
+                                                        },
+                                                    }
+                                                }}
+                                                layout
+                                                transition={{
+                                                    delay: 0.5,
+                                                    x: {duration: 0.2},
+                                                    default: {ease: "linear"},
+                                                }}
+                                                color={(isPaused || saveAudio) ? "white" : "error"}
+                                                variant={"extended"}>
+                                                {(isPaused || saveAudio) ? <Avatar
+                                                    src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
+                                                    sx={{
+                                                        mr: .5,
+                                                        width: 20,
+                                                        height: 20,
+                                                        borderRadius: 20
+                                                    }}/> : <MicIcon/>}
+                                                <div className={"recording-text"}
+                                                     id={'timer'}
+                                                     style={{fontSize: 14, ...((isPaused || saveAudio) && {color: theme.palette.text.primary})}}>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</div>
+                                                {(!isPaused && !saveAudio) && <div className="recording-circle"></div>}
+                                            </Fab>
 
-                                        <CustomIconButton
-                                            className={"btn-action record-button"}
-                                            onClick={(event: any) => {
-                                                event.stopPropagation();
-                                                togglePauseResume();
-                                                if (isPaused) {
-                                                    startWatch();
-                                                } else {
-                                                    pauseWatch();
-                                                }
-                                            }}
-                                            variant="filled"
-                                            color={(isPaused || saveAudio) ? "error" : "primary"}
-                                            size={"small"}>
-                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-record-circle' : 'ic-pause'}/>
-                                        </CustomIconButton>
-                                        {(isPaused || saveAudio) && <LoadingButton
-                                            className={"btn-action"}
-                                            loading={loadingRequest}
-                                            loadingPosition={"start"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSaveAudio(true);
-                                                stopRecording();
-                                            }}
-                                            variant='contained'
-                                            size={"small"}
-                                            color={"error"}
-                                            startIcon={<IconUrl path={'ic-stop-record'} color={'white'}/>}
-                                            sx={{
-                                                "& .MuiSvgIcon-root": {
-                                                    width: 16,
-                                                    height: 16,
-                                                    pl: 0
-                                                }
-                                            }}>
-                                            <Typography>{t("consultationIP.stop")}</Typography>
-                                        </LoadingButton>}
-                                        <IconButton
-                                            className={"btn-action"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSaveAudio(false);
-                                                stopRecording();
-                                                dispatch(SetRecord(false));
-                                                resetWatch();
-                                            }}>
-                                            <IconUrl width={24} height={24} path={'ic-trash'}/>
-                                        </IconButton>
-                                        <IconButton
-                                            className={"close-button btn-action"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSaveAudioSection(true);
-                                            }}>
-                                            <CloseIcon htmlColor={"white"}/>
-                                        </IconButton>
-                                    </Stack>
-                                    :
-                                    <>
-                                        <Stack direction={"row"} className={"btn-action"} spacing={1}>
-                                            <LoadingButton
+                                            <CustomIconButton
+                                                className={"btn-action record-button"}
+                                                onClick={(event: any) => {
+                                                    event.stopPropagation();
+                                                    togglePauseResume();
+                                                    if (isPaused) {
+                                                        startWatch();
+                                                    } else {
+                                                        pauseWatch();
+                                                    }
+                                                }}
+                                                variant="filled"
+                                                color={(isPaused || saveAudio) ? "error" : "primary"}
+                                                size={"small"}>
+                                                <IconUrl
+                                                    path={(isPaused || saveAudio) ? 'ic-record-circle' : 'ic-pause'}/>
+                                            </CustomIconButton>
+                                            {(isPaused || saveAudio) && <LoadingButton
                                                 className={"btn-action"}
                                                 loading={loadingRequest}
                                                 loadingPosition={"start"}
-                                                startIcon={<IconUrl width={20} height={20} path={'iconfinder_save'}/>}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     setSaveAudio(true);
@@ -2182,135 +2138,8 @@ function ConsultationInProgress() {
                                                 }}
                                                 variant='contained'
                                                 size={"small"}
-                                                color={"primary"}
-                                                sx={{
-                                                    "& .MuiSvgIcon-root": {
-                                                        width: 16,
-                                                        height: 16,
-                                                        pl: 0
-                                                    }
-                                                }}>
-                                                <Typography>{t("consultationIP.close-save")}</Typography>
-                                            </LoadingButton>
-                                            <Button
-                                                className={"btn-action"}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    setSaveAudioSection(false);
-                                                }}
-                                                variant='contained'
-                                                size={"small"}
-                                                color={"white"}
-                                                sx={{
-                                                    "& .MuiSvgIcon-root": {
-                                                        width: 16,
-                                                        height: 16,
-                                                        pl: 0
-                                                    }
-                                                }}>
-                                                <Typography>{t("consultationIP.cancel")}</Typography>
-                                            </Button>
-                                        </Stack>
-                                        <IconButton
-                                            className={"close-button btn-action"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSaveAudio(false);
-                                                stopRecording();
-                                                dispatch(SetRecord(false));
-                                                resetWatch();
-                                                setSaveAudioSection(false);
-                                            }}>
-                                            <CloseIcon htmlColor={"white"}/>
-                                        </IconButton>
-                                    </>
-                                }
-                            </>
-                            :
-                            <>
-                                {!deleteAudio ? <AudioPlayer
-                                        autoPlay
-                                        showDownloadProgress={false}
-                                        hasDefaultKeyBindings={false}
-                                        customProgressBarSection={
-                                            [
-                                                RHAP_UI.PROGRESS_BAR,
-                                                RHAP_UI.CURRENT_TIME,
-                                                <IconButton
-                                                    className={"btn-action"}
-                                                    key={"close-icon"}
-                                                    sx={{ml: 1}}
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        setSelectedAudio(null);
-                                                    }}>
-                                                    <CloseIcon htmlColor={"white"}/>
-                                                </IconButton>
-                                            ]
-                                        }
-                                        customControlsSection={
-                                            [
-                                                RHAP_UI.MAIN_CONTROLS,
-                                                <IconButton
-                                                    className={"btn-action"}
-                                                    key={"ic-ia-document"}
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        handleSpeechToText();
-                                                    }}>
-                                                    <IconUrl width={20} height={20} path={'ic-ia-document'}/>
-                                                </IconButton>,
-                                                <IconButton
-                                                    className={"btn-action"}
-                                                    key={"ic-trash"}
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        setDeleteAudio(true)
-                                                    }}>
-                                                    <IconUrl width={20} height={20} path={'ic-trash'}/>
-                                                </IconButton>
-                                            ]
-                                        }
-                                        customIcons={{
-                                            play: <CustomIconButton
-                                                className={"btn-action"}
-                                                variant="filled"
-                                                color={"primary"}
-                                                size={"small"}>
-                                                <IconUrl path={'ic-play-audio'}/>
-                                            </CustomIconButton>,
-                                            pause: <CustomIconButton
-                                                className={"btn-action"}
-                                                variant="filled"
-                                                color={"primary"}
-                                                size={"small"}>
-                                                <IconUrl path={'ic-pause'}/>
-                                            </CustomIconButton>,
-                                            rewind: <IconButton className={"btn-action"}>
-                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'}/>
-                                            </IconButton>,
-                                            forward: <IconButton className={"btn-action"}>
-                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'}/>
-                                            </IconButton>
-                                        }}
-                                        style={{marginTop: 10}}
-                                        src={selectedAudio.uri.url}
-                                    />
-                                    :
-                                    <>
-                                        <Stack direction={"row"} spacing={1}>
-                                            <LoadingButton
-                                                className={"btn-action"}
-                                                loading={loadingRequest}
-                                                loadingPosition={"start"}
-                                                startIcon={<IconUrl width={20} height={20} path={'ic-trash'}/>}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    removeAudioDoc();
-                                                }}
-                                                variant='contained'
-                                                size={"small"}
                                                 color={"error"}
+                                                startIcon={<IconUrl path={'ic-stop-record'} color={'white'}/>}
                                                 sx={{
                                                     "& .MuiSvgIcon-root": {
                                                         width: 16,
@@ -2318,45 +2147,221 @@ function ConsultationInProgress() {
                                                         pl: 0
                                                     }
                                                 }}>
-                                                <Typography>{t("consultationIP.yes-delete")}</Typography>
-                                            </LoadingButton>
-                                            <Button
+                                                <Typography>{t("consultationIP.stop")}</Typography>
+                                            </LoadingButton>}
+                                            <IconButton
                                                 className={"btn-action"}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
-                                                    setDeleteAudio(false);
-                                                }}
-                                                variant='contained'
-                                                size={"small"}
-                                                color={"white"}
-                                                sx={{
-                                                    "& .MuiSvgIcon-root": {
-                                                        width: 16,
-                                                        height: 16,
-                                                        pl: 0
-                                                    }
+                                                    setSaveAudio(false);
+                                                    stopRecording();
+                                                    dispatch(SetRecord(false));
+                                                    resetWatch();
                                                 }}>
-                                                <Typography>{t("consultationIP.cancel")}</Typography>
-                                            </Button>
+                                                <IconUrl width={24} height={24} path={'ic-trash'}/>
+                                            </IconButton>
+                                            <IconButton
+                                                className={"close-button btn-action"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setSaveAudioSection(true);
+                                                }}>
+                                                <CloseIcon htmlColor={"white"}/>
+                                            </IconButton>
                                         </Stack>
-                                        <IconButton
-                                            className={"close-button btn-action"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSelectedAudio(null);
-                                                setTimeout(() => setDeleteAudio(false));
-                                            }}>
-                                            <CloseIcon htmlColor={"white"}/>
-                                        </IconButton>
-                                    </>
-                                }
-                            </>
-                        }
-                    </RecondingBoxStyled>
-                </CardMedia>
-            </Draggable>}
+                                        :
+                                        <>
+                                            <Stack direction={"row"} className={"btn-action"} spacing={1}>
+                                                <LoadingButton
+                                                    className={"btn-action"}
+                                                    loading={loadingRequest}
+                                                    loadingPosition={"start"}
+                                                    startIcon={<IconUrl width={20} height={20}
+                                                                        path={'iconfinder_save'}/>}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setSaveAudio(true);
+                                                        stopRecording();
+                                                    }}
+                                                    variant='contained'
+                                                    size={"small"}
+                                                    color={"primary"}
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}>
+                                                    <Typography>{t("consultationIP.close-save")}</Typography>
+                                                </LoadingButton>
+                                                <Button
+                                                    className={"btn-action"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setSaveAudioSection(false);
+                                                    }}
+                                                    variant='contained'
+                                                    size={"small"}
+                                                    color={"white"}
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}>
+                                                    <Typography>{t("consultationIP.cancel")}</Typography>
+                                                </Button>
+                                            </Stack>
+                                            <IconButton
+                                                className={"close-button btn-action"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setSaveAudio(false);
+                                                    stopRecording();
+                                                    dispatch(SetRecord(false));
+                                                    resetWatch();
+                                                    setSaveAudioSection(false);
+                                                }}>
+                                                <CloseIcon htmlColor={"white"}/>
+                                            </IconButton>
+                                        </>
+                                    }
+                                </>
+                                :
+                                <>
+                                    {!deleteAudio ? <AudioPlayer
+                                            autoPlay
+                                            showDownloadProgress={false}
+                                            hasDefaultKeyBindings={false}
+                                            customProgressBarSection={
+                                                [
+                                                    RHAP_UI.PROGRESS_BAR,
+                                                    RHAP_UI.CURRENT_TIME,
+                                                    <IconButton
+                                                        className={"btn-action"}
+                                                        key={"close-icon"}
+                                                        sx={{ml: 1}}
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            setSelectedAudio(null);
+                                                        }}>
+                                                        <CloseIcon htmlColor={"white"}/>
+                                                    </IconButton>
+                                                ]
+                                            }
+                                            customControlsSection={
+                                                [
+                                                    RHAP_UI.MAIN_CONTROLS,
+                                                    <IconButton
+                                                        className={"btn-action"}
+                                                        key={"ic-ia-document"}
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            handleSpeechToText();
+                                                        }}>
+                                                        <IconUrl width={20} height={20} path={'ic-ia-document'}/>
+                                                    </IconButton>,
+                                                    <IconButton
+                                                        className={"btn-action"}
+                                                        key={"ic-trash"}
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            setDeleteAudio(true)
+                                                        }}>
+                                                        <IconUrl width={20} height={20} path={'ic-trash'}/>
+                                                    </IconButton>
+                                                ]
+                                            }
+                                            customIcons={{
+                                                play: <CustomIconButton
+                                                    className={"btn-action"}
+                                                    variant="filled"
+                                                    color={"primary"}
+                                                    size={"small"}>
+                                                    <IconUrl path={'ic-play-audio'}/>
+                                                </CustomIconButton>,
+                                                pause: <CustomIconButton
+                                                    className={"btn-action"}
+                                                    variant="filled"
+                                                    color={"primary"}
+                                                    size={"small"}>
+                                                    <IconUrl path={'ic-pause'}/>
+                                                </CustomIconButton>,
+                                                rewind: <IconButton className={"btn-action"}>
+                                                    <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'}/>
+                                                </IconButton>,
+                                                forward: <IconButton className={"btn-action"}>
+                                                    <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'}/>
+                                                </IconButton>
+                                            }}
+                                            style={{marginTop: 10}}
+                                            src={selectedAudio.uri.url}
+                                        />
+                                        :
+                                        <>
+                                            <Stack direction={"row"} spacing={1}>
+                                                <LoadingButton
+                                                    className={"btn-action"}
+                                                    loading={loadingRequest}
+                                                    loadingPosition={"start"}
+                                                    startIcon={<IconUrl width={20} height={20} path={'ic-trash'}/>}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        removeAudioDoc();
+                                                    }}
+                                                    variant='contained'
+                                                    size={"small"}
+                                                    color={"error"}
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}>
+                                                    <Typography>{t("consultationIP.yes-delete")}</Typography>
+                                                </LoadingButton>
+                                                <Button
+                                                    className={"btn-action"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setDeleteAudio(false);
+                                                    }}
+                                                    variant='contained'
+                                                    size={"small"}
+                                                    color={"white"}
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}>
+                                                    <Typography>{t("consultationIP.cancel")}</Typography>
+                                                </Button>
+                                            </Stack>
+                                            <IconButton
+                                                className={"close-button btn-action"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setSelectedAudio(null);
+                                                    setTimeout(() => setDeleteAudio(false));
+                                                }}>
+                                                <CloseIcon htmlColor={"white"}/>
+                                            </IconButton>
+                                        </>
+                                    }
+                                </>
+                            }
+                        </RecondingBoxStyled>
+                    </CardMedia>
+                </Draggable>
+            }
         </>
-    );
+    )
+        ;
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
