@@ -262,7 +262,7 @@ function Consultation() {
                                         fontWeight: 500,
                                         width: 100
                                     }}>
-                                    {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
+                                    {capitalizeFirst(`${patient?.firstName ?? ""} ${patient?.lastName ?? ""}`)}
                                 </Typography>
 
                                 {patient?.contact?.map((contact: ContactModel, index: number) =>

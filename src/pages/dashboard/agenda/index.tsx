@@ -1493,9 +1493,9 @@ function Agenda() {
                                             margin={2}>{t(`dialogs.${actionDialog}-dialog.description`)}</Typography>
 
                                 {actionDialog === "delete" ? <Grid container spacing={1}>
-                                        {deleteAppointmentOptions.filter(option => !(event?.extendedProps?.status?.key === "CONFIRMED" && option.key === "delete-transaction")).map((option: any, index: number) =>
+                                        {deleteAppointmentOptions.filter(option => !(event?.extendedProps?.status?.key !== "FINISHED" && option.key === "delete-transaction")).map((option: any, index: number) =>
                                             <Grid key={option.key} item
-                                                  md={12 / deleteAppointmentOptions.filter(option => !(event?.extendedProps?.status?.key === "CONFIRMED" && option.key === "delete-transaction")).length}
+                                                  md={12 / deleteAppointmentOptions.filter(option => !(event?.extendedProps?.status?.key !== "FINISHED" && option.key === "delete-transaction")).length}
                                                   xs={12}>
                                                 <Card
                                                     sx={{
