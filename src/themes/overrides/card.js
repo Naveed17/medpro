@@ -6,12 +6,15 @@ export default function Card(theme) {
         MuiCard: {
             styleOverrides: {
                 root: {
-                    //boxShadow: theme.shadows[9],
+                    boxShadow: theme.shadows[2],
                     borderRadius: 10,
                     ".MuiCardContent-root": {
                         '&:last-child': {
                             paddingBottom: theme.spacing(2)
                         }
+                    },
+                    ".MuiCardHeader-action": {
+                        margin: 0
                     }
                 },
             },

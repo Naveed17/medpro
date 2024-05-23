@@ -273,6 +273,14 @@ const rowsActionsData = [
                 (mod) => mod
             )
         ),
+    },
+     {
+        action: "transactions",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/transactionsRow").then(
+                (mod) => mod
+            )
+        ),
     }
 ];
 

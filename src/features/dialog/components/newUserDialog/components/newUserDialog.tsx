@@ -1,44 +1,44 @@
-import React, {useState} from 'react'
-import {Box, Button, DialogActions, DialogTitle, IconButton, Stack} from '@mui/material'
+import React, { useState } from 'react'
+import { Box, Button, DialogActions, DialogTitle, IconButton, Stack } from '@mui/material'
 import DialogStyled from './overrides/dialogStyle'
-import {Stepper, stepperSelector, setStepperIndex} from '@features/stepper'
-import {useAppDispatch, useAppSelector} from '@lib/redux/hooks';
+import { Stepper, stepperSelector, setStepperIndex } from '@features/stepper'
+import { useAppDispatch, useAppSelector } from '@lib/redux/hooks';
 import CloseIcon from "@mui/icons-material/Close";
 import InfoStep from './infoStep';
 import AuthorizationStep from './authorizationStep';
 import AssignmentStep from "./assignmentStep";
-import {DefaultCountry} from '@lib/constants';
-import {Session} from 'next-auth';
-import {useSession} from 'next-auth/react';
-import {FormikProvider, useFormik, Form} from 'formik';
-import {isValidPhoneNumber} from "libphonenumber-js";
+import { DefaultCountry } from '@lib/constants';
+import { Session } from 'next-auth';
+import { useSession } from 'next-auth/react';
+import { FormikProvider, useFormik, Form } from 'formik';
+import { isValidPhoneNumber } from "libphonenumber-js";
 import * as Yup from 'yup';
-import {LoadingButton} from '@mui/lab';
-import {agendaSelector} from '@features/calendar';
-import {useCashBox, useContactType} from '@lib/hooks/rest';
-import {SuccessCard} from '@features/card';
-import {useInvalidateQueries, useMedicalEntitySuffix} from '@lib/hooks';
-import {useSnackbar} from 'notistack';
-import {useRequestQueryMutation} from '@lib/axios';
-import {useRouter} from 'next/router';
-import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingButton } from '@mui/lab';
+import { agendaSelector } from '@features/calendar';
+import { useCashBox, useContactType } from '@lib/hooks/rest';
+import { SuccessCard } from '@features/card';
+import { useInvalidateQueries, useMedicalEntitySuffix } from '@lib/hooks';
+import { useSnackbar } from 'notistack';
+import { useRequestQueryMutation } from '@lib/axios';
+import { useRouter } from 'next/router';
+import { useTranslation } from "next-i18next";
+import { LoadingScreen } from "@features/loadingScreen";
 import _ from "lodash";
 
-function NewUserDialog({...props}) {
-    const {profiles, onNextPreviStep, onClose, type = "authorization"} = props
-    const {contacts} = useContactType();
+function NewUserDialog({ ...props }) {
+    const { profiles, onNextPreviStep, onClose, type = "authorization" } = props
+    const { contacts } = useContactType();
     const router = useRouter();
-    const {data: session} = useSession();
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {cashboxes} = useCashBox(type === "authorization");
+    const { data: session } = useSession();
+    const { trigger: invalidateQueries } = useInvalidateQueries();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const { cashboxes } = useCashBox(type === "authorization");
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar} = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
-    const {agendas} = useAppSelector(agendaSelector);
-    const {currentStep} = useAppSelector(stepperSelector);
+    const { t, ready } = useTranslation("settings", { keyPrefix: "users.config" });
+    const { agendas } = useAppSelector(agendaSelector);
+    const { currentStep } = useAppSelector(stepperSelector);
 
     const [openFeatureCollapse, setFeatureCollapse] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -53,12 +53,12 @@ function NewUserDialog({...props}) {
             title: "dialog.end"
         }
     ]);
-    const {data: userSession} = session as Session;
+    const { data: userSession } = session as Session;
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const features = (userSession as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
-    const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
+    const { trigger: triggerUserAdd } = useRequestQueryMutation("/users/add");
 
     const initRoleData = () => {
         const featuresInit: any = {};
@@ -107,7 +107,7 @@ function NewUserDialog({...props}) {
                 const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
                     const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                         [...(permissions ?? []),
-                            ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
                     return [
                         ...(features ?? []),
                         ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
@@ -117,7 +117,7 @@ function NewUserDialog({...props}) {
                     features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
                         const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                             [...(permissions ?? []),
-                                ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+                            ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
 
                         const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (permissions.length ?? 0) > 0) : (permissions.length ?? 0) > 0;
                         return [
@@ -144,14 +144,14 @@ function NewUserDialog({...props}) {
             data: form
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("alert.add_user_success"), {variant: "success"});
+                enqueueSnackbar(t("alert.add_user_success"), { variant: "success" });
                 setLoading(false);
                 dispatch(setStepperIndex(currentStep + 1))
                 invalidateQueries([`${urlMedicalEntitySuffix}/mehus/${router.locale}`]);
             },
             onError: () => {
                 setLoading(false);
-                enqueueSnackbar(t("alert.went_wrong"), {variant: "error"});
+                enqueueSnackbar(t("alert.went_wrong"), { variant: "error" });
             }
         });
     }
@@ -241,7 +241,7 @@ function NewUserDialog({...props}) {
             selectedRole: 'secretary',
             generatePassword: true,
             resetPassword: true,
-            ...(type === "authorization" && {roles: initRoleData()}),
+            ...(type === "authorization" && { roles: initRoleData() }),
             department: [],
             assigned_doctors: [],
             password: ' ',
@@ -261,23 +261,23 @@ function NewUserDialog({...props}) {
         validationSchema: validationSchema[currentStep]
     });
 
-    const {handleSubmit, values} = formik
+    const { handleSubmit, values } = formik
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <DialogStyled>
-            <DialogTitle bgcolor="primary.main" component={Stack} direction='row' justifyContent='space-between'>
+            <DialogTitle component={Stack} direction='row' justifyContent='space-between'>
                 {t("dialog.add_user")}
                 <IconButton
                     onClick={onClose}
                     size='small' disableRipple>
-                    <CloseIcon htmlColor='white'/>
+                    <CloseIcon />
                 </IconButton>
             </DialogTitle>
-            <Box px={{xs: 0, sm: 2}} py={3} bgcolor="background.default">
+            <Box px={{ xs: 0, sm: 2 }} py={3} bgcolor="background.default">
                 <Stepper
-                    {...{t, stepperData}}
+                    {...{ t, stepperData }}
                     tabIndex={currentStep}
                     minWidth={660}
                     padding={0}
@@ -286,23 +286,23 @@ function NewUserDialog({...props}) {
 
             <FormikProvider value={formik}>
                 <Form noValidate onSubmit={handleSubmit}>
-                    <Box px={{xs: 2, sm: 4}} py={2}>
-                        {currentStep === 0 && <InfoStep {...{formik, t, doctor_country}} />}
+                    <Box px={{ xs: 2, sm: 4 }} py={2}>
+                        {currentStep === 0 && <InfoStep {...{ formik, t, doctor_country }} />}
                         {currentStep === 1 &&
                             (type === 'authorization' ?
-                                    <AuthorizationStep {...{
-                                        formik,
-                                        t,
-                                        profiles,
-                                        openFeatureCollapse,
-                                        setFeatureCollapse
-                                    }} />
-                                    :
-                                    <AssignmentStep {...{formik, t}} />
+                                <AuthorizationStep {...{
+                                    formik,
+                                    t,
+                                    profiles,
+                                    openFeatureCollapse,
+                                    setFeatureCollapse
+                                }} />
+                                :
+                                <AssignmentStep {...{ formik, t }} />
                             )
                         }
                         {currentStep === 2 &&
-                            <Stack alignItems='center' sx={{'.MuiTypography-root': {textAlign: 'center'}}}>
+                            <Stack alignItems='center' sx={{ '.MuiTypography-root': { textAlign: 'center' } }}>
                                 <SuccessCard
                                     data={{
                                         title: t("dialog.success_title"),

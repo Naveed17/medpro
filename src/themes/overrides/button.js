@@ -5,21 +5,54 @@ export default function Button(theme) {
     MuiButton: {
       styleOverrides: {
         root: {
-          boxShadow: "none",
+          boxShadow: 'none',
           textTransform: "none",
-          borderRadius: 6,
-          fontWeight: 400,
+          borderRadius: 8,
+          fontWeight: 500,
           fontFamily: "Poppins",
-          padding: "0.5rem 1.125rem",
+          fontSize: 14,
+          padding: "0.75rem 1rem",
+          lineHeight: '80%',
+
           "&.Mui-disabled": {
-            backgroundColor: theme.palette.grey[300],
-            color: theme.palette.common.white,
+            backgroundColor: theme.palette.back.main,
+            color: theme.palette.grey["B907"],
             boxShadow: "none",
+            cursor: "not-allowed",
+            border: `1px solid ${theme.palette.grey['B907']}`,
+            "& svg": {
+              color: theme.palette.grey["B907"],
+              path: {
+                fill: theme.palette.grey["B907"]
+              }
+            }
+
           },
           "&.MuiButton-sizeLarge": {
             padding: "0.876rem 1.25rem",
             fontSize: "1rem",
           },
+          "&.MuiButton-sizeMedium": {
+            minHeight: 40,
+            ".MuiButton-startIcon": {
+              svg: {
+                width: 16,
+                height: 16
+              }
+            },
+            ".MuiButton-endIcon": {
+              svg: {
+                width: 16,
+                height: 16
+              }
+            }
+          },
+          "&.MuiButton-sizeSmall": {
+            minHeight: 32
+          },
+          "&:hover": {
+            boxShadow: 'none',
+          }
         },
       },
       // variants for buttons
@@ -91,10 +124,10 @@ export default function Button(theme) {
           props: { variant: "contained", color: "error" },
           style: {
             "&:hover": {
-              boxShadow: theme.customShadows.textErrorButton,
+              backgroundColor: theme.palette.error.dark,
             },
             "&:active,&:focus": {
-              backgroundColor: theme.palette.error.darker,
+              backgroundColor: theme.palette.error.light,
             },
           },
         },
@@ -165,15 +198,10 @@ export default function Button(theme) {
               fill: theme.palette.warning.contrastText,
             },
             "&:hover": {
-              boxShadow: theme.customShadows.warningButton,
-              backgroundColor: theme.palette.warning.main,
+              backgroundColor: theme.palette.warning.light,
             },
             "&:active,&:focus": {
-              backgroundColor: theme.palette.warning.darker,
-              color: theme.palette.common.white,
-              path: {
-                fill: theme.palette.common.white,
-              },
+              backgroundColor: theme.palette.warning.light,
             },
           },
         },
@@ -192,15 +220,25 @@ export default function Button(theme) {
           props: { variant: "contained", color: "primary" },
           style: {
             "&:hover": {
-              backgroundColor: theme.palette.primary.main,
-              boxShadow: theme.customShadows.primaryButton,
+              backgroundColor: theme.palette.primary.dark,
             },
             "&:active,&:focus": {
-              backgroundColor: theme.palette.primary.dark,
+              backgroundColor: theme.palette.primary.light,
             },
             "& svg path": {
               fill: theme.palette.common.white,
             },
+            "&.Mui-disabled": {
+              backgroundColor: theme.palette.primary.lighter,
+              color: theme.palette.common.white,
+              border: 'none',
+              "& svg": {
+                color: theme.palette.common.white,
+                path: {
+                  fill: theme.palette.common.white
+                }
+              }
+            }
           },
         },
         {
@@ -393,6 +431,23 @@ export default function Button(theme) {
             color: theme.palette.text.primary,
             backgroundColor: theme.palette.common.white,
             border: `1px solid ${theme.palette.divider}`,
+          },
+        },
+        {
+          props: { variant: "primary-light" },
+          style: {
+            color: theme.palette.primary.main,
+            backgroundColor: theme.palette.primary.lighter,
+            border: `1px solid ${theme.palette.primary.light}`,
+            "&:hover": {
+              color: theme.palette.primary.main,
+              backgroundColor: theme.palette.primary.lighter,
+            },
+            "& svg": {
+              "& path": {
+                fill: theme.palette.primary.main,
+              },
+            },
           },
         },
       ],

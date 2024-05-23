@@ -1,7 +1,7 @@
 import { createSvgIcon } from "@mui/material";
 import React from "react";
 
-function DatePickerIcon() {
+function DatePickerIcon({ ...props }) {
     const CustomIcon = createSvgIcon(
         <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
             <path d="M13.125 14.3667C13.5392 14.3667 13.875 14.0309 13.875 13.6167C13.875 13.2025 13.5392 12.8667 13.125 12.8667C12.7108 12.8667 12.375 13.2025 12.375 13.6167C12.375 14.0309 12.7108 14.3667 13.125 14.3667Z" fill="#1C274C" />
@@ -14,7 +14,7 @@ function DatePickerIcon() {
 
         ,
         'Date Picker')
-    return (<CustomIcon />)
+    return (<CustomIcon {...props} />)
 }
 
 export default DatePickerIcon;

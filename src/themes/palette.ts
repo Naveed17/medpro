@@ -7,11 +7,11 @@ function createGradient(color1: string, color2: string) {
 
 // SETUP COLORS
 const PRIMARY = {
-  lighter: alpha("#0696D6", 0.1),
-  light: alpha("#0696D6", 0.12),
+  lighter: "#E6F7FE",
+  light: '#60BCE6',
   main: "#0696D6",
-  dark: "#04618B",
-  darker: "#005249",
+  dark: "#034665",
+  darker: "#022C3F",
 };
 
 const SECONDARY = {
@@ -31,35 +31,35 @@ const INFO = {
 };
 
 const SUCCESS = {
-  lighter: "#E9FCD4",
-  light: "#2DBD1F",
-  main: "#1BC47D",
-  dark: "#28C76F",
-  darker: "#138958",
+  lighter: "#EAFBF3",
+  light: "#76E5B3",
+  main: "#2AD587",
+  dark: "#14613E",
+  darker: "#0C3B26",
 };
 
 const WARNING = {
-  lighter: "#FFF7CD",
-  light: "#FFE16A",
+  lighter: "#FFFBE5",
+  light: "#FFE45C",
   main: "#FFD400",
-  dark: "#B78103",
-  darker: "#c7a300",
+  dark: "#766100",
+  darker: "##483B00",
 };
 
 const ERROR = {
-  lighter: "#FFE7E9",
-  light: "#f1cbdf",
-  main: "#E83B68",
-  dark: "#B72136",
-  darker: "#8B0D01",
+  lighter: "#FFE3E3",
+  light: "#FF5656",
+  main: "#E60000",
+  dark: "#7A0000",
+  darker: "#510000",
 };
 
 const EXPIRE = {
-  lighter: "#ffc15a",
-  light: "#ffc15a",
-  main: "#e79029",
-  dark: "#b06200",
-  darker: "#b06200",
+  lighter: "#FFF8EB",
+  light: "#FFE3B0",
+  main: "#FF9500",
+  dark: "#996000",
+  darker: "#332200",
 };
 
 const BACK = {
@@ -88,15 +88,16 @@ const BLACK = {
 
 export const GREY = {
   0: "#FFFFFF",
-  100: "#F2F2F2",
-  200: "#DDDDDD",
-  300: "#C9C8C8",
-  400: "#7C878E",
-  500: "#3C3C3B",
-  600: "#1B2746",
-  700: "#B8BCCA",
-  800: "#212B36",
-  900: "#161C24",
+  50:"#EEF2F6",
+  100: "#DCE3ED",
+  200: "#C8D4E2",
+  300: "#B4C5D7",
+  400: "#A0B6CC",
+  500: "#8CA7C1",
+  600: "#71899D",
+  700: "#576A7A",
+  800: "#3D4B57",
+  900: "#232C34",
   A0: "#959CBD",
   A10: "#f8fafc",
   A11: "#E4E4E4",
@@ -118,6 +119,8 @@ export const GREY = {
   B904: "#B5B5C3",
   B905: "#E6E6E6",
   B906:"#EBEDF3",
+  B907:"#BEC2CC",
+  B908:"#3D4B57",
   500_8: alpha("#919EAB", 0.08),
   500_12: alpha("#919EAB", 0.12),
   500_16: alpha("#919EAB", 0.16),
@@ -126,6 +129,7 @@ export const GREY = {
   500_48: alpha("#919EAB", 0.48),
   500_56: alpha("#919EAB", 0.56),
   500_80: alpha("#919EAB", 0.8),
+  500_90: alpha("#212529",0.40)
 };
 
 const GRADIENTS = {
@@ -154,11 +158,11 @@ const COMMON = {
   back: { ...BACK, contrastText: GREY[600] },
   grey: GREY,
   gradients: GRADIENTS,
-  divider: "#DDDDDD",
+  divider: GREY[200],
   action: {
     hover: GREY[500_8],
     selected: GREY[500_16],
-    disabled: GREY[500_80],
+    disabled: GREY[500_90],
     disabledBackground: GREY[500_24],
     focus: GREY[500_24],
     hoverOpacity: 0.08,
@@ -170,8 +174,8 @@ const palette = {
   ...COMMON,
   text: {
     primary: "#1B2746",
-    secondary: "#7C878E",
-    disabled: "#959CBD",
+    secondary: GREY[700],
+    disabled: COMMON.action.disabled,
   },
   background: {
     default: "#F0FAFF",

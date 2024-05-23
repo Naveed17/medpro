@@ -9,13 +9,13 @@ export default function IconButton(theme) {
             background: "transparent",
             boxSizing: "border-box",
             borderRadius: "10px",
-            "&.MuiIconButton-sizeLarge": {
-              minHeight: "48px",
-              minWidth: "48px",
-            },
             "&.MuiIconButton-sizeMedium": {
               minHeight: "40px",
               minWidth: "40px",
+            },
+            "&.MuiIconButton-sizeLarge": {
+              minHeight: "48px",
+              minWidth: "48px",
             },
             "&.MuiIconButton-sizeSmall": {
               minHeight: "27px",
@@ -60,6 +60,12 @@ export default function IconButton(theme) {
               backgroundColor: theme.palette.grey[100]
             }
           },
+          "&.custom-icon-button": {
+            "&.MuiIconButton-sizeMedium": {
+              minHeight: "40px",
+              minWidth: "40px",
+            },
+          }
         },
       },
       variants: [

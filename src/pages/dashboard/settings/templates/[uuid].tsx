@@ -1,8 +1,8 @@
-import {GetStaticPaths, GetStaticProps} from "next";
-import React, {ReactElement, useEffect, useRef, useState} from "react";
-import {configSelector, DashLayout} from "@features/base";
-import {useTranslation} from "next-i18next";
-import {useFormik} from "formik";
+import { GetStaticPaths, GetStaticProps } from "next";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
+import { configSelector, DashLayout } from "@features/base";
+import { useTranslation } from "next-i18next";
+import { useFormik } from "formik";
 import {
     Box,
     Button,
@@ -28,47 +28,50 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {useSnackbar} from "notistack";
-import {useReactToPrint} from "react-to-print";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { useSnackbar } from "notistack";
+import { useReactToPrint } from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
-import {UploadFile} from "@features/uploadFile";
-import {FileuploadProgress} from "@features/progressUI";
+import { UploadFile } from "@features/uploadFile";
+import { FileuploadProgress } from "@features/progressUI";
 import Zoom from "@mui/material/Zoom";
 import PreviewA4 from "@features/files/components/previewA4";
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
-import {Editor} from '@tinymce/tinymce-react';
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/toolbar";
+import { Editor } from '@tinymce/tinymce-react';
+import { SubHeader } from "@features/subHeader";
+import { RootStyled } from "@features/toolbar";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import ModeEditOutlineRoundedIcon from '@mui/icons-material/ModeEditOutlineRounded';
-import {Dialog} from "@features/dialog";
-import {Theme} from "@mui/material/styles";
+import { Dialog } from "@features/dialog";
+import { Theme } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
-import {useAppSelector} from "@lib/redux/hooks";
+import { LoadingButton } from "@mui/lab";
+import { useAppSelector } from "@lib/redux/hooks";
 import Autocomplete from "@mui/material/Autocomplete";
-import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+import { MuiAutocompleteSelectAll } from "@features/muiAutocompleteSelectAll";
+import { useMedicalProfessionalSuffix } from "@lib/hooks";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import { tinymcePlugins, tinymceToolbar } from "@lib/constants";
 
-import {LoadingScreen} from "@features/loadingScreen";
-import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import { LoadingScreen } from "@features/loadingScreen";
+import { getServerTranslations } from "@lib/i18n/getServerTranslations";
+import { CustomIconButton } from "@features/buttons";
+import IconUrl from "@themes/urlIcon";
+import { Breadcrumbs } from "@features/breadcrumbs";
 
 function DocsConfig() {
     const router = useRouter();
     const theme = useTheme();
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const { urlMedicalProfessionalSuffix } = useMedicalProfessionalSuffix();
     const isMobile = useMediaQuery("(max-width:669px)");
-    const {enqueueSnackbar} = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
 
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
-    const {direction} = useAppSelector(configSelector);
+    const { t, ready } = useTranslation(["settings", "common"], { keyPrefix: "documents.config" });
+    const { direction } = useAppSelector(configSelector);
 
     const componentRef = useRef<HTMLDivElement>(null);
 
@@ -83,14 +86,14 @@ function DocsConfig() {
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
-        background: {show: false, content: {url: ''}},
-        header: {show: true, x: 0, y: 0},
-        footer: {show: false, x: 0, y: 900, content: ''},
-        title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
-        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
-        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
-        age: {show: true, prefix: 'AGE:', content: '', x: 40, y: 316},
+        background: { show: false, content: { url: '' } },
+        header: { show: true, x: 0, y: 0 },
+        footer: { show: false, x: 0, y: 900, content: '' },
+        title: { show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150 },
+        date: { show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right" },
+        patient: { show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250 },
+        cin: { show: false, prefix: 'CIN : ', content: '', x: 40, y: 274 },
+        age: { show: true, prefix: 'AGE:', content: '', x: 40, y: 316 },
         size: 'portraitA4',
         content: {
             show: true,
@@ -101,23 +104,23 @@ function DocsConfig() {
             y: 320
         }
     })
-    const [queryState, setQueryState] = useState<any>({type: []});
+    const [queryState, setQueryState] = useState<any>({ type: [] });
     const uuid = router.query.uuid;
 
     const selectedAll = queryState.type.length === types?.length;
 
-    const {trigger: triggerHeaderUpdate} = useRequestQueryMutation("/MP/header/update");
-    const {trigger: triggerHeaderDelete} = useRequestQueryMutation("/MP/header/delete");
+    const { trigger: triggerHeaderUpdate } = useRequestQueryMutation("/MP/header/update");
+    const { trigger: triggerHeaderDelete } = useRequestQueryMutation("/MP/header/delete");
 
-    const {data: httpDocumentHeader, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const { data: httpDocumentHeader, mutate } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpTypeResponse} = useRequestQuery({
+    const { data: httpTypeResponse } = useRequestQuery({
         method: "GET",
         url: `/api/private/document/types/${router.locale}`
-    }, {variables: {query: "?is_active=0"}});
+    }, { variables: { query: "?is_active=0" } });
 
     const formik = useFormik({
         children: undefined,
@@ -141,19 +144,19 @@ function DocsConfig() {
             right3: ""
         }
     })
-    let {values, getFieldProps, setFieldValue} = formik;
+    let { values, getFieldProps, setFieldValue } = formik;
 
     const handleDrop = React.useCallback((acceptedFiles: File[]) => {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                data.background.content.url = (ev.target?.result as string)
-                data.background.show = true;
-                setData({...data})
-            }
-            reader.readAsDataURL(acceptedFiles[0]);
-            setFile(acceptedFiles[0]);
-            setFiles([...files, ...acceptedFiles]);
-        },
+        let reader = new FileReader();
+        reader.onload = (ev) => {
+            data.background.content.url = (ev.target?.result as string)
+            data.background.show = true;
+            setData({ ...data })
+        }
+        reader.readAsDataURL(acceptedFiles[0]);
+        setFile(acceptedFiles[0]);
+        setFiles([...files, ...acceptedFiles]);
+    },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [files]
     );
@@ -170,7 +173,7 @@ function DocsConfig() {
 
     const handleAlignment = (event: React.MouseEvent<HTMLElement>, newAlignment: string | null,) => {
         data.date.textAlign = newAlignment;
-        setData({...data});
+        setData({ ...data });
     };
 
     const printNow = () => {
@@ -181,13 +184,13 @@ function DocsConfig() {
         setFiles(files.filter((_file: any) => _file !== file));
         data.background.content = ''
         setFile(null)
-        setData({...data})
+        setData({ ...data })
     };
 
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
         data[from].x = location.x
         data[from].y = location.y
-        setData({...data})
+        setData({ ...data })
     }
 
     const save = () => {
@@ -199,7 +202,7 @@ function DocsConfig() {
 
         const form = new FormData();
         data.background.content = "";
-        form.append('document_header', JSON.stringify({header: values, data}));
+        form.append('document_header', JSON.stringify({ header: values, data }));
         form.append('title', title);
         form.append('isDefault', JSON.stringify(isDefault));
         if (file)
@@ -214,7 +217,7 @@ function DocsConfig() {
             data: form
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("updated"), {variant: 'success'})
+                enqueueSnackbar(t("updated"), { variant: 'success' })
                 mutate().then(() => {
                     router.back();
                 });
@@ -241,7 +244,7 @@ function DocsConfig() {
             onSuccess: () => {
                 mutate().then(() => {
                     router.back();
-                    enqueueSnackbar(t("removed"), {variant: 'error'})
+                    enqueueSnackbar(t("removed"), { variant: 'error' })
                 });
             }
         });
@@ -285,13 +288,13 @@ function DocsConfig() {
                 if (data.footer === undefined)
                     setData({
                         ...data,
-                        footer: {show: true, x: 0, y: 140, content: ''},
-                        background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
+                        footer: { show: true, x: 0, y: 140, content: '' },
+                        background: { show: data.background.show, content: docHeader.file ? docHeader.file : '' }
                     })
                 else
                     setData({
                         ...data,
-                        background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
+                        background: { show: data.background.show, content: docHeader.file ? docHeader.file : '' }
                     })
             }
 
@@ -312,42 +315,65 @@ function DocsConfig() {
         if (httpTypeResponse)
             setTypes((httpTypeResponse as HttpResponse).data);
     }, [httpTypeResponse])
+    const breadcrumbsData = [
+        {
+            title: "Settings",
+            href: "/dashboard/settings"
+        },
+        {
+            title: 'Documents',
+            href: '/dashboard/settings/templates'
+        },
+        {
+            title: uuid === "new" ? "Create Layout" : "Modify Layout",
+            href: null
+        }
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    ]
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <>
             <SubHeader>
-                <RootStyled>
-                    <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document' : 'Modifier document'}`}</p>
-                </RootStyled>
-
-                {uuid !== 'new' && !hasData && <Button
-                    type="submit"
-                    variant="contained"
-                    color={"error"}
-                    style={{marginRight: 10}}
-                    onClick={openRemoveDialog}>
-                    {!isMobile ? t("remove") : <DeleteOutlineRoundedIcon/>}
-                </Button>}
-                <Button
-                    type="submit"
-                    variant="contained"
-                    onClick={save}>
-                    {!isMobile ? t("save") : <ModeEditOutlineRoundedIcon/>}
-                </Button>
+                <Stack direction='row' alignItems='center' spacing={2} mt={2}>
+                    <CustomIconButton
+                        onClick={() => router.back()}
+                    >
+                        <IconUrl path="ic-outline-arrow-left" />
+                    </CustomIconButton>
+                    <Stack spacing={1} pb={1}>
+                        <Breadcrumbs data={breadcrumbsData} />
+                        <Typography variant="subtitle1">{uuid === 'new' ? t("create_layout") : t("modify_layout")}</Typography>
+                    </Stack>
+                </Stack>
+                <Stack direction='row' alignItems='center' ml="auto">
+                    {uuid !== 'new' && !hasData && <Button
+                        type="submit"
+                        variant="contained"
+                        color={"error"}
+                        style={{ marginRight: 10 }}
+                        onClick={openRemoveDialog}>
+                        {!isMobile ? t("remove") : <DeleteOutlineRoundedIcon />}
+                    </Button>}
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        onClick={save}>
+                        {!isMobile ? t("save") : <ModeEditOutlineRoundedIcon />}
+                    </Button>
+                </Stack>
             </SubHeader>
 
             <Grid container>
                 <Grid item xs={12} md={5}>
-                    <Box padding={2} style={{background: "white"}}
-                         borderRight={'1px solid #c7c6c7'}
-                         height={'100%'}>
+                    <Box padding={2} style={{ background: "white" }}
+                        borderRight={'1px solid #c7c6c7'}
+                        height={'100%'}>
                         <Stack direction={"row"}
-                               alignItems={"center"}
-                               paddingBottom={1}
-                               borderBottom={'1px solid rgba(0,0,0,.1)'}
-                               justifyContent={"space-between"}>
+                            alignItems={"center"}
+                            paddingBottom={1}
+                            borderBottom={'1px solid rgba(0,0,0,.1)'}
+                            justifyContent={"space-between"}>
                             <Typography fontSize={16}>
                                 {t('proprety')}
                             </Typography>
@@ -360,14 +386,14 @@ function DocsConfig() {
                                         color: theme.palette.grey[400]
                                     }}>
                                         <LocalPrintshopRoundedIcon
-                                            style={{color: theme.palette.grey[400], fontSize: 16}}/>
+                                            style={{ color: theme.palette.grey[400], fontSize: 16 }} />
                                     </IconButton>
                                 </Tooltip>
                             </Stack>
                         </Stack>
 
                         <List
-                            sx={{width: '100%', bgcolor: 'background.paper'}}
+                            sx={{ width: '100%', bgcolor: 'background.paper' }}
                             component="nav"
                             aria-labelledby="nested-list-subheader">
 
@@ -380,12 +406,12 @@ function DocsConfig() {
                                 variant="outlined"
                                 placeholder={t('titleholder')}
                                 required
-                                style={{marginBottom: 15}}
+                                style={{ marginBottom: 15 }}
                                 value={title}
                                 onChange={(ev) => {
                                     setTitle(ev.target.value)
                                 }}
-                                fullWidth/>
+                                fullWidth />
 
                             <Typography fontSize={12} color={'#999'} mb={1}>{t('selectTypes')}{" "}
                                 <Typography component="span" color="error">
@@ -395,7 +421,7 @@ function DocsConfig() {
 
                             <MuiAutocompleteSelectAll.Provider
                                 value={{
-                                    onSelectAll: (selectedAll) => void handleSelectAll({type: selectedAll ? [] : types}),
+                                    onSelectAll: (selectedAll) => void handleSelectAll({ type: selectedAll ? [] : types }),
                                     selectedAll,
                                     indeterminate: !!queryState.type.length && !selectedAll,
                                 }}
@@ -412,36 +438,36 @@ function DocsConfig() {
                                     value={queryState.type ? queryState.type : []}
                                     onChange={(event, value) => handleInsuranceChange(value)}
                                     options={types}
-                                    style={{marginBottom: 15}}
+                                    style={{ marginBottom: 15 }}
                                     getOptionLabel={option => option?.name ? option.name : ""}
                                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
-                                    renderOption={(params, option, {selected}) => (
+                                    renderOption={(params, option, { selected }) => (
                                         <MenuItem
                                             {...params}>
-                                            <Checkbox checked={selected}/>
-                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                            <Checkbox checked={selected} />
+                                            <Typography sx={{ ml: 1 }}>{option.name}</Typography>
                                         </MenuItem>)}
                                     renderInput={(params) => (
                                         <FormControl component="form" fullWidth>
                                             <TextField color={"info"}
-                                                       {...params}
-                                                       sx={{paddingLeft: 0}}
-                                                       placeholder={""}
-                                                       variant="outlined"
+                                                {...params}
+                                                sx={{ paddingLeft: 0 }}
+                                                placeholder={""}
+                                                variant="outlined"
                                             />
                                         </FormControl>)}
                                 />
                             </MuiAutocompleteSelectAll.Provider>
 
 
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                            <ListItem style={{ padding: 0, marginTop: 10, marginBottom: 5 }}>
                                 <Checkbox
                                     checked={isDefault}
                                     onChange={(ev) => {
                                         setIsDefault(ev.target.checked)
                                     }}
                                 />
-                                <ListItemText primary={t("asDefault")}/>
+                                <ListItemText primary={t("asDefault")} />
                             </ListItem>
 
                             <div style={{
@@ -451,7 +477,7 @@ function DocsConfig() {
                                 marginTop: 10
                             }}></div>
                             {/*Content*/}
-                            <fieldset style={{marginBottom: 10}}>
+                            <fieldset style={{ marginBottom: 10 }}>
                                 <legend>{t('configContent')}</legend>
                                 <Typography fontSize={12} color={'#999'} mb={1}>{t('maxHeight')}</Typography>
                                 <TextField
@@ -462,57 +488,57 @@ function DocsConfig() {
                                     value={data.content.maxHeight}
                                     onChange={(ev) => {
                                         data.content.maxHeight = ev.target.value
-                                        setData({...data})
+                                        setData({ ...data })
                                     }}
-                                    fullWidth/>
+                                    fullWidth />
                                 <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
                                     : {data.content.x} , y : {data.content.y}</Typography>
                             </fieldset>
 
                             {/*we will add it late*/}
-                            <fieldset style={{marginBottom: 10}}>
+                            <fieldset style={{ marginBottom: 10 }}>
                                 <legend>{t('paperSize')}</legend>
-                                <ListItem style={{padding: 0, marginBottom: 5}}>
+                                <ListItem style={{ padding: 0, marginBottom: 5 }}>
                                     <Checkbox
                                         checked={data.size === 'portraitA5'}
                                         onChange={() => {
                                             data.size = 'portraitA5';
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
                                     />
-                                    <ListItemText primary={t("A5")}/>
+                                    <ListItemText primary={t("A5")} />
                                 </ListItem>
-                                <ListItem style={{padding: 0, marginBottom: 5}}>
+                                <ListItem style={{ padding: 0, marginBottom: 5 }}>
                                     <Checkbox
                                         checked={data.size === 'portraitA4'}
                                         onChange={() => {
                                             data.size = 'portraitA4';
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
                                     />
-                                    <ListItemText primary={t("A4")}/>
+                                    <ListItemText primary={t("A4")} />
                                 </ListItem>
                             </fieldset>
                             {/*Import document*/}
-                            <ListItem style={{padding: 0, marginBottom: 5}}>
+                            <ListItem style={{ padding: 0, marginBottom: 5 }}>
                                 <Checkbox
                                     checked={data.background.show}
                                     onChange={(ev) => {
                                         data.background.show = ev.target.checked;
-                                        setData({...data})
+                                        setData({ ...data })
                                     }}
                                 />
-                                <ListItemText primary={t("background")}/>
+                                <ListItemText primary={t("background")} />
                             </ListItem>
                             <Collapse in={data.background.show} timeout="auto" unmountOnExit>
                                 {files.length === 0 &&
                                     <UploadFile
                                         files={files}
-                                        accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
+                                        accept={{ 'image/jpeg': ['.png', '.jpeg', '.jpg'] }}
                                         onDrop={handleDrop}
-                                        singleFile={true}/>}
+                                        singleFile={true} />}
 
-                                <Stack spacing={2} maxWidth={{xs: "100%", md: "100%"}}>
+                                <Stack spacing={2} maxWidth={{ xs: "100%", md: "100%" }}>
                                     {files?.map((file: any, index: number) => (
                                         <FileuploadProgress
                                             key={index}
@@ -525,15 +551,15 @@ function DocsConfig() {
                             </Collapse>
 
                             {/*Header config*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                            <ListItem style={{ padding: 0, marginTop: 10, marginBottom: 5 }}>
                                 <Checkbox
                                     checked={data.header.show}
                                     onChange={(ev) => {
                                         data.header.show = ev.target.checked;
-                                        setData({...data})
+                                        setData({ ...data })
                                     }}
                                 />
-                                <ListItemText primary={t("header")}/>
+                                <ListItemText primary={t("header")} />
                             </ListItem>
                             <Collapse in={data.header.show} timeout="auto" unmountOnExit>
                                 <Card>
@@ -541,9 +567,9 @@ function DocsConfig() {
                                         <Stack spacing={2}>
                                             <Stack direction={"row"} justifyContent={"space-between"} spacing={1}>
                                                 <Typography color={'#999'}
-                                                            fontSize={12}>{t('leftSide')}</Typography>
+                                                    fontSize={12}>{t('leftSide')}</Typography>
                                                 <Typography color={'#999'}
-                                                            fontSize={12}>{t('rightSide')}</Typography>
+                                                    fontSize={12}>{t('rightSide')}</Typography>
                                             </Stack>
 
                                             <Stack direction={"row"} justifyContent={"space-between"} spacing={1}>
@@ -552,7 +578,7 @@ function DocsConfig() {
                                                     placeholder={t("case1")}
                                                     required
                                                     {...getFieldProps("left1")}
-                                                    fullWidth/>
+                                                    fullWidth />
 
                                                 <TextField
                                                     variant="outlined"
@@ -564,7 +590,7 @@ function DocsConfig() {
                                                         },
                                                     }}
                                                     {...getFieldProps("right1")}
-                                                    fullWidth/>
+                                                    fullWidth />
                                             </Stack>
                                             <Stack direction={"row"} justifyContent={"space-between"} spacing={1}>
                                                 <TextField
@@ -572,7 +598,7 @@ function DocsConfig() {
                                                     placeholder={t("case2")}
                                                     required
                                                     {...getFieldProps("left2")}
-                                                    fullWidth/>
+                                                    fullWidth />
                                                 <TextField
                                                     variant="outlined"
                                                     placeholder={t("case2")}
@@ -583,7 +609,7 @@ function DocsConfig() {
                                                     }}
                                                     {...getFieldProps("right2")}
                                                     required
-                                                    fullWidth/>
+                                                    fullWidth />
                                             </Stack>
                                             <Stack direction={"row"} justifyContent={"space-between"} spacing={1}>
                                                 <TextField
@@ -594,7 +620,7 @@ function DocsConfig() {
                                                     rows={4}
                                                     {...getFieldProps("left3")}
 
-                                                    fullWidth/>
+                                                    fullWidth />
                                                 <TextField
                                                     variant="outlined"
                                                     placeholder={t("case3")}
@@ -607,7 +633,7 @@ function DocsConfig() {
                                                         },
                                                     }}
                                                     {...getFieldProps("right3")}
-                                                    fullWidth/>
+                                                    fullWidth />
                                             </Stack>
                                         </Stack>
                                     </CardContent>
@@ -616,15 +642,15 @@ function DocsConfig() {
 
                             {/*Footer config*/}
                             {data.footer && <Box>
-                                <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                <ListItem style={{ padding: 0, marginTop: 10, marginBottom: 5 }}>
                                     <Checkbox
                                         checked={data.footer?.show}
                                         onChange={(ev) => {
                                             data.footer.show = ev.target.checked;
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
                                     />
-                                    <ListItemText primary={t("footer")}/>
+                                    <ListItemText primary={t("footer")} />
                                 </ListItem>
 
                                 {!loading && <Collapse in={data.footer.show} timeout="auto" unmountOnExit>
@@ -633,7 +659,7 @@ function DocsConfig() {
                                         tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                         onEditorChange={(res) => {
                                             data.footer.content = res;
-                                            setData({...data});
+                                            setData({ ...data });
                                         }}
                                         init={{
                                             branding: false,
@@ -650,15 +676,15 @@ function DocsConfig() {
 
 
                             {/*Title document*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                            <ListItem style={{ padding: 0, marginTop: 10, marginBottom: 5 }}>
                                 <Checkbox
                                     checked={data.title.show}
                                     onChange={(ev) => {
                                         data.title.show = ev.target.checked;
-                                        setData({...data})
+                                        setData({ ...data })
                                     }}
                                 />
-                                <ListItemText primary={t("title")}/>
+                                <ListItemText primary={t("title")} />
                             </ListItem>
                             {/*
                                 <Collapse in={data.title.show} timeout="auto" unmountOnExit>
@@ -684,15 +710,15 @@ function DocsConfig() {
 
                             {/*Date*/}
 
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                            <ListItem style={{ padding: 0, marginTop: 10, marginBottom: 5 }}>
                                 <Checkbox
                                     checked={data.date.show}
                                     onChange={(ev) => {
                                         data.date.show = ev.target.checked;
-                                        setData({...data})
+                                        setData({ ...data })
                                     }}
                                 />
-                                <ListItemText primary={t("date")}/>
+                                <ListItemText primary={t("date")} />
                             </ListItem>
                             <Collapse in={data.date.show} timeout="auto" unmountOnExit>
                                 <fieldset>
@@ -705,16 +731,16 @@ function DocsConfig() {
                                             onChange={handleAlignment}
                                             aria-label="text alignment">
                                             <ToggleButton value="left" aria-label="left aligned">
-                                                <FormatAlignLeftIcon/>
+                                                <FormatAlignLeftIcon />
                                             </ToggleButton>
                                             <ToggleButton value="center" aria-label="centered">
-                                                <FormatAlignCenterIcon/>
+                                                <FormatAlignCenterIcon />
                                             </ToggleButton>
                                             <ToggleButton value="right" aria-label="right aligned">
-                                                <FormatAlignRightIcon/>
+                                                <FormatAlignRightIcon />
                                             </ToggleButton>
                                             <ToggleButton value="justify" aria-label="justified" disabled>
-                                                <FormatAlignJustifyIcon/>
+                                                <FormatAlignJustifyIcon />
                                             </ToggleButton>
                                         </ToggleButtonGroup>
                                     </Stack>
@@ -727,24 +753,24 @@ function DocsConfig() {
                                         value={data.date.prefix}
                                         onChange={(ev) => {
                                             data.date.prefix = ev.target.value
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
-                                        fullWidth/>
+                                        fullWidth />
                                     <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
                                         : {data.date.x} , y : {data.date.y}</Typography>
                                 </fieldset>
                             </Collapse>
 
                             {/*Patient name*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                            <ListItem style={{ padding: 0, marginTop: 10, marginBottom: 5 }}>
                                 <Checkbox
                                     checked={data.patient.show}
                                     onChange={(ev) => {
                                         data.patient.show = ev.target.checked;
-                                        setData({...data})
+                                        setData({ ...data })
                                     }}
                                 />
-                                <ListItemText primary={t("patient")}/>
+                                <ListItemText primary={t("patient")} />
                             </ListItem>
                             <Collapse in={data.patient.show} timeout="auto" unmountOnExit>
                                 <fieldset>
@@ -757,50 +783,50 @@ function DocsConfig() {
                                         value={data.patient.prefix}
                                         onChange={(ev) => {
                                             data.patient.prefix = ev.target.value
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
-                                        fullWidth/>
+                                        fullWidth />
                                     <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
                                         : {data.patient.x} , y : {data.patient.y}</Typography>
                                 </fieldset>
                             </Collapse>
 
                             {/*CIN*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                            <ListItem style={{ padding: 0, marginTop: 10, marginBottom: 5 }}>
                                 <Checkbox
                                     checked={data.cin && data.cin.show}
                                     onChange={(ev) => {
                                         if (data.cin) {
                                             data.cin.show = ev.target.checked;
-                                            setData({...data})
+                                            setData({ ...data })
                                         } else setData({
                                             ...data,
-                                            cin: {show: true, prefix: 'CIN : ', content: '', x: 40, y: 274}
+                                            cin: { show: true, prefix: 'CIN : ', content: '', x: 40, y: 274 }
                                         })
                                     }}
                                 />
-                                <ListItemText primary={t("cin")}/>
+                                <ListItemText primary={t("cin")} />
                             </ListItem>
 
                             {/*AGE*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                            <ListItem style={{ padding: 0, marginTop: 10, marginBottom: 5 }}>
                                 <Checkbox
                                     checked={data.age && data.age.show}
                                     onChange={(ev) => {
-                                        let _data = {...data}
+                                        let _data = { ...data }
                                         if (_data.age)
                                             _data.age.show = ev.target.checked;
                                         else {
                                             _data = {
                                                 ..._data,
-                                                age: {show: true, prefix: 'AGE:', content: '', x: 40, y: 316}
+                                                age: { show: true, prefix: 'AGE:', content: '', x: 40, y: 316 }
                                             }
                                         }
 
-                                        setData({..._data})
+                                        setData({ ..._data })
                                     }}
                                 />
-                                <ListItemText primary={t("age")}/>
+                                <ListItemText primary={t("age")} />
                             </ListItem>
 
                         </List>
@@ -809,11 +835,11 @@ function DocsConfig() {
 
                 <Grid item xs={12} md={7}>
                     {<Box padding={2}>
-                        <Box style={{margin: 'auto', paddingTop: 20}}>
+                        <Box style={{ margin: 'auto', paddingTop: 20 }}>
                             <Box ref={componentRef}>
-                                {!loading && <PreviewA4  {...{eventHandler, data, values, loading}} />}
+                                {!loading && <PreviewA4  {...{ eventHandler, data, values, loading }} />}
                                 {loading &&
-                                    <div className={data.size ? data.size : "portraitA5"} style={{padding: 20}}>
+                                    <div className={data.size ? data.size : "portraitA5"} style={{ padding: 20 }}>
                                         {Array.from(Array(30)).map((item, key) => (
                                             <Skeleton key={key}></Skeleton>))}
                                     </div>}
@@ -837,11 +863,11 @@ function DocsConfig() {
                         <Button onClick={() => {
                             setRemoveModelDialog(false);
                         }}
-                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                            startIcon={<CloseIcon />}>{t('cancel')}</Button>
                         <LoadingButton
                             variant="contained"
                             loading={loading}
-                            sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                            sx={{ backgroundColor: (theme: Theme) => theme.palette.error.main }}
                             onClick={removeModel}>{t('remove')}</LoadingButton>
                     </DialogActions>
                 }

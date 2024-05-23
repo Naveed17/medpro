@@ -3,8 +3,8 @@
     "parameters": "Paramètres",
     "profile": "Profil",
     "acts": "Actes",
-    "motif": "Motifs de consultation",
-    "consultation": "Fiche consultation",
+    "motifs": "Motifs",
+    "consultation": "Consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
     "cabinet": "Cabinet",
@@ -14,7 +14,7 @@
     "users": "Utilisateurs",
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
-    "type": "Types des consultations",
+    "types": "Types",
     "actfees": "Honoraires",
     "configdoc": "Documents",
     "import-data": "Importation",
@@ -22,7 +22,21 @@
     "drugs": "Médicaments",
     "analysis": "Analyses",
     "medical_imaging": "Imageries médicales",
-    "billing": "Billing"
+    "plan_billing": "Plan & Facturation",
+    "general": "Général",
+    "preferences": "Préférences",
+    "schedule-and-location": "Horaire et lieu",
+    "location": "Lieu",
+    "leave_and_absence": "Congés et absences",
+    "time_off_types": "Types de congés",
+    "insurance": "Assurance",
+    "sheets": "Fiches"
+  },
+  "general": {
+    "title": "Général"
+  },
+  "scheduleAndLocation": {
+    "title": "Horaire et lieu"
   },
   "profile": {
     "upload-logo": "Télécharger le logo",
@@ -100,6 +114,7 @@
     "config": {
       "add": "Ajouter",
       "search": "Recherche",
+      "title": "Motifs de consultation",
       "path": "Paramètres > Motifs de consultation",
       "dialog": {
         "title": "Supprimer le motif",
@@ -126,7 +141,8 @@
         "icon": "Icône",
         "minutes": "Minutes",
         "hours": "Heures",
-        "hour": "Heure"
+        "hour": "Heure",
+        "status": "Statut"
       }
     },
     "dialog": {
@@ -153,6 +169,7 @@
   "motifType": {
     "config": {
       "add": "Ajouter",
+      "title": "Types des consultations",
       "path": "Paramètres > Types des consultations",
       "table": {
         "name": "Nom",
@@ -196,6 +213,7 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Médicaments",
+      "title": "Médicaments",
       "table": {
         "name": "Nom",
         "action": "Action",
@@ -241,6 +259,7 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Analyse",
+      "title": "Bilan & Analyses",
       "table": {
         "name": "Nom",
         "action": "Action",
@@ -283,6 +302,7 @@
     "config": {
       "add": "Ajouter",
       "path": "Paramètres > Imagerie médicale",
+      "title": "Imagerie médicale",
       "table": {
         "name": "Nom",
         "action": "Action",
@@ -326,6 +346,7 @@
       "cancel": "Annuler",
       "path": "Paramètres > Lieux de consultation",
       "remove": "Supprimer un lieu",
+      "title": "Lieux",
       "askRemove": "Voulez vous vraiment supprimer ce lieu ?",
       "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de ce lieu",
       "table": {
@@ -460,6 +481,7 @@
     "praticien": "praticien",
     "config": {
       "path": "Paramètres > Congé et Absences",
+      "title": "Congés et absences",
       "add": "Ajouter",
       "table": {
         "start": "Date debut",
@@ -943,6 +965,7 @@
   "templates": {
     "config": {
       "path": "Paramètres > Personaliser la suivi du consultation",
+      "title": "Suivi de la consultation",
       "add": "Ajouter un modèle",
       "delete-dialog-title": "Supprimer modale",
       "delete": "Supprimer",
@@ -989,6 +1012,9 @@
   "documents": {
     "config": {
       "path": "Paramètres > Documents ",
+      "page_title": "Documents",
+      "create_layout": "Créer une présentation",
+      "modify_layout": "Modifier la présentation",
       "header": "En-tête",
       "footer": "Bas de page",
       "age": "Age",

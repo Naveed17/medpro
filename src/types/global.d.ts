@@ -60,15 +60,23 @@ declare module "@mui/material/Button" {
         filter: true;
         "text-primary": true;
         consultationIP: true;
+        "primary-light": true;
     }
 
     interface ButtonPropsColorOverrides {
         text: true;
         white: true;
         black: true;
+        expire:true;
     }
 }
-
+declare module "@mui/material/Alert" {
+    interface AlertPropsColorOverrides {
+        primary:true;
+        expire:true;
+       
+    }
+}
 declare module "@mui/material/CircularProgress" {
     interface CircularProgressPropsColorOverrides {
         white: true;
@@ -114,6 +122,8 @@ declare module "@mui/material" {
         B904: string;
         B905: string;
         B906: string;
+        B907: string;
+        B908: string;
     }
 
     interface PaletteColor {

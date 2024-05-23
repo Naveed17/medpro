@@ -328,6 +328,9 @@ const TableRowStyled = styled(TableRow)<any>(
                 border: `1px solid ${theme.palette.divider}`,
                 padding: theme.spacing(.8),
             }
+        },
+        "&.transactions-row":{
+            ".custom-icon-button": { minWidth: 32, minHeight: 32, backgroundColor: theme.palette.primary.lighter }
         }
     })
 );

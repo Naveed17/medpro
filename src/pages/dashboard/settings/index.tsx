@@ -1,16 +1,16 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement} from "react";
-import {Box, useMediaQuery} from "@mui/material";
-import {DashLayout} from "@features/base";
-import {Settings as SettingsFilter} from '@features/leftActionBar';
-import {Redirect} from "@features/redirect";
-import {MobileContainer} from "@lib/constants";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement } from "react";
+import { Box, useMediaQuery } from "@mui/material";
+import { DashLayout } from "@features/base";
+import { Settings as SettingsFilter } from '@features/leftActionBar';
+import { Redirect } from "@features/redirect";
+import { MobileContainer } from "@lib/constants";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 function Settings() {
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     const router = useRouter();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const slugFeature = router.pathname.split('/')[2];
@@ -20,17 +20,17 @@ function Settings() {
 
     if (!isMobile) {
         return <Redirect
-            to={`/dashboard/settings/${featurePermissionSlug?.length > 0 ? featurePermissionSlug[0].split("__")[1] : 'profile'}`}/>
+            to={`/dashboard/settings/${featurePermissionSlug?.length > 0 ? featurePermissionSlug[0].split("__")[1] : 'general'}`} />
     }
 
     return (
         <Box>
-            <SettingsFilter/>
+            <SettingsFilter />
         </Box>
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))

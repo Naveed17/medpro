@@ -77,7 +77,13 @@ function ChartsOption() {
         // Grid
         grid: {
             strokeDashArray: 3,
-            borderColor: theme.palette.divider
+            borderColor: theme.palette.divider,
+            xaxis: {
+                lines: {show: false}
+            },
+            yaxis: {
+                lines: {show: true,}
+            }
         },
 
         // Xaxis

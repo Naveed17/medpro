@@ -15,6 +15,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
         }),
     },
     "& .sidenav-main": {
+        
         width: 84,
         flexShrink: 0,
         "& .MuiDrawer-root": {
@@ -60,8 +61,9 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                     padding: 7,
                     "& svg": {
                         width: 22,
-                        "path": {
+                        path: {
                             transition: 'all .5s ease-in-out .2s',
+                            fill: theme.palette.grey["B908"],
 
                         }
                     },
@@ -97,7 +99,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                     zIndex: -1
                 }
             },
-            "@media screen and (max-height: 600px)": {
+            "@media screen and (max-height: 446px)": {
                 marginTop: 0,
                 "&.list-bottom": {
                     paddingTop: 0,
@@ -107,14 +109,9 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                 },
             },
             "@media screen and (min-height: 750px)": {
-                marginTop: 16,
-                " &.list-bottom": {
-                    position: "absolute",
-                    bottom: 0,
-                    left: 22,
-                },
+                marginTop: 20,
                 "& .action-bar-open": {
-                    padding: "10px 0px 10px 20px",
+                    padding: "10px 20px 10px 20px",
                     backgroundColor: theme.palette.background.paper,
                     overflowY: "auto",
                     overflowX: "hidden",
@@ -151,7 +148,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             visibility: "visible",
         },
         "& .action-bar-open": {
-            padding: "10px 0px 10px 20px",
+            padding: "10px 20px 10px 20px",
             backgroundColor: theme.palette.background.paper,
             overflowY: "auto",
             overflow: "visible",

@@ -1,8 +1,8 @@
-import React, {ReactElement, useEffect, useState} from "react";
-import {configSelector, DashLayout} from "@features/base";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {SubHeader} from "@features/subHeader";
+import React, { ReactElement, useEffect, useState } from "react";
+import { configSelector, DashLayout } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { SubHeader } from "@features/subHeader";
 import {
     Box,
     Button,
@@ -14,31 +14,32 @@ import {
 } from "@mui/material";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingScreen } from "@features/loadingScreen";
 
-import {useTranslation} from "next-i18next";
-import {useRouter} from "next/router";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {ImportDataMobileCard, NoDataCard} from "@features/card";
+import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { ImportDataMobileCard, NoDataCard } from "@features/card";
 import {
     importDataUpdate,
     onOpenPatientDrawer,
     Otable,
     tableActionSelector,
 } from "@features/table";
-import {Dialog} from "@features/dialog";
+import { Dialog } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
+import { LoadingButton } from "@mui/lab";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useSnackbar} from "notistack";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { useSnackbar } from "notistack";
 import IconUrl from "@themes/urlIcon";
-import {resetDuplicated} from "@features/duplicateDetected";
-import {MobileContainer} from "@themes/mobileContainer";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import { resetDuplicated } from "@features/duplicateDetected";
+import { MobileContainer } from "@themes/mobileContainer";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { useMedicalEntitySuffix } from "@lib/hooks";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
 import Can from "@features/casl/can";
+import { Breadcrumbs } from "@features/breadcrumbs";
 
 const PatientDetail = dynamic(
     () =>
@@ -47,7 +48,17 @@ const PatientDetail = dynamic(
 const DuplicateDetected = dynamic(
     () => import("@features/duplicateDetected/components/duplicateDetected")
 );
+const breadcrumbsData = [
+    {
+        title: "Settings",
+        href: "/dashboard/settings"
+    },
+    {
+        title: "Data Exportation",
+        href: null
+    }
 
+]
 const headImportDataCells = [
     {
         id: "name",
@@ -100,17 +111,17 @@ const ImportCardData = {
 function Data() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar} = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const theme = useTheme();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
 
-    const {tableState} = useAppSelector(tableActionSelector);
-    const {direction} = useAppSelector(configSelector);
-    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
+    const { tableState } = useAppSelector(tableActionSelector);
+    const { direction } = useAppSelector(configSelector);
+    const { t, ready, i18n } = useTranslation(["settings", "common"], { keyPrefix: "import-data" });
 
-    const {trigger: triggerDeleteImportData} = useRequestQueryMutation("/import/data/delete");
+    const { trigger: triggerDeleteImportData } = useRequestQueryMutation("/import/data/delete");
 
-    const {data: httpImportDataResponse, mutate: mutateImportData} = useRequestQuery({
+    const { data: httpImportDataResponse, mutate: mutateImportData } = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`
     }, ReactQueryNoValidateConfig);
@@ -164,7 +175,7 @@ function Data() {
                     setDeleteDialog(false);
                     setSelectedRow(null);
                     mutateImportData();
-                    enqueueSnackbar(t(`alert.delete-import`), {variant: "success"});
+                    enqueueSnackbar(t(`alert.delete-import`), { variant: "success" });
                 }
                 setLoading(false);
             }
@@ -185,7 +196,7 @@ function Data() {
             onSuccess: (value) => {
                 if ((value?.data as any).status === "success") {
                     mutateImportData();
-                    enqueueSnackbar(t(`alert.export`), {variant: "success"});
+                    enqueueSnackbar(t(`alert.export`), { variant: "success" });
                 }
                 setLoading(false);
             }
@@ -220,11 +231,18 @@ function Data() {
         <>
             <SubHeader>
                 <Stack
+                    mt={2}
+                    pb={1}
                     direction="row"
                     justifyContent="space-between"
                     width={1}
                     alignItems="center">
-                    <Typography>{t("path")}</Typography>
+                    <Stack spacing={1}>
+                        <Breadcrumbs data={breadcrumbsData} />
+                        <Typography variant="subtitle1">
+                            {t("title")}
+                        </Typography>
+                    </Stack>
                     <Stack
                         direction="row"
                         spacing={1}
@@ -235,21 +253,21 @@ function Data() {
                                     (importData.list.length === 0 ||
                                         (importData.list.length > 0 &&
                                             importData.list[0].status === 3)))) && (
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    onClick={() => {
-                                        router.push("/dashboard/settings/data/import");
-                                    }}
-                                    color="success">
-                                    {t("add")}
-                                </Button>
-                            )}
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        onClick={() => {
+                                            router.push("/dashboard/settings/data/import");
+                                        }}
+                                        color="success">
+                                        {t("add")}
+                                    </Button>
+                                )}
                         </Can>
 
                         <LoadingButton
                             disabled={importData?.list.findIndex(data => data?.type === 1) !== -1}
-                            {...{loading}}
+                            {...{ loading }}
                             loadingPosition={"start"}
                             type="submit"
                             variant="contained"
@@ -263,7 +281,7 @@ function Data() {
             <Box className="container">
                 {importData && importData.list.length === 0 ? (
                     <NoDataCard
-                        {...{t}}
+                        {...{ t }}
                         ns={"settings"}
                         firstbackgroundonly="true"
                         data={ImportCardData}
@@ -316,11 +334,11 @@ function Data() {
                     }}
                     action={() => {
                         return (
-                            <Box sx={{minHeight: 150}}>
-                                <Typography sx={{textAlign: "center"}} variant="subtitle1">
+                            <Box sx={{ minHeight: 150 }}>
+                                <Typography sx={{ textAlign: "center" }} variant="subtitle1">
                                     {t(`dialogs.reInitDialog.sub-title`)}{" "}
                                 </Typography>
-                                <Typography sx={{textAlign: "center"}} margin={2}>
+                                <Typography sx={{ textAlign: "center" }} margin={2}>
                                     {t(`dialogs.reInitDialog.description`)}
                                 </Typography>
                             </Box>
@@ -333,16 +351,16 @@ function Data() {
                             <Button
                                 variant="text-primary"
                                 onClick={() => setDeleteDialog(false)}
-                                startIcon={<CloseIcon/>}>
+                                startIcon={<CloseIcon />}>
                                 {t(`dialogs.reInitDialog.cancel`)}
                             </Button>
                             <LoadingButton
-                                {...{loading}}
+                                {...{ loading }}
                                 onClick={() => handleDeleteImportData(selectedRow as string)}
                                 loadingPosition="start"
                                 variant="contained"
                                 color={"error"}
-                                startIcon={<RestartAltIcon/>}>
+                                startIcon={<RestartAltIcon />}>
                                 {t(`dialogs.reInitDialog.confirm`)}
                             </LoadingButton>
                         </>
@@ -354,13 +372,13 @@ function Data() {
                     open={patientDetailDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        dispatch(onOpenPatientDrawer({ patientId: "" }));
                         setPatientDetailDrawer(false);
                     }}>
                     <PatientDetail
-                        {...{isAddAppointment: false, patientId: tableState.patientId}}
+                        {...{ isAddAppointment: false, patientId: tableState.patientId }}
                         onCloseDialog={() => {
-                            dispatch(onOpenPatientDrawer({patientId: ""}));
+                            dispatch(onOpenPatientDrawer({ patientId: "" }));
                             setPatientDetailDrawer(false);
                         }}
                         onAddAppointment={() => console.log("onAddAppointment")}
@@ -380,7 +398,7 @@ function Data() {
                     }}
                     action={() => {
                         return (
-                            duplicatedData && <DuplicateDetected data={duplicatedData}/>
+                            duplicatedData && <DuplicateDetected data={duplicatedData} />
                         );
                     }}
                     actionDialog={
@@ -397,17 +415,17 @@ function Data() {
                             <Stack
                                 direction={"row"}
                                 justifyContent={"space-between"}
-                                sx={{width: "100%"}}>
+                                sx={{ width: "100%" }}>
                                 <Button
                                     onClick={() => setDuplicateDetectedDialog(false)}
-                                    startIcon={<CloseIcon/>}>
+                                    startIcon={<CloseIcon />}>
                                     {t("dialogs.duplication-dialog.later")}
                                 </Button>
                                 <Box>
                                     <Button
-                                        sx={{marginRight: 1}}
+                                        sx={{ marginRight: 1 }}
                                         color={"inherit"}
-                                        startIcon={<CloseIcon/>}>
+                                        startIcon={<CloseIcon />}>
                                         {t("dialogs.duplication-dialog.no-duplicates")}
                                     </Button>
                                     <Button

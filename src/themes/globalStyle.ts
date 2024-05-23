@@ -49,5 +49,33 @@ export const GlobleStyles = styled("div")(({ theme }) => ({
       ".MuiTable-stickyHeader":{
         paddingRight:0,
       },
+  },
+  ".MuiButtonGroup-root.rdv-type-group":{
+    boxShadow:'none',
+    button:{
+       '&.btn-absent':{
+      backgroundColor: theme.palette.error.light,
+      borderColor: theme.palette.error.light,
+    },
+     '&.btn-confirm':{
+      backgroundColor: theme.palette.success.light,
+      borderColor: theme.palette.success.light,
+    },
+     '&.btn-waiting':{
+      backgroundColor: theme.palette.warning.light,
+      borderColor: theme.palette.warning.light,
+    },
+    '&.btn-complete':{
+      backgroundColor: theme.palette.primary.light,
+      borderColor: theme.palette.primary.light,
+    },
+      padding:theme.spacing(1),
+      maxHeight:27,
+      minHeight:20,
+      span:{
+      color: theme.palette.primary.dark,
+      fontWeight: 500,
+      }
+    }
   }
 }));

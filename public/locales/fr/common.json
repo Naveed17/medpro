@@ -161,6 +161,13 @@
   "add_leave": "Ajouter un congé",
   "add_chat": "Chat",
   "to": "Du",
+  "rdv_reason": "Motif de consultation",
+  "observation": "Observation",
+  "diagnosis": "Diagnostic",
+  "disease": "Maladie",
+  "refferals": "Refféraux",
+  "treatment": "Traitement",
+  "documents": "Documents",
   "days": {
     "MON": "Lundi",
     "TUE": "Mardi",

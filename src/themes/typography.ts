@@ -41,14 +41,14 @@ const typography: any = {
   h3: {
     fontFamily: "Poppins-Bold",
     lineHeight: 1.5,
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: pxToRem(48),
     ...responsiveFontSizes({ sm: 26, md: 30, lg: 48 }),
   },
   h4: {
     fontFamily: "Poppins-Bold",
     lineHeight: 1.5,
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: pxToRem(40),
     ...responsiveFontSizes({ sm: 20, md: 24, lg: 40 }),
   },
@@ -67,8 +67,8 @@ const typography: any = {
     ...responsiveFontSizes({ sm: 18, md: 18, lg: 24 }),
   },
   subtitle1: {
-    fontWeight: 500,
-    fontSize: pxToRem(18),
+    fontWeight: 600,
+    fontSize: pxToRem(20),
     lineHeight: 1.5,
   },
   subtitle2: {
@@ -79,16 +79,17 @@ const typography: any = {
   body1: {
     fontSize: pxToRem(14),
     lineHeight: 1.5,
-    fontWeight: 400,
+    fontWeight: 500,
   },
   body2: {
     fontSize: pxToRem(12),
     lineHeight: 22 / 14,
-    fontWeight: 400,
+    fontWeight: 500,
   },
   caption: {
     fontSize: pxToRem(12),
     lineHeight: 1.5,
+    fontWeight: 500,
   },
   overline: {
     fontSize: pxToRem(12),

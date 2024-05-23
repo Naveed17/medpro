@@ -4,11 +4,12 @@ export default function Avatar(theme) {
             styleOverrides: {
                 root: {
                     backgroundColor: theme.palette.grey[100],
-                    width: 40,
-                    height: 40,
-                    borderRadius: 6,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 8,
                     fontSize: 18,
-                    fontFamily: 'Poppins-Bold',
+                    fontWeight: 600,
+                    boxShadow: theme.customShadows.avatarShadow
                 },
             },
         },

@@ -214,6 +214,7 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
         px: {xs: 0.5, md: 1},
         fontSize: {xs: 12, md: 14},
         alignSelf: "flex-start",
+        maxHeight: 40,
     },
     '.btn-list-action': {
         border: `1px solid ${theme.palette.divider}`,

@@ -1,7 +1,7 @@
-import {GetStaticPaths, GetStaticProps} from "next";
-import React, {ReactElement, useEffect, useRef, useState} from "react";
-import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import {useTranslation} from "next-i18next";
+import { GetStaticPaths, GetStaticProps } from "next";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
+import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
+import { useTranslation } from "next-i18next";
 import {
     Box,
     Button,
@@ -20,50 +20,52 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {useSnackbar} from "notistack";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { useSnackbar } from "notistack";
 
-import {useReactToPrint} from "react-to-print";
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/toolbar";
+import { useReactToPrint } from "react-to-print";
+import { SubHeader } from "@features/subHeader";
+import { RootStyled } from "@features/toolbar";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import ModeEditOutlineRoundedIcon from '@mui/icons-material/ModeEditOutlineRounded';
-import {Dialog} from "@features/dialog";
-import {Theme} from "@mui/material/styles";
+import { Dialog } from "@features/dialog";
+import { Theme } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
-import {useAppSelector} from "@lib/redux/hooks";
+import { LoadingButton } from "@mui/lab";
+import { useAppSelector } from "@lib/redux/hooks";
 import Autocomplete from "@mui/material/Autocomplete";
-import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import { MuiAutocompleteSelectAll } from "@features/muiAutocompleteSelectAll";
+import { useMedicalProfessionalSuffix } from "@lib/hooks";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
-import {LoadingScreen} from "@features/loadingScreen";
-import {Doc} from "@features/page";
+import { LoadingScreen } from "@features/loadingScreen";
+import { Doc } from "@features/page";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import PageStyled from "@features/page/components/overrides/pageStyled";
-import {UploadFile} from "@features/uploadFile";
-import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import { UploadFile } from "@features/uploadFile";
+import { getServerTranslations } from "@lib/i18n/getServerTranslations";
+import { CustomIconButton } from "@features/buttons";
+import { Breadcrumbs } from "@features/breadcrumbs";
 
 function DocsConfig() {
     const router = useRouter();
     const theme = useTheme();
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const { urlMedicalProfessionalSuffix } = useMedicalProfessionalSuffix();
     const isMobile = useMediaQuery("(max-width:669px)");
-    const {enqueueSnackbar} = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
 
     let defaultData: any = {
-        background: {show: false, content: {url: ''}},
-        header: {show: false, x: 0, y: 0},
-        footer: {show: false, x: 0, y: 400, content: 'change me ...'},
-        title: {show: false, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
-        date: {show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "left"},
-        patient: {show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
-        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
-        age: {show: false, prefix: 'AGE:', content: '', x: 40, y: 316},
+        background: { show: false, content: { url: '' } },
+        header: { show: false, x: 0, y: 0 },
+        footer: { show: false, x: 0, y: 400, content: 'change me ...' },
+        title: { show: false, content: 'ORDONNANCE MEDICALE', x: 0, y: 150 },
+        date: { show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "left" },
+        patient: { show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250 },
+        cin: { show: false, prefix: 'CIN : ', content: '', x: 40, y: 274 },
+        age: { show: false, prefix: 'AGE:', content: '', x: 40, y: 316 },
         size: 'portraitA4',
         isNew: true,
         content: {
@@ -76,9 +78,9 @@ function DocsConfig() {
             y: 320
         },
     }
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
-    const {direction} = useAppSelector(configSelector);
-    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const { t, ready } = useTranslation(["settings", "common"], { keyPrefix: "documents.config" });
+    const { direction } = useAppSelector(configSelector);
+    const { medicalProfessionalData } = useAppSelector(dashLayoutSelector);
 
     const componentRef = useRef<HTMLDivElement>(null);
 
@@ -95,14 +97,14 @@ function DocsConfig() {
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
-        background: {show: false, content: {url: ''}},
-        header: {show: false, x: 0, y: 0},
-        footer: {show: false, x: 0, y: 400, content: 'change me ...'},
-        title: {show: false, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
-        date: {show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "left",width:160},
-        patient: {show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
-        cin: {show: false, prefix: 'CIN : ', content: '00000000', x: 40, y: 274},
-        age: {show: false, prefix: 'AGE:', content: 'X ans', x: 40, y: 316},
+        background: { show: false, content: { url: '' } },
+        header: { show: false, x: 0, y: 0 },
+        footer: { show: false, x: 0, y: 400, content: 'change me ...' },
+        title: { show: false, content: 'ORDONNANCE MEDICALE', x: 0, y: 150 },
+        date: { show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "left", width: 160 },
+        patient: { show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250 },
+        cin: { show: false, prefix: 'CIN : ', content: '00000000', x: 40, y: 274 },
+        age: { show: false, prefix: 'AGE:', content: 'X ans', x: 40, y: 316 },
         size: 'portraitA4',
         isNew: true,
         content: {
@@ -115,30 +117,30 @@ function DocsConfig() {
             y: 320
         },
     })
-    const [queryState, setQueryState] = useState<any>({type: []});
+    const [queryState, setQueryState] = useState<any>({ type: [] });
     const [files, setFiles] = useState<any[]>([]);
     const [onReSize, setOnResize] = useState(true)
     const [used, setUsed] = useState(false)
     const [openReset, setOpenReset] = useState(false)
     const [docs, setDocs] = useState<any[]>([])
-    const [paperSize, setPaperSize] = useState({target: "", value: ""})
+    const [paperSize, setPaperSize] = useState({ target: "", value: "" })
 
     const uuid = router.query.uuid;
 
     const selectedAll = queryState.type.length === types?.length;
 
-    const {trigger: triggerHeaderUpdate} = useRequestQueryMutation("/MP/header/update");
-    const {trigger: triggerHeaderDelete} = useRequestQueryMutation("/MP/header/delete");
+    const { trigger: triggerHeaderUpdate } = useRequestQueryMutation("/MP/header/update");
+    const { trigger: triggerHeaderDelete } = useRequestQueryMutation("/MP/header/delete");
 
-    const {data: httpDocumentHeader, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const { data: httpDocumentHeader, mutate } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpTypeResponse} = useRequestQuery({
+    const { data: httpTypeResponse } = useRequestQuery({
         method: "GET",
         url: `/api/private/document/types/${router.locale}`
-    }, {variables: {query: "?is_active=0"}});
+    }, { variables: { query: "?is_active=0" } });
 
     const handleInsuranceChange = (gTypes: any[]) => {
         setQueryState({
@@ -163,7 +165,7 @@ function DocsConfig() {
 
         const form = new FormData();
         data.background.content = "";
-        form.append('document_header', JSON.stringify({header: header, data}));
+        form.append('document_header', JSON.stringify({ header: header, data }));
         form.append('title', title);
         form.append('isDefault', JSON.stringify(isDefault));
 
@@ -185,7 +187,7 @@ function DocsConfig() {
             data: form
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("updated"), {variant: 'success'})
+                enqueueSnackbar(t("updated"), { variant: 'success' })
                 mutate().then(() => {
                     router.back();
                 });
@@ -212,7 +214,7 @@ function DocsConfig() {
             onSuccess: () => {
                 mutate().then(() => {
                     router.back();
-                    enqueueSnackbar(t("removed"), {variant: 'error'})
+                    enqueueSnackbar(t("removed"), { variant: 'error' })
                 });
             }
         });
@@ -224,19 +226,19 @@ function DocsConfig() {
     }
 
     const handleDrop = React.useCallback((acceptedFiles: File[]) => {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                if (data.background.content.url)
-                    data.background.content.url = (ev.target?.result as string)
-                else
-                    data.background.content = {url: ev.target?.result as string}
-                data.background.show = true;
-                setData({...data})
-            }
-            reader.readAsDataURL(acceptedFiles[0]);
-            setFile(acceptedFiles[0]);
-            setFiles([...files, ...acceptedFiles]);
-        },
+        let reader = new FileReader();
+        reader.onload = (ev) => {
+            if (data.background.content.url)
+                data.background.content.url = (ev.target?.result as string)
+            else
+                data.background.content = { url: ev.target?.result as string }
+            data.background.show = true;
+            setData({ ...data })
+        }
+        reader.readAsDataURL(acceptedFiles[0]);
+        setFile(acceptedFiles[0]);
+        setFiles([...files, ...acceptedFiles]);
+    },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [files, data]
     );
@@ -244,24 +246,24 @@ function DocsConfig() {
     const resetFormat = (target: string, value: string) => {
         if (used) {
             setOpenReset(true)
-            setPaperSize({target, value})
+            setPaperSize({ target, value })
             let _data: any = data
             if (_data[target])
                 _data[target] = value;
-            else _data = {...data, [target]: value}
-            setData({..._data})
+            else _data = { ...data, [target]: value }
+            setData({ ..._data })
         } else
             resetNow(target, value)
     }
 
     const resetNow = (target: string, value: string) => {
-        let _data: any = {...defaultData}
+        let _data: any = { ...defaultData }
         if (_data[target])
             _data[target] = value;
-        else _data = {...data, [target]: value}
+        else _data = { ...data, [target]: value }
         if (defaultData[target])
             defaultData[target] = value;
-        else defaultData = {...defaultData, [target]: value}
+        else defaultData = { ...defaultData, [target]: value }
 
         _data.content.width = "90%"
         setOnResize(true)
@@ -273,9 +275,9 @@ function DocsConfig() {
             _content.style.width = "90%"
             _content.style.height = "100px";
         }
-        setData({..._data})
+        setData({ ..._data })
         setUsed(false);
-        setPaperSize({target: "", value: ""})
+        setPaperSize({ target: "", value: "" })
         setOpenReset(false)
     }
 
@@ -302,13 +304,13 @@ function DocsConfig() {
                 if (data.footer === undefined)
                     setData({
                         ...data,
-                        footer: {show: true, x: 0, y: 140, content: ''},
-                        background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
+                        footer: { show: true, x: 0, y: 140, content: '' },
+                        background: { show: data.background.show, content: docHeader.file ? docHeader.file : '' }
                     })
                 else
                     setData({
                         ...data,
-                        background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
+                        background: { show: data.background.show, content: docHeader.file ? docHeader.file : '' }
                     })
 
                 setUsed(true)
@@ -320,7 +322,7 @@ function DocsConfig() {
             }, 1200)
 
         } else
-            setHeader({left1: "", left2: "", left3: "", right1: "", right2: "", right3: ""})
+            setHeader({ left1: "", left2: "", left3: "", right1: "", right2: "", right3: "" })
         // eslint-disable-next-line react-hooks/exhaustive-deps
         setTimeout(() => setLoading(false), 2000)
     }, [docHeader])
@@ -329,53 +331,76 @@ function DocsConfig() {
         if (httpTypeResponse)
             setTypes((httpTypeResponse as HttpResponse).data);
     }, [httpTypeResponse])
+    const breadcrumbsData = [
+        {
+            title: "Settings",
+            href: "/dashboard/settings"
+        },
+        {
+            title: 'Documents',
+            href: '/dashboard/settings/templates'
+        },
+        {
+            title: uuid === "new" ? "Create Layout" : "Modify Layout",
+            href: null
+        }
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    ]
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <PageStyled>
             <SubHeader>
-                <RootStyled>
-                    <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document' : 'Modifier document'}`}</p>
-                </RootStyled>
-
-                <Button
-                    variant="text-black"
-                    sx={{
-                        border: `1px solid ${theme.palette.grey["200"]}`,
-                        bgcolor: theme => theme.palette.grey['A500'],
-                        marginRight: 1
-                    }}
-                    onClick={printNow}
-                    startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
-                    {t("preview")}
-                </Button>
-                {uuid !== 'new' && !hasData && <Button
-                    type="submit"
-                    variant="contained"
-                    color={"error"}
-                    style={{marginRight: 10}}
-                    onClick={openRemoveDialog}>
-                    {!isMobile ? t("remove") : <DeleteOutlineRoundedIcon/>}
-                </Button>}
-                <Button
-                    type="submit"
-                    variant="contained"
-                    onClick={save}>
-                    {!isMobile ? t("save_as_model") : <ModeEditOutlineRoundedIcon/>}
-                </Button>
+                <Stack direction='row' alignItems='center' spacing={2} mt={2}>
+                    <CustomIconButton
+                        onClick={() => router.back()}
+                    >
+                        <IconUrl path="ic-outline-arrow-left" />
+                    </CustomIconButton>
+                    <Stack spacing={1} pb={1}>
+                        <Breadcrumbs data={breadcrumbsData} />
+                        <Typography variant="subtitle1">{uuid === 'new' ? t("create_layout") : t("modify_layout")}</Typography>
+                    </Stack>
+                </Stack>
+                <Stack direction='row' alignItems='center' ml="auto">
+                    <Button
+                        variant="text-black"
+                        sx={{
+                            border: `1px solid ${theme.palette.grey["200"]}`,
+                            bgcolor: theme => theme.palette.grey['A500'],
+                            marginRight: 1
+                        }}
+                        onClick={printNow}
+                        startIcon={<IconUrl path="menu/ic-print" width={20} height={20} />}>
+                        {t("preview")}
+                    </Button>
+                    {uuid !== 'new' && !hasData && <Button
+                        type="submit"
+                        variant="contained"
+                        color={"error"}
+                        style={{ marginRight: 10 }}
+                        onClick={openRemoveDialog}>
+                        {!isMobile ? t("remove") : <DeleteOutlineRoundedIcon />}
+                    </Button>}
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        onClick={save}>
+                        {!isMobile ? t("save_as_model") : <ModeEditOutlineRoundedIcon />}
+                    </Button>
+                </Stack>
             </SubHeader>
 
             <Grid container>
                 <Grid item xs={12} md={3}>
-                    <Box id={"slide"} padding={2} style={{background: "white", height: "81vh", overflowX: "auto"}}>
+                    <Box id={"slide"} padding={2} style={{ background: "white", height: "81vh", overflowX: "auto" }}>
 
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
-                               onClick={() => setPropsModel(!propsModel)}>
-                            <Typography fontSize={16} style={{cursor: "default"}}
-                                        fontWeight={"bold"}>{t('modelProprities')}</Typography>
+                            onClick={() => setPropsModel(!propsModel)}>
+                            <Typography fontSize={16} style={{ cursor: "default" }}
+                                fontWeight={"bold"}>{t('modelProprities')}</Typography>
                             <IconButton>
-                                {propsModel ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
+                                {propsModel ? <KeyboardArrowUpRoundedIcon /> : <KeyboardArrowDownRoundedIcon />}
                             </IconButton>
                         </Stack>
                         <Collapse in={propsModel}>
@@ -384,12 +409,12 @@ function DocsConfig() {
                                 variant="outlined"
                                 placeholder={"Aaa..."}
                                 required
-                                style={{marginBottom: 15}}
+                                style={{ marginBottom: 15 }}
                                 value={title}
                                 onChange={(ev) => {
                                     setTitle(ev.target.value)
                                 }}
-                                fullWidth/>
+                                fullWidth />
 
                             <Typography fontSize={14} color={'#999'} mb={1}>{t('docSize')}</Typography>
 
@@ -399,8 +424,8 @@ function DocsConfig() {
                                         resetFormat("size", "portraitA4")
                                     }}>
                                         <Typography fontSize={12}
-                                                    fontWeight={"bold"}
-                                                    color={data.size === "portraitA4" ? "primary" : theme.palette.grey["400"]}>
+                                            fontWeight={"bold"}
+                                            color={data.size === "portraitA4" ? "primary" : theme.palette.grey["400"]}>
                                             A4
                                         </Typography>
                                     </Button>
@@ -408,8 +433,8 @@ function DocsConfig() {
                                         resetFormat("size", "portraitA5")
                                     }}>
                                         <Typography fontSize={12}
-                                                    fontWeight={"bold"}
-                                                    color={data.size === "portraitA5" ? "primary" : theme.palette.grey["400"]}>
+                                            fontWeight={"bold"}
+                                            color={data.size === "portraitA5" ? "primary" : theme.palette.grey["400"]}>
                                             A5
                                         </Typography>
                                     </Button>
@@ -419,13 +444,13 @@ function DocsConfig() {
                                         resetFormat("layout", "")
                                     }}>
                                         <IconUrl path={"Portrait"}
-                                                 color={data.layout === undefined || data.layout === "" ? theme.palette.primary.main : theme.palette.grey["400"]}/>
+                                            color={data.layout === undefined || data.layout === "" ? theme.palette.primary.main : theme.palette.grey["400"]} />
                                     </Button>
                                     <Button onClick={() => {
                                         resetFormat("layout", "landscape")
                                     }}>
                                         <IconUrl path={"Landscape"}
-                                                 color={data.layout === "landscape" ? theme.palette.primary.main : theme.palette.grey["400"]}/>
+                                            color={data.layout === "landscape" ? theme.palette.primary.main : theme.palette.grey["400"]} />
                                     </Button>
 
                                 </ButtonGroup>
@@ -436,7 +461,7 @@ function DocsConfig() {
 
                             <MuiAutocompleteSelectAll.Provider
                                 value={{
-                                    onSelectAll: (selectedAll) => void handleSelectAll({type: selectedAll ? [] : types}),
+                                    onSelectAll: (selectedAll) => void handleSelectAll({ type: selectedAll ? [] : types }),
                                     selectedAll,
                                     indeterminate: !!queryState.type.length && !selectedAll,
                                 }}
@@ -453,22 +478,22 @@ function DocsConfig() {
                                     value={queryState.type ? queryState.type : []}
                                     onChange={(event, value) => handleInsuranceChange(value)}
                                     options={types}
-                                    style={{marginBottom: 15}}
+                                    style={{ marginBottom: 15 }}
                                     getOptionLabel={option => option?.name ? option.name : ""}
                                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
-                                    renderOption={(params, option, {selected}) => (
+                                    renderOption={(params, option, { selected }) => (
                                         <MenuItem
                                             {...params}>
-                                            <Checkbox checked={selected}/>
-                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                            <Checkbox checked={selected} />
+                                            <Typography sx={{ ml: 1 }}>{option.name}</Typography>
                                         </MenuItem>)}
                                     renderInput={(params) => (
                                         <FormControl component="form" fullWidth>
                                             <TextField color={"info"}
-                                                       {...params}
-                                                       sx={{paddingLeft: 0}}
-                                                       placeholder={""}
-                                                       variant="outlined"
+                                                {...params}
+                                                sx={{ paddingLeft: 0 }}
+                                                placeholder={""}
+                                                variant="outlined"
                                             />
                                         </FormControl>)}
                                 />
@@ -482,42 +507,42 @@ function DocsConfig() {
                                 padding: "2px 10px 2px 0",
                                 bgcolor: theme => theme.palette.grey['A500'],
                             }}>
-                                <Checkbox checked={isDefault} onChange={ev => setIsDefault(ev.target.checked)}/>
+                                <Checkbox checked={isDefault} onChange={ev => setIsDefault(ev.target.checked)} />
                                 <Typography>{t("asDefault")}</Typography>
                             </Stack>
                         </Collapse>
 
-                        <div style={{borderBottom: "1px solid #DDD", marginTop: 5, marginBottom: 5}}></div>
+                        <div style={{ borderBottom: "1px solid #DDD", marginTop: 5, marginBottom: 5 }}></div>
 
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
-                               onClick={() => setElDoc(!elDoc)}>
-                            <Typography fontSize={16} style={{cursor: "default"}}
-                                        fontWeight={"bold"}>{t('elDoc')}</Typography>
+                            onClick={() => setElDoc(!elDoc)}>
+                            <Typography fontSize={16} style={{ cursor: "default" }}
+                                fontWeight={"bold"}>{t('elDoc')}</Typography>
                             <IconButton>
-                                {elDoc ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
+                                {elDoc ? <KeyboardArrowUpRoundedIcon /> : <KeyboardArrowDownRoundedIcon />}
                             </IconButton>
                         </Stack>
 
-                        <Collapse in={elDoc} style={{paddingTop: 10}}>
+                        <Collapse in={elDoc} style={{ paddingTop: 10 }}>
                             <Typography mb={2}>{t('bg')}</Typography>
 
                             <UploadFile
                                 files={files}
-                                accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
+                                accept={{ 'image/jpeg': ['.png', '.jpeg', '.jpg'] }}
                                 onDrop={handleDrop}
-                                singleFile={true}/>
+                                singleFile={true} />
 
                             {data.background.show &&
-                                <div className={"btnMenu"} style={{margin: "10px 0 -40px auto"}} onClick={() => {
+                                <div className={"btnMenu"} style={{ margin: "10px 0 -40px auto" }} onClick={() => {
                                     data.background.show = false;
-                                    setData({...data})
+                                    setData({ ...data })
                                 }}>
-                                    <Icon path={"ic-delete"}/>
+                                    <Icon path={"ic-delete"} />
                                 </div>}
                             {data.background.show &&
-                                <div style={{width: "fit-content", margin: "20px auto", boxShadow: "0 0 6px #ccc"}}>
+                                <div style={{ width: "fit-content", margin: "20px auto", boxShadow: "0 0 6px #ccc" }}>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img style={{width: 120}} src={data.background.content.url} alt={""}/>
+                                    <img style={{ width: 120 }} src={data.background.content.url} alt={""} />
                                 </div>}
 
                             <Typography mt={2} mb={2}>{t('section')}</Typography>
@@ -528,7 +553,7 @@ function DocsConfig() {
                                 alignItems="center">
                                 {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew", "other", "header", "footer"].includes(key)).map(key => (
                                     <Grid key={key} item xs={6}>
-                                        <div style={{opacity: data[key].show === true ? 0.5 : 1}}>
+                                        <div style={{ opacity: data[key].show === true ? 0.5 : 1 }}>
                                             <Stack
                                                 direction={"row"}
                                                 spacing={1}
@@ -536,7 +561,7 @@ function DocsConfig() {
                                                 onClick={() => {
                                                     setUsed(true)
                                                     data[key].show = true
-                                                    setData({...data})
+                                                    setData({ ...data })
                                                 }}
                                                 style={{
                                                     backgroundColor: "#F0FAFF",
@@ -545,14 +570,14 @@ function DocsConfig() {
                                                     borderRadius: 6
                                                 }}>
                                                 <Typography textAlign={"center"}
-                                                            style={{
-                                                                textOverflow: "ellipsis",
-                                                                whiteSpace: "nowrap",
-                                                                overflow: "hidden",
-                                                                width: 100,
-                                                                cursor: "pointer"
-                                                            }}>{t(key)}</Typography>
-                                                <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                                    style={{
+                                                        textOverflow: "ellipsis",
+                                                        whiteSpace: "nowrap",
+                                                        overflow: "hidden",
+                                                        width: 100,
+                                                        cursor: "pointer"
+                                                    }}>{t(key)}</Typography>
+                                                <IconUrl path={"ic-plus"} width={20} height={20} />
                                             </Stack>
                                         </div>
                                     </Grid>))}
@@ -572,7 +597,7 @@ function DocsConfig() {
                                         onClick={() => {
                                             setUsed(true)
                                             data.header.show = true
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
                                         style={{
                                             backgroundColor: "#F0FAFF",
@@ -582,8 +607,8 @@ function DocsConfig() {
                                             opacity: data.header.show === true ? 0.5 : 1
                                         }}>
                                         <Typography textAlign={"center"} width={"100%"}
-                                                    style={{cursor: "pointer"}}>{t('header')}</Typography>
-                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                            style={{ cursor: "pointer" }}>{t('header')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20} />
                                     </Stack>
                                 </Grid>
                                 <Grid item xs={6}>
@@ -594,7 +619,7 @@ function DocsConfig() {
                                         onClick={() => {
                                             setUsed(true)
                                             data.footer.show = true
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
                                         style={{
                                             backgroundColor: "#F0FAFF",
@@ -604,8 +629,8 @@ function DocsConfig() {
                                             opacity: data.footer.show === true ? 0.5 : 1
                                         }}>
                                         <Typography textAlign={"center"} width={"100%"}
-                                                    style={{cursor: "pointer"}}>{t('footer')}</Typography>
-                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                            style={{ cursor: "pointer" }}>{t('footer')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20} />
                                     </Stack>
                                 </Grid>
                                 <Grid item xs={6}>
@@ -632,7 +657,7 @@ function DocsConfig() {
                                                     width: 300,
                                                     content: "text..."
                                                 }]
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
                                         style={{
                                             backgroundColor: "#F0FAFF",
@@ -641,8 +666,8 @@ function DocsConfig() {
                                             borderRadius: 6
                                         }}>
                                         <Typography textAlign={"center"} width={"100%"}
-                                                    style={{cursor: "pointer"}}>{t('text')}</Typography>
-                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                            style={{ cursor: "pointer" }}>{t('text')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20} />
                                     </Stack>
                                 </Grid>
                                 <Grid item xs={6}>
@@ -670,7 +695,7 @@ function DocsConfig() {
                                                     height: 80,
                                                     content: "/static/icons/Med-logo.png"
                                                 }]
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
 
                                         style={{
@@ -680,8 +705,8 @@ function DocsConfig() {
                                             borderRadius: 6
                                         }}>
                                         <Typography textAlign={"center"} width={"100%"}
-                                                    style={{cursor: "pointer"}}>{t('image')}</Typography>
-                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                            style={{ cursor: "pointer" }}>{t('image')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20} />
                                     </Stack>
                                 </Grid>
                                 <Grid item xs={6}>
@@ -709,7 +734,7 @@ function DocsConfig() {
                                                     height: 80,
                                                     content: medicalProfessionalData?.medical_professional.webUrl
                                                 }]
-                                            setData({...data})
+                                            setData({ ...data })
                                         }}
 
                                         style={{
@@ -719,8 +744,8 @@ function DocsConfig() {
                                             borderRadius: 6
                                         }}>
                                         <Typography textAlign={"center"} width={"100%"}
-                                                    style={{cursor: "pointer"}}>{t('qr')}</Typography>
-                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                            style={{ cursor: "pointer" }}>{t('qr')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20} />
                                     </Stack>
                                 </Grid>
                             </Grid>
@@ -730,9 +755,9 @@ function DocsConfig() {
                     </Box>
                 </Grid>
                 <Grid item xs={12} md={9}>
-                    {loading && <LinearProgress/>}
+                    {loading && <LinearProgress />}
 
-                    <Box style={{height: "81vh", overflowX: "auto"}} pt={5} pb={5}>
+                    <Box style={{ height: "81vh", overflowX: "auto" }} pt={5} pb={5}>
 
                         <Box ref={componentRef}>
                             {!loading &&
@@ -746,8 +771,8 @@ function DocsConfig() {
                                     setOnResize,
                                     urlMedicalProfessionalSuffix,
                                     docs,
-                                    setDocs,t
-                                }}/>}
+                                    setDocs, t
+                                }} />}
                         </Box>
                     </Box>
                 </Grid>
@@ -789,11 +814,11 @@ function DocsConfig() {
                         <Button onClick={() => {
                             setRemoveModelDialog(false);
                         }}
-                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                            startIcon={<CloseIcon />}>{t('cancel')}</Button>
                         <LoadingButton
                             variant="contained"
                             loading={loading}
-                            sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                            sx={{ backgroundColor: (theme: Theme) => theme.palette.error.main }}
                             onClick={removeModel}>{t('remove')}</LoadingButton>
                     </DialogActions>
                 }
@@ -801,7 +826,7 @@ function DocsConfig() {
             <Dialog
                 action={"used"}
                 open={openReset}
-                data={{title: t('change'), subtitle: t('reset'), doc: t('doc')}}
+                data={{ title: t('change'), subtitle: t('reset'), doc: t('doc') }}
                 direction={direction}
                 title={t('used')}
                 color={(theme: Theme) => theme.palette.error.main}
@@ -810,7 +835,7 @@ function DocsConfig() {
                         <Button onClick={() => {
                             setOpenReset(false)
                         }}
-                                startIcon={<CloseIcon/>}>{t('no')}</Button>
+                            startIcon={<CloseIcon />}>{t('no')}</Button>
                         <LoadingButton
                             variant="contained"
                             loading={loading}

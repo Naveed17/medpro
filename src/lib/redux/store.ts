@@ -3,7 +3,7 @@ import {ConfigReducer} from "@features/base/reducer";
 import {SideBarReducer, ProfileMenuReducer} from "@features/menu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
-import {addPatientReducer, appointmentReducer, stepperProfileReducer} from "@features/tabPanel";
+import {addPatientReducer, appointmentReducer, stepperProfileReducer, tabPanelReducer} from "@features/tabPanel";
 import {
     QsSidebarReducer,
     leftActionBarReducer,
@@ -93,7 +93,8 @@ const rootReducer = combineReducers({
     minMaxWindow: minMaxWindowToggleReducer,
     stepper: StepperReducer,
     board: BoardReducer,
-    consultationContent: ConsultationContentReducer
+    consultationContent: ConsultationContentReducer,
+    tabPanel: tabPanelReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

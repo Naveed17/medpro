@@ -9,31 +9,31 @@ import {
     DialogActions,
     Tooltip
 } from "@mui/material";
-import {useTheme} from "@mui/material/styles";
-import {Dialog} from "@features/dialog";
+import { useTheme } from "@mui/material/styles";
+import { Dialog } from "@features/dialog";
 import Icon from "@themes/urlIcon";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import {useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
+import { useAppSelector } from "@lib/redux/hooks";
+import { dashLayoutSelector } from "@features/base";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconUrl from "@themes/urlIcon";
-import {getDiffDuration} from "@lib/hooks";
+import { getDiffDuration } from "@lib/hooks";
 import TableRowStyled from "../overrides/tableRowStyled";
-import {IconButtonStyled} from "@features/board";
-import {agendaSelector} from "@features/calendar";
+import { IconButtonStyled } from "@features/board";
+import { agendaSelector } from "@features/calendar";
 
-function WaitingRoomRow({...props}) {
-    const {index: key, row, t, handleEvent, data, loading} = props;
-    const {roles, setLoading, openMenu, tabIndex} = data;
+function WaitingRoomRow({ ...props }) {
+    const { index: key, row, t, handleEvent, data, loading } = props;
+    const { roles, setLoading, openMenu, tabIndex } = data;
 
     const theme = useTheme();
 
-    const {next: is_next} = useAppSelector(dashLayoutSelector);
-    const {mode} = useAppSelector(agendaSelector);
+    const { next: is_next } = useAppSelector(dashLayoutSelector);
+    const { mode } = useAppSelector(agendaSelector);
 
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -49,13 +49,13 @@ function WaitingRoomRow({...props}) {
     const DialogAction = () => {
         return (
             <DialogActions>
-                <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
+                <Button onClick={handleCloseDialog} startIcon={<CloseIcon />}>
                     {t("table.cancel")}
                 </Button>
                 <Button
                     variant="contained"
                     onClick={handleCloseDialog}
-                    startIcon={<Icon path="ic-check"/>}>
+                    startIcon={<Icon path="ic-check" />}>
                     {t("table.end_consultation")}
                 </Button>
             </DialogActions>
@@ -69,45 +69,47 @@ function WaitingRoomRow({...props}) {
                         {row ? (
                             <Box display="flex" alignItems="center">
                                 <Button
-                                    {...(row.startTime === "00:00" && {color: 'warning'})}
+                                    {...(row.startTime === "00:00" && { color: 'warning' })}
                                     sx={{
                                         p: 0,
                                         minWidth: '2.5rem',
-                                        minHeight: '.5rem',
-                                        marginRight: '4px'
+                                        marginRight: '4px',
+                                        "&.MuiButton-sizeSmall": {
+                                            minHeight: 24,
+                                        }
                                     }} variant={"contained"}
                                     size={"small"}> {row.startTime !== "00:00" ? "AR" : "SR"}-{key + 1}</Button>
                             </Box>
                         ) : (
-                            <Skeleton variant="text" width={80}/>
+                            <Skeleton variant="text" width={80} />
                         )}
                     </TableCell>
                 }
                 <TableCell>
                     {row ? (
                         <Stack spacing={1} direction='row' alignItems="center">
-                            {row.status === 5 && <IconUrl path="ic-dubble-check-round"/>}
+                            {row.status === 5 && <IconUrl path="ic-dubble-check-round" />}
                             <Typography
                                 {...(!row.patient?.isArchived && {
                                     onClick: (event: any) => {
                                         event.stopPropagation();
-                                        handleEvent({action: "PATIENT_DETAILS", row, event});
+                                        handleEvent({ action: "PATIENT_DETAILS", row, event });
                                     }
                                 })}
                                 {...(mode !== "normal" && {
                                     className: "blur-text",
-                                    sx: {overflow: "hidden", lineHeight: 1}
+                                    sx: { overflow: "hidden", lineHeight: 1 }
                                 })}
                                 {...(mode === "normal" && {
                                     color: row.patient?.isArchived ? "text.primary" : "primary",
-                                    sx: {ml: 0.6, cursor: "pointer"}
+                                    sx: { ml: 0.6, cursor: "pointer" }
                                 })}
                                 fontWeight={600}>
                                 {row.patient.firstName} {row.patient.lastName}
                             </Typography>
                         </Stack>
                     ) : (
-                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100} />
                     )}
                 </TableCell>
                 <TableCell align={"center"}>
@@ -116,7 +118,7 @@ function WaitingRoomRow({...props}) {
                             <Stack
                                 alignItems="center"
                                 direction={"row"}>
-                                <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
+                                <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary} />
                                 <Typography
                                     fontWeight={600}
                                     color='text.primary'
@@ -130,7 +132,7 @@ function WaitingRoomRow({...props}) {
                             <Stack
                                 alignItems="center"
                                 direction={"row"}>
-                                <Icon path="ic-agenda-new" width={12} height={12} color={theme.palette.text.primary}/>
+                                <Icon path="ic-agenda-new" width={12} height={12} color={theme.palette.text.primary} />
                                 <Typography
                                     fontWeight={600}
                                     color='text.primary'
@@ -143,9 +145,9 @@ function WaitingRoomRow({...props}) {
                             </Stack>
                         </Stack>
                         : (<>
-                                <Skeleton variant="text" width={80}/>
-                                <Skeleton variant="text" width={80}/>
-                            </>
+                            <Skeleton variant="text" width={80} />
+                            <Skeleton variant="text" width={80} />
+                        </>
                         )}
                 </TableCell>
                 {tabIndex !== 1 && <TableCell>
@@ -159,14 +161,14 @@ function WaitingRoomRow({...props}) {
                                     fontSize: 13,
                                     fontWeight: 600,
                                     color: "text.primary",
-                                    svg: {mr: 0.5}
+                                    svg: { mr: 0.5 }
                                 }}>
-                                <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
+                                <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary} />
                                 {row.arrivalTime && row.status !== 5 ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
                             </Typography>
                         </Box>
                     ) : (
-                        <Skeleton variant="text" width={80}/>
+                        <Skeleton variant="text" width={80} />
                     )}
                 </TableCell>}
                 <TableCell>
@@ -181,7 +183,7 @@ function WaitingRoomRow({...props}) {
                             )}
                         </Stack>
                     ) : (
-                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100} />
                     )}
                 </TableCell>
                 <TableCell>
@@ -202,8 +204,8 @@ function WaitingRoomRow({...props}) {
                         </Stack>
                     ) : (
                         <Stack direction="row" justifyContent="space-between">
-                            <Skeleton variant="text" width={150}/>
-                            <Skeleton variant="text" width={80}/>
+                            <Skeleton variant="text" width={150} />
+                            <Skeleton variant="text" width={80} />
                         </Stack>
                     )}
                 </TableCell>
@@ -212,23 +214,23 @@ function WaitingRoomRow({...props}) {
                     {!row.patient?.isArchived &&
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
                             {(!roles.includes("ROLE_SECRETARY") && [5].includes(row.status)) &&
-                                <Stack direction='row' alignItems='center' spacing={.5} sx={{mr: '12px !important'}}>
-                                    <Tooltip title={t("add_prescription", {ns: "common"})}>
-                                            <span>
-                                                <IconButtonStyled
-                                                    size={"small"}
-                                                    onClick={(event) => handleEvent({
-                                                        action: "ON_ADD_DOCUMENT",
-                                                        row,
-                                                        event
-                                                    })}>
-                                                    <IconUrl width={18} height={18} path="add-doc"
-                                                             color={theme.palette.primary.main}/>
-                                                </IconButtonStyled>
-                                            </span>
+                                <Stack direction='row' alignItems='center' spacing={.5} sx={{ mr: '12px !important' }}>
+                                    <Tooltip title={t("add_prescription", { ns: "common" })}>
+                                        <span>
+                                            <IconButtonStyled
+                                                size={"small"}
+                                                onClick={(event) => handleEvent({
+                                                    action: "ON_ADD_DOCUMENT",
+                                                    row,
+                                                    event
+                                                })}>
+                                                <IconUrl width={18} height={18} path="add-doc"
+                                                    color={theme.palette.primary.main} />
+                                            </IconButtonStyled>
+                                        </span>
                                     </Tooltip>
                                     {row.certificate.length > 0 &&
-                                        <Tooltip title={t("medical-certificate", {ns: "common"})}>
+                                        <Tooltip title={t("medical-certificate", { ns: "common" })}>
                                             <span>
                                                 <IconButtonStyled
                                                     onClick={(event) => handleEvent({
@@ -241,12 +243,12 @@ function WaitingRoomRow({...props}) {
                                                     })}
                                                     size={"small"}>
                                                     <IconUrl width={18} height={18} path="docs/ic-ordonnance"
-                                                             color={theme.palette.primary.main}/>
+                                                        color={theme.palette.primary.main} />
                                                 </IconButtonStyled>
                                             </span>
                                         </Tooltip>}
                                     {row.prescriptions.length > 0 &&
-                                        <Tooltip title={t("requestedPrescription", {ns: "common"})}>
+                                        <Tooltip title={t("requestedPrescription", { ns: "common" })}>
                                             <span>
                                                 <IconButtonStyled
                                                     size={"small"}
@@ -259,7 +261,7 @@ function WaitingRoomRow({...props}) {
                                                         event
                                                     })}>
                                                     <IconUrl width={18} height={18} path="docs/ic-prescription"
-                                                             color={theme.palette.primary.main}/>
+                                                        color={theme.palette.primary.main} />
                                                 </IconButtonStyled>
                                             </span>
                                         </Tooltip>}
@@ -291,7 +293,7 @@ function WaitingRoomRow({...props}) {
                                                 disabled={loading}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
-                                                    handleEvent({action: "ON_PAY", row, event});
+                                                    handleEvent({ action: "ON_PAY", row, event });
                                                 }}
                                                 sx={{
                                                     width: 30,
@@ -301,7 +303,7 @@ function WaitingRoomRow({...props}) {
                                                     p: .8
                                                 }}
                                                 size="small">
-                                                <IconUrl color={"white"} width={14} height={14} path="ic-argent"/>
+                                                <IconUrl color={"white"} width={14} height={14} path="ic-argent" />
                                             </IconButton>
                                         </span>
                                     </Tooltip>
@@ -317,11 +319,11 @@ function WaitingRoomRow({...props}) {
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setLoading(true);
-                                                handleEvent({action: "START_CONSULTATION", row, event});
+                                                handleEvent({ action: "START_CONSULTATION", row, event });
                                             }}
-                                            sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
+                                            sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
                                             size="small">
-                                            <PlayCircleIcon fontSize={"small"}/>
+                                            <PlayCircleIcon fontSize={"small"} />
                                         </IconButton>
                                     </span>
                                 </Tooltip>}
@@ -334,7 +336,7 @@ function WaitingRoomRow({...props}) {
                                                 setLoading(true);
                                                 handleEvent({
                                                     action: "NEXT_CONSULTATION",
-                                                    row: {...row, is_next: !!is_next},
+                                                    row: { ...row, is_next: !!is_next },
                                                     event
                                                 });
                                             }}
@@ -347,8 +349,8 @@ function WaitingRoomRow({...props}) {
                                                 }),
                                             }}
                                             size="small">
-                                            {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
-                                            {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                            {!is_next && <ArrowForwardRoundedIcon fontSize={"small"} />}
+                                            {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"} />}
                                         </IconButton>
                                     </span>
                                 </Tooltip>}
@@ -362,8 +364,8 @@ function WaitingRoomRow({...props}) {
                                         })}
                                         size={"small"}
                                         disableFocusRipple
-                                        sx={{background: theme.palette.primary.main, borderRadius: 1}}>
-                                        <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
+                                        sx={{ background: theme.palette.primary.main, borderRadius: 1 }}>
+                                        <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room" />
                                     </IconButton>
                                 </span>
                             </Tooltip>}
@@ -373,10 +375,10 @@ function WaitingRoomRow({...props}) {
                                         disabled={loading}
                                         onClick={(event) => {
                                             event.stopPropagation();
-                                            handleEvent({action: "OPEN-POPOVER", row, event});
+                                            handleEvent({ action: "OPEN-POPOVER", row, event });
                                         }}
                                         size="small">
-                                        <MoreVertIcon/>
+                                        <MoreVertIcon />
                                     </IconButton>
                                 </span>
                             </Tooltip>
@@ -398,7 +400,7 @@ function WaitingRoomRow({...props}) {
                     dialogClose={handleCloseDialog}
                     onClose={handleCloseDialog}
                     {...(actions && {
-                        actionDialog: <DialogAction/>,
+                        actionDialog: <DialogAction />,
                         onClose: false,
                     })}
                 />

@@ -20,6 +20,7 @@ import StaffIcon from "@themes/overrides/icons/staffIcon";
 import DoctorsIcon from "@themes/overrides/icons/doctorsIcon";
 import DepartmentIcon from "@themes/overrides/icons/departmentIcon";
 import DashboardIcon from "./overrides/icons/dashboardIcon";
+import StatsIcon from "./overrides/icons/statsIcon";
 
 interface IconProps {
     path: string;
@@ -94,6 +95,9 @@ export default function Icon({ path, className, ...props }: IconProps) {
             break;
         case 'ic-departments':
             selectedIcon = <DepartmentIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
+            break;
+        case 'ic-stats':
+            selectedIcon = <StatsIcon  {...props} className={`react-svg ${className ? className : ''}`} />;
             break;
     }
     return selectedIcon;

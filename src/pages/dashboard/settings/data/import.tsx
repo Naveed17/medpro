@@ -1,9 +1,9 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
-import {useTranslation} from "next-i18next";
-import {SubHeader} from "@features/subHeader";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useEffect, useState } from "react";
+import { DashLayout } from "@features/base";
+import { useTranslation } from "next-i18next";
+import { SubHeader } from "@features/subHeader";
 import {
     Alert,
     AlertTitle,
@@ -24,28 +24,31 @@ import {
 } from "@mui/material";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingScreen } from "@features/loadingScreen";
 
-import {Form, FormikProvider, useFormik} from "formik";
-import {UploadFile} from "@features/uploadFile";
-import {SettingsTabs} from "@features/tabPanel";
-import {LoadingButton} from "@mui/lab";
+import { Form, FormikProvider, useFormik } from "formik";
+import { UploadFile } from "@features/uploadFile";
+import { SettingsTabs } from "@features/tabPanel";
+import { LoadingButton } from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import Papa from "papaparse";
 import readXlsxFile from "read-excel-file";
-import {useAppSelector} from "@lib/redux/hooks";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {agendaSelector} from "@features/calendar";
-import {tableActionSelector} from "@features/table";
-import {Dialog} from "@features/dialog";
+import { useAppSelector } from "@lib/redux/hooks";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { agendaSelector } from "@features/calendar";
+import { tableActionSelector } from "@features/table";
+import { Dialog } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {DefaultCountry} from "@lib/constants";
-import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import { DefaultCountry } from "@lib/constants";
+import { useMedicalEntitySuffix, useMutateOnGoing } from "@lib/hooks";
+import { Breadcrumbs } from "@features/breadcrumbs";
+import { CustomIconButton } from "@features/buttons";
+import IconUrl from "@themes/urlIcon";
 
-const RootStyled = styled(Box)(({theme}: { theme: Theme }) => ({
+const RootStyled = styled(Box)(({ theme }: { theme: Theme }) => ({
     ".tab-item": {
         [theme.breakpoints.down("md")]: {
             maxWidth: "50%",
@@ -73,15 +76,29 @@ const FileUploadProgress = dynamic(
     () =>
         import(
             "@features/progressUI/components/fileUploadProgress/components/fileUploadProgress"
-            )
+        )
 );
+const breadcrumbsData = [
+    {
+        title: "Settings",
+        href: "/dashboard/settings"
+    },
+    {
+        title: "Data",
+        href: "/dashboard/settings/data"
+    },
+    {
+        title: "New",
+        href: null
+    }
 
+]
 function ImportData() {
     const router = useRouter();
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     const theme = useTheme();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const { trigger: mutateOnGoing } = useMutateOnGoing();
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -95,11 +112,11 @@ function ImportData() {
         },
     });
 
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
-    const {importData} = useAppSelector(tableActionSelector);
-    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
+    const { config: agendaConfig } = useAppSelector(agendaSelector);
+    const { importData } = useAppSelector(tableActionSelector);
+    const { t, ready, i18n } = useTranslation(["settings", "common"], { keyPrefix: "import-data" });
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
 
@@ -138,15 +155,15 @@ function ImportData() {
     });
     const [typeImport] = useState([
         // {label: "Patients", key: "1"},
-        {label: "Toutes les données", key: "2"},
+        { label: "Toutes les données", key: "2" },
     ]);
     const [files, setFiles] = useState<any[]>([]);
     const [errorsImport, setErrorsImport] = useState<any[]>([]);
     const [fileLength, setFileLength] = useState(0);
 
-    const {trigger: triggerImportData} = useRequestQueryMutation("/import/data");
+    const { trigger: triggerImportData } = useRequestQueryMutation("/import/data");
 
-    const {data: httpFileResponse} = useRequestQuery({
+    const { data: httpFileResponse } = useRequestQuery({
         method: "GET",
         url: `/api/public/med-link/patient/file/${router.locale}`
     });
@@ -243,7 +260,7 @@ function ImportData() {
         });
     };
 
-    const {values, handleSubmit, getFieldProps, setFieldValue} = formik;
+    const { values, handleSubmit, getFieldProps, setFieldValue } = formik;
 
     if (!ready)
         return (
@@ -256,11 +273,22 @@ function ImportData() {
     return (
         <RootStyled>
             <SubHeader>
-                <Typography>{t("path-import")}</Typography>
+                <Stack direction='row' alignItems='center' spacing={2} pb={2} mt={2}>
+                    <CustomIconButton
+                        onClick={() => router.back()}>
+                        <IconUrl path="ic-outline-arrow-left" />
+                    </CustomIconButton>
+                    <Stack spacing={.5}>
+                        <Breadcrumbs data={breadcrumbsData} />
+                        <Typography variant="subtitle1">
+                            New Data
+                        </Typography>
+                    </Stack>
+                </Stack>
             </SubHeader>
             <Box className="container">
                 <SettingsTabs
-                    {...{t}}
+                    {...{ t }}
                     data={TabData}
                     initIndex={0}
                     OnSelectTab={(index: number) => {
@@ -279,7 +307,7 @@ function ImportData() {
                                         }}
                                         action={
                                             <LoadingButton
-                                                {...{loading}}
+                                                {...{ loading }}
                                                 onClick={() => checkImportData()}
                                                 variant={"contained"}
                                                 color="error"
@@ -315,11 +343,11 @@ function ImportData() {
                                     <Box mb={2} mt={2}>
                                         <Grid
                                             container
-                                            spacing={{lg: 2, xs: 1}}
+                                            spacing={{ lg: 2, xs: 1 }}
                                             alignItems="center">
                                             <Grid item xs={12} lg={2}>
                                                 <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
+                                                    textAlign={{ lg: "right", xs: "left" }}
                                                     color="text.secondary"
                                                     variant="body2"
                                                     fontWeight={400}>
@@ -359,11 +387,11 @@ function ImportData() {
                                     <Box mb={6} mt={2}>
                                         <Grid
                                             container
-                                            spacing={{lg: 2, xs: 1}}
+                                            spacing={{ lg: 2, xs: 1 }}
                                             alignItems="center">
                                             <Grid item xs={12} lg={2}>
                                                 <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
+                                                    textAlign={{ lg: "right", xs: "left" }}
                                                     color="text.secondary"
                                                     variant="body2"
                                                     fontWeight={400}>
@@ -396,11 +424,11 @@ function ImportData() {
                                     <Box mb={2} mt={2}>
                                         <Grid
                                             container
-                                            spacing={{lg: 2, xs: 1}}
+                                            spacing={{ lg: 2, xs: 1 }}
                                             alignItems="center">
                                             <Grid item xs={12} lg={2}>
                                                 <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
+                                                    textAlign={{ lg: "right", xs: "left" }}
                                                     color="text.secondary"
                                                     variant="body2"
                                                     fontWeight={400}>
@@ -426,10 +454,10 @@ function ImportData() {
 
                                                 <Stack
                                                     spacing={2}
-                                                    maxWidth={{xs: "100%", md: "100%"}}>
+                                                    maxWidth={{ xs: "100%", md: "100%" }}>
                                                     {files?.map((file: any, index: number) => (
                                                         <FileUploadProgress
-                                                            {...{handleRemove}}
+                                                            {...{ handleRemove }}
                                                             key={index}
                                                             file={file}
                                                             progress={100}
@@ -446,7 +474,7 @@ function ImportData() {
                                     </Box>
                                 )}
                                 <LoadingButton
-                                    {...{loading}}
+                                    {...{ loading }}
                                     disabled={
                                         (settingsTab.activeTab === 0 && values.type === "") ||
                                         (settingsTab.activeTab !== 0 && files.length === 0)
@@ -471,11 +499,11 @@ function ImportData() {
                 dialogClose={() => setCancelDialog(false)}
                 action={() => {
                     return (
-                        <Box sx={{minHeight: 150}}>
-                            <Typography sx={{textAlign: "center"}} variant="subtitle1">
+                        <Box sx={{ minHeight: 150 }}>
+                            <Typography sx={{ textAlign: "center" }} variant="subtitle1">
                                 {t(`dialogs.check-dialog.sub-title`)}{" "}
                             </Typography>
-                            <Typography sx={{textAlign: "center"}} margin={2}>
+                            <Typography sx={{ textAlign: "center" }} margin={2}>
                                 {t(`dialogs.check-dialog.description`)}
                             </Typography>
                         </Box>
@@ -488,11 +516,11 @@ function ImportData() {
                         <Button
                             variant="text-primary"
                             onClick={() => setCancelDialog(false)}
-                            startIcon={<CloseIcon/>}>
+                            startIcon={<CloseIcon />}>
                             {t(`dialogs.check-dialog.cancel`)}
                         </Button>
                         <LoadingButton
-                            {...{loading}}
+                            {...{ loading }}
                             loadingPosition="start"
                             variant="contained"
                             color={"warning"}

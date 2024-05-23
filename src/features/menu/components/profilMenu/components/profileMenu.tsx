@@ -15,49 +15,50 @@ import {
     MenuList,
     Paper,
     Popper, Stack, ToggleButton, ToggleButtonGroup,
-    Typography
+    Typography,
+    useTheme
 } from "@mui/material";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import React, {useRef, useState} from "react";
-import {useRouter} from "next/router";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import React, { useRef, useState } from "react";
+import { useRouter } from "next/router";
 import IconUrl from "@themes/urlIcon";
-import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
+import { useTranslation } from "next-i18next";
+import { useSession } from "next-auth/react";
 import axios from "axios";
-import {useRequestQueryMutation} from "@lib/axios";
-import {Session} from "next-auth";
-import {LoadingScreen} from "@features/loadingScreen";
-import {ConditionalWrapper, unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
-import {configSelector, dashLayoutSelector, setDirection, setLocalization} from "@features/base";
+import { useRequestQueryMutation } from "@lib/axios";
+import { Session } from "next-auth";
+import { LoadingScreen } from "@features/loadingScreen";
+import { ConditionalWrapper, unsubscribeTopic, useMedicalEntitySuffix } from "@lib/hooks";
+import { configSelector, dashLayoutSelector, setDirection, setLocalization } from "@features/base";
 import Langs from "@features/topNavBar/components/langButton/config";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Can from "@features/casl/can";
 import moment from "moment-timezone";
 
 function ProfileMenu() {
-    const {data: session, update} = useSession();
+    const { data: session, update } = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
-    const {t, ready} = useTranslation('menu');
-    const {opened} = useAppSelector(profileMenuSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {locale} = useAppSelector(configSelector);
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const theme = useTheme()
+    const { t, ready } = useTranslation('menu');
+    const { opened } = useAppSelector(profileMenuSelector);
+    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
+    const { locale } = useAppSelector(configSelector);
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const general_information = (user as UserDataResponse).general_information;
     const medical_entity = (user as UserDataResponse).medical_entity;
     const medical_entities = ((user as UserDataResponse).medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
 
-    const {trigger: triggerSettingsUpdate} = useRequestQueryMutation("/settings/update");
+    const { trigger: triggerSettingsUpdate } = useRequestQueryMutation("/settings/update");
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     const handleToggle = () => {
         dispatch(openMenu(!opened));
@@ -78,13 +79,13 @@ function ProfileMenu() {
     const handleMenuItem = async (action: string) => {
         switch (action) {
             case 'logout':
-                await unsubscribeTopic({general_information});
+                await unsubscribeTopic({ general_information });
                 // Log out from keycloak session
-                const {data: {path}} = await axios({
+                const { data: { path } } = await axios({
                     url: "/api/auth/logout",
                     method: "GET"
                 });
-                dispatch(logout({redirect: true, path}));
+                dispatch(logout({ redirect: true, path }));
                 break;
             case 'switch-medical-entity':
                 await update({
@@ -109,7 +110,7 @@ function ProfileMenu() {
         dispatch(openMenu(false));
     }
 
-    if (loading) return (<LoadingScreen button text={"loading-switch"}/>);
+    if (loading) return (<LoadingScreen button text={"loading-switch"} />);
 
     return (
         <ProfileSectionStyled
@@ -122,7 +123,7 @@ function ProfileMenu() {
             <Stack direction={"row"} spacing={.5}>
                 <Typography
                     color={"text.secondary"}>{general_information?.isProfessional ? "Dr" : ""} {general_information?.firstName} {general_information?.lastName}</Typography>
-                <ExpandMore color={"text"}/>
+                <ExpandMore color={"text"} />
             </Stack>
             <Popper
                 open={opened}
@@ -132,7 +133,7 @@ function ProfileMenu() {
                 transition
                 disablePortal
                 className="profile-menu-container">
-                {({TransitionProps}) => (
+                {({ TransitionProps }) => (
                     <Grow
                         {...TransitionProps}
                         style={{
@@ -151,11 +152,11 @@ function ProfileMenu() {
                                     <MenuItem disableRipple className="profile-top-sec">
                                         <MenuList>
                                             <MenuItem disableRipple>
-                                                <Avatar sx={{width: 28, height: 28}}
-                                                        src={`/static/icons/${general_information?.gender !== "O" ?
-                                                            "men" : "women"}-avatar.svg`}/>
+                                                <Avatar sx={{ width: 48, height: 48 }}
+                                                    src={`/static/icons/${general_information?.gender !== "O" ?
+                                                        "men" : "women"}-avatar.svg`} />
                                                 <Box className="profile-detail">
-                                                    <Typography variant="body1" className="name" fontWeight={600}>
+                                                    <Typography variant="subtitle2" className="name" fontWeight={600}>
                                                         {session?.user && <> {roles.includes('ROLE_SECRETARY') ? "SECRÉTAIRE" : "DR"} {session.user.name?.toUpperCase()} </>}
                                                     </Typography>
                                                 </Box>
@@ -165,7 +166,7 @@ function ProfileMenu() {
                                     <MenuItem
                                         className={`item-list`}
                                         disableRipple>
-                                        <IconUrl path={"ic-world-language"}/>
+                                        <IconUrl path={"ic-world-language"} />
                                         <Typography variant="body1" mr={1} ml={1.6} color={"text.secondary"}>
                                             {t("lang")}
                                         </Typography>
@@ -180,7 +181,7 @@ function ProfileMenu() {
                                             onChange={async (event, locale) => {
                                                 const lang = locale.substring(0, 2);
                                                 const dir = lang === 'ar' ? 'rtl' : 'ltr';
-                                                router.replace(router.pathname, router.asPath, {locale: lang}).then(() => {
+                                                router.replace(router.pathname, router.asPath, { locale: lang }).then(() => {
                                                     dispatch(setDirection(dir));
                                                     dispatch(setLocalization(locale));
                                                     moment.locale(lang === 'ar' ? 'ar-tn' : lang);
@@ -189,7 +190,7 @@ function ProfileMenu() {
                                             aria-label="Lang">
                                             {Object.entries(Langs).map((item) => (
                                                 <ToggleButton onClick={() => handleClose(item[1])} key={item[1].locale}
-                                                              value={item[0]}>
+                                                    value={item[0]}>
                                                     <Typography
                                                         sx={{
                                                             fontSize: 10,
@@ -210,9 +211,9 @@ function ProfileMenu() {
                                             <MenuItem
                                                 onClick={() => handleMenuItem(item.action)}
                                                 disableRipple
-                                                className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
-                                                }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
-                                                <IconUrl path={item.icon}/>
+                                                sx={{ my: .5, py: 1 }}
+                                                className={`item-list ${item.hasOwnProperty("items") ? "has-items" : ""}`}>
+                                                <IconUrl color={theme.palette.text.secondary} path={item.icon} />
                                                 <Typography variant="body1" className="item-name">
                                                     {t("doctor-dropdown." + item.name.toLowerCase())}
                                                 </Typography>
