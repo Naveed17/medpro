@@ -369,6 +369,7 @@ function AppointmentDetail({...props}) {
                                 <>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         onClick={() => {
                                             OnUploadDocuments(appointment);
                                         }}
@@ -380,6 +381,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         sx={{
                                             display:
                                                 appointment?.extendedProps.status.key !== "PENDING"
@@ -397,6 +399,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         onClick={() => OnWaiting(appointment)}
                                         sx={{
                                             display:
@@ -417,6 +420,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         onClick={() => OnLeaveWaiting(appointment)}
                                         sx={{
                                             display:
@@ -435,6 +439,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         sx={{
                                             display:
                                                 moment().isBefore(appointment?.extendedProps.time) ||
@@ -453,6 +458,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         sx={{
                                             display:
                                                 appointment?.extendedProps.status.key !== "FINISHED"
@@ -469,6 +475,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         sx={{
                                             display:
                                                 moment().isAfter(appointment?.extendedProps.time) ||
@@ -485,6 +492,7 @@ function AppointmentDetail({...props}) {
                                 </>}
                             <LoadingButton
                                 {...{loading}}
+                                loadingPosition="start"
                                 onClick={() => SetCancelDialog(true)}
                                 fullWidth
                                 variant="contained-white"
@@ -513,6 +521,7 @@ function AppointmentDetail({...props}) {
                             </LoadingButton>
                             <LoadingButton
                                 {...{loading}}
+                                loadingPosition="start"
                                 onClick={() => SetDeleteDialog(true)}
                                 sx={{
                                     display:

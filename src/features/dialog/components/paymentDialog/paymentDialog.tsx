@@ -171,7 +171,7 @@ function PaymentDialog({...props}) {
             onSuccess: () => {
                 mutate().then(() => {
                     mutatePatient && mutatePatient();
-                    if (router.pathname === '/dashboard/waiting-room') {
+                    if (['/dashboard/waiting-room', '/dashboard/agenda'].includes(router.pathname)) {
                         setTimeout(() => {
                             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`])
                         }, 2000);

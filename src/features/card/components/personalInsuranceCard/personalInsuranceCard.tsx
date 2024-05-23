@@ -443,7 +443,7 @@ function PersonalInsuranceCard({...props}) {
                     dialogClose={handleResetDialogInsurance}
                     action={"add_insurance"}
                     open={insuranceDialog}
-                    title={t(`config.add-patient.add-insurance`)}
+                    title={t(`config.add-patient.assurance`)}
                     actionDialog={
                         <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
                             {requestAction !== "PUT" && <Button

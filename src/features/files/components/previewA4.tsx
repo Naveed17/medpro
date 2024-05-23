@@ -211,7 +211,7 @@ function PreviewDialog({...props}) {
                                 txt = txt?.replaceAll('{tel}', state.tel)
                             txt = txt?.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt?.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
-                            txt = txt?.replaceAll('&nbsp;', '')
+
                             const parser = new DOMParser();
                             const noeuds = parser.parseFromString(txt ?? "", 'text/html').getElementsByTagName('body')[0];
 
@@ -245,7 +245,7 @@ function PreviewDialog({...props}) {
                                 style: {}
                             })
                             pageX.appendChild(FeesLine)
-                            setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
+                            setTitle(state.type == "fees" ? "Facture" : "Devis");
                             break;
                         case "glasses":
                             const prescLine = document.createElement('p');

@@ -1842,7 +1842,7 @@ function Statistics() {
 
                                                         <BorderLinearProgressStyled bgcolor={"#ff5b6e"}
                                                                                     variant="determinate"
-                                                                                    value={parseInt(selectedConsultationReason?.mean_duration) ?? 0}/>
+                                                                                    value={parseInt(selectedConsultationReason?.mean_duration) || 0}/>
                                                     </CardContent>
                                                 </Card>
                                             </Stack>
