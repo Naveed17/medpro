@@ -1815,11 +1815,10 @@ function WaitingRoom() {
                     </MenuItem>
                 ))}
             </Menu>
-            <Snackbar
+            {/*<Snackbar
                 open={true}
                 autoHideDuration={5000}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
                 <Alert
                     severity="expire"
                     icon={<Label variant="filled" color="expire">Alert</Label>}
@@ -1836,7 +1835,7 @@ function WaitingRoom() {
                         } size="small" variant="contained" color="expire">+5 minutes</Button>
                     </Stack>
                 </Alert>
-            </Snackbar>
+            </Snackbar>*/}
         </>
     )
         ;

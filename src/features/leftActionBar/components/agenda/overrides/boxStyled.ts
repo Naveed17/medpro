@@ -47,6 +47,7 @@ const BoxStyled = styled(Box)(({theme}) => ({
         },
     },
     "&.container-filter": {
+        width: "fit-content",
         ".MuiPickerStaticWrapper-content": {
             minWidth: "auto",
             ".MuiCalendarOrClockPicker-root > div": {

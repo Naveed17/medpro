@@ -1,7 +1,3 @@
-import React, { lazy, Suspense, useEffect, useState, } from "react";
-import { configSelector, dashLayoutSelector } from "@features/base";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {KeyboardEvent, lazy, ReactElement, Suspense, useEffect, useRef, useState,} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
@@ -19,23 +15,23 @@ import {
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 import CloseIcon from '@mui/icons-material/Close';
-import { EditMotifDialog } from "@features/dialog";
-import { SubHeader } from "@features/subHeader";
-import { useAppSelector } from "@lib/redux/hooks";
-import { Otable } from "@features/table";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
-import { useDateConverture, useMedicalEntitySuffix } from "@lib/hooks";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { MobileContainer } from "@themes/mobileContainer";
-import { useSnackbar } from "notistack";
-import { LoadingButton } from "@mui/lab";
+import {EditMotifDialog} from "@features/dialog";
+import {SubHeader} from "@features/subHeader";
+import {useAppSelector} from "@lib/redux/hooks";
+import {Otable} from "@features/table";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import {useSnackbar} from "notistack";
+import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
-import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import Can from "@features/casl/can";
-import { CustomIconButton } from "@features/buttons";
+import {CustomIconButton} from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import {debounce} from "lodash";
@@ -52,9 +48,9 @@ function Motif() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const { direction } = useAppSelector(configSelector);
-    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
-    const { t, ready, i18n } = useTranslation(["settings", "common"], { keyPrefix: "motif.config", });
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
 
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -71,10 +67,10 @@ function Motif() {
     const [selected, setSelected] = useState<null | any>();
     const [searchName, setSearchName] = useState<null | any>(null);
 
-    const { trigger: triggerMotifUpdate } = useRequestQueryMutation("/settings/motif/update");
-    const { trigger: triggerMotifDelete } = useRequestQueryMutation("/settings/motif/delete");
+    const {trigger: triggerMotifUpdate} = useRequestQueryMutation("/settings/motif/update");
+    const {trigger: triggerMotifDelete} = useRequestQueryMutation("/settings/motif/delete");
 
-    const { data: httpConsultReasonResponse, mutate: mutateConsultReason } = useRequestQuery(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
@@ -262,7 +258,7 @@ function Motif() {
 
 
             <DesktopContainer>
-                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+                <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                     <Otable
                         headers={headCells}
                         toolbar={
@@ -272,7 +268,8 @@ function Motif() {
                                 width={1}
                                 mb={3}
                                 alignItems="center">
-                                <Typography color="text.primary" variant="subtitle1" fontWeight={600}>{t("title")}</Typography>
+                                <Typography color="text.primary" variant="subtitle1"
+                                            fontWeight={600}>{t("title")}</Typography>
                                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                     <FormControl
                                         component="form"
