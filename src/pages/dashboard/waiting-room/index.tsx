@@ -419,17 +419,14 @@ function WaitingRoom() {
 
     const handleSortSelect = (item: any) => {
         dispatch(setSortTime(item.value));
-        const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
-        if (!prodEnv) {
-            const params = new FormData();
-            params.append('waitingRoomDisplay', item.index.toString());
-            medicalEntityHasUser && updateAgendaConfig({
-                method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
-                data: params
-            })
-        }
+        const params = new FormData();
+        params.append('waitingRoomDisplay', item.index.toString());
+        medicalEntityHasUser && updateAgendaConfig({
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
+            data: params
+        })
 
         setAnchorEl(null);
     };
