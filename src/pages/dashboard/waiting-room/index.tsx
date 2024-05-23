@@ -68,10 +68,8 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {Board, boardSelector, borderRadius, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
-import CalendarIcon from "@themes/overrides/icons/calendarIcon";
+import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
 import {CustomIconButton, CustomSwitch} from "@features/buttons";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "@hello-pangea/dnd";
 import {
     appointmentSelector, resetAppointment, setAppointmentPatient,

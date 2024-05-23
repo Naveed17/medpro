@@ -67,13 +67,6 @@ function ThemeConfig({children}: LayoutProps) {
         dispatch(setLocalization(locale));
     }, [locale, dir, dispatch]);
 
-    // Create style cache
-    const styleCache = createCache({
-        key: dir === 'rtl' ? 'muirtl' : 'css',
-        stylisPlugins: dir === 'rtl' ? [prefixer, rtlPlugin] : []
-    });
-    // styleCache.compat = true;
-
     const themeWithLocale = useMemo(
         () => createTheme({
             components: {

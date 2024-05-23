@@ -7,7 +7,6 @@ import {
     CardContent,
     CardHeader,
     CardMedia,
-    FormControl,
     InputAdornment,
     Stack,
     Tab,
@@ -18,6 +17,7 @@ import {
 import {CustomIconButton} from '@features/buttons'
 import IconUrl from '@themes/urlIcon'
 import {a11yProps} from '@lib/hooks'
+import Image from "next/image";
 
 function Docs({...props}) {
     const {t, theme} = props;
@@ -113,7 +113,7 @@ function Docs({...props}) {
                         <Card className='doc-card'>
                             <CardMedia
                                 component={Box}>
-                                <img alt="rapport" src="/static/img/rapport.png"/>
+                                <Image alt="rapport" src="/static/img/rapport.png"/>
                             </CardMedia>
                             <CardContent>
                                 <Stack spacing={.5}>
