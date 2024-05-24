@@ -142,7 +142,7 @@ function WaitingRoom() {
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
-        {index: 0, key: "startTime", value: "start-time"},
+        //{index: 0, key: "startTime", value: "start-time"},
         {index: 1, key: "arrivalTime", value: "arrival-time"},
         {index: 2, key: "estimatedStartTime", value: "smart-list"}
     ]);
@@ -419,13 +419,13 @@ function WaitingRoom() {
     const handleSortSelect = (item: any) => {
         dispatch(setSortTime(item.value));
 
-        const params = new FormData();
-        params.append('waitingRoomDisplay', item.index.toString());
-        medicalEntityHasUser && updateAgendaConfig({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
-            data: params
-        })
+        /*        const params = new FormData();
+                params.append('waitingRoomDisplay', item.index.toString());
+                medicalEntityHasUser && updateAgendaConfig({
+                    method: "PATCH",
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
+                    data: params
+                })*/
 
         setAnchorEl(null);
     };
