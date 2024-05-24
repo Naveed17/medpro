@@ -1,6 +1,6 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useContext, useEffect, useState} from "react";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useContext, useEffect, useState } from "react";
 import {
     Box,
     Button,
@@ -18,38 +18,39 @@ import {
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import {SubHeader} from "@features/subHeader";
-import {configSelector, DashLayout} from "@features/base";
-import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
-import {useTranslation} from "next-i18next";
+import { SubHeader } from "@features/subHeader";
+import { configSelector, DashLayout } from "@features/base";
+import { onOpenPatientDrawer, Otable, tableActionSelector } from "@features/table";
+import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard} from "@features/card";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
-import {Dialog, PatientDetail} from "@features/dialog";
-import {DefaultCountry} from "@lib/constants";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useCashBox, useInsurances} from "@lib/hooks/rest";
-import {CashboxFilter, cashBoxSelector, setSelectedTabIndex} from "@features/leftActionBar";
-import {generateFilter} from "@lib/hooks/generateFilter";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard } from "@features/card";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { Dialog, PatientDetail } from "@features/dialog";
+import { DefaultCountry } from "@lib/constants";
+import { useMedicalEntitySuffix } from "@lib/hooks";
+import { useCashBox, useInsurances } from "@lib/hooks/rest";
+import { CashboxFilter, cashBoxSelector, setSelectedTabIndex } from "@features/leftActionBar";
+import { generateFilter } from "@lib/hooks/generateFilter";
 import CloseIcon from "@mui/icons-material/Close";
-import {DrawerBottom} from "@features/drawerBottom";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {ActionMenu} from "@features/menu";
-import {LoadingButton} from "@mui/lab";
-import {TabPanel} from "@features/tabPanel";
+import { DrawerBottom } from "@features/drawerBottom";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import { ActionMenu } from "@features/menu";
+import { LoadingButton } from "@mui/lab";
+import { TabPanel } from "@features/tabPanel";
 import moment from "moment-timezone";
-import {agendaSelector, setNavigatorMode} from "@features/calendar";
-import {saveAs} from "file-saver";
-import {ImageHandler} from "@features/image";
-import {LoadingScreen} from "@features/loadingScreen";
-import Can, {AbilityContext} from "@features/casl/can";
-import {ToggleButtonStyled} from "@features/toolbar";
+import { agendaSelector, setNavigatorMode } from "@features/calendar";
+import { saveAs } from "file-saver";
+import { ImageHandler } from "@features/image";
+import { LoadingScreen } from "@features/loadingScreen";
+import Can, { AbilityContext } from "@features/casl/can";
+import { ToggleButtonStyled } from "@features/toolbar";
+import { Breadcrumbs } from "@features/breadcrumbs";
 
 const noCardData = {
     mainIcon: "ic-unpaid",
@@ -62,20 +63,20 @@ const noAppData = {
 };
 
 function Cashbox() {
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const theme: Theme = useTheme();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {insurances} = useInsurances();
-    const {cashboxes} = useCashBox();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const { insurances } = useInsurances();
+    const { cashboxes } = useCashBox();
     const ability = useContext(AbilityContext);
 
-    const {tableState} = useAppSelector(tableActionSelector);
-    const {direction} = useAppSelector(configSelector);
-    const {t, ready, i18n} = useTranslation(["payment", "common"]);
-    const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {config: agenda, mode} = useAppSelector(agendaSelector);
+    const { tableState } = useAppSelector(tableActionSelector);
+    const { direction } = useAppSelector(configSelector);
+    const { t, ready, i18n } = useTranslation(["payment", "common"]);
+    const { filterCB, selectedBoxes } = useAppSelector(cashBoxSelector);
+    const { config: agenda, mode } = useAppSelector(agendaSelector);
 
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false);
@@ -94,7 +95,7 @@ function Cashbox() {
     const [loading, setLoading] = useState(true);
     const [selectedCashBox, setCashbox] = useState<any>(null);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
@@ -113,21 +114,21 @@ function Cashbox() {
             title: "add-payment",
             feature: "cashbox",
             permission: "cash_box__transaction__create",
-            icon: <IconUrl path="ic-wallet-money" color="white"/>,
+            icon: <IconUrl path="ic-wallet-money" color="white" />,
             action: "onCash",
         },
         {
             title: "delete",
             feature: "cashbox",
             permission: "cash_box__transaction__delete",
-            icon: <IconUrl path="ic-delete" color="white"/>,
+            icon: <IconUrl path="ic-delete" color="white" />,
             action: "onDelete",
         },
         {
             title: "see_patient_file",
             feature: "patient",
             permission: "patients__patient__show",
-            icon: <IconUrl path="ic-file" color="white"/>,
+            icon: <IconUrl path="ic-file" color="white" />,
             action: "onSeePatientFile",
         },
     ];
@@ -298,7 +299,7 @@ function Cashbox() {
     ];
 
     const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', 'agenda__appointment__show') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? "transactions" : ""));
-    const filterQuery: string = generateFilter({filterCB});
+    const filterQuery: string = generateFilter({ filterCB });
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -306,19 +307,19 @@ function Cashbox() {
     const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
 
-    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
-    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
-    const {trigger: triggerExport} = useRequestQueryMutation("/cashbox/export");
+    const { trigger: triggerPostTransaction } = useRequestQueryMutation("/payment/cashbox/post");
+    const { trigger: triggerAppointmentDetails } = useRequestQueryMutation("/agenda/appointment/details");
+    const { trigger: triggerExport } = useRequestQueryMutation("/cashbox/export");
 
-    const {data: paymentMeansHttp} = useRequestQuery({
+    const { data: paymentMeansHttp } = useRequestQuery({
         method: "GET",
         url: `/api/public/payment-means/${router.locale}`,
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransactions} = useRequestQuery(filterQuery ? {
+    const { data: httpTransactionsResponse, mutate: mutateTransactions } = useRequestQuery(filterQuery ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-    } : null, {...(filterQuery && {variables: {query: filterQuery}})});
+    } : null, { ...(filterQuery && { variables: { query: filterQuery } }) });
 
     useEffect(() => {
         if (httpTransactionsResponse) {
@@ -385,11 +386,11 @@ function Cashbox() {
     };
 
     const handleTableActions = (data: any) => {
-        const {action, event, row} = data;
+        const { action, event, row } = data;
         switch (action) {
             case "PATIENT_DETAILS":
                 if (row?.uuid) {
-                    dispatch(onOpenPatientDrawer({patientId: row.uuid}));
+                    dispatch(onOpenPatientDrawer({ patientId: row.uuid }));
                     setPatientDetailDrawer(true);
                 }
                 break;
@@ -445,7 +446,7 @@ function Cashbox() {
                 break;
             case "onSeePatientFile":
                 dispatch(
-                    onOpenPatientDrawer({patientId: selectedCashBox.patient.uuid})
+                    onOpenPatientDrawer({ patientId: selectedCashBox.patient.uuid })
                 );
                 setPatientDetailDrawer(true);
                 break;
@@ -486,63 +487,80 @@ function Cashbox() {
         }
 
     }, [cashboxes])
+    const breadcrumbsData = [
+
+        {
+            title: "Caisse",
+            href: "/dashboard/cashbox"
+        },
+        {
+            title: t(selectedTab),
+            href: null
+        }
+
+    ]
 
     useEffect(() => {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["payment", 'menu', "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"} />);
 
     return (
         <>
             <SubHeader>
-                <Stack
-                    spacing={1.5}
-                    direction="row"
-                    alignItems="center"
-                    paddingTop={1}
-                    justifyContent={"space-between"}
-                    width={"100%"}>
-                    <Tabs
-                        value={selectedTab}
-                        onChange={handleChangeTab}
-                        sx={{
-                            width: {xs: "70%", md: "50%"},
-                            [`& .${tabsClasses.scrollButtons}`]: {
-                                "&.Mui-disabled": {opacity: 0.5},
-                            },
-                            marginTop: "8px",
-                        }}
-                        scrollButtons={true}
-                        indicatorColor="primary">
-                        {tabsData.map((tab) => (
-                            <Tab
-                                key={tab.label}
-                                className="custom-tab"
-                                value={tab.label}
-                                disabled={loading}
-                                label={t(tab.label)}
-                            />
-                        ))}
-                    </Tabs>
-                    <ToggleButtonStyled
-                        id="toggle-button"
-                        value="toggle"
-                        onClick={() => dispatch(setNavigatorMode(mode === "normal" ? "discreet" : "normal"))}
-                        className={"toggle-button"}
-                        sx={{
-                            ...(mode !== "normal" && {border: "none"}),
-                            background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
-                        }}>
-                        <IconUrl width={19} height={19}
-                                 path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>
-                    </ToggleButtonStyled>
+                <Stack width={1} mt={2}>
+                    <Breadcrumbs data={breadcrumbsData} />
+                    <Typography mt={1.5} variant="subtitle1" fontWeight={600}>
+                        {t("path")}
+                    </Typography>
+                    <Stack
+                        spacing={1.5}
+                        direction="row"
+                        alignItems="center"
+                        justifyContent={"space-between"}
+                        width={"100%"}>
+                        <Tabs
+                            value={selectedTab}
+                            onChange={handleChangeTab}
+                            sx={{
+                                width: { xs: "70%", md: "50%" },
+                                [`& .${tabsClasses.scrollButtons}`]: {
+                                    "&.Mui-disabled": { opacity: 0.5 },
+                                },
+                                marginTop: "8px",
+                            }}
+                            scrollButtons={true}
+                            indicatorColor="primary">
+                            {tabsData.map((tab) => (
+                                <Tab
+                                    key={tab.label}
+                                    className="custom-tab"
+                                    value={tab.label}
+                                    disabled={loading}
+                                    label={t(tab.label)}
+                                />
+                            ))}
+                        </Tabs>
+                        <ToggleButtonStyled
+                            id="toggle-button"
+                            value="toggle"
+                            onClick={() => dispatch(setNavigatorMode(mode === "normal" ? "discreet" : "normal"))}
+                            className={"toggle-button"}
+                            sx={{
+                                ...(mode !== "normal" && { border: "none" }),
+                                background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
+                            }}>
+                            <IconUrl width={19} height={19}
+                                path={"ic-eye-slash"} {...(mode !== "normal" && { color: "white" })} />
+                        </ToggleButtonStyled>
+                    </Stack>
                 </Stack>
             </SubHeader>
             {loading && (
-                <Box sx={{width: "100%"}}>
-                    <LinearProgress/>
+                <Box sx={{ width: "100%" }}>
+                    <LinearProgress />
                 </Box>
             )}
 
@@ -550,20 +568,19 @@ function Cashbox() {
                 <Stack
                     mb={0.6}
                     display="grid"
-                    sx={{gap: 1.2, px: 1}}
+                    sx={{ gap: 1.2, px: 1 }}
                     gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}>
                     {topCard.map((card, idx) => (
-                        <Card sx={{border: "none"}} key={idx}>
-                            <CardContent sx={{px: isMobile ? 1.75 : 2}}>
+                        <Card sx={{ border: "none" }} key={idx}>
+                            <CardContent sx={{ px: isMobile ? 1.75 : 2 }}>
                                 <Stack
                                     direction="row"
-                                    {...(mode !== "normal" && {className: "blur-text"})}
+                                    {...(mode !== "normal" && { className: "blur-text" })}
                                     alignItems="center"
-                                    spacing={{xs: 1, md: 2}}>
+                                    spacing={{ xs: 1, md: 2 }}>
                                     <ImageHandler
-                                        src={`/static/icons/${
-                                            isMobile ? card.mobile_icon : card.icon
-                                        }.svg`}
+                                        src={`/static/icons/${isMobile ? card.mobile_icon : card.icon
+                                            }.svg`}
                                         alt={card.title}
                                         width={isMobile ? 24 : 40}
                                         height={isMobile ? 24 : 40}
@@ -571,7 +588,7 @@ function Cashbox() {
                                     <Stack direction={isMobile ? "column-reverse" : "column"}>
                                         <Typography variant="h6" fontWeight={700}>
                                             {card.amount}
-                                            <span style={{fontSize: 14, marginLeft: 4}}>{devise}</span>
+                                            <span style={{ fontSize: 14, marginLeft: 4 }}>{devise}</span>
                                         </Typography>
                                         <Typography variant="body2" fontSize={11} textTransform="capitalize">
                                             {t(card.title)}
@@ -583,11 +600,11 @@ function Cashbox() {
                     ))}
                 </Stack>
                 <TabPanel padding={1} value={selectedTab} index={"consultations"}>
-                    <Card sx={{border: "none"}}>
+                    <Card sx={{ border: "none" }}>
                         <CardContent>
                             <Stack
                                 direction="row"
-                                alignItems={{xs: "flex-start", md: "center"}}
+                                alignItems={{ xs: "flex-start", md: "center" }}
                                 justifyContent="space-between"
                                 mb={2}
                                 pb={1}
@@ -604,7 +621,7 @@ function Cashbox() {
                                             onClick={() => exportDoc('apps')}
                                             variant="outlined"
                                             color="info"
-                                            startIcon={<IconUrl path="ic-export-new"/>}>
+                                            startIcon={<IconUrl path="ic-export-new" />}>
                                             {t("export")}
                                         </Button>
                                     </Can>}
@@ -626,7 +643,7 @@ function Cashbox() {
                                     total={apps.total}
                                     totalPages={apps.totalPages}
                                     pagination
-                                /> : !loading && <NoDataCard t={t} ns={"payment"} data={noAppData}/>}
+                                /> : !loading && <NoDataCard t={t} ns={"payment"} data={noAppData} />}
                             </DesktopContainer>
                             <MobileContainer>
                                 <Stack spacing={1}>
@@ -651,11 +668,11 @@ function Cashbox() {
 
                 <TabPanel padding={1} value={selectedTab} index={"transactions"}>
                     <Stack spacing={2}>
-                        <Card sx={{border: "none"}}>
+                        <Card sx={{ border: "none" }}>
                             <CardContent>
                                 <Stack
                                     direction="row"
-                                    alignItems={{xs: "center", md: "center"}}
+                                    alignItems={{ xs: "center", md: "center" }}
                                     justifyContent="space-between"
                                     mb={2}
                                     pb={1}
@@ -673,7 +690,7 @@ function Cashbox() {
                                                 onClick={() => exportDoc('cashbox')}
                                                 variant="outlined"
                                                 color="info"
-                                                startIcon={<IconUrl path="ic-export-new"/>}>
+                                                startIcon={<IconUrl path="ic-export-new" />}>
                                                 {t("export")}
                                             </Button>
                                         </Can>}
@@ -693,7 +710,7 @@ function Cashbox() {
                                             headers={headCells}
                                             from={"cashbox"}
                                             handleEvent={handleTableActions}
-                                        /> : <NoDataCard t={t} ns={"payment"} data={noCardData}/>
+                                        /> : <NoDataCard t={t} ns={"payment"} data={noCardData} />
                                     )}
                                 </DesktopContainer>
                                 <MobileContainer>
@@ -724,15 +741,15 @@ function Cashbox() {
             <Drawer
                 anchor={"right"}
                 onClose={() => {
-                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                    dispatch(onOpenPatientDrawer({ patientId: "" }));
                     setPatientDetailDrawer(false);
                 }}
                 open={patientDetailDrawer}
                 dir={direction}>
                 <PatientDetail
-                    {...{isAddAppointment, patientId: tableState.patientId}}
+                    {...{ isAddAppointment, patientId: tableState.patientId }}
                     onCloseDialog={() => {
-                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        dispatch(onOpenPatientDrawer({ patientId: "" }));
                         setPatientDetailDrawer(false);
                     }}
                     onAddAppointment={() => console.log("onAddAppointment")}
@@ -740,7 +757,7 @@ function Cashbox() {
             </Drawer>
             <MobileContainer>
                 <Button
-                    startIcon={<IconUrl path="ic-filter"/>}
+                    startIcon={<IconUrl path="ic-filter" />}
                     variant="filter"
                     onClick={() => setFilter(true)}
                     sx={{
@@ -750,16 +767,16 @@ function Cashbox() {
                         left: "50%",
                         zIndex: 999,
                     }}>
-                    {t("filter.title", {ns: "common"})} (0)
+                    {t("filter.title", { ns: "common" })} (0)
                 </Button>
             </MobileContainer>
             <DrawerBottom
                 handleClose={() => setFilter(false)}
                 open={filter}
-                title={t("filter.title", {ns: "common"})}>
-                <CashboxFilter/>
+                title={t("filter.title", { ns: "common" })}>
+                <CashboxFilter />
             </DrawerBottom>
-            <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
+            <ActionMenu {...{ contextMenu, handleClose: handleCloseMenu }}>
                 {MenuActions.map((v: any, index) => (
                     <Can key={index} I={"manage"} a={v.feature} field={v.permission}>
                         <MenuItem
@@ -768,8 +785,8 @@ function Cashbox() {
                                 OnMenuActions(v.action);
                             }}>
                             {v.icon}
-                            <Typography fontSize={15} sx={{color: "#fff"}}>
-                                {t(v.title, {ns: "common"})}
+                            <Typography fontSize={15} sx={{ color: "#fff" }}>
+                                {t(v.title, { ns: "common" })}
                             </Typography>
                         </MenuItem>
                     </Can>
@@ -780,7 +797,7 @@ function Cashbox() {
                 title={t("dialogs.delete-dialog.title")}
                 open={openDeleteTransactionDialog}
                 size="sm"
-                data={{t}}
+                data={{ t }}
                 color={theme.palette.error.main}
                 actionDialog={
                     <Stack direction="row" spacing={1}>
@@ -789,7 +806,7 @@ function Cashbox() {
                                 setLoadingDeleteTransaction(false);
                                 setOpenDeleteTransactionDialog(false);
                             }}
-                            startIcon={<CloseIcon/>}>
+                            startIcon={<CloseIcon />}>
                             {t("cancel")}
                         </Button>
                         <LoadingButton
@@ -797,7 +814,7 @@ function Cashbox() {
                             loading={loadingDeleteTransaction}
                             color="error"
                             onClick={deleteTransaction}
-                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
+                            startIcon={<IconUrl path="setting/icdelete" color="white" />}>
                             {t("delete")}
                         </LoadingButton>
                     </Stack>
@@ -826,7 +843,7 @@ function Cashbox() {
                     }}
                     size={"lg"}
                     fullWidth
-                    title={t("payment_dialog_title", {ns: "payment"})}
+                    title={t("payment_dialog_title", { ns: "payment" })}
                     dialogClose={resetDialog}
                 />
             )}

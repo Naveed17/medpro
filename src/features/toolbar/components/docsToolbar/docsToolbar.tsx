@@ -17,7 +17,7 @@ function DocsToolbar({ ...props }) {
             justifyContent="space-between"
             width={1}
             alignItems="center">
-            <Typography variant="subtitle2" color="text.primary">
+            <Typography variant="subtitle1" fontWeight={600} color="text.primary">
                 {t("sub-header.title")}
             </Typography>
             {

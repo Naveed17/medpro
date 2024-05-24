@@ -256,7 +256,7 @@ function OnStepPatient({ ...props }) {
                     lastName: ""
                 }],
             gender: selectedPatient
-                ? selectedPatient.gender === "M" ? "1" : "2"
+                ? selectedPatient.gender === "M" ? "mr" : "mrs"
                 : patient.step1.gender,
             nationality: selectedPatient && selectedPatient.nationality ? selectedPatient.nationality.uuid : '',
             country: address.length > 0 && address[0]?.city ? address[0]?.city?.country?.uuid : patient.step2.country,

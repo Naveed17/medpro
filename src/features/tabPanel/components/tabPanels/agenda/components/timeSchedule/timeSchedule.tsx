@@ -440,7 +440,7 @@ function TimeSchedule({ ...props }) {
                                             }}
                                         />
                                     </Stack>
-                                    <Stack border={1} borderColor='divider' borderRadius={1} pb={2} maxHeight={300} height={1}>
+                                    <Stack border={1} borderColor='divider' borderRadius={1} pb={.5} maxHeight={300} height={1}>
                                         <Tabs
                                             value={selectTime}
                                             onChange={handleChangeTime}

@@ -276,6 +276,17 @@
       "added": "RDV ajouté",
       "description": ""
     },
+    "final-step": {
+      "title": "Nomination Ajouté avec succès",
+      "rdv-for": "Le rendez-vous pour",
+      "on": "sur",
+      "at": "au",
+      "successfully-added": "a été ajouté avec succès au système.",
+      "btn-view-rec": "Dossier complet du patient",
+      "btn-close": "Fermer",
+      "btn-another-rdv-schedule": "Fixer un autre rendez-vous",
+      "btn-complete": "Compléter"
+    },
     "next": "Suivant",
     "back": "Retour",
     "added": "RDV ajouté",

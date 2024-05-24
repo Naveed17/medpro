@@ -119,7 +119,8 @@ function WaitingRoom() {
         recurringDates,
         duration,
         patient,
-        type
+        type,
+        finalize
     } = useAppSelector(appointmentSelector);
     const { next: is_next, medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
     const { filter: boardFilterData } = useAppSelector(boardSelector);
@@ -1455,29 +1456,55 @@ function WaitingRoom() {
                         p: "1rem"
                     }}
                     className="action">
-                    <Button
-                        sx={{
-                            mr: 1
-                        }}
-                        variant="text-primary"
-                        onClick={() => {
-                            dispatch(resetAppointment());
-                            setQuickAddAppointment(false)
-                        }}
-                        startIcon={<CloseIcon />}>
-                        {t("cancel", { ns: "common" })}
-                    </Button>
-                    <LoadingButton
-                        loading={loadingRequest}
-                        variant="contained"
-                        color={"primary"}
-                        onClick={event => {
-                            event.stopPropagation();
-                            handleAddAppointment();
-                        }}
-                        disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
-                        {t("save", { ns: "common" })}
-                    </LoadingButton>
+                    {!finalize ?
+                        <>
+                            <Button
+                                sx={{
+                                    mr: 1
+                                }}
+                                variant="text-primary"
+                                onClick={() => {
+                                    dispatch(resetAppointment());
+                                    setQuickAddAppointment(false)
+                                }}
+                                startIcon={<CloseIcon />}>
+                                {t("cancel", { ns: "common" })}
+                            </Button>
+                            <LoadingButton
+                                loading={loadingRequest}
+                                variant="contained"
+                                color={"primary"}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleAddAppointment();
+                                }}
+                                disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
+                                {t("save", { ns: "common" })}
+                            </LoadingButton>
+                        </>
+                        :
+                        <Stack pt={2} px={2} mx={-2} direction='row' justifyContent='space-between' alignItems='center' borderTop={1} borderColor='divider'>
+                            <Button variant="text-black">
+                                {t("steppers.final-step.btn-close")}
+                            </Button>
+                            <Stack direction='row' alignItems='center' spacing={2}>
+                                <LoadingButton
+                                    {...{ loading }}
+                                    variant="google"
+                                    sx={{ bgcolor: theme.palette.grey[50] }}
+                                >
+                                    {t("steppers.final-step.btn-another-rdv-schedule")}
+                                </LoadingButton>
+                                <LoadingButton
+                                    {...{ loading }}
+                                    variant="contained"
+
+                                >
+                                    {t("steppers.final-step.btn-complete")}
+                                </LoadingButton>
+                            </Stack>
+                        </Stack>
+                    }
                 </Paper>
             </Drawer>
 
