@@ -8,10 +8,10 @@ import {uniqueId} from "lodash";
 import {useInsurances} from "@lib/hooks/rest";
 
 function AgreementsRow({...props}) {
-    const {row, handleEvent} = props;
-
+    const {row, handleEvent,data} = props;
+    const {devise} = data;
     const {insurances} = useInsurances()
-    const theme = useTheme()
+
     return (
         <TableRowStyled key={uniqueId}
                         onClick={(e:any) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}>
@@ -35,7 +35,10 @@ function AgreementsRow({...props}) {
                 )}
             </TableCell>
             <TableCell align={"center"}>
-                {row.total}
+                <Typography fontWeight={600}
+                            color="text.primary">
+                {row.total} {devise}
+                </Typography>
             </TableCell>
         </TableRowStyled>
     );

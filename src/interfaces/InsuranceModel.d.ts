@@ -4,5 +4,6 @@ interface InsuranceModel {
     name: string;
     logoUrl: { url: string };
     hasApci:boolean;
+    hasExport:boolean;
     boxes:InsuranceBoxModel[];
 }

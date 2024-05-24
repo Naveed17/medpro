@@ -76,9 +76,17 @@ function ArchiveSlipRow({...props}) {
                         <IconButton
                             size="small"
                             className="btn-edit"
-                            onClick={()=>handleEvent(row.uuid)}
+                            onClick={()=>handleEvent(row.uuid,'export',row.name)}
                             sx={{mr: {md: 1}}}>
-                            <IconUrl color={theme.palette.text.secondary} path="ic-printer-new"/>
+                            <IconUrl color={theme.palette.text.secondary} path="download" width={20} height={20}/>
+                        </IconButton>
+
+                        <IconButton
+                            size="small"
+                            className="btn-edit"
+                            onClick={()=>handleEvent(row.uuid,'delete')}
+                            sx={{mr: {md: 1}}}>
+                            <IconUrl color={theme.palette.text.secondary} path="ic-delete"/>
                         </IconButton>
                     </Stack>
                 ) : (

@@ -1,6 +1,6 @@
 import {GetStaticPaths, GetStaticProps} from "next";
 import React, {ReactElement, useContext, useEffect, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {
     Button,
@@ -46,7 +46,7 @@ function InscDetail() {
     const ability = useContext(AbilityContext);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const theme = useTheme() as Theme
-    const {insurances} = useInsurances()
+    const {insurances} = useInsurances();
     const {filterCB} = useAppSelector(cashBoxSelector);
 
     const headCellsArchiveSlip: readonly any[] = [
@@ -205,7 +205,6 @@ function InscDetail() {
 
     const {t, i18n} = useTranslation("payment", {keyPrefix: "insurances"});
     //***** SELECTORS ****//
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {trigger} = useRequestQueryMutation("/docket/create");
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
 
@@ -243,6 +242,8 @@ function InscDetail() {
     ]
 
     const uuid = router.query.uuid as string;
+    const selectedInsurance = insurances.find(insc => insc.uuid === uuid)
+console.log(selectedInsurance)
 
     const {data: httpDocket, mutate} = useRequestQuery({
         method: "GET",
@@ -253,14 +254,6 @@ function InscDetail() {
         url: `${urlMedicalEntitySuffix}/insurances/appointments/${uuid}/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
     const appointments = (httpAppointments as HttpResponse)?.data ?? null;
-
-    /*
-    const {data: httpInsuranceConv} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${uuid}/conventions/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
-    })
-    const conv = (httpInsuranceConv as HttpResponse)?.data ?? [];
-*/
 
     const tabsData = [
         ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
@@ -296,7 +289,7 @@ function InscDetail() {
             data: form
         }, {
             onSuccess: (res) => {
-                exportDoc(res.data.data.uuid);
+                exportDoc(res.data.data.uuid, `Bordereau ${filterCB.start_date} - ${filterCB.end_date}`);
                 mutate()
                 mutateApp();
                 setSelectedTab("archived")
@@ -304,7 +297,7 @@ function InscDetail() {
         });
     }
 
-    const exportDoc = (uuid: string) => {
+    const exportDoc = (uuid: string, name?: string) => {
         trigger(
             {
                 method: "GET",
@@ -313,22 +306,21 @@ function InscDetail() {
             {
                 onSuccess: (result) => {
                     const buffer = Buffer.from(result.data, "base64");
-                    saveAs(new Blob([buffer]), "transaction.pdf");
+                    saveAs(new Blob([buffer]), `${name ? name : 'doc'}.pdf`);
                 },
             }
         );
     }
-
-    const printDoc = () => {
+    const deleteDoc = (uuid: string) => {
         trigger(
             {
-                method: "GET",
-                url: `${urlMedicalEntitySuffix}/insurance-dockets/print/${router.locale}`,
+                method: "DELETE",
+                url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/${router.locale}`,
             },
             {
-                onSuccess: (result) => {
-                    const buffer = Buffer.from(result.data, "base64");
-                    saveAs(new Blob([buffer]), "transaction.xlsx");
+                onSuccess: () => {
+                    mutate()
+                    mutateApp();
                 },
             }
         );
@@ -367,7 +359,7 @@ function InscDetail() {
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img width={30}
                                  alt={"insurance icon"}
-                                 src={insurances.find(insc => insc.uuid === uuid)?.logoUrl.url}/>
+                                 src={selectedInsurance?.logoUrl.url}/>
                             <Typography variant="subtitle2"
                                         fontWeight={700}>{insurances.find(insc => insc.uuid === uuid)?.name}</Typography>
                         </Stack>
@@ -449,7 +441,7 @@ function InscDetail() {
                     }}
                     scrollButtons={true}
                     indicatorColor="primary">
-                    {tabsData.map((tab) => (
+                    { selectedInsurance?.hasExport && tabsData.map((tab) => (
                         <Tab
                             key={tab.label}
                             value={tab.label}
@@ -537,12 +529,12 @@ function InscDetail() {
                                        width: 1
                                    })}
                             >
-                                <Button fullWidth={isMobile}
-                                        onClick={createDockets}
-                                        disabled={rowsSelected.length === 0}
-                                        variant="grey"
-                                        startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
-                                {/*
+                                {selectedInsurance?.hasExport && <Button fullWidth={isMobile}
+                                         onClick={createDockets}
+                                         disabled={rowsSelected.length === 0}
+                                         variant="grey"
+                                         startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
+                                }                                {/*
                                 <Button fullWidth={isMobile}
                                         variant="grey"
                                         disabled={rowsSelected.length === 0}
@@ -638,7 +630,12 @@ function InscDetail() {
                         <Otable
                             {...{t, devise}}
                             headers={headCellsArchiveSlip}
-                            handleEvent={(ev: any) => exportDoc(ev)}
+                            handleEvent={(uuid: string, from: string, name?: string) => {
+                                if (from === "delete")
+                                    deleteDoc(uuid)
+                                else
+                                    exportDoc(uuid, name)
+                            }}
                             rows={dockets.filter((ev: any) => {
                                 return ev.name?.toLowerCase().includes(search.toLowerCase())
                             })}

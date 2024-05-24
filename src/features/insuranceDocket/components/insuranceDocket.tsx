@@ -8,6 +8,9 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@lib/constants";
+import {useSession} from "next-auth/react";
 
 const headCells = [
     {
@@ -66,7 +69,15 @@ const InsuranceDocket = ({...props}) => {
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
     const router = useRouter();
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
+
 
     const {data: httpInsurances, mutate} = useRequestQuery({
         method: "GET",
@@ -85,6 +96,7 @@ const InsuranceDocket = ({...props}) => {
                     headers={headCells}
                     rows={insuranceList}
                     handleEvent={handleTableActions}
+                    devise={devise}
                     state={null}
                     from={"agreements"}
                     t={t}
