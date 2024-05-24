@@ -1,3 +1,11 @@
+## [4.26.2](https://github.com/SmartMedSA/med-pro/compare/v4.26.1...v4.26.2) (2024-05-24)
+
+
+### Bug Fixes
+
+* fin consultation contacts issues ([840eea2](https://github.com/SmartMedSA/med-pro/commit/840eea22db334d5d0793bbab985bc4f2d4ef40ba))
+* logout legacy issues ([a10df1a](https://github.com/SmartMedSA/med-pro/commit/a10df1a0e10578dc049bb35d11527e0af8d2a850))
+
 ## [4.26.1](https://github.com/SmartMedSA/med-pro/compare/v4.26.0...v4.26.1) (2024-05-24)
 
 
