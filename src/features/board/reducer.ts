@@ -17,7 +17,7 @@ export type BoardProps = {
 
 const initialState: BoardProps = {
     filter: {
-        sort: 'start-time',
+        sort: 'arrival-time',
         order: "asscending",
         unpaid: false
     },
