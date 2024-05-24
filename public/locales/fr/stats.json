@@ -5,7 +5,8 @@
       "tab_all": "Toutes les statistiques",
       "tab_rdv": "Consultations & Rendez-vous",
       "tab_patients": "Patients",
-      "tab_working_time": "Temps de travail"
+      "tab_working_time": "Temps de travail",
+      "consultation_reasons": "Motifs de la consultation"
     }
   },
   "filter": {

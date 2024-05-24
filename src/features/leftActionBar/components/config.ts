@@ -38,7 +38,7 @@ const LeftActionsData = [
         pathname: path(ROOTS.app, "/consultation"),
         component: dynamic((): any =>
             import(
-                "@features/leftActionBar/components/consultation/consultation"
+                "@features/leftActionBar/components/consultation/components/consultation"
                 ).then((mod) => mod)
         ),
     },

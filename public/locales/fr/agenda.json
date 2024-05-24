@@ -96,13 +96,13 @@
     },
     "no-data": {
       "event": {
-        "title": "Ajouter votre premier rendez-vous",
+        "title": "Veuillez ajouter votre premier rendez-vous",
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"
       },
       "vacation": {
-        "title": "Ajouter votre première absence",
+        "title": "Veuillez ajouter votre première absence",
         "sub-title": "Pas de absences",
         "description": "",
         "button-text": "Ajouter un absence"
@@ -215,9 +215,15 @@
         "assurance-num-error": "Le numéro d'assurance est obligatoire",
         "assurance-type-error": "Veuillez sélectionner l'assurance",
         "email": "E-mail",
+        "relation": "Relation",
+        "relation-placeholder": "Relation",
         "email-placeholder": "Saisissez l'adresse e-mail du patient",
         "cin": "CIN",
         "cin-placeholder": "Saisir la CIN du patient",
+        "addressed-by": "Adressé(e) par",
+        "addressed-by-placeholder": "adressé(e) par...",
+        "civil-status": "État civil",
+        "civil-status-placeholder": "état civil...",
         "profession": "Profession",
         "profession-placeholder": "Saisir la profession du patient",
         "birthday": "Date de naissance",
@@ -230,6 +236,7 @@
         "description": "",
         "add-new": "Ajouter un autre patient",
         "add-appo": "Ajouter RDV",
+        "add-contact": "Ajouter un contact",
         "register": "Enregistrer",
         "return": "Retourner à",
         "dialog": {
@@ -293,7 +300,8 @@
     "cancel-dialog": {
       "title": "Annuler RDV",
       "sub-title": "Voulez-vous vraiment annuler le RDV?",
-      "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+      "description": "Un SMS sera envoyé automatiquement au patient pour l'informer de l'annulation.",
+      "notice": "Envoyer un avis d'annulation au patient.",
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },

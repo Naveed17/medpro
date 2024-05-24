@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
-import React, {ReactElement, useContext, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useRef, useState} from "react";
 //components
-import {NoDataCard, timerSelector, WaitingRoomMobileCard} from "@features/card";
+import {NoDataCard, resetTimer, timerSelector, WaitingRoomMobileCard} from "@features/card";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
@@ -30,7 +30,7 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {ActionMenu} from "@features/menu";
+import {ActionMenu, toggleSideBar} from "@features/menu";
 import {
     getBirthdayFormat,
     prepareContextMenu,
@@ -48,7 +48,12 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
-import {DefaultCountry, deleteAppointmentOptionsData, WaitingHeadCells, WaitingTodayCells} from "@lib/constants";
+import {
+    DefaultCountry,
+    deleteAppointmentOptionsData,
+    WaitingHeadCells,
+    WaitingTodayCells
+} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
 import {LoadingButton} from "@mui/lab";
 import {
@@ -65,7 +70,7 @@ import {CustomIconButton, CustomSwitch} from "@features/buttons";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
-    appointmentSelector, resetAppointment,
+    appointmentSelector, resetAppointment, setAppointmentPatient,
     setAppointmentSubmit,
     TabPanel
 } from "@features/tabPanel";
@@ -107,7 +112,7 @@ function WaitingRoom() {
         patient,
         type
     } = useAppSelector(appointmentSelector);
-    const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {next: is_next, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
 
     const {data: user} = session as Session;
@@ -137,9 +142,9 @@ function WaitingRoom() {
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
-        {key: "startTime", value: "start-time", checked: true},
-        {key: "arrivalTime", value: "arrival-time", checked: true},
-        {key: "estimatedStartTime", value: "smart-list", checked: true}
+        {index: 0, key: "startTime", value: "start-time"},
+        {index: 1, key: "arrivalTime", value: "arrival-time"},
+        {index: 2, key: "estimatedStartTime", value: "smart-list"}
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
@@ -159,6 +164,7 @@ function WaitingRoom() {
     };
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
+    const {trigger: updateAgendaConfig} = useRequestQueryMutation("/agenda/config/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
@@ -168,6 +174,7 @@ function WaitingRoom() {
 
     const {
         data: httpWaitingRoomsResponse,
+        isLoading: isWaitingRoomsLoading,
         mutate: mutateWaitingRoom
     } = useRequestQuery(agenda ? {
         method: "GET",
@@ -290,9 +297,10 @@ function WaitingRoom() {
         });
     }
 
-    const handleAppointmentStatus = (uuid: string, status: string) => {
+    const handleAppointmentStatus = (uuid: string, status: string, order?: string) => {
         const form = new FormData();
         form.append('status', status);
+        order && form.append('order', order);
         updateAppointmentStatus({
             method: "PATCH",
             data: form,
@@ -300,8 +308,13 @@ function WaitingRoom() {
         }, {
             onSuccess: () => {
                 // refresh on going api
-                mutateOnGoing();
                 mutateWaitingRoom();
+                mutateOnGoing();
+
+                if (status === "11") {
+                    dispatch(resetTimer());
+                    dispatch(resetAppointment());
+                }
             }
         });
     }
@@ -354,6 +367,27 @@ function WaitingRoom() {
         handleClose();
     }
 
+    const handleFinishConsultation = (event: any) => {
+        const form = new FormData();
+        form.append("status", "5");
+        form.append("action", "end_consultation");
+        updateAppointmentStatus({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.uuid}/data/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateWaitingRoom();
+                mutateOnGoing();
+                if (event.status !== 8) {
+                    dispatch(resetTimer());
+                    dispatch(resetAppointment());
+                }
+            }
+        });
+    }
+
     const handleDeleteAppointment = () => {
         setLoadingRequest(true);
         const params = new FormData();
@@ -382,10 +416,20 @@ function WaitingRoom() {
         dispatch(setIsUnpaid(event.target.checked));
     };
 
-    const handleSortSelect = (value: string) => {
-        dispatch(setSortTime(value));
+    const handleSortSelect = (item: any) => {
+        dispatch(setSortTime(item.value));
+
+        const params = new FormData();
+        params.append('waitingRoomDisplay', item.index.toString());
+        medicalEntityHasUser && updateAgendaConfig({
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
+            data: params
+        })
+
         setAnchorEl(null);
     };
+
     const handleOrderSelect = (value: string) => {
         dispatch(setOrderSort(value));
         setAnchorEl(null);
@@ -396,9 +440,20 @@ function WaitingRoom() {
     };
 
     const handleDragEvent = (result: DropResult, item: BoardModel) => {
-        handleAppointmentStatus(
-            item.content.uuid,
-            columns.find(column => result.destination?.droppableId === column.name)?.id);
+        switch (result.destination?.droppableId) {
+            case "ongoing":
+                startConsultation(item.content);
+                break;
+            case "finished":
+                handleFinishConsultation(item.content);
+                break;
+            default:
+                handleAppointmentStatus(
+                    item.content.uuid,
+                    columns.current.find(column => result.destination?.droppableId === column.name)?.id,
+                    (result.destination?.droppableId === result.source?.droppableId && result.destination?.droppableId === "waiting-room") ? result.destination.index.toString() : undefined);
+                break;
+        }
     }
 
     const showDoc = (doc: any) => {
@@ -408,7 +463,7 @@ function WaitingRoom() {
                 certifUuid: doc.certificate[0].uuid,
                 content: doc.certificate[0].content,
                 doctor: doc.name,
-                patient: `${patient?.firstName} ${patient?.lastName}`,
+                patient: `${doc.certificate[0]?.patient?.firstName} ${doc.certificate[0]?.patient?.lastName}`,
                 days: doc.days,
                 description: doc.description,
                 createdAt: doc.createdAt,
@@ -421,17 +476,21 @@ function WaitingRoom() {
         } else {
             let info = doc
             let uuidDoc = "";
+            let patient;
             switch (doc.documentType) {
                 case "prescription":
                     info = doc.prescription[0].prescription_has_drugs;
+                    patient = doc.prescription[0]?.patient;
                     uuidDoc = doc.prescription[0].uuid
                     break;
                 case "requested-analysis":
-                    info = doc.requested_Analyses[0].analyses;
+                    info = doc.requested_Analyses[0]['requested_analyses_has_analyses'];
+                    patient = doc.requested_Analyses[0]?.patient;
                     uuidDoc = doc.requested_Analyses[0].uuid;
                     break;
                 case "requested-medical-imaging":
-                    info = doc.medical_imaging[0]['medical-imaging'];
+                    info = doc.medical_imaging[0]['requested_medical_imaging_has_medical_imaging'];
+                    patient = doc.medical_imaging[0]?.patient;
                     uuidDoc = doc.medical_imaging[0].uuid;
                     break;
             }
@@ -490,6 +549,9 @@ function WaitingRoom() {
             case "LEAVE_WAITING_ROOM":
                 handleAppointmentStatus(data.row.uuid as string, '1');
                 break;
+            case "RESET_ONGOING_CONSULTATION":
+                handleAppointmentStatus(data.row.uuid as string, '11');
+                break;
             case "NEXT_CONSULTATION":
                 nextConsultation(data.row);
                 break;
@@ -531,7 +593,7 @@ function WaitingRoom() {
                 setPopoverActions(CalendarContextMenu.filter(dataFilter => !["onReschedule", "onMove"].includes(dataFilter.action) && !prepareContextMenu(dataFilter.action, {
                     ...data.row,
                     status: AppointmentStatus[data.row?.status]
-                } as EventModal, roles)));
+                } as EventModal)));
                 handleContextMenu(data.event);
                 break;
         }
@@ -556,8 +618,8 @@ function WaitingRoom() {
     const handleSavePrescription = (print: boolean = true) => {
         setLoadingRequest(true);
         const form = new FormData();
-        let method = "";
-        let url = ""
+        let method;
+        let url;
         form.append("globalNote", "");
         form.append("isOtherProfessional", "false");
         form.append("drugs", JSON.stringify(drugs));
@@ -610,7 +672,12 @@ function WaitingRoom() {
         });
     }
 
-    const columns: any[] = [
+    const closeDocPreviewDialog = () => {
+        setOpenDocPreviewDialog(false);
+        dispatch(setAppointmentPatient(null));
+    }
+
+    const columns = useRef<any[]>([
         {
             id: '1',
             name: 'today-rdv',
@@ -665,7 +732,8 @@ function WaitingRoom() {
                     ml: 'auto',
                     width: 20
                 }}/>
-        }];
+        }]);
+
     const Toolbar = () => (
         <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
             <CardHeader
@@ -685,14 +753,14 @@ function WaitingRoom() {
                         m: 0,
                     }
                 }}
-                avatar={columns[1].icon}
-                {...(columns[1].action && {action: columns[1].action})}
+                avatar={columns.current[1].icon}
+                {...(columns.current[1].action && {action: columns.current[1].action})}
                 title={
                     <Stack direction='row' alignItems='center' spacing={3}>
                         <Typography
                             color={"text.primary"} fontWeight={700}
                             fontSize={14}>
-                            {t(`tabs.${columns[1].name}`)}
+                            {t(`tabs.${columns.current[1].name}`)}
                             <Label variant="filled" color="info"
                                    sx={{ml: 1, height: 'auto', p: .6, minWidth: 20, fontWeight: 400}}>
                                 {waitingRoomsGroup[3]?.length ?? ""}
@@ -707,12 +775,16 @@ function WaitingRoom() {
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
             const sortKey = menuOptions.find(option => option.value === boardFilterData.sort)?.key;
-            const timeFormat = `DD-MM-YYYY HH:mm${sortKey === "arrivalTime" ? ":ss" : ""}`
-            let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => {
-                const d1 = boardFilterData.order === "asscending" ? a : b;
-                const d2 = boardFilterData.order === "asscending" ? b : a;
-                return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
-            }).group((diag: any) => diag.status);
+            let sortData = (httpWaitingRoomsResponse as HttpResponse).data;
+            if (sortKey !== "estimatedStartTime") {
+                const timeFormat = `DD-MM-YYYY HH:mm${sortKey === "arrivalTime" ? ":ss" : ""}`;
+                sortData = sortData?.sort((a: any, b: any) => {
+                    const d1 = boardFilterData.order === "asscending" ? a : b;
+                    const d2 = boardFilterData.order === "asscending" ? b : a;
+                    return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
+                });
+            }
+            let groupedData = sortData.group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0]];
             if (sortKey === "arrivalTime") {
@@ -727,15 +799,35 @@ function WaitingRoom() {
         }
     }, [httpWaitingRoomsResponse, is_next, boardFilterData]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // useEffect(() => {
-    //     i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
-    // }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        if (agenda) {
+            let sort;
+            switch (agenda?.waitingRoomDisplay) {
+                case 1:
+                    sort = "arrival-time";
+                    break;
+                case 2:
+                    sort = "smart-list";
+                    break;
+                default:
+                    sort = "start-time";
+                    break;
+            }
+            dispatch(setSortTime(sort));
+        }
+    }, [agenda, dispatch]);
+
+    useEffect(() => {
+        dispatch(toggleSideBar(true));
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilter());
     });
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>
@@ -751,21 +843,22 @@ function WaitingRoom() {
                     setTabIndex,
                     setPatientDetailDrawer,
                     nextConsultation,
-                    columns,
+                    columns: columns.current,
                     is_next,
                     isActive
                 }}/>
             </SubHeader>
             <Box>
-                <LinearProgress sx={{
-                    visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
-                }} color="warning"/>
+                <LinearProgress
+                    sx={{
+                        visibility: !httpWaitingRoomsResponse || loading || isWaitingRoomsLoading ? "visible" : "hidden"
+                    }} color="warning"/>
 
                 <Box className="container">
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
-                                {...{columns, handleDragEvent, handleSortData, handleUnpaidFilter}}
+                                {...{columns: columns.current, handleDragEvent, handleSortData, handleUnpaidFilter}}
                                 isUnpaidFilter={boardFilterData.unpaid}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
@@ -797,13 +890,13 @@ function WaitingRoom() {
                                                         m: 0,
                                                     }
                                                 }}
-                                                avatar={columns[0].icon}
-                                                {...(columns[0].action && {action: columns[0].action})}
+                                                avatar={columns.current[0].icon}
+                                                {...(columns.current[0].action && {action: columns.current[0].action})}
                                                 title={
                                                     <Typography
                                                         color={"text.primary"} fontWeight={700}
                                                         fontSize={14}>
-                                                        {t(`tabs.${columns[0].name}`)}
+                                                        {t(`tabs.${columns.current[0].name}`)}
                                                         <Label variant="filled" color="info"
                                                                sx={{ml: 1, height: 'auto', p: .6, minWidth: 20}}>
                                                             {waitingRoomsGroup[1].length}
@@ -1107,11 +1200,11 @@ function WaitingRoom() {
                         {menuOptions.map((option) => (
                             <MenuItem
                                 key={option.value}
-                                onClick={() => handleSortSelect(option.value)}>
+                                onClick={() => handleSortSelect(option)}>
                                 <Box
                                     component={Radio}
                                     checkedIcon={<TripOriginRoundedIcon/>}
-                                    checked
+                                    checked={option.value === boardFilterData.sort}
                                     sx={{
                                         width: 17, height: 17, mr: '5px', ml: '-2px',
                                         '& .MuiSvgIcon-root': {
@@ -1294,8 +1387,10 @@ function WaitingRoom() {
                                         margin={2}>{t(`dialogs.delete-dialog.description`, {ns: "common"})}</Typography>
 
                             <Grid container spacing={1}>
-                                {deleteAppointmentOptions.map((option: any, index: number) =>
-                                    <Grid key={option.key} item md={4} xs={12}>
+                                {deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).map((option: any, index: number) =>
+                                    <Grid key={option.key} item
+                                          md={12 / deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).length}
+                                          xs={12}>
                                         <Card
                                             sx={{
                                                 padding: 1,
@@ -1488,8 +1583,8 @@ function WaitingRoom() {
                 direction={'ltr'}
                 sx={{p: 0}}
                 title={t("config.doc_detail_title", {ns: "patient"})}
-                onClose={() => setOpenDocPreviewDialog(false)}
-                dialogClose={() => setOpenDocPreviewDialog(false)}
+                onClose={closeDocPreviewDialog}
+                dialogClose={closeDocPreviewDialog}
             />
 
             <Menu

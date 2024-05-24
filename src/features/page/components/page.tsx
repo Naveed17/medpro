@@ -96,7 +96,6 @@ function Page({...props}) {
                 let targetCanvas = document.getElementById(`canvas${id}`) as HTMLCanvasElement;
                 let targetCtx = targetCanvas?.getContext('2d');
 
-                console.log("margin",getMarginTop())
                 if (targetCanvas)
                     html2canvas(htmlContent).then(function (canvas) {
                         // Define the region you want to capture
@@ -311,7 +310,7 @@ function Page({...props}) {
                             setBlockDrag(false)
                         }}>
 
-                        <div id={`title${id}`} style={{textAlign: "center"}} onClick={(ev) => {
+                        <div id={`title${id}`} style={{textAlign: "center",fontWeight:"bold"}} onClick={(ev) => {
                             ev.stopPropagation()
                             setSelectedElement("title")
                         }}>
@@ -430,7 +429,9 @@ function Page({...props}) {
                             setBlockDrag(false)
                         }}>
 
-                        <div id={`patient${id}`} onClick={(ev) => {
+                        <div id={`patient${id}`}
+                             style={{fontWeight:"bold"}}
+                             onClick={(ev) => {
                             ev.stopPropagation()
                             setSelectedElement("patient")
                         }}>

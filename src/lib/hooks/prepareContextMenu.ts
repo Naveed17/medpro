@@ -1,14 +1,14 @@
 import moment from "moment-timezone";
 
-export const prepareContextMenu = (action: string, eventMenu: EventModal, roles: any[]) => {
+export const prepareContextMenu = (action: string, eventMenu: EventModal) => {
     return eventMenu?.status && (
         action === "onWaitingRoom" &&
         (moment().format("DD-MM-YYYY") !== moment(eventMenu?.time).format("DD-MM-YYYY") || eventMenu?.patient?.isArchived ||
             ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu?.status.key)) ||
         action === "onConsultationView" &&
-        (!["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || roles.includes('ROLE_SECRETARY')) ||
+        (!["FINISHED", "ON_GOING"].includes(eventMenu?.status.key)) ||
         action === "onConsultationDetail" &&
-        (["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(eventMenu?.status.key) || roles.includes('ROLE_SECRETARY') || eventMenu?.patient?.isArchived) ||
+        (["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
         action === "onPreConsultation" &&
         (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
         action === "onLeaveWaitingRoom" &&

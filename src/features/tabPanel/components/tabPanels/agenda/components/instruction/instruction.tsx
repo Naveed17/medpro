@@ -17,8 +17,6 @@ import {
 } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider} from '@mui/x-date-pickers';
 import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -332,16 +330,15 @@ function Instruction({...props}) {
                                         "& .MuiOutlinedInput-root": {
                                             pr: "6px!important",
                                         },
-                                    }}
-                                >
-                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                        <MobileTimePicker
-                                            ampm={false}
-                                            value={timeRappel}
-                                            onChange={(newValue) => {
-                                                setTimeRappel(newValue as Date);
-                                            }}
-                                            renderInput={(params) => (
+                                    }}>
+                                    <MobileTimePicker
+                                        ampm={false}
+                                        value={timeRappel}
+                                        onChange={(newValue) => {
+                                            setTimeRappel(newValue as Date);
+                                        }}
+                                        slots={{
+                                            textField: (params) => (
                                                 <TextField
                                                     {...params}
                                                     InputProps={{
@@ -352,9 +349,9 @@ function Instruction({...props}) {
                                                         ),
                                                     }}
                                                 />
-                                            )}
-                                        />
-                                    </LocalizationProvider>
+                                            )
+                                        }}
+                                    />
                                 </Box>
                             </Stack>}
                         </Stack>

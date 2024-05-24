@@ -6,6 +6,7 @@ import {
     Grid,
     IconButton,
     InputBase,
+    Link,
     Skeleton,
     Stack,
     Tooltip,
@@ -30,7 +31,7 @@ import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
-import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
@@ -41,10 +42,13 @@ import {timerSelector} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog} from "@features/dialog";
 import {setMessage, setOpenChat} from "@features/chat/actions";
+import {setDialog} from "@features/topNavBar";
+import Can from "@features/casl/can";
 
 function PatientDetailsCard({...props}) {
     const {
         isBeta,
+        contactData,
         patient,
         patientPhoto,
         mutatePatientList,
@@ -54,8 +58,7 @@ function PatientDetailsCard({...props}) {
         walletMutate,
         closePatientDialog,
         rest,
-        devise,
-        roles
+        devise
     } = props;
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -125,14 +128,29 @@ function PatientDetailsCard({...props}) {
             onSuccess: (value: any) => {
                 const {data, status} = value?.data;
                 if (status === 'success') {
-                    const slugConsultation = `/dashboard/consultation/${data[0]}`;
-                    router.push({
-                        pathname: slugConsultation,
-                        query: {inProgress: true}
-                    }, slugConsultation, {locale: router.locale}).then(() => {
-                        closePatientDialog && closePatientDialog()
+                    if (!isActive) {
+                        const slugConsultation = `/dashboard/consultation/${data[0]}`;
+                        router.push({
+                            pathname: slugConsultation,
+                            query: {inProgress: true}
+                        }, slugConsultation, {locale: router.locale}).then(() => {
+                            closePatientDialog && closePatientDialog();
+                            setRequestLoading(false);
+                        });
+                    } else {
+                        const defEvent = {
+                            publicId: data[0],
+                            extendedProps: {
+                                patient
+                            }
+                        } as any;
+                        dispatch(setSelectedEvent(defEvent));
+                        dispatch(openDrawer({type: "view", open: false}));
+                        dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                        closePatientDialog && closePatientDialog();
                         setRequestLoading(false);
-                    });
+                    }
+
                 }
             }
         });
@@ -287,86 +305,93 @@ function PatientDetailsCard({...props}) {
                                             alignItems={"start"}
                                             justifyContent="space-between">
                                             <Stack>
-                                                <InputBase
-                                                    readOnly
-                                                    {...(patient?.nationality?.code && {
-                                                        startAdornment: <Tooltip
-                                                            title={patient.nationality.nationality}>
-                                                            <Avatar
-                                                                sx={{
-                                                                    width: 18,
-                                                                    height: 18,
-                                                                    mr: .5,
-                                                                    ml: -.2,
-                                                                    borderRadius: 4
-                                                                }}
-                                                                alt={"flag"}
-                                                                src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
-                                                        </Tooltip>
-                                                    })}
-                                                    inputProps={{
-                                                        style: {
-                                                            background: "white",
-                                                            fontSize: pxToRem(14),
-                                                            fontWeight: "bold"
-                                                        },
-                                                    }}
-                                                    {...getFieldProps("name")}
-                                                />
+                                                <Tooltip title={values.name}>
+                                                    <InputBase
+                                                        readOnly
+                                                        {...(patient?.nationality?.code && {
+                                                            startAdornment: <Tooltip
+                                                                title={patient.nationality.nationality}>
+                                                                <Avatar
+                                                                    sx={{
+                                                                        width: 18,
+                                                                        height: 18,
+                                                                        mr: .5,
+                                                                        ml: -.2,
+                                                                        borderRadius: 4
+                                                                    }}
+                                                                    alt={"flag"}
+                                                                    src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
+                                                            </Tooltip>
+                                                        })}
+                                                        inputProps={{
+                                                            style: {
+                                                                background: "white",
+                                                                fontSize: pxToRem(14),
+                                                                fontWeight: "bold",
+                                                                textOverflow: "ellipsis",
+                                                                whiteSpace: "nowrap",
+                                                                overflow: "hidden",
+                                                            },
+                                                        }}
+                                                        {...getFieldProps("name")}
+                                                    />
+                                                </Tooltip>
 
                                                 <Stack direction={isMobile ? "column" : "row"}>
                                                     {loading ? (
                                                         <Skeleton variant="text" width={150}/>
                                                     ) : (
                                                         <>
-                                                            {patient?.birthdate && <Stack
-                                                                className={"date-birth"}
-                                                                direction={isMobile ? "column" : "row"}
-                                                                alignItems="center">
-                                                                <Stack direction={"row"} alignItems="center">
-                                                                    <IconUrl width={"13"} height={"14"}
-                                                                             path="ic-anniverssaire"/>
-                                                                    <Box
-                                                                        sx={{
-                                                                            input: {
-                                                                                color: theme.palette.text.secondary,
-                                                                            },
-                                                                        }}>
-                                                                        <MaskedInput
-                                                                            readOnly
-                                                                            style={{
-                                                                                border: "none",
-                                                                                outline: "none",
-                                                                                width: 75,
-                                                                            }}
-                                                                            mask={[
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                                "-",
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                                "-",
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                                /\d/,
-                                                                            ]}
-                                                                            placeholderChar={"\u2000"}
-                                                                            {...getFieldProps("birthdate")}
-                                                                            showMask
-                                                                        />
-                                                                    </Box>
+                                                            {patient?.birthdate &&
+                                                                <Stack
+                                                                    className={"date-birth"}
+                                                                    direction={isMobile ? "column" : "row"}
+                                                                    alignItems="center">
+                                                                    <Stack direction={"row"} alignItems="center">
+                                                                        <IconUrl width={"16"} height={"16"}
+                                                                                 path="ic-anniverssaire"/>
+                                                                        <Box
+                                                                            sx={{
+                                                                                input: {
+                                                                                    color: theme.palette.text.secondary
+                                                                                },
+                                                                            }}>
+                                                                            <MaskedInput
+                                                                                readOnly
+                                                                                style={{
+                                                                                    fontSize: 13,
+                                                                                    marginLeft: 4,
+                                                                                    border: "none",
+                                                                                    outline: "none",
+                                                                                    width: 80,
+                                                                                }}
+                                                                                mask={[
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                    "-",
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                    "-",
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                    /\d/,
+                                                                                ]}
+                                                                                placeholderChar={"\u2000"}
+                                                                                {...getFieldProps("birthdate")}
+                                                                                showMask
+                                                                            />
+                                                                        </Box>
+                                                                    </Stack>
+                                                                    {patient?.birthdate &&
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            color="text.secondary"
+                                                                            component="span">
+                                                                            -{" "}
+                                                                            ({" "}{getBirthdayFormat(patient, t)}{" "})
+                                                                        </Typography>}
                                                                 </Stack>
-
-                                                                {patient?.birthdate &&
-                                                                    <Typography
-                                                                        variant="body2"
-                                                                        color="text.secondary"
-                                                                        component="span">
-                                                                        -{" "}
-                                                                        ({" "}{getBirthdayFormat(patient, t)}{" "})
-                                                                    </Typography>}
-                                                            </Stack>
                                                             }
                                                         </>
                                                     )}
@@ -397,6 +422,36 @@ function PatientDetailsCard({...props}) {
                                                             </Typography>
                                                         </Stack>}
                                                 </Stack>
+
+                                                <Stack my={.2} direction={"row"}>
+                                                    {contactData?.contact?.map((contact: ContactModel, index: number) =>
+                                                        <Stack key={index}
+                                                               direction={"row"}
+                                                               mr={2}
+                                                               spacing={.5}
+                                                               alignItems={"center"}>
+                                                            <IconUrl
+                                                                width={"16"}
+                                                                height={"16"}
+                                                                path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                                                className="ic-tell"
+                                                            />
+                                                            <Link
+                                                                underline="none"
+                                                                href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                                                sx={{ml: 1, fontSize: 12}}
+                                                                variant="caption"
+                                                                color="text.primary"
+                                                                fontWeight={400}>
+                                                                <Stack direction={"row"}
+                                                                       alignItems={"center"}>
+                                                                    {contact.code} {contact.value}
+                                                                </Stack>
+                                                            </Link>
+                                                        </Stack>
+                                                    )}
+                                                </Stack>
+
 
                                                 {(patient?.familyDoctor && !isMobile) && (loading ? (
                                                     <Skeleton variant="text" width={150}/>
@@ -531,7 +586,6 @@ function PatientDetailsCard({...props}) {
                                                                         }}
                                                                         placeholder={"-"}
                                                                         {...getFieldProps("fiche_id")} />
-
                                                                 </Stack>
                                                             )}
                                                         </Typography>
@@ -579,47 +633,45 @@ function PatientDetailsCard({...props}) {
                                                     </IconButton>
                                                 </Stack>
 
-                                                {!roles.includes('ROLE_SECRETARY') && (
-                                                    <>
-                                                        {loading ? (
-                                                            <Skeleton
-                                                                variant="rectangular"
+                                                <Can I={"manage"} a={"agenda"} field={"agenda__appointment__start"}>
+                                                    {loading ? (
+                                                        <Skeleton
+                                                            variant="rectangular"
+                                                            sx={{
+                                                                ml: {md: "auto", xs: 0},
+                                                                maxWidth: {md: 193, xs: "100%"},
+                                                                minHeight: {md: 60, xs: 40},
+                                                                width: 153,
+                                                                borderRadius: "4px",
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        !isMobile ?
+                                                            <LoadingButton
+                                                                loading={requestLoading}
+                                                                onClick={startConsultationFormPatient}
+                                                                variant="contained"
                                                                 sx={{
                                                                     ml: {md: "auto", xs: 0},
                                                                     maxWidth: {md: 193, xs: "100%"},
-                                                                    minHeight: {md: 60, xs: 40},
-                                                                    width: 153,
-                                                                    borderRadius: "4px",
                                                                 }}
-                                                            />
-                                                        ) : (
-                                                            !isMobile ? <LoadingButton
-                                                                    loading={requestLoading}
-                                                                    onClick={startConsultationFormPatient}
-                                                                    disabled={isActive}
-                                                                    variant="contained"
-                                                                    sx={{
-                                                                        ml: {md: "auto", xs: 0},
-                                                                        maxWidth: {md: 193, xs: "100%"},
-                                                                    }}
-                                                                    color="warning"
-                                                                    startIcon={<PlayCircleIcon/>}>
-                                                                    <Typography
-                                                                        component='strong' variant={"body2"}
-                                                                        fontSize={13}>{t("start-consultation")}</Typography>
-                                                                </LoadingButton>
-                                                                :
-                                                                <IconButton
-                                                                    disabled={isActive}
-                                                                    sx={{
-                                                                        borderRadius: 8
-                                                                    }}
-                                                                    onClick={startConsultationFormPatient}>
-                                                                    <PlayCircleIcon/>
-                                                                </IconButton>
-                                                        )}
-                                                    </>
-                                                )}
+                                                                color="warning"
+                                                                startIcon={<PlayCircleIcon/>}>
+                                                                <Typography
+                                                                    component='strong' variant={"body2"}
+                                                                    fontSize={13}>{t("start-consultation")}</Typography>
+                                                            </LoadingButton>
+                                                            :
+                                                            <IconButton
+                                                                disabled={isActive}
+                                                                sx={{
+                                                                    borderRadius: 8
+                                                                }}
+                                                                onClick={startConsultationFormPatient}>
+                                                                <PlayCircleIcon/>
+                                                            </IconButton>
+                                                    )}
+                                                </Can>
                                             </Stack>
                                         </Stack>
                                     )}

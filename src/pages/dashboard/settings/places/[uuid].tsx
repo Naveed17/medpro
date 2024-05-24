@@ -131,7 +131,7 @@ function PlacesDetail() {
     const dispatch = useAppDispatch();
     const theme = useTheme();
 
-    const {t} = useTranslation(["settings", "common"]);
+    const {t, ready, i18n} = useTranslation(["settings", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const dialogOpeningHoursData = useAppSelector(dialogOpeningHoursSelector);
@@ -208,8 +208,8 @@ function PlacesDetail() {
         initialValues: {
             name: row ? (row.address.location.name as string) : "",
             address: row ? (row.address.street as string) : "",
-            postalCode: row ? row.address.postalCode : "",
-            town: row ? row.address.state.uuid : "",
+            postalCode: row ? (row.address?.postalCode ?? "") : "",
+            town: row ? (row.address?.state?.uuid ?? "") : "",
             city: "",
             phones: contacts.map(contact => ({
                 code: contact.code,
@@ -299,7 +299,7 @@ function PlacesDetail() {
     const initialCites = (adr: any) => {
         triggerPlaceUpdate({
             method: "GET",
-            url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
+            url: `/api/public/places/state/${adr.address?.state?.uuid}/cities/${router.locale}`
         }, {
             onSuccess: (r: any) => {
                 setCities(r.data.data);
@@ -480,6 +480,11 @@ function PlacesDetail() {
             setCheck(false);
         }
     }, [check, row]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -1125,7 +1130,6 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await getServerTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
             "settings",
         ])),
     },

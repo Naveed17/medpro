@@ -99,6 +99,7 @@
   "motif": {
     "config": {
       "add": "Ajouter",
+      "search": "Recherche",
       "path": "Paramètres > Motifs de consultation",
       "dialog": {
         "title": "Supprimer le motif",
@@ -386,7 +387,7 @@
       "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de cette agenda",
       "cancel": "Annuler",
       "no-data": {
-        "title": "ajouter votre premier Agenda",
+        "title": "Veuillez ajouter votre premier Agenda",
         "description": "",
         "button-text": "Ajouter un Agenda"
       },
@@ -469,7 +470,7 @@
         "add": "Ajouter",
         "no-data": {
           "vacation": {
-            "title": "Ajouter votre première absence",
+            "title": "Veuillez ajouter votre première absence",
             "sub-title": "Pas de absences",
             "description": "",
             "button-text": "Ajouter un absence"
@@ -667,12 +668,12 @@
       },
       "no-data": {
         "user": {
-          "title": "Ajouter votre premier utilisateur",
-          "description": "Gérer votre accès et créer votre première secrétaire",
+          "title": "Veuillez ajouter votre premier utilisateur",
+          "description": "Gérer votre accès et créer votre premier secrétaire",
           "button-text": "Ajouter un utilisateur"
         },
         "role": {
-          "title": "Ajouter votre premier profil",
+          "title": "Veuillez ajouter votre premier profil",
           "description": "Gérez votre accès et créez votre premier profil",
           "button-text": "Ajouter un profil"
         },
@@ -702,7 +703,8 @@
       },
       "alert": {
         "add_user_success": "Ajouter un utilisateur avec succès",
-        "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment "
+        "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment ",
+        "user-exist": "Adresse e-mail est déjà utilisée"
       }
     },
     "dialog": {

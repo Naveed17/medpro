@@ -1,31 +1,46 @@
-import { Avatar, Box, Button, Checkbox, Dialog, DialogActions, FormControlLabel, IconButton, Radio, RadioGroup, Stack, TextField, Typography, useTheme } from '@mui/material'
-import { InputStyled } from "@features/tabPanel";
-import React, { memo, useRef } from 'react'
+import {
+    Avatar,
+    Box,
+    Button,
+    Checkbox,
+    Dialog,
+    DialogActions,
+    FormControlLabel,
+    IconButton,
+    Radio,
+    RadioGroup,
+    Stack,
+    TextField,
+    Typography,
+    useTheme
+} from '@mui/material'
+import {InputStyled} from "@features/tabPanel";
+import React, {memo, useRef} from 'react'
 import IconUrl from '@themes/urlIcon';
-import { FormikProvider, useFormik, Form } from 'formik';
+import {FormikProvider, useFormik, Form} from 'formik';
 import * as Yup from 'yup'
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { CountrySelect } from '@features/countrySelect';
-import { isValidPhoneNumber } from 'libphonenumber-js';
-import { useSession } from "next-auth/react";
-import { Session } from 'next-auth';
-import { DefaultCountry } from '@lib/constants';
+import {DatePicker} from '@mui/x-date-pickers';
+import {CountrySelect} from '@features/countrySelect';
+import {isValidPhoneNumber} from 'libphonenumber-js';
+import {useSession} from "next-auth/react";
+import {Session} from 'next-auth';
+import {DefaultCountry} from '@lib/constants';
 import PhoneInput from 'react-phone-number-input/input';
-import { CustomInput } from '@features/tabPanel';
-import { CustomIconButton } from '@features/buttons';
+import {CustomInput} from '@features/tabPanel';
+import {CustomIconButton} from '@features/buttons';
 import AddIcon from "@mui/icons-material/Add";
 
-const PhoneCountry: any = memo(({ ...props }) => {
+const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
-function PersonalInfoDialog({ ...props }) {
-    const { data: { t, handleClose } } = props;
+
+function PersonalInfoDialog({...props}) {
+    const {data: {t, handleClose}} = props;
     const phoneInputRef = useRef(null);
     const theme = useTheme();
-    const { data: session } = useSession();
-    const { data: userData } = session as Session;
+    const {data: session} = useSession();
+    const {data: userData} = session as Session;
     const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const validationSchema = Yup.object().shape({
@@ -68,7 +83,7 @@ function PersonalInfoDialog({ ...props }) {
             familyName: "",
             firstName: "",
             idNumber: "",
-            birthday: "",
+            birthday: null,
             email: "",
             resetPassword: false,
             generatePassword: {
@@ -86,13 +101,13 @@ function PersonalInfoDialog({ ...props }) {
         },
         validationSchema
     });
-    const { values, handleSubmit, getFieldProps, setFieldValue, touched, errors, setValues } = formik;
+    const {values, handleSubmit, getFieldProps, setFieldValue, touched, errors, setValues} = formik;
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
         setFieldValue("file", URL.createObjectURL(file));
 
     };
-    console.log(values)
+
     return (
         <Stack spacing={2}>
             <Typography variant='subtitle1' fontWeight={600}>
@@ -101,7 +116,7 @@ function PersonalInfoDialog({ ...props }) {
             <FormikProvider value={formik}>
                 <Stack
                     spacing={2}
-                    sx={{ mb: 3 }}
+                    sx={{mb: 3}}
                     component={Form}
                     autoComplete="off"
                     noValidate
@@ -122,8 +137,8 @@ function PersonalInfoDialog({ ...props }) {
                                 onChange={(e) => handleDrop(e.target.files as FileList)}
                                 type="file"
                             />
-                            <Avatar src={values.file} sx={{ width: 100, height: 100, borderRadius: 1.8 }}>
-                                <IconUrl path="ic-image" />
+                            <Avatar src={values.file} sx={{width: 100, height: 100, borderRadius: 1.8}}>
+                                <IconUrl path="ic-image"/>
                             </Avatar>
                             <IconButton
                                 color="primary"
@@ -142,11 +157,11 @@ function PersonalInfoDialog({ ...props }) {
                                         }
                                     }
                                 }}>
-                                <IconUrl path="ic-camera-add" />
+                                <IconUrl path="ic-camera-add"/>
                             </IconButton>
                         </label>
                     </Stack>
-                    <Stack spacing={{ xs: 1, md: 2 }} direction={{ xs: 'column', md: 'row' }}>
+                    <Stack spacing={{xs: 1, md: 2}} direction={{xs: 'column', md: 'row'}}>
                         <Stack width={1}>
                             <Typography>
                                 {t("dialog.family_name")}
@@ -174,7 +189,7 @@ function PersonalInfoDialog({ ...props }) {
                             />
                         </Stack>
                     </Stack>
-                    <Stack spacing={{ xs: 1, md: 2 }} direction={{ xs: 'column', md: 'row' }}>
+                    <Stack spacing={{xs: 1, md: 2}} direction={{xs: 'column', md: 'row'}}>
                         <Stack width={1}>
                             <Typography>
                                 {t("dialog.idNumber")}
@@ -195,40 +210,42 @@ function PersonalInfoDialog({ ...props }) {
                                 {t("dialog.birthday")}
                                 <Typography variant='caption' color='error'>*</Typography>
                             </Typography>
-                            <LocalizationProvider
-                                dateAdapter={AdapterDateFns}>
-                                <DatePicker
-                                    renderInput={(props) =>
-                                        <TextField
-                                            error={Boolean(touched.birthday && errors.birthday)}
-                                            helperText={touched.birthday && errors.birthday}
-                                            fullWidth size={"small"} {...props} />}
-                                    inputFormat={"dd-MM-yyyy"}
-                                    value={values.birthday || ""}
-                                    onChange={(newValue) => {
-                                        setFieldValue("birthday", newValue)
-                                    }}
 
-                                />
-                            </LocalizationProvider>
+                            <DatePicker
+                                slotProps={{
+                                    textField: {
+                                        error: Boolean(touched.birthday && errors.birthday),
+                                        helperText: touched.birthday && errors.birthday,
+                                        fullWidth:true,
+                                        size:"small"
+                                    }
+                                }}
+                                format={"dd-MM-yyyy"}
+                                value={values?.birthday ?? null}
+                                onChange={(newValue) => {
+                                    setFieldValue("birthday", newValue)
+                                }}
+
+                            />
                         </Stack>
                     </Stack>
                     <Stack>
                         <Typography>{t("dialog.phone")}
                             <Typography variant='caption' color='error'>*</Typography>
                         </Typography>
-                        <Stack spacing={{ xs: 1, md: 2 }}>
+                        <Stack spacing={{xs: 1, md: 2}}>
                             {values.phones.map((phoneObject: any, index: number) => (
-                                <Stack direction={{ xs: 'column', md: 'row' }} alignItems='center' key={index} spacing={{ xs: 1, md: 2 }}>
+                                <Stack direction={{xs: 'column', md: 'row'}} alignItems='center' key={index}
+                                       spacing={{xs: 1, md: 2}}>
                                     <PhoneCountry
-                                        sx={{ minWidth: { xs: 1, md: 150 } }}
+                                        sx={{minWidth: {xs: 1, md: 150}}}
                                         initCountry={getFieldProps(`phones[${index}].dial`).value}
                                         onSelect={(state: any) => {
                                             setFieldValue(`phones[${index}].phone`, "");
                                             setFieldValue(`phones[${index}].dial`, state);
                                         }}
                                     />
-                                    <Stack direction='row' spacing={{ xs: 1, md: 2 }} width={1} alignItems='center'>
+                                    <Stack direction='row' spacing={{xs: 1, md: 2}} width={1} alignItems='center'>
                                         {phoneObject && <PhoneInput
                                             ref={phoneInputRef}
                                             international
@@ -243,17 +260,17 @@ function PersonalInfoDialog({ ...props }) {
                                         />}
                                         {
                                             index === 0 ? <CustomIconButton
-                                                color="success"
-                                                onClick={() => {
-                                                    setFieldValue(`phones`, [
-                                                        ...values.phones,
-                                                        {
-                                                            phone: "", dial: doctor_country
-                                                        }])
-                                                }}
-                                                size="small">
-                                                <AddIcon />
-                                            </CustomIconButton>
+                                                    color="success"
+                                                    onClick={() => {
+                                                        setFieldValue(`phones`, [
+                                                            ...values.phones,
+                                                            {
+                                                                phone: "", dial: doctor_country
+                                                            }])
+                                                    }}
+                                                    size="small">
+                                                    <AddIcon/>
+                                                </CustomIconButton>
                                                 :
                                                 <CustomIconButton
                                                     color="error"
@@ -263,7 +280,8 @@ function PersonalInfoDialog({ ...props }) {
                                                         setFieldValue(`phones`, values.phones.length > 0 ? phones : [])
                                                     }}
                                                     size="small">
-                                                    <IconUrl color={theme.palette.common.white} path="setting/icdelete" />
+                                                    <IconUrl color={theme.palette.common.white}
+                                                             path="setting/icdelete"/>
                                                 </CustomIconButton>
                                         }
                                     </Stack>
@@ -287,19 +305,20 @@ function PersonalInfoDialog({ ...props }) {
 
                         />
                     </Stack>
-                    <Stack component={RadioGroup} direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 1, md: 2 }} alignItems='center'
-                        flexWrap='nowrap'
-                        className='role-input-container'
-                        value={values.generatePassword}
-                        onChange={event => {
-                            const generatePassword = JSON.parse(event.target.defaultValue);
-                            setValues({
-                                ...values,
-                                generatePassword,
-                                password: generatePassword ? "123456" : "",
-                                confirm_password: generatePassword ? "123456" : ""
-                            } as any)
-                        }}>
+                    <Stack component={RadioGroup} direction={{xs: 'column', md: 'row'}} spacing={{xs: 1, md: 2}}
+                           alignItems='center'
+                           flexWrap='nowrap'
+                           className='role-input-container'
+                           value={values.generatePassword}
+                           onChange={event => {
+                               const generatePassword = JSON.parse(event.target.defaultValue);
+                               setValues({
+                                   ...values,
+                                   generatePassword,
+                                   password: generatePassword ? "123456" : "",
+                                   confirm_password: generatePassword ? "123456" : ""
+                               } as any)
+                           }}>
                         <FormControlLabel
                             sx={{
                                 px: 2,
@@ -322,8 +341,8 @@ function PersonalInfoDialog({ ...props }) {
                             className='role-label'
                             value={true}
                             control={<Radio disableRipple
-                                checkedIcon={<IconUrl path="ic-radio-check" />} />}
-                            label={t("dialog.auto-password")} />
+                                            checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
+                            label={t("dialog.auto-password")}/>
                         <FormControlLabel
                             sx={{
                                 px: 2,
@@ -346,11 +365,11 @@ function PersonalInfoDialog({ ...props }) {
                             className='role-label'
                             value={false}
                             control={<Radio disableRipple
-                                checkedIcon={<IconUrl path="ic-radio-check" />} />}
-                            label={t("dialog.manual-password")} />
+                                            checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
+                            label={t("dialog.manual-password")}/>
                     </Stack>
                     {!values.generatePassword &&
-                        <Stack direction={{ xs: 'column', sm: 'row' }} alignItems='center' spacing={1.25} width={1}>
+                        <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center' spacing={1.25} width={1}>
                             <Stack width={1}>
                                 <Typography gutterBottom>
                                     {t("dialog.password")}
@@ -383,8 +402,8 @@ function PersonalInfoDialog({ ...props }) {
                         </Stack>}
                     <FormControlLabel control={<Checkbox
                         checked={values.resetPassword}
-                        onChange={(ev) => setFieldValue("resetPassword", ev.target.checked)} />}
-                        label={t("dialog.reset-password")} />
+                        onChange={(ev) => setFieldValue("resetPassword", ev.target.checked)}/>}
+                                      label={t("dialog.reset-password")}/>
                     <Box>
                         <DialogActions sx={{
                             mx: -3,
@@ -394,7 +413,8 @@ function PersonalInfoDialog({ ...props }) {
 
 
                         }}>
-                            <Button sx={{ mr: 'auto' }} variant='text-black' onClick={handleClose}>{t("dialog.cancel")}</Button>
+                            <Button sx={{mr: 'auto'}} variant='text-black'
+                                    onClick={handleClose}>{t("dialog.cancel")}</Button>
                             <Button type="submit" variant="contained">{t("dialog.save")}</Button>
                         </DialogActions>
                     </Box>

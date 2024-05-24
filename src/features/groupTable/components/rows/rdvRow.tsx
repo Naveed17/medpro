@@ -22,19 +22,17 @@ import {prepareContextMenu, useInvalidateQueries, useMedicalEntitySuffix, useMut
 import {agendaSelector, AppointmentStatus, CalendarContextMenu, openDrawer, setSelectedEvent} from "@features/calendar";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
 import {setDialog} from "@features/topNavBar";
 import moment from "moment/moment";
 import {LoadingButton} from "@mui/lab";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {FacebookCircularProgress} from "@features/progressUI";
 import {deleteAppointmentOptionsData} from "@lib/constants";
+import Can from "@features/casl/can";
 
 function RDVRow({...props}) {
     const {data: {patient, translate, closePatientDialog}} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -81,9 +79,6 @@ function RDVRow({...props}) {
     const patientHistory = (httpPatientHistoryResponse as HttpResponse)?.data;
     const nextAppointmentsData = patientHistory && patientHistory.nextAppointments.length > 0 ? patientHistory.nextAppointments : [];
     const previousAppointmentsData = patientHistory && patientHistory.previousAppointments.length > 0 ? patientHistory.previousAppointments : [];
-
-    const {data: user} = session as Session;
-    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const handleClose = () => {
         setContextMenu(null);
@@ -194,6 +189,8 @@ function RDVRow({...props}) {
             case "onPatientNoShow":
                 handleAppointmentStatus(appointmentData?.uuid as string, '10');
                 break;
+            case "onLeaveWaitingRoom":
+                handleAppointmentStatus(appointmentData?.uuid as string, '1');
         }
         handleClose();
     }
@@ -207,7 +204,7 @@ function RDVRow({...props}) {
                 !prepareContextMenu(dataFilter.action, {
                     ...inner,
                     status: AppointmentStatus[inner?.status]
-                } as EventModal, roles)));
+                } as EventModal)));
             setContextMenu(
                 contextMenu === null
                     ? {
@@ -463,16 +460,20 @@ function RDVRow({...props}) {
                             vertical: 'top',
                             horizontal: 'right',
                         }}>
-                        {popoverActions.map((v: any, index) => (
-                            <MenuItem
-                                key={index}
-                                className="popover-item"
-                                onClick={() => OnMenuActions(v.action)}>
-                                {v.icon}
-                                <Typography fontSize={15} sx={{color: "#fff"}}>
-                                    {commonTranslation(v.title)}
-                                </Typography>
-                            </MenuItem>
+                        {popoverActions.map((context: any, index) => (
+                            <Can key={index}
+                                 I={"manage"}
+                                 a={context.feature as any} {...(context.permission !== "*" && {field: context.permission})}>
+                                <MenuItem
+                                    key={index}
+                                    className="popover-item"
+                                    onClick={() => OnMenuActions(context.action)}>
+                                    {context.icon}
+                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                        {commonTranslation(context.title)}
+                                    </Typography>
+                                </MenuItem>
+                            </Can>
                         ))}
                     </Menu>
                 </>
@@ -532,8 +533,10 @@ function RDVRow({...props}) {
                                         margin={2}>{commonTranslation(`dialogs.delete-dialog.description`)}</Typography>
 
                             <Grid container spacing={1}>
-                                {deleteAppointmentOptions.map((option: any, index: number) =>
-                                    <Grid key={option.key} item md={4} xs={12}>
+                                {deleteAppointmentOptions.filter(option => !(appointmentData?.status !== 5 && option.key === "delete-transaction")).map((option: any, index: number) =>
+                                    <Grid key={option.key} item
+                                          md={12 / deleteAppointmentOptions.filter(option => !(appointmentData?.status !== 5 && option.key === "delete-transaction")).length}
+                                          xs={12}>
                                         <Card
                                             sx={{
                                                 padding: 1,

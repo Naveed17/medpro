@@ -16,6 +16,10 @@ declare global {
     interface Window {
         usetifulInit(window: Window, document: Document, src: string, apiKey: string)
 
+        Upscope(action: String, options?: any): void
+
+        UpscopeLoad(window: Window, Upscope: any, document: Document): void
+
         usetifulTags: Object
     }
 
@@ -28,6 +32,7 @@ declare module "next-auth" {
     interface Session {
         data: any;
         accessToken: string;
+        idToken: string;
         error: string;
     }
 }

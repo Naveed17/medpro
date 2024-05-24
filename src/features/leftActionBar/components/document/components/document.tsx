@@ -16,8 +16,7 @@ import {AutoCompleteButton} from "@features/buttons";
 import MenuItem from "@mui/material/MenuItem";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {DatePicker} from "@mui/x-date-pickers";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {configSelector, dashLayoutSelector} from "@features/base";
@@ -351,27 +350,28 @@ function Document() {
                         <InputLabel shrink sx={{mt: 2}}>
                             {t(`filter.date`)}
                         </InputLabel>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DatePicker
-                                value={values?.date}
-                                inputFormat="dd/MM/yyyy"
-                                onChange={date => {
-                                    dispatch(setOcrData({date}));
-                                }}
-                                renderInput={(params) =>
-                                    <FormControl
-                                        sx={{
-                                            "& .MuiOutlinedInput-root button": {
-                                                padding: "5px",
-                                                minHeight: "auto",
-                                                height: "auto",
-                                                minWidth: "auto",
-                                            }
-                                        }} component="form" fullWidth onSubmit={e => e.preventDefault()}>
-                                        <TextField {...params} fullWidth/>
-                                    </FormControl>}
-                            />
-                        </LocalizationProvider>
+                        <DatePicker
+                            value={values?.date}
+                            format="dd/MM/yyyy"
+                            onChange={date => {
+                                dispatch(setOcrData({date}));
+                            }}
+                            slotProps={{
+                                textField: {
+                                    sx: {
+                                        "& .MuiOutlinedInput-root button": {
+                                            padding: "5px",
+                                            minHeight: "auto",
+                                            height: "auto",
+                                            minWidth: "auto",
+                                        }
+                                    },
+                                    component: "form",
+                                    fullWidth: true,
+                                    onSubmit: (e) => e.preventDefault()
+                                }
+                            }}
+                        />
                     </Box>
                 </FilterContainerStyles>
             </FormikProvider>

@@ -161,9 +161,9 @@ function NewUserDialog({...props}) {
             name: Yup.string().min(3).max(50).required(),
             email: Yup.string().email().required(),
             first_name: Yup.string().required(),
-            password: Yup.string().required(),
-            generatePassword: Yup.boolean().required(),
-            resetPassword: Yup.boolean().required(),
+            password: Yup.string(),
+            generatePassword: Yup.boolean(),
+            resetPassword: Yup.boolean(),
             phones: Yup.array().of(
                 Yup.object().shape({
                     dial: Yup.object().shape({
@@ -181,8 +181,9 @@ function NewUserDialog({...props}) {
                         }),
                 })
             ),
-            confirm_password: Yup.string().when('password', (password, field) =>
-                password ? field.required().oneOf([Yup.ref('password')]) : field),
+            confirm_password: Yup.string(),
+            // .when('password', (password, field) =>
+            // password ? field.required().oneOf([Yup.ref('password')]) : field),
             ...(openFeatureCollapse && currentStep === 1 ? {
                 role_name: Yup.string().min(3, t("role-error")).required(),
             } : {})
@@ -228,6 +229,7 @@ function NewUserDialog({...props}) {
         enableReinitialize: true,
         initialValues: {
             name: '',
+            user_exist: false,
             first_name: '',
             last_name: '',
             phones: [
@@ -237,13 +239,13 @@ function NewUserDialog({...props}) {
             ],
             email: '',
             selectedRole: 'secretary',
-            generatePassword: false,
+            generatePassword: true,
             resetPassword: true,
             ...(type === "authorization" && {roles: initRoleData()}),
             department: [],
             assigned_doctors: [],
-            password: '',
-            confirm_password: ''
+            password: ' ',
+            confirm_password: ' '
         },
         onSubmit: () => {
             if (currentStep === stepperData.length - 1) {

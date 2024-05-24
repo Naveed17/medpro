@@ -248,7 +248,7 @@ function HistoryTab({...props}) {
                 <PediatricianCharts {...{sheet, patient, birthdate: patient?.birthdate, modelData, date, t}}/>
             }
 
-            {patient?.birthdate && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") > 5 && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") <= 18 && sheet && (Object.keys(sheet).includes("poids") || Object.keys(sheet).includes("taille")) &&
+            {patient?.birthdate && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") >=4 && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") <= 18 && sheet && (Object.keys(sheet).includes("poids") || Object.keys(sheet).includes("taille")) &&
                 <Pediatrician18Charts {...{
                     sheet,
                     patient,

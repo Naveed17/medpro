@@ -1,12 +1,8 @@
-import React, {memo, useRef} from 'react'
+import React, {memo, useRef, useState} from 'react'
 import DialogStyled from './overrides/dialogStyle';
 import {
     Box,
-    Checkbox,
-    FormControlLabel,
     IconButton,
-    Radio,
-    RadioGroup,
     Stack,
     TextField,
     Theme,
@@ -18,6 +14,10 @@ import {CustomInput} from '@features/tabPanel';
 import {CustomIconButton} from '@features/buttons';
 import IconUrl from '@themes/urlIcon';
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import {debounce} from "lodash";
+import {FacebookCircularProgress} from "@features/progressUI";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -26,8 +26,39 @@ PhoneCountry.displayName = "Phone country";
 
 function InfoStep({...props}) {
     const {formik, t, doctor_country} = props;
-    const {getFieldProps, values, setFieldValue, setValues, errors, touched} = formik;
+    const router = useRouter();
     const phoneInputRef = useRef(null);
+
+    const {getFieldProps, values, setFieldValue, errors, touched} = formik;
+    const [loading, setLoading] = useState(false);
+
+    const {trigger: triggerUserCheck} = useRequestQueryMutation("/user/check/email");
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setLoading(true);
+        const email = event.target.value;
+        if (email.length > 0) {
+            triggerUserCheck({
+                method: "GET",
+                url: `/api/private/users/check/${router.locale}?email=${event.target.value}`,
+            }, {
+                onSuccess: (result) => {
+                    const user = (result?.data as HttpResponse)?.data;
+                    if (user?.username) {
+                        setFieldValue("user_exist", true);
+                        setFieldValue("name", user?.username);
+                    } else {
+                        setFieldValue("user_exist", false);
+                    }
+                    setFieldValue("email", event.target.value);
+                },
+                onSettled: () => setLoading(false)
+            });
+        }
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 1000);
+
 
     return (
         <DialogStyled spacing={2} width={1} pb={4}>
@@ -41,6 +72,7 @@ function InfoStep({...props}) {
                         <Typography color='error' variant='caption'>*</Typography>
                     </Typography>
                     <TextField
+                        disabled={values.user_exist}
                         placeholder={t("dialog.user_name")}
                         fullWidth
                         {...getFieldProps('name')}
@@ -152,12 +184,20 @@ function InfoStep({...props}) {
                     type='email'
                     placeholder={t("dialog.email")}
                     fullWidth
-                    {...getFieldProps('email')}
+                    defaultValue={values.email}
+                    onChange={debouncedOnChange}
                     error={Boolean(errors.email && touched.email)}
-
+                    InputProps={{
+                        endAdornment: (
+                            <React.Fragment>
+                                {loading ?
+                                    <FacebookCircularProgress size={24}/> : null}
+                            </React.Fragment>
+                        ),
+                    }}
                 />
             </Stack>
-            <RadioGroup
+            {/*<RadioGroup
                 className='role-input-container'
                 value={values.generatePassword}
                 onChange={event => {
@@ -217,7 +257,7 @@ function InfoStep({...props}) {
             <FormControlLabel control={<Checkbox
                 checked={values.resetPassword}
                 onChange={(ev) => setFieldValue("resetPassword", ev.target.checked)}/>}
-                              label={t("reset-password")}/>
+                              label={t("reset-password")}/>*/}
         </DialogStyled>
     )
 }

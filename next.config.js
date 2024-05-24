@@ -1,5 +1,3 @@
-process.env.I18NEXT_DEFAULT_CONFIG_PATH = './next-i18next.config.cjs'
-
 import {withSentryConfig} from "@sentry/nextjs";
 import withSerwistInit from "@serwist/next";
 import NextBundleAnalyzer from "@next/bundle-analyzer";
@@ -12,7 +10,7 @@ const withPWA = withSerwistInit({
     cacheOnNavigation: true,
     swSrc: "service-worker/index.ts",
     swDest: "public/sw.js",
-    maximumFileSizeToCacheInBytes: 10000000,
+    maximumFileSizeToCacheInBytes: 11000000,
     reloadOnOnline: true,
     disable: process.env.NODE_ENV === "development", // to disable pwa in development
 });
@@ -33,7 +31,8 @@ const nextConfig = {
         locales: ["fr", "en", "ar"], defaultLocale: "fr"
     },
     experimental: {
-        nextScriptWorkers: false
+        nextScriptWorkers: false,
+        instrumentationHook: true
     },
     images: {
         dangerouslyAllowSVG: true,
@@ -57,9 +56,6 @@ const nextConfig = {
                 pathname: '**',
             }]
     },
-    sentry: {
-        hideSourceMaps: process.env.NODE_ENV !== 'development'
-    },
     webpack: (config) => {
         config.module.rules.push({
             test: /\.svg$/,
@@ -75,12 +71,17 @@ const sentryWebpackPluginOptions = {
     // Additional config options for the Sentry Webpack plugin. Keep in mind that
     // the following options are set automatically, and overriding them is not
     // recommended:
-    //   release, url, org, project, authToken, configFile, stripPrefix,
-    //   urlPrefix, include, ignore
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+
+    // An auth token is required for uploading source maps.
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+    //  urlPrefix, include, ignore
     dryRun: process.env.VERCEL_ENV !== "production",
-    silent: true // Suppresses all logs
+    silent: true, // Suppresses all logs
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options.
+    hideSourceMaps: process.env.NODE_ENV !== 'development'
 };
 
 // Make sure adding Sentry options is the last code to run before exporting, to

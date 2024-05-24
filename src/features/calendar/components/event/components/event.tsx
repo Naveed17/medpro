@@ -211,7 +211,7 @@ function Event({...props}) {
                                 className="btn-rdv"
                                 sx={{
                                     alignSelf: appointment?.dur > 15 ? "flex-end" : 'flex-start',
-                                    mr: appointment?.motif?.length > 0 ? .5 : 0
+                                    mr: appointment?.isOnline ? (appointment?.hasErrors?.length > 0 ? .5 : 0) + 2 : appointment?.motif?.length > 0 ? .5 : 0
                                 }}>
                                 <Icon path={"ic-play-audio-black"}/>
                             </IconButton>}

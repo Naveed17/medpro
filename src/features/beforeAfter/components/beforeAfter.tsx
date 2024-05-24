@@ -1,5 +1,5 @@
 import React from "react";
-import RootStyled from "@features/beforeAfter/components/overrides/bAStyled";
+import RootStyled from "./overrides/bAStyled";
 
 function BeforeAfter({...props}) {
 

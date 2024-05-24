@@ -14,8 +14,7 @@ import moment from "moment-timezone";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import MaleRoundedIcon from '@mui/icons-material/MaleRounded';
 import FemaleRoundedIcon from '@mui/icons-material/FemaleRounded';
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
+import {DatePicker} from "@mui/x-date-pickers";
 import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
@@ -23,6 +22,7 @@ import {FormikProvider, useFormik} from "formik";
 import Switch from "@mui/material/Switch";
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import {configSelector} from "@features/base";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 interface Lab {
     label: string;
@@ -120,8 +120,9 @@ function PatientFilter({...props}) {
                                             className={'search-input'}
                                             {...{inputRef}}
                                             InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
+                                                endAdornment: (
+                                                    <InputAdornment onClick={() => inputRef.current?.focus()}
+                                                                    position="start">
                                                         <SearchRoundedIcon color={"white"}/>
                                                     </InputAdornment>
                                                 ),
@@ -168,36 +169,34 @@ function PatientFilter({...props}) {
                                     <InputLabel shrink sx={{mt: 2}}>
                                         {t(`${keyPrefix}${lab.label}`)}
                                     </InputLabel>
-                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                        <DatePicker
-                                            value={queryState.birthdate}
-                                            inputFormat="dd/MM/yyyy"
-                                            onChange={date => {
-                                                setFieldValue("birthdate", date);
-                                                if (date && date.toString() !== "Invalid Date" && date.getFullYear() > 1000) {
-                                                    onSearchChange({
-                                                        query: {
-                                                            ...filter?.patient,
-                                                            birthdate: moment(date).format("DD-MM-YYYY"),
-                                                        },
-                                                    });
-                                                } else {
-                                                    const query = _.omit(queryState, "birthdate");
-                                                    const queryGlobal = _.omit(filter?.patient, [lab.label]);
-                                                    onSearchChange({
-                                                        query: {
-                                                            ...query,
-                                                            ...queryGlobal
-                                                        }
-                                                    });
-                                                }
-                                            }}
-                                            renderInput={(params) =>
-                                                <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
-                                                    <TextField {...params} fullWidth/>
-                                                </FormControl>}
-                                        />
-                                    </LocalizationProvider>
+                                    <DatePicker
+                                        value={queryState.birthdate}
+                                        format="dd/MM/yyyy"
+                                        onChange={date => {
+                                            setFieldValue("birthdate", date);
+                                            if (date && date.toString() !== "Invalid Date" && date.getFullYear() > 1000) {
+                                                onSearchChange({
+                                                    query: {
+                                                        ...filter?.patient,
+                                                        birthdate: moment(date).format("DD-MM-YYYY"),
+                                                    },
+                                                });
+                                            } else {
+                                                const query = _.omit(queryState, "birthdate");
+                                                const queryGlobal = _.omit(filter?.patient, [lab.label]);
+                                                onSearchChange({
+                                                    query: {
+                                                        ...query,
+                                                        ...queryGlobal
+                                                    }
+                                                });
+                                            }
+                                        }}
+                                        slots={{
+                                            openPickerIcon: CalendarPickerIcon,
+                                        }}
+                                        slotProps={{textField: {fullWidth: true}}}
+                                    />
                                 </Box>
                             )}
                         </Fragment>

@@ -14,7 +14,7 @@ import {
     Grid,
     IconButton,
     IconButtonProps,
-    InputAdornment,
+    InputAdornment, ListItem, ListItemText,
     MenuItem,
     Radio,
     RadioGroup,
@@ -30,19 +30,17 @@ import {addPatientSelector, appointmentSelector, CustomInput} from "@features/ta
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
-import {useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry, SocialInsured} from "@lib/constants";
+import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
@@ -51,6 +49,12 @@ import {CountrySelect} from "@features/countrySelect";
 import {arrayUniqueByKey, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {LoadingScreen} from "@features/loadingScreen";
+import {ToggleButtonStyled} from "@features/toolbar";
+import IconUrl from "@themes/urlIcon";
+import AddIcon from "@mui/icons-material/Add";
+import {AsyncAutoComplete} from "@features/autoComplete";
+import SortIcon from "@themes/overrides/icons/sortIcon";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -235,10 +239,18 @@ function OnStepPatient({...props}) {
                 selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
                 selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
                     phone: `${contact.code}${contact.value}`,
-                    dial: dialCountries.find(dial => dial.phone === contact.code)
+                    dial: dialCountries.find(dial => dial.phone === contact.code),
+                    isWhatsapp: !!contact?.isWhatsapp,
+                    relation: PatientContactRelation.find(relation => relation.value === contact.contactRelation)?.key ?? "himself",
+                    firstName: contact.contactSocial?.firstName ?? "",
+                    lastName: contact.contactSocial?.lastName ?? ""
                 })) : [{
                     phone: "",
-                    dial: doctor_country
+                    dial: doctor_country,
+                    isWhatsapp: false,
+                    relation: "himself",
+                    firstName: "",
+                    lastName: ""
                 }],
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
@@ -250,6 +262,8 @@ function OnStepPatient({...props}) {
             address: address.length > 0 && address[0]?.street ? address[0]?.street : patient.step2.address,
             email: selectedPatient ? selectedPatient.email : patient.step2.email,
             cin: selectedPatient ? selectedPatient?.idCard : patient.step2.cin,
+            addressedBy: selectedPatient && selectedPatient.addressedBy?.length > 0 ? selectedPatient.addressedBy[0] : "",
+            civilStatus: selectedPatient && selectedPatient.civilStatus && selectedPatient.civilStatus !== "null" ? selectedPatient.civilStatus : "",
             profession: selectedPatient ? selectedPatient?.profession : patient.step2.profession,
             family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : patient.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
@@ -289,7 +303,10 @@ function OnStepPatient({...props}) {
     const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps, setValues} = formik;
 
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
-
+    const [contactRelations] = useState(PatientContactRelation.map(relation => ({
+        ...relation,
+        label: commonTranslation(`social_insured.${relation.label}`)
+    })));
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
     const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
@@ -299,6 +316,7 @@ function OnStepPatient({...props}) {
     })));
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
+    const [loadingRequestAddressedBy, setLoadingRequestAddressedBy] = useState(false);
 
     const {data: httpStatesResponse} = useRequestQuery(expanded && values.country ? {
         method: "GET",
@@ -309,6 +327,8 @@ function OnStepPatient({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
+
+    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
     const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state ?? null;
@@ -321,7 +341,11 @@ function OnStepPatient({...props}) {
     const handleAddPhone = () => {
         const phones = [...values.phones, {
             phone: "",
-            dial: doctor_country
+            dial: doctor_country,
+            isWhatsapp: false,
+            relation: "himself",
+            firstName: "",
+            lastName: ""
         }];
         formik.setFieldValue("phones", phones);
     };
@@ -531,36 +555,38 @@ function OnStepPatient({...props}) {
                                     component="span">
                                     {t("date-of-birth")}
                                 </Typography>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY") : null}
-                                        inputFormat="dd/MM/yyyy"
-                                        mask="__/__/____"
-                                        onChange={(date) => {
-                                            const dateInput = moment(date);
-                                            setFieldValue("birthdate", dateInput.isValid() ? {
-                                                day: dateInput.format("DD"),
-                                                month: dateInput.format("MM"),
-                                                year: dateInput.format("YYYY"),
-                                            } : null);
-                                            if (dateInput.isValid()) {
-                                                setError(false);
-                                                const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
-                                                setFieldValue("old", old > 120 ? "" : old);
-                                            } else {
-                                                setError(date !== null);
-                                                setFieldValue("old", "");
-                                            }
-                                        }}
-                                        renderInput={(params) => <TextField
-                                            {...params}
-                                            {...((values.birthdate !== null || error) && {
+                                <DatePicker
+                                    value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
+                                    format="dd/MM/yyyy"
+                                    onChange={(date) => {
+                                        const dateInput = moment(date);
+                                        setFieldValue("birthdate", dateInput.isValid() ? {
+                                            day: dateInput.format("DD"),
+                                            month: dateInput.format("MM"),
+                                            year: dateInput.format("YYYY"),
+                                        } : null);
+                                        if (dateInput.isValid()) {
+                                            setError(false);
+                                            const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                            setFieldValue("old", old > 120 ? "" : old);
+                                        } else {
+                                            setError(date !== null);
+                                            setFieldValue("old", "");
+                                        }
+                                    }}
+                                    slots={{
+                                        openPickerIcon: CalendarPickerIcon
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            ...((values.birthdate !== null || error) && {
                                                 error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
                                                 ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
-                                            })}
-                                            fullWidth/>}
-                                    />
-                                </LocalizationProvider>
+                                            })
+                                        }
+                                    }}
+                                />
                             </Grid>
                             <Grid item xs={6} md={4}>
                                 <Typography
@@ -594,89 +620,202 @@ function OnStepPatient({...props}) {
                         </Grid>
                     </Box>
 
-                    <Box className={"inner-box"}>
-                        {values.phones.map((phoneObject, index: number) =>
-                            <Box key={index} mb={2}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                    component="span">
-                                    {t("telephone")}{" "}
-                                    <Typography component="span" color="error">
-                                        *
-                                    </Typography>
-                                </Typography>
-                                <Grid container spacing={2}>
-                                    <Grid item md={6} lg={4} xs={12}>
-                                        <CountrySelect
-                                            initCountry={getFieldProps(`phones[${index}].dial`).value}
-                                            onSelect={(state: any) => {
-                                                setFieldValue(`phones[${index}].phone`, "");
-                                                setFieldValue(`phones[${index}].dial`, state)
-                                            }}/>
-                                    </Grid>
-                                    <Grid item md={4} lg={7} xs={12}>
-                                        {phoneObject && <PhoneInput
-                                            ref={phoneInputRef}
-                                            international
-                                            fullWidth
-                                            withCountryCallingCode
-                                            {...(getFieldProps(`phones[${index}].phone`) &&
-                                                {
-                                                    helperText: getFieldProps(`phones[${index}].phone`)?.value ? `${commonTranslation("phone_format")} : ${getFieldProps(`phones[${index}].phone`).value}` : ""
-                                                }
-                                            )}
-                                            error={Boolean(errors.phones && (errors.phones as any)[index])}
-                                            country={phoneObject.dial?.code.toUpperCase() as any}
-                                            value={getFieldProps(`phones[${index}].phone`) ?
-                                                getFieldProps(`phones[${index}].phone`).value : ""}
-                                            onChange={value => setFieldValue(`phones[${index}].phone`, value)}
-                                            inputComponent={CustomInput as any}
-                                        />}
-                                    </Grid>
-                                    <Grid item md={2} lg={1} xs={12}>
-                                        {index === 0 ? <IconButton
-                                                onClick={handleAddPhone}
-                                                color={"success"}
-                                                className="success-light"
+                    <Stack sx={{m: 1}} spacing={2}>
+                        {values.phones.map((phoneObject, index: number) => (
+                            <fieldset key={index}>
+                                <Box m={1.2}>
+                                    <Grid container spacing={{xs: 1, md: 2}}>
+                                        <Grid item xs={6} md={4}>
+                                            <Box>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    gutterBottom
+                                                    component="span">
+                                                    {t("relation")}{" "}
+                                                    <Typography component="span" color="error">
+                                                        *
+                                                    </Typography>
+                                                </Typography>
+                                                <Autocomplete
+                                                    size={"small"}
+                                                    value={getFieldProps(`phones[${index}].relation`) ?
+                                                        contactRelations.find(relation => relation.key === values.phones[index].relation) : ""}
+                                                    onChange={(event, relation: any) => {
+                                                        relation && setFieldValue(`phones[${index}].relation`, relation.key);
+                                                    }}
+                                                    id={"relation"}
+                                                    options={contactRelations}
+                                                    getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                    isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
+                                                    renderOption={(params, option, {selected}) => (
+                                                        <MenuItem
+                                                            {...params}
+                                                            value={option.key}>
+                                                            <Typography>{option.label}</Typography>
+                                                        </MenuItem>)}
+                                                    renderInput={(params) => {
+                                                        return (<TextField {...params}
+                                                                           placeholder={t("add-patient.relation-placeholder")}/>)
+                                                    }}
+                                                />
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={6} md={index === 0 ? 7 : 6}>
+                                            <Box>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    gutterBottom
+                                                    component="span">
+                                                    {t("telephone")}{" "}
+                                                    <Typography component="span" color="error">
+                                                        *
+                                                    </Typography>
+                                                </Typography>
+                                                {phoneObject && <PhoneInput
+                                                    ref={phoneInputRef}
+                                                    international
+                                                    fullWidth
+                                                    withCountryCallingCode
+                                                    sx={{
+                                                        "& .MuiOutlinedInput-root input": {
+                                                            paddingLeft: ".5rem"
+                                                        }
+                                                    }}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment
+                                                                position="start"
+                                                                sx={{
+                                                                    maxWidth: "3rem",
+                                                                    "& .MuiOutlinedInput-notchedOutline": {
+                                                                        outline: "none",
+                                                                        borderColor: "transparent"
+                                                                    },
+                                                                    "& fieldset": {
+                                                                        border: "none!important",
+                                                                        boxShadow: "none!important"
+                                                                    },
+                                                                }}>
+                                                                <CountrySelect
+                                                                    showCountryFlagOnly={true}
+                                                                    initCountry={getFieldProps(`phones[${index}].dial`).value}
+                                                                    onSelect={(state: any) => {
+                                                                        setFieldValue(`phones[${index}].phone`, "");
+                                                                        setFieldValue(`phones[${index}].dial`, state);
+                                                                    }}
+                                                                />
+                                                            </InputAdornment>
+                                                        ),
+                                                    }}
+                                                    {...(values.phones[index].phone?.length > 0 &&
+                                                        {
+                                                            helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                                getFieldProps(`phones[${index}].phone`).value : ""}`
+                                                        })}
+                                                    error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                                    country={phoneObject.dial?.code.toUpperCase() as any}
+                                                    value={getFieldProps(`phones[${index}].phone`) ?
+                                                        getFieldProps(`phones[${index}].phone`).value : ""}
+                                                    onChange={value => setFieldValue(`phones[${index}].phone`, value)}
+                                                    inputComponent={CustomInput as any}
+                                                />}
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={12} md={index === 0 ? 1 : 2}>
+                                            <Stack
+                                                direction={"row"}
+                                                alignItems={"center"}
+                                                spacing={1.2}
                                                 sx={{
-                                                    mr: 1.5,
-                                                    "& svg": {
-                                                        width: 20,
-                                                        height: 20,
-                                                    },
-                                                }}
-                                            >
-                                                <AddIcCallTwoToneIcon/>
-                                            </IconButton>
-                                            :
-                                            <IconButton
-                                                onClick={() => handleRemovePhone(index)}
-                                                className="error-light"
-                                                sx={{
-                                                    mr: 1.5,
-                                                    "& svg": {
-                                                        width: 20,
-                                                        height: 20,
-                                                        "& path": {
-                                                            fill: (theme) => theme.palette.text.primary,
+                                                    position: "relative",
+                                                    top: "1.4rem"
+                                                }}>
+                                                <ToggleButtonStyled
+                                                    id="toggle-button"
+                                                    onClick={() => setFieldValue(`phones[${index}].isWhatsapp`, !values.phones[index].isWhatsapp)}
+                                                    value="toggle"
+                                                    className={"toggle-button"}
+                                                    sx={{
+                                                        minWidth: 34,
+                                                        ...(values.phones[index].isWhatsapp && {border: "none"}),
+                                                        background: values.phones[index].isWhatsapp ? theme.palette.primary.main : theme.palette.grey['A500']
+                                                    }}>
+                                                    <IconUrl width={19} height={19}
+                                                             path={`ic-whatsapp${values.phones[index].isWhatsapp ? '-white' : ''}`}/>
+                                                </ToggleButtonStyled>
+
+                                                {index > 0 && <IconButton
+                                                    onClick={() => handleRemovePhone(index)}
+                                                    className="error-light"
+                                                    sx={{
+                                                        "& svg": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            "& path": {
+                                                                fill: (theme) => theme.palette.text.primary,
+                                                            },
                                                         },
-                                                    },
-                                                }}
-                                            >
-                                                <Icon path="ic-moin"/>
-                                            </IconButton>}
+                                                    }}>
+                                                    <Icon path="ic-moin"/>
+                                                </IconButton>}
+                                            </Stack>
+                                        </Grid>
                                     </Grid>
-                                </Grid>
-                                {touched.phones && touched.phones[index] && errors.phones && errors.phones[index] && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
-                                        {touched.phones[index].phone as any && (errors.phones[index] as any).phone}
-                                    </FormHelperText>
-                                )}
-                            </Box>
-                        )}
-                    </Box>
+                                    {values.phones[index].relation !== "himself" &&
+                                        <Grid container spacing={{xs: 1, md: 2}} pt={1}>
+                                            <Grid item md={6} xs={12} lg={6}>
+                                                <Box>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        gutterBottom
+                                                        component="span">
+                                                        {t("first-name")}{" "}
+                                                        <Typography component="span" color="error">
+                                                            *
+                                                        </Typography>
+                                                    </Typography>
+                                                    <TextField
+                                                        variant="outlined"
+                                                        placeholder={t("first-name-placeholder")}
+                                                        size="small"
+                                                        fullWidth
+                                                        {...getFieldProps(`phones[${index}].firstName`)}
+                                                    />
+                                                </Box>
+                                            </Grid>
+                                            <Grid item md={6} xs={12} lg={6}>
+                                                <Box>
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="text.secondary"
+                                                        gutterBottom
+                                                        component="span">
+                                                        {t("last-name")}{" "}
+                                                        <Typography component="span" color="error">
+                                                            *
+                                                        </Typography>
+                                                    </Typography>
+                                                    <TextField
+                                                        variant="outlined"
+                                                        placeholder={t("last-name-placeholder")}
+                                                        size="small"
+                                                        fullWidth
+                                                        {...getFieldProps(`phones[${index}].lastName`)}
+                                                    />
+                                                </Box>
+                                            </Grid>
+                                        </Grid>}
+                                </Box>
+                            </fieldset>
+
+                        ))}
+                    </Stack>
+                    <Button size={"small"} sx={{width: 160}} onClick={handleAddPhone} startIcon={<AddIcon/>}>
+                        {t("add-contact")}
+                    </Button>
 
                     <Box>
                         <ExpandMore
@@ -1134,20 +1273,17 @@ function OnStepPatient({...props}) {
                                                                         gutterBottom>
                                                                 {t("birthday")}
                                                             </Typography>
-                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                                <DatePicker
-                                                                    value={values.insurance[index]?.insurance_social?.birthday ?
-                                                                        moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
-                                                                    onChange={(date) => {
-                                                                        if (moment(date).isValid()) {
-                                                                            setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                                        }
-                                                                    }}
-                                                                    inputFormat="dd/MM/yyyy"
-                                                                    renderInput={(params) => <TextField {...params}
-                                                                                                        fullWidth/>}
-                                                                />
-                                                            </LocalizationProvider>
+
+                                                            <DatePicker
+                                                                value={values.insurance[index]?.insurance_social?.birthday ?
+                                                                    moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate() : null}
+                                                                onChange={(date) => {
+                                                                    if (moment(date).isValid()) {
+                                                                        setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                    }
+                                                                }}
+                                                                format="dd/MM/yyyy"
+                                                            />
                                                         </Box>
                                                         <Box>
                                                             <Typography variant="body2" color="text.secondary"
@@ -1195,65 +1331,185 @@ function OnStepPatient({...props}) {
                                 />
                             </Box>
                         </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("email")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("email-placeholder")}
-                                type="email"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("email")}
-                                value={getFieldProps("email") ? getFieldProps("email").value : ""}
-                                error={Boolean(touched.email && errors.email)}
-                                helperText={
-                                    Boolean(touched.email && errors.email)
-                                        ? String(errors.email)
-                                        : undefined
-                                }
-                            />
+                        <Box className={"inner-box"}>
+                            <Grid container spacing={2}>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("email")}
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("email-placeholder")}
+                                        type="email"
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("email")}
+                                        value={getFieldProps("email") ? getFieldProps("email").value : ""}
+                                        error={Boolean(touched.email && errors.email)}
+                                        helperText={
+                                            Boolean(touched.email && errors.email)
+                                                ? String(errors.email)
+                                                : undefined
+                                        }
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("cin")}
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("cin-placeholder")}
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("cin")}
+                                        value={getFieldProps("cin").value ?? ""}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("cin")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("cin-placeholder")}
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("cin")}
-                                value={getFieldProps("cin").value ?? ""}
-                            />
+                        <Box className={"inner-box"}>
+                            <Grid container spacing={2}>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("profession")}
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("profession-placeholder")}
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("profession")}
+                                        value={getFieldProps("profession") ? getFieldProps("profession").value : ""}
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("family_doctor")}
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("family_doctor-placeholder")}
+                                        type="text"
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("family_doctor")}
+                                        value={getFieldProps("family_doctor") ? getFieldProps("family_doctor").value : ""}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("profession")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("profession-placeholder")}
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("profession")}
-                                value={getFieldProps("profession") ? getFieldProps("profession").value : ""}
-                            />
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("family_doctor")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("family_doctor-placeholder")}
-                                type="text"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("family_doctor")}
-                                value={getFieldProps("family_doctor") ? getFieldProps("family_doctor").value : ""}
-                            />
+                        <Box className={"inner-box"}>
+                            <Grid container spacing={2}>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("addressed-by")}
+                                    </Typography>
+                                    <AsyncAutoComplete
+                                        freeSolo
+                                        loading={loadingRequestAddressedBy}
+                                        value={values.addressedBy}
+                                        url={`${urlMedicalEntitySuffix}/addressedBy/${router.locale}`}
+                                        onChangeData={(event: any) => {
+                                            if (event?.inputValue || typeof event === "string") {
+                                                // Create a new value from the user input
+                                                setLoadingRequestAddressedBy(true);
+                                                const params = new FormData();
+                                                params.append("name", event?.inputValue ?? event);
+                                                triggerAddressedBy({
+                                                    method: "POST",
+                                                    url: `${urlMedicalEntitySuffix}/addressedBy/${router.locale}`,
+                                                    data: params
+                                                }, {
+                                                    onSuccess: (result) => {
+                                                        const data = (result?.data as HttpResponse)?.data;
+                                                        console.log("data", data);
+                                                        setFieldValue("addressedBy", {
+                                                            uuid: data?.uuid,
+                                                            name: event?.inputValue ?? event
+                                                        });
+                                                    },
+                                                    onSettled: () => setLoadingRequestAddressedBy(false)
+                                                })
+                                            } else {
+                                                setFieldValue("addressedBy", event);
+                                            }
+                                        }}
+                                        getOptionLabel={(option: any) => {
+                                            // Value selected with enter, right from the input
+                                            if (typeof option === "string") {
+                                                return option;
+                                            }
+                                            // Add "xxx" option created dynamically
+                                            if (option.inputValue) {
+                                                return option.inputValue;
+                                            }
+                                            // Regular option
+                                            return option.name;
+                                        }}
+                                        filterOptions={(options: any, params: any) => {
+                                            const {inputValue} = params;
+                                            const filtered = options.filter((option: any) =>
+                                                option.name
+                                                    .toLowerCase()
+                                                    .includes(inputValue.toLowerCase())
+                                            );
+                                            // Suggest the creation of a new value
+                                            const isExisting = options.some(
+                                                (option: any) =>
+                                                    inputValue.toLowerCase() ===
+                                                    option.name.toLowerCase()
+                                            );
+                                            if (inputValue !== "" && !isExisting) {
+                                                filtered.push({
+                                                    inputValue,
+                                                    name: `${t("add")} "${inputValue}"`,
+                                                    isVerified: false,
+                                                });
+                                            }
+                                            return filtered;
+                                        }}
+                                        renderOption={(props: any, option: any) => (
+                                            <ListItem {...props}>
+                                                <ListItemText primary={`${option?.name}`}/>
+                                            </ListItem>
+                                        )}
+                                        isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                        placeholder={t("addressed-by-placeholder")}
+                                    />
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {t("civil-status")}
+                                    </Typography>
+                                    <AsyncAutoComplete
+                                        value={values.civilStatus}
+                                        url={`api/public/civil-status/${router.locale}`}
+                                        onChangeData={(event: any) => {
+                                            setFieldValue("civilStatus", event);
+                                        }}
+                                        getOptionLabel={(option: any) => {
+                                            // Value selected with enter, right from the input
+                                            if (typeof option === "string") {
+                                                return option;
+                                            }
+                                            // Add "xxx" option created dynamically
+                                            if (option.inputValue) {
+                                                return option.inputValue;
+                                            }
+                                            // Regular option
+                                            return option.name;
+                                        }}
+                                        renderOption={(props: any, option: any) => (
+                                            <ListItem {...props}>
+                                                <ListItemText primary={`${option?.name}`}/>
+                                            </ListItem>
+                                        )}
+                                        isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                        placeholder={t("civil-status-placeholder")}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Box>
                     </Collapse>
                 </Stack>

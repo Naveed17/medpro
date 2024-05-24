@@ -95,11 +95,9 @@ function EditProfile() {
                                                 <ListItemAvatar>
                                                     <Avatar
                                                         sx={{
-                                                            bgcolor: currentStepper === i ? "primary.main" : currentStepper < i ? "info.main" : "info.main",
+                                                            bgcolor: "info.main",
                                                             color: currentStepper === i ? "common.white" : currentStepper < i ? "primary.main" : "common.white",
-                                                        }}
-
-                                                    >
+                                                        }}>
                                                         {currentStepper > i ? <IconUrl path="ic-check"
                                                                                        color={theme.palette.primary.main}/> : i + 1}
                                                     </Avatar>

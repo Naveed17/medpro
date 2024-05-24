@@ -4,6 +4,7 @@ import {authOptions} from "../auth/[...nextauth]";
 
 export default async function server_env(req: NextApiRequest, res: NextApiResponse) {
     const session = await getServerSession(req, res, authOptions);
+
     const {key} = req.body;
     if (session) {
         res.send(JSON.stringify(process.env[key], null, 2))

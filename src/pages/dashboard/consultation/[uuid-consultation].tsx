@@ -34,7 +34,7 @@ import {
 } from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
-import {getBirthdayFormat, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {alpha, Theme} from "@mui/material/styles";
 import {AppToolbar} from "@features/toolbar/components/appToolbar";
@@ -68,7 +68,12 @@ import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
 import {useSession} from "next-auth/react";
 import {DrawerBottom} from "@features/drawerBottom";
-import {ConsultationFilter} from "@features/leftActionBar";
+import {
+    consultationContentSelector,
+    ConsultationFilter,
+    setContentPatient,
+    setContentUploadDialog
+} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
@@ -139,6 +144,7 @@ function ConsultationInProgress() {
         isPaused
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, i18n} = useTranslation("consultation");
     //***** SELECTORS ****//
@@ -148,8 +154,7 @@ function ConsultationInProgress() {
     const {selectedDialog, record} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
-
-
+    const {uploadDialog, patient: patientUploadDocs} = useAppSelector(consultationContentSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {
         type,
@@ -163,7 +168,7 @@ function ConsultationInProgress() {
     const app_uuid = router.query["uuid-consultation"];
     const general_information = (user as UserDataResponse).general_information;
     const cardPositions = localStorage.getItem('cardPositions') !== null ? JSON.parse((localStorage.getItem('cardPositions') as string)) : null
-
+    const sDoc = localStorage.getItem('showDocument') ? localStorage.getItem('showDocument') == 'true' : false
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
@@ -199,7 +204,7 @@ function ConsultationInProgress() {
     ];
     const isAddAppointment = false;
 
-    const [selectedTab, setSelectedTab] = useState<string>(router.query["tab"]?.toString() ?? "consultation_form");
+    const [selectedTab, setSelectedTab] = useState<string>("consultation_form");
     const [changes, setChanges] = useState([
         {name: "patientInfo", txt: "patientInfo", icon: "docs/ic-note", checked: false},
         {name: "fiche", txt: "fiche", icon: "ic-text", checked: false},
@@ -248,7 +253,7 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
     const [addFinishAppointment, setAddFinishAppointment] = useState<boolean>(false);
-    const [showDocument, setShowDocument] = useState(false);
+    const [showDocument, setShowDocument] = useState(sDoc);
     const [nbDoc, setNbDoc] = useState(0);
     const [cards, setCards] = useState([
         [
@@ -278,7 +283,6 @@ function ConsultationInProgress() {
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}
     ]]);
-
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
     const [deleteAudio, setDeleteAudio] = useState(false);
     const [saveAudio, setSaveAudio] = useState(false);
@@ -360,7 +364,6 @@ function ConsultationInProgress() {
     const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
     const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
     const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
-
     // ********** Requests ********** \\
     const changeModel = (prop: ModalModel, ind: number, index: number) => {
         selectedModel.default_modal = prop;
@@ -407,7 +410,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
-                tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
+                tel: patient?.contact && patient?.contact?.length > 0 ? patient?.contact[0] : "",
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 days: card.days,
                 description: card.description,
@@ -444,7 +447,7 @@ function ConsultationInProgress() {
                 type: card.documentType,
                 createdAt: card.createdAt,
                 description: card.description,
-                info: info,
+                info,
                 detectedType: card.type,
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 uuidDoc: uuidDoc,
@@ -978,12 +981,15 @@ function ConsultationInProgress() {
                 break;
             case "add_a_document":
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append(`files[${file.type}][]`, file?.file as any, file?.name);
+                    form.append(`${patientUploadDocs ? "document" : "files"}[${file.type}][]`, file?.file as any, file?.name);
                 });
-
+                url = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
+                if (medicalEntityHasUser && patientUploadDocs) {
+                    url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientUploadDocs?.uuid}/documents/${router.locale}`
+                }
                 triggerDrugsUpdate({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
+                    url,
                     data: form
                 }, {
                     onSuccess: () => {
@@ -992,11 +998,21 @@ function ConsultationInProgress() {
                             root: "all",
                             message: " ",
                             content: JSON.stringify({
-                                mutate: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
+                                mutate: url,
                                 fcm_session: jti
                             })
                         });
-                        mutateDoc()
+                        if (patientUploadDocs) {
+                            invalidateQueries([url]);
+                        } else {
+                            mutateDoc();
+                        }
+                    },
+                    onSettled: () => {
+                        if (patientUploadDocs) {
+                            dispatch(setContentPatient(null));
+                            dispatch(setContentUploadDialog(false))
+                        }
                     }
                 });
                 print && setOpenDialog(true);
@@ -1064,7 +1080,7 @@ function ConsultationInProgress() {
                             id: 2,
                             name: "requestedPrescription",
                             status: "in_progress",
-                            icon: "ic-traitement",
+                            icon: "docs/ic-prescription",
                             state
                         }); else setPrescription([])
                 } else {
@@ -1094,6 +1110,10 @@ function ConsultationInProgress() {
         setInfo(null);
         setPendingDocuments(pdoc);
         dispatch(SetSelectedDialog(null))
+        if (patientUploadDocs) {
+            dispatch(setContentPatient(null));
+            dispatch(setContentUploadDialog(false));
+        }
     };
 
     const showPreview = (action: string) => {
@@ -1163,7 +1183,6 @@ function ConsultationInProgress() {
             data: form
         });
     }
-
     //%%%%%% %%%%%%%
     const move = (source: any, destination: any, droppableSource: any, droppableDestination: any) => {
         const sourceClone = Array.from(source);
@@ -1207,6 +1226,14 @@ function ConsultationInProgress() {
         }
     }
     //%%%%%% %%%%%%%
+    useEffect(() => {
+        if (uploadDialog) {
+            setInfo("add_a_document");
+            setState({name: "", description: "", type: "", files: []});
+            setOpenDialogSave(true);
+            setOpenDialog(true);
+        }
+    }, [uploadDialog]);
 
     useEffect(() => {
         if (!recordingBlob || !saveAudio) return;
@@ -1236,9 +1263,13 @@ function ConsultationInProgress() {
             medicalProfessionalData && medicalProfessionalData.acts.map(act => {
                 _acts.push({qte: 1, selected: false, ...act})
             })
+            acts.length === 0 && setActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
 
-            acts.length === 0 && setActs(_acts);
-            setMPActs(_acts);
+            setMPActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
+
+            if(router.query["tab"]?.toString())
+                setSelectedTab(router.query["tab"]?.toString())
+
             let nb = 0;
             changes.map(change => {
                 if (sheet && sheet[change.name]) {

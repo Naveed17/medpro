@@ -6,6 +6,7 @@ const PersonalInfoStyled = styled(Box)(({theme}) => ({
         padding: "0 2rem 0 1rem"
     },
     "& .MuiInputBase-root": {
+        minHeight: 38,
         background: "no-repeat!important",
         "&:hover": {
             backgroundColor: "none"
@@ -60,6 +61,11 @@ const PersonalInfoStyled = styled(Box)(({theme}) => ({
         height: "auto",
         minWidth: "auto",
         right: "-0.5rem"
+    },
+    "& .MuiInputBase-root.Mui-error": {
+        border: "1px dashed",
+        borderRadius: 4,
+        borderColor: theme.palette.error.main
     }
 }));
 

@@ -156,6 +156,7 @@ export const authOptions: NextAuthOptions = {
         async session({session, token}) {
             // Send properties to the client, like an access_token from a provider.
             (session as any).accessToken = token.accessToken;
+            (session as any).idToken = token.idToken;
             session.data = token.data as UserDataResponse;
             (session as any).user.jti = token.jti;
             (session as any).user.id = token.sub;
@@ -227,6 +228,7 @@ export const authOptions: NextAuthOptions = {
                     // Add access_token, refresh_token and expirations to the token right after signin
                     token.accessToken = account.access_token;
                     token.refreshToken = account.refresh_token;
+                    token.idToken = account.id_token;
                     token.accessTokenExpired = (account.expires_at as number) * 1000;
                     token.refreshTokenExpired = Date.now() + (account.refresh_expires_in as number) * 1000;
                     token.user = user;

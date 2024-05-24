@@ -5,7 +5,7 @@ import {DefaultCountry, tinymcePlugins, tinymceToolbarNotes} from "@lib/constant
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PageStyled from "@features/page/components/overrides/pageStyled";
-import {Box, Stack, TextField, Typography} from "@mui/material";
+import {Box, Stack, TextField, Typography, useTheme} from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import {Editor} from "@tinymce/tinymce-react";
 import moment from "moment/moment";
@@ -33,6 +33,7 @@ function Doc({...props}) {
         downloadMode = false,
         setDocs, t
     } = props
+    const theme = useTheme();
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -55,15 +56,14 @@ function Doc({...props}) {
         let elx = "";
         switch (state.type) {
             case "prescription":
-                state.info.map((el: any, index: number) => {
-
+                state.info.forEach((el: any, index: number) => {
                     const child = document.createElement('p');
-                    child.append()
-                    elx += `<p>${index + 1} • ${el?.drugName ?? ""}</p>`
+                    child.append();
+                    elx += `<p style="font-weight: bold; margin-top: 15px">${index + 1} • ${el?.drugName ?? ""} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}</p>`
                     el.cycles.map((cycle: any) => {
                         let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                         if (cycle.duration)
-                            val += ` pendant ${cycle.duration} ${(cycle.durationType)}`
+                            val += ` pendant ${cycle.duration} ${t(cycle.durationType)}`
                         if (cycle.note)
                             val += ` (${cycle.note})`;
                         const child = document.createElement('p');
@@ -78,7 +78,7 @@ function Doc({...props}) {
             case "requested-analysis":
                 const value = `<p>Prière de faire les explorations biologiques suivantes à ${state.patient} :</p>`
                 elx += value
-                state.info.map((el: any) => {
+                state.info.forEach((el: any) => {
                     elx += `<p>• ${el.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
@@ -88,7 +88,7 @@ function Doc({...props}) {
             case "requested-medical-imaging":
                 const val = `<p>Prière de faire les explorations radiologiques suivantes à ${state.patient} :</p>`
                 elx += val
-                state.info.map((el: any) => {
+                state.info.forEach((el: any) => {
                     elx += `<p>• ${el?.name}</p>`
                     if (el.note) elx += `<p>• ${el.note}</p>`
                 })
@@ -98,32 +98,28 @@ function Doc({...props}) {
             case "fees":
             case "quote":
                 let total = 0;
-                elx = "<table>"
+                elx = "<table style='width: 100%;'>"
                 elx += `<tr>
-                                    <td>NOM</td>
-                                    <td>PRIX</td>
-                                    <td>QTE</td>
-                                    <td>TOTAL</td>
+                                    <td class="act-table-title" style="text-align: left">Acte</td>
+                                    <td class="act-table-title">PRIX</td>
+                                    <td class="act-table-title">QTE</td>
+                                    <td class="act-table-title">TOTAL</td>
                                 </tr>`
-                state.info.map((el: any) => {
+                state.info.forEach((el: any, index: number) => {
                     total += el.qte * el.fees;
-                    elx += `<tr>
-                                        <td> ${el.act.name}</td>
-                                        <td>${el.fees} ${devise}</td>
-                                        <td>${el.qte}</td>
-                                        <td>${el.qte * el.fees} ${devise}</td>
+                    elx += `<tr style="background: ${theme.palette.info.main};border-radius: 10px">
+                                        <td class="act-table-item" style="padding: 20px;font-weight: bold;border-top-left-radius:  ${index === 0 ? "10px" : 0};border-bottom-left-radius: ${index === state.info.length - 1 ? "10px" : 0}">${el.act.name}</td>
+                                        <td class="act-table-item" style="text-align: center">${el.fees} ${devise}</td>
+                                        <td style="color: ${theme.palette.grey["400"]};text-align: center">${el.qte}</td>
+                                        <td style="text-align: center;font-size: 18px;font-weight: bold;border-top-right-radius: ${index === 0 ? "10px" : 0};border-bottom-right-radius: ${index === state.info.length - 1 ? "10px" : 0}">${el.qte * el.fees} ${devise}</td>
                                     </tr>`
                 });
-
-                elx += `<tr>
-                                        <td> Total</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>${total} ${devise}</td>
-                                    </tr>`
                 elx += "</table>"
+                elx += `<p style="text-align: right; color: ${theme.palette.grey["400"]};margin-top: 20px">Total</p>`
+                elx += `<p style="text-align: right;font-size: 24px;color: ${theme.palette.primary.main};font-weight: bold">${total} ${devise}</p>`
 
-                setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
+
+                setTitle(state.type == "fees" ? "Facture" : "Devis");
 
                 break;
             case "glasses":
@@ -133,8 +129,8 @@ function Doc({...props}) {
                 let odp = "";
                 let ogp = ""
 
-                state.info.map((el: any) => {
-                    subTitle.map(key => {
+                state.info.forEach((el: any) => {
+                    subTitle.forEach(key => {
                         od += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
                         og += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
                         odp += `${t(key)} : ${el.pfp[0].od[key] ? el.pfp[0].od[key] : ' - '}  `;
@@ -154,7 +150,7 @@ function Doc({...props}) {
                 let ogl = ""
                 const st = ['sphere', 'cylindre', 'axe']
 
-                state.info.map((el: any) => {
+                state.info.forEach((el: any) => {
                     st.forEach(key => {
                         odl += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
                         ogl += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
@@ -173,7 +169,7 @@ function Doc({...props}) {
             if (state.info)
                 createPageContent()
             else if (state && state.content) {
-                let txt =state.content?.replaceAll('{patient}', state.patient)
+                let txt = state.content?.replaceAll('{patient}', state.patient)
                 txt = txt?.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
                 txt = txt?.replaceAll('[date]', moment().format('DD/MM/YYYY'))
                 if (state.birthdate) {
@@ -186,7 +182,7 @@ function Doc({...props}) {
                     txt = txt?.replaceAll('{tel}', state.tel)
                 txt = txt?.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                 txt = txt?.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
-                txt = txt?.replaceAll('&nbsp;', '')
+
                 data.content.content = txt;
                 setData({...data})
             }

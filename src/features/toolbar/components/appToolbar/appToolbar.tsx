@@ -323,7 +323,10 @@ function AppToolbar({...props}) {
                             <Badge badgeContent={nbDoc} showZero={true} color="primary">
                                 <IconButton
                                     className={"btn-edit"}
-                                    onClick={() => setShowDocument(!showDocument)}>
+                                    onClick={() => {
+                                        localStorage.setItem('showDocument',String(!showDocument))
+                                        setShowDocument(!showDocument)
+                                    }}>
                                     <IconUrl path={"ic-white-docs"} color={theme.palette.text.primary}/>
                                 </IconButton>
                             </Badge>

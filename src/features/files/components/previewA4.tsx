@@ -95,7 +95,7 @@ function PreviewDialog({...props}) {
                                 elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
                                 switch (pr.name) {
                                     case "name":
-                                        const val = `${index + 1} • ${el.drugName}`;
+                                        const val = `${index + 1} • ${el.drugName} ${el?.standard_drug?.form?.name ?? ""} ${el?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}`;
                                         elx.append(val)
                                         rows.push({
                                             value: val,
@@ -163,9 +163,9 @@ function PreviewDialog({...props}) {
                         case "requested-medical-imaging":
                             const imgLine = document.createElement('p');
                             imgLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
-                            imgLine.append(`• ${el['medical-imaging']?.name}`)
+                            imgLine.append(`• ${el?.name}`)
                             rows.push({
-                                value: `• ${el['medical-imaging']?.name}`,
+                                value: `• ${el?.name}`,
                                 name: "name",
                                 element: "p",
                                 style: {
@@ -211,7 +211,7 @@ function PreviewDialog({...props}) {
                                 txt = txt?.replaceAll('{tel}', state.tel)
                             txt = txt?.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt?.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
-                            txt = txt?.replaceAll('&nbsp;', '')
+
                             const parser = new DOMParser();
                             const noeuds = parser.parseFromString(txt ?? "", 'text/html').getElementsByTagName('body')[0];
 
@@ -245,7 +245,7 @@ function PreviewDialog({...props}) {
                                 style: {}
                             })
                             pageX.appendChild(FeesLine)
-                            setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
+                            setTitle(state.type == "fees" ? "Facture" : "Devis");
                             break;
                         case "glasses":
                             const prescLine = document.createElement('p');

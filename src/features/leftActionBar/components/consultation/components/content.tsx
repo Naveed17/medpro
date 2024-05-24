@@ -28,7 +28,7 @@ import {resetAppointment, setAppointmentPatient, setOpenUploadDialog} from "@fea
 import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
-import {Antecedent} from "@features/leftActionBar";
+import {Antecedent, setContentPatient, setContentUploadDialog} from "@features/leftActionBar";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
@@ -258,6 +258,7 @@ const Content = ({...props}) => {
         })
         return _res;
     }
+
     const handleOpenDynamic = (action: string) => {
         if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) {
 
@@ -340,8 +341,7 @@ const Content = ({...props}) => {
             isOtherProfessional: boolean;
         }) => !trait.isOtherProfessional)*/
 
-    if (!ready || status === "loading") return (
-        <LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready || status === "loading") return (<LoadingScreen text={"loading"}/>);
 
     return (
         <React.Fragment>
@@ -548,7 +548,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list.analysis.name}{" "}
+                                                    {list?.name}{" "}
                                                     {list.result ? "/" + list.result : ""}
                                                 </Typography>
                                             </ListItem>
@@ -629,7 +629,7 @@ const Content = ({...props}) => {
                                             <ListItem key={index} className={"ant-item"}
                                                       style={{paddingLeft: 10, paddingRight: 10}}>
                                                 <Typography variant="body2">
-                                                    {list.analysis.name}
+                                                    {list?.name}
                                                     {list.result ? " : " + list.result : ""}
                                                 </Typography>
                                             </ListItem>
@@ -824,8 +824,8 @@ const Content = ({...props}) => {
                         }}>{t('emptydoc')}</Typography>}
                         <Button
                             onClick={() => {
-                                dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
-                                dispatch(setOpenUploadDialog(true))
+                                dispatch(setContentPatient(patient));
+                                dispatch(setContentUploadDialog(true))
                             }}
                             size="small"
                             style={{paddingBottom: pxToRem(0)}}
@@ -894,6 +894,12 @@ const Content = ({...props}) => {
 
             {info && (
                 <Dialog
+                    {...{
+                        size,
+                        direction,
+                        max: "true",
+                        actions: "true"
+                    }}
                     action={info}
                     open={openDialog}
                     fullWidth
@@ -904,11 +910,6 @@ const Content = ({...props}) => {
                         antecedents: allAntecedents,
                         action: infoDynamic,
                     }}
-                    change={false}
-                    max
-                    size={size}
-                    direction={direction}
-                    actions={true}
                     title={getTitle()}
                     dialogClose={handleClose}
                     actionDialog={

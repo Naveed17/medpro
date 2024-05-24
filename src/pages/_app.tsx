@@ -7,7 +7,6 @@ import {SnackbarProvider} from "notistack";
 // import global style
 import "@styles/globals.scss";
 import 'react-medium-image-zoom/dist/styles.css';
-import '../styles/datepicker.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";

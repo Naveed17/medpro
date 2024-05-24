@@ -107,7 +107,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                 },
             },
             "@media screen and (min-height: 750px)": {
-                marginTop: 20,
+                marginTop: 16,
                 " &.list-bottom": {
                     position: "absolute",
                     bottom: 0,
@@ -154,6 +154,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             padding: "10px 0px 10px 20px",
             backgroundColor: theme.palette.background.paper,
             overflowY: "auto",
+            overflow: "visible",
             height: "100%",
             zIndex: 1200,
             position: "fixed",

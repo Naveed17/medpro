@@ -1,6 +1,3 @@
-import TextField from "@mui/material/TextField";
-import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
-import {LocalizationProvider} from '@mui/x-date-pickers';
 import {Box, IconButton} from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import {TimePicker as MuiTimePicker} from "@mui/x-date-pickers/TimePicker";
@@ -17,7 +14,6 @@ function CustomTimePicker({...props}) {
     }, [initial, end, onChange]);
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Box
                 sx={{
                     display: "flex",
@@ -30,11 +26,9 @@ function CustomTimePicker({...props}) {
                     ampm={false}
                     openTo="hours"
                     views={["hours", "minutes"]}
-                    inputFormat="HH:mm"
-                    mask="__:__"
+                    format="HH:mm"
                     value={defaultValue[0] ? defaultValue[0] : null}
                     onChange={(newValue) => moment(newValue).isValid() && setInitial(newValue)}
-                    renderInput={(params) => <TextField {...params} />}
                 />
                 <IconButton sx={{mx: 1}}>
                     <ArrowForwardIcon/>
@@ -44,14 +38,11 @@ function CustomTimePicker({...props}) {
                     ampm={false}
                     openTo="hours"
                     views={["hours", "minutes"]}
-                    inputFormat="HH:mm"
-                    mask="__:__"
+                    format="HH:mm"
                     value={defaultValue[1] ? defaultValue[1] : null}
                     onChange={(newValue) => moment(newValue).isValid() && setEnd(newValue)}
-                    renderInput={(params) => <TextField {...params} />}
                 />
-            </Box>
-        </LocalizationProvider>)
+            </Box>)
 }
 
 export default CustomTimePicker;

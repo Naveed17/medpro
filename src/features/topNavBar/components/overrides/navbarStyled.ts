@@ -2,7 +2,7 @@
 import {styled} from "@mui/material/styles";
 import {AppBar} from "@mui/material";
 import {pxToRem} from "@themes/formatFontSize";
-import { MobileContainer } from "@lib/constants";
+import {MobileContainer} from "@lib/constants";
 
 const NavbarStyled = styled(AppBar)(({theme}) => ({
     borderWidth: "0 0 1px 0",

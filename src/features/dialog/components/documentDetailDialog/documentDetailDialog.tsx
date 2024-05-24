@@ -78,7 +78,7 @@ function DocumentDetailDialog({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const {urlMedicalProfessionalSuffix, medical_professional} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -219,6 +219,7 @@ function DocumentDetailDialog({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
+    const roles = (user as UserDataResponse)?.general_information.roles;
 
     const {trigger: triggerDocumentUpdate} = useRequestQueryMutation("/documents/update");
     const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/documents/delete");
@@ -268,7 +269,7 @@ function DocumentDetailDialog({...props}) {
         }
     })
 
-    const handleActions =  async (action: string) => {
+    const handleActions = async (action: string) => {
         switch (action) {
             case "print":
                 handlePrint();
@@ -278,9 +279,9 @@ function DocumentDetailDialog({...props}) {
                 setEditMode(false)
                 setSendEmailDrawer(true);
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                        const file = await generatePdfFromHtml(componentRef, "blob");
-                        setDownloadMode(false);
-                        setPreviewDoc(file);
+                    const file = await generatePdfFromHtml(componentRef, "blob");
+                    setDownloadMode(false);
+                    setPreviewDoc(file);
                 } else {
                     const photoUrlBytes = await fetch(file.url, {
                         // Fix CROSS origin issues with no-cache header
@@ -307,7 +308,7 @@ function DocumentDetailDialog({...props}) {
                             state: state?.info.map((drug: any) => ({
                                 cycles: drug.cycles,
                                 drugUuid: drug.standard_drug?.uuid,
-                                name: drug.drugName
+                                name: `${drug.drugName} ${drug?.standard_drug?.form?.name ?? ""} ${drug?.standard_drug?.dosages?.map((data: any) => data.dosage).join(" ") ?? ""}`
                             })),
                             uuid: state?.uuidDoc,
                             appUuid: state?.appUuid
@@ -328,8 +329,8 @@ function DocumentDetailDialog({...props}) {
                         let mi: MIModel[] = []
                         state?.info.map((info: any) => {
                             mi.push({
-                                uuid: info['medical-imaging'].uuid,
-                                name: info['medical-imaging'].name,
+                                uuid: info['medical-imaging']?.uuid,
+                                name: info.name,
                                 note: info.note
                             });
                         });
@@ -384,7 +385,11 @@ function DocumentDetailDialog({...props}) {
                 if (generatedDocs.some(doc => doc == state?.type)) {
                     setEditMode(false)
                     setDownloadMode(true);
-                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew, setDownloadMode);
+                    const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
+                    const size = selected?.header.data.size;
+                    const orientation = selected?.header.data.layout ? selected?.header.data.layout : "portrait"
+                    const format = size.replace(orientation, "");
+                    await downloadFileAsPdf(componentRef, `${state?.type} ${state?.patient}`, data.isNew, setDownloadMode, format, orientation);
                 } else {
                     downloadFileFromUrl(file.url, `${state?.type} ${state?.patient}`);
                 }
@@ -485,7 +490,7 @@ function DocumentDetailDialog({...props}) {
         setLoadingReq(true);
         const form = new FormData();
         form.append('receiver', data.receiver);
-        form.append('sender', general_information.email);
+        form.append('sender', !roles.includes('ROLE_SECRETARY') ? general_information.email : (medical_professional?.email ?? ""));
         form.append('subject', data.subject);
         form.append('content', data.content);
         if (data.withFile) {
@@ -626,7 +631,7 @@ function DocumentDetailDialog({...props}) {
                         date,
                         onReSize, setOnResize,
                         urlMedicalProfessionalSuffix,
-                        docs: urls,t,
+                        docs: urls, t,
                         editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
@@ -695,7 +700,7 @@ function DocumentDetailDialog({...props}) {
                 <CardContent>
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
                         <FacebookCircularProgress size={20}/>
-                        <Typography fontSize={16} fontWeight={600}>{t(loading ? 'generate':'printing')}</Typography>
+                        <Typography fontSize={16} fontWeight={600}>{t(loading ? 'generate' : 'printing')}</Typography>
                     </Stack>
                 </CardContent>
             </Card>}
@@ -703,7 +708,6 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
-
                         {!multiMedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
@@ -807,7 +811,7 @@ function DocumentDetailDialog({...props}) {
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar"  style={{background: "white"}}>
+                <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" style={{background: "white"}}>
                     <>
                         {menu ? <List>
                                 {actionButtons.map((button, idx) =>
@@ -1001,7 +1005,8 @@ function DocumentDetailDialog({...props}) {
                     patient,
                     preview: previewDoc,
                     loading: loadingReq,
-                    title: state?.title ?? "", t,
+                    title: state?.title ?? (t(state?.type) ?? ""),
+                    t,
                     handleSendEmail
                 }}
                 onClose={() => setSendEmailDrawer(false)}

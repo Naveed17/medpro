@@ -226,8 +226,9 @@ main {
 }
 
 fieldset {
-  border: 1px solid #E0E0E0;
-  border-radius: 5px;
+  border: 1px dotted #E0E0E0;
+  border-radius: 8px;
+  padding: inherit;
 
   legend {
     font-style: normal;
@@ -605,6 +606,62 @@ fieldset {
   }
 }
 
+@keyframes flickerAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-o-keyframes flickerAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-moz-keyframes flickerAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes flickerAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-flicker {
+  -webkit-animation: flickerAnimation 2s infinite;
+  -moz-animation: flickerAnimation 2s infinite;
+  -o-animation: flickerAnimation 2s infinite;
+  animation: flickerAnimation 2s infinite;
+}
+
+
 .blur-text {
   color: transparent;
   text-shadow: 0 0 14px #a0a2a2;
@@ -614,6 +671,27 @@ fieldset {
   display: none;
 }
 
-.notistack-Snackbar .notistack-MuiContent{
+.notistack-Snackbar .notistack-MuiContent {
   border-radius: 12px;
+}
+
+.act-table-title {
+  color: #868DA6;
+  font-weight: bold;
+  padding: 20px;
+  text-align: center;
+}
+
+.act-table-item {
+  color: #7C878E;
+  font-size: 18px;
+}
+ol, ul, menu {
+  list-style: none;
+  margin: 0;
+  padding: revert;
+}
+
+table{
+  border-collapse: inherit;
 }
