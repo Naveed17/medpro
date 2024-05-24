@@ -1,7 +1,5 @@
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { KeyboardEvent, lazy, ReactElement, Suspense, useEffect, useRef, useState, } from "react";
-import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
+import React, { lazy, Suspense, useEffect, useRef, useState, } from "react";
+import { configSelector, dashLayoutSelector } from "@features/base";
 import {
     Box,
     Button,
@@ -10,8 +8,8 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Drawer, FormControl, InputAdornment,
-    Stack, TextField,
+    Drawer,
+    Stack,
     Theme,
     Typography,
     useMediaQuery,
@@ -20,7 +18,6 @@ import {
 import { useTranslation } from "next-i18next";
 import CloseIcon from '@mui/icons-material/Close';
 import { EditMotifDialog } from "@features/dialog";
-import { SubHeader } from "@features/subHeader";
 import { useAppSelector } from "@lib/redux/hooks";
 import { Otable } from "@features/table";
 import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
@@ -33,10 +30,9 @@ import { LoadingButton } from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
 import Can from "@features/casl/can";
-import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import { debounce } from "lodash";
 import { CustomIconButton } from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
+import { debounce } from "lodash";
 
 const MotifListMobile = lazy(
     (): any => import("@features/card/components/motifListMobile/motifListMobile")
@@ -258,54 +254,6 @@ function Motif() {
 
     return (
         <>
-            <SubHeader>
-                <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    width={1}
-                    alignItems="center">
-                    <Typography color="text.primary">{t("path")}</Typography>
-                    <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                        <FormControl
-                            component="form"
-                            fullWidth
-                            onSubmit={e => e.preventDefault()}>
-                            <TextField
-                                className={'search-input'}
-                                sx={{
-                                    '& .MuiInputBase-root': {
-                                        padding: 0,
-                                    }
-                                }}
-                                fullWidth
-                                {...{ inputRef }}
-                                InputProps={{
-                                    endAdornment: (
-                                        <InputAdornment onClick={() => inputRef.current?.focus()}
-                                            position="start">
-                                            <SearchRoundedIcon color={"white"} />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                defaultValue={searchName ?? ""}
-                                onChange={(e) => debouncedOnChange(e)}
-                                placeholder={t(`search`)}
-                            />
-                        </FormControl>
-                        <Can I={"manage"} a={"settings"} field={"settings__motif__create"}>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                onClick={() => {
-                                    editMotif(null as any, "add");
-                                }}
-                                sx={{ ml: "auto" }}>
-                                {t("add")}
-                            </Button>
-                        </Can>
-                    </Stack>
-                </Stack>
-            </SubHeader>
 
             <DesktopContainer>
                 <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>

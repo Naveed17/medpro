@@ -46,6 +46,7 @@ import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { renderToString } from "react-dom/server";
 import Image from "next/image";
+import { Breadcrumbs } from "@features/breadcrumbs";
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 

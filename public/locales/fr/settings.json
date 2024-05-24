@@ -38,6 +38,9 @@
   "scheduleAndLocation": {
     "title": "Horaire et lieu"
   },
+  "consultation": {
+    "title": "Consultation"
+  },
   "profile": {
     "upload-logo": "Télécharger le logo",
     "specialities": "Spécialité",
