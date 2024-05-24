@@ -112,7 +112,7 @@ function WaitingRoom() {
         patient,
         type
     } = useAppSelector(appointmentSelector);
-    const {next: is_next, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
 
     const {data: user} = session as Session;
@@ -164,7 +164,6 @@ function WaitingRoom() {
     };
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
-    const {trigger: updateAgendaConfig} = useRequestQueryMutation("/agenda/config/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
