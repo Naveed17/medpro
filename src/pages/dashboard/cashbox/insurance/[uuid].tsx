@@ -243,7 +243,6 @@ function InscDetail() {
 
     const uuid = router.query.uuid as string;
     const selectedInsurance = insurances.find(insc => insc.uuid === uuid)
-console.log(selectedInsurance)
 
     const {data: httpDocket, mutate} = useRequestQuery({
         method: "GET",
