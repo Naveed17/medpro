@@ -1,3 +1,53 @@
+## [4.26.2](https://github.com/SmartMedSA/med-pro/compare/v4.26.1...v4.26.2) (2024-05-24)
+
+
+### Bug Fixes
+
+* fin consultation contacts issues ([840eea2](https://github.com/SmartMedSA/med-pro/commit/840eea22db334d5d0793bbab985bc4f2d4ef40ba))
+* logout legacy issues ([a10df1a](https://github.com/SmartMedSA/med-pro/commit/a10df1a0e10578dc049bb35d11527e0af8d2a850))
+
+## [4.26.1](https://github.com/SmartMedSA/med-pro/compare/v4.26.0...v4.26.1) (2024-05-24)
+
+
+### Bug Fixes
+
+* delete patch order waiting room ([c24e5f2](https://github.com/SmartMedSA/med-pro/commit/c24e5f20e9626bd07361bfdac9eb1d09130c3d98))
+* delete patch order waiting room ([e860d3b](https://github.com/SmartMedSA/med-pro/commit/e860d3b3c5785d0a258991a96c3c5a1d4f7a0431))
+
+# [4.26.0](https://github.com/SmartMedSA/med-pro/compare/v4.25.1...v4.26.0) (2024-05-24)
+
+
+### Bug Fixes
+
+* absence datepicker issues ([321f2ee](https://github.com/SmartMedSA/med-pro/commit/321f2eeb77a08ae1d73cb1cee9ba694a7f15c05b))
+* appointment details loading button issues ([96031f5](https://github.com/SmartMedSA/med-pro/commit/96031f54a5432cbd6a340abe18f456df8742028a))
+* appointment details loading button issues ([e8cef1d](https://github.com/SmartMedSA/med-pro/commit/e8cef1d2f875732e2ec1194ddee092cf7cae6edc))
+* appointment event start button style issues ([e4b4f58](https://github.com/SmartMedSA/med-pro/commit/e4b4f58489053c407b7b70017682f6bb2abbfe75))
+* consultation contacts update ([ae159f5](https://github.com/SmartMedSA/med-pro/commit/ae159f514d50a2671e346b887aa8cf08c562fb67))
+* consultation type responsive issues ([e89a7f1](https://github.com/SmartMedSA/med-pro/commit/e89a7f1ec5c900bc612e5cb9942d61186e1694a7))
+* datepicker css file ([395e521](https://github.com/SmartMedSA/med-pro/commit/395e52159fa3914c07dfa953b99b7fae680ee552))
+* datepicker mui ([5b73dc6](https://github.com/SmartMedSA/med-pro/commit/5b73dc6c6d98111e3729c6d40689c6b9df97f598))
+* datepicker mui behavior ([101f944](https://github.com/SmartMedSA/med-pro/commit/101f9443c50851589e859db0423bad6c07a8b117))
+* datepicker mui behavior ([ad19ac9](https://github.com/SmartMedSA/med-pro/commit/ad19ac957bb97436e7395cd39096d87ac0dd8c09))
+* datepicker mui behavior ([38804fd](https://github.com/SmartMedSA/med-pro/commit/38804fd8edd0563b86e4d8dbe74d321b5f1823a4))
+* datepicker mui behavior ([a639072](https://github.com/SmartMedSA/med-pro/commit/a639072f312a69d8bb200d95ff1351d4bde7bee8))
+* delete appointment finished issues ([fc7dfaa](https://github.com/SmartMedSA/med-pro/commit/fc7dfaa517e698ba001fcd0f5de7d9d2e6d406a0))
+* delete option appointment issues ([22d6407](https://github.com/SmartMedSA/med-pro/commit/22d64072af619073d1fbf16e617af9b99f800b9a))
+* docs lines spaces ([8d88e8f](https://github.com/SmartMedSA/med-pro/commit/8d88e8f2e2bdb727d553cdc2dc29f1aad1ea3b07))
+* enable estimated sort option ([fa2a44a](https://github.com/SmartMedSA/med-pro/commit/fa2a44a2bbe20d2da5f1cc96c69fd67bb5170305))
+* growth chart add parent label ([7efb553](https://github.com/SmartMedSA/med-pro/commit/7efb553a8ffaca8f295927a36a0307e4bab118cf))
+* hidden checked act from cashbox ([b0fee88](https://github.com/SmartMedSA/med-pro/commit/b0fee8836ee60196d9cc2e033f867d38e4fa8f41))
+* page exceeds the threshold ([8ba87eb](https://github.com/SmartMedSA/med-pro/commit/8ba87ebfd286b67e8ced35aaf87ddd0edb9df4fb))
+* patient 4years chart ([9946617](https://github.com/SmartMedSA/med-pro/commit/9946617b7afc40f489b225b7354d054860ee6172))
+* patient whatsapp contact issues ([3b0016a](https://github.com/SmartMedSA/med-pro/commit/3b0016a8e13fbefaa28dbdf170319b49c0ff92ef))
+* stats responsive issues ([f112892](https://github.com/SmartMedSA/med-pro/commit/f1128924268df6120b5e59879eb0f2ce1c3fd29d))
+
+
+### Features
+
+* consultation reason stats update ([9837326](https://github.com/SmartMedSA/med-pro/commit/9837326d578ff069e559e9ebd62f7e6258f120ba))
+* upload patient doc from consultation ([fd2b7d2](https://github.com/SmartMedSA/med-pro/commit/fd2b7d23dc371235e917d4cfffd3b48f506073ac))
+
 ## [4.25.1](https://github.com/SmartMedSA/med-pro/compare/v4.25.0...v4.25.1) (2024-05-14)
 
 

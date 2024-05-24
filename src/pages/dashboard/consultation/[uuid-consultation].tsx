@@ -205,7 +205,7 @@ function ConsultationInProgress() {
     ];
     const isAddAppointment = false;
 
-    const [selectedTab, setSelectedTab] = useState<string>(router.query["tab"]?.toString() ?? "consultation_form");
+    const [selectedTab, setSelectedTab] = useState<string>("consultation_form");
     const [changes, setChanges] = useState([
         {name: "patientInfo", txt: "patientInfo", icon: "docs/ic-note", checked: false},
         {name: "fiche", txt: "fiche", icon: "ic-text", checked: false},
@@ -1265,6 +1265,11 @@ function ConsultationInProgress() {
             setSelectedModel(sheetModal);
             setInsuranceGenerated(sheet?.insuranceGenerated)
             setLoading(false)
+
+            setMPActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
+
+            if(router.query["tab"]?.toString())
+                setSelectedTab(router.query["tab"]?.toString())
 
             let nb = 0;
             changes.forEach(change => {

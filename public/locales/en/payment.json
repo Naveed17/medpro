@@ -70,7 +70,7 @@
   "to": "To",
   "status": "Status",
   "paid": "Paid",
-  "unpaid": "Unpaid",
+  "free": "Free",
   "partially": "Partially",
   "transactions": "Transactions",
   "date_time": "Date and hour",

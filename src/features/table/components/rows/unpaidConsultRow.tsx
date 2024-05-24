@@ -100,8 +100,8 @@ function UnpaidConsultRow({...props}) {
             {/* status */}
             <TableCell>
                 <Label
-                    color={row.appointmentRestAmount == 0 ? "success" : _fees - row.appointmentRestAmount === 0 ? "error" : "warning"}>
-                    {t(row.appointmentRestAmount == 0 ? "paid" : _fees - row.appointmentRestAmount === 0 ? "unpaid" : "partially")}
+                    color={_fees == 0 ? "primary":row.appointmentRestAmount == 0 ? "success" : _fees - row.appointmentRestAmount === 0 ? "error" : "warning"}>
+                    {t(_fees == 0 ? "free":row.appointmentRestAmount == 0 ? "paid" : _fees - row.appointmentRestAmount === 0 ? "unpaid" : "partially")}
                 </Label>
             </TableCell>
             {/***** Total *****/}

@@ -11,7 +11,7 @@ import {
     Grid,
     IconButton,
     InputAdornment,
-    InputBase,
+    InputBase, Link,
     Radio,
     RadioGroup,
     Select,
@@ -165,12 +165,29 @@ function SecretaryConsultationDialog({...props}) {
                                 {patient?.firstName} {patient?.lastName}
                             </Typography>
                         </Stack>
-                        {patient?.contact?.length > 0 &&
-                            <Stack direction='row' alignItems='center' spacing={.5}>
-                                <IconUrl path="ic-tel" color={theme.palette.text.primary} width={12} height={12}/>
-                                <Typography variant="body2">{patient?.contact[0]}</Typography>
+                        {patient?.contact?.map((contact: ContactModel, index: number) =>
+                            <Stack key={index} direction={"row"} mb={.5} alignItems={"center"}>
+                                <IconUrl
+                                    width={16}
+                                    height={16}
+                                    path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                    className="ic-tell"
+                                />
+                                <Link
+                                    underline="none"
+                                    {...(contact?.isWhatsapp && {target: "_blank"})}
+                                    href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                    variant="caption"
+                                    color="text.primary"
+                                    ml={.5}
+                                    fontSize={10}
+                                    fontWeight={"bold"}>
+                                    <Stack direction={"row"} alignItems={"center"}>
+                                        {contact.code} {contact.value}
+                                    </Stack>
+                                </Link>
                             </Stack>
-                        }
+                        )}
                     </Stack>
                 </Stack>
                 <EventType select defaultType={1}/>
@@ -285,13 +302,29 @@ function SecretaryConsultationDialog({...props}) {
                                                     {patient?.firstName} {patient?.lastName}
                                                 </Typography>
                                             </Stack>
-                                            {patient?.contact?.length > 0 &&
-                                                <Stack direction='row' alignItems='center' spacing={.5}>
-                                                    <IconUrl path="ic-tel" color={theme.palette.text.primary} width={12}
-                                                             height={12}/>
-                                                    <Typography variant="body2">{patient?.contact[0]}</Typography>
+                                            {patient?.contact?.map((contact: ContactModel, index: number) =>
+                                                <Stack key={index} direction={"row"} mb={.5} alignItems={"center"}>
+                                                    <IconUrl
+                                                        width={16}
+                                                        height={16}
+                                                        path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                                        className="ic-tell"
+                                                    />
+                                                    <Link
+                                                        underline="none"
+                                                        {...(contact?.isWhatsapp && {target: "_blank"})}
+                                                        href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                                        variant="caption"
+                                                        color="text.primary"
+                                                        ml={.5}
+                                                        fontSize={10}
+                                                        fontWeight={"bold"}>
+                                                        <Stack direction={"row"} alignItems={"center"}>
+                                                            {contact.code} {contact.value}
+                                                        </Stack>
+                                                    </Link>
                                                 </Stack>
-                                            }
+                                            )}
                                         </Stack>
                                     </Stack>
                                     {<Stack direction={"row"} alignItems={"center"}>
