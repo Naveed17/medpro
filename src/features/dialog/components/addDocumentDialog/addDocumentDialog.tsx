@@ -84,38 +84,43 @@ function AddDocumentDialog({...props}) {
         setLoad(true);
         const filesAccepted = e.target.files;
         let docs: any = [];
-        filesAccepted && Array.from(filesAccepted).forEach((file) => {
-            if (file.size > 40000000) {
-                setError(`big`);
-                setLoad(false);
-                return null;
-            } else if (file.name.length > 80) {
-                setError(`long`);
-                setLoad(false);
-                return null;
-            } else {
-                if (file.type.includes('image')) {
-                    Resizer.imageFileResizer(file,
-                        850,
-                        850,
-                        file.type.split('/')[1],
-                        80,
-                        0,
-                        (uri) => {
-                            docs.push({type: type, file: uri, progress: 100})
+        if (filesAccepted) {
+            Array.from(filesAccepted).forEach((file) => {
+                if (file.size > 40000000) {
+                    setError(`big`);
+                    setLoad(false);
+                    return null;
+                } else if (file.name.length > 80) {
+                    setError(`long`);
+                    setLoad(false);
+                    return null;
+                } else {
+                    if (file.type.includes('image')) {
+                        Resizer.imageFileResizer(file,
+                            850,
+                            850,
+                            file.type.split('/')[1],
+                            80,
+                            0,
+                            (uri) => {
+                                docs.push({type: type, file: uri, progress: 100})
+                                setFiles([...files, ...docs]);
+                                setLoad(false);
+                            },
+                            "file")
+                    } else {
+                        docs.push({type, file, progress: 100})
+                        setTimeout(() => {
                             setFiles([...files, ...docs]);
                             setLoad(false);
-                        },
-                        "file")
-                } else {
-                    docs.push({type, file, progress: 100})
-                    setTimeout(() => {
-                        setFiles([...files, ...docs]);
-                        setLoad(false);
-                    }, 1000);
+                        }, 1000);
+                    }
                 }
-            }
-        })
+            })
+        } else {
+            setLoad(false);
+        }
+
         setTimeout(() => {
             const el = document.getElementById("label")
             if (el)
@@ -178,7 +183,7 @@ function AddDocumentDialog({...props}) {
                                 (item: any, index: number) => (
                                     <Grid key={index} item xs={6} sm={4} md={2}>
                                         <DocumentButton
-                                            {...{t, handleChange}}
+                                            {...{t}}
                                             type={item.slug}
                                             icon={item.logo.url}
                                             active={data.state.type}
@@ -187,7 +192,8 @@ function AddDocumentDialog({...props}) {
                                             uuid={item.uuid}
                                             selected={type}
                                             height={100}
-                                            handleOnClick={(v: string, event: React.MouseEvent<HTMLElement>) => {
+                                            onChange={handleChange}
+                                            onClick={(v: string, event: React.MouseEvent<HTMLElement>) => {
                                                 setType(v);
                                                 setAnchorData(item);
                                                 data.state.type = v;
@@ -249,7 +255,7 @@ function AddDocumentDialog({...props}) {
                         </Stack>}
                     <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>
                         <Grid container spacing={1} alignItems="flex-start">
-                            <Grid item xs={12} lg={12}>
+                            < Grid item xs={12} lg={12}>
                                 {files.length > 0 && <Typography
                                     mt={1}
                                     mb={1}

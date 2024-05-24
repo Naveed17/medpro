@@ -228,6 +228,7 @@ main {
 fieldset {
   border: 1px dotted #E0E0E0;
   border-radius: 8px;
+  padding: inherit;
 
   legend {
     font-style: normal;
@@ -611,9 +612,11 @@ fieldset {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 1;
   }
@@ -623,9 +626,11 @@ fieldset {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 1;
   }
@@ -635,9 +640,11 @@ fieldset {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 1;
   }
@@ -647,9 +654,11 @@ fieldset {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 1;
   }
@@ -686,4 +695,16 @@ fieldset {
 .act-table-item {
   color: #7C878E;
   font-size: 18px;
+}
+
+ol,
+ul,
+menu {
+  list-style: none;
+  margin: 0;
+  padding: revert;
+}
+
+table {
+  border-collapse: inherit;
 }

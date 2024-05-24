@@ -1,9 +1,6 @@
 import { a11yProps } from "@lib/hooks";
 import { Tab, Tabs } from "@mui/material";
 import { useTranslation } from "next-i18next";
-
-
-
 function StatsToolbar({ ...props }) {
     const { value, handleChange, tabsData } = props;
 

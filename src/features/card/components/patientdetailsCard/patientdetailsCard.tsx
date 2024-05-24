@@ -5,7 +5,8 @@ import {
     Button,
     Grid,
     IconButton,
-    InputBase, Link,
+    InputBase,
+    Link,
     Skeleton,
     Stack,
     Tooltip,
@@ -304,32 +305,37 @@ function PatientDetailsCard({...props}) {
                                             alignItems={"start"}
                                             justifyContent="space-between">
                                             <Stack>
-                                                <InputBase
-                                                    readOnly
-                                                    {...(patient?.nationality?.code && {
-                                                        startAdornment: <Tooltip
-                                                            title={patient.nationality.nationality}>
-                                                            <Avatar
-                                                                sx={{
-                                                                    width: 18,
-                                                                    height: 18,
-                                                                    mr: .5,
-                                                                    ml: -.2,
-                                                                    borderRadius: 4
-                                                                }}
-                                                                alt={"flag"}
-                                                                src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
-                                                        </Tooltip>
-                                                    })}
-                                                    inputProps={{
-                                                        style: {
-                                                            background: "white",
-                                                            fontSize: pxToRem(14),
-                                                            fontWeight: "bold"
-                                                        },
-                                                    }}
-                                                    {...getFieldProps("name")}
-                                                />
+                                                <Tooltip title={values.name}>
+                                                    <InputBase
+                                                        readOnly
+                                                        {...(patient?.nationality?.code && {
+                                                            startAdornment: <Tooltip
+                                                                title={patient.nationality.nationality}>
+                                                                <Avatar
+                                                                    sx={{
+                                                                        width: 18,
+                                                                        height: 18,
+                                                                        mr: .5,
+                                                                        ml: -.2,
+                                                                        borderRadius: 4
+                                                                    }}
+                                                                    alt={"flag"}
+                                                                    src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
+                                                            </Tooltip>
+                                                        })}
+                                                        inputProps={{
+                                                            style: {
+                                                                background: "white",
+                                                                fontSize: pxToRem(14),
+                                                                fontWeight: "bold",
+                                                                textOverflow: "ellipsis",
+                                                                whiteSpace: "nowrap",
+                                                                overflow: "hidden",
+                                                            },
+                                                        }}
+                                                        {...getFieldProps("name")}
+                                                    />
+                                                </Tooltip>
 
                                                 <Stack direction={isMobile ? "column" : "row"}>
                                                     {loading ? (

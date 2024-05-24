@@ -114,6 +114,7 @@
     "config": {
       "add": "Ajouter",
       "title": "Motifs de consultation",
+      "search": "Recherche",
       "path": "Paramètres > Motifs de consultation",
       "dialog": {
         "title": "Supprimer le motif",

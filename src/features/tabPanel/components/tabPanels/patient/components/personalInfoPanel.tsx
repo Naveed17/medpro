@@ -1,10 +1,14 @@
-import {
-    PersonalInfoCard,
-    PatientDetailContactCard,
-    PersonalInsuranceCard,
-    AntecedentsCard
-} from "@features/card";
 import {Stack} from "@mui/material";
+import dynamic from "next/dynamic";
+
+const PersonalInfoCard = dynamic(() =>
+    import('@features/card').then((mod) => mod.PersonalInfoCard))
+const PatientDetailContactCard = dynamic(() =>
+    import('@features/card').then((mod) => mod.PatientDetailContactCard))
+const PersonalInsuranceCard = dynamic(() =>
+    import('@features/card').then((mod) => mod.PersonalInsuranceCard))
+const AntecedentsCard = dynamic(() =>
+    import('@features/card').then((mod) => mod.AntecedentsCard))
 
 function PersonInfoPanel({...props}) {
     const {countries_api, contacts, contactData, ...other} = props;

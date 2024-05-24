@@ -59,7 +59,6 @@ import Icon from "@themes/urlIcon";
 import {
     DefaultCountry,
     deleteAppointmentOptionsData,
-    EnvPattern,
     WaitingHeadCells,
     WaitingTodayCells
 } from "@lib/constants";
@@ -122,7 +121,7 @@ function WaitingRoom() {
         type,
         finalize
     } = useAppSelector(appointmentSelector);
-    const { next: is_next, medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
+    const { next: is_next } = useAppSelector(dashLayoutSelector);
     const { filter: boardFilterData } = useAppSelector(boardSelector);
 
     const { data: user } = session as Session;
@@ -152,7 +151,7 @@ function WaitingRoom() {
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
-        { index: 0, key: "startTime", value: "start-time" },
+        //{index: 0, key: "startTime", value: "start-time"},
         { index: 1, key: "arrivalTime", value: "arrival-time" },
         { index: 2, key: "estimatedStartTime", value: "smart-list" }
     ]);
@@ -174,7 +173,6 @@ function WaitingRoom() {
     };
 
     const { trigger: updateTrigger } = useRequestQueryMutation("/agenda/appointment/update");
-    const { trigger: updateAgendaConfig } = useRequestQueryMutation("/agenda/config/update");
     const { trigger: updateAppointmentStatus } = useRequestQueryMutation("/agenda/update/appointment/status");
     const { trigger: handlePreConsultationData } = useRequestQueryMutation("/pre-consultation/update");
     const { trigger: addAppointmentTrigger } = useRequestQueryMutation("/agenda/appointment/add");
@@ -428,17 +426,14 @@ function WaitingRoom() {
 
     const handleSortSelect = (item: any) => {
         dispatch(setSortTime(item.value));
-        const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
-        if (!prodEnv) {
-            const params = new FormData();
-            params.append('waitingRoomDisplay', item.index.toString());
-            medicalEntityHasUser && updateAgendaConfig({
-                method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
-                data: params
-            })
-        }
+        /*        const params = new FormData();
+                params.append('waitingRoomDisplay', item.index.toString());
+                medicalEntityHasUser && updateAgendaConfig({
+                    method: "PATCH",
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/waiting-room-display/${router.locale}`,
+                    data: params
+                })*/
 
         setAnchorEl(null);
     };
@@ -1595,8 +1590,10 @@ function WaitingRoom() {
                                 margin={2}>{t(`dialogs.delete-dialog.description`, { ns: "common" })}</Typography>
 
                             <Grid container spacing={1}>
-                                {deleteAppointmentOptions.map((option: any, index: number) =>
-                                    <Grid key={option.key} item md={4} xs={12}>
+                                {deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).map((option: any, index: number) =>
+                                    <Grid key={option.key} item
+                                        md={12 / deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).length}
+                                        xs={12}>
                                         <Card
                                             sx={{
                                                 padding: 1,

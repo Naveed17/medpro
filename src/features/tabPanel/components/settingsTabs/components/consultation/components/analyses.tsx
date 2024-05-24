@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { configSelector } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useEffect, useState } from "react";
+import { configSelector, DashLayout } from "@features/base";
 import {
     Box,
     Button,
@@ -95,12 +97,9 @@ function Analysis() {
         },
     ];
 
-    const { trigger: triggerAnalisisDelete } = useRequestQueryMutation("/settings/analysis/delete");
+    const { trigger: triggerAnalysisDelete } = useRequestQueryMutation("/settings/analysis/delete");
 
-    const {
-        data: analysisResponse,
-        mutate: mutateAnalysis
-    } = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const { data: analysisResponse, mutate: mutateAnalysis } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/analysis/${router.locale}`
     } : null, {
@@ -110,7 +109,7 @@ function Analysis() {
 
     const removeAnalyise = (uuid: any) => {
         setLoading(true)
-        urlMedicalProfessionalSuffix && triggerAnalisisDelete({
+        urlMedicalProfessionalSuffix && triggerAnalysisDelete({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/analysis/${uuid}/${router.locale}`
         }, {
@@ -175,9 +174,29 @@ function Analysis() {
 
     const analysis = ((analysisResponse as HttpResponse)?.data?.list ?? []) as AnalysisModel[];
     const analysisMobileRes = isMobile ? ((analysisResponse as HttpResponse)?.data ?? []) as AnalysisModel[] : [];
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
+
     return (
         <>
-
+            <SubHeader>
+                <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    width={1}
+                    alignItems="center">
+                    <Typography color="text.primary">{t("path")}</Typography>
+                    <Can I={"manage"} a={"settings"} field={"settings__analysis__create"}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => configAnalysis(null, "add")}
+                            sx={{ ml: "auto" }}>
+                            {t("add")}
+                        </Button>
+                    </Can>
+                </Stack>
+            </SubHeader>
             <DesktopContainer>
                 <Box
                     sx={{
@@ -186,23 +205,6 @@ function Analysis() {
                     }}>
                     <Otable
                         {...{ t }}
-                        toolbar={<Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            width={1}
-                            mb={3}
-                            alignItems="center">
-                            <Typography color="text.primary" variant="subtitle1">{t("title")}</Typography>
-                            <Can I={"manage"} a={"settings"} field={"settings__analysis__create"}>
-                                <CustomIconButton
-
-                                    color="primary"
-                                    onClick={() => configAnalysis(null, "add")}
-                                    sx={{ ml: "auto" }}>
-                                    <IconUrl path="ic-plus" width={16} height={16} color="white" />
-                                </CustomIconButton>
-                            </Can>
-                        </Stack>}
                         headers={headCells}
                         rows={analysis}
                         from={"analysis"}

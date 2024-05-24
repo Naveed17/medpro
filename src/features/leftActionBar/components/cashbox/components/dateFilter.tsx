@@ -1,10 +1,11 @@
 import {Box, Checkbox, Collapse, FormControlLabel} from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import moment from "moment/moment";
 import {useAppDispatch} from "@lib/redux/hooks";
 import Datepicker from "react-tailwindcss-datepicker";
 import {useRouter} from "next/router";
+import {AbilityContext} from "@features/casl/can";
 
 function DateFilter({...props}) {
 
@@ -22,6 +23,7 @@ function DateFilter({...props}) {
     } = props;
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const ability = useContext(AbilityContext);
 
     const {t} = useTranslation('payment', {keyPrefix: 'filter'});
 
@@ -80,6 +82,7 @@ function DateFilter({...props}) {
             <Collapse in={isActive && filterDate} timeout="auto" unmountOnExit>
                 <div dir={"ltr"}>
                     <Datepicker
+                        {...(!ability.can('manage', 'cashbox', 'cash_box__transaction__history') && {minDate: moment().toDate()})}
                         i18n={router.locale}
                         inputClassName="w-full rounded-md focus:ring-0 font-normal border border-gray-300 p-2"
                         value={value as any}

@@ -3,8 +3,13 @@ import {ConfigReducer} from "@features/base/reducer";
 import {SideBarReducer, ProfileMenuReducer} from "@features/menu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
-import {addPatientReducer, appointmentReducer, stepperProfileReducer, tabPanelReducer} from "@features/tabPanel";
-import {QsSidebarReducer, leftActionBarReducer, ocrDocumentReducer} from "@features/leftActionBar";
+import {addPatientReducer, appointmentReducer, stepperProfileReducer,tabPanelReducer} from "@features/tabPanel";
+import {
+    QsSidebarReducer,
+    leftActionBarReducer,
+    ocrDocumentReducer,
+    ConsultationContentReducer
+} from "@features/leftActionBar";
 import {tableReducer} from "@features/table";
 import {ConsultationReducer} from "@features/toolbar";
 import {AgendaReducer} from "@features/calendar";
@@ -88,7 +93,8 @@ const rootReducer = combineReducers({
     minMaxWindow: minMaxWindowToggleReducer,
     stepper: StepperReducer,
     board: BoardReducer,
-    tabPanel:tabPanelReducer
+    tabPanel:tabPanelReducer,
+    consultationContent: ConsultationContentReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

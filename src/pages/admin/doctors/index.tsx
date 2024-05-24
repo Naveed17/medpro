@@ -113,7 +113,6 @@ function Doctors() {
     });
 
     const handleTableEvent = (action: string, data: any) => {
-        console.log(action, data);
         switch (action) {
             case "EDIT_DOCTOR":
                 router.push(`${router.pathname}/${data.uuid}`, `${router.pathname}/${data.uuid}`, {locale: router.locale});
