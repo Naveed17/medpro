@@ -25,6 +25,8 @@ function DateFilter({...props}) {
     const router = useRouter();
     const ability = useContext(AbilityContext);
 
+    const elSideBar = document.getElementsByClassName('action-bar-open')[0] as HTMLElement
+
     const {t} = useTranslation('payment', {keyPrefix: 'filter'});
 
     const [isActive, setIsActive] = useState(byPeriod);
@@ -36,6 +38,7 @@ function DateFilter({...props}) {
     const handleValueChange = (newValue: any) => {
         setValue(newValue);
         if (newValue.startDate && newValue.endDate) {
+            elSideBar.style.overflow = "auto";
             setStartDate(moment(newValue.startDate, "YYYY-MM-DD").toDate())
             setEndDate(moment(newValue.endDate, "YYYY-MM-DD").toDate())
             dispatch(setFilterCB({
@@ -43,6 +46,16 @@ function DateFilter({...props}) {
                 start_date: moment(newValue.startDate, "YYYY-MM-DD").format('DD-MM-YYYY'),
                 end_date: moment(newValue.endDate, "YYYY-MM-DD").format('DD-MM-YYYY')
             }));
+        } else {
+            setTimeout(() => {
+                const el = document.querySelector('.transition-all.opacity-1') as HTMLElement
+                if (!el) {
+                    elSideBar.style.overflow = "auto";
+                    setIsActive(false)
+                } else {
+                    elSideBar.style.overflow = "visible";
+                }
+            }, 100);
         }
     }
 
@@ -80,7 +93,19 @@ function DateFilter({...props}) {
             />
 
             <Collapse in={isActive && filterDate} timeout="auto" unmountOnExit>
-                <div dir={"ltr"}>
+                <div dir={"ltr"}
+                     onBlur={() => {
+                         setTimeout(() => {
+                             const el = document.querySelector('.transition-all.opacity-1') as HTMLElement
+                             elSideBar.style.overflow = el ? "visible" : "auto";
+                         }, 100);
+                     }}
+                     onClick={() => {
+                         setTimeout(() => {
+                             const el = document.querySelector('.transition-all.opacity-1') as HTMLElement
+                             elSideBar.style.overflow = el ? "visible" : "auto";
+                         }, 10);
+                     }}>
                     <Datepicker
                         {...(!ability.can('manage', 'cashbox', 'cash_box__transaction__history') && {minDate: moment().toDate()})}
                         i18n={router.locale}

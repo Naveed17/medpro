@@ -151,7 +151,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             padding: "10px 20px 10px 20px",
             backgroundColor: theme.palette.background.paper,
             overflowY: "auto",
-            overflow: "visible",
+            //overflow: "visible",
             height: "100%",
             zIndex: 1200,
             position: "fixed",
