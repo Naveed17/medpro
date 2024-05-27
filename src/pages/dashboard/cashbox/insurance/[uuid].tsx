@@ -7,6 +7,7 @@ import {
     Card,
     CardContent,
     FormControl,
+    IconButton,
     InputAdornment,
     Stack,
     Tab,
@@ -21,7 +22,7 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Theme} from "@mui/material/styles";
 import {useAppSelector} from "@lib/redux/hooks";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {DefaultCountry} from "@lib/constants";
 import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 import {useSession} from "next-auth/react";
@@ -37,12 +38,17 @@ import {ImageHandler} from "@features/image";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {InsuranceAppointMobileCard, NoDataCard} from "@features/card";
+import {DatePicker} from "@mui/x-date-pickers";
+import moment from "moment-timezone";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 function InscDetail() {
 
     const router = useRouter();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+
     const ability = useContext(AbilityContext);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const theme = useTheme() as Theme
@@ -206,6 +212,8 @@ function InscDetail() {
     const {t, i18n} = useTranslation("payment", {keyPrefix: "insurances"});
     //***** SELECTORS ****//
     const {trigger} = useRequestQueryMutation("/docket/create");
+    const {trigger: triggerInsurance} = useRequestQueryMutation("/mp/insurance");
+
     const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
 
     const {data: user} = session as Session;
@@ -221,6 +229,9 @@ function InscDetail() {
     const [total_appointment, setTotalAppointment] = useState([]);
     const [rows, setRows] = useState([])
     const [search, setSearch] = useState("")
+    const [editMode, setEditMode] = useState(true)
+    const [selectedMPI, setSelectedMPI] = useState<any>(null)
+    const [hasMPI, setHasMPI] = useState("")
 
     const topCard = [
         {
@@ -252,7 +263,13 @@ function InscDetail() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/insurances/appointments/${uuid}/${router.locale}?start_date=${filterCB.start_date}&end_date=${filterCB.end_date}`,
     })
+
     const appointments = (httpAppointments as HttpResponse)?.data ?? null;
+
+    const {data: httpMPInsurances, mutate: mutateMPInsurances} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/insurances/${uuid}/${router.locale}`,
+    } : null)
 
     const tabsData = [
         ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
@@ -296,6 +313,27 @@ function InscDetail() {
         });
     }
 
+    const createInsuranceMP = () => {
+        const form = new FormData();
+        console.log(selectedMPI)
+        form.append('insurance', uuid);
+        selectedMPI?.start_date && form.append('start_date', selectedMPI.start_date);
+        selectedMPI?.end_date && form.append('end_date', selectedMPI.end_date);
+        selectedMPI?.code && form.append('code', selectedMPI?.code);
+        selectedMPI?.ref_center && form.append('ref_center', selectedMPI?.ref_center);
+
+        triggerInsurance({
+            method: hasMPI ? "PUT" : "POST",
+            url: `${urlMedicalProfessionalSuffix}/insurances/${hasMPI ? `${hasMPI}/` : ""}${router.locale}`,
+            data: form
+        }, {
+            onSuccess: (res) => {
+                setHasMPI(res.data.data.uuid)
+                mutateMPInsurances();
+            }
+        });
+    }
+
     const exportDoc = (uuid: string, name?: string) => {
         trigger(
             {
@@ -310,6 +348,7 @@ function InscDetail() {
             }
         );
     }
+
     const deleteDoc = (uuid: string) => {
         trigger(
             {
@@ -329,6 +368,13 @@ function InscDetail() {
         if (httpDocket)
             setDockets(httpDocket.data.reverse())
     }, [httpDocket]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpMPInsurances) {
+            setSelectedMPI(httpMPInsurances.data)
+            setHasMPI(httpMPInsurances.data.uuid)
+        }
+    }, [httpMPInsurances]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         //reload resources from cdn servers
@@ -374,9 +420,17 @@ function InscDetail() {
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
                                         {t("code")} {insurances.find(insc => insc.uuid === uuid)?.name}
                                     </Typography>
-                                    <Typography fontSize={13} fontWeight={600} component="div">
-                                        -
-                                    </Typography>
+                                    {
+                                        editMode ? <TextField value={selectedMPI?.code || ""}
+                                                              size={"small"}
+                                                              onChange={(ev) => setSelectedMPI({
+                                                                  ...selectedMPI,
+                                                                  code: ev.target.value
+                                                              })}/> :
+                                            <Typography fontSize={13} fontWeight={600} component="div">
+                                                {selectedMPI ? selectedMPI.code : "-"}
+                                            </Typography>
+                                    }
                                 </CardContent>
                             </Card>
                             <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
@@ -384,9 +438,17 @@ function InscDetail() {
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
                                         {t("reference_center")}
                                     </Typography>
-                                    <Typography fontSize={13} fontWeight={600} component="div">
-                                        -
-                                    </Typography>
+                                    {
+                                        editMode ? <TextField value={selectedMPI?.ref_center || ""}
+                                                              size={"small"}
+                                                              onChange={(ev) => setSelectedMPI({
+                                                                  ...selectedMPI,
+                                                                  ref_center: ev.target.value
+                                                              })}/> :
+                                            <Typography fontSize={13} fontWeight={600} component="div">
+                                                {selectedMPI?.ref_center ? selectedMPI?.ref_center : "-"}
+                                            </Typography>
+                                    }
                                 </CardContent>
                             </Card>
                             <Card sx={{border: (theme) => `1px dashed ${theme.palette.divider}`}}>
@@ -394,12 +456,31 @@ function InscDetail() {
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
                                         {t("start_date")}
                                     </Typography>
-                                    <Stack direction='row' alignItems='center' spacing={.5}>
-                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
-                                        <Typography fontSize={13} fontWeight={600} component="div">
-                                            -
-                                        </Typography>
-                                    </Stack>
+
+                                    {
+                                        editMode ?
+
+                                            <DatePicker
+                                                value={moment(selectedMPI?.start_date, "DD-MM-YYYY").toDate() || ""}
+                                                format="dd/MM/yyyy"
+                                                slots={{
+                                                    openPickerIcon: CalendarPickerIcon,
+                                                }}
+                                                onChange={date => {
+                                                    setSelectedMPI({
+                                                        ...selectedMPI,
+                                                        start_date: moment(date).format('DD/MM/YYYY')
+                                                    })
+                                                }}
+                                            />
+                                            :
+                                            <Stack direction='row' alignItems='center' spacing={.5}>
+                                                <IconUrl path="ic-agenda-jour" width={16} height={16}/>
+                                                <Typography fontSize={13} fontWeight={600} component="div">
+                                                    {selectedMPI ? selectedMPI?.start_date : '-'}
+                                                </Typography>
+                                            </Stack>
+                                    }
                                 </CardContent>
                             </Card>
                             <Card sx={{border: `1px dashed ${theme.palette.divider}`}}>
@@ -407,24 +488,44 @@ function InscDetail() {
                                     <Typography variant="body2" fontWeight={500} color="text.secondary" gutterBottom>
                                         {t("end_date")}
                                     </Typography>
-                                    <Stack direction='row' alignItems='center' spacing={.5}>
-                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
-                                        <Typography fontSize={13} fontWeight={600} component="div">
-                                            -
-                                        </Typography>
-                                    </Stack>
+                                    {
+                                        editMode && selectedMPI?.end_date ? <DatePicker
+                                                defaultValue={selectedMPI?.end_date}
+                                                value={moment(selectedMPI?.end_date, "DD-MM-YYYY").toDate() || ""}
+                                                format="dd-MM-yyyy"
+                                                slots={{
+                                                    openPickerIcon: CalendarPickerIcon,
+                                                }}
+                                                onChange={date => {
+                                                    setSelectedMPI({
+                                                        ...selectedMPI,
+                                                        end_date: moment(date).format('DD-MM-YYYY')
+                                                    })
+                                                }}
+                                            /> :
+                                            <Stack direction='row' alignItems='center' spacing={.5}>
+                                                <IconUrl path="ic-agenda-jour" width={16} height={16}/>
+                                                <Typography fontSize={13} fontWeight={600} component="div">
+                                                    {selectedMPI ? selectedMPI?.end_date : '-'}
+                                                </Typography>
+                                            </Stack>
+                                    }
                                 </CardContent>
                             </Card>
                         </Stack>
-                        {/* <IconButton disableRipple sx={{
+                        <IconButton disableRipple sx={{
                             ml: 1, ...(isMobile && {
                                 position: 'absolute',
                                 top: -12,
                                 right: 0
                             })
+                        }} onClick={() => {
+                            if (editMode)
+                                createInsuranceMP()
+                            setEditMode(prev => !prev)
                         }}>
-                            <IconUrl path="ic-edit-pen" width={20} height={20} color={theme.palette.text.primary} />
-                        </IconButton>*/}
+                            <IconUrl path="ic-edit-pen" width={20} height={20} color={theme.palette.text.primary}/>
+                        </IconButton>
                     </Stack>
                 </CardContent>
                 <Tabs
@@ -440,7 +541,7 @@ function InscDetail() {
                     }}
                     scrollButtons={true}
                     indicatorColor="primary">
-                    { selectedInsurance?.hasExport && tabsData.map((tab) => (
+                    {selectedInsurance?.hasExport && tabsData.map((tab) => (
                         <Tab
                             key={tab.label}
                             value={tab.label}
@@ -529,11 +630,12 @@ function InscDetail() {
                                    })}
                             >
                                 {selectedInsurance?.hasExport && <Button fullWidth={isMobile}
-                                         onClick={createDockets}
-                                         disabled={rowsSelected.length === 0}
-                                         variant="grey"
-                                         startIcon={<IconUrl path="ic-archive-new"/>}>{t("archive")}</Button>
-                                }                                {/*
+                                                                         onClick={createDockets}
+                                                                         disabled={rowsSelected.length === 0}
+                                                                         variant="grey"
+                                                                         startIcon={<IconUrl
+                                                                             path="ic-archive-new"/>}>{t("archive")}</Button>
+                                } {/*
                                 <Button fullWidth={isMobile}
                                         variant="grey"
                                         disabled={rowsSelected.length === 0}

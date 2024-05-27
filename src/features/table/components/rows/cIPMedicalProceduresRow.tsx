@@ -100,7 +100,7 @@ function CIPMedicalProceduresRow({...props}) {
                         </Typography>
 
                         {
-                            row.insurances.length > 0 &&
+                            row.insurances?.length > 0 &&
 
                             <IconButton disabled={!row.selected} onClick={() => setCollapse(!collapse)}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
