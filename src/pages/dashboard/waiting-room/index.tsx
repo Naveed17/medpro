@@ -78,7 +78,7 @@ import {
 } from "@features/tabPanel";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
-import {setDialog} from "@features/topNavBar";
+import {setDialog, setDialogAction} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
 import {partition} from "lodash";
@@ -90,6 +90,8 @@ import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import AddIcon from "@mui/icons-material/Add";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CircleIcon from '@mui/icons-material/Circle';
+import {Epg, Layout} from "planby";
+import {EventItem, PlanByTimeline, setShowDetails, timeLineSelector, useTimeLine} from "@features/timeline";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -102,7 +104,7 @@ function WaitingRoom() {
     const ability = useContext(AbilityContext);
 
     const {t, ready, i18n} = useTranslation(["waitingRoom", "common"]);
-    const {config: agenda} = useAppSelector(agendaSelector);
+    const {config: agenda, currentDate} = useAppSelector(agendaSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
@@ -117,11 +119,13 @@ function WaitingRoom() {
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
+    const {showDetails: showTimeLineDetails} = useAppSelector(timeLineSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -136,6 +140,7 @@ function WaitingRoom() {
     const [popoverActions, setPopoverActions] = useState<any[]>([]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [waitingRoomsGroup, setWaitingRoomsGroup] = useState<any[]>([]);
+    const [sortedData, setSortedData] = useState<any[]>([]);
     const [withoutDateTime, setWithoutDateTime] = useState<boolean>(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddAppointmentTab, setQuickAddAppointmentTab] = useState(1);
@@ -159,6 +164,8 @@ function WaitingRoom() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [drugs, setDrugs] = useState<any>([]);
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
+    // Update timeLine Data
+    const {isLoading, getEpgProps, getLayoutProps, onScrollToNow} = useTimeLine({data: sortedData});
 
     const openMenu = Boolean(anchorElMenu);
     const transitionDuration = {
@@ -185,7 +192,7 @@ function WaitingRoom() {
         refetchOnWindowFocus: false,
         ...(agenda && {
             variables: {
-                query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
+                query: `?mode=tooltip&start_date=${moment(currentDate.date).format("DD-MM-YYYY")}&end_date=${moment(currentDate.date).format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
             }
         })
     });
@@ -781,6 +788,7 @@ function WaitingRoom() {
                     return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
                 });
             }
+            setSortedData(sortData.filter((item: any) => item.startTime !== "00:00"));
             let groupedData = sortData.group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0]];
@@ -817,7 +825,9 @@ function WaitingRoom() {
     useEffect(() => {
         dispatch(toggleSideBar(true));
         //reload resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
+        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"]);
+
+        onScrollToNow();
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
@@ -834,6 +844,34 @@ function WaitingRoom() {
                         display: "block"
                     }
                 }}>
+                <Epg isLoading={isLoading} {...getEpgProps()}>
+                    <Layout
+                        {...getLayoutProps()}
+                        renderTimeline={(props) => <PlanByTimeline {...props} />}
+                        renderProgram={({program, ...rest}) => (
+                            <EventItem key={program.data.uuid} program={program} {...rest} />
+                        )}
+                    />
+                </Epg>
+                <Stack alignItems={"center"} width={"100%"}>
+                    <Fab
+                        color="info"
+                        onClick={event => {
+                            event.stopPropagation();
+                            dispatch(setShowDetails(!showTimeLineDetails));
+                        }}
+                        size={"small"}
+                        sx={{
+                            boxShadow: "none",
+                            minHeight: 20,
+                            height: 36,
+                            width: 36
+                        }}>
+                        <IconUrl path={showTimeLineDetails ? "ic-outline-arrow-up" : "ic-arrow-down"}/>
+                    </Fab>
+                </Stack>
+
+
                 <RoomToolbar {...{
                     t,
                     tabIndex,
@@ -841,6 +879,7 @@ function WaitingRoom() {
                     setPatientDetailDrawer,
                     nextConsultation,
                     columns: columns.current,
+                    currentDate,
                     is_next,
                     isActive
                 }} />
@@ -867,11 +906,10 @@ function WaitingRoom() {
                                             title={
                                                 <Stack spacing={.3}>
                                                     <Typography fontWeight={600}>{t("appointments")}</Typography>
-                                                    <Typography fontWeight={600} fontSize={18}>56</Typography>
+                                                    <Typography fontWeight={600}
+                                                                fontSize={18}>{sortedData?.length}</Typography>
                                                 </Stack>
                                             }
-
-
                                         />
                                         <CardContent>
                                             <Stack spacing={2}>
@@ -880,25 +918,25 @@ function WaitingRoom() {
                                                              size="small">
                                                     <Button className="btn-absent">
                                                         <Typography component='span' className="ellipsis">
-                                                            05 Absent
+                                                            {`0 ${t('filter.absent')}`}
                                                         </Typography>
                                                     </Button>
                                                     <Button className="btn-confirm">
                                                         <Typography component='span' className="ellipsis">
-                                                            05 Confirmed
+                                                            {`${waitingRoomsGroup[1] ? waitingRoomsGroup[1].length : "0"} ${t('filter.confirm')}`}
                                                         </Typography>
                                                     </Button>
                                                     <Button className="btn-waiting ellipsis" style={{flex: 2}}>
-                                                        <Typography component='span' className="ellipsis">10
-                                                            Waiting</Typography>
+                                                        <Typography component='span'
+                                                                    className="ellipsis">{`${waitingRoomsGroup[3] ? waitingRoomsGroup[3].length : "0"} ${t('filter.pending')}`}</Typography>
                                                     </Button>
                                                     <Button className="btn-complete ellipsis" style={{flex: 2}}>
-                                                        <Typography component='span' className="ellipsis">28
-                                                            Completed</Typography>
+                                                        <Typography component='span'
+                                                                    className="ellipsis">{`${waitingRoomsGroup[5] ? waitingRoomsGroup[5].length : "0"} ${t('filter.done')}`}</Typography>
                                                     </Button>
                                                 </ButtonGroup>
                                                 <Breadcrumbs aria-label="breadcrumb" separator={null}>
-                                                    {["absent", "confirmed", "waiting", "completed"].map((item, idx) =>
+                                                    {["absent", "confirm", "pending", "done"].map((item, idx) =>
                                                         <Link
                                                             key={idx}
                                                             underline="none"
@@ -907,18 +945,16 @@ function WaitingRoom() {
                                                                 alignItems: 'center',
                                                                 color: theme.palette.grey[400]
                                                             }}
-                                                            color="inherit"
-
-                                                        >
+                                                            color="inherit">
                                                             <CircleIcon sx={{mr: 0.5, width: 8, height: 8}}
                                                                         htmlColor={theme.palette[
                                                                             item === "absent" ? "error"
-                                                                                : item === "confirmed" ? "success"
-                                                                                    : item === "waiting" ? "warning"
+                                                                                : item === "confirm" ? "success"
+                                                                                    : item === "pending" ? "warning"
                                                                                         : "primary"
 
                                                                             ].light}/>
-                                                            {t(item)}
+                                                            {t(`filter.${item}`)}
                                                         </Link>
                                                     )}
 
@@ -957,9 +993,9 @@ function WaitingRoom() {
                                                     <Stack>
                                                         <Typography fontWeight={600}
                                                                     color="primary.darker">{t("total_received")}</Typography>
-                                                        <Typography fontWeight={600} fontSize={18}>567
+                                                        <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
-                                                                TND
+                                                                {devise}
                                                             </Typography>
                                                         </Typography>
                                                     </Stack>
@@ -983,7 +1019,7 @@ function WaitingRoom() {
                                                     <Stack>
                                                         <Typography fontWeight={600}
                                                                     color="primary.darker">{t("billed_consultation")}</Typography>
-                                                        <Typography fontWeight={600} fontSize={18}>567
+                                                        <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
                                                             </Typography>
@@ -1009,7 +1045,7 @@ function WaitingRoom() {
                                                     <Stack>
                                                         <Typography fontWeight={600}
                                                                     color="primary.darker">{t("paid")}</Typography>
-                                                        <Typography fontWeight={600} fontSize={18}>567
+                                                        <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
                                                             </Typography>
@@ -1029,13 +1065,12 @@ function WaitingRoom() {
                                                         <IconUrl width={20} height={20} path="ic-filled-money-remove"
                                                                  color={theme.palette.error.main}/>
                                                     </CustomIconButton>
-
                                                 }
                                                 title={
                                                     <Stack>
                                                         <Typography fontWeight={600}
                                                                     color="primary.darker">{t("unpaid")}</Typography>
-                                                        <Typography fontWeight={600} fontSize={18}>567
+                                                        <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
                                                             </Typography>
@@ -1057,7 +1092,7 @@ function WaitingRoom() {
                                                 </CustomIconButton>
                                                 <Typography fontWeight={600} textAlign='center'
                                                             color="primary.darker">{t("estimated_end_time")}</Typography>
-                                                <Typography variant="h5" lineHeight={1}>20.00</Typography>
+                                                <Typography variant="h5" lineHeight={1}>--.--</Typography>
                                             </Stack>
                                         </CardContent>
                                     </Card>

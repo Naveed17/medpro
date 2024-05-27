@@ -13,6 +13,7 @@ export * from "./prepareSearchKeys";
 export * from "./prepareInsurancesData";
 export * from "./filterReasonOptions";
 export * from "./capitalizeFirst";
+export * from "./getSlotsFormat";
 export * from "./increaseNumberInString";
 export * from "./convertHexToRGBA";
 export * from "./getDiffDuration";

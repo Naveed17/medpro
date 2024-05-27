@@ -9,8 +9,9 @@ import {
     timelineOppositeContentClasses,
     TimelineDot
 } from '@mui/lab';
-function Timeline({ ...props }) {
-    const { data = [] } = props
+
+function Timeline({...props}) {
+    const {data = []} = props
     return (
         <MuiTimeline
             sx={{
@@ -19,17 +20,16 @@ function Timeline({ ...props }) {
                     flex: 0.2,
                 },
             }
-            }
-        >
+            }>
             {data.map((timeline: any, idx: number) =>
                 <TimelineItem key={idx}>
                     <TimelineOppositeContent
-                        sx={{ fontWeight: 600, pl: 0, pr: .5, textAlign: 'left' }}>
+                        sx={{fontWeight: 600, pl: 0, pr: .5, textAlign: 'left'}}>
                         {timeline.time}
                     </TimelineOppositeContent>
                     <TimelineSeparator>
-                        <TimelineDot variant="outlined" color={timeline.color ?? 'primary'} />
-                        {idx !== data.length - 1 && <TimelineConnector />}
+                        <TimelineDot variant="outlined" color={timeline.color ?? 'primary'}/>
+                        {idx !== data.length - 1 && <TimelineConnector/>}
                     </TimelineSeparator>
                     <TimelineContent>
                         {timeline.children}

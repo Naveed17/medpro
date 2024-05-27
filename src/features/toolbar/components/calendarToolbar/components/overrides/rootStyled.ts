@@ -11,8 +11,12 @@ const RootStyled = styled("div")(({theme}) => ({
         color: theme.palette.text.primary,
         padding: "0 0 0 5px",
         "& .MuiTypography-root": {
-            fontSize: "1.25rem",
+            fontSize: "1.6rem",
+            fontWeight: 'bold',
             textTransform: "capitalize"
+        },
+        "& .MuiIconButton-root": {
+            padding: 12
         }
     },
     [theme.breakpoints.up("sm")]: {
