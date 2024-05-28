@@ -124,5 +124,6 @@
   "billed_consultation": "Consultation facturée",
   "paid": "payée",
   "unpaid": "Non payée",
-  "estimated_end_time": "Heure de fin estimée"
+  "estimated_end_time": "Heure de fin estimée",
+  "today": "Aujourd'hui"
 }

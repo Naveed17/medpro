@@ -51,11 +51,13 @@ function PlanByTimeline({
     return (
         <TimelineWrapper
             style={{
-                margin: "12px 0 12px",
+                margin: "12px 0 10px",
                 background: theme.palette.grey['50'],
                 padding: "0 3.1rem",
                 borderRadius: 8,
-                zIndex: 9
+                zIndex: 9,
+                lineHeight: 0,
+                height: 46
             }}
             dayWidth={dayWidth}
             sidebarWidth={sidebarWidth}

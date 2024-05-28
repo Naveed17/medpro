@@ -29,7 +29,7 @@ function useTimeLine({...props}) {
         epg: epgData,
         dayWidth: 7200,
         itemHeight: showTimeLineDetails ? 46 : 36,
-        height: 180,
+        height: 140,
         isSidebar: false,
         isTimeline: true,
         isLine: true,

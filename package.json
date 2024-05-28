@@ -103,6 +103,7 @@
     "react-dropzone": "^14.2.1",
     "react-easy-crop": "^5.0.0",
     "react-h5-audio-player": "^3.9.0",
+    "react-horizontal-scrolling-menu": "^7.1.0",
     "react-i18next": "^14.0.1",
     "react-image-file-resizer": "^0.4.8",
     "react-indiana-drag-scroll": "^2.2.0",

@@ -303,6 +303,7 @@ function DocumentDetailDialog({...props}) {
                 switch (state?.type) {
                     case "prescription":
                         setOpenDialog(false);
+                        console.log("state", state)
                         dispatch(SetSelectedDialog({
                             action: 'medical_prescription_cycle',
                             state: state?.info.map((drug: any) => ({
@@ -474,7 +475,7 @@ function DocumentDetailDialog({...props}) {
     }
 
     const doc = ((file instanceof File) || file?.url) && <Document
-        {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[0] = element})}
+        {...(componentRef?.current && {ref: (componentRef.current as any)[0]})}
         file={file.url}
         loading={t('wait')}
         onLoadSuccess={onDocumentLoadSuccess}
