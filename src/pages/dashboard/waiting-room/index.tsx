@@ -78,7 +78,7 @@ import {
 } from "@features/tabPanel";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
-import {setDialog, setDialogAction} from "@features/topNavBar";
+import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
 import {partition, startCase} from "lodash";
@@ -92,7 +92,6 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CircleIcon from '@mui/icons-material/Circle';
 import {Epg, Layout} from "planby";
 import {EventItem, PlanByTimeline, timeLineSelector, useTimeLine} from "@features/timeline";
-import {ScrollMenu} from "react-horizontal-scrolling-menu";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
