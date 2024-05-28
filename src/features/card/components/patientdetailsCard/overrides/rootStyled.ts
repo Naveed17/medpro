@@ -6,14 +6,33 @@ const RootStyled = styled(Stack)(({theme}) => ({
     display: "flex",
     alignItems: "center",
     backgroundColor: theme.palette.background.paper,
-    marginTop: theme.spacing(6.5),
+    marginTop: theme.spacing(11),
     flexDirection: "row",
-    /*  [theme.breakpoints.down("md")]: {
-        flexDirection: "column",
-      },*/
-    borderBottom: `1px solid ${theme.palette.divider}`,
     '& form': {
-        width: '100%'
+        width: '100%',
+        ".patient-avatar":{
+         width: 64,
+        height: 64,
+        padding:theme.spacing(1),
+        backgroundColor: theme.palette.common.white,
+        boxShadow: "0px 0px 0px 4px rgba(6, 150, 214, 0.25)"
+    },
+    ".MuiAvatarGroup-root":{
+    ".assurance-avatar":{
+        width:32,
+        height:32,
+        backgroundColor: theme.palette.common.white,
+        border:'none',
+        boxShadow:'none',
+        margin:0,
+        "&:not(:first-of-type)":{
+            marginLeft:theme.spacing(.5),
+        },
+        img:{
+            objectFit:"contain"
+        }
+    },
+},
     },
     "& .BaseBadge-badge": {
         bottom: 5,

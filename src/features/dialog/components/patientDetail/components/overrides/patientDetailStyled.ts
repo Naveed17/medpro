@@ -11,6 +11,11 @@ const PatientDetailStyled = styled(Stack)(({theme}) => ({
             "& .container": {
                 marginBottom: "6rem"
             }
+        },
+        ".MuiTabs-root":{
+            "&.tabs-bg-white":{
+                top:87
+            }
         }
     },
     "& .MuiBackdrop-root": {

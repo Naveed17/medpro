@@ -1,12 +1,15 @@
-import React, {memo, useEffect, useState} from "react";
+import React, { memo, useEffect, useState } from "react";
 // hook
-import {useTranslation} from "next-i18next";
-import {Form, FormikProvider, useFormik} from "formik";
+import { useTranslation } from "next-i18next";
+import { Form, FormikProvider, useFormik } from "formik";
 // material
 import {
     AppBar, Autocomplete, Avatar,
     Box,
-    Grid, InputAdornment,
+    CardContent,
+    CardHeader,
+    Collapse,
+    Grid, IconButton, InputAdornment,
     InputBase, ListItem, ListItemText,
     MenuItem,
     Paper,
@@ -15,37 +18,39 @@ import {
     TextField,
     Toolbar,
     Typography,
-    useTheme
+    useTheme,
+    alpha
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
+import { useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
 import * as Yup from "yup";
-import {useSnackbar} from "notistack";
+import { useSnackbar } from "notistack";
 import IconUrl from "@themes/urlIcon";
 import Select from '@mui/material/Select';
-import {DatePicker} from '@mui/x-date-pickers/DatePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from "moment-timezone";
-import {LoadingButton} from "@mui/lab";
+import { LoadingButton } from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, setSelectedEvent} from "@features/calendar";
-import {dashLayoutSelector} from "@features/base";
-import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { agendaSelector, setSelectedEvent } from "@features/calendar";
+import { dashLayoutSelector } from "@features/base";
+import { checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix } from "@lib/hooks";
 
 
-import {LoadingScreen} from "@features/loadingScreen";
-import {AsyncAutoComplete} from "@features/autoComplete";
+import { LoadingScreen } from "@features/loadingScreen";
+import { AsyncAutoComplete } from "@features/autoComplete";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
+import { InputStyled } from "@features/tabPanel";
 
-export const MyTextInput: any = memo(({...props}) => {
+export const MyTextInput: any = memo(({ ...props }) => {
     return (
         <TextField {...props} />
     );
 })
 MyTextInput.displayName = "TextField";
 
-function PersonalInfo({...props}) {
+function PersonalInfo({ ...props }) {
     const {
         patient, mutatePatientDetails, mutatePatientList = null,
         mutateAgenda = null, countries_api,
@@ -55,19 +60,22 @@ function PersonalInfo({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const theme = useTheme();
-    const {enqueueSnackbar} = useSnackbar();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
+    const { enqueueSnackbar } = useSnackbar();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const [openPanels, setOpenPanels] = useState<string[]>([])
     const [loadingRequest, setLoadingRequest] = useState(false);
 
-    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
-    const {t: commonTranslation} = useTranslation("common");
-    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const { t, ready } = useTranslation("patient", { keyPrefix: "config.add-patient" });
+    const { t: commonTranslation } = useTranslation("common");
+    const { selectedEvent: appointment } = useAppSelector(agendaSelector);
+    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
 
-    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
-    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
-
+    const { trigger: triggerPatientUpdate } = useRequestQueryMutation("/patient/update");
+    const { trigger: triggerAddressedBy } = useRequestQueryMutation("/patient/addressed-by/add");
+    const handleTogglePanels = (panel: string) => {
+        const newOpenPanels = openPanels.includes(panel) ? openPanels.filter(item => item !== panel) : [...openPanels, panel];
+        setOpenPanels(newOpenPanels);
+    }
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("name-error"))
@@ -86,8 +94,8 @@ function PersonalInfo({...props}) {
         familyDoctor: Yup.string(),
         nationality: Yup.string()
     });
-
     const initialValue = {
+        picture: { url: "", file: "" },
         gender: !loading && patient.gender
             ? patient.gender === "M" ? "1" : "2"
             : "",
@@ -156,15 +164,19 @@ function PersonalInfo({...props}) {
                     } as any;
                     dispatch(setSelectedEvent(event));
                 }
-                enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
+                enqueueSnackbar(t(`alert.patient-edit`), { variant: "success" });
             }
         });
     }
 
-    const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
+    const { handleSubmit, values, errors, touched, getFieldProps, setFieldValue } = formik;
     const editable = defaultEditStatus.personalInfoCard;
     const disableActions = defaultEditStatus.personalInsuranceCard || defaultEditStatus.patientDetailContactCard;
-
+    const handleDrop = (acceptedFiles: FileList) => {
+        const file = acceptedFiles[0];
+        setFieldValue("picture.url", URL.createObjectURL(file));
+        setFieldValue("picture.file", file);
+    }
     useEffect(() => {
         if (!editable) {
             const changedValues = checkObjectChange(flattenedObject, values);
@@ -174,21 +186,14 @@ function PersonalInfo({...props}) {
         }
     }, [editable]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
                 <PersonalInfoStyled>
-                    <Paper
-                        sx={{
-                            "& .MuiTypography-root": {
-                                fontSize: 12,
-                                pt: 0
-                            },
-                            p: 1.5, borderWidth: 0
-                        }}>
-                        <AppBar position="static" color={"transparent"}>
+                    <Paper sx={{ border: 'none', borderRadius: 0 }}>
+                        {/* <AppBar position="static" color={"transparent"}>
                             <Toolbar variant="dense">
                                 <Box sx={{flexGrow: 1}}>
                                     <Typography
@@ -234,22 +239,22 @@ function PersonalInfo({...props}) {
                                     </LoadingButton>
                                 }
                             </Toolbar>
-                        </AppBar>
+                        </AppBar> */}
 
-                        <Grid container spacing={1}
-                              onClick={() => {
-                                  if (!editable) {
-                                      setEditable({
-                                          patientDetailContactCard: false,
-                                          personalInsuranceCard: false,
-                                          personalInfoCard: true
-                                      });
-                                  }
-                              }}
-                              sx={{
-                                  marginTop: "0.4rem"
-                              }}>
-                            <Grid sx={{"& .MuiGrid-item": {pt: .4}}} item md={6} sm={6} xs={12}>
+                        {/* <Grid container spacing={1}
+                            onClick={() => {
+                                if (!editable) {
+                                    setEditable({
+                                        patientDetailContactCard: false,
+                                        personalInsuranceCard: false,
+                                        personalInfoCard: true
+                                    });
+                                }
+                            }}
+                            sx={{
+                                marginTop: "0.4rem"
+                            }}>
+                            <Grid sx={{ "& .MuiGrid-item": { pt: .4 } }} item md={6} sm={6} xs={12}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
@@ -262,14 +267,14 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                     <Grid
                                         {...(editable ? {
-                                                sx: {
-                                                    border: `1px solid ${theme.palette.grey['A100']}`,
-                                                    borderRadius: .5,
-                                                    "& .MuiSelect-select": {
-                                                        pl: 1.5
-                                                    }
+                                            sx: {
+                                                border: `1px solid ${theme.palette.grey['A100']}`,
+                                                borderRadius: .5,
+                                                "& .MuiSelect-select": {
+                                                    pl: 1.5
                                                 }
-                                            } :
+                                            }
+                                        } :
                                             {
                                                 sx: {
                                                     "& .MuiSelect-select": {
@@ -279,7 +284,7 @@ function PersonalInfo({...props}) {
                                             })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <Select
                                                 fullWidth
@@ -318,10 +323,10 @@ function PersonalInfo({...props}) {
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        {...(editable && {className: "grid-border"})}
+                                        {...(editable && { className: "grid-border" })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <InputBase
                                                 placeholder={t("name-placeholder")}
@@ -349,10 +354,10 @@ function PersonalInfo({...props}) {
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        {...(editable && {className: "grid-border"})}
+                                        {...(editable && { className: "grid-border" })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <InputBase
                                                 placeholder={t("name-placeholder")}
@@ -390,7 +395,7 @@ function PersonalInfo({...props}) {
                                         })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <DatePicker
                                                 readOnly={!editable}
@@ -409,7 +414,7 @@ function PersonalInfo({...props}) {
                                                 slots={{
                                                     openPickerIcon: CalendarPickerIcon,
                                                 }}
-                                                slotProps={{textField: {size: "small"}}}
+                                                slotProps={{ textField: { size: "small" } }}
                                             />
                                         )}
                                     </Grid>
@@ -431,10 +436,10 @@ function PersonalInfo({...props}) {
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        {...(editable && {className: "grid-border"})}
+                                        {...(editable && { className: "grid-border" })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <InputBase
                                                 placeholder={t("old-placeholder")}
@@ -473,10 +478,10 @@ function PersonalInfo({...props}) {
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        {...(editable && {className: "grid-border"})}
+                                        {...(editable && { className: "grid-border" })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <InputBase
                                                 placeholder={t("email-placeholder")}
@@ -505,10 +510,10 @@ function PersonalInfo({...props}) {
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        {...(editable && {className: "grid-border"})}
+                                        {...(editable && { className: "grid-border" })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <InputBase
                                                 placeholder={t("cin-placeholder")}
@@ -536,10 +541,10 @@ function PersonalInfo({...props}) {
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        {...(editable && {className: "grid-border"})}
+                                        {...(editable && { className: "grid-border" })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <InputBase
                                                 placeholder={t("profession-placeholder")}
@@ -568,10 +573,10 @@ function PersonalInfo({...props}) {
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        {...(editable && {className: "grid-border"})}
+                                        {...(editable && { className: "grid-border" })}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton variant="text"/>
+                                            <Skeleton variant="text" />
                                         ) : (
                                             <InputBase
                                                 placeholder={t("family_doctor-placeholder")}
@@ -586,7 +591,7 @@ function PersonalInfo({...props}) {
                             </Grid>
                             <Grid item md={6} sm={6} xs={12}>
                                 <Stack direction="row" spacing={1}
-                                       alignItems="center">
+                                    alignItems="center">
                                     <Grid item md={3} sm={6} xs={3}>
                                         <Typography
                                             className="label"
@@ -614,7 +619,7 @@ function PersonalInfo({...props}) {
                                         }}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton width={100}/>
+                                            <Skeleton width={100} />
                                         ) : (
                                             <Autocomplete
                                                 id={"nationality"}
@@ -650,7 +655,7 @@ function PersonalInfo({...props}) {
                                                             src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                                         />}
                                                         <Typography
-                                                            sx={{ml: 1}}>{option.nationality}</Typography>
+                                                            sx={{ ml: 1 }}>{option.nationality}</Typography>
                                                     </MenuItem>
                                                 )}
                                                 renderInput={params => {
@@ -672,18 +677,18 @@ function PersonalInfo({...props}) {
                                                     );
 
                                                     return <TextField color={"info"}
-                                                                      {...params}
-                                                                      sx={{paddingLeft: 0}}
-                                                                      placeholder={t("nationality")}
-                                                                      variant="outlined" fullWidth/>;
-                                                }}/>
+                                                        {...params}
+                                                        sx={{ paddingLeft: 0 }}
+                                                        placeholder={t("nationality")}
+                                                        variant="outlined" fullWidth />;
+                                                }} />
                                         )}
                                     </Grid>
                                 </Stack>
                             </Grid>
                             <Grid item md={6} sm={6} xs={12}>
                                 <Stack direction="row" spacing={1}
-                                       alignItems="center">
+                                    alignItems="center">
                                     <Grid item md={3} sm={6} xs={3}>
                                         <Typography
                                             className="label"
@@ -711,7 +716,7 @@ function PersonalInfo({...props}) {
                                         }}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton width={100}/>
+                                            <Skeleton width={100} />
                                         ) : (
                                             <AsyncAutoComplete
                                                 freeSolo
@@ -763,7 +768,7 @@ function PersonalInfo({...props}) {
                                                     return option.name;
                                                 }}
                                                 filterOptions={(options: any, params: any) => {
-                                                    const {inputValue} = params;
+                                                    const { inputValue } = params;
                                                     const filtered = options.filter((option: any) =>
                                                         option.name
                                                             .toLowerCase()
@@ -786,7 +791,7 @@ function PersonalInfo({...props}) {
                                                 }}
                                                 renderOption={(props: any, option: any) => (
                                                     <ListItem {...props}>
-                                                        <ListItemText primary={`${option?.name}`}/>
+                                                        <ListItemText primary={`${option?.name}`} />
                                                     </ListItem>
                                                 )}
                                                 isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
@@ -798,7 +803,7 @@ function PersonalInfo({...props}) {
                             </Grid>
                             <Grid item md={6} sm={6} xs={12}>
                                 <Stack direction="row" spacing={1}
-                                       alignItems="center">
+                                    alignItems="center">
                                     <Grid item md={3} sm={6} xs={3}>
                                         <Typography
                                             className="label"
@@ -826,7 +831,7 @@ function PersonalInfo({...props}) {
                                         }}
                                         item md={8} sm={6} xs={9}>
                                         {loading ? (
-                                            <Skeleton width={100}/>
+                                            <Skeleton width={100} />
                                         ) : (
                                             <AsyncAutoComplete
                                                 value={values.civilStatus}
@@ -855,7 +860,7 @@ function PersonalInfo({...props}) {
                                                 }}
                                                 renderOption={(props: any, option: any) => (
                                                     <ListItem {...props}>
-                                                        <ListItemText primary={`${option?.name}`}/>
+                                                        <ListItemText primary={`${option?.name}`} />
                                                     </ListItem>
                                                 )}
                                                 isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
@@ -865,11 +870,87 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                        </Grid>
+                        </Grid> */}
+                        <CardHeader title={
+                            <Typography variant="subtitle1" fontSize={18}>
+                                {t("personal-info")}
+                            </Typography>
+                        }
+                            action={
+                                <IconButton size="small" sx={{
+                                    svg: {
+                                        transform: openPanels.includes("personal") ? "" : "scale(-1)"
+                                    }
+                                }}>
+                                    <IconUrl path="ic-outline-arrow-up" width={16} height={16} />
+                                </IconButton>
+
+                            }
+                            sx={{
+                                cursor: 'pointer',
+                                ".MuiCardHeader-action": {
+                                    alignSelf: 'center'
+                                }
+                            }}
+                            onClick={() => handleTogglePanels("personal")}
+                        />
+                        <Collapse in={openPanels.includes("personal")}>
+                            <CardContent>
+                                <Stack direction='row' alignItems='center' spacing={2}>
+                                    <Box position='relative' width={70} height={70}
+                                        sx={{
+                                            '.close': {
+                                                opacity: 0,
+                                                visibility: 'hidden',
+                                                transition: 'all .2s ease-in-out'
+                                            },
+                                            '&:hover .close': {
+                                                opacity: 1,
+                                                visibility: 'visible'
+                                            }
+                                        }}
+                                    >
+                                        <Avatar
+                                            sx={{ width: 70, height: 70, cursor: 'pointer' }}
+                                            component='label'
+                                            htmlFor="contained-button-file"
+                                            src={values.picture.url}
+                                        >
+                                            <InputStyled
+                                                onChange={(e) => handleDrop(e.target.files as FileList)}
+                                                id="contained-button-file"
+                                                type="file"
+                                            />
+                                            <IconUrl path="ic-linear-camera-add" width={28} height={28} />
+                                        </Avatar>
+                                        {values.picture.url && (
+                                            <IconButton
+                                                className="close"
+                                                size="small"
+                                                disableRipple
+                                                onClick={() => {
+                                                    setFieldValue("picture", { url: "", file: null });
+                                                }}
+                                                sx={{
+                                                    position: 'absolute',
+                                                    background: alpha(theme.palette.grey['A100'], .6),
+                                                    top: 2,
+                                                    right: 2,
+                                                    p: .25
+
+                                                }}
+                                            >
+                                                <IconUrl path="ic-x" width={16} height={16} />
+                                            </IconButton>
+                                        )}
+                                    </Box>
+                                </Stack>
+                            </CardContent>
+                        </Collapse>
                     </Paper>
                 </PersonalInfoStyled>
             </Form>
-        </FormikProvider>
+        </FormikProvider >
     );
 }
 

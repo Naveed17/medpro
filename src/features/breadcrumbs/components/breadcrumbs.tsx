@@ -19,7 +19,7 @@ export default function CustomBreadcrumbs({ ...props }) {
     }
     const breadcrumbs = data.map((item: { title: string, href: string | null }, idx: number) => (
         item.href ?
-            <Link key={idx} underline="none" sx={{ color: theme => theme.palette.grey[700], fontSize: 12, fontWeight: 500, cursor: 'pointer' }} key="1" onClick={(e) => handleClick(e, item.href)}>
+            <Link key={idx} underline="none" sx={{ color: theme => theme.palette.grey[700], fontSize: 12, fontWeight: 500, cursor: 'pointer' }} onClick={(e) => handleClick(e, item.href)}>
                 {item.title}
             </Link>
             :

@@ -3,6 +3,7 @@ import {styled} from '@mui/material/styles';
 
 const PanelStyled = styled(Card)(({theme}) => ({
     border:'none',
+    borderRadius:0,
     '.btn-del':{
         border:`1px solid ${theme.palette.divider}`,
         borderRadius:6,
@@ -112,6 +113,10 @@ const PanelStyled = styled(Card)(({theme}) => ({
     }
     }
     }
+    },
+    ".measure-wrapper":{
+        padding:theme.spacing(1),
+        border: `1px dashed ${theme.palette.divider}`,
     }
 }));
 export default PanelStyled

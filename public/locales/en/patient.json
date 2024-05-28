@@ -1,6 +1,6 @@
 {
   "sub-header": {
-    "title": "List of Patients",
+    "title": "Patients",
     "merge-patient": "Merge Patients",
     "add-patient": "Add Patient"
   },
@@ -55,6 +55,7 @@
   },
   "config": {
     "reason_for_consultation": "Reason for Consultation",
+    "medical_rec_title": "Patient medical record",
     "acts": "Acts",
     "disease": "Disease",
     "insurance": "Insurance",

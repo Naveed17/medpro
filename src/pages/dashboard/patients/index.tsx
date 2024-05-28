@@ -18,7 +18,10 @@ import {
     Zoom,
     Fab,
     Checkbox,
-    FormControlLabel, MenuItem, LinearProgress, Card, Grid, InputAdornment
+    FormControlLabel, MenuItem, LinearProgress, Card, Grid, InputAdornment,
+    Alert,
+    AlertTitle,
+    IconButton
 } from "@mui/material";
 // redux
 import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
@@ -718,7 +721,6 @@ function Patients() {
                 }}>
                 <Stack width={1} spacing={2}>
                     <Breadcrumbs data={breadcrumbsData} />
-
                     <PatientToolbar
                         {...{ mutatePatient: mutatePatients }}
                         onAddPatient={() => {
@@ -727,25 +729,47 @@ function Patients() {
                             setPatientDrawer(true);
                         }}
                     />
-                    {isMobile && (
-                        <Stack direction="row" spacing={2} width={1} mt={2.5}>
-                            <TextField
-                                onChange={(e) => onFilterPatient(e.target.value)}
-                                fullWidth
-                                placeholder={t("filter.search")}
-                                InputProps={{
-                                    startAdornment: <InputAdornment position="start">
-                                        <IconUrl path="ic-outline-search-normal" />
-                                    </InputAdornment>,
-                                }}
-                            />
-                            <CustomIconButton sx={{ minWidth: 38 }} color="back" onClick={handleClickOpen}>
-                                <IconUrl path="ic-filter-outlined" />
-                            </CustomIconButton>
-                        </Stack>
-                    )}
+
+                    <Stack direction="row" spacing={2} width={1} mt={2.5}>
+                        <CustomIconButton sx={{ minWidth: 38 }} color="back" onClick={handleClickOpen}>
+                            <IconUrl path="ic-filter-outlined" />
+                        </CustomIconButton>
+                        <TextField
+                            onChange={(e) => onFilterPatient(e.target.value)}
+                            fullWidth
+                            placeholder={t("filter.search")}
+                            InputProps={{
+                                startAdornment: <InputAdornment position="start">
+                                    <IconUrl path="ic-outline-search-normal" />
+                                </InputAdornment>,
+                            }}
+                        />
+
+                    </Stack>
+
                 </Stack>
             </SubHeader>
+            <Alert
+                color="white"
+                sx={{ bgcolor: 'common.white', border: 'none', borderRadius: 0, mt: '1px', px: 3, ".MuiAlert-action": { alignItems: 'center' } }}
+                icon={<CustomIconButton sx={{ bgcolor: theme.palette.error.lighter, maxHeight: 40 }}>
+                    <IconUrl path="ic-filled-sms-left" width={20} height={20} color={theme.palette.error.main} />
+                </CustomIconButton>}
+
+                action={<Stack direction='row' alignItems="center" spacing={1}>
+                    <Button
+                        size="small"
+                        variant="contained">
+                        Upgrade
+                    </Button>
+                    <IconButton size="small">
+                        <IconUrl path="ic-outline-close" width={16} height={16} />
+
+                    </IconButton>
+                </Stack>}>
+                <AlertTitle>Running Out of SMS Credits</AlertTitle>
+                You're running low on SMS credits, but worry not! Enjoy unlimited SMS by upgrading your plan now. Plus, get this exclusive offer for only 400 TND .
+            </Alert>
             <LinearProgress sx={{
                 visibility: loadingRequest || isLoading ? "visible" : "hidden"
             }} color="warning" />
@@ -1154,6 +1178,12 @@ function Patients() {
                 anchor={"right"}
                 open={patientDetailDrawer}
                 dir={direction}
+                PaperProps={{
+                    sx: {
+                        maxWidth: 600,
+                        width: '100%'
+                    }
+                }}
                 onClose={() => {
                     dispatch(onOpenPatientDrawer({ patientId: "" }));
                     setPatientDetailDrawer(false);

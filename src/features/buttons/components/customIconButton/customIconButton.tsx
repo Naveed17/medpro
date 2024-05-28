@@ -1,8 +1,9 @@
 import { IconButton, useTheme } from "@mui/material";
 import { PaletteColor } from "@mui/material/styles";
+import IconUrl from "@themes/urlIcon";
 
 function CustomIconButton({ ...props }) {
-    const { variant, color = "back", sx, className = "", ...other } = props;
+    const { icon, variant, color = "back", sx, className = "", ...other } = props;
     const theme = useTheme();
 
     return (
@@ -18,7 +19,9 @@ function CustomIconButton({ ...props }) {
 
             }}
             className={`custom-icon-button ${className}`}
+            children={props.children || <IconUrl path={icon} />}
             {...other}
+
         />
     );
 }

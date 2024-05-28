@@ -61,7 +61,7 @@ export default function Button(theme) {
           props: { size: "small" },
           style: {
             minHeight: 27,
-            padding: "0rem 0.5em",
+            padding: theme.spacing(1, 1.5),
             fontSize: 12,
             svg: {
               height: 15,

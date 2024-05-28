@@ -9,3 +9,4 @@ export {default as AddRDVStep3} from "./addRDVStep3";
 export {default as HistoryPanel} from './historyPanel';
 export {default as NotesPanel} from './notesPanel';
 export {default as TransactionPanel} from './transactionPanel';
+export {default as PatientMedicalRecordPanel} from './medicalRec'
