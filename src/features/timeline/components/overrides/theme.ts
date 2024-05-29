@@ -35,6 +35,7 @@ export const theme = {
     },
 
     timeline: {
+        height: 46,
         divider: {
             bg: "#718096"
         }

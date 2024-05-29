@@ -99,7 +99,8 @@ function CalendarToolbar({...props}) {
                         display: "flex",
                         alignItems: "center"
                     }}>
-                        <Tooltip title={t("today", {ns: "common"})} TransitionComponent={Zoom}>
+                        <Tooltip
+                            title={t("today", {ns: "common"})} TransitionComponent={Zoom}>
                             <IconButton
                                 size={"large"}
                                 onClick={OnToday}
@@ -108,7 +109,7 @@ function CalendarToolbar({...props}) {
                                     svg: {
                                         width: 20,
                                         height: 20,
-                                        m: .4
+                                        m: .1
                                     },
                                     border: "1px solid",
                                     mr: 1,

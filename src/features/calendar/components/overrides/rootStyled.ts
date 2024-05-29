@@ -147,7 +147,8 @@ const RootStyled = styled("div")(({theme}) => ({
         top: 14,
         zIndex: 98,
         "& .MuiButtonBase-root": {
-            padding: 4
+            padding: 4,
+            boxShadow: 'none'
         }
     },
     "& .fc .fc-timegrid-slot-minor": {
