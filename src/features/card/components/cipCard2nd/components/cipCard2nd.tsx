@@ -94,8 +94,7 @@ function CipCard2nd({...props}) {
                     <Avatar
                         className='avatar-top'
                         alt="Small avatar"
-                        variant={"square"}
-                        src={'/static/icons/ic-stop.svg'}
+                        variant={"circular"}
                         onClick={event => {
                             event.stopPropagation();
                             dispatch(setSelectedEvent(null));
@@ -108,7 +107,15 @@ function CipCard2nd({...props}) {
                                 width: 20,
                                 height: 20
                             }
-                        }}/>
+                        }}>
+                        <Avatar
+                            src={'/static/icons/ic-stop.svg'}
+                            sx={{
+                                width: 20,
+                                height: 20,
+                                borderRadius: 20
+                            }}/>
+                    </Avatar>
 
                     <Avatar
                         className='avatar-top'

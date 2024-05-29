@@ -17,7 +17,7 @@ import PanelStyled from "./overrides/panelStyle";
 import {useTranslation} from "next-i18next";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
@@ -54,6 +54,9 @@ function TransactionPanel({...props}) {
     const [selected, setSelected] = useState<any>(null);
     const [selectedData, setSelectedData] = useState<any>(null);
     const [collapse, setCollapse] = useState<any>(null);
+    const [state, setState] = useState<any>();
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+
 
     const {trigger} = useRequestQueryMutation("/payment/cashbox");
 
@@ -154,6 +157,9 @@ function TransactionPanel({...props}) {
         );
     };
 
+    const handleCloseDialog = () => {
+        setOpenDialog(false)
+    }
 
     return (
         <>
@@ -316,18 +322,40 @@ function TransactionPanel({...props}) {
                                                     {row.uuid === collapse &&
                                                         <Can I={"manage"} a={"cashbox"}
                                                              field={"cash_box__transaction__delete"}>
-                                                            <IconButton
-                                                                className="btn-del"
-                                                                onClick={(event) => {
-                                                                    event.stopPropagation();
-                                                                    setSelected(row);
-                                                                    setOpenDeleteTransactionDialog(true);
-                                                                }}>
-                                                                <IconUrl
-                                                                    path="ic-delete"
-                                                                    color={theme.palette.secondary.main}
-                                                                />
-                                                            </IconButton>
+                                                            <Stack direction={"row"} spacing={1}>
+                                                                <IconButton
+                                                                    className="btn-del"
+                                                                    onClick={(event) => {
+                                                                        event.stopPropagation();
+                                                                        console.log(row)
+                                                                        setState({
+                                                                            type: "payment_receipt",
+                                                                            name: "reception",
+                                                                            info: row,
+                                                                            createdAt: moment().format("DD/MM/YYYY"),
+                                                                            age: row.patient?.birthdate ? getBirthdayFormat({birthdate: row.patient.birthdate}, t) : "",
+                                                                            patient: `${row.patient?.firstName} ${row.patient?.lastName}`,
+                                                                        });
+                                                                        setOpenDialog(true);
+                                                                    }}>
+                                                                    <IconUrl width={20} height={20}
+                                                                        path="menu/ic-print"
+                                                                        color={theme.palette.secondary.main}/>
+                                                                </IconButton>
+
+                                                                <IconButton
+                                                                    className="btn-del"
+                                                                    onClick={(event) => {
+                                                                        event.stopPropagation();
+                                                                        setSelected(row);
+                                                                        setOpenDeleteTransactionDialog(true);
+                                                                    }}>
+                                                                    <IconUrl
+                                                                        path="ic-delete"
+                                                                        color={theme.palette.secondary.main}
+                                                                    />
+                                                                </IconButton>
+                                                            </Stack>
                                                         </Can>}
                                                 </td>
                                             </tr>
@@ -686,6 +714,20 @@ function TransactionPanel({...props}) {
                         </LoadingButton>
                     </Stack>
                 }
+            />
+
+            <Dialog action={"document_detail"}
+                    open={openDialog}
+                    data={{
+                        state, setState,
+                        setOpenDialog
+                    }}
+                    size={"lg"}
+                    direction={'ltr'}
+                    sx={{p: 0}}
+                    title={t("config.doc_detail_title", {ns: "patient"})}
+                    onClose={handleCloseDialog}
+                    dialogClose={handleCloseDialog}
             />
         </>
     );

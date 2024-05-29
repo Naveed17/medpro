@@ -436,7 +436,12 @@ function Patients() {
 
     const onConsultationStart = (event: EventDef) => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
+        router.push({
+            pathname: slugConsultation, query: {
+                inProgress: true,
+                agendaUuid: agendaConfig?.uuid
+            }
+        }, slugConsultation, {locale: router.locale});
     }
 
     const onUpdateMoveAppointmentData = () => {
@@ -481,7 +486,10 @@ function Patients() {
                     const slugConsultation = `/dashboard/consultation/${data[0]}`;
                     router.push({
                         pathname: slugConsultation,
-                        query: {inProgress: true}
+                        query: {
+                            inProgress: true,
+                            agendaUuid: agendaConfig?.uuid
+                        }
                     }, slugConsultation, {locale: router.locale}).then(() => {
                         if (patientDrawer) {
                             dispatch(onResetPatient());
