@@ -36,6 +36,7 @@ import {persistReducer} from 'redux-persist';
 import {CaslReducer} from "@features/casl";
 import {ChatReducer} from "@features/chat";
 import {BoardReducer} from "@features/board";
+import {timeLineReducer} from "@features/timeline";
 
 const createNoopStorage = () => {
     return {
@@ -94,7 +95,8 @@ const rootReducer = combineReducers({
     stepper: StepperReducer,
     board: BoardReducer,
     consultationContent: ConsultationContentReducer,
-    tabPanel: tabPanelReducer
+    tabPanel: tabPanelReducer,
+    timeLine: timeLineReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

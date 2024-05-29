@@ -338,7 +338,8 @@ function BoardItem({...props}) {
                                                         p: 1,
 
                                                     }}>
-                                                    <IconUrl path="ic-filled-tick-circle" color={theme.palette.success.main}
+                                                    <IconUrl path="ic-filled-tick-circle"
+                                                             color={theme.palette.success.main}
                                                              width={16} height={16}/>
                                                 </CustomIconButton>
                                             </span>
@@ -399,7 +400,7 @@ function BoardItem({...props}) {
                                                 size={"small"}
                                                 disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
                                                 sx={{
-                                                    p: 1,
+                                                    p: is_next ? 0.75 : 1,
                                                     ...(is_next && {
                                                         background: theme.palette.primary.main,
                                                         border: "none"
@@ -408,7 +409,8 @@ function BoardItem({...props}) {
                                                 {!is_next && <IconUrl path="ic-filled-arrow-right"
                                                                       color={theme.palette.grey[700]} width={16}
                                                                       height={16}/>}
-                                                {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                                {is_next && <CloseRoundedIcon
+                                                    htmlColor={"white"} fontSize={"small"}/>}
                                             </CustomIconButton>
                                         </span>
                                     </Tooltip>
@@ -498,8 +500,7 @@ function BoardItem({...props}) {
                                             </IconButton>
                                         </Tooltip>
                                     </Stack>}
-                                {
-                                    quote.content.status === 5 &&
+                                {quote.content.status === 5 &&
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <Tooltip
                                             title={"title"}>
@@ -522,8 +523,7 @@ function BoardItem({...props}) {
                                         </Tooltip>
                                     </Stack>
                                 }
-                                {
-                                    quote.content.status === 8 &&
+                                {quote.content.status === 8 &&
                                     <Stack direction='row' alignItems='center' spacing={.5}>
                                         <Tooltip
                                             title={"title"}>

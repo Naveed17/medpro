@@ -1049,7 +1049,9 @@ function OnStepPatient({...props}) {
                                 </Grid>
                             </Box>
                         </fieldset>
-                        <Box>
+
+                        {/*Integrate new concept*/}
+                        {/*<Box>
                             <Typography sx={{mt: 1.5, mb: 1, textTransform: "capitalize"}}>
                                 <IconButton
                                     onClick={handleAddInsurance}
@@ -1330,7 +1332,7 @@ function OnStepPatient({...props}) {
                                         )))}
                                 />
                             </Box>
-                        </Box>
+                        </Box>*/}
                         <Box className={"inner-box"}>
                             <Grid container spacing={2}>
                                 <Grid item md={6} xs={12}>

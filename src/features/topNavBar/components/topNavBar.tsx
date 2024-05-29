@@ -53,6 +53,8 @@ import Can from "@features/casl/can";
 import {Label} from "@features/label";
 import {useChannel} from "ably/react";
 import ExpireTooltip from "@features/topNavBar/components/expireTooltip/expireTooltip";
+import {setShowStats, setShowTimeline, timeLineSelector} from "@features/timeline";
+import {CustomIconButton} from "@features/buttons";
 
 let deferredPrompt: any;
 
@@ -85,6 +87,7 @@ function TopNavBar({...props}) {
     const {direction, slowConnexion} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
     const {switchConsultationDialog, action: dialogAction} = useAppSelector(navBarSelector);
+    const {showTimeline} = useAppSelector(timeLineSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -173,7 +176,7 @@ function TopNavBar({...props}) {
     const refreshAgendaData = () => {
         // refresh on going api
         mutateOnGoing();
-        router.push(selectedEvent === null && router.pathname !== "/dashboard/consultation/[uuid-consultation]" ? router.pathname : "/dashboard/agenda").then(() => {
+        router.push(selectedEvent === null && router.pathname !== "/dashboard/consultation/[...uuid-consultation]" ? router.pathname : "/dashboard/agenda").then(() => {
             // invalidate agenda query
             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]).then(() => setLoadingReq(false));
         });
@@ -282,7 +285,10 @@ function TopNavBar({...props}) {
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
         return router.push({
             pathname: slugConsultation,
-            query: {inProgress: true}
+            query: {
+                inProgress: true,
+                agendaUuid: agendaConfig?.uuid
+            }
         }, slugConsultation, {locale: router.locale});
     }
 
@@ -451,6 +457,16 @@ function TopNavBar({...props}) {
                                 className="btn">
                                 <Icon path="ic-fullscreen"/>
                             </IconButton>
+                            <CustomIconButton
+                                onClick={() => dispatch(setShowTimeline(!showTimeline))}
+                                sx={{
+                                    ml: -1,
+                                    bgcolor: theme.palette.grey[100],
+                                    border: 1,
+                                    borderColor: theme.palette.grey[300]
+                                }}>
+                                <IconUrl width={16} height={16} path={"ic-timeline"}/>
+                            </CustomIconButton>
                             {(import_data && import_data.length > 0) &&
                                 <Box sx={{width: '16%'}}>
                                     <LinearProgressWithLabel value={progress}/>
@@ -505,7 +521,7 @@ function TopNavBar({...props}) {
                                                 {next.patient}
                                             </Typography>
                                             {!isMobile && <Label color="primary" variant="filled">
-                                                {commonTranslation("pending")}
+                                                {commonTranslation("filter.next-appointment")}
                                             </Label>}
                                             <IconButton
                                                 onClick={(event) => {

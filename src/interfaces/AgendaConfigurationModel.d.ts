@@ -7,6 +7,7 @@ interface AgendaConfigurationModel {
     isPublic: boolean;
     isAutoConfirm: boolean;
     hasOnlineAppointment: boolean;
+    logo?: string;
     waitingRoomDisplay: number;
     appointmentType: AppointmentTypeModel[];
     openingHours: OpeningHoursModel[];

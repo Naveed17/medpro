@@ -2,8 +2,9 @@ import React, {useCallback, useState} from "react";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
-import {countries} from "./countries";
-import {Avatar, MenuItem, Typography} from "@mui/material";
+import { countries } from "./countries";
+import { Avatar, MenuItem, Typography } from "@mui/material";
+import IconUrl from "@themes/urlIcon";
 
 function CountrySelect({...props}) {
     const {onSelect, showCountryFlagOnly = false, initCountry = "", small, ...rest} = props;
@@ -49,6 +50,7 @@ function CountrySelect({...props}) {
             }}
             value={countries.find(country => country?.code?.toLocaleLowerCase() === initCountry?.code?.toLocaleLowerCase())}
             options={countriesData}
+            popupIcon={<IconUrl path={"mdi_arrow_drop_down"}/>}
             autoHighlight
             disableClearable
             getOptionLabel={(option: any) => option.name}

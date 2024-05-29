@@ -303,6 +303,7 @@ function DocumentDetailDialog({...props}) {
                 switch (state?.type) {
                     case "prescription":
                         setOpenDialog(false);
+                        console.log("state", state)
                         dispatch(SetSelectedDialog({
                             action: 'medical_prescription_cycle',
                             state: state?.info.map((drug: any) => ({
@@ -474,7 +475,7 @@ function DocumentDetailDialog({...props}) {
     }
 
     const doc = ((file instanceof File) || file?.url) && <Document
-        {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[0] = element})}
+        {...(componentRef?.current && {ref: (componentRef.current as any)[0]})}
         file={file.url}
         loading={t('wait')}
         onLoadSuccess={onDocumentLoadSuccess}
@@ -634,7 +635,8 @@ function DocumentDetailDialog({...props}) {
                         docs: urls, t,
                         editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
-                        state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                        state
+                             /*: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
                             info: [{
                                 fees: state?.consultationFees,
@@ -644,7 +646,7 @@ function DocumentDetailDialog({...props}) {
                                 },
                                 qte: 1
                             }]
-                        } : state
+                        } : state*/
                     }}/>
                 </Box> : <PreviewA4
                     {...{
@@ -656,7 +658,7 @@ function DocumentDetailDialog({...props}) {
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
                             info: [{
-                                fees: state?.consultationFees,
+                                //fees: state?.consultationFees,
                                 hiddenData: true,
                                 act: {
                                     name: "Consultation",

@@ -199,8 +199,50 @@
     "no_transaction": "No consultation to pay",
     "add_now": "you have the option to add an advance payment",
     "addavance": "Add advance",
-    "later": "Complete procedure later"
+    "later": "Complete procedure later",
+    "appointments":"Appointments",
+    "insurance": "Insurance / agreement"
+
   },
   "noTransaction":"No transaction",
-  "addTransaction": "Click on the + button to add a transaction"
+  "addTransaction": "Click on the + button to add a transaction",
+  "insurances_key": "Insurances",
+  "insurances": {
+    "nbConsult": "Consultations",
+    "nbAct": "Nb act",
+    "amount": "Amount",
+    "global": "Global",
+    "archived": "Archived slips",
+    "print": "Print",
+    "archive": "Archive",
+    "export": "Export",
+    "stat": "Statistical",
+    "table": {
+      "memberNo": "Member no",
+      "date": "Date",
+      "time": "Time",
+      "name": "Name",
+      "quality": "Quality",
+      "act": "Act",
+      "apci": "APCI",
+      "amount": "Amount",
+      "patientPart": "Part patient",
+      "remb": "Remb",
+      "dateArc": "Date Arch.",
+      "refSlip": "Ref.",
+      "status": "Status",
+      "ref": "Ref.",
+      "start_date": "Start date",
+      "end_date": "End date",
+      "act_reject": "Rej act.",
+      "mtt_requested": "Requested amount",
+      "mtt_granted": "granted",
+      "balance": "Balance",
+      "vir": "Vir."
+    },
+    "no-data": {
+      "title": "No Appointment",
+      "description": "no transaction relating to this insurance"
+    }
+  }
 }

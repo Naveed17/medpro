@@ -243,7 +243,9 @@
     "sign_forget_pass": "Remember me",
     "sign_connect_btn": "Log In",
     "sign_in_desc_1": "You have been added to workspaces.",
-    "sign_in_desc_2": "You can switch between workspaces at any time."
+    "sign_in_desc_2": "You can switch between workspaces at any time.",
+    "sign_in_error_1": "Si le problème persiste, veuillez contacter votre chargé.e commercial.e.",
+    "sign_in_error_2": "L'intégrité de vos données est assurée."
   },
   "schedule": {
     "add": "Add",

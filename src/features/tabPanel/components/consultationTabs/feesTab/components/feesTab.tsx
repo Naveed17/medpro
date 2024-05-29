@@ -4,11 +4,13 @@ import {
     Card,
     CardContent,
     Collapse,
+    IconButton,
     InputAdornment,
     LinearProgress,
     Stack,
     TextField,
-    Typography
+    Typography,
+    useTheme
 } from "@mui/material";
 import {Otable} from "@features/table";
 import {CipMedicProCard} from '@features/card'
@@ -16,11 +18,13 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {useMutateOnGoing} from "@lib/hooks";
+import {getBirthdayFormat, useMutateOnGoing} from "@lib/hooks";
 import IconUrl from "@themes/urlIcon";
+import moment from "moment";
 
 function FeesTab({...props}) {
     const router = useRouter();
+    const theme = useTheme()
     const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const [search, setSearch] = useState<string>("");
@@ -31,7 +35,7 @@ function FeesTab({...props}) {
             id: "select",
             numeric: false,
             disablePadding: true,
-            label: "#",
+            label: "empty",
             sortable: false,
             align: "left",
         },
@@ -39,17 +43,25 @@ function FeesTab({...props}) {
             id: "acts",
             numeric: false,
             disablePadding: true,
-            label: "title",
+            label: "acts",
             sortable: true,
             align: "left",
         },
         {
-            id: "code",
+            id: "fees",
             numeric: false,
             disablePadding: true,
-            label: "code",
+            label: "fees",
             sortable: true,
             align: "left",
+        },
+        {
+            id: "amount",
+            numeric: true,
+            disablePadding: false,
+            label: "reimb",
+            sortable: true,
+            align: "center",
         },
         {
             id: "contribution",
@@ -68,14 +80,6 @@ function FeesTab({...props}) {
             align: "center",
         },
         {
-            id: "amount",
-            numeric: true,
-            disablePadding: false,
-            label: "amount",
-            sortable: true,
-            align: "center",
-        },
-        {
             id: "total",
             numeric: true,
             disablePadding: false,
@@ -85,7 +89,6 @@ function FeesTab({...props}) {
         },
 
     ];
-
     const {
         acts,
         setActs,
@@ -94,15 +97,21 @@ function FeesTab({...props}) {
         agenda,
         urlMedicalEntitySuffix,
         app_uuid,
+        total,
         devise,
         editAct = null,
         t,
         mutatePatient,
-        isQuoteRequest
+        isQuoteRequest,
+        setOpenDialogSave,
+        patient,
+        setInfo,
+        setOpenDialog,
+        setState
     } = props;
 
-
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
+
     const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
@@ -114,21 +123,25 @@ function FeesTab({...props}) {
         if (isQuoteRequest)
             setLoading(false)
         if (res) {
-            let _acts = [{
+            let _acts = [/*{
                 act: {name: res.type.name},
                 fees: res.consultation_fees && res.consultation_fees !== "null" ? Number(res.consultation_fees) : res.type.price,
                 isTopAct: false,
                 qte: 1,
                 selected: res.consultation_fees !== null && res.consultation_fees !== "null",
                 uuid: "consultation_type"
-            }, ...mpActs]
+            },*/ ...mpActs]
 
-            res.acts && res.acts.map((act: { act_uuid: string, qte: number, price: number }) => {
+            res.acts && res.acts.map((act: any) => {
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
                 if (index > -1) {
                     _acts[index].selected = true
                     _acts[index].qte = act.qte;
                     _acts[index].fees = act.price;
+                    _acts[index].insurance_act = act.insurance_act;
+                    _acts[index].insurance = act.insurance;
+                    _acts[index].patientPart = act.patientPart;
+                    _acts[index].contribution = act.refund;
                 }
             })
 
@@ -145,45 +158,28 @@ function FeesTab({...props}) {
     }, [res]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const saveChanges = (actsList: any[]) => {
+
         const _acts: { act_uuid: string; name: string; qte: number; price: number; }[] = [];
 
         let _total = 0
-        actsList.filter((act: { selected: boolean; }) => act.selected).forEach((act: {
-            fees: number;
-            qte: number;
-        }) => _total += act.fees * act.qte)
-        setTotal(_total);
-
-        actsList.filter((act: {
-            selected: boolean;
-            uuid: string;
-        }) => act.selected && act.uuid !== "consultation_type").forEach((act: {
-            uuid: string;
-            act: { name: string; };
-            qte: number;
-            fees: number;
-        }) => {
+        actsList.filter((act: any) => act.selected).forEach((act: any) => {
+            _total += act.fees * act.qte
             _acts.push({
                 act_uuid: act.uuid,
                 name: act.act.name,
                 qte: act.qte,
                 price: act.fees,
+                ...(act.insurance_act && {insurance_act: act.insurance_act}),
+                ...(act.insurance && {insurance: act.insurance}),
+                ...(act.patient_part && {patient_part: act.patient_part}),
+                ...(act.refund && {refund: act.refund})
             });
-        })
-
-        const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
-        let isFree = true;
-        let consultationFees = 0;
-
-        if (app_type) {
-            isFree = !app_type?.selected;
-            consultationFees = isFree ? null : app_type?.fees
-        }
+        });
+        setTotal(_total);
 
         const form = new FormData();
         form.append("acts", JSON.stringify(_acts));
         form.append("fees", _total.toString());
-        form.append("consultation_fees", consultationFees ? consultationFees.toString() : "null");
 
         app_uuid && triggerFeesEdit({
             method: "PUT",
@@ -215,33 +211,64 @@ function FeesTab({...props}) {
 
                 <DesktopContainer>
 
-                    <Card>
-                        <CardContent>
-                            <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
+                    <Card style={{height: "57vh"}}>
+                        <CardContent style={{padding: 0}}>
+                            <Stack direction='row' pt={1} pl={2} pr={2} alignItems={{xs: 'flex-start', md: 'center'}}
                                    justifyContent="space-between" mb={2} pb={1} borderBottom={1}
                                    borderColor='divider'>
                                 <Typography fontWeight={700} mt={1} mb={1}>
-                                    {t("consultationIP.medical_procedures")}
+                                    {t("service")}
                                 </Typography>
                                 <Stack direction={'row'} alignItems="center" spacing={1}>
-                                    {!isQuoteRequest && <Stack alignItems={"flex-end"}>
-                                        <TextField
-                                            placeholder={t("exempleFees")}
-                                            value={search}
-                                            onChange={(ev) => {
-                                                setSearch(ev.target.value);
-                                            }}
-                                            sx={{width: '15rem'}}
-                                            InputProps={{
-                                                endAdornment: <InputAdornment position="end">
-                                                    <IconUrl path={"search"}/>
-                                                </InputAdornment>,
-                                            }}/>
+                                    {!isQuoteRequest && <Stack direction={'row'} spacing={1} alignItems={"flex-end"}>
+                                        <IconButton onClick={(event) => {
+                                            setOpenDialogSave && setOpenDialogSave(true);
+                                            let type = "";
+                                            if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                                type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
+
+                                            event.stopPropagation();
+                                            setInfo("document_detail");
+                                            setState({
+                                                type: "fees",
+                                                name: "Honoraire",
+                                                info: acts.filter((act: { selected: boolean }) => act.selected),
+                                                createdAt: moment().format("DD/MM/YYYY"),
+                                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                                                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+                                            });
+                                            setOpenDialog(true);
+
+                                        }} style={{
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: 10,
+                                            background: theme.palette.grey['A500']
+                                        }}>
+                                            <IconUrl width={16} height={16} path="menu/ic-print"/>
+                                        </IconButton>
+                                        {/*<Button variant="contained" startIcon={<Add/>}>
+                                            {t("consultationIP.add_act")}
+                                        </Button>*/}
                                     </Stack>}
                                 </Stack>
                             </Stack>
                             {loading && <LinearProgress/>}
-                            <Collapse in={!loading}>
+                            <Collapse in={!loading} style={{maxHeight: "47vh", overflow: "auto", padding: 0}}>
+
+                                {!isQuoteRequest && <Stack pl={2} pr={2}>
+                                    <TextField
+                                        placeholder={t("exempleFees")}
+                                        value={search}
+                                        onChange={(ev) => {
+                                            setSearch(ev.target.value);
+                                        }}
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end">
+                                                <IconUrl path={"ic-search"}/>
+                                            </InputAdornment>,
+                                        }}/>
+                                </Stack>}
                                 <Otable
                                     headers={headCells}
                                     rows={acts?.filter((act: any) => {
@@ -250,6 +277,7 @@ function FeesTab({...props}) {
                                     from={"CIP-medical-procedures"}
                                     t={t}
                                     edit={editAct ? editAct : editActConsult}
+                                    insurances={patient.insurances}
                                     handleEvent={() => {
                                         saveChanges([...acts])
                                     }}
@@ -257,7 +285,60 @@ function FeesTab({...props}) {
                                     handleChange={setTotal}/>
                             </Collapse>
 
-                        </CardContent></Card>
+                        </CardContent>
+                    </Card>
+                    {!loading && !isQuoteRequest && (
+                        <Stack direction='row' spacing={2} mt={2}>
+                            <Card sx={{border: 'none', width: 1}}>
+                                <CardContent>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                                        <Typography variant="body2">
+                                            {t("table.fees")}
+                                        </Typography>
+                                        <Typography fontWeight={700}>
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.fees) : 0), 0)} {devise}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: 'none', width: 1}}>
+                                <CardContent>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                                        <Typography variant="body2">
+                                            {t("table.reimb")}
+                                        </Typography>
+                                        <Typography fontWeight={700}>
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.contribution) : 0), 0)} {devise}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: 'none', width: 1}}>
+                                <CardContent>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                                        <Typography variant="body2">
+                                            {t("table.patient_part")}
+                                        </Typography>
+                                        <Typography fontWeight={700}>
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.patientPart) : 0), 0)} {devise}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: 'none', width: 1}}>
+                                <CardContent>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                                        <Typography variant="body2">
+                                            {t("table.total")}
+                                        </Typography>
+                                        <Typography fontWeight={700}>
+                                            {isNaN(total) || total < 0 ? "-" : total} {devise}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Stack>
+                    )}
 
                 </DesktopContainer>
                 <MobileContainer>
@@ -281,13 +362,10 @@ function FeesTab({...props}) {
 
                         </Stack>
                     }
-
                 </MobileContainer>
-
-
             </Box>
 
-            <Box pt={4}/>
+            {isQuoteRequest && <Box pt={4}/>}
         </>
     );
 }
