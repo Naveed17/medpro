@@ -53,7 +53,7 @@ import Can from "@features/casl/can";
 import {Label} from "@features/label";
 import {useChannel} from "ably/react";
 import ExpireTooltip from "@features/topNavBar/components/expireTooltip/expireTooltip";
-import {setShowStats, setShowTimeline, timeLineSelector} from "@features/timeline";
+import {setShowTimeline, timeLineSelector} from "@features/timeline";
 import {CustomIconButton} from "@features/buttons";
 
 let deferredPrompt: any;
@@ -457,7 +457,7 @@ function TopNavBar({...props}) {
                                 className="btn">
                                 <Icon path="ic-fullscreen"/>
                             </IconButton>
-                            <CustomIconButton
+                            {router.pathname === "/dashboard/waiting-room" && <CustomIconButton
                                 onClick={() => dispatch(setShowTimeline(!showTimeline))}
                                 sx={{
                                     ml: -1,
@@ -466,7 +466,7 @@ function TopNavBar({...props}) {
                                     borderColor: theme.palette.grey[300]
                                 }}>
                                 <IconUrl width={16} height={16} path={"ic-timeline"}/>
-                            </CustomIconButton>
+                            </CustomIconButton>}
                             {(import_data && import_data.length > 0) &&
                                 <Box sx={{width: '16%'}}>
                                     <LinearProgressWithLabel value={progress}/>
