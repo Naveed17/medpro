@@ -58,7 +58,10 @@ function PausedConsultationPopover({...props}) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId}`;
             router.push({
                 pathname: slugConsultation,
-                query: {inProgress: true}
+                query: {
+                    inProgress: true,
+                    agendaUuid: agendaConfig?.uuid
+                }
             }, slugConsultation, {locale: router.locale})
         } else {
             dispatch(openDrawer({type: "view", open: false}));
