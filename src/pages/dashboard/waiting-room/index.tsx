@@ -36,7 +36,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
 import {ActionMenu, toggleSideBar} from "@features/menu";
 import {
-    getBirthdayFormat,
+    getBirthdayFormat, isAppleDevise,
     prepareContextMenu,
     prepareSearchKeys,
     useMedicalEntitySuffix,
@@ -834,7 +834,8 @@ function WaitingRoom() {
         onScrollToNow();
         // listener timeline handler
         const container = document.querySelector(".planby > div > div") as HTMLElement;
-        container?.addEventListener("wheel", function (e) {
+        !isAppleDevise('macOS') && container?.addEventListener("wheel", function (e) {
+            console.log("wheel", e);
             if (e.deltaY > 0) {
                 container.scrollLeft += 300;
             } else {
