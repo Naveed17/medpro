@@ -204,7 +204,7 @@ function CashboxRow({...props}) {
                         {row.patient && row.patient.insurances && row.patient.insurances.length > 0 ? (
                             row.patient.insurances.map((insurance: any) => (
                                 <Tooltip
-                                    key={insurance.insurance?.uuid + "ins"}
+                                    key={insurance?.uuid + "ins"}
                                     title={insurance.insurance.name}>
                                     <Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
                                         <ImageHandler

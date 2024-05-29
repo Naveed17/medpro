@@ -117,10 +117,37 @@ function Doc({...props}) {
                 elx += "</table>"
                 elx += `<p style="text-align: right; color: ${theme.palette.grey["400"]};margin-top: 20px">Total</p>`
                 elx += `<p style="text-align: right;font-size: 24px;color: ${theme.palette.primary.main};font-weight: bold">${total} ${devise}</p>`
-
-
                 setTitle(state.type == "fees" ? "Facture" : "Devis");
+                break;
+            case "payment_receipt":
+                elx += `<p style="font-size: 18px; font-weight: bold;margin-bottom: 10px">Informations de paiement</p>`
+                elx += `<table style='width: 100%;'>
+                            <tr style="background: ${theme.palette.info.main};border-radius: 10px">
+                                <td class="receipt-title" style="border-top-left-radius: 10px;">Date de paiement</td>
+                                <td class="act-table-item" style="text-align: center;border-top-right-radius: 10px;">${moment(state.info.date_transaction).format("DD-MM-YYYY")}</td>
+                            </tr>
+                                       
+                            <tr style="background: ${theme.palette.info.main};border-radius: 10px">
+                                <td class="receipt-title">Délai de paiement</td>
+                                <td class="act-table-item" style="text-align: center">${moment(state.info.date_transaction).format("HH:mm")}</td>
+                            </tr>
+                                        
+                            <tr style="background: ${theme.palette.info.main};border-radius: 10px">
+                                <td class="receipt-title" style="border-bottom-left-radius:10px">moyens de paiement</td>
+                                <td class="act-table-item" style="text-align: center;border-bottom-right-radius:10px">${state.info.payment_means[0].paymentMeans.name}</td>
+                            </tr>
+                         </table>`
 
+                elx += `<div style="justify-content: end;display: flex;margin: 15px 0;">
+                            <table style='width: 50%;'>
+                                <tr style="background: ${theme.palette.info.main};border-radius: 10px">
+                                    <td class="receipt-title" style="border-top-left-radius: 10px;border-bottom-left-radius: 10px;">Total Payment</td>
+                                    <td style="font-size: 18px;font-weight: bold;text-align: center;border-top-right-radius: 10px;border-bottom-right-radius: 10px;">${state.info.amount} ${devise}</td>
+                                </tr>
+                            </table>
+                        </div>`
+                elx += `<p style="color:#71899D;font-size: 16px">Merci pour votre paiement. Veuillez conserver ce reçu pour vos dossiers</p>`
+                setTitle("Reçu de paiment");
                 break;
             case "glasses":
                 const subTitle = ['sphere', 'cylindre', 'axe']
