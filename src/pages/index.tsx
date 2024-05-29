@@ -55,9 +55,7 @@ function Home() {
 
     const logOutSession = async () => {
         // Log out from keycloak session
-        const {
-            data: {path}
-        } = await axios({
+        const {data: {path}} = await axios({
             url: "/api/auth/logout",
             method: "GET"
         });
