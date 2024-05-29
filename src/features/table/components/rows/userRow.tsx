@@ -1,31 +1,42 @@
-import Lable from "@themes/overrides/Lable";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Stack, Skeleton} from "@mui/material";
+import {
+    Typography,
+    Box,
+    Stack,
+    Skeleton,
+    useTheme,
+    IconButton
+} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useRouter} from "next/router";
-import Button from "@mui/material/Button";
-import {TableRowStyled} from "@features/table";
-import Switch from "@mui/material/Switch";
+import {editUser, TableRowStyled} from "@features/table";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {uniqueId} from "lodash";
-import {useState} from "react";
+import React, {useState} from "react";
+import {CustomSwitch} from "@features/buttons";
+import Can from "@features/casl/can";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
+    const theme = useTheme();
     const router = useRouter();
-    const {row, handleChange, t, editMotif} = props;
+    const {row, handleChange, handleEvent, t, editMotif, data} = props;
+    const {currentUser} = data;
+
     const [isActive, setIsActive] = useState(row.isActive);
-    const [hasDocPermission, setHasDocPermission] = useState(row.canSeeDoc);
 
     return (
-        <TableRowStyled key={uniqueId}>
+        <TableRowStyled
+            key={uniqueId}
+            className="user-row"
+            onClick={() => handleEvent("onUserDetail", row)}>
             <TableCell>
                 {row ? (
                     <>
-                        <Typography variant="body1" color="text.primary">
-                            {row.FirstName} {row.lastName}
+                        <Typography variant="body1" fontWeight={700} color="text.primary">
+                            {row.firstName} {row.lastName}
                         </Typography>
-                        {row.email}
+                        <span onClick={event => event.stopPropagation()}>{row.email}</span>
                     </>
                 ) : (
                     <Stack>
@@ -40,6 +51,8 @@ function UserRow({...props}) {
                         <Typography
                             textAlign={"center"}
                             variant="body1"
+                            fontSize={13}
+                            fontWeight={700}
                             color="text.primary">
                             {row.isProfessional ? t("table.role_professional") : t("table.secretary")}
                         </Typography>
@@ -51,83 +64,65 @@ function UserRow({...props}) {
                     </Stack>
                 )}
             </TableCell>
-            {/*<TableCell align="center">
-                {row ? (
-                    <Lable variant="filled" color={row.isActive ? "success" : "error"} sx={{px: 1.5}}>
-                        {row.isActive ? t("table.active") : t("table.inactive")}
-                    </Lable>
-                ) : (
-                    <Skeleton
-                        variant="text"
-                        width={100}
-                        height={40}
-                        sx={{mx: "auto"}}
-                    />
-                )}
-            </TableCell>
-            <TableCell align="center">
-                {row ? (
-                    <Switch
-                        name="active"
-                        onChange={(e) => {
-                            setIsActive(e.target.checked);
-                            handleChange("ACCESS", row, e)
-                        }
-                        }
-                        checked={isActive}
-                    />
-                ) : (
-                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
-                )}
-            </TableCell>*/}
-            <TableCell align="center">
-                {row ? (
-                    <Switch
-                        name="active"
-                        onChange={(e) => {
-                            setHasDocPermission(e.target.checked);
-                            handleChange("DOC_PERMISSION", row, e)
-                        }}
-                        checked={hasDocPermission}
-                    />
-                ) : (
+            <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                {row ? !row?.isProfessional && <CustomSwitch
+                    className="custom-switch"
+                    name="active"
+                    onChange={(e) => {
+                        setIsActive(e.target.checked);
+                        handleChange("ACCESS", row, e);
+                    }}
+                    checked={isActive}
+                /> : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}
             </TableCell>
-            {/* <TableCell align="center">
-                {row ? (
-                    <Typography className="name" variant="body1" color="text.primary">
-                        {row.isIntern} {t("table.agenda")}
+            <TableCell align="center">
+                <Stack direction='row' alignItems='center' spacing={.5}>
+                    <IconUrl path="ic-agenda-jour"/>
+                    <Typography variant="body1" fontSize={13} fontWeight={700} color="text.primary">
+                        10/10/2022
                     </Typography>
-                ) : (
-                    <Skeleton variant="text" width={100} sx={{m: "auto"}}/>
-                )}
-            </TableCell> */}
-            {/*            <TableCell align="right">
+                    <IconUrl path="ic-time"/>
+                    <Typography variant="body1" fontWeight={700} fontSize={13} color="text.primary">
+                        09:30
+                    </Typography>
+                </Stack>
+            </TableCell>
+            <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        <Button
-                            variant="text"
-                            size="small"
-                            color="primary"
-                            startIcon={<IconUrl path="setting/edit"/>}
-                            onClick={() => {
-                                dispatch(editUser(row));
-                                router.push(`${pathname}/${row.uuid}`, undefined, {
-                                    locale,
-                                });
-                            }}>
-                            {t("table.update")}
-                        </Button>
-                        <Button
-                            variant="text"
-                            size="small"
-                            color="error"
-                            startIcon={<IconUrl path="setting/icdelete"/>}
-                            onClick={() => editMotif(row)}
-                            sx={{mr: 1}}>
-                            {t("table.remove")}
-                        </Button>
+                        <Can I={"manage"} a={"settings"} field={"settings__users__update"}>
+                            {row?.ssoId === currentUser && <IconButton
+                                size="small"
+                                color="primary"
+                                className="btn-edit"
+                                onClick={() => {
+                                    dispatch(editUser(row));
+                                    router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, {locale: router.locale});
+                                }}>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
+                            </IconButton>}
+                        </Can>
+                        <Can I={"manage"} a={"settings"} field={"settings__users__delete"}>
+                            {!row.isProfessional &&
+                                <IconButton
+                                    className={"delete-icon"}
+                                    size="small"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        editMotif(row);
+                                    }}
+                                    sx={{
+                                        mr: {md: 1},
+                                        '& .react-svg svg': {
+                                            width: 20,
+                                            height: 20
+                                        }
+                                    }}>
+                                    <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                                </IconButton>}
+                        </Can>
                     </Box>
                 ) : (
                     <Stack
@@ -139,7 +134,7 @@ function UserRow({...props}) {
                         <Skeleton variant="text" width={50}/>
                     </Stack>
                 )}
-            </TableCell>*/}
+            </TableCell>
         </TableRowStyled>
     );
 }

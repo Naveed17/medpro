@@ -1,15 +1,16 @@
 import {Stack, TextField, Typography, useMediaQuery} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import FormControl from "@mui/material/FormControl";
-import React from "react";
-import {DateTimePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import React, {useEffect} from "react";
+import {DateTimePicker} from "@mui/x-date-pickers";
 import {FormikProvider, useFormik} from "formik";
 import moment from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {setAbsenceData, absenceDrawerSelector} from "@features/drawer";
 import {NoDataCard} from "@features/card";
 import {MobileContainer as smallScreen} from "@lib/constants";
+import * as Yup from "yup";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 
 function AbsenceDrawer({...props}) {
     const {t, main = false} = props;
@@ -17,6 +18,25 @@ function AbsenceDrawer({...props}) {
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {endDate, startDate, title} = useAppSelector(absenceDrawerSelector);
+
+    const validationSchema = Yup.object().shape({
+        title: Yup.string().required(),
+        repeat: Yup.boolean(),
+        startDate: Yup.date().required(t("dialogs.absence-dialog.datetime-required")),
+        endDate: Yup
+            .date()
+            .when('startDate', (startDate, schema) => {
+                if (startDate[0]) {
+                    const currentDay = new Date(startDate[0].getTime());
+                    //const nextDay = new Date(startDate[0].getTime() + 86400000);
+                    return schema
+                        .min(currentDay, t("dialogs.absence-dialog.end-after-start-time"));
+                    //.max(nextDay, 'End time cannot be more than 24 hours after start time');
+                } else {
+                    return schema;
+                }
+            }).required(t("dialogs.absence-dialog.datetime-required"))
+    })
 
     const formik = useFormik({
         enableReinitialize: false,
@@ -26,12 +46,17 @@ function AbsenceDrawer({...props}) {
             endDate: endDate ? endDate : moment().toDate(),
             repeat: false
         },
+        validationSchema,
         onSubmit: async (values) => {
             console.log("ok", values);
         },
     });
 
-    const {values, setFieldValue} = formik;
+    const {values, errors, setFieldValue} = formik;
+
+    useEffect(() => {
+        dispatch(setAbsenceData({hasError: Object.keys(errors).length > 0}));
+    }, [dispatch, errors]);
 
     return (
         <Stack spacing={3}
@@ -64,7 +89,7 @@ function AbsenceDrawer({...props}) {
                                     fullWidth
                                     onChange={(e) => {
                                         setFieldValue("title", e.target.value);
-                                        dispatch(setAbsenceData({"title": e.target.value}));
+                                        dispatch(setAbsenceData({title: e.target.value}));
                                     }}
                                     placeholder={t("dialogs.absence-dialog.type-placeholder")} variant="outlined"/>
                             </FormControl>
@@ -75,19 +100,28 @@ function AbsenceDrawer({...props}) {
                                 {t("dialogs.absence-dialog.startDate")}
                             </Typography>
                             <FormControl fullWidth size="small">
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DateTimePicker
-                                        inputFormat="dd/MM/yyyy HH:mm"
-                                        ampmInClock={false}
-                                        ampm={false}
-                                        label="Basic date time picker"
-                                        onChange={event => {
-                                            setFieldValue("startDate", event);
-                                            dispatch(setAbsenceData({"startDate": event}));
-                                        }}
-                                        renderInput={(params) => <TextField size={"small"} {...params} />}
-                                        value={values.startDate}/>
-                                </LocalizationProvider>
+                                <DateTimePicker
+                                    format="dd/MM/yyyy HH:mm"
+                                    ampmInClock={false}
+                                    ampm={false}
+                                    label={t("dialogs.absence-dialog.startDate-placeholder")}
+                                    onChange={event => {
+                                        setFieldValue("startDate", event);
+                                        dispatch(setAbsenceData({startDate: event}));
+                                    }}
+                                    slots={{
+                                        openPickerIcon: CalendarPickerIcon
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            ...((values.startDate !== null) && {
+                                                error: Boolean(errors.startDate),
+                                                ...(errors.startDate && {helperText: t("dialogs.absence-dialog.datetime-required")})
+                                            })
+                                        }
+                                    }}
+                                    value={values.startDate}/>
                             </FormControl>
                         </Grid>
 
@@ -96,42 +130,51 @@ function AbsenceDrawer({...props}) {
                                 {t("dialogs.absence-dialog.endDate")}
                             </Typography>
                             <FormControl fullWidth size="small">
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DateTimePicker
-                                        inputFormat="dd/MM/yyyy HH:mm"
-                                        ampmInClock={false}
-                                        ampm={false}
-                                        label="Basic date time picker"
-                                        onChange={event => {
-                                            setFieldValue("endDate", event);
-                                            dispatch(setAbsenceData({"endDate": event}));
-                                        }}
-                                        renderInput={(params) => <TextField size={"small"} {...params} />}
-                                        value={values.endDate}/>
-                                </LocalizationProvider>
+                                <DateTimePicker
+                                    format="dd/MM/yyyy HH:mm"
+                                    ampmInClock={false}
+                                    ampm={false}
+                                    label={t("dialogs.absence-dialog.endDate-placeholder")}
+                                    onChange={event => {
+                                        setFieldValue("endDate", event);
+                                        dispatch(setAbsenceData({"endDate": event}));
+                                    }}
+                                    slots={{
+                                        openPickerIcon: CalendarPickerIcon
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            ...((values.endDate !== null) && {
+                                                error: Boolean(errors.endDate),
+                                                ...(errors.endDate && {helperText: t("dialogs.absence-dialog.end-after-start-time")})
+                                            }),
+                                        }
+                                    }}
+                                    value={values.endDate}/>
                             </FormControl>
                         </Grid>
                     </Grid>
                 </FormikProvider>
             </Stack>
-            {!main && <Stack
-                sx={{
-                    paddingLeft: (theme) => theme.spacing(3),
-                }}>
-                <Typography
-                    sx={{fontSize: "1rem", fontWeight: "bold"}}>{t("dialogs.absence-dialog.sub-title")}</Typography>
+            {
+                !main && <Stack
+                    sx={{
+                        paddingLeft: (theme) => theme.spacing(3),
+                    }}>
+                    <Typography
+                        sx={{fontSize: "1rem", fontWeight: "bold"}}>{t("dialogs.absence-dialog.sub-title")}</Typography>
 
-                <NoDataCard
-                    {...{t}}
-                    data={{
-                        mainIcon: "ic-agenda-+",
-                        title: "table.no-data.vacation.title",
-                        description: "table.no-data.vacation.sub-title"
-                    }}/>
-            </Stack>}
+                    <NoDataCard
+                        {...{t}}
+                        data={{
+                            mainIcon: "ic-agenda-+",
+                            title: "table.no-data.vacation.title",
+                            description: "table.no-data.vacation.sub-title"
+                        }}/>
+                </Stack>
+            }
         </Stack>
-
-
     )
 }
 

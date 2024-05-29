@@ -3,4 +3,7 @@ import { createSelector } from "@reduxjs/toolkit";
 
 export const mainState = (state: RootState) => state.addPatientSteps;
 
-export const addPatientSelector = createSelector(mainState, (state) => state);
+export const addPatientSelector = createSelector(mainState, (state) => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

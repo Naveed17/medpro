@@ -11,7 +11,7 @@ import {
     ListItem,
     Stack,
     TextField,
-    Typography,
+    Typography, useTheme,
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
@@ -27,25 +27,28 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions, useInvalidateQueries} from "@lib/hooks";
 import {debounce} from "lodash";
-import {LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
 import moment from "moment-timezone";
-import {LocaleFnsProvider} from "@lib/localization";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function AppointmentCard({...props}) {
     const {patientId = null, handleOnDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
+    const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {data: session} = useSession();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {locale} = useAppSelector(configSelector);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
+
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse)?.medical_professional as MedicalProfessionalModel;
 
     const [editConsultation, setConsultation] = useState(false);
     const [data, setData] = useState({
@@ -68,8 +71,8 @@ function AppointmentCard({...props}) {
         smsLang: "fr",
         rappel: "1",
         rappelType: "2",
-        smsRappel: false,
-        timeRappel: moment().toDate()
+        smsRappel: !!medical_professional?.sendSms,
+        timeRappel: moment("17:00", "HH:mm").toDate()
     });
     const [selectedReason, setSelectedReason] = useState<ConsultationReasonModel[]>([]);
     const [typeEvent, setTypeEvent] = useState("");
@@ -83,7 +86,7 @@ function AppointmentCard({...props}) {
         mutate: mutateConsultReason
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
@@ -110,7 +113,7 @@ function AppointmentCard({...props}) {
                 if (handleOnDataUpdated) {
                     handleOnDataUpdated();
                 } else {
-                    medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`]);
+                    medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/${router.locale}`]);
                 }
             }
         });
@@ -133,7 +136,7 @@ function AppointmentCard({...props}) {
 
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
             data: params
         }, {
             onSuccess: () => mutateConsultReason().then((result: any) => {
@@ -195,11 +198,11 @@ function AppointmentCard({...props}) {
             smsLang: updatedData.reminder?.length > 0 ? updatedData.reminder[0].reminderLanguage : "fr",
             rappel: updatedData.reminder?.length > 0 ? updatedData.reminder[0].numberOfDay : "1",
             rappelType: updatedData.reminder?.length > 0 ? updatedData.reminder[0].type : "2",
-            smsRappel: updatedData.reminder?.length > 0,
-            timeRappel: (updatedData.reminder?.length > 0 ? moment(`${updatedData.reminder[0].date} ${updatedData.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment()).toDate()
+            smsRappel: medical_professional?.sendSms ?? updatedData.reminder?.length > 0,
+            timeRappel: (updatedData.reminder?.length > 0 ? moment(`${updatedData.reminder[0].date} ${updatedData.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment("17:00", "HH:mm")).toDate()
         }));
         setTimeout(() => setData(updatedData));
-    }, [appointment])
+    }, [appointment]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <RootStyled>
@@ -231,11 +234,11 @@ function AppointmentCard({...props}) {
                         </Typography>
                     </Label>
                     {((!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && !["FINISHED", "ON_GOING"].includes(data?.status?.key))) && !appointment?.extendedProps.patient?.isArchived) &&
-                        <IconButton
-                            size="small"
-                            onClick={onEditConsultation}
-                            className="btn-toggle">
-                            <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
+                        <IconButton className={"btn-edit"} size="small"
+                                    onClick={onEditConsultation}>
+                            <IconUrl color={theme.palette.text.secondary}
+                                     width={16} height={16}
+                                     path={editConsultation ? "iconfinder_save" : "ic-edit-patient"}/>
                         </IconButton>}
                 </Stack>
                 <Stack
@@ -250,7 +253,7 @@ function AppointmentCard({...props}) {
                                     sx={{cursor: "pointer"}}
                                     direction="row" spacing={2} alignItems="center">
                                     <Typography fontWeight={400}>
-                                        {t("appintment_date")} :
+                                        {t("appointment_date")} :
                                     </Typography>
                                     <ConditionalWrapper
                                         condition={onMoveAppointment && !appointment?.extendedProps.patient?.isArchived && (!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING"))}
@@ -259,7 +262,8 @@ function AppointmentCard({...props}) {
                                             sx={{p: .5}}>{children}</Button>}>
                                         <Stack spacing={2} direction="row" alignItems="center">
                                             <Stack spacing={0.5} direction="row" alignItems="center">
-                                                <IconUrl className="callander" path="ic-agenda-jour"/>
+                                                <IconUrl path="ic-agenda-jour" width={18} heigth={18}
+                                                         color={theme.palette.primary.main}/>
                                                 <Typography className="time-slot">
                                                     {data?.date}
                                                 </Typography>
@@ -526,33 +530,29 @@ function AppointmentCard({...props}) {
                                                 <Typography variant="body1" color="text.primary" px={1.2} mt={0}>
                                                     {t("steppers.stepper-3.to", {ns: "agenda"})}
                                                 </Typography>
-                                                <LocalizationProvider
-                                                    adapterLocale={LocaleFnsProvider(locale)}
-                                                    dateAdapter={AdapterDateFns}>
-                                                    <MobileTimePicker
-                                                        ampm={false}
-                                                        value={reminder.timeRappel}
-                                                        onChange={(newValue) => {
-                                                            setReminder({
-                                                                ...reminder,
-                                                                init: false,
-                                                                timeRappel: newValue as Date
-                                                            })
-                                                        }}
-                                                        renderInput={(params) => (
-                                                            <TextField
-                                                                {...params}
-                                                                InputProps={{
-                                                                    endAdornment: (
-                                                                        <InputAdornment position="end">
-                                                                            <SortIcon/>
-                                                                        </InputAdornment>
-                                                                    ),
-                                                                }}
-                                                            />
-                                                        )}
-                                                    />
-                                                </LocalizationProvider>
+                                                <MobileTimePicker
+                                                    ampm={false}
+                                                    value={reminder.timeRappel}
+                                                    onChange={(newValue) => {
+                                                        setReminder({
+                                                            ...reminder,
+                                                            init: false,
+                                                            timeRappel: newValue as Date
+                                                        })
+                                                    }}
+                                                    slots={{
+                                                        textField: (params) => <TextField
+                                                            {...params}
+                                                            InputProps={{
+                                                                endAdornment: (
+                                                                    <InputAdornment position="end">
+                                                                        <SortIcon/>
+                                                                    </InputAdornment>
+                                                                ),
+                                                            }}
+                                                        />
+                                                    }}
+                                                />
                                             </Stack>}
                                     </Stack>
                                 </ListItem>

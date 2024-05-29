@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {
     Box,
     Button,
@@ -20,11 +20,11 @@ import {
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout} from "@features/base";
-import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table";
+import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard,} from "@features/card";
+import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -33,9 +33,9 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Dialog, PatientDetail} from "@features/dialog";
 import {DefaultCountry} from "@lib/constants";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useInsurances} from "@lib/hooks/rest";
-import {CashboxFilter, cashBoxSelector, SetSelectedTab,} from "@features/leftActionBar/components/cashbox";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {useCashBox, useInsurances} from "@lib/hooks/rest";
+import {CashboxFilter, cashBoxSelector, setSelectedTabIndex} from "@features/leftActionBar";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import CloseIcon from "@mui/icons-material/Close";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -44,144 +44,12 @@ import {ActionMenu} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
 import {TabPanel} from "@features/tabPanel";
 import moment from "moment-timezone";
-import {agendaSelector} from "@features/calendar";
+import {agendaSelector, setNavigatorMode} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {ImageHandler} from "@features/image";
 import {LoadingScreen} from "@features/loadingScreen";
-
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
-}
-
-export const headCells: readonly HeadCell[] = [
-    {
-        id: "empty",
-        numeric: false,
-        disablePadding: true,
-        label: "empty",
-        sortable: false,
-        align: "left",
-    },
-    {
-        id: "date",
-        numeric: false,
-        disablePadding: true,
-        label: "date",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "name",
-        numeric: true,
-        disablePadding: false,
-        label: "name",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "insurance",
-        numeric: true,
-        disablePadding: false,
-        label: "insurance",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "method",
-        numeric: true,
-        disablePadding: false,
-        label: "method",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "advance",
-        numeric: true,
-        disablePadding: false,
-        label: "advance",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "flow",
-        numeric: true,
-        disablePadding: false,
-        label: "flow",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "amount",
-        numeric: true,
-        disablePadding: false,
-        label: "amount",
-        sortable: true,
-        align: "center",
-    },
-];
-export const consultationCells: readonly HeadCell[] = [
-    {
-        id: "date",
-        numeric: false,
-        disablePadding: true,
-        label: "date",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "name",
-        numeric: true,
-        disablePadding: false,
-        label: "name",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "insurance",
-        numeric: false,
-        disablePadding: false,
-        label: "insurance",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "status",
-        numeric: false,
-        disablePadding: false,
-        label: "status",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "total",
-        numeric: true,
-        disablePadding: false,
-        label: "total",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "amount",
-        numeric: true,
-        disablePadding: false,
-        label: "amount",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "rest",
-        numeric: true,
-        disablePadding: false,
-        label: "rest",
-        sortable: true,
-        align: "center",
-    },
-];
+import Can, {AbilityContext} from "@features/casl/can";
+import {ToggleButtonStyled} from "@features/toolbar";
 
 const noCardData = {
     mainIcon: "ic-unpaid",
@@ -192,23 +60,6 @@ const noAppData = {
     mainIcon: "ic-agenda",
     title: "no-data.title_consult",
 };
-const MenuActions = [
-    {
-        title: "add-payment",
-        icon: <IconUrl path="ic-wallet-money" color="white"/>,
-        action: "onCash",
-    },
-    {
-        title: "delete",
-        icon: <IconUrl path="ic-delete" color="white"/>,
-        action: "onDelete",
-    },
-    {
-        title: "see_patient_file",
-        icon: <IconUrl path="ic-file" color="white"/>,
-        action: "onSeePatientFile",
-    },
-];
 
 function Cashbox() {
     const {data: session} = useSession();
@@ -216,55 +67,81 @@ function Cashbox() {
     const dispatch = useAppDispatch();
     const theme: Theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
     const {insurances} = useInsurances();
+    const {cashboxes} = useCashBox();
+    const ability = useContext(AbilityContext);
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready} = useTranslation(["payment", "common"]);
+    const {t, ready, i18n} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {config: agenda, mode} = useAppSelector(agendaSelector);
+
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false);
     const [txtFilter, setTxtFilter] = useState("");
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
-    const isAddAppointment = false;
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [rows, setRows] = useState<any[]>([]);
-    const [apps, setApps] = useState<any[]>([]);
+    const [apps, setApps] = useState<any>(null);
     const [total, setTotal] = useState(0);
     const [unpaid, setUnpaid] = useState(0);
     const [ca, setCA] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
     const [totalCheck, setTotalCheck] = useState(0);
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
-    /*
-    const [toReceive, setToReceive] = useState(0);
-          const [collected, setCollected] = useState(0);
-          let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
-          let [collectedCash, setCollectedCash] = useState(0);
-      */
     const [loading, setLoading] = useState(true);
     const [selectedCashBox, setCashbox] = useState<any>(null);
-    let [selectedTab, setSelectedTab] = useState("consultations");
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
     const tabsData = [
-        {
+        ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
             label: "consultations",
-            value: "consultations",
+            value: "consultations"
+        }] : []),
+        ...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
+            label: "transactions",
+            value: "transactions"
+        }] : [])
+    ];
+    const MenuActions = [
+        {
+            title: "print",
+            feature: "cashbox",
+            permission: "cash_box__transaction__create",
+            icon: <IconUrl path="ic-print" color="white"/>,
+            action: "onPrint",
         },
         {
-            label: "transactions",
-            value: "transactions",
+            title: "add-payment",
+            feature: "cashbox",
+            permission: "cash_box__transaction__create",
+            icon: <IconUrl path="ic-wallet-money" color="white"/>,
+            action: "onCash",
+        },
+        {
+            title: "delete",
+            feature: "cashbox",
+            permission: "cash_box__transaction__delete",
+            icon: <IconUrl path="ic-delete" color="white"/>,
+            action: "onDelete",
+        },
+        {
+            title: "see_patient_file",
+            feature: "patient",
+            permission: "patients__patient__show",
+            icon: <IconUrl path="ic-file" color="white"/>,
+            action: "onSeePatientFile",
         },
     ];
     const topCard = [
         {
-            icon: "ic-acte",
-            mobile_icon: "ic-acte",
+            icon: "ic-acte-light-blue",
+            mobile_icon: "ic-acte-light-blue",
             amount: ca,
             title: "total_appointment",
         },
@@ -294,51 +171,164 @@ function Cashbox() {
             title: "cheque_cashed",
         },
     ];
-    const {data: user} = session as Session;
+    const isAddAppointment = false;
+    const headCells: readonly any[] = [
+        {
+            id: "empty",
+            numeric: false,
+            disablePadding: true,
+            label: "empty",
+            sortable: false,
+            align: "left",
+        },
+        {
+            id: "date",
+            numeric: false,
+            disablePadding: true,
+            label: "date",
+            sortable: true,
+            align: "left",
+        },
+        ...(mode === "normal" ? [{
+            id: "name",
+            numeric: true,
+            disablePadding: false,
+            label: "name",
+            sortable: true,
+            align: "left",
+        }] : []),
+        {
+            id: "insurance",
+            numeric: true,
+            disablePadding: false,
+            label: "insurance",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "method",
+            numeric: true,
+            disablePadding: false,
+            label: "method",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "advance",
+            numeric: true,
+            disablePadding: false,
+            label: "advance",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "flow",
+            numeric: true,
+            disablePadding: false,
+            label: "flow",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "amount",
+            numeric: true,
+            disablePadding: false,
+            label: "amount",
+            sortable: true,
+            align: "center",
+        },
+    ];
+    const consultationCells: readonly any[] = [
+        {
+            id: "date",
+            numeric: false,
+            disablePadding: true,
+            label: "date",
+            sortable: true,
+            align: "left",
+        }, {
+            id: "type",
+            numeric: false,
+            disablePadding: true,
+            label: "type",
+            sortable: true,
+            align: "left",
+        },
+        ...(mode === "normal" ? [{
+            id: "name",
+            numeric: true,
+            disablePadding: false,
+            label: "name",
+            sortable: true,
+            align: "left",
+        }] : []),
+        {
+            id: "insurance",
+            numeric: false,
+            disablePadding: false,
+            label: "insurance",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "status",
+            numeric: false,
+            disablePadding: false,
+            label: "status",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "total",
+            numeric: true,
+            disablePadding: false,
+            label: "total",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "amount",
+            numeric: true,
+            disablePadding: false,
+            label: "amount",
+            sortable: true,
+            align: "center",
+        },
+        {
+            id: "rest",
+            numeric: true,
+            disablePadding: false,
+            label: "rest",
+            sortable: true,
+            align: "center",
+        },
+    ];
 
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
-    const devise = doctor_country.currency?.name;
+    const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', 'agenda__appointment__show') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? "transactions" : ""));
     const filterQuery: string = generateFilter({filterCB});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [loadingDeleteTransaction, setLoadingDeleteTransaction] =
-        useState(false);
-    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] =
-        useState(false);
-    const {trigger: triggerPostTransaction} = useRequestQueryMutation(
-        "/payment/cashbox/post"
-    );
-    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation(
-        "/agenda/appointment/details"
-    );
+    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
+    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
+
+    const [state, setState] = useState<any>();
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
+    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerExport} = useRequestQueryMutation("/cashbox/export");
 
-    const {data: paymentMeansHttp} = useRequestQuery(
-        {
-            method: "GET",
-            url: `/api/public/payment-means/${router.locale}`,
-        },
-        ReactQueryNoValidateConfig
-    );
+    const {data: paymentMeansHttp} = useRequestQuery({
+        method: "GET",
+        url: `/api/public/payment-means/${router.locale}`,
+    }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransactions} =
-        useRequestQuery(
-            filterQuery
-                ? {
-                    method: "GET",
-                    url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                }
-                : null,
-            {
-                ...(filterQuery && {variables: {query: filterQuery}}),
-            }
-        );
+    const {data: httpTransactionsResponse, mutate: mutateTransactions} = useRequestQuery(filterQuery ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+    } : null, {...(filterQuery && {variables: {query: filterQuery}})});
 
     useEffect(() => {
         if (httpTransactionsResponse) {
@@ -347,7 +337,7 @@ function Cashbox() {
     }, [httpTransactionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filterCB) getConsultation(filterCB.start_date, filterCB.end_date);
+        if (filterCB && filterCB.start_date) getConsultation(filterCB.start_date, filterCB.end_date);
     }, [filterCB]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const txtGenerator = () => {
@@ -373,21 +363,24 @@ function Cashbox() {
         setTotal(data.total_amount);
         setTotalCash(data.period_cash);
         setTotalCheck(data.period_check);
+        setCA(data.appointment_total);
+        setUnpaid(data.appointment_rest_total);
         /*
             setToReceive(data.total_insurance_amount);
             setCollected(data.total_collected);*/
         txtGenerator();
-        if (data.transactions) setRows(data.transactions);
-        else setRows([]);
-        if (filterQuery.includes("cashboxes")) setLoading(false);
+        if (data.transactions) {
+            setRows(data.transactions);
+        } else {
+            setRows([]);
+        }
     };
 
     const getConsultation = (start: string, end: string) => {
         const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format(
             "DD-MM-YYYY"
-        )}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`;
-        agenda &&
-        triggerAppointmentDetails(
+        )}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week&page=${router.query.page || 1}&limit=10`;
+        agenda?.uuid && triggerAppointmentDetails(
             {
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`,
@@ -396,8 +389,6 @@ function Cashbox() {
                 onSuccess: (result) => {
                     const res = result.data.data;
                     setApps(res);
-                    setUnpaid(res.reduce((total: number, val: { appointmentRestAmount: number; }) => total + val.appointmentRestAmount, 0));
-                    setCA(res.reduce((total: number, val: { fees: string; }) => total + parseInt(val.fees), 0));
                 },
             }
         );
@@ -455,12 +446,25 @@ function Cashbox() {
             }
         );
     };
+
     const OnMenuActions = (action: string) => {
         handleCloseMenu();
 
         switch (action) {
             case "onDelete":
                 setOpenDeleteTransactionDialog(true);
+                break;
+            case "onPrint":
+                setState({
+                    type: "payment_receipt",
+                    name: "reception",
+                    info: selectedCashBox,
+                    createdAt: moment().format("DD/MM/YYYY"),
+                    age: selectedCashBox.patient?.birthdate ? getBirthdayFormat({birthdate: selectedCashBox.patient.birthdate}, t) : "",
+                    patient: `${selectedCashBox.patient?.firstName} ${selectedCashBox.patient?.lastName}`,
+                });
+                setOpenDialog(true);
+
                 break;
             case "onSeePatientFile":
                 dispatch(
@@ -477,13 +481,21 @@ function Cashbox() {
     };
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
-        dispatch(SetSelectedTab(newValue));
+        dispatch(setSelectedTabIndex(newValue));
     };
-    const exportDoc = () => {
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false)
+    }
+    const exportDoc = (from: string) => {
+
+        let url = `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`;
+        if (from === "apps")
+            url = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/export/${router.locale}`;
         triggerExport(
             {
                 method: "GET",
-                url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`,
+                url,
             },
             {
                 onSuccess: (result) => {
@@ -495,7 +507,19 @@ function Cashbox() {
     };
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    useEffect(() => {
+        if (cashboxes.length > 0) {
+            setLoading(false);
+        }
+
+    }, [cashboxes])
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment", 'menu', "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
         <>
@@ -506,8 +530,7 @@ function Cashbox() {
                     alignItems="center"
                     paddingTop={1}
                     justifyContent={"space-between"}
-                    width={"100%"}
-                >
+                    width={"100%"}>
                     <Tabs
                         value={selectedTab}
                         onChange={handleChangeTab}
@@ -519,19 +542,29 @@ function Cashbox() {
                             marginTop: "8px",
                         }}
                         scrollButtons={true}
-                        textColor="primary"
-                        indicatorColor="primary"
-                    >
-                        {tabsData.map((tab: { label: string }) => (
+                        indicatorColor="primary">
+                        {tabsData.map((tab) => (
                             <Tab
-                                className="custom-tab"
                                 key={tab.label}
+                                className="custom-tab"
                                 value={tab.label}
                                 disabled={loading}
                                 label={t(tab.label)}
                             />
                         ))}
                     </Tabs>
+                    <ToggleButtonStyled
+                        id="toggle-button"
+                        value="toggle"
+                        onClick={() => dispatch(setNavigatorMode(mode === "normal" ? "discreet" : "normal"))}
+                        className={"toggle-button"}
+                        sx={{
+                            ...(mode !== "normal" && {border: "none"}),
+                            background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
+                        }}>
+                        <IconUrl width={19} height={19}
+                                 path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>
+                    </ToggleButtonStyled>
                 </Stack>
             </SubHeader>
             {loading && (
@@ -545,16 +578,15 @@ function Cashbox() {
                     mb={0.6}
                     display="grid"
                     sx={{gap: 1.2, px: 1}}
-                    gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}
-                >
+                    gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}>
                     {topCard.map((card, idx) => (
                         <Card sx={{border: "none"}} key={idx}>
                             <CardContent sx={{px: isMobile ? 1.75 : 2}}>
                                 <Stack
                                     direction="row"
+                                    {...(mode !== "normal" && {className: "blur-text"})}
                                     alignItems="center"
-                                    spacing={{xs: 1, md: 2}}
-                                >
+                                    spacing={{xs: 1, md: 2}}>
                                     <ImageHandler
                                         src={`/static/icons/${
                                             isMobile ? card.mobile_icon : card.icon
@@ -566,9 +598,7 @@ function Cashbox() {
                                     <Stack direction={isMobile ? "column-reverse" : "column"}>
                                         <Typography variant="h6" fontWeight={700}>
                                             {card.amount}
-                                            <span style={{fontSize: 14, marginLeft: 4}}>
-                        {devise}
-                      </span>
+                                            <span style={{fontSize: 14, marginLeft: 4}}>{devise}</span>
                                         </Typography>
                                         <Typography variant="body2" fontSize={11} textTransform="capitalize">
                                             {t(card.title)}
@@ -589,31 +619,45 @@ function Cashbox() {
                                 mb={2}
                                 pb={1}
                                 borderBottom={1}
-                                borderColor="divider"
-                            >
+                                borderColor="divider">
                                 <Stack>
                                     <Typography fontWeight={700}>{t("consultations")}</Typography>
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                 </Stack>
+
+                                {apps?.list.length > 0 &&
+                                    <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
+                                        <Button
+                                            onClick={() => exportDoc('apps')}
+                                            variant="outlined"
+                                            color="info"
+                                            startIcon={<IconUrl path="ic-export-new"/>}>
+                                            {t("export")}
+                                        </Button>
+                                    </Can>}
                             </Stack>
                             <DesktopContainer>
-                                {apps.length > 0 ? <Otable
+                                {apps?.list?.length > 0 ? <Otable
                                     {...{
-                                        rows: apps,
+                                        rows: apps.list,
                                         t,
+                                        hideName: mode !== "normal",
                                         insurances,
                                         pmList,
                                         mutateTransactions,
-                                        filterCB,
+                                        filterCB
                                     }}
                                     headers={consultationCells}
                                     from={"unpaidconsult"}
                                     handleEvent={handleTableActions}
+                                    total={apps.total}
+                                    totalPages={apps.totalPages}
+                                    pagination
                                 /> : !loading && <NoDataCard t={t} ns={"payment"} data={noAppData}/>}
                             </DesktopContainer>
                             <MobileContainer>
                                 <Stack spacing={1}>
-                                    {apps.map((row) => (
+                                    {apps?.list?.map((row: any) => (
                                         <React.Fragment key={row.uuid}>
                                             <UnpaidConsultationCard
                                                 {...{
@@ -643,22 +687,23 @@ function Cashbox() {
                                     mb={2}
                                     pb={1}
                                     borderBottom={1}
-                                    borderColor="divider"
-                                >
+                                    borderColor="divider">
                                     <Stack>
                                         <Typography fontWeight={700}>
                                             {t("transactions")}
                                         </Typography>
                                         <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                     </Stack>
-                                    {rows.length > 0 && <Button
-                                        onClick={exportDoc}
-                                        variant="outlined"
-                                        color="info"
-                                        startIcon={<IconUrl path="ic-export-new"/>}
-                                    >
-                                        {t("export")}
-                                    </Button>}
+                                    {rows.length > 0 &&
+                                        <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
+                                            <Button
+                                                onClick={() => exportDoc('cashbox')}
+                                                variant="outlined"
+                                                color="info"
+                                                startIcon={<IconUrl path="ic-export-new"/>}>
+                                                {t("export")}
+                                            </Button>
+                                        </Can>}
                                 </Stack>
                                 <DesktopContainer>
                                     {!loading && (
@@ -666,6 +711,7 @@ function Cashbox() {
                                             {...{
                                                 rows,
                                                 t,
+                                                hideName: mode !== "normal",
                                                 insurances,
                                                 pmList,
                                                 mutateTransactions,
@@ -709,8 +755,7 @@ function Cashbox() {
                     setPatientDetailDrawer(false);
                 }}
                 open={patientDetailDrawer}
-                dir={direction}
-            >
+                dir={direction}>
                 <PatientDetail
                     {...{isAddAppointment, patientId: tableState.patientId}}
                     onCloseDialog={() => {
@@ -731,32 +776,30 @@ function Cashbox() {
                         transform: "translateX(-50%)",
                         left: "50%",
                         zIndex: 999,
-                    }}
-                >
+                    }}>
                     {t("filter.title", {ns: "common"})} (0)
                 </Button>
             </MobileContainer>
             <DrawerBottom
                 handleClose={() => setFilter(false)}
                 open={filter}
-                title={t("filter.title", {ns: "common"})}
-            >
+                title={t("filter.title", {ns: "common"})}>
                 <CashboxFilter/>
             </DrawerBottom>
             <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
                 {MenuActions.map((v: any, index) => (
-                    <MenuItem
-                        key={index}
-                        className="popover-item"
-                        onClick={() => {
-                            OnMenuActions(v.action);
-                        }}
-                    >
-                        {v.icon}
-                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                            {t(v.title, {ns: "common"})}
-                        </Typography>
-                    </MenuItem>
+                    <Can key={index} I={"manage"} a={v.feature} field={v.permission}>
+                        <MenuItem
+                            className="popover-item"
+                            onClick={() => {
+                                OnMenuActions(v.action);
+                            }}>
+                            {v.icon}
+                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                {t(v.title, {ns: "common"})}
+                            </Typography>
+                        </MenuItem>
+                    </Can>
                 ))}
             </ActionMenu>
             <Dialog
@@ -773,8 +816,7 @@ function Cashbox() {
                                 setLoadingDeleteTransaction(false);
                                 setOpenDeleteTransactionDialog(false);
                             }}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t("cancel")}
                         </Button>
                         <LoadingButton
@@ -782,8 +824,7 @@ function Cashbox() {
                             loading={loadingDeleteTransaction}
                             color="error"
                             onClick={deleteTransaction}
-                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}
-                        >
+                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
                             {t("delete")}
                         </LoadingButton>
                     </Stack>
@@ -816,6 +857,21 @@ function Cashbox() {
                     dialogClose={resetDialog}
                 />
             )}
+
+            <Dialog action={"document_detail"}
+                    open={openDialog}
+                    data={{
+                        state,setState,
+                        setOpenDialog
+                    }}
+                    size={"lg"}
+                    direction={'ltr'}
+                    sx={{p: 0}}
+                    title={t("config.doc_detail_title", {ns: "patient"})}
+                    onClose={handleCloseDialog}
+                    dialogClose={handleCloseDialog}
+            />
+
         </>
     );
 }
@@ -826,9 +882,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
             fallback: false,
             ...(await serverSideTranslations(context.locale as string, [
                 "common",
-                "menu",
-                "consultation",
-                "patient",
+                'menu',
                 "payment",
             ])),
         },

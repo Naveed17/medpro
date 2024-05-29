@@ -51,7 +51,7 @@ function CropImage({...props}) {
     };
 
     return (
-        <ModalStyled onClose={handleClose} open={open}>
+        <ModalStyled open={open}>
             <Box className="modal-header">
                 <Typography variant="subtitle1" component="h6">
                     Update profile picture

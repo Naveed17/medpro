@@ -4,28 +4,31 @@ import { styled } from "@mui/material/styles";
 const RootStyled = styled(Box)(({ theme }) => ({
   display: "none",
   width: "100%",
-  "& .card-main": { padding: "10px", marginBottom: "0.5rem" },
+  "& .card-main": {
+    padding: "16px", 
+    marginBottom: "0.5rem",
+    borderRadius:theme.spacing(2),
+    border:'none',
+    boxShadow: "0px 2px 4px 0px #0000001A",
+
+   },
   "& .heading": {
     display: "flex",
     lineHeight: "21px",
     alignItems: "center",
+    color:theme.palette.primary.main,
     svg: {
       marginRight: theme.spacing(0.5),
     },
   },
    ".btn-phone": {
       marginLeft: "auto",
-      backgroundColor: theme.palette.primary.lighter,
-      border: `1px solid ${theme.palette.success.main}`,
+      backgroundColor: theme.palette.success.light,
+      border: `1px solid ${theme.palette.success.light}`,
       padding: theme.spacing(0.7),
-      borderRadius: 4,
-      svg: {
-        width: 18,
-        height: 18,
-        path: {
-          fill: theme.palette.success.main,
-        },
-      },
+      borderRadius: 8,
+      minWidth:40,
+      minHeight:40
     },
   "& .border-left-sec": {
     marginTop: theme.spacing(1),

@@ -1,118 +1,205 @@
-import { GetStaticProps } from "next";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState } from "react";
-import { Box, Button, Container, Paper, Toolbar, Typography } from "@mui/material";
-import { useSession } from "next-auth/react";
-import { TopNavBar } from "@features/topNavBar";
-import { MainMenuStyled } from "@features/menu";
-import { CheckProfileStatus } from "@features/checkProfileStatus";
-import { LoadingScreen } from "@features/loadingScreen";
-import { Session } from "next-auth";
-import { useRouter } from "next/router";
-import { Info, Document, Actes, Cabinet, stepperProfileSelector } from "@features/tabPanel";
-import { useAppSelector } from "@lib/redux/hooks";
-import { CustomStepper } from "@features/customStepper";
+import {GetStaticProps} from "next";
+import {useTranslation} from "next-i18next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useState} from "react";
+import {
+    Avatar,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Divider,
+    Grid,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme
+} from "@mui/material";
+import {useSession} from "next-auth/react";
+import {TopNavBar} from "@features/topNavBar";
+import {MainMenuStyled} from "@features/menu";
+import {LoadingScreen} from "@features/loadingScreen";
+import {useRouter} from "next/router";
+import {Info, stepperProfileSelector, TabPanel, LinearProgress} from "@features/tabPanel";
+import {useAppSelector} from "@lib/redux/hooks";
+import Link from "next/link";
+import IconUrl from "@themes/urlIcon";
+import {SuccessCard} from "@features/card";
 
 const stepperData = [
     {
-        title: "tabs.tab-1",
-        children: Info
+        title: "steps.step-1",
+        subtitle: "steps.subtitle-1"
+
     },
     {
-        title: "tabs.tab-2",
-        children: Document
-    },
-    {
-        title: "tabs.tab-3",
-        children: Actes
-    },
-    {
-        title: "tabs.tab-4",
-        children: Cabinet
-    },
+        title: "steps.step-2",
+        subtitle: "steps.subtitle-2"
+
+    }
 ];
 
 function EditProfile() {
-    const { data: session, status } = useSession();
-    const { currentStepper: stepperIndex } = useAppSelector(stepperProfileSelector);
+    const {status} = useSession();
+    const {currentStepper: stepperIndex} = useAppSelector(stepperProfileSelector);
     const router = useRouter();
+    const theme = useTheme()
     const loading = status === 'loading';
-    const { step } = router.query;
+
+    const {step} = router.query;
     const [currentStepper, setCurrentStepper] = useState(step ? (parseInt(step as string, 0) - 1) : stepperIndex);
-    const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers' });
-    // get user session data
-    const { data: user } = session as Session;
+    const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers'});
+    const profilePercentage = (100 / stepperData.length) * (currentStepper === 0 ? currentStepper : currentStepper + 1)
 
     if (!ready || loading) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <Box className="container">
+        <Box className="container"
+             sx={{
+                 background: `linear-gradient(180deg, ${theme.palette.background.default} 60%, ${theme.palette.primary.main} 0%);`,
+                 height: '100%'
+             }}
+        >
+            <Grid container spacing={2}>
+                <Grid item xs={12} md={3}>
+                    <Card>
+                        <CardContent>
+                            <Stack spacing={1}>
+                                <Link href="/">
+                                    <Avatar
+                                        alt="logo"
+                                        src="/static/icons/Med-logo_.svg"
+                                        sx={{width: 71, height: 71}}
+                                    />
+                                </Link>
+                                <List sx={{
+                                    "&:before": {
+                                        content: '""',
+                                        display: "block",
+                                        position: "absolute",
+                                        top: 42,
+                                        left: 35,
+                                        width: 0,
+                                        height: "calc(100% - 84px)",
+                                        borderLeft: "1px dashed #E4E6EF",
+                                    }
+                                }}>
+                                    {
+                                        stepperData.map((tab, i) => (
+                                            <ListItem alignItems="flex-start" key={i}>
+                                                <ListItemAvatar>
+                                                    <Avatar
+                                                        sx={{
+                                                            bgcolor: "info.main",
+                                                            color: currentStepper === i ? "common.white" : currentStepper < i ? "primary.main" : "common.white",
+                                                        }}>
+                                                        {currentStepper > i ? <IconUrl path="ic-check"
+                                                                                       color={theme.palette.primary.main}/> : i + 1}
+                                                    </Avatar>
+                                                </ListItemAvatar>
+                                                <ListItemText
+                                                    primary={
+                                                        <Typography
 
-            <Container fixed>
-                <Paper sx={{ mt: 4, borderRadius: "10px", mb: 4 }}>
-                    {currentStepper > 3 ? (
-                        <CheckProfileStatus doctor={user} />
-                    ) : (
-                        <>
-                            <Typography
-                                variant="h6"
-                                p={2}
-                                sx={{
-                                    bgcolor: "primary.main",
-                                    color: "common.white",
-                                    borderRadius: "10px 10px 0 0",
-                                }}
-                            >
-                                {t(`stepper-${currentStepper}.title`)}
+                                                            color={
+                                                                currentStepper === i ? "textPrimary" : currentStepper < i ? "textSecondary" : "textPrimary"
+                                                            }
+                                                            variant="subtitle2">
+                                                            {t(tab.title)}
+                                                        </Typography>
+                                                    }
+                                                    secondary={
+                                                        <React.Fragment>
+                                                            <Typography
+                                                                sx={{display: 'inline'}}
+                                                                color={
+                                                                    currentStepper === i ? "textSecondary" : currentStepper < i ? theme.palette.grey[300] : "textSecondary"
+                                                                }
+                                                                component="span"
+                                                                variant="body2"
+                                                                fontWeight={500}
+
+                                                            >
+                                                                {t(tab.subtitle)}
+                                                            </Typography>
+
+                                                        </React.Fragment>
+                                                    }
+                                                />
+                                            </ListItem>
+                                        ))
+                                    }
+
+                                </List>
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid item xs={12} md={9}>
+                    <Card>
+                        <CardHeader
+                            sx={{
+                                flexDirection: {xs: 'column', md: 'row'},
+                                ".MuiCardHeader-action": {
+                                    alignSelf: {xs: 'flex-start', md: 'flex-end'},
+                                    marginBottom: .5,
+                                    marginTop: {xs: 1, md: 0}
+                                }
+                            }}
+                            action={
+                                <Stack spacing={.5} alignSelf="flex-end">
+                                    <Stack direction="row" alignItems='center' justifyContent='space-between'>
+                                        <Typography fontWeight={500}
+                                                    color={theme.palette.grey["B904"]}>{t("profile_status")}</Typography>
+                                        <Typography fontWeight={700} color={theme.palette.white.darker}>
+                                            {profilePercentage} %
+                                        </Typography>
+                                    </Stack>
+                                    <LinearProgress variant="determinate" value={profilePercentage}/>
+                                </Stack>
+                            }
+                            title={currentStepper === 0 ? t("stepper-0.title") : t("title-complete")}
+                            subheader={currentStepper === 0 ? <Typography>
+                                {t("stepper-0.sub-title")}
+                            </Typography> : <Typography>
+                                {t("sub-title-complete")}
                             </Typography>
-                            <Container maxWidth="md">
-                                <Box sx={{ width: "100%", py: 3 }}>
-                                    <Box sx={{ maxWidth: { xs: 555, sm: "100%" } }}>
-                                        <CustomStepper
-                                            currentIndex={currentStepper}
-                                            translationKey="editProfile"
-                                            t={t}
-                                            prefixKey="steppers"
-                                            stepperData={stepperData} />
-                                    </Box>
-                                </Box>
-                            </Container>
-                            <Box
-                                component="footer"
-                                sx={{
-                                    textAlign: "right",
-                                    boxShadow: theme => theme.customShadows.customShadow1,
-                                    p: 1.5,
-                                }}
-                            >
-                                {currentStepper !== 0 && (
-                                    <Button
-                                        onClick={() => setCurrentStepper(currentStepper - 1)}
-                                        variant="text"
-                                        sx={{ color: "text.secondary", mr: 2 }}
-                                    >
-                                        {t(`back`)}
+                            }
+                        />
+                        <Divider/>
+                        <CardContent>
+                            <TabPanel padding={0} value={currentStepper} index={0}>
+                                <Info {...{handleNext: () => setCurrentStepper(currentStepper + 1)}} />
+                            </TabPanel>
+                            <TabPanel padding={0} value={currentStepper} index={1}>
+                                <SuccessCard
+                                    data={{
+                                        title: t("success_title"),
+                                        description: t("success_desc")
+                                    }}
+                                />
+                                <Stack width={1} alignItems='flex-end' mt={10}>
+                                    <Button variant="contained">
+                                        {t('explore')}
                                     </Button>
-                                )}
+                                </Stack>
+                            </TabPanel>
+                        </CardContent>
+                    </Card>
 
-                                <Button
-                                    onClick={() => setCurrentStepper(currentStepper + 1)}
-                                    variant="contained"
-                                    color="primary"
-                                >
-                                    {t(`next`)}
-                                </Button>
-                            </Box>
-                        </>
-                    )}
-                </Paper>
-            </Container>
+                </Grid>
+            </Grid>
+
         </Box>
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
@@ -128,9 +215,9 @@ EditProfile.auth = true;
 EditProfile.getLayout = function getLayout(page: ReactElement) {
     return (
         <MainMenuStyled className="header-main">
-            <TopNavBar />
+            <TopNavBar/>
             <Box className="body-main">
-                <Toolbar />
+                <Toolbar/>
                 <Box component="main">
                     {page}
                 </Box>

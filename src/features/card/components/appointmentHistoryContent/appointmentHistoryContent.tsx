@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Grid, List, ListItemIcon, Stack, TextField, Typography} from "@mui/material";
+import {Box, Button, Grid, List, ListItemIcon, Stack, TextField, Typography, useTheme} from "@mui/material";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -28,6 +28,7 @@ function AppointmentHistoryContent({...props}) {
         t
     } = props;
     const router = useRouter();
+    const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {data: user} = session as Session;
@@ -39,7 +40,7 @@ function AppointmentHistoryContent({...props}) {
     const {trigger: triggerRaEdit} = useRequestQueryMutation("/RA/edit");
     const {data: httpPatientHistory} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/${historyUUID}/data/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/${historyUUID}/data/${router.locale}`
     } : null);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -73,7 +74,7 @@ function AppointmentHistoryContent({...props}) {
             info: selectedActs,
             consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
-            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t): "",
+            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
             patient: `${type} ${patient.firstName} ${patient.lastName}`,
         });
         setOpenDialog(true);
@@ -104,8 +105,8 @@ function AppointmentHistoryContent({...props}) {
         }, {
             onSuccess: () => {
                 if (medicalEntityHasUser) {
-                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/analysis/${router.locale}`)
                 }
             }
         });
@@ -249,7 +250,7 @@ function AppointmentHistoryContent({...props}) {
                                                             justifyContent={"space-between"}
                                                             spacing={2}>
                                                             <Typography fontSize={12}>
-                                                                {rs.analysis.name}
+                                                                {rs?.name}
                                                             </Typography>
 
                                                             <TextField
@@ -285,14 +286,12 @@ function AppointmentHistoryContent({...props}) {
                                                     </Button>
                                                 </Box>
                                             </Box>))}
-
-
                                 </>}
 
                                 {col.type === "req-medical-imaging" && app?.appointment.requestedImaging && Object.keys(app?.appointment.requestedImaging)
                                     .length > 0 && <>
                                     {
-                                        app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
+                                        app?.appointment.requestedImaging["medical-imaging"]?.map((rs: any, idx: number) => (
                                             <Box key={`req-sheet-imgx-${idx}`}
                                                  className={"boxHisto"}>
                                                 <Typography
@@ -413,7 +412,8 @@ function AppointmentHistoryContent({...props}) {
                                                 )
                                             )}
 
-                                            <Stack mt={2} pt={1} direction={"row"}
+                                            <Stack style={{marginLeft: -24, marginRight: -24}} mt={2} pt={1}
+                                                   direction={"row"}
                                                    alignItems={"center"}
                                                    justifyContent={"flex-end"}>
                                                 <Typography textAlign={"right"} mr={2}
@@ -427,8 +427,10 @@ function AppointmentHistoryContent({...props}) {
                                                     onClick={() => {
                                                         printFees(app)
                                                     }}
-                                                    startIcon={<IconUrl
-                                                        path="ic-imprime"/>}>
+                                                    startIcon={<IconUrl color={theme.palette.text.primary}
+                                                                        width={16}
+                                                                        height={16}
+                                                                        path="menu/ic-print"/>}>
                                                     {t("consultationIP.print")}
                                                 </Button>
                                             </Stack>

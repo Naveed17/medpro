@@ -3,53 +3,87 @@
     "parameters": "Paramètres",
     "profile": "Profil",
     "acts": "Actes",
-    "motif": "Motif de consultation",
+    "motif": "Motifs de consultation",
     "consultation": "Fiche consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
     "cabinet": "Cabinet",
-    "horaire": "Horaire",
+    "horaire": "Horaires",
     "conges": "Congés et absences",
     "remplaçants": "Remplaçants",
     "users": "Utilisateurs",
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
-    "type": "Types de consultation",
+    "type": "Types des consultations",
     "actfees": "Honoraires",
     "configdoc": "Documents",
     "import-data": "Importation",
-    "app_lock": "Verrouillage"
+    "app_lock": "Verrouillage",
+    "drugs": "Médicaments",
+    "analysis": "Analyses",
+    "medical_imaging": "Imageries médicales",
+    "billing": "Billing"
   },
-  "profil": {
-    "specialities": "Spécialités",
+  "profile": {
+    "upload-logo": "Télécharger le logo",
+    "specialities": "Spécialité",
+    "organization": "Organisation name",
+    "organization-placeholder": "Saisir le nom de l'organisation",
     "sms-rappel": "SMS de rappel",
     "sms-rappel-send": "Activer le rappel par SMS",
-    "qualification": "Qualification professionnelle",
-    "assurence": "Assurance maladie",
-    "regMode": "Modes de règlement",
+    "qualification": "Qualifications professionnelles",
+    "assurence": "Assurances maladies",
+    "regMode": "Moodes des règlements",
     "langues": "Langues parlées",
+    "region": "Ville",
+    "region-error": "La ville du pays est obligatoire",
+    "country": "Pays",
+    "country-placeholder": "pays",
+    "region-placeholder": "Ville",
+    "zip": "Code postal",
+    "address": "Adresse",
+    "address-placeholder": "Entrez l'adresse",
+    "address-group": "Adresse du patient",
     "actes": "Actes principaux",
     "actesSec": "Actes Secondaries",
+    "contact-info": "Contact Information",
+    "contact-number": "Téléphone Mobile",
+    "email": "Email Address",
+    "email-placeholder": "Saisir l'adresse e-mail",
+    "organization-locale": "Lieu de l'organisation",
     "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 28 916 800",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "listQ": "liste des qualifications professionnelles",
-    "title": "Titre",
+    "title": "Profile",
     "alertQ": "Parce que la confidentialité de vos informations est importante, nous n'afficherons pas vos documents dans votre profil public.Les données qu'ils contiennent seront extraites et converties en texte.",
     "drop": "Cliquez ou déposez les fichiers",
     "noInsurance": "Aucune assurance sélectionnée",
     "noPaymentMean": "Aucun moyen de paiement sélectionné",
-    "noQualification": "Aucune qualification sélectionnée",
+    "noQualification": "Aucune qualification n'est sélectionnée",
     "noLanguage": "Aucune langue sélectionnée",
-    "noActes": "Aucun acte sélectionné"
+    "noActes": "Aucun acte n'est sélectionné",
+    "contact_info": "Informations sur les contacts",
+    "full_name": "Nom et prénom",
+    "cin": "CIN",
+    "birthdate": "Date de naissance",
+    "mobile": "Mobile",
+    "org_location": "Localisation de l'organisation",
+    "time_and_agenda_title": "Réglages de l'heure et du calendrier",
+    "time_zone": "Fuseau horaire",
+    "time_format": "Format de l'heure",
+    "week_start": "Début de la semaine",
+    "lang": "Langue",
+    "password": "Mot de passe",
+    "change_password": "Modifier le mot de passe"
   },
   "dialogs": {
-    "search_lang": "Commencez à taper pour rechercher les langues",
+    "search_lang": "Commencez à taper pour chercher une langue",
     "search_assurance": "Chercher une assurance...",
     "titles": {
       "qualification": "Modifier qualification professionnelle",
-      "assurance": "Modifier assurance maladie",
-      "mode": "Modifier modes de règlement",
+      "assurance": "Modifier l'assurance maladie",
+      "mode": "Modifier les modes de règlement",
       "langues": "Modifier langues parlées"
     }
   },
@@ -58,13 +92,14 @@
     "main": "Vos actes principaux",
     "secondary": "Vos actes secondaires",
     "suggestion": "Actes suggérés",
-    "typing": "Commencer à taper pour rechercher des actes",
+    "typing": "Commencer à taper pour chercher un acte",
     "max": "Max 10 Actes",
     "path": "Paramètres > Actes"
   },
   "motif": {
     "config": {
       "add": "Ajouter",
+      "search": "Recherche",
       "path": "Paramètres > Motifs de consultation",
       "dialog": {
         "title": "Supprimer le motif",
@@ -95,14 +130,14 @@
       }
     },
     "dialog": {
-      "add": "Ajouter motif de consultation",
-      "update": "Modifier motif de consultation",
+      "add": "Ajouter motif de la consultation",
+      "update": "Modifier motif de la consultation",
       "enligne": "En ligne ( Consultation vidéo )",
       "cabinet": "En cabinet",
       "domicile": "À domicile",
       "pro": "Dédié au professionnels de santé",
-      "info": "Information du motif",
-      "nom": "Nom motif de consultation",
+      "info": "Information relatives au motif",
+      "nom": "Nom du motif de la consultation",
       "type": "Type du motif ",
       "tapez": "Tapez le nom du motif",
       "duree": "Durée",
@@ -118,7 +153,7 @@
   "motifType": {
     "config": {
       "add": "Ajouter",
-      "path": "Paramètres > Types de consultation",
+      "path": "Paramètres > Types des consultations",
       "table": {
         "name": "Nom",
         "action": "Action",
@@ -148,13 +183,141 @@
       "color": "couleur",
       "save": "Enregistrer",
       "type": "Type du motif",
-      "payed": "Payant",
-      "un_payed": "Non payant"
+      "payed": "Payante",
+      "un_payed": "Non payante"
     },
     "alert": {
       "add": "Ajouter motif de consultation",
       "edit": "Modifier motif de consultation",
       "cannot-delete-resource": "Impossible de supprimer la ressource"
+    }
+  },
+  "drugs": {
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Médicaments",
+      "table": {
+        "name": "Nom",
+        "action": "Action",
+        "dci": "DCI",
+        "form": "Forme",
+        "laboratory": "Laboratoire",
+        "empty": ""
+      },
+      "alert": {
+        "add": "Le médicament a été ajouté avec succès",
+        "edit": "Le médicament a été modifiée avec succès",
+        "delete": "Le médicament  a été supprimée avec succès"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Suppression d'un médicament",
+          "desc": "Êtes-vous sûr de vouloir supprimer ce médicament ?",
+          "delete": "Supprimer"
+        },
+        "cancel": "Annuler"
+      },
+      "drawer": {
+        "nom": "Ajouter un nom de médicament",
+        "abbreviation": "Abréviation",
+        "info": "Informations sur le médicament",
+        "type_drug_name": "Tapez le nom du médicament",
+        "type_drug_dci": "Tapez DCI du médicament",
+        "type_drug_form": "Tapez la forme du médicament",
+        "type_drug_laboratory": "Tapez le laboratoire du médicament",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "add": "Ajouter un médicament",
+        "edit": "Modifier un médicament",
+        "required": {
+          "name": "le nom du médicament est requis",
+          "ntc": "Nom est trop court",
+          "ntl": "Nom est trop long"
+        }
+      }
+    }
+  },
+  "analysis": {
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Analyse",
+      "table": {
+        "name": "Nom",
+        "action": "Action",
+        "abbreviation": "abréviation",
+        "empty": ""
+      },
+      "alert": {
+        "add": "L'analyse a été ajoutée",
+        "edit": "L'analyse a été modifiée",
+        "delete": "L'analyse a été supprimée"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Suppression d'une analyse",
+          "desc": "Êtes-vous sûr de vouloir supprimer cette analyse ?",
+          "delete": "Supprimer"
+        },
+        "cancel": "Annuler"
+      },
+      "drawer": {
+        "nom": "Ajouter un nom d'analyse",
+        "abbreviation": "Abréviation",
+        "info": "Information du analyse",
+        "type_analysis_name": "Tapez le nom de l'analyse",
+        "type_analysis_abbreviation": "Tapez l'abréviation de l'analyse",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "add": "Ajouter l'analyse",
+        "edit": "Modifier l'analyse",
+        "required": {
+          "name": "le nom de l'analyse est requis",
+          "abbreviation": "l'abréviation de l'analyse est requise",
+          "ntc": "Nom est trop court",
+          "ntl": "Nom est trop long"
+        }
+      }
+    }
+  },
+  "medicalImaging": {
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Imagerie médicale",
+      "table": {
+        "name": "Nom",
+        "action": "Action",
+        "empty": ""
+      },
+      "alert": {
+        "add": "L'imagerie médicale a été ajoutée",
+        "edit": "L'imagerie médicale a été modifiée",
+        "delete": "L'imagerie médicale a été supprimée"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Suppression d'une imagerie médicale",
+          "desc": "Êtes-vous sûr de vouloir supprimer cette imagerie médicale ?",
+          "delete": "Supprimer"
+        },
+        "cancel": "Annuler"
+      },
+      "drawer": {
+        "nom": "Ajouter un nom d'imagerie médicale",
+        "abbreviation": "Abréviation",
+        "info": "Information du imagerie médicale",
+        "type_analysis_name": "Tapez le nom de l'imagerie médicale",
+        "type_analysis_abbreviation": "Tapez l'abréviation de l'imagerie médicale",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "add": "Ajouter l'imagerie médicale",
+        "edit": "Modifier l'imagerie médicale",
+        "required": {
+          "name": "le nom de l'imagerie médicale est requis",
+          "abbreviation": "l'abréviation de l'imagerie médicale est requise",
+          "ntc": "Nom est trop court",
+          "ntl": "Nom est trop long"
+        }
+      }
     }
   },
   "lieux": {
@@ -179,13 +342,13 @@
     "new": {
       "path": "Paramètres > Lieux de consultation > Ajouter",
       "telephone-error": "Le numéro de téléphone est obligatoire",
-      "name": "Nom du lieu",
+      "name": "Raison sociale",
       "adress": "Adresse",
       "postal": "Code postal",
       "ville": "Ville",
       "city": "Gouvernorat",
-      "lieu": "Lieu",
-      "info": "Information pratique",
+      "lieu": "Plan d'accès",
+      "info": "Informations pratiques",
       "number": "Numéro",
       "hide": "Masqué",
       "addNumber": "Ajouter un numéro",
@@ -197,9 +360,9 @@
       "writePostal": "Tapez ici code postal",
       "horaire": "Horaire d'ouverture",
       "date-range": "Périodes",
-      "startDate": "Date début",
+      "startDate": "Date du début",
       "date-error": "la date de fin doit être ultérieure à la date de début",
-      "endDate": "Date fin",
+      "endDate": "Date de la fin",
       "add-horaire": "Ajouter un nouvel horaire d'ouverture",
       "permissions": "Droit d'accés",
       "user": "Utilisateur",
@@ -207,8 +370,8 @@
       "add": "Ajouter",
       "remove": "Supprimer",
       "adreq": "Adresse est obligatoire",
-      "emsc": "em seance",
-      "firstsc": "1er seance",
+      "emsc": "ème seance",
+      "firstsc": "1ère seance",
       "hours-schedule-name": "Nom de l'horaire d'ouverture",
       "hours-schedule-slots": "Tapez ici le nom de l'horaire d'ouverture",
       "add-timeshedule": "Ajouter des heures d'ouverture",
@@ -224,7 +387,7 @@
       "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de cette agenda",
       "cancel": "Annuler",
       "no-data": {
-        "title": "ajouter votre premier Agenda",
+        "title": "Veuillez ajouter votre premier Agenda",
         "description": "",
         "button-text": "Ajouter un Agenda"
       },
@@ -293,21 +456,21 @@
   },
   "holidays": {
     "start": "Date debut",
-    "end": "Date fin",
+    "end": "Date de la fin",
     "praticien": "praticien",
     "config": {
       "path": "Paramètres > Congé et Absences",
       "add": "Ajouter",
       "table": {
         "start": "Date debut",
-        "end": "Date fin",
+        "end": "Date de la fin",
         "name": "Nom",
         "praticien": "praticien",
         "action": "action",
         "add": "Ajouter",
         "no-data": {
           "vacation": {
-            "title": "Ajouter votre première absence",
+            "title": "Veuillez ajouter votre première absence",
             "sub-title": "Pas de absences",
             "description": "",
             "button-text": "Ajouter un absence"
@@ -320,8 +483,12 @@
           "sub-title": "Liste des congés et absences proches",
           "description": "Titre du congé",
           "type-placeholder": "Saisir le titre du congé",
-          "startDate": "Date début",
-          "endDate": "Date fin",
+          "end-after-start-time": "L'heure de fin doit être antérieure à l'heure de début",
+          "datetime-required": "La date est obligatoire",
+          "startDate": "Date du début",
+          "startDate-placeholder": "Selectionner la Date du début",
+          "endDate": "Date de la fin",
+          "endDate-placeholder": "Sélectionner la date de fin",
           "vacation": {
             "yearly": "Congé annuel",
             "sick": "Congé de maladie",
@@ -361,8 +528,14 @@
     "path_new": "Paramètres > Utilisateurs > Ajouter",
     "path_update": "Paramètres > Utilisateurs > Modifier",
     "user": "Utilisateur",
+    "contact": "Contact Information",
     "pro": "C'est un professionnel ?",
     "mail": "Adresse mail",
+    "feature": "Fonctionnalité",
+    "feature-uuid": "Séléctionner le fonctionnalité",
+    "profile-feature": "Sélectionner un profil de fonctionnalité",
+    "add-feature-profile": "Ajouter un profil de fonctionnalité",
+    "add-feature-access": "Ajouter un accès",
     "name": "Nom de l'utilisateur",
     "tname": "tapez ici nom de l'utilisateur",
     "admin": "Administrateur (accès aux paramètres)",
@@ -373,7 +546,7 @@
     "select": "Séléctionner ...",
     "yes": "Oui",
     "no": "Non",
-    "all": "Définir l'accès aux differents agendas",
+    "features-access": "Définir l'accès aux différentes fonctionnalités",
     "nameReq": "Nom est obligatoire",
     "codeReq": "code est obligatoire",
     "townReq": "ville est obligatoire",
@@ -387,15 +560,62 @@
     "firstname": "Prénom",
     "lastname": "Nom de famille",
     "phone": "Téléphone",
+    "oldPassword": "Mot de passe actuel",
     "password": "Mot de passe",
     "confirm_password": "confirmer le mot de passe",
     "profile": "Profil",
+    "add_new_feature_profile": "Ajouter un nouveau profil de fonctionnalité",
+    "time-settings": "Paramètres de l'heure et du calendrier",
     "config": {
       "add": "Ajouter",
+      "users": "Utilisateurs",
+      "nurse": "Infirmière",
+      "secretary": "Secrétaire",
+      "accountant": "Comptable",
+      "add_user": "Ajouter un utilisateur",
+      "department": "Departement",
+      "department-placeholder": "Tapez le nom du departement",
+      "no-department-placeholder": "Aucun département trouvé",
+      "assigned-to": "Affecté à",
+      "assigned-to-placeholder": "Tapez le nom du médecin",
+      "no-assigned-to-placeholder": "Aucun médecin n'a été trouvé",
+      "auto-password": "Génération automatique du mot de passe",
+      "un-assign": "Désassigner",
+      "select-all": "Sélectionner tout",
+      "personal-info": "Paramètres de l'utilisateur",
+      "manual-password": "Laissez-moi créer le mot de passe",
+      "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
+      "features": {
+        "appointment": "Rendez-vous",
+        "patient": "Patient",
+        "profile": "Profil",
+        "transaction": "Transaction",
+        "places": "Horaire",
+        "consultation": "Fiche consultation",
+        "actfees": "Honoraires",
+        "motif": "Motifs de consultation",
+        "patient-file-templates": "Fiches consultation",
+        "templates": "Documents",
+        "consultation-type": "Types des consultations",
+        "drugs": "Médicaments",
+        "analysis": "Analyses",
+        "medical-imaging": "Imageries médicales",
+        "holidays": "Congé et absence",
+        "users": "Utilisateur",
+        "data": "Importation",
+        "insurance-agreement": "Insurance/Agreements"
+      },
+      "newCash": "Créer caisse",
+      "name-cashBox": "Nom du caisse",
+      "name-cashBox-placeholder": "Tapez le nom du caisse",
+      "updated-role": "Le profil a été mis à jour avec succès",
+      "created-role": "Le profil a été créé avec succès",
       "delete_success": "l'utilisateur a été supprimé avec succès",
+      "delete-role": "Supprimer le profil",
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
+      "profile-placeholder": "Sélectionner le profil de l'utilisateur",
       "access_management": "Gestion des accès",
       "add_new_role": "Ajouter nouveau rôle",
       "add_a_new_role": "Ajouter un nouveau rôle",
@@ -404,20 +624,62 @@
       "profile_created": "Profil créé",
       "visitor_added": "Visiteur ajoute",
       "updated": "Utilisateur mis à jour",
+      "all_users": "Tous les utilisateurs",
+      "roles_permissons": "Rôles & Autorisations",
+      "add_role": "Ajouter un rôle",
+      "roles": "Rôles",
+      "role_name": "Nom du rôle",
+      "cancel": "Annuler",
+      "return": "Retour à la page utilisateur",
+      "save": "Enregistrer",
+      "settings": "Paramètres",
+      "cashbox": "Caisse",
       "dialog": {
         "delete-profile-title": "Suppression du profil",
         "delete-user-title": "Suppression du utilisateur",
         "delete-profile-desc": "Voulez-vous supprimer le profil ?",
         "delete-user-desc": "Voulez-vous supprimer le utilisateur ?",
         "ntc": "Nom est trop court",
+        "info": "Informations",
         "delete": "Supprimer",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "back": "Retour",
+        "add_user": "Ajouter un utilisateur",
+        "user": "Utilisateur",
+        "role_permissions": "Rôle & Autorisations",
+        "role_assignments": "Rôle & affectation",
+        "end": "Fin",
+        "user_name": "Nom d'utilisateur",
+        "first_name": "Prénom",
+        "last_name": "Nom",
+        "phone": "Téléphone Mobile",
+        "email": "Adresse mail",
+        "password": "Mot de passe",
+        "confirm_password": "confirmer le mot de passe",
+        "next": "Suivant",
+        "role": "Rôle",
+        "dr": "Docteur",
+        "secretary": "Secretaire",
+        "accountant": "Comptable",
+        "add_role": "Ajouter un rôle",
+        "finish": "Terminer",
+        "success_title": "Création de l’utilisateur Réussie",
+        "success_desc": "Bravo! L'utilisateur a été créé avec succès.Consultez les détails de l'utilisateur pour vous assurer que toutes les informations sont correctes."
       },
       "no-data": {
         "user": {
-          "title": "Ajouter votre premier utilisateur",
-          "description": "Gérer votre accès et créer votre première secrétaire",
+          "title": "Veuillez ajouter votre premier utilisateur",
+          "description": "Gérer votre accès et créer votre premier secrétaire",
           "button-text": "Ajouter un utilisateur"
+        },
+        "role": {
+          "title": "Veuillez ajouter votre premier profil",
+          "description": "Gérez votre accès et créez votre premier profil",
+          "button-text": "Ajouter un profil"
+        },
+        "permissions": {
+          "title": "Veuillez sélectionner les fonctionnalités et les autorisations",
+          "description": "Gérez votre accès et créez votre premier profil"
         }
       },
       "table": {
@@ -425,7 +687,7 @@
         "name": "Nom",
         "agenda": "Agenda",
         "fonction": "Fonction",
-        "request": "Demande",
+        "profile": "Profil",
         "access": "accès",
         "action": "Action",
         "remove": "Supprimer",
@@ -434,7 +696,15 @@
         "secretary": "Secretaire",
         "active": "Actif",
         "docPermission": "Accès aux documents de rendez-vous",
-        "inactive": "Inactif"
+        "inactive": "Inactif",
+        "role": "Rôle",
+        "status": "Statut",
+        "lastActive": "Dernière activité"
+      },
+      "alert": {
+        "add_user_success": "Ajouter un utilisateur avec succès",
+        "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment ",
+        "user-exist": "Adresse e-mail est déjà utilisée"
       }
     },
     "dialog": {
@@ -445,11 +715,13 @@
       "is_standard": "Est le Standrad",
       "select_permissions": "Choisissez les permissions",
       "role_name": "Nom du rôle",
+      "profile_name": "Nom du profil",
       "select_all": "Sélectionner tout"
     },
     "alert": {
       "success": "l'utilisateur a été ajouté avec succès",
-      "went_wrong": "Quelque chose n'a pas fonctionné",
+      "updated-role": "Le profil a été mis à jour avec succès",
+      "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment",
       "update": "l'utilisateur a été mis à jour avec succès"
     }
   },
@@ -472,6 +744,7 @@
   },
   "actfees": {
     "path": "Paramètres > Honoraires",
+    "acts": "Actes",
     "add_a_new_act": "Ajouter",
     "consultation": "Consultation",
     "name_of_act": "Nom",
@@ -487,12 +760,21 @@
     "betav": "Utiliser la nouvelle version de la caisse (bêta)",
     "price": "Prix",
     "cancel": "Annuler",
+    "search": "Recherche",
     "table": {
       "actions": "Actions",
-      "acts": "Actes",
-      "code": "Code",
+      "name": "Designation",
+      "code": "Code de l'acte",
       "contribution": "Cotation",
-      "amount": "prix"
+      "amount": "Montant",
+      "btn_action_text": "Assurances/Conventions",
+      "title": "Titre",
+      "type": "Nature",
+      "exp_date": "date d’exp.",
+      "mtt": "Mtt t.m.",
+      "tax": "Taux t.m.",
+      "remb": "Remb.",
+      "tax_remb": "Taux Remb."
     },
     "dialog": {
       "editAct": "Modifier acte",
@@ -502,7 +784,42 @@
       "delete-act-title": "Acte supprimer",
       "delete-act-desc": "Voulez-vous supprimer l'acte",
       "cancel": "Annuler",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "back": "Retour",
+      "next": "Suivant",
+      "confirm": "Confirmer",
+      "confirm_add": "Confirmer & Ajouter une autre",
+      "confirm_save": "Confirmer & Ajouter une autre",
+      "title": "Ajouter une assurance / convention",
+      "create_act": "Ajouter un acte",
+      "switch": "Saisie Avancée",
+      "contribution_placeholder": "Tapez la cotation",
+      "amount_placeholder": "Tapez le montant",
+      "confirm_dialog_title": "Création de l’Assurance / Convention Réussie",
+      "exit": "Quitter",
+      "add_an_other": "Ajouter une Autre",
+      "confirm_dialog_desc": " Félicitations ! Votre nouvelle police d'assurance médicale ou convention a été créée avec succès. Consultez les détails et n'hésitez pas à ajouter d'autres polices au besoin.",
+      "stepper": {
+        "step-1": "Informations",
+        "step-2": "Détail de paiement",
+        "step-3": "Confirmation",
+        "insurance": "Assurance",
+        "agreement": "Convention",
+        "select_insurance": "Sélectionner l’assurance",
+        "description": "Libellé",
+        "placeholer_description": "Tapez le libellé",
+        "start_date": "Date de début",
+        "end_date": "Date de fin",
+        "ticket_moderateur_amount": "Montant ticket moderateur",
+        "ticket_moderateur_amount_placeholder": "Tapez le montant ticket moderateur",
+        "refund_amount": "Montant de Remb.",
+        "mutual": "Mutuelle",
+        "select_mutual": "Sélectionner ou ajouter le mutuelle",
+        "type": "Nature",
+        "placeholder_type": "Tapez la nature de convention",
+        "signed_agreement": "Avez-vous signé la convention ?",
+        "apci_placeholder": "Sélectionner ou tapez le code APCi"
+      }
     },
     "alert": {
       "add": "Acte est ajouté",
@@ -529,6 +846,9 @@
       "empty": ""
     },
     "add": "Importer",
+    "export": "Exporter les données",
+    "export-data": "Exportation",
+    "import-data": "Importation",
     "path": "Paramètres > Importation de données",
     "path-import": "Paramètres > Importation de données > Nouveau",
     "title": "Données",
@@ -545,7 +865,8 @@
     "load-file": "Charger le fichier",
     "load-data": "importer les données",
     "alert": {
-      "delete-import": "L'importation de données a été réinitialisée avec succès."
+      "delete-import": "L'importation de données a été réinitialisée avec succès.",
+      "export": "La demande exportation de données a été effectué avec succès."
     },
     "dialogs": {
       "duplication-dialog": {
@@ -596,6 +917,7 @@
     "table": {
       "name": "Nom",
       "source": "Source de l'export",
+      "type": "Type",
       "status": "statut",
       "action": "Action",
       "reset": "Réinitialiser"
@@ -633,6 +955,7 @@
       "table": {
         "name": "Nom",
         "active": "Active",
+        "status": "Statut",
         "action": "Action"
       },
       "dialog": {
@@ -676,12 +999,14 @@
       "prescription": "Modèles d'ordonnance",
       "case3": "Troisième case",
       "save": "Enregistrer",
+      "save_as_model": "Enregistrer comme modèle",
+      "print": "Vérifier l'impression",
       "preview": "Aperçu",
       "unfolded": "Modèles",
       "updated": "Document enregistré",
       "removed": "Document supprimé",
       "background": "Importer le document actuel",
-      "title": "Titre du document",
+      "title": "Titre",
       "date": "Date",
       "patient": "Nom patient",
       "firstName": "Nom & prénom",
@@ -723,7 +1048,45 @@
       "months": "Mois",
       "days": "Jours",
       "blankDoc": "document blanc",
-      "modelProprities": "Propriétés du modèle"
+      "modelProprities": "Propriétés du modèle",
+      "elDoc": "Elément du document",
+      "upload_document": "Importer",
+      "bg": "Background",
+      "section": "Sections du document",
+      "static": "Composants statiques",
+      "text": "Texte",
+      "image": "Image",
+      "qr": "QR code",
+      "no": "Non",
+      "used": "Suppression des configurations existantes",
+      "change": "Le changement de format de page",
+      "reset": "entraînera la suppression des configurations existantes",
+      "doc": "document"
+    }
+  },
+  "billing": {
+    "config": {
+      "users": "Utilisateurs",
+      "add_user": "Ajouter un utilisateur",
+      "plan_details": "Détails du plan",
+      "upgrade": "Mise à niveau",
+      "plan": "Plan",
+      "medical_group_practice": "Cabinet médical de groupe",
+      "doctors": "Médecins",
+      "doctors_users": "Médecins utilisateurs",
+      "of": "de",
+      "next_payment": "Paiement suivant",
+      "staff": "Personnel",
+      "staff_users": "Utilisateurs personnels",
+      "table": {
+        "table_heading": "Historique de la facturation",
+        "date": "Date",
+        "invoice_no": "N° de la facture",
+        "description": "Description",
+        "amount": "Montant",
+        "status": "Statut",
+        "paid": "Payé"
+      }
     }
   }
 }

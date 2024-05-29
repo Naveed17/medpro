@@ -1,5 +1,5 @@
 import {CardActions, CardContent, InputBase} from "@mui/material";
-import React from "react";
+import React, {useCallback} from "react";
 import {motion} from "framer-motion";
 import RootStyled from "./overrides/rootStyle";
 import {RecButton} from "@features/buttons";
@@ -11,9 +11,8 @@ function ExpandableCard({...props}) {
     const {
         note,
         setNote,
-        setIsNote,
         editPatientInfo,
-        t,
+        t,isNote,
         resetTranscript,
         setIsStarted,
         listening,
@@ -22,12 +21,18 @@ function ExpandableCard({...props}) {
         isStarted
     } = props;
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const debouncedOnChange = useCallback(
+        debounce((value) => {
+            editPatientInfo(value)
+        },1000), [isNote]);
+
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
             resetTranscript();
             setIsStarted(false);
-            editPatientInfo();
+            editPatientInfo(note);
             dispatch(SetListen(""));
         } else {
             resetTranscript();
@@ -42,8 +47,6 @@ function ExpandableCard({...props}) {
         }
     }
 
-    const debouncedOnChange = debounce(editPatientInfo, 1000);
-
     return (
         <RootStyled component={motion.div} layout>
             <CardContent>
@@ -52,7 +55,7 @@ function ExpandableCard({...props}) {
                     autoFocus
                     placeholder={t("writenote")}
                     onChange={(val) => {
-                        debouncedOnChange()
+                        debouncedOnChange(val.target.value);
                         setNote(val.target.value);
                     }}
                     rows={7}

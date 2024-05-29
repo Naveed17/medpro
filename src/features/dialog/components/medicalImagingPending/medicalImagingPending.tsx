@@ -47,7 +47,7 @@ function MedicalImagingDialog({...props}) {
 
     useEffect(() => {
         const file: React.SetStateAction<any[]> = [];
-        images['medical-imaging'].map((img: { uuid: any; uri: string | any[]; }) => {
+        images['requested_medical_imaging_has_medical_imaging'].map((img: { uuid: any; uri: string | any[]; }) => {
             file.push({uuid: img.uuid, nb: img.uri.length})
         })
         setFiles(file)
@@ -58,42 +58,39 @@ function MedicalImagingDialog({...props}) {
     return (
         <BalanceSheetPendingStyled>
             <Typography gutterBottom>{t('medical_imagery_list')}</Typography>
-            {
-                images['medical-imaging'].map((item: any, index: number) => (
-                    <Card key={index} sx={{p: 1}}>
-                        <Stack direction='row'
-                               alignItems="center"
-                               justifyContent='space-between'>
-                            <Typography>{item['medical-imaging'].name}</Typography>
-                            {
-                                loading !== item.uuid && <>
-                                    <Badge badgeContent={files?.find(f => f.uuid === item.uuid)?.nb} color="primary"
-                                           style={{marginRight: 10, marginTop: 10}}
-                                           onClick={() => {
-                                               (document.getElementById(item.uuid + 'file') as HTMLElement).click()
-                                           }}>
-                                        <FileDownloadOutlinedIcon style={{color: '#a6abaf'}}/>
-                                    </Badge>
-                                    <input
-                                        type="file"
-                                        id={item.uuid + 'file'}
-                                        multiple={true}
-                                        accept="image/png, image/jpeg,image/jpg, .pdf"
-                                        onChange={(ev) => {
-                                            setLoading(item.uuid)
-                                            handleChange(ev, item.uuid)
-                                        }}
-                                        style={{display: 'none'}}
-                                    />
-                                </>
-                            }
+            {images['requested_medical_imaging_has_medical_imaging'].map((item: any, index: number) => (
+                <Card key={index} sx={{p: 1}}>
+                    <Stack direction='row'
+                           alignItems="center"
+                           justifyContent='space-between'>
+                        <Typography>{item?.name}</Typography>
+                        {loading !== item.uuid && <>
+                            <Badge badgeContent={files?.find(f => f.uuid === item.uuid)?.nb} color="primary"
+                                   style={{marginRight: 10, marginTop: 10}}
+                                   onClick={() => {
+                                       (document.getElementById(item.uuid + 'file') as HTMLElement).click()
+                                   }}>
+                                <FileDownloadOutlinedIcon style={{color: '#a6abaf'}}/>
+                            </Badge>
+                            <input
+                                type="file"
+                                id={item.uuid + 'file'}
+                                multiple={true}
+                                accept="image/png, image/jpeg,image/jpg, .pdf"
+                                onChange={(ev) => {
+                                    setLoading(item.uuid)
+                                    handleChange(ev, item.uuid)
+                                }}
+                                style={{display: 'none'}}
+                            />
+                        </>
+                        }
+                        {loading === item.uuid &&
+                            <CircularProgress style={{width: 20, height: 20, marginRight: 10}}/>}
 
-                            {loading === item.uuid &&
-                                <CircularProgress style={{width: 20, height: 20, marginRight: 10}}/>}
-
-                        </Stack>
-                    </Card>
-                ))}
+                    </Stack>
+                </Card>
+            ))}
         </BalanceSheetPendingStyled>
     )
 }

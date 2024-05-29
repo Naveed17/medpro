@@ -20,13 +20,13 @@ import moment from "moment-timezone";
 import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {useAppSelector} from "@lib/redux/hooks";
+import Can from "@features/casl/can";
 
 function AppointmentPopoverCard({...props}) {
     const {isBeta, data, style, t, OnMenuActions} = props;
     const {data: session} = useSession();
     const theme = useTheme()
     const router = useRouter();
-    const {patientPhoto} = useProfilePhoto({patientId: data?.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -43,15 +43,20 @@ function AppointmentPopoverCard({...props}) {
     const componentRef = useRef<null | HTMLDivElement>(null);
 
     const query = `?mode=tooltip&appointment=${data.publicId}&start_date=${moment(data.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(data.extendedProps.time).format("DD-MM-YYYY")}&format=week`
-    const {data: httpDocumentHeader} = useRequestQuery({
+    const {data: httpAppointmentResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`
     }, {...(query && {variables: {query}})});
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("/agenda/appointment/edit");
 
-    const appointments = ((httpDocumentHeader as HttpResponse)?.data ?? []) as AppointmentModel[];
+    const appointments = ((httpAppointmentResponse as HttpResponse)?.data ?? []) as AppointmentModel[];
     const appointmentData = (appointments?.length > 0 ? appointments[0] : null) as any;
+
+    const {patientPhoto} = useProfilePhoto({
+        patientId: appointmentData?.patient?.uuid,
+        hasPhoto: appointmentData?.patient?.hasPhoto
+    });
 
     const handleEndConsultation = (event: any) => {
         const form = new FormData();
@@ -91,7 +96,8 @@ function AppointmentPopoverCard({...props}) {
                     noWrap
                     {...(!appointmentData as any && {
                         sx: {
-                            width: height - 18
+                            width: height - 24,
+                            bottom: 0
                         }
                     })}
                     fontSize={12}>
@@ -242,13 +248,13 @@ function AppointmentPopoverCard({...props}) {
                         {appointmentData?.patient.firstName ??
                             <Skeleton variant="text" width={50}/>} {appointmentData?.patient.lastName}
                     </Typography>
-                    <Typography
+                    {appointmentData?.patient.contact?.length > 0 && <Typography
                         variant="body2"
                         color="text.primary"
                         sx={{
                             display: "flex",
                             alignItems: "center",
-                            opacity: appointmentData?.patient.contact.length > 0 ? 1 : 0,
+                            opacity: appointmentData?.patient.contact?.length > 0 ? 1 : 0,
                             svg: {
                                 width: 9,
                                 marginRight: 1
@@ -258,7 +264,7 @@ function AppointmentPopoverCard({...props}) {
                         <CallIcon/>
                         {appointmentData?.patient.contact ? appointmentData?.patient.contact[0]?.code : doctor_country?.phone}
                         {appointmentData?.patient.contact[0]?.value}
-                    </Typography>
+                    </Typography>}
                 </Box>
             </Stack>
 
@@ -270,28 +276,32 @@ function AppointmentPopoverCard({...props}) {
             {(!roles.includes('ROLE_SECRETARY') && !appointmentData?.patient?.isArchived) &&
                 <Stack direction='row' justifyContent={'flex-end'} spacing={1} className="btn-actions">
                     {(["PENDING", "CONFIRMED"].includes(AppointmentStatus[appointmentData?.status]?.key) && moment().format("DD-MM-YYYY") === moment(data.extendedProps.time).format("DD-MM-YYYY")) &&
-                        <IconButton
-                            className="btn-waiting-room"
-                            onClick={event => {
-                                event.stopPropagation();
-                                OnMenuActions('onWaitingRoom', data);
-                            }}>
-                            <IconUrl path="ic_waiting_room" color="white" width={20} height={20}/>
-                        </IconButton>}
+                        <Can I={"manage"} a={"waiting-room"} field={"*"}>
+                            <IconButton
+                                className="btn-waiting-room"
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    OnMenuActions('onWaitingRoom', data);
+                                }}>
+                                <IconUrl path="ic_waiting_room" color="white" width={20} height={20}/>
+                            </IconButton>
+                        </Can>}
                     {["WAITING_ROOM", "PENDING", "CONFIRMED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
-                        <IconButton
-                            className="btn-rdv-popover"
-                            sx={{
-                                backgroundColor: (theme) => theme.palette.warning.main
-                            }}
-                            onClick={event => {
-                                event.stopPropagation();
-                                OnMenuActions('onConsultationDetail', data);
-                            }}>
-                            <PlayCircleIcon/>
-                        </IconButton>}
+                        <Can I={"manage"} a={"consultation"} field={"*"}>
+                            <IconButton
+                                className="btn-rdv-popover"
+                                sx={{
+                                    backgroundColor: (theme) => theme.palette.warning.main
+                                }}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    OnMenuActions('onConsultationDetail', data);
+                                }}>
+                                <PlayCircleIcon/>
+                            </IconButton>
+                        </Can>}
                     {["PAUSED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
-                        <>
+                        <Can I={"manage"} a={"consultation"} field={"*"}>
                             <IconButton
                                 disableRipple
                                 className="btn-rdv-popover"
@@ -323,21 +333,23 @@ function AppointmentPopoverCard({...props}) {
                                 }}>
                                 <IconUrl width={22} height={22} path={'ic-play-paused'}/>
                             </IconButton>
-                        </>
+                        </Can>
                     }
                     {["FINISHED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
-                        <IconButton
-                            disableRipple
-                            className="btn-rdv-popover"
-                            sx={{
-                                backgroundColor: (theme) => theme.palette.primary.main
-                            }}
-                            onClick={event => {
-                                event.stopPropagation();
-                                OnMenuActions('onConsultationView', data);
-                            }}>
-                            <IconUrl width={20} height={20} color={"white"} path={'stethoscope'}/>
-                        </IconButton>}
+                        <Can I={"manage"} a={"consultation"} field={"*"}>
+                            <IconButton
+                                disableRipple
+                                className="btn-rdv-popover"
+                                sx={{
+                                    backgroundColor: (theme) => theme.palette.primary.main
+                                }}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    OnMenuActions('onConsultationView', data);
+                                }}>
+                                <IconUrl width={20} height={20} color={"white"} path={'stethoscope'}/>
+                            </IconButton>
+                        </Can>}
                 </Stack>}
         </RootStyled>
     );

@@ -112,6 +112,14 @@ const RootStyled = styled(Paper)(({theme}) => ({
     },
     "& .MuiChip-label": {
         fontSize: 12
+    },
+    "& .btn-edit": {
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: 8,
+        padding: theme.spacing(.8),
+    },
+    "& .user-name": {
+        cursor: "pointer"
     }
 }));
 

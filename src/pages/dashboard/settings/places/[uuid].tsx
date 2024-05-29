@@ -2,7 +2,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
-import React, {ReactElement, SyntheticEvent, useCallback, useEffect, useRef, useState} from "react";
+import React, {ReactElement, SyntheticEvent, useEffect, useRef, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {
@@ -23,14 +23,11 @@ import {
     Stack,
     Switch, Tab, Tabs,
     TextField,
-    Typography,
+    Typography, useTheme,
 } from "@mui/material";
-
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
-import TimePicker from "@themes/overrides/TimePicker";
 import {GetStaticPaths, GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
@@ -39,7 +36,6 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
-import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CountrySelect} from "@features/countrySelect";
@@ -53,6 +49,8 @@ import {useContactType} from "@lib/hooks/rest";
 import CloseIcon from "@mui/icons-material/Close";
 import {Dialog, resetOpeningData} from "@features/dialog";
 import {dialogOpeningHoursSelector} from "@features/dialog/components/openingHoursDialog";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import {CustomTimePicker} from "@features/customTimePicker";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -131,8 +129,9 @@ function PlacesDetail() {
     const {contacts: contactTypes} = useContactType();
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const dispatch = useAppDispatch();
+    const theme = useTheme();
 
-    const {t} = useTranslation(["settings", "common"]);
+    const {t, ready, i18n} = useTranslation(["settings", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const dialogOpeningHoursData = useAppSelector(dialogOpeningHoursSelector);
@@ -209,8 +208,8 @@ function PlacesDetail() {
         initialValues: {
             name: row ? (row.address.location.name as string) : "",
             address: row ? (row.address.street as string) : "",
-            postalCode: row ? row.address.postalCode : "",
-            town: row ? row.address.state.uuid : "",
+            postalCode: row ? (row.address?.postalCode ?? "") : "",
+            town: row ? (row.address?.state?.uuid ?? "") : "",
             city: "",
             phones: contacts.map(contact => ({
                 code: contact.code,
@@ -268,7 +267,7 @@ function PlacesDetail() {
                 onSuccess: (r: any) => {
                     if (r.status === 200 || r.status === 201) {
                         mutate();
-                        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`])
+                        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${router.locale}`])
                         router.back();
                         setLoading(false);
                     }
@@ -297,18 +296,17 @@ function PlacesDetail() {
         });
     }
 
-    const initialCites = useCallback(
-        (adr: any) => {
-            triggerPlaceUpdate({
-                method: "GET",
-                url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
-            }, {
-                onSuccess: (r: any) => {
-                    setCities(r.data.data);
-                    setFieldValue("city", adr.address.city.uuid);
-                }
-            });
-        }, [router, setFieldValue, triggerPlaceUpdate]);
+    const initialCites = (adr: any) => {
+        triggerPlaceUpdate({
+            method: "GET",
+            url: `/api/public/places/state/${adr.address?.state?.uuid}/cities/${router.locale}`
+        }, {
+            onSuccess: (r: any) => {
+                setCities(r.data.data);
+                setFieldValue("city", adr.address.city.uuid);
+            }
+        });
+    }
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
@@ -481,7 +479,12 @@ function PlacesDetail() {
             setHoraires([...hours]);
             setCheck(false);
         }
-    }, [check, initialCites, row]);
+    }, [check, row]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -722,7 +725,15 @@ function PlacesDetail() {
                                                     <Stack
                                                         direction="row"
                                                         alignItems="center"
-                                                        position="relative">
+                                                        position="relative"
+                                                        {...(direction === "rtl" && {
+                                                            sx: {
+                                                                '.MuiInputBase-root': {
+                                                                    pr: 0
+                                                                }
+                                                            }
+                                                        })}
+                                                    >
                                                         <PhoneInput
                                                             ref={phoneInputRef}
                                                             international
@@ -776,9 +787,10 @@ function PlacesDetail() {
                                                         />
                                                         <IconButton
                                                             onClick={() => handleRemovePhone(index)}
-                                                            sx={{position: "absolute", right: -40, top: 6}}
+                                                            sx={{position: "absolute", right: -40, top: 3}}
                                                             size="small">
-                                                            <IconUrl path="setting/icdelete"/>
+                                                            <IconUrl width={20} height={20}
+                                                                     color={theme.palette.error.main} path="ic-trash"/>
                                                         </IconButton>
                                                     </Stack>
                                                 </Grid>
@@ -802,7 +814,7 @@ function PlacesDetail() {
                                             </React.Fragment>
                                         ))}
                                         <Grid item xs={12} lg={10} ml="auto">
-                                            <Button onClick={handleAddPhone} startIcon={<AddIcon/>}>
+                                            <Button size={"small"} onClick={handleAddPhone} startIcon={<AddIcon/>}>
                                                 {t("lieux.new.addNumber")}
                                             </Button>
                                         </Grid>
@@ -810,7 +822,7 @@ function PlacesDetail() {
                                 </Box>
                             </CardContent>
                         </Card>
-                        <Typography
+                        {/*<Typography
                             textTransform="uppercase"
                             fontWeight={600}
                             marginBottom={2}
@@ -822,7 +834,7 @@ function PlacesDetail() {
                                 <Box mb={2}>
                                     <Grid
                                         container
-                                        spacing={{lg: 2, xs: 1}}
+                                        spacing={{ lg: 2, xs: 1 }}
                                         alignItems="flex-start">
                                         <Grid item xs={12} lg={2}>
                                             <Typography
@@ -846,7 +858,7 @@ function PlacesDetail() {
                                     </Grid>
                                 </Box>
                             </CardContent>
-                        </Card>
+                        </Card>*/}
 
                         <Typography
                             textTransform="uppercase"
@@ -870,12 +882,12 @@ function PlacesDetail() {
                                     {...a11yProps(tabHeaderIndex)}
                                 />)
                             )}
-                            <Button
+                            {/*                            <Button
                                 onClick={() => setOpeningHoursDialog(true)}
                                 variant={"text"}
-                                startIcon={<AddIcon/>}
+                                startIcon={<AddIcon />}
                                 size={"small"}
-                                sx={{ml: "auto", mr: '1rem', height: 30}}>{t("lieux.new.add-timeshedule")}</Button>
+                                sx={{ ml: "auto", mr: '1rem', height: 30 }}>{t("lieux.new.add-timeshedule")}</Button>*/}
                         </Tabs>
                         {horaires.map((tabContent, tabContentIndex) => (
                             <TabPanel
@@ -968,7 +980,7 @@ function PlacesDetail() {
                                                             )}
                                                             {hour && (
                                                                 <Grid item lg={4} md={6} sm={12} xs={12}>
-                                                                    <TimePicker
+                                                                    <CustomTimePicker
                                                                         defaultValue={[
                                                                             hour.start_time
                                                                                 ? new Date(
@@ -980,8 +992,8 @@ function PlacesDetail() {
                                                                                 : "",
                                                                         ]}
                                                                         onChange={(
-                                                                            start: DateTime,
-                                                                            end: DateTime
+                                                                            start: any,
+                                                                            end: any
                                                                         ) => {
                                                                             if (
                                                                                 hour.start_time !==
@@ -1012,7 +1024,8 @@ function PlacesDetail() {
                                                                                     theme.palette.error.main,
                                                                             },
                                                                         }}
-                                                                        startIcon={<IconUrl path="icdelete"/>}
+                                                                        startIcon={<IconUrl path="ic-trash" width={20}
+                                                                                            height={20}/>}
                                                                         onClick={() => {
                                                                             tabContent.openingHours[day].splice(i, 1);
                                                                             setHoraires([...horaires]);
@@ -1114,10 +1127,9 @@ function PlacesDetail() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, [
+        ...(await getServerTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
             "settings",
         ])),
     },

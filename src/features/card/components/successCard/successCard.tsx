@@ -18,7 +18,7 @@ const RootStyle = styled(Stack)(({theme}) => ({
 export const LottiePlayer: any = memo(({src, ...props}: any) => {
     return (
         <Player src={src}
-                {...props}/>
+                {...props} />
     );
 })
 LottiePlayer.displayName = "lottie-player";
@@ -72,10 +72,7 @@ function SuccessCard({...props}) {
                 {description}
             </Typography>
             {buttons &&
-                <Stack direction={{
-                    lg: (buttons.length > 2 && buttons.find((button: any) => button.disabled) ? "row" : "column"),
-                    xs: "column"
-                }} spacing={2} mt={5}>
+                <Stack direction={"column"} spacing={2} mt={5}>
                     {buttons.map((button: any, index: number) => (
                         <LoadingButton
                             key={`button-${index}`}

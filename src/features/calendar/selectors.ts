@@ -3,4 +3,7 @@ import {createSelector} from "@reduxjs/toolkit";
 
 export const selectAgenda = (state: RootState) => state.agenda;
 
-export const agendaSelector = createSelector(selectAgenda, state => state);
+export const agendaSelector = createSelector(selectAgenda, state => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

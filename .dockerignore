@@ -34,6 +34,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+#partytown
+/public/~partytown/
+
 # typescript
 *.tsbuildinfo
 .idea
@@ -50,3 +53,5 @@ yarn-error.log*
 waypoint.hcl
 .wpoutputs/
 kustomize/
+Dockerfile
+skaffold/

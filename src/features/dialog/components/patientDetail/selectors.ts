@@ -3,4 +3,7 @@ import {createSelector} from "@reduxjs/toolkit";
 
 export const selectDialogPatientDetail = (state: RootState) => state.patientDetail;
 
-export const dialogPatientDetailSelector = createSelector(selectDialogPatientDetail, state => state);
+export const dialogPatientDetailSelector = createSelector(selectDialogPatientDetail, state => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

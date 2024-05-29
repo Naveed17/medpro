@@ -8,24 +8,35 @@ import {
 import DocumentButtonStyled from "./overrides/documentButtonStyle";
 import {capitalize} from "lodash";
 import {ImageHandler} from "@features/image";
+import React, {useCallback} from "react";
 
 function DocumentButton({...props}) {
     const theme = useTheme() as Theme;
     const {
         lable,
+        type,
         icon,
         uuid,
         selected,
         notifications,
-        handleOnClick,
+        onClick,
         acceptedFormat,
-        handleChange,
+        onChange,
         loading = false,
         height,
         paddingTop,
         t,
         active,
     } = props;
+
+    const handleOnClick = useCallback((uuid: string, event: React.MouseEvent<HTMLButtonElement>) => {
+        onClick(uuid, event);
+    }, [onClick]);
+
+    const handleChange = useCallback((event: React.SyntheticEvent) => {
+        onChange(event);
+    }, [onChange]);
+
     return (
         <DocumentButtonStyled
             variant="outlined"
@@ -39,7 +50,10 @@ function DocumentButton({...props}) {
                     border: `2px solid ${theme.palette.primary.main}`,
                 },
             })}
-            onClick={() => handleOnClick(uuid)}>
+            onClick={(e) => {
+                e.stopPropagation();
+                handleOnClick(uuid, e)
+            }}>
             <Badge badgeContent={notifications} color="warning"/>
             {loading ? (
                 <>
@@ -52,17 +66,21 @@ function DocumentButton({...props}) {
                 </>
             ) : (
                 <>
-
                     <div style={{width: "fit-content", margin: "auto"}}>
                         <ImageHandler src={icon} width="30" height="30"/>
-                        <input type="file" accept={acceptedFormat} multiple={true} onChange={handleChange} style={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'absolute',
-                            left: 0,
-                            top: 0,
-                            opacity: 0
-                        }}/>
+                        {type !== "audio" &&
+                            <input type="file"
+                                   accept={acceptedFormat}
+                                   multiple={true}
+                                   onChange={handleChange}
+                                   style={{
+                                       width: '100%',
+                                       height: '100%',
+                                       position: 'absolute',
+                                       left: 0,
+                                       top: 0,
+                                       opacity: 0
+                                   }}/>}
                     </div>
 
                     <Typography variant="body2">{capitalize(t(lable))}</Typography>

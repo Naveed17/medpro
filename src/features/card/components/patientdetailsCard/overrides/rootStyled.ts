@@ -12,6 +12,9 @@ const RootStyled = styled(Stack)(({theme}) => ({
         flexDirection: "column",
       },*/
     borderBottom: `1px solid ${theme.palette.divider}`,
+    '& form': {
+        width: '100%'
+    },
     "& .BaseBadge-badge": {
         bottom: 5,
         right: 2,
@@ -20,7 +23,7 @@ const RootStyled = styled(Stack)(({theme}) => ({
         borderRadius: "50%",
     },
     "& .react-svg": {
-        marginRight: "5px",
+       // marginRight: "5px",
     },
     "& .date-birth": {
         display: "flex",
@@ -72,9 +75,6 @@ const RootStyled = styled(Stack)(({theme}) => ({
         zIndex: 1,
         padding: 0,
         background: theme.palette.background.paper,
-    },
-    "& .input-base-custom": {
-        "input::placeholder": {},
-    },
+    }
 }));
 export default RootStyled;

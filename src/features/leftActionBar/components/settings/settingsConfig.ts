@@ -1,10 +1,30 @@
 const settingsData = {
     title: "parameters",
-    data: [
+    admin: [
         {
             name: "profile",
             icon: "setting/ic-patient",
-            href: '/dashboard/settings/profil',
+            href: '/admin/settings/profile',
+            disable: false
+        },
+/*         {
+            name: "users",
+            icon: "setting/ic-users",
+            href: '/admin/settings/users',
+            disable: false
+        },*/
+         {
+            name: "billing",
+            icon: "setting/ic-banknote",
+            href: '/admin/settings/billing',
+            disable: false
+        }
+    ],
+    dashboard: [
+        {
+            name: "profile",
+            icon: "setting/ic-patient",
+            href: '/dashboard/settings/profile',
             disable: false
         },
         {
@@ -56,7 +76,24 @@ const settingsData = {
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
-
+        {
+            name: "drugs",
+            icon: "docs/ic-prescription",
+            href: "/dashboard/settings/drugs",
+            disable: false
+        },
+        {
+            name: "analysis",
+            icon: "docs/ic-analyse",
+            href: "/dashboard/settings/analysis",
+            disable: false
+        },
+        {
+            name: "medical_imaging",
+            icon: "docs/ic-soura",
+            href: "/dashboard/settings/medical-imaging",
+            disable: false
+        },
         {
             name: "agenda",
             icon: "setting/ic-agenda",

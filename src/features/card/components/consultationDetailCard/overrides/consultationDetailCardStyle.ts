@@ -41,6 +41,9 @@ const ConsultationDetailCardStyled = styled("div")(({theme}) => ({
     ".preview": {
         color: 'grey',
         margin: '7px 0'
+    },
+    ".tox .tox-edit-area::before": {
+        border: "none"
     }
 }));
 export default ConsultationDetailCardStyled;

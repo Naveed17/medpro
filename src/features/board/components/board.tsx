@@ -1,24 +1,28 @@
 import {
-    DragDropContext,
-    Draggable, DraggableLocation,
-    DraggableProvided,
-    DraggableStateSnapshot,
-    Droppable,
-    DroppableProvided, DropResult
+    DragDropContext, Draggable, DraggableLocation, Droppable, DropResult
 } from "react-beautiful-dnd";
 import React, {useCallback, useEffect, useState} from "react";
 import styled from '@emotion/styled';
 import {BoardList} from "@features/board";
-import {Card, CardHeader, Grid, Typography} from "@mui/material";
+import {Badge, Card, CardHeader, Grid, IconButton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
+import IconUrl from "@themes/urlIcon";
+import {CustomSwitch} from "@features/buttons";
 
 const ParentContainer = styled.div`
     margin-top: -1rem;
     padding-bottom: 1rem;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+const Container = styled.div`
+    width: 100%;
+    display: flex;
 `;
 
 const Header = styled.div`
@@ -44,11 +48,38 @@ const Title = styled.h4`
     }
 `;
 
-function Board({...props}) {
-    const {columns, data, handleEvent, handleDragEvent} = props;
-    const {opened} = useAppSelector(sideBarSelector);
+const Column = React.memo(function Column(props) {
+    const {id, column, index, handleEvent} = props as any;
+    return (
+        <Draggable draggableId={id} index={index}>
+            {provided => (
+                <div
+                    className="column"
+                    {...provided.draggableProps}
+                    ref={provided.innerRef}>
+                    <h3 className="column-title" {...provided.dragHandleProps}>
+                        {column.title}
+                    </h3>
+                    <BoardList listId={id} quotes={column} {...{index, handleEvent}} />
+                </div>
+            )}
+        </Draggable>
+    );
+});
 
-    const {t} = useTranslation('waitingRoom', {keyPrefix: 'config.tabs'});
+function Board({...props}) {
+    const {
+        columns,
+        data,
+        isUnpaidFilter,
+        handleEvent,
+        handleDragEvent,
+        handleSortData,
+        handleUnpaidFilter
+    } = props;
+
+    const {t} = useTranslation('waitingRoom');
+    const {opened} = useAppSelector(sideBarSelector);
 
     const [boardData, setBoardData] = useState<any>({});
 
@@ -74,7 +105,7 @@ function Board({...props}) {
         const target: any = {
             ...current[source.index],
             content: {
-                ...current[source.index].content,
+                ...current[source.index]?.content,
                 status: parseInt(columns.find((column: BoardColumnsModel) => column.name === destination.droppableId)?.id)
             }
         };
@@ -143,17 +174,21 @@ function Board({...props}) {
 
         // skip drag to 3 and 4 column
         const columnsId = columns.find((column: any) => column.name === destination.droppableId).id.split(',');
-        if (["4", "5"].some(id => columnsId.includes(id))) {
+        if ((["5"].some(id => columnsId.includes(id)) && source.droppableId !== "ongoing") ||
+            (!["5"].some(id => columnsId.includes(id)) && source.droppableId === "ongoing")) {
             return;
         }
 
-        const data = reorderQuoteMap({
-            quoteMap: boardData,
-            source,
-            destination,
-        });
+        if (!["4"].some(id => columnsId.includes(id)) ||
+            (["4", "8"].some(id => columnsId.includes(id)) && boardData[destination.droppableId].length === 0)) {
+            const data = reorderQuoteMap({
+                quoteMap: boardData,
+                source,
+                destination,
+            });
 
-        setBoardData(data.quoteMap);
+            setBoardData(data.quoteMap);
+        }
 
         handleDragEvent(result, boardData[source.droppableId][source.index]);
 
@@ -168,7 +203,7 @@ function Board({...props}) {
                         id: item.uuid,
                         content: {
                             ...item,
-                            isDraggable: (![4, 8, 5].includes(item.status) && !item.patient?.isArchived)
+                            isDraggable: (![5].includes(item.status) && !item.patient?.isArchived)
                         },
                         column: columns.find((column: BoardColumnsModel) => column.id.split(",").includes(itemGroup[0])),
                     })
@@ -179,65 +214,98 @@ function Board({...props}) {
     }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <ParentContainer>
-            <DragDropContext onDragEnd={handleOnDragBoard}>
+        <DragDropContext onDragEnd={handleOnDragBoard}>
+            <ParentContainer>
                 <Droppable
-                    droppableId="board"
-                    type="COLUMN"
+                    droppableId="all-droppables"
                     direction="horizontal"
-                    ignoreContainerClipping={true}
-                    isCombineEnabled={true}>
-                    {(provided: DroppableProvided) => (
-                        <Grid container spacing={1} ref={provided.innerRef} {...provided.droppableProps}>
-                            {Object.keys(boardData).map((key: any, index: number) => (
-                                <Draggable key={index} draggableId={key} index={index} isDragDisabled>
-                                    {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-                                        <Grid item md={3} ref={provided.innerRef} {...provided.draggableProps}>
-                                            <Header isDragging={snapshot.isDragging}>
-                                                <Title
-                                                    isDragging={snapshot.isDragging}
-                                                    {...provided.dragHandleProps}
-                                                    aria-label={`${key} quote list`}>
-                                                    <Card>
-                                                        <CardHeader
-                                                            avatar={columns[index].icon}
-                                                            {...(columns[index].action && {action: columns[index].action})}
-                                                            sx={{
-                                                                minHeight: 60,
-                                                                ".MuiCardHeader-action": {alignSelf: 'center'}
-                                                            }}
-                                                            title={<Typography
-                                                                color={"text.primary"} fontWeight={700}
-                                                                fontSize={14}
-                                                                sx={{
-                                                                    whiteSpace: "nowrap",
-                                                                    overflow: "hidden",
-                                                                    textOverflow: "ellipsis",
-                                                                    width: columns[index].action && opened ? 140 : "auto",
-                                                                }}>
-                                                                {t(key)} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
-                                                            </Typography>}
-                                                        />
-                                                    </Card>
-                                                </Title>
-                                            </Header>
-                                            <BoardList
-                                                {...{handleEvent}}
-                                                listId={key}
-                                                listType="QUOTE"
-                                                quotes={boardData[key]}
-                                                internalScroll
-                                            />
-                                        </Grid>
-                                    )}
-                                </Draggable>
-                            ))}
+                    type="column">
+                    {provided => (
+                        <Container
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}>
+                            <Grid container spacing={1}>
+                                {Object.keys(boardData).length > 0 && columns.map((column: any, index: number) => (
+                                    <Grid key={index} item md={3}>
+                                        <Header>
+                                            <Title
+                                                aria-label={`${column.name} quote list`}>
+                                                <Card>
+                                                    <CardHeader
+                                                        avatar={columns[index].icon}
+                                                        sx={{
+                                                            minHeight: 60,
+                                                            ".MuiCardHeader-action": {alignSelf: 'center'}
+                                                        }}
+                                                        title={
+                                                            <Stack direction={"row"} alignItems={"center"}
+                                                                   spacing={1}>
+                                                                <Typography
+                                                                    color={"text.primary"} fontWeight={700}
+                                                                    fontSize={14}
+                                                                    sx={{
+                                                                        whiteSpace: "nowrap",
+                                                                        overflow: "hidden",
+                                                                        textOverflow: "ellipsis",
+                                                                        width: columns[index].action && opened ? (columns[index].id === "3" ? 90 : 110) : "auto",
+                                                                    }}>
+                                                                    {t(`tabs.${column.name}`)}
+                                                                </Typography>
+
+                                                                <Badge
+                                                                    sx={{pl: 1}}
+                                                                    invisible={!(boardData[column.name].length > 0 && index !== 2)}
+                                                                    badgeContent={boardData[column.name].length}
+                                                                    color="info"/>
+                                                            </Stack>
+                                                        }
+                                                        action={<Stack direction={"row"} alignItems={"center"}
+                                                                       spacing={1}>
+                                                            {columns[index].id === "3" &&
+                                                                <IconButton
+                                                                    size={"small"}
+                                                                    onClick={event => handleSortData(event)}>
+                                                                    <IconUrl width={20} height={20}
+                                                                             path={"sort"}/>
+                                                                </IconButton>}
+
+                                                            {columns[index].id === "5" &&
+                                                                <Stack direction={"row"} alignItems={"center"}
+                                                                       justifyContent={"flex-end"}
+                                                                       sx={{height: 28}}>
+                                                                    <CustomSwitch
+                                                                        className="custom-switch"
+                                                                        name="active"
+                                                                        onChange={handleUnpaidFilter}
+                                                                        checked={isUnpaidFilter}
+                                                                    />
+                                                                    <Typography variant={"body2"}
+                                                                                fontSize={12}>{t("tabs.payed")}</Typography>
+                                                                </Stack>
+                                                            }
+                                                            {!!columns[index].action && columns[index].action}
+                                                        </Stack>}
+                                                    />
+                                                </Card>
+                                            </Title>
+                                        </Header>
+                                        <Column
+                                            {...{
+                                                handleEvent,
+                                                index,
+                                                id: column.name,
+                                                column: boardData[column.name]
+                                            }}
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
                             {provided.placeholder}
-                        </Grid>
+                        </Container>
                     )}
                 </Droppable>
-            </DragDropContext>
-        </ParentContainer>)
+            </ParentContainer>
+        </DragDropContext>)
 }
 
 export default Board;

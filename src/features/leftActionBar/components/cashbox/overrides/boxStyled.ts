@@ -17,7 +17,7 @@ const BoxStyled = styled(Box)(({theme}) => ({
     "& .MuiPickerStaticWrapper-root": {
         marginTop: "-.8rem",
     },
-    '& .MuiCalendarPicker-root': {
+    '& .MuiDateCalendar-root': {
         maxHeight: "-webkit-fill-available",
         padding: "5px 0",
         '& [role="presentation"]': {

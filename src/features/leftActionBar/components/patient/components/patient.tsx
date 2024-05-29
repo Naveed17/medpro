@@ -12,7 +12,7 @@ import {
     ActionBarState,
     AppointmentActs,
     AppointmentDisease,
-    AppointmentReasonsFilter, FilterOverview, InsuranceFilter,
+    AppointmentReasonsFilter, AppointmentTypesFilter, FilterOverview, InsuranceFilter,
     setFilter
 } from "@features/leftActionBar";
 import React, {useState} from "react";
@@ -20,7 +20,6 @@ import {useAppDispatch} from "@lib/redux/hooks";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {setSelectedRows} from "@features/table";
-import {batch} from "react-redux";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 
@@ -37,13 +36,11 @@ function Patient() {
     const handleFilterChange = (data: any) => {
         window.history.replaceState({
             ...window.history.state,
-            as: "/dashboard/patient?page=1",
-            url: "/dashboard/patient?page=1"
-        }, '', "/dashboard/patient?page=1");
-        batch(() => {
-            dispatch(setSelectedRows([]));
-            dispatch(setFilter(data));
-        });
+            as: "/dashboard/patients?page=1",
+            url: "/dashboard/patients?page=1"
+        }, '', "/dashboard/patients?page=1");
+        dispatch(setSelectedRows([]));
+        dispatch(setFilter(data));
     }
 
     const [dataPatient, setDataPatient] = useState([
@@ -92,6 +89,15 @@ function Patient() {
         },
         {
             heading: {
+                id: "meetingType",
+                icon: "ic-agenda-jour-color",
+                title: "meetingType",
+            },
+            expanded: false,
+            children: (<AppointmentTypesFilter/>)
+        },
+        {
+            heading: {
                 id: "insurance",
                 icon: "ic-assurance",
                 title: "insurance",
@@ -137,10 +143,7 @@ function Patient() {
             children: (<AppointmentDisease OnSearch={(data: any) => {
                 handleFilterChange(data);
             }}/>)
-        }
-    ]);
-
-    const [dataPlace, setDataPlace] = useState([
+        },
         {
             heading: {
                 id: collapse[1].heading.title,
@@ -160,7 +163,7 @@ function Patient() {
                     />
                 </FilterRootStyled>
             ),
-        },
+        }
     ]);
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -180,11 +183,6 @@ function Patient() {
                     translate={{t, ready}}
                     data={dataPatient}
                     setData={setDataPatient}
-                />
-                <Accordion
-                    translate={{t, ready}}
-                    data={dataPlace}
-                    setData={setDataPlace}
                 />
             </FilterContainerStyles>
         </>

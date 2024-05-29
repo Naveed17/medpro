@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
@@ -10,10 +10,7 @@ import {Otable} from "@features/table";
 import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {SubstituteDetails} from "@features/substituteDetails";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 
 function Subtitule() {
     const [edit, setEdit] = useState(false);
@@ -100,10 +97,16 @@ function Subtitule() {
             sortable: false,
         },
     ];
-    const {t, ready} = useTranslation("settings", {
+    const {t, ready, i18n} = useTranslation("settings", {
         keyPrefix: "substitute.config",
     });
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <>
             <SubHeader>
@@ -148,7 +151,7 @@ function Subtitule() {
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['settings', 'common', "patient", 'menu']))
+        ...(await serverSideTranslations(locale as string, ['settings', 'common', 'menu']))
     }
 })
 export default Subtitule;

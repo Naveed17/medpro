@@ -252,9 +252,7 @@ export default function TeethWidget({...props}) {
             <Grid container spacing={2}>
                 <Grid item xs={4}>
                     <div style={{
-                        width: "100%", height: "78%", display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center"
+                         height: "68vh", overflowY:"scroll",overflowX:"clip"
                     }}>
                         <div style={{position: "relative"}}>
                             {traitements.map(traitement =>
@@ -300,7 +298,7 @@ export default function TeethWidget({...props}) {
                                 onClick={GetCoordinates}
                                 alt={"patient teeth"}/>
 
-                            <Stack direction={"row"} alignItems={"center"} spacing={1} p={1}>
+                            <Stack style={{display:"contents"}} alignItems={"center"} spacing={1} p={1}>
                                 <div style={{
                                     width: 10,
                                     height: 10,
@@ -310,9 +308,9 @@ export default function TeethWidget({...props}) {
                                 }}/>
                                 <Typography fontSize={10} color={"#737780"}>{t('hiddenTeeth')}</Typography>
                             </Stack>
-                            <Stack direction={"row"} alignItems={"center"} spacing={.5} p={1} pt={0}>
-                                {absent.map(a => (<Chip key={`${a}-absent`} style={{fontSize: 10}} label={a}/>))}
-                            </Stack>
+                            <div>
+                                {absent.map(a => (<Chip key={`${a}-absent`} style={{fontSize: 10,marginBottom:5,marginLeft: 5}} label={a}/>))}
+                            </div>
                         </div>
                     </div>
 

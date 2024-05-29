@@ -12,3 +12,5 @@ export {default as useWidgetModels} from "./useWidgetModels";
 export {default as useDuplicatedDetect} from "./useDuplicatedDetect";
 export {default as useTransactionEdit} from "./useTransactionEdit";
 export {default as useSendNotification} from "./useSendNotification";
+export {default as useCashBox} from "./useCashBox";
+export {default as useFeaturePermissions} from "./useFeaturePermissions";

@@ -435,7 +435,7 @@ function Widget({...props}) {
                             url,
                             data: form
                         }, {
-                            onSuccess: () => mutateSheetData()
+                            onSuccess: () => mutateSheetData && mutateSheetData()
                         });
                     }
                     }>{t('save')}</Button>

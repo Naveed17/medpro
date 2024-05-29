@@ -9,8 +9,9 @@ function MinMaxWindowButton({...props}) {
     const dispatch = useAppDispatch()
     const {sx} = props
     return (
-        <ButtonSyled sx={{...sx}}
-                     onClick={() => dispatch(setMinMaxWindowToggle(isWindowMax))}>
+        <ButtonSyled
+            sx={{...sx}}
+            onClick={() => dispatch(setMinMaxWindowToggle(isWindowMax))}>
             <Icon path='ic-minimize-square'/>
         </ButtonSyled>
     )

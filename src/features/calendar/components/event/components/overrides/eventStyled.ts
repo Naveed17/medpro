@@ -3,7 +3,7 @@ import {Box} from "@mui/material";
 
 const EventStyled = styled(Box)(({theme}) => ({
     cursor: "pointer",
-    borderRadius:theme.shape.borderRadius,
+    borderRadius: theme.shape.borderRadius,
     svg: {
         width: 12,
         height: 12,
@@ -46,13 +46,13 @@ const EventStyled = styled(Box)(({theme}) => ({
         width: 14,
         height: 14
     },
-    ".btn-rdv":{
+    ".btn-rdv": {
         borderRadius: theme.shape.borderRadius,
         padding: theme.spacing(0.5),
-        backgroundColor: theme.palette.warning.main,
+        //backgroundColor: theme.palette.warning.main,
         marginLeft: "auto",
-        width:18,
-        height:18,
+        width: 18,
+        height: 18
     }
 
 }))

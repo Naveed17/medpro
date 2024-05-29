@@ -21,9 +21,9 @@ const instanceAxios = (() => {
 
 instanceAxios.interceptors.response.use((response) => response, (error) => {
     // whatever you want to do with the error
-    switch (error.response?.data?.code) {
-        case 4000:
-            console.log("fin session");
+    switch (error.response?.status) {
+        case 401:
+            console.log("Token expired");
             break;
     }
     throw error;

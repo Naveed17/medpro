@@ -51,6 +51,7 @@ import {MobileContainer as smallScreen} from "@lib/constants";
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 
 import {LoadingScreen} from "@features/loadingScreen";
+
 const actions = [
     {
         icon: <IconUrl color={"gray"}
@@ -103,7 +104,7 @@ function Documents() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
-    const {t, ready} = useTranslation(["docs", "common"]);
+    const {t, ready, i18n} = useTranslation(["docs", "common"]);
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
@@ -127,7 +128,7 @@ function Documents() {
         isLoading: isOcrDocumentsLoading
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/ocr/documents/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=12${prepareSearchKeys(filter as any)}`}})
@@ -146,7 +147,7 @@ function Documents() {
         });
         medicalEntityHasUser && triggerOcrDocUpload({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/ocr/documents/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
@@ -228,6 +229,11 @@ function Documents() {
             setLocalFilter("")
         }
     }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["docs", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const ocrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.list ?? []) as OcrDocument[];
     const totalOcrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.total ?? 0) as number;
@@ -315,7 +321,8 @@ function Documents() {
                                     <Grid item xs={12} md={4}>
                                         <Card sx={{
                                             backgroundColor: theme.palette.background.default,
-                                            border: `1px dashed ${theme.palette.primary.main}`
+                                            border: `1px dashed ${theme.palette.primary.main}`,
+                                            height: 1
                                         }}>
                                             <CardContent>
                                                 <label htmlFor="contained-button-file">
@@ -360,7 +367,7 @@ function Documents() {
                                                 <CardContent sx={{cursor: "pointer"}}>
                                                     <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                                         <IconUrl path={'ic-doc-upload'}/>
-                                                        <Stack alignItems={"start"} spacing={0} sx={{width: '75%'}}>
+                                                        <Stack alignItems={"start"} spacing={.4} sx={{width: '75%'}}>
                                                             <Typography
                                                                 className={'ellipsis'}
                                                                 width={220}
@@ -563,7 +570,7 @@ function Documents() {
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'docs', "agenda"]))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'docs']))
     }
 })
 

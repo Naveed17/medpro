@@ -44,7 +44,6 @@ function ConsultationCard({...props}: any) {
         dispatch,
         printGlasses,
         isClose,
-        session,
         changeModel,
         acts,
         loading,
@@ -104,7 +103,10 @@ function ConsultationCard({...props}: any) {
                                                                _cards[ind][index].expanded = !item.expanded
                                                                _cards[ind][index].config = false
                                                                const _locPosition = JSON.parse(localStorage.getItem("cardPositions") as string)
-                                                               localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition,widget: item.expanded}))
+                                                               localStorage.setItem(`cardPositions`, JSON.stringify({
+                                                                   ..._locPosition,
+                                                                   widget: item.expanded
+                                                               }))
 
                                                                setCards([..._cards])
                                                                mutateSheetData()
@@ -138,14 +140,17 @@ function ConsultationCard({...props}: any) {
                                                                 </Stack>
 
                                                             </MyHeaderCardStyled> :
-                                                            <MyHeaderCardStyled>
+                                                            <MyHeaderCardStyled direction={"row"} alignItems={"center"} spacing={1}>
                                                                 <Icon className={'card-header'}
+                                                                      color={theme.palette.text.primary}
+                                                                      width={20}
+                                                                      height={20}
                                                                       path={item.icon}/>
                                                                 <Typography
                                                                     className={'card-title'}>{item.content !== "widget" ? t(item.content) : ""}</Typography>
                                                             </MyHeaderCardStyled>}
                                                         <Stack direction={"row"}>
-                                                            <IconButton className={"btn-full"} style={{marginRight:5}}>
+                                                            <IconButton className={"btn-full"} style={{marginRight: 5}}>
                                                                 <IconUrl path={'reduce'}/>
                                                             </IconButton>
                                                         </Stack>
@@ -192,7 +197,6 @@ function ConsultationCard({...props}: any) {
                                                                     dispatch,
                                                                     mini: true,
                                                                     t,
-                                                                    session,
                                                                     acts,
                                                                     direction,
                                                                     mutate: mutatePatient,

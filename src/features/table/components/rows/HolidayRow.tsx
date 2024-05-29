@@ -1,14 +1,14 @@
-import {TableRowStyled} from "@features/table"
+import {editUser, TableRowStyled} from "@features/table"
 import TableCell from '@mui/material/TableCell';
-import {Typography, Skeleton, IconButton, Stack} from '@mui/material';
+import {Typography, Skeleton, IconButton, Stack, useTheme} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from 'lodash'
-import {Theme} from "@mui/material/styles";
 import React from "react";
+import Can from "@features/casl/can";
 
 function HolidayRow({...props}) {
     const {row, handleEvent} = props
-
+    const theme = useTheme()
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -30,7 +30,7 @@ function HolidayRow({...props}) {
                                     fontSize: '11px',
                                     svg: {mr: 0.5, ml: 0.5},
                                     mb: {md: 0, sm: 1, xs: 1},
-                                    borderLeft: `5px solid ${(theme: Theme) => theme.palette.error.main}`,
+                                    borderLeft: `5px solid ${theme.palette.error.main}`,
                                 }}
                                 component="span">
                         <IconUrl width={16} height={16} path="agenda/ic-agenda2"/>
@@ -50,7 +50,7 @@ function HolidayRow({...props}) {
                                     fontSize: '11px',
                                     svg: {mr: 0.5, ml: 0.5},
                                     mb: {md: 0, sm: 1, xs: 1},
-                                    borderLeft: `5px solid ${(theme: Theme) => theme.palette.success.main}`,
+                                    borderLeft: `5px solid ${theme.palette.success.main}`,
                                 }}
                                 component="span">
                         <IconUrl width={16} height={16} path="agenda/ic-agenda2"/>
@@ -60,19 +60,29 @@ function HolidayRow({...props}) {
             </TableCell>
             <TableCell align="right">
                 {row ?
-                    <Stack direction='row' alignItems='center' justifyContent='flex-end'>
-                        <IconButton
-                            size="small"
-                            sx={{mr: {md: 1}}}
-                            onClick={() => handleEvent("onEditAbsence", row)}>
-                            <IconUrl path="setting/edit"/>
-                        </IconButton>
-                        {!row.hasData && <IconButton
-                            size="small"
-                            sx={{mr: {md: 1}}}
-                            onClick={() => handleEvent("onDeleteAbsence", row)}>
-                            <IconUrl path="setting/icdelete"/>
-                        </IconButton>}
+                    <Stack direction='row' alignItems='center' justifyContent='flex-end' spacing={1}>
+                        <Can I={"manage"} a={"settings"} field={"settings__holidays__update"}>
+                            <IconButton
+                                size="small"
+                                className="btn-edit"
+                                onClick={() => handleEvent("onEditAbsence", row)}>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
+                            </IconButton>
+                        </Can>
+                        <Can I={"manage"} a={"settings"} field={"settings__holidays__delete"}>
+                            {!row.hasData && <IconButton
+                                size="small"
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}
+                                onClick={() => handleEvent("onDeleteAbsence", row)}>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                            </IconButton>}
+                        </Can>
                     </Stack>
                     : <Skeleton variant="text" width={10} height={30} sx={{m: 'auto'}}/>}
             </TableCell>

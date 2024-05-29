@@ -11,9 +11,10 @@ import {
     Grid,
     IconButton,
     InputAdornment,
-    InputBase,
+    InputBase, Link,
     Radio,
     RadioGroup,
+    Select,
     Skeleton,
     Stack,
     TextField,
@@ -39,6 +40,9 @@ import {useTheme} from "@emotion/react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {Dialog} from "@features/dialog";
 import CheckIcon from "@mui/icons-material/Check";
+import MenuItem from "@mui/material/MenuItem";
+import useUsers from "@lib/hooks/rest/useUsers";
+import {agendaSelector} from "@features/calendar";
 
 const limit = 255;
 
@@ -46,7 +50,6 @@ function SecretaryConsultationDialog({...props}) {
     const {
         data: {
             app_uuid,
-            agenda,
             patient,
             t,
             setTransactions,
@@ -62,15 +65,22 @@ function SecretaryConsultationDialog({...props}) {
             showPreview,
             nextAppDays, setNextAppDays,
             mutatePatient,
-            insuranceGenerated, changeCoveredBy
+            insuranceGenerated, changeCoveredBy,
+            selectedUser, setSelectedUser, addDiscussion,
+            medicalEntityHasUser
         }
     } = props;
     const router = useRouter();
     const theme = useTheme() as Theme;
+    const {users} = useUsers();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {direction} = useAppSelector(configSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
+
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
@@ -85,13 +95,19 @@ function SecretaryConsultationDialog({...props}) {
     const devise = doctor_country.currency?.name;
     const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
-    const {direction} = useAppSelector(configSelector);
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {data: httpAppointmentTransactions} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/transactions/${router.locale}`
     });
+
+    const resetDialog = () => {
+        setOpenPaymentDialog(false);
+    }
+
+    const openDialogPayment = () => {
+        setOpenPaymentDialog(true);
+    }
 
     useEffect(() => {
         if (httpAppointmentTransactions) {
@@ -125,13 +141,13 @@ function SecretaryConsultationDialog({...props}) {
         }
     }, [httpAppointmentTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const resetDialog = () => {
-        setOpenPaymentDialog(false);
-    }
-
-    const openDialogPayment = () => {
-        setOpenPaymentDialog(true);
-    }
+    useEffect(() => {
+        const usr = users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser)
+        if (usr.length > 0) {
+            setSelectedUser(usr[0].uuid)
+            addDiscussion(usr[0])
+        }
+    }, [users]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -149,12 +165,29 @@ function SecretaryConsultationDialog({...props}) {
                                 {patient?.firstName} {patient?.lastName}
                             </Typography>
                         </Stack>
-                        {patient?.contact?.length > 0 &&
-                            <Stack direction='row' alignItems='center' spacing={.5}>
-                                <IconUrl path="ic-tel" color={theme.palette.text.primary} width={12} height={12}/>
-                                <Typography variant="body2">{patient?.contact[0]}</Typography>
+                        {patient?.contact?.map((contact: ContactModel, index: number) =>
+                            <Stack key={index} direction={"row"} mb={.5} alignItems={"center"}>
+                                <IconUrl
+                                    width={16}
+                                    height={16}
+                                    path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                    className="ic-tell"
+                                />
+                                <Link
+                                    underline="none"
+                                    {...(contact?.isWhatsapp && {target: "_blank"})}
+                                    href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                    variant="caption"
+                                    color="text.primary"
+                                    ml={.5}
+                                    fontSize={10}
+                                    fontWeight={"bold"}>
+                                    <Stack direction={"row"} alignItems={"center"}>
+                                        {contact.code} {contact.value}
+                                    </Stack>
+                                </Link>
                             </Stack>
-                        }
+                        )}
                     </Stack>
                 </Stack>
                 <EventType select defaultType={1}/>
@@ -269,13 +302,29 @@ function SecretaryConsultationDialog({...props}) {
                                                     {patient?.firstName} {patient?.lastName}
                                                 </Typography>
                                             </Stack>
-                                            {patient?.contact?.length > 0 &&
-                                                <Stack direction='row' alignItems='center' spacing={.5}>
-                                                    <IconUrl path="ic-tel" color={theme.palette.text.primary} width={12}
-                                                             height={12}/>
-                                                    <Typography variant="body2">{patient?.contact[0]}</Typography>
+                                            {patient?.contact?.map((contact: ContactModel, index: number) =>
+                                                <Stack key={index} direction={"row"} mb={.5} alignItems={"center"}>
+                                                    <IconUrl
+                                                        width={16}
+                                                        height={16}
+                                                        path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                                        className="ic-tell"
+                                                    />
+                                                    <Link
+                                                        underline="none"
+                                                        {...(contact?.isWhatsapp && {target: "_blank"})}
+                                                        href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                                        variant="caption"
+                                                        color="text.primary"
+                                                        ml={.5}
+                                                        fontSize={10}
+                                                        fontWeight={"bold"}>
+                                                        <Stack direction={"row"} alignItems={"center"}>
+                                                            {contact.code} {contact.value}
+                                                        </Stack>
+                                                    </Link>
                                                 </Stack>
-                                            }
+                                            )}
                                         </Stack>
                                     </Stack>
                                     {<Stack direction={"row"} alignItems={"center"}>
@@ -316,11 +365,25 @@ function SecretaryConsultationDialog({...props}) {
                                     </Stack>
                                     }
                                 </Stack>
-                                <Stack className="instruction-box" spacing={1}>
+                                {users.length > 1 && <Stack className="instruction-box" spacing={1}>
                                     {
                                         !isMobile &&
                                         <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
                                     }
+
+                                    <Select
+                                        id="demo-simple-select"
+                                        value={selectedUser}
+                                        size={"small"}
+                                        onChange={event => {
+                                            addDiscussion(users.find((usr: UserModel) => usr.uuid === event.target.value))
+                                            setSelectedUser(event.target.value)
+                                        }}>
+                                        {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser).map((user: UserModel) => (
+                                            <MenuItem key={user.uuid}
+                                                      value={user.uuid}>{user.firstName} {user.lastName}</MenuItem>))}
+                                    </Select>
+
                                     <TextField
                                         fullWidth
                                         multiline
@@ -330,15 +393,14 @@ function SecretaryConsultationDialog({...props}) {
                                             localStorage.setItem(`instruction-data-${app_uuid}`, event.target.value.slice(0, limit));
                                         }}
                                         placeholder={t("type_instruction_for_the_secretary")}
-                                        rows={isMobile ? 2 : 4}
+                                        rows={2}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment defaultValue={instruction} position="end">
                                                     {instruction.length} / {255}
                                                 </InputAdornment>
                                             ),
-                                        }}
-                                    />
+                                        }}/>
 
                                     <Button
                                         className="counter-btn"
@@ -426,7 +488,7 @@ function SecretaryConsultationDialog({...props}) {
                                             <Typography>{t("covred")}</Typography>
                                         </Stack>
                                     </Button>
-                                </Stack>
+                                </Stack>}
                             </Stack>
                         </Grid>
                     </Grid>

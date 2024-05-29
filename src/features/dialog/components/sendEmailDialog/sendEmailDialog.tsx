@@ -8,7 +8,6 @@ import {
     Typography
 } from "@mui/material";
 import TextareaAutosizeStyled from "./overrides/TextareaAutosizeStyled";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import React, {useCallback, useState} from "react";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
@@ -16,12 +15,20 @@ import {LoadingButton} from "@mui/lab";
 import {Document, Page} from "react-pdf";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
+import IconUrl from "@themes/urlIcon";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function SendEmailDialog({...props}) {
-    const {preview, patient, t, title, handleSendEmail, loading} = props.data;
+    const {preview, patient, t, title, handleSendEmail} = props.data;
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse)?.medical_professional as MedicalProfessionalModel;
 
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
+    const [loadingReq, setLoadingReq] = useState<boolean>(true);
 
     const validationSchema = Yup.object().shape({
         receiver: Yup.string().email(t("error.mailInvalid")).required(t("error.receiver")),
@@ -33,8 +40,19 @@ function SendEmailDialog({...props}) {
         enableReinitialize: true,
         initialValues: {
             receiver: patient?.email ?? "",
-            subject: title,
-            content: "",
+            subject: `${title} confidentiel de ${patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "}.${patient.firstName} ${patient.lastName}`,
+            content:
+                (patient.gender === "F" ? "Chère " : "Cher ") + patient.firstName + " " + patient.lastName + ",\n" +
+                "\n" +
+                "En tant que médecin traitant de M. " + patient.firstName + " " + patient.lastName + ", je vous adresse '" + title.toLowerCase() + "' de celui-ci en pièce jointe. Je vous prie de noter que ce document contient des informations confidentielles et est destiné uniquement à votre consultation.\n" +
+                "\n" +
+                "Si vous avez reçu ce courriel par erreur ou si vous n'êtes pas le destinataire prévu, je vous demande de ne pas ouvrir, copier ou divulguer le contenu du fichier joint. Je vous serais reconnaissant de bien vouloir nous notifier immédiatement de cette erreur et de supprimer cette communication de votre messagerie électronique.\n" +
+                "\n" +
+                "Je vous remercie de votre attention à cet égard et reste à votre disposition pour toute question ou clarification nécessaire.\n" +
+                "\n" +
+                "Cordialement,\n" +
+                "\n" +
+                "" + medical_professional?.publicName + "",
             withFile: true
         },
         validationSchema,
@@ -49,6 +67,7 @@ function SendEmailDialog({...props}) {
 
     const onDocumentLoadSuccess = ({numPages}: { numPages: number }) => {
         setNumPages(numPages);
+        setLoadingReq(false);
     }
 
     const changePage = (offset: number) => {
@@ -75,7 +94,11 @@ function SendEmailDialog({...props}) {
                         mt: 2
                     }}>
                     <Box
-                        sx={{scale: preview.type.includes("image") ? "1" : "0.4", transformOrigin: "top left", height: 340}}>
+                        sx={{
+                            scale: preview.type.includes("image") ? "1" : "0.4",
+                            transformOrigin: "top left",
+                            height: 340
+                        }}>
                         {preview.type.includes("image") ?
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -128,6 +151,7 @@ function SendEmailDialog({...props}) {
                             <FormControl fullWidth size="small">
                                 <TextareaAutosizeStyled
                                     minRows={4}
+                                    maxRows={8}
                                     {...getFieldProps("content")}/>
                             </FormControl>
                         </Stack>
@@ -144,14 +168,14 @@ function SendEmailDialog({...props}) {
 
             <CardActions>
                 <LoadingButton
-                    {...{loading}}
+                    {...(!preview?.type.includes("image") && {loading: loadingReq})}
                     loadingPosition={"start"}
                     disabled={!isValid}
                     sx={{marginLeft: 'auto'}}
                     onClick={() => sendEmailCallback(values)}
                     variant="contained"
-                    startIcon={<SaveRoundedIcon/>}>
-                    {t("save")}
+                    startIcon={<IconUrl path={"menu/ic-send-message"} width={20} height={20}/>}>
+                    {t("send")}
                 </LoadingButton>
             </CardActions>
         </FormikProvider>)

@@ -3,4 +3,7 @@ import {createSelector} from "@reduxjs/toolkit";
 
 export const selectLeftActionBar = (state: RootState) => state.leftActionBar;
 
-export const leftActionBarSelector = createSelector(selectLeftActionBar, state => state);
+export const leftActionBarSelector = createSelector(selectLeftActionBar, state => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

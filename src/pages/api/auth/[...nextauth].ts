@@ -156,8 +156,10 @@ export const authOptions: NextAuthOptions = {
         async session({session, token}) {
             // Send properties to the client, like an access_token from a provider.
             (session as any).accessToken = token.accessToken;
+            (session as any).idToken = token.idToken;
             session.data = token.data as UserDataResponse;
             (session as any).user.jti = token.jti;
+            (session as any).user.id = token.sub;
             if (token.error) {
                 (session as any).error = token.error;
             }
@@ -165,20 +167,57 @@ export const authOptions: NextAuthOptions = {
         },
         async jwt({token, user, account, trigger, session}) {
             // Persist the OAuth access_token to the token right after signin
-            if (trigger === "update" && session?.agenda_default_view) {
+            if (trigger === "update") {
                 // Note, that `session` can be any arbitrary object, remember to validate it!
                 const updatedToken = {...token} as any;
-                token = {
-                    ...updatedToken,
-                    data: {
-                        ...updatedToken.data,
-                        "general_information": {
-                            ...updatedToken.data.general_information,
-                            agendaDefaultFormat: session?.agenda_default_view
+                if (session?.agenda_default_view) {
+                    token = {
+                        ...updatedToken,
+                        data: {
+                            ...updatedToken.data,
+                            general_information: {
+                                ...updatedToken.data.general_information,
+                                agendaDefaultFormat: session?.agenda_default_view
+                            }
                         }
-                    }
-                };
-                return token;
+                    };
+                    return token;
+                } else if (session?.features && Array.isArray(session?.features)) {
+                    const medical_entity_index = updatedToken.data?.medical_entities.findIndex((data: any) => data.medical_entity.uuid === updatedToken.data?.medical_entity.uuid);
+                    token = {
+                        ...updatedToken,
+                        data: {
+                            ...updatedToken.data,
+                            medical_entities: [
+                                ...updatedToken.data?.medical_entities.slice(0, medical_entity_index),
+                                {
+                                    ...updatedToken.data?.medical_entities[medical_entity_index],
+                                    features: session.features
+                                },
+                                ...updatedToken.data?.medical_entities.slice(medical_entity_index + 1)
+                            ]
+                        }
+                    };
+                    return token;
+                } else if (session?.default_medical_entity) {
+                    const medical_entity_index = updatedToken.data?.medical_entities.findIndex((data: any) => data.medical_entity.uuid === session?.default_medical_entity);
+                    token = {
+                        ...updatedToken,
+                        data: {
+                            ...updatedToken.data,
+                            medical_entity: {
+                                ...updatedToken.data?.medical_entities[medical_entity_index].medical_entity,
+                                has_selected_entity: !session?.reset,
+                                root: session?.root ?? ""
+                            },
+                            medical_entities: updatedToken.data?.medical_entities?.map((medical_entity_data: any) => ({
+                                ...medical_entity_data,
+                                is_default: medical_entity_data?.medical_entity?.uuid === session?.default_medical_entity
+                            }))
+                        }
+                    };
+                    return token;
+                }
             }
 
             if ((account && user) || (trigger === "update" && session?.refresh)) {
@@ -189,6 +228,7 @@ export const authOptions: NextAuthOptions = {
                     // Add access_token, refresh_token and expirations to the token right after signin
                     token.accessToken = account.access_token;
                     token.refreshToken = account.refresh_token;
+                    token.idToken = account.id_token;
                     token.accessTokenExpired = (account.expires_at as number) * 1000;
                     token.refreshTokenExpired = Date.now() + (account.refresh_expires_in as number) * 1000;
                     token.user = user;
@@ -204,7 +244,9 @@ export const authOptions: NextAuthOptions = {
                         Authorization: `Bearer ${token.accessToken}`
                     }
                 });
-                const res = await response.json();
+
+                const res = response.status !== 500 ? await response.json() : {...response, status: "error"};
+
                 if (res.status === "error") {
                     const errorData = res;
                     if (errorData.code === 4006) {
@@ -220,9 +262,12 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     if (!token.error) {
+                        const medicalEntity = res?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.medical_entity;
                         Object.assign(res?.data, {
-                            medical_entity: res?.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
-                                entity.is_default)?.medical_entity
+                            medical_entity: {
+                                ...medicalEntity,
+                                ...(res?.data?.medical_entities?.length === 1 && {has_selected_entity: medicalEntity?.uuid})
+                            }
                         });
                         token.data = res?.data;
                     }
@@ -232,7 +277,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             // Return previous token if the access token has not expired yet
-            if (Date.now() < (token as any).accessTokenExpired) {
+            if (Date.now() < (token as any).accessTokenExpired && session?.refreshAccessToken === undefined) {
                 return token;
             }
 

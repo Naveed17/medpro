@@ -1,10 +1,10 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
-import {Box, Button, Drawer, Paper} from "@mui/material";
+import {Box, Button, Drawer, Paper, Stack} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {Otable} from "@features/table";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -13,17 +13,19 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
-import {batch} from "react-redux";
 import {AbsenceDrawer, absenceDrawerSelector, resetAbsenceData, setAbsenceData} from "@features/drawer";
 import {LoadingButton} from "@mui/lab";
-import {NoDataCard} from "@features/card";
+import {HolidaysMobileCard, NoDataCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import Can from "@features/casl/can";
 
 function Holidays() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "holidays.config"});
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "holidays.config"});
     const {direction} = useAppSelector(configSelector);
     const {config: agenda, openAbsenceDrawer} = useAppSelector(agendaSelector);
     const absenceData = useAppSelector(absenceDrawerSelector);
@@ -77,10 +79,8 @@ function Holidays() {
             data: params
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(openDrawer({type: "absence", open: false}));
-                    dispatch(resetAbsenceData());
-                });
+                dispatch(openDrawer({type: "absence", open: false}));
+                dispatch(resetAbsenceData());
                 mutateAbsences();
             },
             onSettled: () => setLoadingRequest(false)
@@ -91,15 +91,13 @@ function Holidays() {
         switch (action) {
             case "onEditAbsence":
                 setSelectedAbsence(event);
-                batch(() => {
-                    dispatch(setAbsenceData({
-                        title: event.title,
-                        mode: "edit",
-                        startDate: moment(event.startDate, "DD-MM-YYYY HH:mm").toDate(),
-                        endDate: moment(event.endDate, "DD-MM-YYYY HH:mm").toDate()
-                    }));
-                    dispatch(openDrawer({type: "absence", open: true}));
-                });
+                dispatch(setAbsenceData({
+                    title: event.title,
+                    mode: "edit",
+                    startDate: moment(event.startDate, "DD-MM-YYYY HH:mm").toDate(),
+                    endDate: moment(event.endDate, "DD-MM-YYYY HH:mm").toDate()
+                }));
+                dispatch(openDrawer({type: "absence", open: true}));
                 break;
             case "onDeleteAbsence":
                 handleDeleteAbsence(event?.uuid);
@@ -145,6 +143,11 @@ function Holidays() {
         },
     ];
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['settings']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (<>
@@ -152,29 +155,46 @@ function Holidays() {
             <RootStyled>
                 <p style={{margin: 0}}>{t('path')}</p>
             </RootStyled>
-
-            <Button type='submit'
-                    variant="contained"
-                    onClick={() => {
-                        dispatch(openDrawer({type: "absence", open: true}));
-                    }}
-                    color="success">
-                {t('add')}
-            </Button>
+            <Can I={"manage"} a={"settings"} field={"settings__holidays__create"}>
+                <Button type='submit'
+                        variant="contained"
+                        onClick={() => {
+                            dispatch(openDrawer({type: "absence", open: true}));
+                        }}
+                        color="success">
+                    {t('add')}
+                </Button>
+            </Can>
         </SubHeader>
 
         <Box className="container">
             {(absences.length > 0 || isAbsencesLoading) ?
-                <Otable
-                    {...{t}}
-                    headers={headCells}
-                    rows={absences}
-                    from={'holidays'}
-                    handleEvent={handleTableActions}
-                    total={total}
-                    totalPages={totalPages}
-                    pagination
-                />
+                <>
+                    <DesktopContainer>
+                        <Otable
+                            {...{t}}
+                            headers={headCells}
+                            rows={absences}
+                            from={'holidays'}
+                            handleEvent={handleTableActions}
+                            total={total}
+                            totalPages={totalPages}
+                            pagination
+                        />
+                    </DesktopContainer>
+                    <MobileContainer>
+                        <Stack spacing={1}>
+                            {
+                                absences.map((absence) => (
+                                    <React.Fragment key={absence.uuid}>
+                                        <HolidaysMobileCard {...{data: absence, t, handleEvent: handleTableActions}}/>
+                                    </React.Fragment>
+                                ))
+                            }
+                        </Stack>
+                    </MobileContainer>
+
+                </>
                 :
                 <NoDataCard
                     sx={{mt: 16}}
@@ -192,10 +212,8 @@ function Holidays() {
                 open={openAbsenceDrawer}
                 dir={direction}
                 onClose={() => {
-                    batch(() => {
-                        dispatch(openDrawer({type: "absence", open: false}));
-                        dispatch(resetAbsenceData());
-                    });
+                    dispatch(openDrawer({type: "absence", open: false}));
+                    dispatch(resetAbsenceData());
                 }}>
                 <AbsenceDrawer {...{t}} main={true}/>
                 <Paper
@@ -213,10 +231,8 @@ function Holidays() {
                         }}
                         variant="text-primary"
                         onClick={() => {
-                            batch(() => {
-                                dispatch(openDrawer({type: "absence", open: false}));
-                                dispatch(resetAbsenceData());
-                            });
+                            dispatch(openDrawer({type: "absence", open: false}));
+                            dispatch(resetAbsenceData());
                         }}>
                         {t(`dialogs.absence-dialog.cancel`)}
                     </Button>
@@ -237,7 +253,7 @@ function Holidays() {
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', "patient", 'settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 

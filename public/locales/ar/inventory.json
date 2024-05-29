@@ -1,0 +1,39 @@
+{
+  "title": "الجرد",
+  "add": "إضافة",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "table": {
+    "#": "#",
+    "name": "الاسم",
+    "quality": "الكمية",
+    "before_amount": "قبل المبلغ",
+    "after_amount": "بعد المبلغ",
+    "total": "المجموع",
+    "actions": "الإجراءات"
+  },
+  "dialog": {
+    "title": "حذف المنتج",
+    "description": "هل ترغب في حذف المنتج؟",
+    "cancel": "إلغاء",
+    "delete": "حذف"
+  },
+  "filter": {
+    "title": "فلتر",
+    "name": "الاسم",
+    "product": "المنتج",
+    "placeholder_name": "أدخل اسم المنتج",
+    "brand": "العلامة التجارية",
+    "placeholder_brand": "حدد العلامة التجارية",
+    "category": "الفئة",
+    "placeholder_category": "حدد الفئة",
+    "stock": "المخزون",
+    "placeholder_stock": "حدد المخزون",
+    "is_hidden": "مخفي",
+    "is_for_appointment": "للمواعيد"
+  },
+  "no-data": {
+    "title": "أضف أول منتج لك",
+    "description": "إذا لم يكن لديك منتجات ، قم بإضافتها بالنقر فوق 'إضافة منتج'."
+  }
+}

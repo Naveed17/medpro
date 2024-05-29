@@ -5,6 +5,7 @@
   "add": "Ajouter RDV",
   "add-quick": "Ajout rapide",
   "add_leave": "Ajouter un congé",
+  "add_chat": "Chat",
   "add-quick-drawer": "Ajout rapide d'un rendez-vous",
   "add-complete": "Ajout complet",
   "view": "Voir détails",
@@ -51,7 +52,7 @@
     "type": "Type",
     "fiche_id": "Fiche patient",
     "fiche": "Numéro fiche",
-    "next-appointment": "Prochain rendez-vous",
+    "next-appointment": "Prochains rendez-vous",
     "last-appointment": "Dernier rendez-vous",
     "reasons": "Motif",
     "status": "Statut",
@@ -70,7 +71,7 @@
     "pending": "En attente",
     "cancel": "Annulé",
     "expired": "Expiré",
-    "no_show": "Patient ne s'est pas présenté",
+    "no_show": "Le patient ne s'est pas présenté",
     "cancel_patient": "Annulé par le patient",
     "note": "Notes"
   },
@@ -86,22 +87,22 @@
       "action": "Action"
     },
     "body": {
-      "add-appointment": "Add appointment",
-      "edit": "Edit",
-      "see-card": "See card"
+      "add-appointment": "Ajouter un RDV",
+      "edit": "Modifier",
+      "see-card": "Voir"
     },
     "pagination": {
       "of": "of"
     },
     "no-data": {
       "event": {
-        "title": "Ajouter votre premier rendez-vous",
+        "title": "Veuillez ajouter votre premier rendez-vous",
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"
       },
       "vacation": {
-        "title": "Ajouter votre première absence",
+        "title": "Veuillez ajouter votre première absence",
         "sub-title": "Pas de absences",
         "description": "",
         "button-text": "Ajouter un absence"
@@ -145,6 +146,7 @@
       "time-message": "Veuillez choisir l’heure du RDV",
       "see-more": "Voir plus d’horaires",
       "add-more-date": "Ajouter un autre RDV",
+      "select-reason": "Choisissez les motifs",
       "add_reason": "Ajouter un nouveau motif",
       "change-time": "Modifier l'heure",
       "confirm-time": "Confirmer",
@@ -207,15 +209,21 @@
         "address-group": "Adresse du patient",
         "address-placeholder": "Entrez l'adresse du patient",
         "assurance": "Assurances",
-        "assurance-social": "L'assure social",
+        "assurance-social": "Assurance sociale",
         "assurance-placeholder": "assurance",
         "assurance-phone-error": "numéro d'assurance",
         "assurance-num-error": "Le numéro d'assurance est obligatoire",
         "assurance-type-error": "Veuillez sélectionner l'assurance",
         "email": "E-mail",
+        "relation": "Relation",
+        "relation-placeholder": "Relation",
         "email-placeholder": "Saisissez l'adresse e-mail du patient",
         "cin": "CIN",
         "cin-placeholder": "Saisir la CIN du patient",
+        "addressed-by": "Adressé(e) par",
+        "addressed-by-placeholder": "adressé(e) par...",
+        "civil-status": "État civil",
+        "civil-status-placeholder": "état civil...",
         "profession": "Profession",
         "profession-placeholder": "Saisir la profession du patient",
         "birthday": "Date de naissance",
@@ -228,6 +236,7 @@
         "description": "",
         "add-new": "Ajouter un autre patient",
         "add-appo": "Ajouter RDV",
+        "add-contact": "Ajouter un contact",
         "register": "Enregistrer",
         "return": "Retourner à",
         "dialog": {
@@ -257,12 +266,12 @@
     "waiting": "Ajouter le patient à la salle d'attente",
     "start_the_consultation": "Commencer la consultation",
     "added-description": "Rendez-vous ajouté avec succès",
-    "show-patient": "Voir fiche Patient",
+    "show-patient": "Voir la fiche Patient",
     "finish": "Fermer"
   },
   "dialogs": {
     "move-dialog": {
-      "title": "Déplacer RDV",
+      "title": "Déplacer le RDV",
       "title-duration": "Modifier la durée du RDV",
       "sub-title": "Voulez-vous vraiment déplacer le RDV?",
       "sub-title-duration": "Voulez-vous vraiment modifier la durée du rendez-vous ?",
@@ -291,7 +300,8 @@
     "cancel-dialog": {
       "title": "Annuler RDV",
       "sub-title": "Voulez-vous vraiment annuler le RDV?",
-      "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+      "description": "Un SMS sera envoyé automatiquement au patient pour l'informer de l'annulation.",
+      "notice": "Envoyer un avis d'annulation au patient.",
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },
@@ -299,6 +309,9 @@
       "title": "Supprimer RDV",
       "sub-title": "Voulez-vous vraiment supprimer le RDV?",
       "description": "Vous perderez à jamais l'historique et les documents concernant ce patient",
+      "delete-appointment-insertion": "Données d'insertion",
+      "delete-appointment-data": "Données historique du rdv",
+      "delete-transaction": "Données de transaction",
       "cancel": "Annuler",
       "confirm": "Supprimer"
     },
@@ -315,8 +328,12 @@
       "sub-title": "Liste des congés et absences proches",
       "description": "Titre du congé",
       "type-placeholder": "Saisir le titre du congé",
-      "startDate": "Date début",
-      "endDate": "Date fin",
+      "end-after-start-time": "L'heure de fin doit être antérieure à l'heure de début",
+      "datetime-required": "La date est obligatoire",
+      "startDate": "Date du début",
+      "startDate-placeholder": "Selectionner la Date du début",
+      "endDate": "Date de la fin",
+      "endDate-placeholder": "Sélectionner la date de fin",
       "vacation": {
         "yearly": "Congé annuel",
         "sick": "Congé de maladie",

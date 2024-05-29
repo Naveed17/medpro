@@ -13,7 +13,7 @@ function useConsultationReasons(enable: boolean = true) {
 
     const {data: httpConsultReasonResponse, isLoading} = useRequestQuery(medicalEntityHasUser && enable ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     return {

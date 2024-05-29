@@ -62,7 +62,7 @@ jobs:
               },
                 "refs/pull/.*": {
                 "enable_cd": "${{ contains(github.event.pull_request.labels.*.name, 'preview') }}",
-                "environments": "{\"envs\":[{\"name\": \"preview\",\"ws\": \"pr-${{ github.event.number }}\" , \"host\": \"med-pro-pr-${{ github.event.number }}.med.ovh\"}]}"
+                "environments": "{\"envs\":[{\"name\": \"preview\",\"ws\": \"preview\" , \"host\": \"med-pro-preview.med.ovh\"}]}"
               },
               ".*": {
                 "enable_cd": "false"
@@ -79,18 +79,21 @@ jobs:
       cmd:  skaffold run
       environment: ${{ matrix.envs.name }}
       version: "2.0.4"
+      sops: true
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
       ENV_VARS: |
         ${{ secrets.ENV_VARS }}
+        SOPS_AGE_KEY="${{ secrets.SOPS_AGE_KEY }}"
         INGRESS_TARGET=${{ secrets.INGRESS_TARGET }}
         INGRESS_HOST=${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
         NEXTAUTH_URL=https://${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
         SKAFFOLD_KUBE_CONTEXT=${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
         SKAFFOLD_NAMESPACE=${{ secrets.SKAFFOLD_NAMESPACE }}
         SKAFFOLD_CACHE_ARTIFACTS=false
-        WORKSPACE=${{ matrix.envs.name }}
+        WORKSPACE=${{ matrix.envs.ws }}
+        NODE_OPTIONS='--max-old-space-size=2500'
 
   sonar:
     if: ${{ github.ref == 'refs/heads/develop' }}

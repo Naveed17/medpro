@@ -31,6 +31,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import {InventoryFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {useRouter} from "next/router";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const data = [
     {
@@ -116,7 +117,7 @@ function Inventory() {
     const {data: session} = useSession();
 
     const {direction} = useAppSelector(configSelector);
-    const {t} = useTranslation(["inventory", "common"]);
+    const {t, ready, i18n} = useTranslation(["inventory", "common"]);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
 
     const [selectedRow, setSelected] = useState<any>("");
@@ -163,6 +164,12 @@ function Inventory() {
         setSelected("");
     }
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["inventory", "common", "menu"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>

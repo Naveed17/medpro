@@ -1,5 +1,5 @@
 import {styled} from "@mui/material/styles";
-import {Card, Theme} from "@mui/material";
+import {Card} from "@mui/material";
 
 const PanelCardStyled = styled(Card)(({theme}) => ({
     // border: "none",
@@ -39,9 +39,6 @@ const PanelCardStyled = styled(Card)(({theme}) => ({
     "& .phone-handler": {
         // paddingTop: 0
     },
-    "& .app-bar-header": {
-        marginBottom: 14
-    },
     "& textarea": {
         borderColor: theme.palette.common.white,
         borderRadius: 6,
@@ -55,7 +52,7 @@ const PanelCardStyled = styled(Card)(({theme}) => ({
             boxShadow: theme.customShadows.documentButton,
         }
     },
-    "& .document-card-image":{
+    "& .document-card-image": {
         border: `1px solid ${theme.palette.grey['A300']}`,
         cursor: "pointer"
     },

@@ -1,21 +1,23 @@
 import React, {useCallback, useEffect, useRef, useState,} from "react";
 import RootStyled from "./overrides/rootStyled";
 import {
-    Chip,
     AppBar,
     Avatar,
     Box,
     Card,
     CardActions,
     CardContent,
+    Chip,
     IconButton,
     Link,
     List,
     ListItem,
+    Skeleton,
     Stack,
     Toolbar,
     Typography,
-    useTheme, useMediaQuery, Skeleton,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
@@ -25,24 +27,23 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, openDrawer} from "@features/calendar";
-
+import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
 import {Dialog, openDrawer as DialogOpenDrawer, QrCodeDialog, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
-import {getBirthdayFormat} from "@lib/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {Label} from "@features/label";
 import {DefaultCountry, MobileContainer} from "@lib/constants";
-import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
+import {setMessage, setOpenChat} from "@features/chat/actions";
+import {startCase} from "lodash";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {useRequestQueryMutation} from "@lib/axios";
 
 function AppointmentDetail({...props}) {
     const {
@@ -69,6 +70,7 @@ function AppointmentDetail({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const {direction} = useAppSelector(configSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
@@ -78,18 +80,22 @@ function AppointmentDetail({...props}) {
 
     const {t, ready} = useTranslation(["common", "agenda"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-
     const {patientPhoto, mutatePatientPhoto} = useProfilePhoto({
         patientId: appointment?.extendedProps?.patient?.uuid,
         hasPhoto: appointment?.extendedProps?.patient?.hasPhoto
     });
 
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {trigger} = useRequestQueryMutation("/payment/cashbox");
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [canManageActions] = useState<boolean>(![
         "/dashboard/patient",
         "/dashboard/waiting-room",
-        "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
+        "/dashboard/consultation/[...uuid-consultation]"].includes(router.pathname));
     const [loading, setLoading] = useState(false);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 
     const setAppointmentDate = (action: string) => {
         const newDate = moment(appointment?.extendedProps.time);
@@ -152,7 +158,7 @@ function AppointmentDetail({...props}) {
                                 <Chip
                                     color="error"
                                     label={t(error)}
-                                    icon={<ReportProblemRoundedIcon sx={{width: 16, height: 16}}/>}/>
+                                    icon={<ReportProblemRoundedIcon sx={{width: 20, height: 20}}/>}/>
                             </Stack>
                         )
                     )}
@@ -175,7 +181,8 @@ function AppointmentDetail({...props}) {
                                 sx={{width: "100%"}}
                                 justifyContent="space-between"
                                 alignItems="flex-start">
-                                <Stack sx={{width: "100%"}} spacing={2} direction="row" alignItems="flex-start">
+                                <Stack sx={{width: "100%"}} spacing={2} direction="row"
+                                       alignItems="flex-start" {...(!appointment?.extendedProps.patient.contact && {pb: .8})}>
                                     <Box position="relative">
                                         <Avatar
                                             src={
@@ -186,55 +193,22 @@ function AppointmentDetail({...props}) {
                                                         : "/static/icons/women-avatar.svg"
                                             }
                                             sx={{
-                                                "& .injected-svg": {
-                                                    margin: 0,
-                                                },
-                                                width: 51,
-                                                height: 51,
+                                                "& .injected-svg": {margin: 0},
+                                                width: 54,
+                                                height: 54,
                                                 borderRadius: 1,
-                                            }}
-                                        />
-                                        {/*                                       <IconButton
-                                            color="primary"
-                                            size="small"
-                                            className="add-photo"
-                                            component="label">
-                                            <input
-                                                hidden
-                                                accept="image/*"
-                                                type="file"
-                                                onChange={handleFileUpload}
-                                            />
-                                            <IconUrl path="ic-camera"/>
-                                        </IconButton>*/}
+                                            }}>
+                                            <IconUrl path="ic-image"/>
+                                        </Avatar>
                                     </Box>
                                     <Stack sx={{width: "100%"}}>
                                         <Typography
+                                            onClick={() => OnEditDetail(appointment)}
                                             className={"user-name"}
                                             variant="subtitle1"
                                             color="primary"
-                                            fontWeight={700}>
-                                            <Stack direction={"row"} justifyContent={"space-between"}>
-                                                <span>{appointment?.title}</span>
-                                                {(isBeta && (appointment?.extendedProps?.restAmount > 0 || appointment?.extendedProps?.restAmount < 0)) &&
-                                                    <Label
-                                                        variant='filled'
-                                                        sx={{
-                                                            "& .MuiSvgIcon-root": {
-                                                                width: 16,
-                                                                height: 16,
-                                                                pl: 0
-                                                            },
-                                                            color: theme.palette.error.main,
-                                                            background: theme.palette.error.lighter
-                                                        }}>
-                                                        <Typography
-                                                            sx={{
-                                                                fontSize: 10,
-                                                            }}>
-                                                            {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
-                                                    </Label>}
-                                            </Stack>
+                                            fontWeight={600}>
+                                            {startCase(appointment?.title)}
                                         </Typography>
                                         <List sx={{py: 1, pt: 0}}>
                                             {appointment?.extendedProps.patient?.birthdate && (
@@ -260,7 +234,7 @@ function AppointmentDetail({...props}) {
                                                     }}>
                                                     <Stack direction={"row"} alignItems={"center"}
                                                            justifyContent={"center"}>
-                                                        <IconUrl width={"16"} height={"16"} path="ic-message-contour"/>
+                                                        <IconUrl width={20} height={20} path="ic-message-contour"/>
                                                         <Link
                                                             underline="none"
                                                             href={`mailto:${appointment?.extendedProps.patient.email}`}
@@ -275,33 +249,69 @@ function AppointmentDetail({...props}) {
                                             )}
 
                                             <ListItem className={"appointment-text"}>
-                                                <IconUrl
-                                                    path="ic-tel-green-filled"
-                                                    className="ic-tell"
-                                                />
-                                                {appointment?.extendedProps.patient.contact?.length > 0 ?
-                                                    <Link
-                                                        underline="none"
-                                                        href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
-                                                        sx={{ml: 1, fontSize: 12}}
-                                                        variant="caption"
-                                                        color="text.primary"
-                                                        fontWeight={400}>
-                                                        <Stack direction={"row"} alignItems={"center"}>
-                                                            {appointment?.extendedProps.patient.contact[0].value}
-                                                        </Stack>
-                                                    </Link>
-                                                    : <Skeleton sx={{ml: 1}} width={100} height={14} variant="rounded"/>
-                                                }
+                                                {appointment?.extendedProps.patient.contact?.map((contact: ContactModel, index: number) =>
+                                                    <Stack key={index} direction={"row"} mr={2} alignItems={"center"}>
+                                                        <IconUrl
+                                                            path={contact?.isWhatsapp ? "ic-whatsapp" : "ic-tel-green-filled"}
+                                                            className="ic-tell"
+                                                        />
+                                                        <Link
+                                                            underline="none"
+                                                            {...(contact?.isWhatsapp && {target: "_blank"})}
+                                                            href={`${contact?.isWhatsapp ? "https://wa.me/" : "tel:"}${contact.code}${contact.value}`}
+                                                            sx={{ml: 1, fontSize: 12}}
+                                                            variant="caption"
+                                                            color="text.primary"
+                                                            fontWeight={400}>
+                                                            <Stack direction={"row"} alignItems={"center"}>
+                                                                {contact.code} {contact.value}
+                                                            </Stack>
+                                                        </Link>
+                                                    </Stack>
+                                                )}
+                                                {loading &&
+                                                    <Skeleton sx={{ml: 1}} width={100} height={14} variant="rounded"/>}
                                             </ListItem>
                                         </List>
                                     </Stack>
                                 </Stack>
-                                {(canManageActions && OnEditDetail && !appointment?.extendedProps.patient?.isArchived) &&
-                                    <IconButton className={"edit-button"} size="small"
-                                                onClick={() => OnEditDetail(appointment)}>
-                                        <IconUrl path="ic-duotone"/>
-                                    </IconButton>}
+                                <Stack spacing={1} pb={1}>
+                                    {(canManageActions && OnEditDetail && !appointment?.extendedProps.patient?.isArchived) &&
+                                        <Stack direction={"row"} alignItems={"center"} spacing={1.2}
+                                               justifyContent={"flex-end"}>
+                                            <IconButton className={"edit-button"} size="small"
+                                                        onClick={() => {
+                                                            dispatch(setOpenChat(true))
+                                                            dispatch(setMessage(`&lt; <span class="tag" id="${appointment?.extendedProps.patient?.uuid}">${appointment?.extendedProps.patient?.firstName} ${appointment?.extendedProps.patient?.lastName} </span><span class="afterTag">> </span>`))
+                                                        }}>
+                                                <IconUrl path={"chat"} color={theme.palette.text.secondary} width={20}
+                                                         height={20}/>
+                                            </IconButton>
+                                            <IconButton className={"btn-edit"} size="small"
+                                                        onClick={() => OnEditDetail(appointment)}>
+                                                <IconUrl width={16} height={16} color={theme.palette.text.secondary}
+                                                         path="ic-edit-patient"/>
+                                            </IconButton>
+                                        </Stack>}
+                                    {(isBeta && (appointment?.extendedProps?.restAmount > 0 || appointment?.extendedProps?.restAmount < 0)) &&
+                                        <Label
+                                            variant='filled'
+                                            sx={{
+                                                "& .MuiSvgIcon-root": {
+                                                    width: 20,
+                                                    height: 20,
+                                                    pl: 0
+                                                },
+                                                color: theme.palette.error.main,
+                                                background: theme.palette.error.lighter
+                                            }}>
+                                            <Typography onClick={() => setOpenPaymentDialog(true)}
+                                                        sx={{
+                                                            fontSize: 10,
+                                                        }}>
+                                                {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
+                                        </Label>}
+                                </Stack>
                             </Stack>
 
                             {(!roles.includes("ROLE_SECRETARY") && canManageActions && (OnConsultationView || OnConsultation)) && (
@@ -359,17 +369,19 @@ function AppointmentDetail({...props}) {
                                 <>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         onClick={() => {
                                             OnUploadDocuments(appointment);
                                         }}
                                         color={"secondary"}
                                         fullWidth
                                         variant="contained"
-                                        startIcon={<UploadFileOutlinedIcon/>}>
+                                        startIcon={<IconUrl path={"fileadd"} width={18} height={18} color={"white"}/>}>
                                         {t("import_document")}
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         sx={{
                                             display:
                                                 appointment?.extendedProps.status.key !== "PENDING"
@@ -387,6 +399,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         onClick={() => OnWaiting(appointment)}
                                         sx={{
                                             display:
@@ -407,6 +420,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         onClick={() => OnLeaveWaiting(appointment)}
                                         sx={{
                                             display:
@@ -425,6 +439,7 @@ function AppointmentDetail({...props}) {
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         sx={{
                                             display:
                                                 moment().isBefore(appointment?.extendedProps.time) ||
@@ -437,12 +452,13 @@ function AppointmentDetail({...props}) {
                                         fullWidth
                                         variant="contained"
                                         startIcon={
-                                            <IconUrl width={"16"} height={"16"} path="ic-user1"/>
+                                            <IconUrl width={18} height={18} path="ic-user1"/>
                                         }>
                                         {t("event.missPatient")}
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         sx={{
                                             display:
                                                 appointment?.extendedProps.status.key !== "FINISHED"
@@ -453,12 +469,13 @@ function AppointmentDetail({...props}) {
                                         fullWidth
                                         variant="contained"
                                         startIcon={
-                                            <IconUrl width={"16"} height={"16"} path="ic-agenda"/>
+                                            <IconUrl width={18} height={18} path="ic-agenda"/>
                                         }>
                                         {t("event.reschedule")}
                                     </LoadingButton>
                                     <LoadingButton
                                         {...{loading}}
+                                        loadingPosition="start"
                                         sx={{
                                             display:
                                                 moment().isAfter(appointment?.extendedProps.time) ||
@@ -475,6 +492,7 @@ function AppointmentDetail({...props}) {
                                 </>}
                             <LoadingButton
                                 {...{loading}}
+                                loadingPosition="start"
                                 onClick={() => SetCancelDialog(true)}
                                 fullWidth
                                 variant="contained-white"
@@ -485,13 +503,13 @@ function AppointmentDetail({...props}) {
                                             ? "none"
                                             : "flex",
                                     "& svg": {
-                                        width: 16,
-                                        height: 16,
+                                        width: 18,
+                                        height: 18,
                                     },
                                 }}
                                 startIcon={
                                     <IconUrl
-                                        path="icdelete"
+                                        path="ic-trash"
                                         color={
                                             ["CANCELED", "PATIENT_CANCELED"].includes(appointment?.extendedProps.status.key)
                                                 ? "white"
@@ -503,6 +521,7 @@ function AppointmentDetail({...props}) {
                             </LoadingButton>
                             <LoadingButton
                                 {...{loading}}
+                                loadingPosition="start"
                                 onClick={() => SetDeleteDialog(true)}
                                 sx={{
                                     display:
@@ -529,6 +548,46 @@ function AppointmentDetail({...props}) {
                 direction={"ltr"}
                 title={t("qr_title")}
                 dialogClose={handleCloseDialog}
+            />
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient: appointment?.extendedProps.patient,
+                    setOpenPaymentDialog,
+                    mutatePatient: () => {
+                        trigger({
+                                method: "GET",
+                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${appointment?.extendedProps.patient?.uuid}/wallet/${router.locale}`
+                            },
+                            {
+                                onSuccess: (res) => {
+                                    let _appointment: any = {
+                                        ...appointment,
+                                        extendedProps: {
+                                            ...appointment?.extendedProps,
+                                            restAmount: res.data.data.rest_amount
+                                        }
+                                    }
+                                    dispatch(setSelectedEvent(_appointment));
+                                },
+                            }
+                        );
+                    }
+                }}
+                size={"lg"}
+                fullWidth
+                title={t("payment_dialog_title", {ns: "payment"})}
+                dialogClose={() => {
+                    setOpenPaymentDialog(false)
+                }}
             />
         </RootStyled>
     );

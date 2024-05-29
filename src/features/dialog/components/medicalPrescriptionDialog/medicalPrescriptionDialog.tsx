@@ -161,8 +161,8 @@ function MedicalPrescriptionDialog({...props}) {
         lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) => {
             last.push({
                 cycles: drug.cycles,
-                drugUuid: drug.standard_drug.uuid,
-                name: drug.standard_drug.commercial_name
+                drugUuid: drug.standard_drug?.uuid,
+                name: drug.drugName
             });
         })
         setDrugs([...last]);
@@ -335,7 +335,7 @@ function MedicalPrescriptionDialog({...props}) {
                                                                             if (ev.target.value.length >= 2) {
                                                                                 triggerDrugsGet({
                                                                                     method: "GET",
-                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value
+                                                                                    url: "/api/private/drugs/" + router.locale + '?name=' + ev.target.value
                                                                                 }, {
                                                                                     onSuccess: (cnx) => cnx?.data && setDrugsList((cnx?.data as HttpResponse)?.data ?? [])
                                                                                 })

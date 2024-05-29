@@ -1,6 +1,5 @@
 import {TableRowStyled} from "@features/table";
 import React from "react";
-
 import TableCell from "@mui/material/TableCell";
 import {Typography, Box, Skeleton, Stack, Checkbox, IconButton} from "@mui/material";
 import Switch from "@mui/material/Switch";
@@ -8,13 +7,14 @@ import IconUrl from "@themes/urlIcon";
 import {uniqueId} from "lodash";
 
 function AgendaRow({...props}) {
-    const {row, handleChange, handleConfig, edit, t} = props;
+    const {row, handleChange} = props;
+
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
                 {row ? (
                     <Typography className="name" variant="body1" color="text.primary">
-                        {row.name}
+                        {row.agenda.name}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
@@ -23,7 +23,7 @@ function AgendaRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Typography className="name" variant="body1" color="text.primary">
-                        {row.type}
+                        {row.agenda.type}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100} sx={{m: "auto"}}/>
@@ -32,8 +32,8 @@ function AgendaRow({...props}) {
             <TableCell align="center">
                 <Switch
                     name="isAutoConfirm"
-                    onChange={(e) => handleChange(row, "isAutoConfirm", "")}
-                    checked={row.isAutoConfirm}
+                    onChange={() => handleChange(row, "isAutoConfirm", "")}
+                    checked={row.agenda.isAutoConfirm}
                 />
             </TableCell>
 
@@ -41,8 +41,8 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Checkbox
                         name="isDefault"
-                        onChange={(e) => handleChange(row, "isDefault", "")}
-                        checked={row.isDefault}
+                        onChange={() => handleChange(row, "isDefault", "")}
+                        checked={row.agenda.isDefault}
                     />
                 ) : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
@@ -53,8 +53,8 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Switch
                         name="isActive"
-                        onChange={(e) => handleChange(row, "isActive", "")}
-                        checked={row.isActive}
+                        onChange={() => handleChange(row, "isActive", "")}
+                        checked={row.agenda.isActive}
                     />
                 ) : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
@@ -66,8 +66,8 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Switch
                         name="isPublic"
-                        onChange={(e) => handleChange(row, "isPublic", "")}
-                        checked={row.isPublic}
+                        onChange={() => handleChange(row, "isPublic", "")}
+                        checked={row.agenda.isPublic}
                     />
                 ) : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>

@@ -1,6 +1,5 @@
 import React from "react";
-import {Box, MenuItem, Button, Typography} from "@mui/material";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import {Box, MenuItem, Button, Typography, useTheme} from "@mui/material";
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddIcon from "@mui/icons-material/Add";
 import {StyledMenu} from "@features/buttons";
@@ -9,7 +8,7 @@ function ModelSwitchButton({...props}) {
     const {onClickEvent, t, editModel, lastPrescriptions, drugs, ...rest} = props;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-
+    const theme = useTheme();
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -36,12 +35,12 @@ function ModelSwitchButton({...props}) {
                 }
             }}>
             <Button
-            sx={{
-                ".MuiButton-startIcon":{
-                    mr:{xs:0,md:1},
-                    ml:{xs:0,md:-0.5}
-                }
-            }}
+                sx={{
+                    ".MuiButton-startIcon": {
+                        mr: {xs: 0, md: 1},
+                        ml: {xs: 0, md: -0.5}
+                    }
+                }}
                 {...rest}
                 id="switch-button"
                 aria-controls={open ? 'switch-button' : undefined}
@@ -51,7 +50,7 @@ function ModelSwitchButton({...props}) {
                 disableElevation
                 onClick={handleClick}
                 startIcon={<AddIcon/>}>
-                <Typography display={{xs:'none',md:'block'}}>{t('add_model')}</Typography>
+                <Typography display={{xs: 'none', md: 'block'}}>{t('add_model')}</Typography>
             </Button>
             <StyledMenu
                 id="switch-button"
@@ -76,7 +75,7 @@ function ModelSwitchButton({...props}) {
                                 display: 'block',
                                 position: 'absolute',
                                 top: 0,
-                                right: 30,
+                                right: theme.direction === 'rtl' ? "calc(100% - 30px)" : 30,
                                 width: 10,
                                 height: 10,
                                 bgcolor: 'background.paper',
@@ -88,8 +87,7 @@ function ModelSwitchButton({...props}) {
                 }}
                 anchorEl={anchorEl}
                 open={open}
-                onClose={handleClose}
-            >
+                onClose={handleClose}>
                 {lastPrescriptions.length > 0 && <MenuItem onClick={handleSetLastPrescription} disableRipple>
                     <FastForwardOutlinedIcon/>
                     {t("last_prescription")}

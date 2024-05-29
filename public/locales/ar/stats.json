@@ -1,3 +1,22 @@
 {
-  
+  "sub-header": {
+    "title": "الإحصائيات"
+  },
+  "filter": {
+    "title": "الفلتر"
+  },
+  "agenda-view": {
+    "day": "يوم",
+    "week": "أسبوع",
+    "month": "شهر"
+  },
+  "see-more": "رؤية المزيد",
+  "see-less": "رؤية أقل",
+  "activity": "النشاط",
+  "patients": "المرضى",
+  "new-patients": "المرضى الجدد",
+  "appointments": "المواعيد",
+  "new-appointments": "مواعيد جديدة",
+  "Reason": "السبب حسب الاستشارات",
+  "act": "الفعالية حسب الاستشارات"
 }

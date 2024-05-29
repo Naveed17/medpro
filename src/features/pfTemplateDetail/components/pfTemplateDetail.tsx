@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import {Form, FormikProvider, useFormik} from "formik";
+import { Form, FormikProvider, useFormik } from "formik";
 import {
     Box,
     Button,
@@ -11,22 +11,23 @@ import {
     Stack,
     TextField,
     Typography,
+    useTheme
 } from "@mui/material";
-import {styled} from "@mui/material/styles";
-import React, {useEffect, useState} from "react";
-import {useTranslation} from "next-i18next";
-import {ModelDot} from "@features/modelDot";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
+import { styled } from "@mui/material/styles";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "next-i18next";
+import { ModelDot } from "@features/modelDot";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingScreen } from "@features/loadingScreen";
 
-import {useInvalidateQueries, useMedicalProfessionalSuffix} from "@lib/hooks";
+import { useInvalidateQueries, useMedicalProfessionalSuffix } from "@lib/hooks";
 import ReactDOM from "react-dom/client";
-import {SearchInput} from "@features/input";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import { SearchInput } from "@features/input";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -35,7 +36,7 @@ const FormBuilder: any = dynamic(
     }
 );
 
-const PaperStyled = styled(Form)(({theme}) => ({
+const PaperStyled = styled(Form)(({ theme }) => ({
     backgroundColor: "#F0F7FA",
     borderRadius: 0,
     minWidth: "650px",
@@ -75,13 +76,13 @@ const PaperStyled = styled(Form)(({theme}) => ({
     },
 }));
 
-function PfTemplateDetail({...props}) {
-    const {data, closeDraw, action, mutate} = props
+function PfTemplateDetail({ ...props }) {
+    const { data, closeDraw, action, mutate } = props
     const router = useRouter();
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-
-    const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
+    const { urlMedicalProfessionalSuffix } = useMedicalProfessionalSuffix();
+    const { trigger: invalidateQueries } = useInvalidateQueries();
+    const theme = useTheme()
+    const { t, ready } = useTranslation("settings", { keyPrefix: "templates.config.dialog" });
 
     const colors = [
         "#FEBD15",
@@ -101,9 +102,9 @@ function PfTemplateDetail({...props}) {
     const [components, setComponents] = useState<any[]>([]);
     const initalData = Array.from(new Array(4));
 
-    const {trigger: triggerModalRequest} = useRequestQueryMutation("/settings/pfTemplateDetails");
+    const { trigger: triggerModalRequest } = useRequestQueryMutation("/settings/pfTemplateDetails");
 
-    const {data: jsonWidgetsResponse} = useRequestQuery({
+    const { data: jsonWidgetsResponse } = useRequestQuery({
         method: "GET",
         url: `/api/private/json-widgets/specialities/${router.locale}`
     }, ReactQueryNoValidateConfig);
@@ -120,7 +121,7 @@ function PfTemplateDetail({...props}) {
                     const component = widgets.find((elm: SpecialtyJsonWidgetModel) => elm.uuid === comp.key);
                     const filteredData = component?.jsonWidgets.filter((widget: any) =>
                         comp.components.findIndex((param: any) => param.key == widget.structure[0].key) !== -1);
-                    wdg.push({...component, jsonWidgets: filteredData});
+                    wdg.push({ ...component, jsonWidgets: filteredData });
                 });
                 setWidget([...wdg]);
                 setTimeout(() => {
@@ -130,7 +131,7 @@ function PfTemplateDetail({...props}) {
                         const root = ReactDOM.createRoot(adultTeeth);
                         root.render(
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={'/static/img/adultTeeth.svg'} alt={"adult teeth"}/>
+                            <img src={'/static/img/adultTeeth.svg'} alt={"adult teeth"} />
                         );
                     }
                     if (childTeeth) {
@@ -138,7 +139,7 @@ function PfTemplateDetail({...props}) {
                         root.render(
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={`/static/img/${router.locale == 'fr' ? 'childTeeth' : 'childTeethEN'}.svg`}
-                                 alt={"child teeth"}/>
+                                alt={"child teeth"} />
                         );
                     }
                 }, 2000)
@@ -208,7 +209,7 @@ function PfTemplateDetail({...props}) {
         if (child !== null) {
             if (ev) {
                 if (index === -1) {
-                    setWidget([...widget, {...parent, jsonWidgets: [child]}]);
+                    setWidget([...widget, { ...parent, jsonWidgets: [child] }]);
                 } else {
                     widget[index].jsonWidgets = [...widget[index].jsonWidgets, child];
                     setWidget([...widget]);
@@ -232,7 +233,7 @@ function PfTemplateDetail({...props}) {
             }
         } else {
             index === -1
-                ? setWidget([...widget, {...parent}])
+                ? setWidget([...widget, { ...parent }])
                 : setWidget([
                     ...widget.slice(0, index),
                     ...widget.slice(index + 1, widget.length),
@@ -266,17 +267,17 @@ function PfTemplateDetail({...props}) {
             let filtered: SpecialtyJsonWidgetModel[] = [];
             sections.map(section => {
                 const searchedData = section.jsonWidgets.filter(widget => widget.label.toLowerCase().includes(event.target.value.toLowerCase()));
-                searchedData.length > 0 && filtered.push({...section, jsonWidgets: searchedData});
+                searchedData.length > 0 && filtered.push({ ...section, jsonWidgets: searchedData });
             })
             sectionUpdated = filtered;
         }
         setSections(sectionUpdated);
     };
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"} />);
 
     return (
-        <Box style={{background: "black"}}>
+        <Box style={{ background: "black" }}>
             {action === "see" && (
                 <FormikProvider value={formik}>
                     <PaperStyled
@@ -284,11 +285,18 @@ function PfTemplateDetail({...props}) {
                         noValidate
                         className="root"
                         onSubmit={handleSubmit}>
-                        <Stack spacing={2} direction="row" sx={{marginBottom: "2rem"}}>
+                        <Stack spacing={2} direction="row" sx={{ marginBottom: "2rem" }}>
                             <ModelDot
                                 key={modelColor}
                                 color={modelColor}
-                                selected={false}></ModelDot>
+                                selected={false}
+                                {...(theme.direction === "rtl" && {
+                                    style: {
+                                        marginRight: 8
+                                    }
+                                })}
+
+                            ></ModelDot>
                             <Typography variant="h6" gutterBottom>
                                 {t("title") + data.label}
                             </Typography>
@@ -349,11 +357,21 @@ function PfTemplateDetail({...props}) {
                                             {t("selectColor")}
                                         </Typography>
 
-                                        <Stack spacing={1} direction={"row"}>
+                                        <Stack spacing={1} direction={"row"} overflow="auto" sx={{
+                                            "@media (max-width: 380px)": {
+                                                p: 1,
+
+                                            }
+                                        }}>
                                             {colors.map((color) => (
                                                 <ModelDot
                                                     key={color}
                                                     color={color}
+                                                    {...(theme.direction === "rtl" && {
+                                                        style: {
+                                                            marginRight: 8
+                                                        }
+                                                    })}
                                                     onClick={() => {
                                                         setModelColor(color);
                                                     }}
@@ -364,8 +382,6 @@ function PfTemplateDetail({...props}) {
                                 </Stack>
                             </CardContent>
                         </Card>
-
-
                         <Typography
                             variant="body1"
                             fontWeight={400}
@@ -373,9 +389,15 @@ function PfTemplateDetail({...props}) {
                             gutterBottom>
                             {t("info")}
                         </Typography>
-
-                        <SearchInput onChange={handleSearchInput}/>
-
+                        <Box sx={{
+                            "& > div": {
+                                "@media (max-width: 500px)": {
+                                    mx: 0,
+                                }
+                            }
+                        }}>
+                            <SearchInput onChange={handleSearchInput} />
+                        </Box>
 
                         <Card>
                             <CardContent>
@@ -399,8 +421,8 @@ function PfTemplateDetail({...props}) {
                                                         alignItems: "center",
                                                         margin: "0 5px",
                                                     }}>
-                                                    <Checkbox size="small"/>
-                                                    <Skeleton width={180} variant="text"/>
+                                                    <Checkbox size="small" />
+                                                    <Skeleton width={180} variant="text" />
                                                 </Box>
                                             ))
                                             : sections.map(
@@ -433,7 +455,7 @@ function PfTemplateDetail({...props}) {
                                                         in={open.find((i: string) => i == section.uuid) !== undefined}>*/}
                                                         <Card
                                                             sx={{
-                                                                width: {xs: "100%", md: "50%"},
+                                                                width: { xs: "100%", md: "50%" },
                                                                 margin: 0.5,
                                                             }}>
                                                             <CardContent>
@@ -445,9 +467,9 @@ function PfTemplateDetail({...props}) {
                                                                                 uuid: string
                                                                             }) =>
                                                                                 i.uuid == section.uuid)?.jsonWidgets.find((j: {
-                                                                                uuid: string
-                                                                            }) =>
-                                                                                j.uuid == jw.uuid) !== undefined}
+                                                                                    uuid: string
+                                                                                }) =>
+                                                                                    j.uuid == jw.uuid) !== undefined}
                                                                             onChange={(v: any) =>
                                                                                 handleWidgetCheck(v, section, jw)
                                                                             }
@@ -479,7 +501,7 @@ function PfTemplateDetail({...props}) {
                             </CardContent>
                         </Card>*/}
 
-                        <div style={{height: 70}}></div>
+                        <div style={{ height: 70 }}></div>
 
                         <Stack
                             className="bottom-section"

@@ -1,0 +1,1 @@
+export {default as RdvRequestCard} from './rdvRequestCard'

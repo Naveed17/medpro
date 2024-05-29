@@ -1,7 +1,8 @@
 // material
-import {Chip, Skeleton, Button, Badge, Typography} from "@mui/material";
+import {Chip, Skeleton, Button, Badge, Typography, useTheme} from "@mui/material";
 // styles
 import {RootStyled} from "./overrides";
+import {alpha, PaletteColor} from "@mui/material/styles";
 
 export default function TimeSlot({...props}) {
     const {
@@ -18,6 +19,7 @@ export default function TimeSlot({...props}) {
         OnShowMore,
         ...rest
     } = props;
+    const theme = useTheme();
 
     return (
         <RootStyled
@@ -52,7 +54,7 @@ export default function TimeSlot({...props}) {
                                }}
                                badgeContent={item.appointments}
                                invisible={item.appointments === 0}
-                               color="primary">
+                               color="error">
                             <Chip
                                 {...rest}
                                 className={value === item.start ? "active" : ""}
@@ -61,6 +63,10 @@ export default function TimeSlot({...props}) {
                                 label={item.start}
                                 sx={{
                                     mb: "8px !important",
+                                    ...(item.appointments > 0 && {
+                                        color: (theme?.palette["error"] as PaletteColor)["light"],
+                                        backgroundColor: alpha((theme?.palette["error" as keyof typeof theme.palette] as PaletteColor).main, 0.16),
+                                    })
                                 }}
                             />
                         </Badge>)

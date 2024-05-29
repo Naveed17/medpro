@@ -1,20 +1,20 @@
 {
   "steppers": {
     "tabs": {
-      "tab-1": "Personal Information",
+      "tab-1": "Information",
       "tab-2": "Attach Document",
-      "tab-3": "Procedures",
+      "tab-3": "Acts",
       "tab-4": "Office"
     },
     "stepper-0": {
-      "title": "Set up my profile",
+      "title": "Configure My Profile",
       "sub-title": "Personal Information",
-      "info": "You are?",
+      "info": "Who are you?",
       "cancel": "Cancel",
       "next": "Next",
-      "genre": {
-        "man": "Man",
-        "women": "Woman"
+      "gender": {
+        "man": "Male",
+        "women": "Female"
       },
       "pseudo": "Title",
       "firstname": "First Name",
@@ -31,20 +31,20 @@
       "title": "Attach Document",
       "sub-title": "Diplomas and Qualifications",
       "desc": "For security reasons and to ensure the relevance of data on our platform, we ask you to send us a photo of your stamped professional card or your authorization to practice.",
-      "upload": "Attach a document"
+      "upload": "Attach Document"
     },
     "stepper-2": {
-      "title": "Procedures",
-      "sub-title": "Please select your primary procedures and secondary procedures in order of importance",
-      "main": "Your primary procedures",
-      "second": "Your secondary procedures",
-      "length": "Max 10 Procedures",
-      "typing": "Start typing to search for procedures",
-      "suggestion": "Suggested procedures"
+      "title": "Acts",
+      "sub-title": "Please select your main and secondary acts in order of importance",
+      "main": "Your Main Acts",
+      "second": "Your Secondary Acts",
+      "length": "Max 10 Acts",
+      "typing": "Start typing to search for acts",
+      "suggestion": "Suggested acts"
     },
     "stepper-3": {
       "title": "Office",
-      "lieu":{
+      "location": {
         "title": "Location",
         "establishment": "Establishment Name",
         "address": "Address",
@@ -52,25 +52,25 @@
         "city": "City",
         "typing": "Start typing"
       },
-      "info":{
+      "info": {
         "title": "Practical Information",
         "establishment": "Office Number",
-        "hide": "Hide",
-        "add": "Add a number",
+        "hide": "Hidden",
+        "add": "Add a Number",
         "typing": ""
       },
-      "info-sup":{
+      "info-sup": {
         "title": "Practical Information",
         "establishment": "Access Information",
-        "typing": "Type the information here"
+        "typing": "Type information here"
       }
     },
     "check-status": {
       "title": "Welcome to Med.tn",
-      "desc": "Welcome to Med, the #1 medical platform in Africa. Our team will contact you to validate your account. For security reasons and to ensure the relevance of data on our platform.",
-      "contact": "For more information, please contact us via:",
+      "desc": "We welcome you to Med, the #1 medical platform in Africa. Our team will contact you to validate your account. For security reasons and to ensure the relevance of data on our platform.",
+      "contact": "For more information, please contact us at:",
       "phone": "Phone",
-      "email": "Email",
+      "email": "E-mail",
       "edit-data": "to modify your data",
       "accept": "Access the site"
     },

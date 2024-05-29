@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import StaffRow from "@features/table/components/rows/staffRow";
 
 const rowsActionsData = [
     {
@@ -103,6 +104,18 @@ const rowsActionsData = [
         ),
     },
     {
+        action: "doctors",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/doctorRow").then((mod) => mod)
+        ),
+    },
+    {
+        action: "staff",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/staffRow").then((mod) => mod)
+        ),
+    },
+    {
         action: "instructions",
         component: dynamic((): any =>
             import("@features/table/components/rows/instructionRow").then(
@@ -189,7 +202,7 @@ const rowsActionsData = [
             )
         ),
     },
-     {
+    {
         action: "paid-consultation",
         component: dynamic((): any =>
             import("@features/table/components/rows/paidConsultRow").then(
@@ -197,6 +210,70 @@ const rowsActionsData = [
             )
         ),
     },
+    {
+        action: "analysis",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/analysisRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "drugs",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/drugsRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "profile",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/profileRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "medical-imaging",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/medicalImagingRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "actfees-collapse",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/actsFeesCollapseRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+     {
+        action: "rest-pass",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/restPassRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "billing-history",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/billingHishtoryRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "department",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/departmentRow").then(
+                (mod) => mod
+            )
+        ),
+    }
 ];
 
 export default rowsActionsData;

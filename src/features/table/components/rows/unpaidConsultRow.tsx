@@ -42,9 +42,7 @@ function UnpaidConsultRow({...props}) {
                 <Stack
                     direction="row"
                     alignItems="center"
-                    onClick={() => {
-                        router.replace(`/dashboard/consultation/${row.uuid}`)
-                    }}
+                    onClick={() => router.replace(`/dashboard/consultation/${row.uuid}`)}
                     spacing={.5}>
                     <Icon path="ic-agenda-jour" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography variant="body2" fontSize={13}
@@ -59,6 +57,10 @@ function UnpaidConsultRow({...props}) {
                         sx={{cursor: "pointer"}}
                         variant="body2">{row.startTime}</Typography>
                 </Stack>
+            </TableCell>
+            {/***** consultation type *****/}
+            <TableCell onClick={() => router.replace(`/dashboard/consultation/${row.uuid}`)}>
+                <Typography color={"primary"} fontSize={13} fontWeight={600}>{row.type.name}</Typography>
             </TableCell>
             {/***** patient name *****/}
             {!hideName && <TableCell>
@@ -78,13 +80,13 @@ function UnpaidConsultRow({...props}) {
             </TableCell>}
             {/***** Insurances *****/}
             <TableCell>
-                <Stack direction={"row"} justifyContent={"center"}>
+                <Stack direction={"row"} justifyContent={"center"} spacing={-1}>
                     {
-                        !!row.patient.insurances.length ? row.patient.insurances.map((insurance: any) => (
+                        !!row.patient.insurances.length ? row.patient.insurances.map((insurance: any,index:number) => (
                             <Tooltip
-                                key={insurance.uuid + "ins"}
+                                key={`${insurance.uuid}-ins${index}`}
                                 title={insurance.name}>
-                                <Avatar variant={"circular"} sx={{width: 30, height: 30}}>
+                                <Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
                                     <ImageHandler
                                         alt={insurance?.name}
                                         src={insurances.find(ins => ins.uuid === insurance?.uuid)?.logoUrl.url}
@@ -98,13 +100,15 @@ function UnpaidConsultRow({...props}) {
             {/* status */}
             <TableCell>
                 <Label
-                    color={row.appointmentRestAmount == 0 ? "success" : _fees - row.appointmentRestAmount === 0 ? "error" : "warning"}>
-                    {t(row.appointmentRestAmount == 0 ? "paid" : _fees - row.appointmentRestAmount === 0 ? "unpaid" : "partially")}
+                    color={_fees == 0 ? "primary":row.appointmentRestAmount == 0 ? "success" : _fees - row.appointmentRestAmount === 0 ? "error" : "warning"}>
+                    {t(_fees == 0 ? "free":row.appointmentRestAmount == 0 ? "paid" : _fees - row.appointmentRestAmount === 0 ? "unpaid" : "partially")}
                 </Label>
             </TableCell>
             {/***** Total *****/}
             <TableCell align={"center"}>
-                <Typography color='secondary' fontWeight={700}>
+                <Typography color='secondary'
+                            onClick={() => router.replace(`/dashboard/consultation/${row.uuid}?tab=medical_procedures`)}
+                            fontWeight={700}>
                     {_fees} {devise}
                 </Typography>
             </TableCell>

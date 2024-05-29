@@ -38,6 +38,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import Can from "@features/casl/can";
 
 const PatientDetail = dynamic(
     () =>
@@ -54,6 +55,14 @@ const headImportDataCells = [
         disablePadding: true,
         label: "name",
         align: "left",
+        sortable: true,
+    },
+    {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "type",
+        align: "center",
         sortable: true,
     },
     {
@@ -97,7 +106,7 @@ function Data() {
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const {trigger: triggerDeleteImportData} = useRequestQueryMutation("/import/data/delete");
 
@@ -162,6 +171,27 @@ function Data() {
         });
     };
 
+    const handleExportData = () => {
+        setLoading(true);
+        const params = new FormData();
+        params.append("type", "1");
+        params.append("method", "");
+
+        triggerDeleteImportData({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: (value) => {
+                if ((value?.data as any).status === "success") {
+                    mutateImportData();
+                    enqueueSnackbar(t(`alert.export`), {variant: "success"});
+                }
+                setLoading(false);
+            }
+        });
+    };
+
     useEffect(() => {
         if (importData) {
             dispatch(
@@ -172,6 +202,11 @@ function Data() {
             );
         }
     }, [dispatch, importData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready)
         return (
@@ -190,22 +225,39 @@ function Data() {
                     width={1}
                     alignItems="center">
                     <Typography>{t("path")}</Typography>
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center">
+                        <Can I={"manage"} a={"settings"} field={"settings__data__import"}>
+                            {(process.env.NODE_ENV === "development" ||
+                                (importData &&
+                                    (importData.list.length === 0 ||
+                                        (importData.list.length > 0 &&
+                                            importData.list[0].status === 3)))) && (
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    onClick={() => {
+                                        router.push("/dashboard/settings/data/import");
+                                    }}
+                                    color="success">
+                                    {t("add")}
+                                </Button>
+                            )}
+                        </Can>
 
-                    {(process.env.NODE_ENV === "development" ||
-                        (importData &&
-                            (importData.list.length === 0 ||
-                                (importData.list.length > 0 &&
-                                    importData.list[0].status === 3)))) && (
-                        <Button
+                        <LoadingButton
+                            disabled={importData?.list.findIndex(data => data?.type === 1) !== -1}
+                            {...{loading}}
+                            loadingPosition={"start"}
                             type="submit"
                             variant="contained"
-                            onClick={() => {
-                                router.push("/dashboard/settings/data/import");
-                            }}
-                            color="success">
-                            {t("add")}
-                        </Button>
-                    )}
+                            onClick={handleExportData}
+                            color="primary">
+                            {t("export")}
+                        </LoadingButton>
+                    </Stack>
                 </Stack>
             </SubHeader>
             <Box className="container">
@@ -382,8 +434,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

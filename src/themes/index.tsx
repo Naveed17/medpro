@@ -1,6 +1,6 @@
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo} from "react";
 // material
-import {CssBaseline} from "@mui/material";
+import {CssBaseline, useTheme} from "@mui/material";
 import {
     createTheme,
     ThemeProvider
@@ -25,7 +25,7 @@ const poppins = Poppins({
     subsets: ['latin'],
     display: 'swap',
     variable: '--font-poppins',
-    weight: '400'
+    weight: ['400', '500', '600', '700']
 })
 
 type SupportedLocales = keyof typeof locales;
@@ -33,8 +33,9 @@ type SupportedLocales = keyof typeof locales;
 function ThemeConfig({children}: LayoutProps) {
     const {mode} = useAppSelector(configSelector);
     const router = useRouter();
+    const theme = useTheme();
     const lang: string | undefined = router.locale;
-    const [locale] = useState<SupportedLocales>(Localization(lang));
+    const locale: SupportedLocales = Localization(lang);
     const dir = lang === 'ar' ? 'rtl' : 'ltr';
     const dispatch = useAppDispatch();
 
@@ -73,9 +74,14 @@ function ThemeConfig({children}: LayoutProps) {
             shape: {
                 borderRadius: 6
             },
-        }, locales[locale]),
-        [dir, locale, mode],
-    );
+            breakpoints: {
+                values: {
+                    ...theme.breakpoints.values,
+                    xl: 1440
+                }
+            }
+        }, locales[locale]), [dir, locale, mode, theme]);
+
     themeWithLocale.components = componentsOverride(themeWithLocale);
 
     return (

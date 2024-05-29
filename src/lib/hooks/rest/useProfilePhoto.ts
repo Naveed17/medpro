@@ -17,7 +17,7 @@ function useProfilePhoto({...props}) {
         mutate: mutatePatientPhoto
     } = useRequestQuery((medicalEntityHasUser && hasPhoto && patientId) ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/profile-photo/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
 

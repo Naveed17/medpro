@@ -30,13 +30,13 @@ function PreConsultationDialog({...props}) {
 
     const {t} = useTranslation("consultation", {keyPrefix: "filter"});
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const { medicalEntityHasUser, medicalProfessionalData } = useAppSelector(dashLayoutSelector);
 
     const [insurances, setInsurances] = useState<InsuranceModel[]>([]);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
-        {index: 0, name: "prescription", icon: "ic-traitement", checked: false},
+        {index: 0, name: "prescription", icon: "docs/ic-prescription", checked: false},
         {
             index: 3,
             name: "requested-analysis",
@@ -54,10 +54,14 @@ function PreConsultationDialog({...props}) {
     const [isClose, setIsClose] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [acts, setActs] = useState<AppointmentActModel[]>([]);
 
-    const {data: httpSheetResponse} = useRequestQuery(medicalEntityHasUser && agenda && uuid ? {
+    const {
+        data: httpSheetResponse,
+        isLoading: isSheetLoading
+    } = useRequestQuery(medicalEntityHasUser && agenda && uuid ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
     const {data: httpModelResponse} = useRequestQuery(urlMedicalProfessionalSuffix ? {
@@ -83,6 +87,14 @@ function PreConsultationDialog({...props}) {
             setLoading(false);
         }
     }, [dispatch, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(()=>{
+        let _acts: AppointmentActModel[] = []
+        medicalProfessionalData && medicalProfessionalData.acts.map(act => {
+            _acts.push({ qte: 1, selected: false, ...act })
+        })
+        setActs(_acts)
+    },[medicalProfessionalData])
 
     return (
         <PreConsultationDialogStyled direction={"column"} spacing={1.2}>
@@ -172,22 +184,25 @@ function PreConsultationDialog({...props}) {
                 </Box>
             </Stack>
 
-            {(models && Array.isArray(models) && sheetModal && !loading && selectedModel) && <WidgetForm
-                {...{
-                    models,
-                    changes,
-                    setChanges,
-                    isClose,
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/data/${router.locale}`,
-                }}
-                expandButton={false}
-                modal={selectedModel}
-                data={sheetModal.data}
-                autoUpdate={false}
-                appuuid={uuid}
-                showToolbar={true}
-                setSM={setSelectedModel}
-                handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
+            {(!isSheetLoading && models && Array.isArray(models) && sheetModal && !loading && selectedModel) &&
+                <WidgetForm
+                    {...{
+                        models,
+                        changes,
+                        setChanges,
+                        isClose,
+                        acts,
+                        setActs,
+                        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/data/${router.locale}`,
+                    }}
+                    expandButton={false}
+                    modal={selectedModel}
+                    data={sheetModal.data}
+                    autoUpdate={false}
+                    appuuid={uuid}
+                    showToolbar={true}
+                    setSM={setSelectedModel}
+                    handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
         </PreConsultationDialogStyled>)
 }
 

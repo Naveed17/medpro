@@ -2,6 +2,11 @@ import {styled} from "@mui/material/styles";
 import {Card} from "@mui/material";
 
 const CardStyled = styled(Card)(({ theme }) => ({
+    "& .btn-edit": {
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: 8,
+        padding: theme.spacing(.8),
+    },
     '& .MuiList-root': {
         padding: 0,
         '& .MuiListItem-root': {

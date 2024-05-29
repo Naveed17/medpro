@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {lazy, ReactElement, Suspense, useEffect, useState,} from "react";
+import React, {KeyboardEvent, lazy, ReactElement, Suspense, useEffect, useRef, useState,} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Box,
@@ -10,8 +10,8 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Drawer,
-    Stack,
+    Drawer, FormControl, InputAdornment,
+    Stack, TextField,
     Theme,
     Typography,
     useMediaQuery,
@@ -33,6 +33,9 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import Can from "@features/casl/can";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import {debounce} from "lodash";
 
 const MotifListMobile = lazy(
     (): any => import("@features/card/components/motifListMobile/motifListMobile")
@@ -44,10 +47,11 @@ function Motif() {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
 
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -62,16 +66,17 @@ function Motif() {
         isEnabled: true,
     });
     const [selected, setSelected] = useState<null | any>();
+    const [searchName, setSearchName] = useState<null | any>(null);
 
     const {trigger: triggerMotifUpdate} = useRequestQueryMutation("/settings/motif/update");
     const {trigger: triggerMotifDelete} = useRequestQueryMutation("/settings/motif/delete");
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
+        ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true${searchName ? `&name=${searchName}` : ''}` : "?sort=true"}})
     });
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data?.list as ConsultationReasonModel[];
@@ -88,11 +93,11 @@ function Motif() {
         },
         {
             id: "duration",
-            numeric: false,
+            numeric: true,
             disablePadding: false,
             label: "duration",
             align: "left",
-            sortable: false,
+            sortable: true
         },
         {
             id: "isEnabled",
@@ -158,7 +163,7 @@ function Motif() {
 
         medicalEntityHasUser && triggerMotifUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${props.uuid}/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
@@ -195,7 +200,7 @@ function Motif() {
         setLoading(true);
         medicalEntityHasUser && triggerMotifDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});
@@ -222,6 +227,12 @@ function Motif() {
         }
     };
 
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setSearchName(event.target.value);
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 500);
+
     useEffect(() => {
         // Add scroll listener
         let promise = new Promise((resolve) => {
@@ -238,6 +249,11 @@ function Motif() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [httpConsultReasonResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        //reload resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -249,15 +265,45 @@ function Motif() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => {
-                            editMotif(null as any, "add");
-                        }}
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
+                    <Stack direction={"row"} alignItems={"center"} spacing={2}>
+                        <FormControl
+                            component="form"
+                            fullWidth
+                            onSubmit={e => e.preventDefault()}>
+                            <TextField
+                                className={'search-input'}
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        padding: 0,
+                                    }
+                                }}
+                                fullWidth
+                                {...{inputRef}}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment onClick={() => inputRef.current?.focus()}
+                                                        position="start">
+                                            <SearchRoundedIcon color={"white"}/>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                defaultValue={searchName ?? ""}
+                                onChange={(e) => debouncedOnChange(e)}
+                                placeholder={t(`search`)}
+                            />
+                        </FormControl>
+                        <Can I={"manage"} a={"settings"} field={"settings__motif__create"}>
+                            <Button
+                                variant="contained"
+                                color="success"
+                                onClick={() => {
+                                    editMotif(null as any, "add");
+                                }}
+                                sx={{ml: "auto"}}>
+                                {t("add")}
+                            </Button>
+                        </Can>
+                    </Stack>
                 </Stack>
             </SubHeader>
 
@@ -360,8 +406,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

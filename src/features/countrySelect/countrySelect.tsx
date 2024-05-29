@@ -6,10 +6,10 @@ import {countries} from "./countries";
 import {Avatar, MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
-    const {onSelect, initCountry = "", small, ...rest} = props;
+    const {onSelect, showCountryFlagOnly = false, initCountry = "", small, ...rest} = props;
 
     const [countriesData] = useState<any[]>(countries.sort(
-        country => initCountry.code?.toLowerCase() === country.code.toLowerCase() ? -1 : 1));
+        country => initCountry.code?.toLowerCase() === country?.code?.toLowerCase() ? -1 : 1));
 
     const onSelectState = useCallback(
         (state: any) => {
@@ -20,7 +20,7 @@ function CountrySelect({...props}) {
     return (
         <Autocomplete
             {...rest}
-            id="country-select-demo"
+            id="country-select"
             sx={{
                 ...rest.sx,
                 ...(small && {
@@ -32,19 +32,28 @@ function CountrySelect({...props}) {
                         paddingLeft: "2px!important",
                         paddingRight: "1.6rem!important"
                     }
+                }),
+                ...(showCountryFlagOnly && {
+                    "& .MuiInputBase-root.MuiOutlinedInput-root": {
+                        paddingLeft: 0,
+                        background: "transparent"
+                    },
+                    "& .MuiInputBase-input": {
+                        display: "none",
+                    }
                 })
             }}
             size="small"
             onChange={(e, v) => {
                 onSelectState(v);
             }}
-            value={countries.find(country => country.code.toLocaleLowerCase() === initCountry.code.toLocaleLowerCase())}
+            value={countries.find(country => country?.code?.toLocaleLowerCase() === initCountry?.code?.toLocaleLowerCase())}
             options={countriesData}
             autoHighlight
             disableClearable
             getOptionLabel={(option: any) => option.name}
-            isOptionEqualToValue={(option, value) => option.name === value?.name}
-            renderOption={(props, option) => (
+            isOptionEqualToValue={(option: any, value: any) => option.name === value?.name}
+            renderOption={(props, option: any) => (
                 <MenuItem  {...props}>
                     {option?.code && <Avatar
                         sx={{
@@ -66,7 +75,7 @@ function CountrySelect({...props}) {
                                 width: 24,
                                 height: 16,
                                 borderRadius: 0.4,
-                                ml: ".5rem",
+                                ml: 0,
                                 mr: -.8
                             }}
                             alt={initCountry.name}
@@ -74,8 +83,8 @@ function CountrySelect({...props}) {
                         />}
                     </InputAdornment>
                 );
-
-                return <TextField {...params} sx={{paddingLeft: 0}} variant="outlined" fullWidth/>;
+                return <TextField {...params} sx={{paddingLeft: 0}} variant="outlined"
+                                  fullWidth/>;
             }}
         />
     );

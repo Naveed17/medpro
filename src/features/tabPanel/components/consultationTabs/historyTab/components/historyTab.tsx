@@ -1,22 +1,30 @@
-import React from "react";
+import React, {useState} from "react";
 import {Label} from "@features/label";
-import {Box, Collapse, Drawer, Stack, Typography,} from "@mui/material";
+import {Box, Button, Collapse, Drawer, Stack, Typography, useTheme} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
-import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
-import {useRequestQuery} from "@lib/axios";
-import HistoryStyled
-    from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
+import {AppointmentDetail, Dialog, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import HistoryStyled from "./overrides/historyStyled";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {HistoryCard, PatientHistoryStaticCard} from "@features/card";
-import {AppointmentHistoryPreview} from "@features/card/components/appointmentHistoryPreview";
+import {
+    HistoryCard,
+    PatientHistoryStaticCard,
+    AppointmentHistoryPreview,
+    AppointmentHistoryContent
+} from "@features/card";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
-import {AppointmentHistoryContent} from "@features/card/components/appointmentHistoryContent";
 import Icon from "@themes/icon";
 import moment from "moment/moment";
-import {WidgetCharts} from "@features/tabPanel";
-import {Pediatrician18Charts} from "@features/tabPanel/components/consultationTabs/pediatrician18Chart";
-import {PediatricianCharts} from "@features/tabPanel/components/consultationTabs/pediatricianChart";
+import {Pediatrician18Charts, PediatricianCharts, WidgetCharts} from "@features/tabPanel";
+import IconUrl from "@themes/urlIcon";
+import {agendaSelector} from "@features/calendar";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import {useTranslation} from "next-i18next";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useQRCode} from "next-qrcode";
 
 function HistoryTab({...props}) {
 
@@ -24,7 +32,6 @@ function HistoryTab({...props}) {
         patient,
         dispatch,
         t,
-        session,
         direction,
         setOpenDialog,
         showDoc,
@@ -39,23 +46,55 @@ function HistoryTab({...props}) {
 
     let dates: string[] = [];
     let keys: string[] = [];
-
+    const theme = useTheme();
+    const {data: session} = useSession();
+    const {Canvas} = useQRCode();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
+    const {t: commonTranslation} = useTranslation("common");
     const {drawer} = useAppSelector(dialogSelector);
     const {selectedApp} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
-    const {data: httpPatientHistory, mutate} = useRequestQuery(medicalEntityHasUser && patient ? {
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional;
+
+    const {data: httpPatientHistory, mutate: mutatePatientHistory} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history-list/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/history-list/${router.locale}`
     } : null);
+
+    const {trigger: deleteAppointmentData} = useRequestQueryMutation("/agenda/delete/appointment/data");
 
     const histories = (httpPatientHistory as HttpResponse)?.data
     const sheet = histories ? histories['consultation-sheet'] : null
     const latest_appointment = histories ? histories['latest_appointment'] : []
     const nextAppointment = histories ? histories['nextAppointment'] : []
     const photos = histories ? histories['photo'] : []
+
+    const [selectedKey, setSelectedKey] = useState('')
+    const [deleteDialogUuid, setDeleteDialogUuid] = useState<any>(null);
+    const [loadingReq, setLoadingReq] = useState<boolean>(false);
+
+    const handleDeleteAppointment = () => {
+        setLoadingReq(true);
+        const params = new FormData();
+        params.append("type", "delete-appointment-data");
+
+        deleteAppointmentData({
+            method: "DELETE",
+            data: params,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${deleteDialogUuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutatePatientHistory();
+                setDeleteDialogUuid(null);
+            },
+            onSettled: () => setLoadingReq(false)
+        });
+    }
 
     sheet && Object.keys(sheet).forEach(key => {
         keys.push(key);
@@ -141,36 +180,86 @@ function HistoryTab({...props}) {
                                 className={"header"}>{date}</Typography></td>))}
                         </tr>
                         </thead>
-                        <tbody>
                         {keys.map((key: string) => (
-                            <tr key={key}>
-                                <td style={{minWidth: 120}}><Typography
-                                    className={"keys col"}
-                                    style={{width: "100%", whiteSpace: "nowrap"}}>{sheet[key]['label']}</Typography>
+                            <tbody key={key}>
+                            <tr>
+                                <td style={{minWidth: 120}}>
+                                    <Stack direction={"row"} alignItems={"center"}>
+                                         <span onClick={() => setSelectedKey(selectedKey === key ? "" : key)}>
+                                        <IconUrl path={"status-up"}/>
+                                    </span>
+                                        <Typography
+                                            className={"keys col"}
+                                            style={{
+                                                width: "100%",
+                                                whiteSpace: "nowrap",
+                                                display: "flex",
+                                                gap: 5,
+                                                paddingBottom: 8
+                                            }}>
+                                            {sheet[key]['label']}
+                                        </Typography>
+                                    </Stack>
+
                                 </td>
                                 {dates.map((date: string) => (<td key={date}><Typography
                                     className={"data col"}>{sheet[key]['data'][date] ? sheet[key]['data'][date] + sheet[key]['description'] : '-'}</Typography>
                                 </td>))}
                             </tr>
+                            <tr>
+                                <td>
+                                    <Collapse in={selectedKey === key}>
+                                        {selectedKey === key && <WidgetCharts {...{sheet, selectedKey}}/>}
+                                    </Collapse>
+                                </td>
+                            </tr>
+                            </tbody>
                         ))}
-                        </tbody>
                     </HistoryStyled>}
             </div>
-            {/****** Sheet History ******/}
 
-            <WidgetCharts {...{sheet, mini}}/>
-
+            {/****** Doctor QR CODE ******/}
+            {medical_professional?.webUrl &&
+                <div className='hidden' id={'qr-canva'}>
+                    <Canvas
+                        key={"qrUrl"}
+                        text={medical_professional.webUrl}
+                        options={{
+                            errorCorrectionLevel: 'H',
+                            margin: 0,
+                            color: {
+                                dark: '#000000',
+                                light: '#FFFFFF',
+                            },
+                        }}
+                        logo={{
+                            src: '/static/icons/Med-logo.png',
+                            options: {
+                                width: 40,
+                                x: 76,
+                                y: 76
+                            }
+                        }}
+                    />
+                </div>}
             {/****** Pediatrican charts ******/}
 
-            {
-                patient?.birthdate && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") < 4 &&
-                <PediatricianCharts {...{sheet, birthdate: patient?.birthdate,modelData,date, t}}/>
+            {patient?.birthdate && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") < 4 &&
+                <PediatricianCharts {...{sheet, patient, birthdate: patient?.birthdate, modelData, date, t}}/>
             }
 
-            {
-                patient?.birthdate  && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") > 5 && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") <= 18 && sheet &&  (Object.keys(sheet).includes("poids") || Object.keys(sheet).includes("taille")) &&
-                <Pediatrician18Charts {...{sheet, birthdate: patient?.birthdate,gender:patient?.gender,modelData,date, t}}/>
+            {patient?.birthdate && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") >=4 && moment().diff(moment(patient?.birthdate, 'DD-MM-YYYY'), "years") <= 18 && sheet && (Object.keys(sheet).includes("poids") || Object.keys(sheet).includes("taille")) &&
+                <Pediatrician18Charts {...{
+                    sheet,
+                    patient,
+                    birthdate: patient?.birthdate,
+                    gender: patient?.gender,
+                    modelData,
+                    date,
+                    t
+                }}/>
             }
+
             {/****** Latest appointment ******/}
             {latest_appointment && latest_appointment.length > 0 &&
                 <Stack id={'records'} spacing={2} mb={2} alignItems="flex-start">
@@ -178,7 +267,7 @@ function HistoryTab({...props}) {
                         {t("history")}
                     </Label>
                 </Stack>}
-            <Stack spacing={1}>
+            <Stack spacing={1.2}>
                 {latest_appointment && latest_appointment.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>
                         <PatientHistoryStaticCard
@@ -189,11 +278,13 @@ function HistoryTab({...props}) {
                             }}
                             open={app.uuid === selectedApp}
                             key={`${app.uuid}timeline`}>
-                            <AppointmentHistoryPreview {...{app, appuuid, dispatch, t, mini}}>
+                            <AppointmentHistoryPreview
+                                {...{app, appuuid, dispatch, t, mini}}
+                                handleDeleteApp={() => setDeleteDialogUuid(appuuid)}>
                                 {selectedApp === app.uuid && <Collapse
                                     in={app.uuid === selectedApp}>
                                     <AppointmentHistoryContent {...{
-                                        mutate,
+                                        mutate: mutatePatientHistory,
                                         showDoc,
                                         appID,
                                         appuuid,
@@ -214,6 +305,46 @@ function HistoryTab({...props}) {
                 ))}
             </Stack>
             {/****** Latest appointment ******/}
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteDialogUuid(null)}
+                sx={{
+                    direction
+                }}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{commonTranslation(`dialogs.delete-dialog.sub-title-data`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{commonTranslation(`dialogs.delete-dialog.description-data`)}</Typography>
+                        </Box>)
+                }}
+                open={!!deleteDialogUuid}
+                title={commonTranslation(`dialogs.delete-dialog.title-data`)}
+                actionDialog={
+                    <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
+                        <Button
+                            variant="text-black"
+                            onClick={() => setDeleteDialogUuid(null)}
+                            startIcon={<CloseIcon/>}>
+                            {commonTranslation(`dialogs.delete-dialog.cancel`)}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingReq}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={() => handleDeleteAppointment()}
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
+                                                path="ic-trash"></IconUrl>}>
+                            {commonTranslation(`dialogs.delete-dialog.confirm`)}
+                        </LoadingButton>
+                    </Stack>
+                }
+            />
 
             <Drawer
                 anchor={"right"}

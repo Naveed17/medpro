@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import {useFormik, Form, FormikProvider} from "formik";
+import { useFormik, Form, FormikProvider } from "formik";
 import {
     Typography,
     Card,
@@ -15,25 +15,26 @@ import {
     Radio,
     RadioGroup,
     FormControlLabel, InputAdornment,
+    useTheme
 } from "@mui/material";
-import {styled} from "@mui/material/styles";
-import React, {useState} from "react";
-import {useTranslation} from "next-i18next";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {IconsTypes} from "@features/calendar";
-import {ModelDot} from "@features/modelDot";
+import { styled } from "@mui/material/styles";
+import React, { useState } from "react";
+import { useTranslation } from "next-i18next";
+import { useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { IconsTypes } from "@features/calendar";
+import { ModelDot } from "@features/modelDot";
 
-import {LoadingScreen} from "@features/loadingScreen";
+import { LoadingScreen } from "@features/loadingScreen";
 
-import {useSnackbar} from "notistack";
-import {DefaultCountry} from "@lib/constants";
-import {useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {LoadingButton} from "@mui/lab";
+import { useSnackbar } from "notistack";
+import { DefaultCountry } from "@lib/constants";
+import { useAppSelector } from "@lib/redux/hooks";
+import { dashLayoutSelector } from "@features/base";
+import { useInvalidateQueries, useMedicalEntitySuffix } from "@lib/hooks";
+import { LoadingButton } from "@mui/lab";
 
 const icons = [
     "ic-consultation",
@@ -44,7 +45,7 @@ const icons = [
     "ic-personal",
 ];
 
-const PaperStyled = styled(Form)(({theme}) => ({
+const PaperStyled = styled(Form)(({ theme }) => ({
     backgroundColor: theme.palette.background.default,
     borderRadius: 0,
     height: "100%",
@@ -95,17 +96,17 @@ const colors = [
     "#56A97F",
 ];
 
-function EditMotifDialog({...props}) {
-    const {mutateEvent} = props;
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    const {enqueueSnackbar} = useSnackbar();
+function EditMotifDialog({ ...props }) {
+    const { mutateEvent } = props;
+    const { data: session } = useSession();
+    const { data: user } = session as Session;
+    const { enqueueSnackbar } = useSnackbar();
     const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-
-    const {t, ready} = useTranslation("settings");
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const { trigger: invalidateQueries } = useInvalidateQueries();
+    const theme = useTheme();
+    const { t, ready } = useTranslation("settings");
+    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState(false);
 
@@ -113,8 +114,8 @@ function EditMotifDialog({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const {trigger: triggerTypeAdd} = useRequestQueryMutation("/settings/type/add");
-    const {trigger: triggerTypeUpdate} = useRequestQueryMutation("/settings/type/update");
+    const { trigger: triggerTypeAdd } = useRequestQueryMutation("/settings/type/add");
+    const { trigger: triggerTypeUpdate } = useRequestQueryMutation("/settings/type/update");
 
     const mutateMedicalProfessionalData = () => {
         invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]);
@@ -148,7 +149,7 @@ function EditMotifDialog({...props}) {
             setLoading(true);
             const form = new FormData();
             form.append("color", values.color);
-            form.append("name", JSON.stringify({[router.locale as string]: values.name}));
+            form.append("name", JSON.stringify({ [router.locale as string]: values.name }));
             form.append("icon", values.icon);
             form.append(
                 "isFree",
@@ -158,12 +159,12 @@ function EditMotifDialog({...props}) {
             if (props.data) {
                 medicalEntityHasUser && triggerTypeUpdate({
                     method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${props.data.uuid}/${router.locale}`,
                     data: form
                 }, {
                     onSuccess: () => {
                         console.log("onSuccess")
-                        enqueueSnackbar(t(`motifType.alert.edit`), {variant: "success"});
+                        enqueueSnackbar(t(`motifType.alert.edit`), { variant: "success" });
                         mutateEvent();
                         mutateMedicalProfessionalData();
                         props.closeDraw();
@@ -173,11 +174,11 @@ function EditMotifDialog({...props}) {
             } else {
                 medicalEntityHasUser && triggerTypeAdd({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${router.locale}`,
                     data: form
                 }, {
                     onSuccess: () => {
-                        enqueueSnackbar(t(`motifType.alert.add`), {variant: "success"});
+                        enqueueSnackbar(t(`motifType.alert.add`), { variant: "success" });
                         mutateEvent();
                         props.closeDraw();
 
@@ -207,7 +208,7 @@ function EditMotifDialog({...props}) {
         }
     };
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"} />);
 
     return (
         <FormikProvider value={formik}>
@@ -228,7 +229,7 @@ function EditMotifDialog({...props}) {
                     gutterBottom>
                     {t("motifType.dialog.info")}
                 </Typography>
-                <Card sx={{height: 1, maxHeight: 400, overflowY: "auto"}}>
+                <Card sx={{ height: 1, maxHeight: 400, overflowY: "auto" }}>
                     <CardContent>
                         <Stack spacing={2}>
                             <Stack spacing={2} direction="row">
@@ -265,7 +266,9 @@ function EditMotifDialog({...props}) {
                                         *
                                     </Typography>
                                 </Typography>
-                                <Stack direction="row" alignItems="center" spacing={1}>
+                                <Stack direction="row" alignItems="center" spacing={{ xs: .5, sm: 1 }}
+
+                                >
                                     {colors.map((color) => (
                                         <ModelDot
                                             key={color}
@@ -273,11 +276,17 @@ function EditMotifDialog({...props}) {
                                             onClick={() => {
                                                 setFieldValue("color", color);
                                             }}
-                                            selected={color === values.color}></ModelDot>
+                                            selected={color === values.color}
+                                            {...(theme.direction === "rtl" && {
+                                                style: {
+                                                    marginLeft: 8
+                                                }
+                                            })}
+                                        ></ModelDot>
                                     ))}
                                 </Stack>
                                 {touched.color && errors.color && (
-                                    <FormHelperText error sx={{mx: 0}}>
+                                    <FormHelperText error sx={{ mx: 0 }}>
                                         {Boolean(touched.color && errors.color)}
                                     </FormHelperText>
                                 )}
@@ -322,14 +331,14 @@ function EditMotifDialog({...props}) {
                                         onChange={handleChange}>
                                         <FormControlLabel
                                             value={0}
-                                            control={<Radio/>}
+                                            control={<Radio />}
                                             label={t("motifType.dialog.un_payed")}
                                         />
                                         <FormControlLabel
                                             value={
                                                 values.consultation_fees ? values.consultation_fees : 1
                                             }
-                                            control={<Radio/>}
+                                            control={<Radio />}
                                             label={t("motifType.dialog.payed")}
                                         />
                                     </RadioGroup>
@@ -338,7 +347,7 @@ function EditMotifDialog({...props}) {
                                     <TextField
                                         InputProps={{
                                             endAdornment: (
-                                                <InputAdornment position="end" sx={{justifyContent: "center"}}>
+                                                <InputAdornment position="end" sx={{ justifyContent: "center" }}>
                                                     <Typography>{devise}</Typography>
                                                 </InputAdornment>)
                                         }}
@@ -359,7 +368,7 @@ function EditMotifDialog({...props}) {
                     <Button onClick={props.closeDraw}>
                         {t("motifType.dialog.cancel")}
                     </Button>
-                    <LoadingButton {...{loading}} type="submit" variant="contained" color="primary">
+                    <LoadingButton {...{ loading }} type="submit" variant="contained" color="primary">
                         {t("motifType.dialog.save")}
                     </LoadingButton>
                 </Stack>

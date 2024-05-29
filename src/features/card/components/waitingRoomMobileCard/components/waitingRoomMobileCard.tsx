@@ -5,22 +5,16 @@ import {
     Box,
     Button,
     Card,
-    CardActions,
     CardContent,
     IconButton,
     Stack,
     Typography,
     useTheme,
-    alpha
+    alpha, styled as MuiStyled, Tooltip
 } from "@mui/material";
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import {ImageHandler} from "@features/image";
-import {ModelDot} from "@features/modelDot";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
 import {CustomIconButton} from "@features/buttons";
-import {countries} from "@features/countrySelect/countries";
-import {getDiffDuration} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {timerSelector} from "@features/card";
 import moment from "moment-timezone";
@@ -30,11 +24,10 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
-import {AppointmentStatus} from "@features/calendar";
-import {motion} from 'framer-motion'
-import {sideBarSelector} from "@features/menu";
+import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import {Label} from "@features/label";
 import {useTranslation} from "next-i18next";
+import {IconButtonStyled} from "@features/board";
 
 const imageSize: number = 40;
 
@@ -66,6 +59,13 @@ const Container = styled.a`
     /* flexbox */
     display: flex;
 `;
+const DocButton = MuiStyled(IconButton)(({theme}) => ({
+    border: `1px solid ${theme.palette.divider}`,
+    background: theme.palette.background.default,
+    borderRadius: 8,
+    padding: theme.spacing(1.3),
+
+}))
 
 function getStyle(provided: DraggableProvided, style: Object | null) {
     if (!style) {
@@ -90,6 +90,7 @@ function WaitingRoomMobileCard({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {mode} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -121,16 +122,16 @@ function WaitingRoomMobileCard({...props}) {
 
             }),
             bgcolor: [0].includes(quote.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white,
-           ".MuiCardContent-root": {
-            "&.MuiCardContent-root":{     
-                    "&:last-child":{
-                     paddingBottom: 1,
+            ".MuiCardContent-root": {
+                "&.MuiCardContent-root": {
+                    "&:last-child": {
+                        paddingBottom: 1,
                     }
-                } 
-           }
-       }}>
+                }
+            }
+        }}>
             <CardContent sx={{
-                p: 1, 
+                p: 1,
             }}>
                 <Stack direction='row' alignItems='center' justifyContent='space-between'>
                     <Stack direction='row' alignItems='center' spacing={.8}>
@@ -161,7 +162,10 @@ function WaitingRoomMobileCard({...props}) {
                                         size={"small"}> {quote.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
                                     <Typography
                                         {...(quote.status === 3 && {pl: 1})}
-                                        className={"ellipsis"}
+                                        {...(mode !== "normal" && {
+                                            className: "blur-text",
+                                            sx: {overflow: "hidden", lineHeight: 1}
+                                        })}
                                         width={100}
                                         variant='body2' fontWeight={600}>
                                         {quote.patient.lastName} {quote.patient.firstName}
@@ -285,7 +289,25 @@ function WaitingRoomMobileCard({...props}) {
                                 <Label variant={"ghost"}
                                        color={quote?.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.restAmount === 0 ? "paid" : "not-payed")}</Label>
                             }
-                            {quote.status === 5 && quote?.restAmount !== 0 && <>
+                            {(quote.status === 5 && quote?.restAmount !== 0) && <Stack direction='row' spacing={.5}>
+                                {(quote?.prescriptions.length > 0) &&
+                                    <Tooltip title={commonTranslation("requestedPrescription")}>
+                                                <span>
+                                                    <IconButtonStyled
+                                                        size={"small"}
+                                                        onClick={(event) => handleEvent({
+                                                            action: "ON_PREVIEW_DOCUMENT",
+                                                            row: {
+                                                                uuid: quote.uuid,
+                                                                doc: quote.prescriptions[0]
+                                                            },
+                                                            event
+                                                        })}>
+                                                        <IconUrl width={18} height={18} path="docs/ic-prescription"
+                                                                 color={theme.palette.primary.main}/>
+                                                    </IconButtonStyled>
+                                                </span>
+                                    </Tooltip>}
                                 <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                         action: "ON_PAY",
@@ -297,7 +319,7 @@ function WaitingRoomMobileCard({...props}) {
                                     sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}>
                                     <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
                                 </IconButton>
-                            </>}
+                            </Stack>}
 
                             {!quote.patient?.isArchived &&
                                 <IconButton

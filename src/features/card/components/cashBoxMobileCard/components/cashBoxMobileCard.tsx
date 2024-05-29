@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import CardStyled from "./overrides/cardStyle";
 import {
     alpha,
@@ -18,11 +18,10 @@ import {
 import {ImageHandler} from "@features/image";
 import {useRouter} from "next/router";
 import moment from "moment-timezone";
-import {addBilling} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
@@ -50,7 +49,6 @@ function CashBoxMobileCard({...props}) {
     const theme = useTheme<Theme>();
     const router = useRouter();
     const {data: session} = useSession();
-    const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -84,7 +82,7 @@ function CashBoxMobileCard({...props}) {
 
     const mutatePatientWallet = () => {
         medicalEntityHasUser && invalidateQueries(
-            [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.appointment.patient?.uuid}/wallet/${router.locale}`]);
+            [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.appointment.patient?.uuid}/wallet/${router.locale}`]);
     }
 
     const handleSubmit = () => {
@@ -155,7 +153,7 @@ function CashBoxMobileCard({...props}) {
             if (td.insurance) pay["insurance"] = td.insurance.uuid;
             if (td.payment_means)
                 pay["payment_means"] = paymentTypesList.find(
-                    (pt: { slug: string }) => pt.slug === td.payment_means.slug
+                    (pt: { slug: string }) => pt?.slug === td.payment_means?.slug
                 );
             payments.push(pay);
         });
@@ -282,12 +280,7 @@ function CashBoxMobileCard({...props}) {
                                             sx={{cursor: "pointer", minWidth: {xs: 0, sm: 100}}}
                                             onClick={(event) => {
                                                 event.stopPropagation();
-                                                router
-                                                    .push(
-                                                        `/dashboard/consultation/${data.appointment.uuid}`
-                                                    )
-                                                    .then(() => {
-                                                    });
+                                                router.push(`/dashboard/consultation/${data.appointment.uuid}`);
                                             }}
                                             underline="none">
                                             {data.appointment.type.name}
@@ -333,12 +326,9 @@ function CashBoxMobileCard({...props}) {
                                                     <ImageHandler
                                                         style={{width: 15}}
                                                         key={td.uuid}
-                                                        src={
-                                                            pmList.find(
-                                                                (pm: { slug: string }) =>
-                                                                    pm.slug == td.payment_means.slug
-                                                            ).logoUrl.url
-                                                        }
+                                                        src={pmList.find((pm: {
+                                                            slug: string
+                                                        }) => pm?.slug == td.payment_means?.slug).logoUrl.url}
                                                         alt={"payment means icon"}/>)
                                         )}
                                 </Stack>

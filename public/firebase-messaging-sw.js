@@ -1,15 +1,14 @@
-importScripts("https://www.gstatic.com/firebasejs/10.2.0/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.2.0/firebase-messaging-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.10.0/firebase-messaging-compat.js");
 
 firebase.initializeApp({
-    apiKey: "AIzaSyCvTRLwdDiRw9yqErIQH66PxSd1rpEjfT0",
-    authDomain: "android-app-291211.firebaseapp.com",
-    databaseURL: "https://android-app-291211.firebaseio.com",
-    projectId: "android-app-291211",
-    storageBucket: "android-app-291211.appspot.com",
-    messagingSenderId: "945400370872",
-    appId: "1:945400370872:web:6023eb6b9235c48eac064d",
-    measurementId: "G-PMY89G91XT"
+    apiKey: "AIzaSyCvG726dE6kIYfGaqc90pEfirK5lSdLUpM",
+    authDomain: "medlink-3ce56.firebaseapp.com",
+    projectId: "medlink-3ce56",
+    storageBucket: "medlink-3ce56.appspot.com",
+    messagingSenderId: "1098306173863",
+    appId: "1:1098306173863:web:812fdf8cef13c4e8999482",
+    measurementId: "G-H1ZS7R6SQJ"
 });
 
 const messaging = firebase.messaging();

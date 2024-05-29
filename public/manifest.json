@@ -15,8 +15,7 @@
   ],
   "theme_color": "#FFFFFF",
   "background_color": "#FFFFFF",
-  "start_url": "/dashboard/agenda",
-  "scope": "/dashboard/agenda",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait"
 }

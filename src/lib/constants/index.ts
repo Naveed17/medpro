@@ -12,12 +12,21 @@ export const SocialInsured = [
     {grouped: "child", key: "child", value: "7", label: "other_child"},
 ];
 
+export const PatientContactRelation = [
+    {key: "himself", value: 0, label: "himself"},
+    {key: "partner", value: 1, label: "partner"},
+    {key: "father", value: 2, label: "father"},
+    {key: "mother", value: 3, label: "mother"},
+    {key: "child", value: 4, label: "child"},
+    {key: "other", value: 5, label: "other_child"},
+];
+
 export const PhoneRegExp =
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
 export const DefaultCountry = countries.find(country => country.code === process.env.NEXT_PUBLIC_COUNTRY) as CountryModel;
 
-export const EnvPattern = ["localhost", "develop", "master"];
+export const EnvPattern = ["localhost", "develop", "master", "preview"];
 
 export const SubMotifCard = [
     {
@@ -126,6 +135,57 @@ export const WaitingHeadCells = [
     }
 ];
 
+export const WaitingTodayCells = [
+    {
+        id: "id",
+        numeric: true,
+        disablePadding: true,
+        label: "Id",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "patient",
+        numeric: false,
+        disablePadding: true,
+        label: "patient",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "appointment",
+        numeric: false,
+        disablePadding: true,
+        label: "appointment",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "type",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "motif",
+        numeric: false,
+        disablePadding: true,
+        label: "reason",
+        align: "left",
+        sortable: false,
+    },
+    {
+        id: "empty",
+        numeric: false,
+        disablePadding: true,
+        label: "empty",
+        align: "right",
+        sortable: false,
+    }
+];
+
 export const AddWaitingRoomCardData = {
     mainIcon: "ic-salle",
     title: "empty",
@@ -141,7 +201,7 @@ export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
 
 export const MedicalFormUnit = data;
 
-export const PrescriptionMultiUnits = MedicalFormUnit.filter(medic => medic.multiple).map(medic => medic.unit);
+export const PrescriptionMultiUnits = MedicalFormUnit.reduce((medics: any[], medic: any) => [...(medics ?? []), ...(medic.multiple ? [medic.unit] : [])], []);
 
 export const TransactionType = [
     // Add Payment ( ajout caisse/ Alimenter )
@@ -185,7 +245,7 @@ export const TransactionStatus = [
     },
 ];
 
-export const iconDocument = (data:string) => {
+export const iconDocument = (data: string) => {
     return data === "prescription" && "docs/ic-prescription" ||
         data == "requested-analysis" && "docs/ic-analyse" ||
         data == "analyse" && "docs/ic-analyse" ||
@@ -220,3 +280,68 @@ export const humanizerConfig = {
         },
     },
 }
+
+export const deleteAppointmentOptionsData = [
+    {
+        key: "delete-appointment-insertion",
+        selected: true
+    },
+    {
+        key: "delete-appointment-data",
+        selected: false
+    },
+    {
+        key: "delete-transaction",
+        selected: false
+    }
+]
+
+export const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses', 'lens','payment_receipt']
+
+export const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
+
+export const multiMedias = ['video', 'audio', 'photo'];
+
+export const PsychomotorDevelopmentXY = [
+    {
+        key: "premiers_mots",
+        coordinates: {
+            startDate: {x: 394, y: 480, size: 12},
+            note: {x: 354, y: 512, size: 16}
+        }
+    },
+    {
+        key: "station_debout",
+        coordinates: {
+            startDate: {x: 492, y: 496, size: 12}
+        }
+    },
+    {
+        key: "station_assise",
+        coordinates: {
+            startDate: {x: 338, y: 380, size: 12}
+        }
+    },
+    {
+        key: "marche_sans_appui",
+        coordinates: {
+            startDate: {x: 564, y: 426, size: 12}
+        }
+    },
+    {
+        key: "proprete_nocturne_et_diurne",
+        coordinates: {
+            startDate: {x: 522, y: 361, size: 12}
+        }
+    },
+    {
+        key: "premiere_dent",
+        coordinates: {
+            start: {x: 405, y: 438, size: 12}
+        }
+    }
+]
+
+export const signs = ['Bélier: Le Bélier', 'Taureau: Le Taureau', 'Gémeaux: Les Gémeaux', 'Cancer: Le Crabe', 'Lion: Le Lion', 'Vierge: La Vierge', 'Balance: La Balance', 'Scorpion: Le Scorpion', 'Sagittaire: Le Sagittaire', 'Capricorne: Le Capricorne', 'Verseau: Le Verseau', 'Poissons: Les Poissons'];
+
+export const arabicRegExp = /[\u0600-\u06FF]/;
