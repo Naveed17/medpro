@@ -4,18 +4,7 @@ import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
-import {
-    Box,
-    Button,
-    DialogTitle,
-    InputAdornment,
-    MenuItem,
-    Paper,
-    Stack,
-    TextField,
-    Typography,
-    useTheme
-} from "@mui/material";
+import {Box, Button, DialogTitle, MenuItem, Paper, Stack, Typography, useTheme} from "@mui/material";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {Otable} from "@features/table";
 import {Dialog as MedDialog} from "@features/dialog";
@@ -30,7 +19,6 @@ import {InsuranceMobileCard, NoDataCard} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Add} from "@mui/icons-material";
 import {ActionMenu} from "@features/menu";
-import IconUrl from "@themes/urlIcon";
 import {SetAgreement, setStepperIndex, stepperSelector} from "@features/stepper";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
@@ -136,7 +124,7 @@ function InsuranceAndAgreement() {
     const [agreements, setAgreements] = useState([]);
     const [selectedRow, setSelectedRow] = useState<any>(null);
 
-    const {data: httpInsurances,mutate} = useRequestQuery({
+    const {data: httpInsurances, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
     });
@@ -174,7 +162,7 @@ function InsuranceAndAgreement() {
         setContextMenu(null);
     }
 
-    const saveChanges = (from:string) => {
+    const saveChanges = (from: string) => {
         const form = new FormData();
         form.append("insurance", agreement.insurance && agreement.insurance.uuid ? agreement.insurance.uuid : "")
         form.append("name", agreement.label)
@@ -186,8 +174,8 @@ function InsuranceAndAgreement() {
         form.append("medicalEntityHasUsers", medicalEntityHasUser as string)
         trigger(
             {
-                method: selectedRow ? "PUT":"POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${selectedRow ? selectedRow.uuid+"/":""}${router.locale}`,
+                method: selectedRow ? "PUT" : "POST",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${selectedRow ? selectedRow.uuid + "/" : ""}${router.locale}`,
                 data: form
             },
             {
@@ -204,7 +192,7 @@ function InsuranceAndAgreement() {
                     mutate()
                     invalidateQueries([`/api/public/insurances/${router.locale}?MedicalEntity=${medical_entity.uuid}`])
                     dispatch(setStepperIndex(0))
-                    if (from !=="next")
+                    if (from !== "next")
                         setAgreementDialog(false)
                 }
             }
@@ -212,9 +200,8 @@ function InsuranceAndAgreement() {
     }
 
     useEffect(() => {
-        if (httpInsurances) {
+        if (httpInsurances)
             setAgreements(httpInsurances.data)
-        }
     }, [httpInsurances])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -243,7 +230,7 @@ function InsuranceAndAgreement() {
                                 /*toolbar={<Toolbar {...{t, search, handleSearch}} />}*/
                                 headers={headCells}
                                 rows={agreements}
-                                {...{setAgreementDialog,setSelectedRow}}
+                                {...{setAgreementDialog, setSelectedRow}}
                                 handleEvent={handleTableActions}
                                 state={null}
                                 from={"insurance-agreement"}
@@ -292,7 +279,7 @@ function InsuranceAndAgreement() {
             <MedDialog
                 action={"agreement"}
                 open={openAgreementDialog}
-                data={{t, devise, stepperData, collapse,selectedRow,agreements}}
+                data={{t, devise, stepperData, collapse, selectedRow, agreements}}
                 direction={direction}
                 sx={{bgcolor: theme.palette.background.default}}
                 dialogClose={() => {
@@ -381,14 +368,14 @@ function InsuranceAndAgreement() {
                                     {t("dialog.confirm_save")}
                                 </Button>
                             )}
-                            {selectedRow ?  <Button
+                            {selectedRow ? <Button
                                 variant="contained"
                                 disabled={currentStep === 0 && ((agreement?.type === "insurance" && !agreement?.insurance?.uuid) || (agreement?.type === "agreement" && !agreement?.name))}
                                 onClick={() => {
                                     saveChanges("")
                                 }}>
                                 {t("dialog.edit")}
-                            </Button>: <Button
+                            </Button> : <Button
                                 variant="contained"
                                 disabled={currentStep === 0 && ((agreement?.type === "insurance" && !agreement?.insurance?.uuid) || (agreement?.type === "agreement" && !agreement?.name))}
                                 onClick={() => {

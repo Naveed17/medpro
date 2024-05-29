@@ -23,10 +23,10 @@ function InsuranceAgreementRow({...props}) {
         <TableRowStyled key={uniqueId}>
             <TableCell>
                 {row ? (
-                    <Stack direction='row' alignItems='center' spacing={1}>
+                    <Stack direction='row' alignItems='center' spacing={2}>
                         <Tooltip title={row.name}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img style={{width: 30}}
+                            <img style={{width: 20}}
                                  alt={row.name}
                                  src={row.insurance && insurances.length > 0 && url ? url : "/static/icons/ic-assurance.svg"}/>
 
@@ -79,10 +79,10 @@ function InsuranceAgreementRow({...props}) {
                                 size={"small"}>Ajouter acts ({row.acts})</Button>
                         <IconButton size="small" onClick={() => {
                             dispatch(SetAgreement({
-                                type: row.mutual === "" ? 'insurance' : 'agreement',
+                                type: !row.insurance.isConvention ? 'insurance' : 'agreement',
                                 insurance: row.insurance,
                                 label: row.label,
-                                name: row.insurance ? row.insurance.name : row.mutual,
+                                name: !row.insurance.isConvention ? row.insurance.name : row.mutual,
                                 startDate: moment(row.startDate, 'DD-MM-YYYY'),
                                 endDate: moment(row.endDate, 'DD-MM-YYYY'),
                                 acts: []

@@ -17,16 +17,15 @@ function AgreementsRow({...props}) {
                         onClick={(e:any) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}>
             <TableCell>
                 {row ? (
-                    <Stack direction='row' alignItems='center' spacing={1}>
+                    <Stack direction='row' alignItems='center' spacing={2}>
                         {insurances.length> 0 && insurances.find(insc => insc.uuid === row.uuid) &&<Tooltip title={row.name}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                             <img style={{width: 30}}
+                             <img style={{width: 20}}
                                   alt={row.name}
-                                  src={insurances.find(insc => insc.uuid === row.uuid)?.logoUrl.url}/>
+                                  src={insurances.find(insc => insc.uuid === row.uuid)?.logoUrl ? insurances.find(insc => insc.uuid === row.uuid)?.logoUrl.url:"/static/icons/ic-assurance.svg"}/>
 
                         </Tooltip>}
-                        <Typography fontWeight={600}
-                                    color="text.primary">
+                        <Typography fontWeight={600} color="text.primary">
                             {row.name}
                         </Typography>
                     </Stack>

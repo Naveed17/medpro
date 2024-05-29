@@ -229,7 +229,7 @@ function InscDetail() {
     const [total_appointment, setTotalAppointment] = useState([]);
     const [rows, setRows] = useState([])
     const [search, setSearch] = useState("")
-    const [editMode, setEditMode] = useState(true)
+    const [editMode, setEditMode] = useState(false)
     const [selectedMPI, setSelectedMPI] = useState<any>(null)
     const [hasMPI, setHasMPI] = useState("")
 
@@ -403,7 +403,7 @@ function InscDetail() {
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img width={30}
                                  alt={"insurance icon"}
-                                 src={selectedInsurance?.logoUrl.url}/>
+                                 src={selectedInsurance?.logoUrl ? selectedInsurance?.logoUrl.url : "/static/icons/ic-assurance.svg"}/>
                             <Typography variant="subtitle2"
                                         fontWeight={700}>{insurances.find(insc => insc.uuid === uuid)?.name}</Typography>
                         </Stack>
@@ -458,7 +458,6 @@ function InscDetail() {
 
                                     {
                                         editMode ?
-
                                             <DatePicker
                                                 value={moment(selectedMPI?.start_date, "DD-MM-YYYY").toDate() || ""}
                                                 format="dd/MM/yyyy"
@@ -488,7 +487,7 @@ function InscDetail() {
                                         {t("end_date")}
                                     </Typography>
                                     {
-                                        editMode && selectedMPI?.end_date ? <DatePicker
+                                        editMode ? <DatePicker
                                                 defaultValue={selectedMPI?.end_date}
                                                 value={moment(selectedMPI?.end_date, "DD-MM-YYYY").toDate() || ""}
                                                 format="dd-MM-yyyy"

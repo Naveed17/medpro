@@ -7,12 +7,13 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetAgreement, stepperSelector} from "@features/stepper";
 import Autocomplete from "@mui/material/Autocomplete";
 import IconUrl from "@themes/urlIcon";
+import moment from "moment-timezone";
 
 function Step1({...props}) {
     const {t, collapse, insurances, agreements} = props;
 
-    const agreementList = agreements.filter((ag: any) => ag.insurance?.isConvention).reduce((acc:any, current:any) => {
-        const x = acc.find((item:any) => item.mutual === current.mutual);
+    const agreementList = agreements.filter((ag: any) => ag.insurance?.isConvention).reduce((acc: any, current: any) => {
+        const x = acc.find((item: any) => item.mutual === current.mutual);
         if (!x) {
             acc.push(current);
         }
@@ -21,15 +22,15 @@ function Step1({...props}) {
 
     const {agreement} = useAppSelector(stepperSelector);
 
-    let [selectedAgreement, setSelectedAgreement] = useState(agreement?.name ||'');
+    let [selectedAgreement, setSelectedAgreement] = useState(agreement?.name || '');
 
     const dispatch = useAppDispatch();
 
-    const handleInputChange = (event:any, newInputValue:any) => {
+    const handleInputChange = (event: any, newInputValue: any) => {
         setSelectedAgreement(newInputValue);
     };
 
-    const handleChange = (event:any, newValue:any) => {
+    const handleChange = (event: any, newValue: any) => {
         if (newValue && typeof newValue === 'object') {
             setSelectedAgreement(newValue); // Assuming 'mutual' is the value you want from the selected option
         } else {
@@ -37,12 +38,17 @@ function Step1({...props}) {
         }
     };
 
-    useEffect(()=>{
+
+    useEffect(() => {
         if (selectedAgreement && typeof selectedAgreement === 'object') {
-            dispatch(SetAgreement({...agreement, insurance: selectedAgreement.insurance,name:selectedAgreement.mutual}))
-        }        else
-            dispatch(SetAgreement({...agreement, insurance: null,name:selectedAgreement}))
-    },[selectedAgreement]) // eslint-disable-line react-hooks/exhaustive-deps
+            dispatch(SetAgreement({
+                ...agreement,
+                insurance: selectedAgreement.insurance,
+                name: selectedAgreement.mutual
+            }))
+        } else
+            dispatch(SetAgreement({...agreement,  name: selectedAgreement}))
+    }, [selectedAgreement]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Stack component={motion.div}
@@ -131,18 +137,20 @@ function Step1({...props}) {
                         {t("dialog.stepper.start_date")}{" "}
                     </Typography>
                     <DatePicker
-                        value={agreement?.startDate}
-                        onChange={(newValue: any) => dispatch(SetAgreement({...agreement, startDate: newValue}))}/>
+                        value={moment(agreement?.startDate, "DD-MM-YYYY").toDate()}
+                        onChange={(newValue: any) => {
+                            dispatch(SetAgreement({...agreement, startDate: moment(newValue).format("DD-MM-YYYY")}))
+                        }}/>
                 </Stack>
                 <Stack spacing={0.5} width={1}>
                     <Typography variant="body2" color="text.secondary">
                         {t("dialog.stepper.end_date")}
                     </Typography>
                     <DatePicker
-                        value={agreement?.endDate}
+                        value={moment(agreement?.endDate, "DD-MM-YYYY").toDate()}
                         onChange={(newValue: any) => {
                             let _agreement = {...agreement}
-                            _agreement.endDate = newValue;
+                            _agreement.endDate = moment(newValue).format("DD-MM-YYYY");
                             dispatch(SetAgreement(_agreement))
                         }}
                     />
