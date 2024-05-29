@@ -1,3 +1,10 @@
+## [4.26.3](https://github.com/SmartMedSA/med-pro/compare/v4.26.2...v4.26.3) (2024-05-26)
+
+
+### Bug Fixes
+
+* tailwindcss datepicker ([edfb133](https://github.com/SmartMedSA/med-pro/commit/edfb133df40517819a0c80400ccb6a82a39d8f16))
+
 ## [4.26.2](https://github.com/SmartMedSA/med-pro/compare/v4.26.1...v4.26.2) (2024-05-24)
 
 
