@@ -62,6 +62,7 @@ const CipCard2ndStyled = styled(LoadingButton)(({theme}) => ({
                 margin: 0
             },
             "&.avatar-top": {
+                borderRadius: 20,
                 padding: 14,
             }
         },
