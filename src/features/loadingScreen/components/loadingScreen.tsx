@@ -133,8 +133,7 @@ function LoadingScreen({...props}) {
                                     if (text === "loading-error-404") {
                                         await router.push("/dashboard/agenda");
                                     } else {
-                                        await update({refreshAccessToken: true});
-                                        router.reload();
+                                        await router.push("/");
                                     }
                                 });
 

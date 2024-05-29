@@ -749,7 +749,10 @@ function Agenda() {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push({
                 pathname: slugConsultation,
-                query: {inProgress: true}
+                query: {
+                    inProgress: true,
+                    agendaUuid: agenda?.uuid
+                }
             }, slugConsultation, {locale: router.locale}).then(() => {
                 dispatch(openDrawer({type: "view", open: false}));
             })

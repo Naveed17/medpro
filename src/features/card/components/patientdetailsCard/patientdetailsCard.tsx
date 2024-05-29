@@ -132,7 +132,10 @@ function PatientDetailsCard({...props}) {
                         const slugConsultation = `/dashboard/consultation/${data[0]}`;
                         router.push({
                             pathname: slugConsultation,
-                            query: {inProgress: true}
+                            query: {
+                                inProgress: true,
+                                agendaUuid: agendaConfig?.uuid
+                            }
                         }, slugConsultation, {locale: router.locale}).then(() => {
                             closePatientDialog && closePatientDialog();
                             setRequestLoading(false);

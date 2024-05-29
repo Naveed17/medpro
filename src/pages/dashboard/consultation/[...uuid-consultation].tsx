@@ -1,5 +1,5 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
-import {GetStaticPaths, GetStaticProps} from "next";
+import {GetServerSideProps} from "next";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Avatar,
@@ -78,7 +78,7 @@ import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import {DefaultCountry} from "@lib/constants";
-import {Session} from "next-auth";
+import {getServerSession, Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useSendNotification, useWidgetModels} from "@lib/hooks/rest";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
@@ -99,6 +99,9 @@ import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
 import {useChannel} from "ably/react";
 import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import {authOptions} from "../../api/auth/[...nextauth]";
+import axios from "axios";
+import {parseBody} from "next/dist/server/api-utils/node/parse-body";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -165,7 +168,7 @@ function ConsultationInProgress() {
 
     const {data: user} = session as Session;
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData.medical_professional.uuid;
-    const app_uuid = router.query["uuid-consultation"];
+    const app_uuid = (router.query["uuid-consultation"] ?? [""])[0];
     const general_information = (user as UserDataResponse).general_information;
     const cardPositions = localStorage.getItem('cardPositions') !== null ? JSON.parse((localStorage.getItem('cardPositions') as string)) : null
     const sDoc = localStorage.getItem('showDocument') ? localStorage.getItem('showDocument') == 'true' : false
@@ -1267,7 +1270,7 @@ function ConsultationInProgress() {
 
             setMPActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
 
-            if(router.query["tab"]?.toString())
+            if (router.query["tab"]?.toString())
                 setSelectedTab(router.query["tab"]?.toString())
 
             let nb = 0;
@@ -1345,17 +1348,7 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (inProgress) {
-            const form = new FormData();
-            form.append('status', '4');
-            form.append('start_date', moment().format("DD-MM-YYYY"));
-            form.append('start_time', moment().format("HH:mm"));
-            updateAppointmentStatus({
-                method: "PATCH",
-                data: form,
-                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
-            }, {
-                onSuccess: () => mutateOnGoing()
-            });
+            mutateOnGoing()
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -2363,7 +2356,28 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => {
+export const getServerSideProps: GetServerSideProps = async ({locale, query, ...context}) => {
+    const session = await getServerSession(context.req, context.res, authOptions)
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
+
+    if (query.inProgress) {
+        const form = new FormData();
+        form.append('status', '4');
+        form.append('start_date', moment().format("DD-MM-YYYY"));
+        form.append('start_time', moment().format("HH:mm"));
+        await axios({
+            url: `${baseURL}api/medical-entity/${medical_entity.uuid}/agendas/${query.agendaUuid}/appointments/${query['uuid-consultation']}/status/${locale}`,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${session?.accessToken}`
+            },
+            data: form
+        })
+    }
+
     return {
         props: {
             fallback: false,
@@ -2373,13 +2387,6 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
                 "common"
             ])),
         },
-    };
-}
-
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
-    return {
-        paths: [], //indicates that no page needs be created at build time
-        fallback: "blocking", //indicates the type of fallback
     };
 }
 

@@ -23,14 +23,17 @@ function Event({...props}) {
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {isActive} = useAppSelector(timerSelector);
-    const {mode} = useAppSelector(agendaSelector);
+    const {mode, config: agendaConfig} = useAppSelector(agendaSelector);
 
     const handleStartConsultation = (event: any) => {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
             return router.push({
                 pathname: slugConsultation,
-                query: {inProgress: true}
+                query: {
+                    inProgress: true,
+                    agendaUuid: agendaConfig?.uuid
+                }
             }, slugConsultation, {locale: router.locale});
         } else {
             dispatch(setSelectedEvent(event));
