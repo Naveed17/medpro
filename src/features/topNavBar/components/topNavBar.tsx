@@ -53,7 +53,7 @@ import Can from "@features/casl/can";
 import {Label} from "@features/label";
 import {useChannel} from "ably/react";
 import ExpireTooltip from "@features/topNavBar/components/expireTooltip/expireTooltip";
-import {setShowStats, setShowTimeline, timeLineSelector} from "@features/timeline";
+import {setShowTimeline, timeLineSelector} from "@features/timeline";
 import {CustomIconButton} from "@features/buttons";
 
 let deferredPrompt: any;
