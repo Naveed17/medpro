@@ -29,22 +29,12 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {agendaSelector, setCurrentDate, setNavigatorMode} from "@features/calendar";
 import {ToggleButtonStyled} from "@features/toolbar";
-import {Breadcrumbs} from '@features/breadcrumbs';
 import moment from "moment-timezone";
 import Zoom from "@mui/material/Zoom";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-
-const breadcrumbsData = [
-    {
-        title: "Queue Management",
-        href: "/dashboard/waiting-room"
-    },
-    {
-        title: "Overview"
-    }
-]
+import {setShowStats, timeLineSelector} from "@features/timeline";
 
 function RoomToolbar({...props}) {
     const {
@@ -53,6 +43,7 @@ function RoomToolbar({...props}) {
         setTabIndex,
         setPatientDetailDrawer,
         nextConsultation,
+        onScrollToNow,
         columns,
         data,
         currentDate,
@@ -67,6 +58,7 @@ function RoomToolbar({...props}) {
 
     const {isWindowMax} = useAppSelector(minMaxWindowSelector);
     const {mode} = useAppSelector(agendaSelector);
+    const {showStats} = useAppSelector(timeLineSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
@@ -85,6 +77,7 @@ function RoomToolbar({...props}) {
 
     const handleOnToday = () => {
         dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
+        onScrollToNow();
     };
 
     const handlePreviousDate = () => {
@@ -109,7 +102,7 @@ function RoomToolbar({...props}) {
                     color: theme.palette.text.primary,
                     padding: "0 0 0 5px",
                     "& .MuiTypography-root": {
-                        fontSize: "1.6rem",
+                        fontSize: 20,
                         fontWeight: 'bold',
                         textTransform: "capitalize"
                     },
@@ -129,7 +122,7 @@ function RoomToolbar({...props}) {
                             svg: {
                                 width: 20,
                                 height: 20,
-                                m: .4
+                                m: .1
                             },
                             border: "1px solid",
                             mr: 1,
@@ -162,7 +155,7 @@ function RoomToolbar({...props}) {
 
                 <Button className="current-date" variant="text-transparent">
                     <Typography variant="body2" component={"span"} fontWeight={"bold"}>
-                        {moment(currentDate.date).format('DD-MMMM-YYYY')}
+                        {`${moment(currentDate.date).isSame(moment(), 'day') ? `${t('today')}, ` : ''} ${moment(currentDate.date).format('DD MMMM YYYY')}`}
                     </Typography>
                 </Button>
                 {isMobile && (
@@ -236,15 +229,19 @@ function RoomToolbar({...props}) {
                 <WaitingRoom/>
             </DrawerBottom>
 
-            <Stack sx={{
-                position: {xs: 'absolute', sm: 'static'},
-                bottom: {xs: 50, sm: 0},
-                [theme.breakpoints.between("sm", "md")]: {
-                    position: 'absolute',
-                    right: 16,
-                    top: -36
-                }
-            }} direction={"row"} alignItems={"center"} spacing={1}>
+            <Stack
+                sx={{
+                    position: {xs: 'absolute', sm: 'static'},
+                    bottom: {xs: 50, sm: 0},
+                    [theme.breakpoints.between("sm", "md")]: {
+                        position: 'absolute',
+                        right: 16,
+                        top: -36
+                    }
+                }}
+                direction={"row"}
+                alignItems={"center"}
+                spacing={1}>
                 {(is_next && isWindowMax) &&
                     <LoadingButton
                         disableRipple
@@ -324,7 +321,7 @@ function RoomToolbar({...props}) {
                 {roles.includes('ROLE_SECRETARY') && <MinMaxWindowButton/>}
 
 
-               {/* <Stack p={1.275} maxHeight={40} px={2} bgcolor={theme.palette.grey[50]} borderRadius={1}
+                {/* <Stack p={1.275} maxHeight={40} px={2} bgcolor={theme.palette.grey[50]} borderRadius={1}
                        direction={"row"} alignItems={"center"} spacing={2}>
                     <CustomIconButton
                         onClick={handlePreviousDate}
@@ -352,6 +349,7 @@ function RoomToolbar({...props}) {
                     </CustomIconButton>
                 </Stack>*/}
                 <CustomIconButton
+                    onClick={() => dispatch(setShowStats(!showStats))}
                     sx={{bgcolor: theme.palette.grey[100], border: 1, borderColor: theme.palette.grey[300]}}>
                     <IconUrl width={16} height={16} path={"ic-filled-chart-square"}/>
                 </CustomIconButton>

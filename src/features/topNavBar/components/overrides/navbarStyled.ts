@@ -5,7 +5,7 @@ import {pxToRem} from "@themes/formatFontSize";
 import {MobileContainer} from "@lib/constants";
 
 const NavbarStyled = styled(AppBar)(({theme}) => ({
-    borderWidth: "0 0 1px 0",
+    borderWidth: 0,
     borderStyle: "solid",
     borderColor: theme.palette.divider,
     paddingRight: `0 !important`,

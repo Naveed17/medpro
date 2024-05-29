@@ -78,10 +78,10 @@ import {
 } from "@features/tabPanel";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
-import {setDialog, setDialogAction} from "@features/topNavBar";
+import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
-import {partition} from "lodash";
+import {partition, startCase} from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
 import Can, {AbilityContext} from "@features/casl/can";
@@ -91,7 +91,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CircleIcon from '@mui/icons-material/Circle';
 import {Epg, Layout} from "planby";
-import {EventItem, PlanByTimeline, setShowDetails, timeLineSelector, useTimeLine} from "@features/timeline";
+import {EventItem, PlanByTimeline, timeLineSelector, useTimeLine} from "@features/timeline";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -119,7 +119,7 @@ function WaitingRoom() {
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
-    const {showDetails: showTimeLineDetails} = useAppSelector(timeLineSelector);
+    const {showStats, showTimeline} = useAppSelector(timeLineSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -164,6 +164,7 @@ function WaitingRoom() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [drugs, setDrugs] = useState<any>([]);
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
+
     // Update timeLine Data
     const {isLoading, getEpgProps, getLayoutProps, onScrollToNow} = useTimeLine({data: sortedData});
 
@@ -831,6 +832,16 @@ function WaitingRoom() {
         i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"]);
 
         onScrollToNow();
+        // listener timeline handler
+        const container = document.querySelector(".planby > div > div") as HTMLElement;
+        container?.addEventListener("wheel", function (e) {
+            if (e.deltaY > 0) {
+                container.scrollLeft += 300;
+            } else {
+                container.scrollLeft -= 300;
+            }
+            e.preventDefault();
+        });
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
@@ -847,7 +858,7 @@ function WaitingRoom() {
                         display: "block"
                     }
                 }}>
-                <Epg isLoading={isLoading} {...getEpgProps()}>
+                {showTimeline && <Epg isLoading={isLoading} {...getEpgProps()}>
                     <Layout
                         {...getLayoutProps()}
                         renderTimeline={(props) => <PlanByTimeline {...props} />}
@@ -855,8 +866,8 @@ function WaitingRoom() {
                             <EventItem key={program.data.uuid} program={program} {...rest} />
                         )}
                     />
-                </Epg>
-                <Stack alignItems={"center"} width={"100%"}>
+                </Epg>}
+                {/*         <Stack alignItems={"center"} width={"100%"}>
                     <Fab
                         color="info"
                         onClick={event => {
@@ -872,13 +883,14 @@ function WaitingRoom() {
                         }}>
                         <IconUrl path={showTimeLineDetails ? "ic-outline-arrow-up" : "ic-arrow-down"}/>
                     </Fab>
-                </Stack>
+                </Stack>*/}
 
 
                 <RoomToolbar {...{
                     t,
                     tabIndex,
                     setTabIndex,
+                    onScrollToNow,
                     setPatientDetailDrawer,
                     nextConsultation,
                     columns: columns.current,
@@ -896,8 +908,8 @@ function WaitingRoom() {
                 <Box className="container">
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
-                            <Stack spacing={2}>
-                                <Stack direction='row' spacing={2}>
+                            <Stack spacing={1} {...(!showStats && {mt: -2})}>
+                                {showStats && <Stack direction='row' spacing={2}>
                                     <Card sx={{border: 'none', boxShadow: 'none', flex: 1,}}>
                                         <CardHeader
                                             sx={{pb: 0}}
@@ -908,7 +920,8 @@ function WaitingRoom() {
                                             }
                                             title={
                                                 <Stack spacing={.3}>
-                                                    <Typography fontWeight={600}>{t("appointments")}</Typography>
+                                                    <Typography
+                                                        fontWeight={600}>{startCase(t("appointments"))}</Typography>
                                                     <Typography fontWeight={600}
                                                                 fontSize={18}>{sortedData?.length}</Typography>
                                                 </Stack>
@@ -1099,7 +1112,7 @@ function WaitingRoom() {
                                             </Stack>
                                         </CardContent>
                                     </Card>
-                                </Stack>
+                                </Stack>}
                                 <Board
                                     {...{columns: columns.current, handleDragEvent, handleSortData, handleUnpaidFilter}}
                                     isUnpaidFilter={boardFilterData.unpaid}

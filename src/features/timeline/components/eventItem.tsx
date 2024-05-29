@@ -25,7 +25,7 @@ const EventItem = ({program, ...rest}: ProgramItem) => {
             sx={{
                 ...styles.position,
                 left: styles.position.left + leftOffset,
-                top: styles.position.top + (overlapEvent && index > 1 ? ((index - (overlapEventIndex - 1)) * (styles.position.height - heightOffset)) : 0),
+                //top: styles.position.top + (overlapEvent && index > 1 ? ((index - (overlapEventIndex - 1)) * (styles.position.height - heightOffset)) : 0),
                 boxShadow: "none",
                 border: "none",
                 position: 'absolute',
