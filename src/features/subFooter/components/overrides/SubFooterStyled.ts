@@ -1,6 +1,5 @@
 //component styles
-import { styled, Theme } from "@mui/system";
-import { AppBar } from "@mui/material";
+import { AppBar,styled, Theme  } from "@mui/material";
 import { MobileContainer } from "@lib/constants";
 const SubFooterStyled = styled(AppBar)(({ theme }: { theme: Theme }) => ({
     bottom: 0,

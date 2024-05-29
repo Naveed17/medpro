@@ -2,14 +2,14 @@ import TableCell from "@mui/material/TableCell";
 import {
     IconButton,
     InputAdornment,
+    Paper,
     Skeleton,
     Stack,
     TextField,
-    Typography,
-    useMediaQuery,
     Theme,
     Tooltip,
-    Paper,
+    Typography,
+    useMediaQuery,
     useTheme,
 } from "@mui/material";
 import {Otable, TableRowStyled} from "@features/table";
@@ -28,11 +28,37 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
+
     {
+        id: "mtt",
+        numeric: true,
+        disablePadding: false,
+        label: "mtt",
+        sortable: true,
+        align: "center",
+    },
+
+    {
+        id: "remb",
+        numeric: true,
+        disablePadding: false,
+        label: "remb",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "patient_part",
+        numeric: true,
+        disablePadding: false,
+        label: "patient_part",
+        sortable: true,
+        align: "center",
+    },
+    /*{
         id: "type",
         numeric: true,
         disablePadding: false,
-        label: "type",
+        label: "start_date",
         sortable: true,
         align: "center",
     },
@@ -45,45 +71,13 @@ const headCells: readonly HeadCell[] = [
         align: "center",
     },
     {
-        id: "mtt",
-        numeric: true,
-        disablePadding: false,
-        label: "mtt",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "tax",
-        numeric: true,
-        disablePadding: false,
-        label: "tax",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "remb",
-        numeric: true,
-        disablePadding: false,
-        label: "remb",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "tax_remb",
-        numeric: true,
-        disablePadding: false,
-        label: "tax_remb",
-        sortable: true,
-        align: "center",
-    },
-    {
         id: "actions",
         numeric: true,
         disablePadding: false,
         label: "actions",
         sortable: false,
         align: "right",
-    },
+    },*/
 ];
 
 function ActFeesRow({...props}) {
@@ -115,8 +109,7 @@ function ActFeesRow({...props}) {
 
     return (
         <>
-            <TableRowStyled className="act-fees-row"
-                            {...(collapse && {
+            <TableRowStyled className="act-fees-row" {...(collapse && {
                                 sx: {
                                     "& > .MuiTableCell-root": {
 
@@ -129,22 +122,21 @@ function ActFeesRow({...props}) {
                                         }
                                     }
                                 }
-                            })}
-            >
+                            })}>
                 <TableCell>
                     <Stack direction='row' alignItems='center' spacing={2}>
-                        {/* <IconButton
-                     onClick={()=> setCollapse(!collapse)}
-                     sx={{
-                        border: 1,
-                        borderColor: 'divider',
-                        borderRadius: .7,
-                        width: 27,
-                        height: 27,
+                        <IconButton
+                            onClick={() => setCollapse(!collapse)}
+                            sx={{
+                                border: 1,
+                                borderColor: 'divider',
+                                borderRadius: .7,
+                                width: 27,
+                                height: 27,
 
-                    }}>
-                        <IconUrl path="ic-expand"/>
-                    </IconButton>*/}
+                            }}>
+                            <IconUrl path="ic-expand"/>
+                        </IconButton>
                         {edit === row?.uuid && !row?.act.isVerified ? (
                             <TextField
                                 placeholder={"--"}
@@ -162,6 +154,7 @@ function ActFeesRow({...props}) {
                             </Tooltip>
                         )}
                     </Stack>
+
                 </TableCell>
                 <TableCell align={"center"}>
                     {edit === row?.uuid ? (
@@ -255,7 +248,7 @@ function ActFeesRow({...props}) {
                                         {t("save")}
                                     </Typography>
                                 </IconButton>
-                            ) : (
+                            ) : !row.hasData && (
                                 <IconButton
                                     size="small"
                                     className="btn-edit"
@@ -284,8 +277,8 @@ function ActFeesRow({...props}) {
                         onClick={(e)=> handleEvent({row,event:e,action:'OPEN-AGREEMENT-DIALOG'})}
                         variant="outlined" color="info" className="btn-action" startIcon={<IconUrl path="ic-plus" width={12} height={12}/>}>
                             {t("table.btn_action_text")} ({10})
-                        </Button>
-                        <IconButton size="small"
+                        </Button>*/}
+                            {/*<IconButton size="small"
                          onClick={(e)=> handleEvent({row,event:e,action:'OPEN-POPOVER'})}
                          className="btn-more"
                         >
@@ -306,33 +299,32 @@ function ActFeesRow({...props}) {
                 </TableCell>
             </TableRowStyled>
             {collapse && <TableRowStyled className="row-collapse">
-                <TableCell
-                    colSpan={5}
-                    style={{
-                        backgroundColor: "none",
-                        border: "none",
-                        borderTop: "none",
-                        borderBottom: "none",
-                        lineHeight: 0,
-                        padding: 0,
-                    }}>
+                <TableCell colSpan={5}
+                           style={{
+                               backgroundColor: "none",
+                               border: "none",
+                               borderTop: "none",
+                               borderBottom: "none",
+                               lineHeight: 0,
+                               padding: 0,
+                           }}>
                     <Paper sx={{
                         bgcolor: theme.palette.background.default,
                         p: 1,
-                        mt: -1,
+                        mt: 0,
                         borderTopLeftRadius: 0,
                         borderTopRightRadius: 0
                     }}>
                         <Otable
-
                             headers={headCells}
-                            rows={[1, 2, 3]}
+                            rows={row.insurances}
                             from={"actfees-collapse"}
                             {...{t, devise, handleEvent}}
                         />
                     </Paper>
                 </TableCell>
             </TableRowStyled>}
+
         </>
     );
 }

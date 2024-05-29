@@ -634,7 +634,8 @@ function DocumentDetailDialog({...props}) {
                         docs: urls, t,
                         editMode, bg2ePage, downloadMode,
                         setDocs: setUrls,
-                        state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                        state
+                             /*: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
                             info: [{
                                 fees: state?.consultationFees,
@@ -644,7 +645,7 @@ function DocumentDetailDialog({...props}) {
                                 },
                                 qte: 1
                             }]
-                        } : state
+                        } : state*/
                     }}/>
                 </Box> : <PreviewA4
                     {...{
@@ -656,7 +657,7 @@ function DocumentDetailDialog({...props}) {
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
                             info: [{
-                                fees: state?.consultationFees,
+                                //fees: state?.consultationFees,
                                 hiddenData: true,
                                 act: {
                                     name: "Consultation",

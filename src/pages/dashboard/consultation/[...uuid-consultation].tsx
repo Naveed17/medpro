@@ -1,6 +1,7 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetServerSideProps} from "next";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
     Avatar,
     Box,
@@ -362,6 +363,11 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
+    const {data: httpPatientInsuranceFees, mutate: mutateInsurance} = useRequestQuery(app_uuid && medical_professional_uuid ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${app_uuid}/professionals/${medical_professional_uuid}/acts/${router.locale}`
+    } : null);
+
     const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : [];
 
     const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
@@ -611,21 +617,21 @@ function ConsultationInProgress() {
 
     const DialogAction = () => {
         return (
-            <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
+            <DialogActions style={{ justifyContent: "space-between", width: "100%" }}>
                 <LoadingButton
                     loading={loading}
                     loadingPosition="start"
                     variant="text"
                     color={"black"}
                     onClick={leave}
-                    startIcon={<IconUrl path="ic-temps"/>}>
-                    <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                    startIcon={<IconUrl path="ic-temps" />}>
+                    <Typography sx={{ display: { xs: "none", md: "flex" } }}>
                         {t("later_on")}
                     </Typography>
                 </LoadingButton>
                 <Stack direction={"row"} spacing={2} sx={{
                     ".MuiButton-startIcon": {
-                        mr: {xs: 0, md: 1}
+                        mr: { xs: 0, md: 1 }
                     }
                 }}>
                     {/*<Button
@@ -1172,7 +1178,7 @@ function ConsultationInProgress() {
     }
 
     const showCheckedDoc = (name: string) => {
-        showDoc(documents.filter((doc: MedicalDocuments) => doc.documentType === name)[0]);
+        showDoc(documents.filter((doc: MedicalDocuments) => doc?.documentType === name)[0]);
     }
 
     const changeCoveredBy = (insuranceGenerated: boolean) => {
@@ -1262,6 +1268,7 @@ function ConsultationInProgress() {
             setSelectedModel(sheetModal);
             setInsuranceGenerated(sheet?.insuranceGenerated)
             setLoading(false)
+
             let _acts: AppointmentActModel[] = []
             medicalProfessionalData && medicalProfessionalData.acts.map(act => {
                 _acts.push({qte: 1, selected: false, ...act})
@@ -1274,7 +1281,7 @@ function ConsultationInProgress() {
                 setSelectedTab(router.query["tab"]?.toString())
 
             let nb = 0;
-            changes.map(change => {
+            changes.forEach(change => {
                 if (sheet && sheet[change.name]) {
                     change.checked = typeof sheet[change.name] == "boolean" && sheet[change.name] || sheet[change.name] > 0;
                     nb += sheet[change.name]
@@ -1305,7 +1312,19 @@ function ConsultationInProgress() {
             }
 
         }
-    }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [ sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(()=>{
+        if (httpPatientInsuranceFees){
+            const insuranceFees = httpPatientInsuranceFees.data;
+            let _acts: AppointmentActModel[] = []
+            insuranceFees.forEach((act:any) => {
+                _acts.push({qte: 1, selected: false, ...act})
+            })
+            setActs(_acts);
+            setMPActs(_acts); //.sort((a, b) => a.act.name.localeCompare(b.act.name))
+        }
+    },[httpPatientInsuranceFees])
 
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {
@@ -1638,6 +1657,11 @@ function ConsultationInProgress() {
                                     total,
                                     setTotal,
                                     devise,
+                                    setOpenDialogSave,
+                                    setInfo,
+                                    setState,
+                                    setOpenDialog,
+                                    patient,
                                     mutatePatient,
                                     t
                                 }} />
@@ -1733,51 +1757,13 @@ function ConsultationInProgress() {
                     padding={{xs: 1, md: 0}}
                     direction={{xs: "column", md: "row"}}
                     alignItems="flex-end"
-                    justifyContent={
-                        selectedTab === "medical_procedures" ? "space-between" : "flex-end"
-                    }>
-                    {selectedTab === "medical_procedures" && (
+                    justifyContent={"flex-end"}>
+                    {/*{selectedTab === "medical_procedures" && (
                         <Stack direction="row" alignItems={"center"}>
-                            <Typography variant="subtitle1">
-                                <span>{t("total")} : </span>
-                            </Typography>
-                            <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                {isNaN(total) || total < 0 ? "-" : total} {devise}
-                            </Typography>
                             <Stack
                                 direction="row"
                                 alignItems="center"
                                 spacing={2}>
-                                <span>|</span>
-                                {!isMobile && <Button
-                                    variant="text-black"
-                                    sx={{
-                                        border: `1px solid ${theme.palette.grey["200"]}`,
-                                        bgcolor: theme => theme.palette.grey['A500'],
-                                    }}
-                                    onClick={(event) => {
-                                        setOpenDialogSave(true);
-                                        let type = "";
-                                        if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                                            type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
-
-                                        event.stopPropagation();
-                                        setInfo("document_detail");
-                                        setState({
-                                            type: "fees",
-                                            name: "Honoraire",
-                                            info: acts.filter(act => act.selected),
-                                            createdAt: moment().format("DD/MM/YYYY"),
-                                            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                                            patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
-                                        });
-                                        setOpenDialog(true);
-
-                                    }}
-                                    startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
-                                    {t("consultationIP.print")}
-                                </Button>}
-
                                 {!isMobile && <Stack direction="row" alignItems='center' sx={{
                                     border: `1px dashed ${theme.palette.grey["200"]}`,
                                     borderRadius: 1,
@@ -1791,7 +1777,7 @@ function ConsultationInProgress() {
                                 </Stack>}
                             </Stack>
                         </Stack>
-                    )}
+                    )}*/}
 
                     {sheet?.status !== 5 && <LoadingButton
                         disabled={loading}

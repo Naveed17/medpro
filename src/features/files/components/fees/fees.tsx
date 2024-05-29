@@ -38,7 +38,7 @@ function Fees({...props}) {
                 <td style={{fontSize: 5}}></td>
             </tr>
 
-            {data.consultationFees > 0 && <>
+          {/*  {data.consultationFees > 0 && <>
                 <tr key={"consult"}>
                     <td className={"feesLine"}>Consultation</td>
                     <td className={"feesLine"} style={{textAlign: "center"}}></td>
@@ -49,7 +49,7 @@ function Fees({...props}) {
                     <td style={{fontSize: 5}}></td>
                 </tr>
             </>
-            }
+            }*/}
 
             {data.info.length > 0 && <tr>
                 <td className={"feesHeader"}>Acte</td>

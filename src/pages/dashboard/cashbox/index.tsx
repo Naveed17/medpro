@@ -50,6 +50,7 @@ import {ImageHandler} from "@features/image";
 import {LoadingScreen} from "@features/loadingScreen";
 import Can, {AbilityContext} from "@features/casl/can";
 import {ToggleButtonStyled} from "@features/toolbar";
+import {InsuranceDocket} from "@features/insuranceDocket";
 
 const noCardData = {
     mainIcon: "ic-unpaid",
@@ -89,6 +90,7 @@ function Cashbox() {
     const [ca, setCA] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
     const [totalCheck, setTotalCheck] = useState(0);
+    const [insuranceTotal, setInsuranceTotal] = useState(0);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const [loading, setLoading] = useState(true);
@@ -106,6 +108,10 @@ function Cashbox() {
         ...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
             label: "transactions",
             value: "transactions"
+        }] : []),
+        ...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
+            label: "insurances_key",
+            value: "insurances_key"
         }] : [])
     ];
     const MenuActions = [
@@ -169,6 +175,12 @@ function Cashbox() {
             mobile_icon: "ic-cheque-light-blue",
             amount: totalCheck,
             title: "cheque_cashed",
+        },
+        {
+            icon: "ic-insurance-light",
+            mobile_icon: "ic-insurance-light",
+            amount: insuranceTotal,
+            title: "insurance",
         },
     ];
     const isAddAppointment = false;
@@ -360,14 +372,14 @@ function Cashbox() {
     };
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
+
         setTotal(data.total_amount);
         setTotalCash(data.period_cash);
         setTotalCheck(data.period_check);
         setCA(data.appointment_total);
         setUnpaid(data.appointment_rest_total);
-        /*
-            setToReceive(data.total_insurance_amount);
-            setCollected(data.total_collected);*/
+        setInsuranceTotal(data.total_insurance_amount);
+
         txtGenerator();
         if (data.transactions) {
             setRows(data.transactions);
@@ -578,15 +590,14 @@ function Cashbox() {
                     mb={0.6}
                     display="grid"
                     sx={{gap: 1.2, px: 1}}
-                    gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}>
+                    gridTemplateColumns={`repeat(${isMobile ? "2" : "6"},minmax(0,1fr))`}>
                     {topCard.map((card, idx) => (
                         <Card sx={{border: "none"}} key={idx}>
                             <CardContent sx={{px: isMobile ? 1.75 : 2}}>
                                 <Stack
-                                    direction="row"
+                                    direction="column"
                                     {...(mode !== "normal" && {className: "blur-text"})}
-                                    alignItems="center"
-                                    spacing={{xs: 1, md: 2}}>
+                                    spacing={{xs: 1}}>
                                     <ImageHandler
                                         src={`/static/icons/${
                                             isMobile ? card.mobile_icon : card.icon
@@ -742,6 +753,41 @@ function Cashbox() {
                                             ))}
                                     </Stack>
                                 </MobileContainer>
+                            </CardContent>
+                        </Card>
+                    </Stack>
+                </TabPanel>
+
+                <TabPanel padding={1} value={selectedTab} index={"insurances_key"}>
+                    <Stack spacing={1}>
+                        <Card sx={{border: "none"}}>
+                            <CardContent>
+                                <Stack
+                                    direction="row"
+                                    alignItems={{xs: "center", md: "center"}}
+                                    justifyContent="space-between"
+                                    mb={2}
+                                    pb={1}
+                                    borderBottom={1}
+                                    borderColor="divider">
+                                    <Stack>
+                                        <Typography fontWeight={700}>
+                                            {t("insurances_key")}
+                                        </Typography>
+                                        <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
+                                    </Stack>
+                                    {/*{rows.length > 0 &&
+                                        <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
+                                            <Button startIcon={<IconUrl path="ic-export-new"/>}
+                                                    color="info"
+                                                    variant="outlined"
+                                                    onClick={() => exportDoc('cashbox')}>
+                                                {t("export")}
+                                            </Button>
+                                        </Can>
+                                    }*/}
+                                </Stack>
+                                <InsuranceDocket {...{filterCB}}/>
                             </CardContent>
                         </Card>
                     </Stack>
