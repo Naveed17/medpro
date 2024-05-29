@@ -229,7 +229,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             cycle.dosage.split("•").length === 1 &&
                             cycle.dosage.split(formsRegExp) && cycle.dosage.split(formsRegExp).length > 0
                                 ? dosageMeal.find((meal) =>
-                                    cycle.dosage.split(formsRegExp).includes(t(meal.label))
+                                    cycle.dosage.split(formsRegExp).some(element => element?.includes(t(meal.label)))
                                 )?.label
                                 :
                                 cycle.dosage.split("•").length > 0 &&
@@ -237,7 +237,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp) &&
                                 cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp).length > 0 ?
                                     dosageMeal.find((meal) =>
-                                        cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp).includes(t(meal.label))
+                                        cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp).some(element => element?.includes(t(meal.label)))
                                     )?.label
                                     :
                                     "",
