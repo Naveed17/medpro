@@ -326,7 +326,6 @@ const AddInsurance = ({...props}) => {
                         size="small"
                         value={getFieldProps(`insurance.insurance_number`)?.value || null}
                         onChange={(ev) => {
-                            console.log(ev.target.value)
                             setFieldValue(`insurance.insurance_number`, ev.target.value);
                         }}
                         fullWidth/>

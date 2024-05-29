@@ -322,7 +322,6 @@ function InsuranceDetail() {
     }
 
     useEffect(() => {
-        console.log("dockets", httpDocket)
         if (httpDocket)
             setDockets(httpDocket.data)
     }, [httpDocket]); // eslint-disable-line react-hooks/exhaustive-deps

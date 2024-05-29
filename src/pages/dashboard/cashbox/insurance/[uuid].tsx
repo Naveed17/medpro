@@ -315,7 +315,6 @@ function InscDetail() {
 
     const createInsuranceMP = () => {
         const form = new FormData();
-        console.log(selectedMPI)
         form.append('insurance', uuid);
         selectedMPI?.start_date && form.append('start_date', selectedMPI.start_date);
         selectedMPI?.end_date && form.append('end_date', selectedMPI.end_date);

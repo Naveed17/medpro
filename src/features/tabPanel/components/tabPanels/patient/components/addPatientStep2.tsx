@@ -313,7 +313,6 @@ function AddPatientStep2({...props}) {
     };
 
     const handleUpdatePatient  = ({...props}) => {
-        console.log(props)
         const {
             values,
             selectedBox,
@@ -331,11 +330,6 @@ function AddPatientStep2({...props}) {
         setSelected(null);
         setSelectedConv(null)
         resetForm();
-    }
-
-    const deleteInsurance = (uuid:string) => {
-        console.log(uuid)
-        console.log(patientInsurances)
     }
 
     useEffect(() => {

@@ -183,34 +183,6 @@ function PaymentDialog({...props}) {
         });
     }
 
-/*
-    const addInsuranceTransaction = (uuid:string) => {
-
-        const form = new FormData();
-        form.append("cash_box", selectedBoxes[0].uuid);
-        form.append("type_transaction", TransactionType[0].value);
-        form.append("amount", "50");
-        form.append("patient", patient.uuid);
-        form.append("insurance", uuid);
-        form.append("transaction_data", JSON.stringify([
-            {
-                appointment: app_uuid,
-                amount: "50"
-            }
-        ]));
-
-        triggerAppointmentEdit({
-            method: "POST",
-            url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-            data: form
-        }, {
-            onSuccess: (rest) => {
-               console.log(rest)
-            },
-        });
-    }
-*/
-
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
         const refList = document.getElementById("trList");

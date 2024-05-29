@@ -30,7 +30,6 @@ const PatientInsurance = ({...props}) => {
 
 
     const handleUpdatePatient = ({...props}) => {
-        console.log(props)
         const {
             values,
             selectedBox,
