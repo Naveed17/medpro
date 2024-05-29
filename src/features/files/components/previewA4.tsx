@@ -366,13 +366,13 @@ function PreviewDialog({...props}) {
                     elx.appendChild(header)
                 }
 
-                if (state.consultationFees > 0) {
+                /*if (state.consultationFees > 0) {
                     const line = document.createElement("tr");
                     line.innerHTML = `<td style="text-align: left !important;padding-bottom: 10px;padding-top: 10px">Consultation</td><td></td><td></td><td style="text-align: center">${state.consultationFees} <span style="font-size: 10px;color: gray">${devise}</span></td>`
                     line.style.borderBottom = "1px dashed grey";
                     elx.appendChild(line)
                     total += Number(state.consultationFees);
-                }
+                }*/
                 for (let i = lastPos; i < rows.length; i++) {
                     if (!rows[i].value.hiddenData) {
                         const line = document.createElement("tr");

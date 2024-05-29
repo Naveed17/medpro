@@ -7,6 +7,7 @@ import {
     Checkbox,
     FormControl,
     Grid,
+    IconButton,
     Menu,
     MenuItem,
     Select,
@@ -14,7 +15,8 @@ import {
     Stack,
     TextField,
     Theme,
-    Typography, useMediaQuery,
+    Typography,
+    useMediaQuery,
     useTheme,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
@@ -31,7 +33,6 @@ import PaymentCard from "@features/dialog/components/paymentDialog/paymentCard";
 import PaymentDialogStyled from "./overrides/paymentDialogStyle";
 import ConsultationCard from "@features/dialog/components/paymentDialog/consultationCard";
 import AddIcon from "@mui/icons-material/Add";
-import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import moment from "moment/moment";
@@ -40,6 +41,7 @@ import {LottiePlayer} from "@features/card/components/successCard/successCard";
 import {useCashBox} from "@lib/hooks/rest";
 import Can from "@features/casl/can";
 import {agendaSelector} from "@features/calendar";
+import {Label} from "@features/label";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -254,23 +256,24 @@ function PaymentDialog({...props}) {
     return (
         <PaymentDialogStyled>
             <Grid container spacing={{xs: 2, md: 6}}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={4}>
                     <Stack spacing={1}>
-                        <Stack direction={"row"} justifyContent={"space-between"}>
+                        <Stack direction={"row"} justifyContent={"space-between"}
+                               style={{borderBottom: `1px solid ${theme.palette.grey["200"]}`, paddingBottom: 10}}>
                             <Stack spacing={2} direction="row" alignItems="center">
                                 <Avatar
-                                    sx={{width: 42, height: 42}}
+                                    sx={{width: 40, height: 40}}
                                     src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
                                 <Stack>
                                     <Stack direction="row" spacing={0.5} alignItems="center">
-                                        <Typography fontWeight={700}>
+                                        <Typography color={"primary"} fontWeight={700}>
                                             {patient.firstName} {patient.lastName}
                                         </Typography>
                                     </Stack>
 
                                     {patient.contact?.length && (
                                         <Stack direction="row" spacing={0.5} alignItems="center">
-                                            <IconUrl path="ic-tel" color={theme.palette.text.primary}/>
+                                            <IconUrl path="ic-phone" color={theme.palette.text.primary}/>
                                             <Typography variant="body2" alignItems="center">
                                                 {patient.contact[0].value ? patient.contact[0].value : patient.contact[0]}
                                             </Typography>
@@ -278,6 +281,25 @@ function PaymentDialog({...props}) {
                                     )}
                                 </Stack>
                             </Stack>
+                            {patient.fiche_id && <Label
+                                variant="filled"
+                                color="info"
+                                sx={{color: (theme) => theme.palette.text.primary, borderRadius: 1, padding: 2}}>
+                                <IconUrl path={"ic-folder"} width={16} height={16}/>
+                                <Typography
+                                    color="text.primary"
+                                    variant="subtitle1"
+                                    fontSize={12}
+                                    ml={1}
+                                    style={{
+                                        textOverflow: "ellipsis",
+                                        overflow: "hidden",
+                                        width: 35
+                                    }}
+                                    fontWeight={500}>
+                                    {patient.fiche_id}
+                                </Typography>
+                            </Label>}
                         </Stack>
                         {loading && <Card>
                             <CardContent>
@@ -338,7 +360,7 @@ function PaymentDialog({...props}) {
                         </Card>}
                         {
                             !loading && appointments.length > 0 ? <>
-                                <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.leftPay')}</Typography>
+
                                 <ConsultationCard {...{
                                     allApps,
                                     appointments,
@@ -365,13 +387,49 @@ function PaymentDialog({...props}) {
                                 />
                                 <Typography fontWeight={"bold"}
                                             color={'#1B2746'}>{t('dialog.no_transaction')}</Typography>
-                                <Typography fontSize={13} color={'#1B2746'}>{t('dialog.add_now')}</Typography>
+                                <Typography fontSize={13} color={'#1B2746'}
+                                            textAlign={"center"}>{t('dialog.add_now')}</Typography>
                             </Stack>
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={8}>
                     <Stack spacing={1}>
+                        {/*<Stack spacing={1}
+                               style={{borderBottom: `1px solid ${theme.palette.grey["200"]}`, paddingBottom: 10}}>
+                            <Typography fontWeight={600} mb={1}>
+                                {t("dialog.insurance")}
+                            </Typography>
+                            <Stack direction={"row"} spacing={1}>
+                                {patient.insurances.map((insurance: any) => (
+                                    <Stack direction={"row"}
+                                           key={insurance.uuid}
+                                           spacing={1}
+                                           borderRadius={2}
+                                           style={{
+                                               border: `1px solid ${theme.palette.primary.main}`,
+                                               padding: 10,
+                                               width: "fit-content"
+                                           }}>
+                                        <Checkbox onChange={(ev) => {
+                                            if (ev.target.checked)
+                                                addInsuranceTransaction(insurance.insuranceBook.medicalEntityHasInsurance.uuid)
+                                        }
+                                        }/>
+                                        <Stack>
+                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                <Typography fontSize={16}
+                                                            fontWeight={"bold"}>{insurance.insurance.name}</Typography>
+                                                <Label color={"info"} variant="filled"
+                                                       sx={{borderRadius: 1}}>{insurance.insuranceBook.insuredPerson ? insurance.insuranceBook.insuredPerson : "Lui même"}</Label>
+                                            </Stack>
+                                            <Typography color={"#B5B5C3"}>Assurance expire
+                                                le {insurance.insuranceBook.endDate}</Typography>
+                                        </Stack>
+                                    </Stack>))}
+                            </Stack>
+                        </Stack>*/}
+
                         <Stack direction={{xs: "column", sm: "row"}}
                                alignItems="center"
                                justifyContent="space-between"
@@ -380,16 +438,13 @@ function PaymentDialog({...props}) {
                                 {t("payment")}
                             </Typography>
                             <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__create"}>
-                                <Button startIcon={<AddIcon/>}
-                                        endIcon={<UnfoldMoreRoundedIcon/>}
-                                        id="basic-button"
-                                        variant="contained"
-                                        aria-controls={open ? "basic-menu" : undefined}
-                                        aria-haspopup="true"
-                                        aria-expanded={open ? "true" : undefined}
-                                        onClick={handleClick}>
-                                    {t("add_payment")}
-                                </Button>
+                                <IconButton aria-controls={open ? "basic-menu" : undefined}
+                                            aria-haspopup="true"
+                                            style={{backgroundColor: theme.palette.primary.main, borderRadius: 8}}
+                                            aria-expanded={open ? "true" : undefined}
+                                            onClick={handleClick}>
+                                    <AddIcon style={{color: "white"}}/>
+                                </IconButton>
                             </Can>
                             <Menu
                                 id="basic-menu"

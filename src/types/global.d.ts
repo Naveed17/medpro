@@ -61,6 +61,7 @@ declare module "@mui/material/Button" {
         "text-primary": true;
         consultationIP: true;
         "primary-light": true;
+        grey:true;
     }
 
     interface ButtonPropsColorOverrides {
@@ -74,7 +75,7 @@ declare module "@mui/material/Alert" {
     interface AlertPropsColorOverrides {
         primary:true;
         expire:true;
-       
+
     }
 }
 declare module "@mui/material/CircularProgress" {

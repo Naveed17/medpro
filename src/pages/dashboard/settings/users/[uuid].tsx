@@ -171,7 +171,7 @@ function ModifyUser() {
             name: user?.userName || "",
             message: user?.message || "",
             admin: user?.admin || false,
-            consultation_fees: user?.ConsultationFees || "",
+           // consultation_fees: user?.ConsultationFees || "",
             birthdate: user?.birthDate || null,
             firstName: user?.firstName || " ",
             lastName: user?.lastName || " ",

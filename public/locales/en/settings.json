@@ -702,10 +702,12 @@
       "title": "Title",
       "type": "Nature",
       "exp_date": "Exp. date",
+      "patient_part": "Patient part",
       "mtt": "Mtt t.m.",
       "tax": "Tax t.m.",
       "remb": "Reimbursement",
-      "tax_remb": "Tax Reimbursement"
+      "tax_remb": "Tax Reimbursement",
+      "action": "Action"
     },
     "dialog": {
       "editAct": "Edit Act",
@@ -749,7 +751,9 @@
         "type": "Nature",
         "placeholder_type": "Type the agreement nature",
         "signed_agreement": "Have you signed the agreement?",
-        "apci_placeholder": "Select or type the APCi code"
+        "apci_placeholder": "Select or type the APCi code",
+        "label": "Label",
+        "acts": "Acts"
       }
     },
     "alert": {
@@ -909,6 +913,99 @@
         "today_placeholder": "Today's Date",
         "created": "Template created",
         "updated": "Template updated"
+      }
+    }
+  },
+  "insurance": {
+    "config": {
+      "title": "Insurances & Agreements",
+      "search": "Search",
+      "save": "Save",
+      "cancel": "Cancel",
+      "path": {
+        "root": "Settings > Insurances & agreements",
+        "update": "Settings > Insurances & agreements > Actes"
+      },
+      "act": "Act",
+      "add": "Add",
+      "table": {
+        "name": "Insurances",
+        "label": "Label",
+        "start_date": "Start date",
+        "end_date": "End date",
+        "empty": "",
+        "act": "Act",
+        "fees": "Fees",
+        "rem_amount": "Reimbursement",
+        "patient_share": "Patient part",
+        "apci": "APCI",
+        "actions": "Actions",
+        "code": "Code",
+        "contribution": "Contribution",
+        "amount": "Amount",
+        "btn_action_text": "Insurance/Agreement",
+        "title": "Title",
+        "type": "Type",
+        "exp_date": "Exp date",
+        "mtt": "Mtt t.m.",
+        "tax": "Taux t.m.",
+        "remb": "Remb.",
+        "tax_remb": "Taux Remb."
+      },
+      "dialog": {
+        "editAct": "Update act",
+        "info": "Information",
+        "name": "Name",
+        "price": "Price",
+        "delete-act-title": "Delete Act",
+        "delete-act-desc": "Do you want to delete the act",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "back": "Back",
+        "next": "Next",
+        "confirm": "Confirm",
+        "confirm_add": "Confirm & Add an other",
+        "confirm_save": "Confirm & Add an other",
+        "title": "Add insurance / agreement",
+        "create_act": "Add act",
+        "switch": "Advanced Input",
+        "contribution_placeholder": "Type the quote",
+        "amount_placeholder": "Enter the amount",
+        "confirm_dialog_title": "Creation of Insurance / Successful Agreement",
+        "exit": "Exit",
+        "add_an_other": "Add an other",
+        "confirm_dialog_desc": "Congratulations ! Your new medical insurance policy or agreement has been successfully created. Check out the details and feel free to add other fonts as needed.",
+        "stepper": {
+          "step-1": "Information",
+          "step-2": "Payment Detail",
+          "step-3": "Confirmation",
+          "insurance": "Insurance",
+          "agreement": "Convention",
+          "select_insurance": "Select insurance",
+          "name": "Convention name",
+          "description": "Label",
+          "placeholer_description": "Type the label",
+          "start_date": "Start date",
+          "end_date": "End date",
+          "ticket_moderateur_amount": "Moderator ticket amount",
+          "ticket_moderateur_amount_placeholder": "Type the moderator ticket amount",
+          "refund_amount": "Reimbursement",
+          "mutual": "Mutual",
+          "select_mutual": "Select or add mutual insurance",
+          "type": "Nature",
+          "placeholder_type": "Type the nature of the agreement",
+          "signed_agreement": "Have you signed the agreement?",
+          "apci_placeholder": "Select or type the APCi code",
+          "label": "Label",
+          "acts": "Acts"
+        }
+      },
+      "no-data": {
+        "title": "Add Insurance",
+        "description": "Description"
+      },
+      "popover-actions": {
+        "add": "Add"
       }
     }
   },

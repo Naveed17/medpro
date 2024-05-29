@@ -173,7 +173,7 @@ function TopNavBar({...props}) {
     const refreshAgendaData = () => {
         // refresh on going api
         mutateOnGoing();
-        router.push(selectedEvent === null && router.pathname !== "/dashboard/consultation/[uuid-consultation]" ? router.pathname : "/dashboard/agenda").then(() => {
+        router.push(selectedEvent === null && router.pathname !== "/dashboard/consultation/[...uuid-consultation]" ? router.pathname : "/dashboard/agenda").then(() => {
             // invalidate agenda query
             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]).then(() => setLoadingReq(false));
         });
@@ -282,7 +282,10 @@ function TopNavBar({...props}) {
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
         return router.push({
             pathname: slugConsultation,
-            query: {inProgress: true}
+            query: {
+                inProgress: true,
+                agendaUuid: agendaConfig?.uuid
+            }
         }, slugConsultation, {locale: router.locale});
     }
 

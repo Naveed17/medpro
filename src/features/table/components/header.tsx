@@ -5,13 +5,13 @@ import TableHead from "@mui/material/TableHead";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import { Checkbox } from "@mui/material";
-import { visuallyHidden } from "@mui/utils";
+import {Checkbox} from "@mui/material";
+import {visuallyHidden} from "@mui/utils";
 import CodeIcon from "@mui/icons-material/Code";
 import { capitalize } from 'lodash'
 import SortIcon from "@themes/overrides/icons/sortIcon"
 
-function OHead({ ...props }) {
+function OHead({...props}) {
     const {
         order,
         orderBy,
@@ -61,6 +61,7 @@ function OHead({ ...props }) {
                                 padding={headCell.disablePadding ? "none" : "normal"}
                                 sortDirection={orderBy === headCell.id ? order : false}>
                                 <TableSortLabel
+                                    className="ellipsis"
                                     active={orderBy === headCell.id}
                                     direction={orderBy === headCell.id ? order : "asc"}
                                     {...(headCell.sortable && {

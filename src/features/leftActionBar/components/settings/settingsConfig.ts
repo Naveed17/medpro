@@ -82,7 +82,7 @@ const settingsData = {
                     disable: false
                 },
                 {
-                    name: "insurance",
+                    name: "insurance_agreement",
                     feature: 'insurance-agreement',
                     disable: false
                 },

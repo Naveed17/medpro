@@ -89,7 +89,10 @@ function RDVRow({...props}) {
             const slugConsultation = `/dashboard/consultation/${appointmentData.uuid}`;
             router.push({
                 pathname: slugConsultation,
-                query: {inProgress: true}
+                query: {
+                    inProgress: true,
+                    agendaUuid: agenda?.uuid
+                }
             }, slugConsultation, {locale: router.locale}).then(() => closePatientDialog && closePatientDialog());
         } else {
             const event: any = {

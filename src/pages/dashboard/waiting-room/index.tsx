@@ -253,7 +253,10 @@ function WaitingRoom() {
             const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
             router.push({
                 pathname: slugConsultation,
-                query: {inProgress: true}
+                query: {
+                    inProgress: true,
+                    agendaUuid: agenda?.uuid
+                }
             }, slugConsultation, {locale: router.locale});
         } else {
             const defEvent = {
