@@ -173,7 +173,6 @@ function TopNavBar({...props}) {
     const refreshAgendaData = () => {
         // refresh on going api
         mutateOnGoing();
-        console.log("router.pathname", router.pathname)
         router.push(selectedEvent === null && router.pathname !== "/dashboard/consultation/[...uuid-consultation]" ? router.pathname : "/dashboard/agenda").then(() => {
             // invalidate agenda query
             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]).then(() => setLoadingReq(false));
