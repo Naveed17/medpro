@@ -14,7 +14,6 @@ import {
     Typography
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {useTheme} from "@mui/material/styles";
 import styles from '../styles/Home.module.scss'
 import {LoadingScreen} from "@features/loadingScreen";
 import axios from "axios";
@@ -27,7 +26,6 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 function Home() {
     const router = useRouter();
     const {data: session, status, update} = useSession();
-    const theme = useTheme();
     const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation(['common', 'menu']);
@@ -70,10 +68,8 @@ function Home() {
         }
     }, [router, status]);
 
-
     const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) =>
         [...(entites ?? []), {...data?.medical_entity, isOwner: data.is_owner}], []) ?? []) as MedicalEntityModel[];
-    const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
     const medicalEntity = session?.data?.medical_entity;
     const hasSelectedEntity = medicalEntity?.has_selected_entity ?? false;
     const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
@@ -143,9 +139,9 @@ function Home() {
                                                 </a>
                                             </Stack>)}
                                         <Typography variant="body2" textAlign='center'>
-                                            {t("login.sign_in_desc_1")}
+                                            {t(`login.sign_in_${medical_entities?.length > 0 ? 'desc' : 'error'}_1`)}
                                             <br/>
-                                            {t("login.sign_in_desc_2")}
+                                            {t(`login.sign_in_${medical_entities?.length > 0 ? 'desc' : 'error'}_2`)}
                                         </Typography>
                                     </Stack>
                                     <Menu
