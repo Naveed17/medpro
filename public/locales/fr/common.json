@@ -192,7 +192,9 @@
     "sign_forget_pass": "Rester connecté",
     "sign_connect_btn": "Connexion",
     "sign_in_desc_1": "Vous avez été ajouté aux espaces de travail.",
-    "sign_in_desc_2": "Vous pouvez passer d'un espace de travail à l'autre à tout moment."
+    "sign_in_desc_2": "Vous pouvez passer d'un espace de travail à l'autre à tout moment.",
+    "sign_in_error_1": "Si le problème persiste, veuillez contacter votre chargé.e commercial.e.",
+    "sign_in_error_2": "L'intégrité de vos données est assurée."
   },
   "schedule": {
     "add": "Ajouter",

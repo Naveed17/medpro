@@ -143,9 +143,9 @@ function Home() {
                                                 </a>
                                             </Stack>)}
                                         <Typography variant="body2" textAlign='center'>
-                                            {t("login.sign_in_desc_1")}
+                                            {t(`login.sign_in_${medical_entities?.length > 0 ?'desc': 'error'}_1`)}
                                             <br/>
-                                            {t("login.sign_in_desc_2")}
+                                            {t(`login.sign_in_${medical_entities?.length > 0 ?'desc': 'error'}_2`)}
                                         </Typography>
                                     </Stack>
                                     <Menu
