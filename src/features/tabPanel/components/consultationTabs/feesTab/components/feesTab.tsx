@@ -157,10 +157,9 @@ function FeesTab({...props}) {
         }
     }, [res]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const saveChanges = (actsList: any[]) => {
+    const saveChanges = (actsList: any[],rowUuid?:string,from?:boolean) => {
 
         const _acts: { act_uuid: string; name: string; qte: number; price: number; }[] = [];
-
         let _total = 0
         actsList.filter((act: any) => act.selected).forEach((act: any) => {
             _total += act.fees * act.qte
@@ -169,10 +168,10 @@ function FeesTab({...props}) {
                 name: act.act.name,
                 qte: act.qte,
                 price: act.fees,
-                ...(act.insurance_act && {insurance_act: act.insurance_act}),
+                ...(act.insurance_act ? {insurance_act: act.insurance_act} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {insurance_act: act.insurances[0].uuid}: null),
                 ...(act.insurance && {insurance: act.insurance}),
-                ...(act.patient_part && {patient_part: act.patient_part}),
-                ...(act.refund && {refund: act.refund})
+                ...(act.patient_part ? {patient_part: act.patient_part}  : act.insurances.length > 0 && rowUuid === act.uuid && from ? {patient_part: act.insurances[0].patient_part} : null),
+                ...(act.refund ? {refund: act.refund} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {refund: act.insurances[0].refund} : null)
             });
         });
         setTotal(_total);
@@ -278,8 +277,8 @@ function FeesTab({...props}) {
                                     t={t}
                                     edit={editAct ? editAct : editActConsult}
                                     insurances={patient.insurances}
-                                    handleEvent={() => {
-                                        saveChanges([...acts])
+                                    handleEvent={(rowUuid:string,from:boolean) => {
+                                        saveChanges([...acts],rowUuid,from)
                                     }}
                                     devise={devise}
                                     handleChange={setTotal}/>
