@@ -159,6 +159,8 @@ function RDVRow({...props}) {
                 // refresh on going api
                 mutateOnGoing();
                 mutatePatientHistory();
+                // Mutate agenda
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`]);
                 setDeleteDialog(false);
             },
             onSettled: () => setLoadingReq(false)
