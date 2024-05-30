@@ -11,6 +11,7 @@ import {SettingConfig, leftActionBarSelector, setTabIndex} from "@features/leftA
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {HolidaysPanel, LocationPanel, TabPanel,} from "@features/tabPanel";
 import {Breadcrumbs} from "@features/breadcrumbs";
+import useBreadcrumbs from "@lib/hooks/useBreadcrumbs";
 
 const breadcrumbsData = [
     {
@@ -33,29 +34,23 @@ function ScheduleAndLocation() {
     const {tabIndex} = useAppSelector(leftActionBarSelector);
     const {t, ready, i18n} = useTranslation("settings");
 
+    const {stepperData, currentIndex, breadcrumbsDataMap} = useBreadcrumbs({
+        group: "schedule-and-location",
+        breadcrumbsData,
+        tabIndex
+    })
+
     const tabChange = (event: React.SyntheticEvent, newValue: number) => {
         dispatch(setTabIndex(newValue))
     }
-    const stepperData = SettingConfig.dashboard.find(v => v.name === "schedule-and-location")?.submenu ?? [];
-    const breadcrumbsDataMap = breadcrumbsData.map((item, i) => {
-        if (breadcrumbsData.length - 1 === i) {
-            item.title = stepperData[tabIndex].name;
-            item.title = capitalize(item.title.replace(/_/g, ' '))
 
-        }
-        return item;
-
-    })
     useEffect(() => {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
-        return () => {
-            if (tabIndex !== 0) {
-                //dispatch(setTabIndex(0))
-            }
-        }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <>
             <SubHeader>
@@ -65,7 +60,7 @@ function ScheduleAndLocation() {
                         {t("scheduleAndLocation.title")}
                     </Typography>
                     <Tabs
-                        value={tabIndex}
+                        value={currentIndex}
                         onChange={tabChange}
                         variant="scrollable"
                         scrollButtons={false}
@@ -86,10 +81,10 @@ function ScheduleAndLocation() {
                 </Stack>
             </SubHeader>
             <Stack className="container">
-                <TabPanel padding={0} index={tabIndex} value={0}>
+                <TabPanel padding={0} index={currentIndex} value={0}>
                     <LocationPanel/>
                 </TabPanel>
-                <TabPanel padding={0} index={tabIndex} value={1}>
+                <TabPanel padding={0} index={currentIndex} value={1}>
                     <HolidaysPanel/>
                 </TabPanel>
             </Stack>

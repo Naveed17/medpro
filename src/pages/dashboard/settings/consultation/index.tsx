@@ -7,7 +7,7 @@ import {Stack, Tab, Tabs, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
 import {a11yProps} from "@lib/hooks";
-import {SettingConfig, leftActionBarSelector, setTabIndex} from "@features/leftActionBar";
+import {leftActionBarSelector, setTabIndex} from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     ActFeesPanel,
@@ -21,7 +21,7 @@ import {
     TabPanel
 } from "@features/tabPanel";
 import {Breadcrumbs} from "@features/breadcrumbs";
-import {capitalize} from "lodash";
+import useBreadcrumbs from "@lib/hooks/useBreadcrumbs";
 
 const breadcrumbsData = [
     {
@@ -43,31 +43,24 @@ function Consultation() {
     const dispatch = useAppDispatch();
 
     const {tabIndex} = useAppSelector(leftActionBarSelector);
-
     const {t, ready, i18n} = useTranslation("settings");
+    const {stepperData, currentIndex, breadcrumbsDataMap} = useBreadcrumbs({
+        group: "consultation",
+        breadcrumbsData,
+        tabIndex
+    })
+
     const tabChange = (event: React.SyntheticEvent, newValue: number) => {
         dispatch(setTabIndex(newValue))
     }
-    const stepperData = SettingConfig.dashboard.find(v => v.name === "consultation")?.submenu ?? [];
-    const breadcrumbsDataMap = breadcrumbsData.map((item, i) => {
-        if (breadcrumbsData.length - 1 === i) {
-            item.title = stepperData[tabIndex]?.name;
-            item.title = capitalize(item.title.replace(/_/g, ' '))
 
-        }
-        return item;
-
-    })
     useEffect(() => {
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
-        return () => {
-            if (tabIndex !== 0) {
-                // dispatch(setTabIndex(0))
-            }
-        }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <>
             <SubHeader>
@@ -77,7 +70,7 @@ function Consultation() {
                         {t("consultation.title")}
                     </Typography>
                     <Tabs
-                        value={tabIndex}
+                        value={currentIndex}
                         onChange={tabChange}
                         variant="scrollable"
                         scrollButtons={false}
@@ -99,32 +92,30 @@ function Consultation() {
 
             </SubHeader>
             <Stack className="container">
-                <TabPanel padding={0} index={tabIndex} value={0}>
+                <TabPanel padding={0} index={currentIndex} value={0}>
                     <ActFeesPanel/>
                 </TabPanel>
-                <TabPanel padding={0} index={tabIndex} value={1}>
+                <TabPanel padding={0} index={currentIndex} value={1}>
                     <InsurancePanel/>
                 </TabPanel>
-                <TabPanel padding={0} index={tabIndex} value={2}>
+                <TabPanel padding={0} index={currentIndex} value={2}>
                     <MotifsPanel/>
                 </TabPanel>
-                <TabPanel padding={0} index={tabIndex} value={3}>
+                <TabPanel padding={0} index={currentIndex} value={3}>
                     <SheetsPanel/>
                 </TabPanel>
-                <TabPanel padding={0} index={tabIndex} value={4}>
+                <TabPanel padding={0} index={currentIndex} value={4}>
                     <MotifTypesPanel/>
                 </TabPanel>
-                <TabPanel padding={0} index={tabIndex} value={5}>
+                <TabPanel padding={0} index={currentIndex} value={5}>
                     <DrugsPanel/>
                 </TabPanel>
-                <TabPanel padding={0} index={tabIndex} value={6}>
+                <TabPanel padding={0} index={currentIndex} value={6}>
                     <AnalysesPanel/>
                 </TabPanel>
-                <TabPanel padding={0} index={tabIndex} value={7}>
+                <TabPanel padding={0} index={currentIndex} value={7}>
                     <MedicalImagingPanel/>
                 </TabPanel>
-
-
             </Stack>
         </>
     )

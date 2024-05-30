@@ -38,6 +38,7 @@ export * from "./getMimeTypeFromArrayBuffer";
 export * from "./blobToBase64";
 export * from "./mergeArrayByKey";
 export * from "./useStopwatch";
+export * from "./useBreadcrumbs";
 export * from "./usePreventBodyScroll";
 export * from "./prepareContextMenu";
 export * from "./isSupported";
