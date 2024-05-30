@@ -44,13 +44,13 @@ import {Dialog} from "@features/dialog";
 import {setMessage, setOpenChat} from "@features/chat/actions";
 import {setDialog} from "@features/topNavBar";
 import Can from "@features/casl/can";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function PatientDetailsCard({...props}) {
     const {
         isBeta,
         contactData,
         patient,
-        patientPhoto,
         mutatePatientList,
         mutateAgenda,
         loading = false,
@@ -67,6 +67,7 @@ function PatientDetailsCard({...props}) {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
     const formik = useFormik({
         enableReinitialize: true,

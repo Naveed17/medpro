@@ -7,6 +7,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useAntecedentTypes} from "@lib/hooks/rest";
 
 Font.register({
     family: 'Poppins',
@@ -93,9 +94,10 @@ const styles = StyleSheet.create({
 });
 
 function PatientFile({...props}) {
-    const {patient, antecedentsData, t, allAntecedents} = props;
+    const {patient, antecedentsData, t} = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {allAntecedents} = useAntecedentTypes();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
