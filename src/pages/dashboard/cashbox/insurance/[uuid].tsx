@@ -337,7 +337,7 @@ function InscDetail() {
         trigger(
             {
                 method: "GET",
-                url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/export/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/export/pdf/${router.locale}`,
             },
             {
                 onSuccess: (result) => {
