@@ -93,7 +93,7 @@ function AppointmentDetail({...props}) {
     const [canManageActions] = useState<boolean>(![
         "/dashboard/patient",
         "/dashboard/waiting-room",
-        "/dashboard/consultation/[uuid-consultation]"].includes(router.pathname));
+        "/dashboard/consultation/[...uuid-consultation]"].includes(router.pathname));
     const [loading, setLoading] = useState(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 

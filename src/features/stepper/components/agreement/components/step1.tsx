@@ -41,41 +41,18 @@ function Step1({ ...props }) {
               *
             </Typography>
           </Typography>
-          <Select
-            fullWidth
-            size={"small"}
-            displayEmpty
-            sx={{
-              maxHeight: 35,
-              "& .MuiSelect-select": {
-                background: "white",
-              },
-            }}
-            value={values.agreement.select_mutual || ""}
-            onChange={(event) => {
-              setFieldValue("agreement", {
-                ...values.agreement,
-                select_mutual: event.target.value,
-              });
-            }}
-            renderValue={(selected) => {
-              if (!selected || (selected && selected.length === 0)) {
-                return (
-                  <Typography color={"gray"}>
-                    {t("dialog.stepper.select_mutual")}
-                  </Typography>
-                );
-              }
 
-              return selected;
-            }}
-          >
-            {names.map((name) => (
-              <MenuItem key={name} value={name}>
-                {name}
-              </MenuItem>
-            ))}
-          </Select>
+          <TextField
+              value={values.agreement.type || ""}
+              onChange={(event) => {
+                setFieldValue("agreement", {
+                  ...values.agreement,
+                  type: event.target.value,
+                });
+              }}
+              placeholder={t("dialog.stepper.placeholder_type")}
+          />
+
         </Stack>
         <Stack spacing={0.5} width={1}>
           <Typography variant="body2" color="text.secondary">

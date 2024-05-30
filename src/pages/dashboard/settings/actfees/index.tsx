@@ -21,7 +21,6 @@ import {
     MenuItem,
     Paper,
     Stack,
-    Switch,
     TextField,
     Theme,
     Typography,
@@ -45,12 +44,12 @@ import Icon from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
 import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {ActionMenu} from "@features/menu";
 import {Dialog as MedDialog} from "@features/dialog";
 import {setStepperIndex, stepperSelector} from "@features/stepper";
 import AddIcon from "@mui/icons-material/Add";
 import {useSendNotification} from "@lib/hooks/rest";
+import useMPActs from "@lib/hooks/rest/useMPacts";
 
 const filter = createFilterOptions<any>();
 
@@ -96,17 +95,7 @@ const headCells: readonly HeadCell[] = [
         align: "right",
     },
 ];
-const stepperData = [
-    {
-        title: "dialog.stepper.step-1",
-    },
-    {
-        title: "dialog.stepper.step-2",
-    },
-    {
-        title: "dialog.stepper.step-3",
-    },
-];
+
 
 function ActFees() {
     const {data: session} = useSession();
@@ -114,6 +103,7 @@ function ActFees() {
     const router = useRouter();
     const theme = useTheme();
     const {trigger: triggerNotificationPush} = useSendNotification();
+    const {acts, mutateActs} = useMPActs({noPagination: false})
 
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) =>
@@ -123,7 +113,6 @@ function ActFees() {
     const {medical_professional} = useMedicalProfessionalSuffix();
     const dispatch = useAppDispatch();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-    const {currentStep} = useAppSelector(stepperSelector);
     const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "actfees"});
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
@@ -133,8 +122,7 @@ function ActFees() {
     const [selected, setSelected] = useState<any>("");
     const [create, setCreate] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
-    const [consultationFees, setConsultationFees] = useState(0);
-    const [collapse, setCollapse] = useState(false);
+    //const [consultationFees, setConsultationFees] = useState(0);
     const [confirmDialog, setConfirmDialog] = useState(false);
     const [isChecked, setIsChecked] = useState(user.medical_entity.hasDemo);
     const [newFees, setNewFees] = useState<{
@@ -147,7 +135,6 @@ function ActFees() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [openAgreementDialog, setAgreementDialog] = useState(false);
     const [popoverChildData, setPopoverChildData] = useState(false);
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;
@@ -178,29 +165,9 @@ function ActFees() {
             : null
     );
 
-    const {data: httpProfessionalsActs, mutate: mutateActs} = useRequestQuery(
-        medical_professional
-            ? {
-                method: "GET",
-                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
-            }
-            : null,
-        {
-            ...ReactQueryNoValidateConfig,
-            ...(medical_professional && {
-                variables: {
-                    query: !isMobile
-                        ? `?page=${router.query.page || 1
-                        }&limit=10&withPagination=true&sort=true`
-                        : "?sort=true",
-                },
-            }),
-        }
-    );
-
     useEffect(() => {
         if (medicalProfessionalData) {
-            setConsultationFees(Number(medicalProfessionalData?.consultation_fees));
+            //setConsultationFees(Number(medicalProfessionalData?.consultation_fees));
             if (localStorage.getItem("newCashbox")) {
                 setIsChecked(localStorage.getItem("newCashbox") === "1");
             }
@@ -209,19 +176,17 @@ function ActFees() {
 
     useEffect(() => {
         setLoading(true);
-        if (httpProfessionalsActs !== undefined) {
+        if (acts) {
             if (isMobile) {
-                const response = (httpProfessionalsActs as HttpResponse).data;
-                setMainActes(response as ActModel[]);
+                setMainActes(acts);
                 setLoading(false);
             } else {
-                const response =
-                    (httpProfessionalsActs as HttpResponse)?.data?.list ?? [];
+                const response = acts?.list ?? [];
                 setMainActes(response as ActModel[]);
                 setLoading(false);
             }
         }
-    }, [httpProfessionalsActs]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [acts]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         //reload resources from cdn servers
@@ -237,7 +202,7 @@ function ActFees() {
         setNewFees({act: null, fees: "", code: "", contribution: ""});
     };
 
-    const editFees = () => {
+    /*const editFees = () => {
         const form = new FormData();
         form.append("consultation_fees", consultationFees.toString());
         triggerActUpdate(
@@ -251,7 +216,7 @@ function ActFees() {
                     enqueueSnackbar(t("alert.updated"), {variant: "success"}),
             }
         );
-    };
+    };*/
 
     const removeFees = (uuid: string) => {
         setLoading(true);
@@ -386,7 +351,7 @@ function ActFees() {
         setSelected(prop);
     };
     const handleScroll = () => {
-        const total = (httpProfessionalsActs as HttpResponse)?.data.length;
+        const total = acts.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
             setLoading(true);
             if (total > displayedItems) {
@@ -397,15 +362,7 @@ function ActFees() {
             }
         }
     };
-    const handleTableActions = ({
-                                    action,
-                                    event,
-                                    row,
-                                }: {
-        action: string;
-        event: any;
-        row: any;
-    }) => {
+    const handleTableActions = ({action, event}: { action: string; event: any; }) => {
         switch (action) {
             case "OPEN-POPOVER":
                 event.preventDefault();
@@ -431,10 +388,6 @@ function ActFees() {
                         : null
                 );
                 break;
-            case "OPEN-AGREEMENT-DIALOG":
-                event.preventDefault();
-                setAgreementDialog(true);
-                dispatch(setStepperIndex(0));
         }
     };
     const handleCloseMenu = () => {
@@ -455,9 +408,9 @@ function ActFees() {
             });
         }
         return () => window.removeEventListener("scroll", handleScroll);
-    }, [httpProfessionalsActs, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [acts, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
+    const actsSpeciality = (httpActSpeciality as HttpResponse)?.data as ActModel[];
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (
@@ -532,7 +485,7 @@ function ActFees() {
                 />
             </Card>
 
-            {isMobile && (
+            {/*{isMobile && (
                 <Box padding={2}>
                     <Stack
                         spacing={1}
@@ -566,13 +519,11 @@ function ActFees() {
                         </Button>
                     </Stack>
                 </Box>
-            )}
-            <Box
-                sx={{
-                    p: {xs: "40px 8px", sm: "30px 8px", md: 2},
-                    table: {tableLayout: "fixed"},
-                }}
-            >
+            )}*/}
+            <Box sx={{
+                p: {xs: "40px 8px", sm: "30px 8px", md: 2},
+                table: {tableLayout: "fixed"},
+            }}>
                 <Paper sx={{p: 2, table: {tableLayout: "auto"}}}>
                     <Stack
                         direction="row"
@@ -603,9 +554,9 @@ function ActFees() {
                             edit={handleEdit}
                             handleEvent={handleTableActions}
                             {...{t, loading, handleSelected}}
-                            total={(httpProfessionalsActs as HttpResponse)?.data?.total}
+                            total={acts?.total}
                             totalPages={
-                                (httpProfessionalsActs as HttpResponse)?.data?.totalPages
+                                acts?.totalPages
                             }
                             pagination
                         />
@@ -687,143 +638,11 @@ function ActFees() {
                 )}
             </ActionMenu>
             <MedDialog
-                action={"agreement"}
-                open={openAgreementDialog}
-                data={{t, devise, stepperData, collapse}}
-                direction={direction}
-                sx={{bgcolor: theme.palette.background.default}}
-                dialogClose={() => {
-                    setAgreementDialog(false);
-                    setCollapse(false);
-                }}
-                onClose={() => {
-                    setAgreementDialog(false);
-                    setCollapse(false);
-                }}
-                t={t}
-                headerDialog={
-                    <DialogTitle
-                        sx={{
-                            backgroundColor: (theme: Theme) => theme.palette.primary.main,
-                            position: "relative",
-                        }}
-                        id="scroll-dialog-title"
-                    >
-                        <Stack
-                            direction={"row"}
-                            justifyContent={"space-between"}
-                            alignItems={"center"}
-                        >
-                            {t("dialog.title")}
-                            <Stack direction="row" alignItems="center" ml={1}>
-                                {stepperData.length - 1 === currentStep ? (
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => {
-                                            setAgreementDialog(false);
-                                            setCollapse(false);
-                                        }}
-                                    >
-                                        <CloseIcon
-                                            fontSize="small"
-                                            sx={{color: "common.white"}}
-                                        />
-                                    </IconButton>
-                                ) : (
-                                    <FormControlLabel
-                                        sx={{
-                                            mr: 0,
-                                            ".MuiTypography-root": {color: "common.white"},
-                                        }}
-                                        control={
-                                            <Switch
-                                                className="custom-switch"
-                                                checked={collapse}
-                                                onChange={(event) => {
-                                                    if (event.target.checked) {
-                                                        dispatch(setStepperIndex(currentStep + 1));
-                                                    } else {
-                                                        dispatch(setStepperIndex(currentStep - 1));
-                                                    }
-                                                    setCollapse(event.target.checked);
-                                                }}
-                                            />
-                                        }
-                                        label={t("dialog.switch")}
-                                    />
-                                )}
-                            </Stack>
-                        </Stack>
-                    </DialogTitle>
-                }
-                actionDialog={
-                    <Stack
-                        width={1}
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        position="relative"
-                        {...(stepperData.length - 1 === currentStep && {
-                            pb: {xs: 6, sm: 0},
-                        })}
-                    >
-                        <Button
-                            variant="text-black"
-                            onClick={() =>
-                                currentStep < 1
-                                    ? (setAgreementDialog(false), setCollapse(false))
-                                    : dispatch(setStepperIndex(currentStep - 1))
-                            }
-                        >
-                            {t("dialog.back")}
-                        </Button>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <Button
-                                variant="contained"
-                                onClick={() => {
-                                    if (stepperData.length - 1 > currentStep) {
-                                        dispatch(setStepperIndex(currentStep + 1));
-                                    } else {
-                                        setAgreementDialog(false);
-                                        setCollapse(false);
-                                    }
-                                }}
-                                {...(stepperData.length - 1 === currentStep && {
-                                    variant: "outlined",
-                                    color: "info",
-                                    sx: {bgcolor: theme.palette.grey["A500"]},
-                                })}
-                            >
-                                {t("dialog.next")}
-                            </Button>
-                            {stepperData.length - 1 === currentStep && (
-                                <Button
-                                    onClick={() => {
-                                        setAgreementDialog(false);
-                                        setCollapse(false);
-                                        setConfirmDialog(true);
-                                    }}
-                                    variant="contained"
-                                    sx={{
-                                        position: {xs: "absolute", sm: "static"},
-                                        width: {xs: "100%", sm: "auto"},
-                                        left: {xs: -8, sm: "unset"},
-                                        bottom: {xs: 0, sm: "unset"},
-                                    }}
-                                >
-                                    {t("dialog.confirm_save")}
-                                </Button>
-                            )}
-                        </Stack>
-                    </Stack>
-                }
-            />
-            <MedDialog
                 action={"create-act"}
                 title={t("dialog.create_act")}
                 size={"sm"}
                 open={create}
-                data={{acts, theme, t, isMobile, newFees, setNewFees, filter, devise}}
+                data={{acts: actsSpeciality, theme, t, isMobile, newFees, setNewFees, filter, devise}}
                 direction={direction}
                 onClose={() => {
                     setCreate(false);

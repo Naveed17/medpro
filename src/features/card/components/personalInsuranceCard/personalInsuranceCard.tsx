@@ -14,7 +14,8 @@ import {
     Skeleton,
     Stack,
     Toolbar,
-    Typography, useTheme
+    Typography,
+    useTheme
 } from "@mui/material";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -32,13 +33,14 @@ import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
+import {prepareInsurancesData, useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
-import {ImageHandler} from "@features/image";
 
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {PatientInsurance} from "@features/patientInsurance";
+import {ImageHandler} from "@features/image";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -303,7 +305,14 @@ function PersonalInsuranceCard({...props}) {
                                 pb: 0
                             })
                         }}>
-                        <AppBar position="static" color={"transparent"}>
+                        <PatientInsurance {...{
+                            patientInsurances,
+                            mutatePatientInsurances,
+                            patient,
+                            urlMedicalEntitySuffix,
+                            medicalEntityHasUser
+                        }}/>
+                        {/*<AppBar position="static" color={"transparent"}>
                             <Toolbar variant="dense">
                                 <Box sx={{flexGrow: 1}}>
                                     <Typography
@@ -416,7 +425,7 @@ function PersonalInsuranceCard({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>))
-                        }
+                        }*/}
                     </Paper>
                 </PersonalInfoStyled>
                 <Dialog

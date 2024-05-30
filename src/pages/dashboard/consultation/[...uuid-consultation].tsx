@@ -1,6 +1,7 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
-import {GetStaticPaths, GetStaticProps} from "next";
+import {GetServerSideProps} from "next";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
     Avatar,
     Box,
@@ -78,7 +79,7 @@ import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import {DefaultCountry} from "@lib/constants";
-import {Session} from "next-auth";
+import {getServerSession, Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useSendNotification, useWidgetModels} from "@lib/hooks/rest";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
@@ -99,6 +100,9 @@ import {useSnackbar} from "notistack";
 import {AbilityContext} from "@features/casl/can";
 import {useChannel} from "ably/react";
 import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import {authOptions} from "../../api/auth/[...nextauth]";
+import axios from "axios";
+import {parseBody} from "next/dist/server/api-utils/node/parse-body";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -165,7 +169,7 @@ function ConsultationInProgress() {
 
     const {data: user} = session as Session;
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData.medical_professional.uuid;
-    const app_uuid = router.query["uuid-consultation"];
+    const app_uuid = (router.query["uuid-consultation"] ?? [""])[0];
     const general_information = (user as UserDataResponse).general_information;
     const cardPositions = localStorage.getItem('cardPositions') !== null ? JSON.parse((localStorage.getItem('cardPositions') as string)) : null
     const sDoc = localStorage.getItem('showDocument') ? localStorage.getItem('showDocument') == 'true' : false
@@ -358,6 +362,11 @@ function ConsultationInProgress() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
+
+    const {data: httpPatientInsuranceFees, mutate: mutateInsurance} = useRequestQuery(app_uuid && medical_professional_uuid ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${app_uuid}/professionals/${medical_professional_uuid}/acts/${router.locale}`
+    } : null);
 
     const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : [];
 
@@ -608,21 +617,21 @@ function ConsultationInProgress() {
 
     const DialogAction = () => {
         return (
-            <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
+            <DialogActions style={{ justifyContent: "space-between", width: "100%" }}>
                 <LoadingButton
                     loading={loading}
                     loadingPosition="start"
                     variant="text"
                     color={"black"}
                     onClick={leave}
-                    startIcon={<IconUrl path="ic-temps"/>}>
-                    <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                    startIcon={<IconUrl path="ic-temps" />}>
+                    <Typography sx={{ display: { xs: "none", md: "flex" } }}>
                         {t("later_on")}
                     </Typography>
                 </LoadingButton>
                 <Stack direction={"row"} spacing={2} sx={{
                     ".MuiButton-startIcon": {
-                        mr: {xs: 0, md: 1}
+                        mr: { xs: 0, md: 1 }
                     }
                 }}>
                     {/*<Button
@@ -1169,7 +1178,7 @@ function ConsultationInProgress() {
     }
 
     const showCheckedDoc = (name: string) => {
-        showDoc(documents.filter((doc: MedicalDocuments) => doc.documentType === name)[0]);
+        showDoc(documents.filter((doc: MedicalDocuments) => doc?.documentType === name)[0]);
     }
 
     const changeCoveredBy = (insuranceGenerated: boolean) => {
@@ -1259,6 +1268,7 @@ function ConsultationInProgress() {
             setSelectedModel(sheetModal);
             setInsuranceGenerated(sheet?.insuranceGenerated)
             setLoading(false)
+
             let _acts: AppointmentActModel[] = []
             medicalProfessionalData && medicalProfessionalData.acts.map(act => {
                 _acts.push({qte: 1, selected: false, ...act})
@@ -1267,11 +1277,11 @@ function ConsultationInProgress() {
 
             setMPActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
 
-            if(router.query["tab"]?.toString())
+            if (router.query["tab"]?.toString())
                 setSelectedTab(router.query["tab"]?.toString())
 
             let nb = 0;
-            changes.map(change => {
+            changes.forEach(change => {
                 if (sheet && sheet[change.name]) {
                     change.checked = typeof sheet[change.name] == "boolean" && sheet[change.name] || sheet[change.name] > 0;
                     nb += sheet[change.name]
@@ -1302,7 +1312,19 @@ function ConsultationInProgress() {
             }
 
         }
-    }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [ sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(()=>{
+        if (httpPatientInsuranceFees){
+            const insuranceFees = httpPatientInsuranceFees.data;
+            let _acts: AppointmentActModel[] = []
+            insuranceFees.forEach((act:any) => {
+                _acts.push({qte: 1, selected: false, ...act})
+            })
+            setActs(_acts);
+            setMPActs(_acts); //.sort((a, b) => a.act.name.localeCompare(b.act.name))
+        }
+    },[httpPatientInsuranceFees])
 
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {
@@ -1345,17 +1367,7 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (inProgress) {
-            const form = new FormData();
-            form.append('status', '4');
-            form.append('start_date', moment().format("DD-MM-YYYY"));
-            form.append('start_time', moment().format("HH:mm"));
-            updateAppointmentStatus({
-                method: "PATCH",
-                data: form,
-                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
-            }, {
-                onSuccess: () => mutateOnGoing()
-            });
+            mutateOnGoing()
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1645,6 +1657,11 @@ function ConsultationInProgress() {
                                     total,
                                     setTotal,
                                     devise,
+                                    setOpenDialogSave,
+                                    setInfo,
+                                    setState,
+                                    setOpenDialog,
+                                    patient,
                                     mutatePatient,
                                     t
                                 }} />
@@ -1740,51 +1757,13 @@ function ConsultationInProgress() {
                     padding={{xs: 1, md: 0}}
                     direction={{xs: "column", md: "row"}}
                     alignItems="flex-end"
-                    justifyContent={
-                        selectedTab === "medical_procedures" ? "space-between" : "flex-end"
-                    }>
-                    {selectedTab === "medical_procedures" && (
+                    justifyContent={"flex-end"}>
+                    {/*{selectedTab === "medical_procedures" && (
                         <Stack direction="row" alignItems={"center"}>
-                            <Typography variant="subtitle1">
-                                <span>{t("total")} : </span>
-                            </Typography>
-                            <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                {isNaN(total) || total < 0 ? "-" : total} {devise}
-                            </Typography>
                             <Stack
                                 direction="row"
                                 alignItems="center"
                                 spacing={2}>
-                                <span>|</span>
-                                {!isMobile && <Button
-                                    variant="text-black"
-                                    sx={{
-                                        border: `1px solid ${theme.palette.grey["200"]}`,
-                                        bgcolor: theme => theme.palette.grey['A500'],
-                                    }}
-                                    onClick={(event) => {
-                                        setOpenDialogSave(true);
-                                        let type = "";
-                                        if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                                            type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
-
-                                        event.stopPropagation();
-                                        setInfo("document_detail");
-                                        setState({
-                                            type: "fees",
-                                            name: "Honoraire",
-                                            info: acts.filter(act => act.selected),
-                                            createdAt: moment().format("DD/MM/YYYY"),
-                                            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                                            patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
-                                        });
-                                        setOpenDialog(true);
-
-                                    }}
-                                    startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
-                                    {t("consultationIP.print")}
-                                </Button>}
-
                                 {!isMobile && <Stack direction="row" alignItems='center' sx={{
                                     border: `1px dashed ${theme.palette.grey["200"]}`,
                                     borderRadius: 1,
@@ -1798,7 +1777,7 @@ function ConsultationInProgress() {
                                 </Stack>}
                             </Stack>
                         </Stack>
-                    )}
+                    )}*/}
 
                     {sheet?.status !== 5 && <LoadingButton
                         disabled={loading}
@@ -2363,7 +2342,28 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => {
+export const getServerSideProps: GetServerSideProps = async ({locale, query, ...context}) => {
+    const session = await getServerSession(context.req, context.res, authOptions)
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
+
+    if (query.inProgress) {
+        const form = new FormData();
+        form.append('status', '4');
+        form.append('start_date', moment().format("DD-MM-YYYY"));
+        form.append('start_time', moment().format("HH:mm"));
+        await axios({
+            url: `${baseURL}api/medical-entity/${medical_entity.uuid}/agendas/${query.agendaUuid}/appointments/${query['uuid-consultation']}/status/${locale}`,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${session?.accessToken}`
+            },
+            data: form
+        })
+    }
+
     return {
         props: {
             fallback: false,
@@ -2373,13 +2373,6 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
                 "common"
             ])),
         },
-    };
-}
-
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
-    return {
-        paths: [], //indicates that no page needs be created at build time
-        fallback: "blocking", //indicates the type of fallback
     };
 }
 

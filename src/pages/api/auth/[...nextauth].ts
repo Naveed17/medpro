@@ -244,7 +244,9 @@ export const authOptions: NextAuthOptions = {
                         Authorization: `Bearer ${token.accessToken}`
                     }
                 });
-                const res = await response.json();
+
+                const res = response.status !== 500 ? await response.json() : {...response, status: "error"};
+
                 if (res.status === "error") {
                     const errorData = res;
                     if (errorData.code === 4006) {

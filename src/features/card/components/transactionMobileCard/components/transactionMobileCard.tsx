@@ -84,8 +84,8 @@ export default function TransactionMobileCard({...props}) {
                                 justifyContent="center"
                                 spacing={1}>
                                 {row.payment_means &&
-                                    row.payment_means.map((mean: any,index) => (
-                                        <Tooltip key={mean.slug+index} title={`${mean.amount} ${devise}`}>
+                                    row.payment_means.map((mean: any, index: number) => (
+                                        <Tooltip key={mean.slug + index} title={`${mean.amount} ${devise}`}>
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img
                                                 style={{width: 15}}

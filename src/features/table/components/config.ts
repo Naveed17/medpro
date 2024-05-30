@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import StaffRow from "@features/table/components/rows/staffRow";
 
 const rowsActionsData = [
     {
@@ -249,6 +248,13 @@ const rowsActionsData = [
                 (mod) => mod
             )
         ),
+    },{
+        action: "insurance-fees-collapse",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/insuranceFeesRow").then(
+                (mod) => mod
+            )
+        ),
     },
      {
         action: "rest-pass",
@@ -270,6 +276,54 @@ const rowsActionsData = [
         action: "department",
         component: dynamic((): any =>
             import("@features/table/components/rows/departmentRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "insurance-agreement",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/insuranceAgreementRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "agreements",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/agreementsRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "act-row",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/actRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "insurance-appointment",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/insuranceAppointmentRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "act-row-insurance",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/actRowInsurance").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "archive-insurance-slip",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/archiveSlipRow").then(
                 (mod) => mod
             )
         ),

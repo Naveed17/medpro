@@ -334,6 +334,18 @@ export default function Button(theme) {
           },
         },
         {
+          props: { variant: "grey" },
+          style: {
+            color: theme.palette.grey[500],
+            backgroundColor: theme.palette.grey["A500"],
+            border: `1px solid ${theme.palette.grey["A500"]}`,
+            "&:hover": {
+              color: theme.palette.text.primary,
+              backgroundColor: theme.palette.grey["A500"],
+            },
+          },
+        },
+        {
           props: { variant: "modifire" },
           style: {
             color: theme.palette.primary.main,
