@@ -3,11 +3,11 @@ import {DashLayout} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
-import {Stack, Tab, Tabs, Typography, capitalize} from "@mui/material";
+import {Stack, Tab, Tabs, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
 import {a11yProps} from "@lib/hooks";
-import {SettingConfig, leftActionBarSelector, setTabIndex} from "@features/leftActionBar";
+import {leftActionBarSelector, setTabIndex} from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {HolidaysPanel, LocationPanel, TabPanel,} from "@features/tabPanel";
 import {Breadcrumbs} from "@features/breadcrumbs";
@@ -26,7 +26,6 @@ const breadcrumbsData = [
         title: "",
         href: null
     }
-
 ]
 
 function ScheduleAndLocation() {

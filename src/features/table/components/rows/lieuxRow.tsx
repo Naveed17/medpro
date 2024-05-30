@@ -1,14 +1,14 @@
 import React from "react";
 import Switch from "@mui/material/Switch";
 import TableCell from "@mui/material/TableCell";
-import {Box, IconButton, Skeleton, Stack, Typography} from "@mui/material";
+import {Box, IconButton, Skeleton, Stack, Typography, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
 
 function LieuxRow({...props}) {
-
     const {row, handleChange, edit, t} = props;
+    const theme = useTheme();
 
     return (
         <TableRowStyled key={uniqueId}>
@@ -50,24 +50,19 @@ function LieuxRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
-                            handleChange(row, 'edit')
-                        }}>
-                            <IconUrl path="setting/edit"/>
+                        <IconButton
+                            size="small"
+                            className="btn-edit"
+                            onClick={() => handleChange(row, 'edit')}>
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                         </IconButton>
-                        {/*<IconButton disabled={!row.isDefault} onClick={() => {
-                            handleChange(row, 'remove')
-                        }} size="small" sx={{mr: {md: 1}}}>
-                            <IconUrl path="setting/icdelete"/>
-                        </IconButton>*/}
                     </Box>
                 ) : (
                     <Stack
                         direction="row"
                         spacing={1}
                         alignItems="center"
-                        justifyContent="flex-end"
-                    >
+                        justifyContent="flex-end">
                         <Skeleton variant="text" width={50}/>
                         <Skeleton variant="text" width={50}/>
                     </Stack>
