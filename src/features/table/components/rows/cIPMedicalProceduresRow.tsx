@@ -66,7 +66,7 @@ function CIPMedicalProceduresRow({...props}) {
             row.refund = insurance.refund;
         }
         editMotif(row, "change");
-        handleEvent()
+        handleEvent(row.uuid,false)
         setCollapse(false)
     }
 
@@ -86,7 +86,7 @@ function CIPMedicalProceduresRow({...props}) {
                             color="primary"
                             onChange={() => {
                                 editMotif(row, "check");
-                                handleEvent()
+                                handleEvent(row.uuid, true)
                             }}
                             checked={row.selected}
                         />
@@ -140,7 +140,7 @@ function CIPMedicalProceduresRow({...props}) {
                             setTimeout(() => {
                                 dispatch(SetLoading(false))
                             }, 3000)
-                            handleEvent()
+                            handleEvent(row.uuid, false)
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e: any) => {
@@ -178,7 +178,7 @@ function CIPMedicalProceduresRow({...props}) {
                             setTimeout(() => {
                                 dispatch(SetLoading(false))
                             }, 3000)
-                            handleEvent()
+                            handleEvent(row.uuid, false)
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e: any) => {
@@ -214,7 +214,7 @@ function CIPMedicalProceduresRow({...props}) {
                             setTimeout(() => {
                                 dispatch(SetLoading(false))
                             }, 3000)
-                            handleEvent()
+                            handleEvent(row.uuid, false)
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e: any) => {
@@ -239,7 +239,7 @@ function CIPMedicalProceduresRow({...props}) {
                                     e.stopPropagation();
                                     row.qte = row.qte - 1;
                                     editMotif(row, "change");
-                                    handleEvent()
+                                    handleEvent(row.uuid, false)
                                 }}>
                                 <RemoveIcon width={1} height={1}/>
                             </IconButton>
@@ -254,7 +254,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 }}
                                 onBlur={() => {
                                     setSelected("");
-                                    handleEvent()
+                                    handleEvent(row.uuid, false)
                                 }}
                                 autoFocus={selected === row.uuid + "qte"}
                                 onChange={(e) => {
@@ -272,7 +272,7 @@ function CIPMedicalProceduresRow({...props}) {
                                     e.stopPropagation();
                                     row.qte = row.qte + 1;
                                     editMotif(row, "change");
-                                    handleEvent()
+                                    handleEvent(row.uuid, false)
                                 }}>
                                 <AddIcon/>
                             </IconButton>

@@ -7,7 +7,7 @@ import AddInsurance from "@features/patientInsurance/components/addInsurance";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import CardInsurance from "@features/patientInsurance/components/cardInsurance";
 import {useTranslation} from "next-i18next";
-import {prepareInsurancesData} from "@lib/hooks";
+import {prepareInsurancesData, useInvalidateQueries} from "@lib/hooks";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 
@@ -17,6 +17,8 @@ const PatientInsurance = ({...props}) => {
     const {t} = useTranslation(["patient", "common"]);
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
     const {trigger: triggerDelete} = useRequestQueryMutation("/insurance/delete");
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+
     const router = useRouter();
 
     const noAppData = {
@@ -58,6 +60,8 @@ const PatientInsurance = ({...props}) => {
                 setAddNew(false)
                 setSelected(null);
                 setSelectedConv(null)
+                invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`,`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`]);
+
                 resetForm();
                 setSelectedInsurance && setSelectedInsurance("");
                 mutatePatientInsurances && mutatePatientInsurances();
@@ -72,6 +76,7 @@ const PatientInsurance = ({...props}) => {
         }, {
             onSuccess: () => {
                 mutatePatientInsurances && mutatePatientInsurances();
+                invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`,`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`]);
             }
         })
     }
