@@ -221,10 +221,10 @@ function Lieux() {
         />
 
 
-        {(doctor_country?.code !== "ma" && rows.length > 0) &&
+{/*        {(doctor_country?.code !== "ma" && rows.length > 0) &&
           <Maps data={cords}
             outerBounds={outerBounds}
-            draggable={false} />}
+            draggable={false} />}*/}
       </Box>
     </>
   );

@@ -1,5 +1,5 @@
 export {default as ActFeesPanel} from './fees'
-export {default as InsurancePanel} from './insurance';
+export {default as InsurancePanel} from './insurance-agreement';
 export {default as MotifsPanel} from './motifs';
 export {default as SheetsPanel} from './sheets';
 export {default as MotifTypesPanel} from './types'
