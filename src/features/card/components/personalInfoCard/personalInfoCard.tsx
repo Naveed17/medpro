@@ -19,7 +19,9 @@ import {
     Toolbar,
     Typography,
     useTheme,
-    alpha
+    alpha,
+    FormControl,
+    InputLabel
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import { useRequestQueryMutation } from "@lib/axios";
@@ -54,6 +56,7 @@ function PersonalInfo({ ...props }) {
     const {
         patient, mutatePatientDetails, mutatePatientList = null,
         mutateAgenda = null, countries_api,
+        patientPhoto,
         loading = false, editable: defaultEditStatus, setEditable
     } = props;
 
@@ -62,7 +65,7 @@ function PersonalInfo({ ...props }) {
     const theme = useTheme();
     const { enqueueSnackbar } = useSnackbar();
     const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const [openPanels, setOpenPanels] = useState<string[]>([])
+    const [openPanel, setOpenPanel] = useState<boolean>(true)
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const { t, ready } = useTranslation("patient", { keyPrefix: "config.add-patient" });
@@ -72,9 +75,8 @@ function PersonalInfo({ ...props }) {
 
     const { trigger: triggerPatientUpdate } = useRequestQueryMutation("/patient/update");
     const { trigger: triggerAddressedBy } = useRequestQueryMutation("/patient/addressed-by/add");
-    const handleTogglePanels = (panel: string) => {
-        const newOpenPanels = openPanels.includes(panel) ? openPanels.filter(item => item !== panel) : [...openPanels, panel];
-        setOpenPanels(newOpenPanels);
+    const handleTogglePanels = () => {
+        setOpenPanel(!openPanel)
     }
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -88,6 +90,8 @@ function PersonalInfo({ ...props }) {
         email: Yup.string()
             .email('Invalid email format'),
         birthdate: Yup.string(),
+        fiche_id: Yup.string()
+            .required(t("fiche_id-error")),
         old: Yup.string(),
         profession: Yup.string(),
         cin: Yup.string(),
@@ -95,7 +99,8 @@ function PersonalInfo({ ...props }) {
         nationality: Yup.string()
     });
     const initialValue = {
-        picture: { url: "", file: "" },
+        picture: { url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""), file: "" },
+        fiche_id: !loading ? `${patient.fiche_id}` : "",
         gender: !loading && patient.gender
             ? patient.gender === "M" ? "1" : "2"
             : "",
@@ -879,7 +884,8 @@ function PersonalInfo({ ...props }) {
                             action={
                                 <IconButton size="small" sx={{
                                     svg: {
-                                        transform: openPanels.includes("personal") ? "" : "scale(-1)"
+                                        transform: openPanel ? "" : "scale(-1)",
+                                        transition: "transform 0.3s"
                                     }
                                 }}>
                                     <IconUrl path="ic-outline-arrow-up" width={16} height={16} />
@@ -892,58 +898,212 @@ function PersonalInfo({ ...props }) {
                                     alignSelf: 'center'
                                 }
                             }}
-                            onClick={() => handleTogglePanels("personal")}
+                            onClick={() => handleTogglePanels()}
                         />
-                        <Collapse in={openPanels.includes("personal")}>
+                        <Collapse in={openPanel}>
                             <CardContent>
-                                <Stack direction='row' alignItems='center' spacing={2}>
-                                    <Box position='relative' width={70} height={70}
-                                        sx={{
-                                            '.close': {
-                                                opacity: 0,
-                                                visibility: 'hidden',
-                                                transition: 'all .2s ease-in-out'
-                                            },
-                                            '&:hover .close': {
-                                                opacity: 1,
-                                                visibility: 'visible'
-                                            }
-                                        }}
-                                    >
-                                        <Avatar
-                                            sx={{ width: 70, height: 70, cursor: 'pointer' }}
-                                            component='label'
-                                            htmlFor="contained-button-file"
-                                            src={values.picture.url}
+                                <Stack spacing={2}>
+                                    <Stack direction='row' alignItems='center' spacing={2}>
+                                        <Box position='relative' width={70} height={70}
+                                            sx={{
+                                                '.close': {
+                                                    opacity: 0,
+                                                    visibility: 'hidden',
+                                                    transition: 'all .2s ease-in-out'
+                                                },
+                                                '&:hover .close': {
+                                                    opacity: 1,
+                                                    visibility: 'visible'
+                                                }
+                                            }}
                                         >
-                                            <InputStyled
-                                                onChange={(e) => handleDrop(e.target.files as FileList)}
-                                                id="contained-button-file"
-                                                type="file"
+                                            <Avatar
+                                                sx={{ width: 70, height: 70, cursor: 'pointer' }}
+                                                component='label'
+                                                htmlFor="contained-button-file"
+                                                src={values.picture.url}
+                                            >
+                                                <InputStyled
+                                                    onChange={(e) => handleDrop(e.target.files as FileList)}
+                                                    id="contained-button-file"
+                                                    type="file"
+                                                />
+                                                <IconUrl path="ic-linear-camera-add" width={28} height={28} />
+                                            </Avatar>
+                                            {values.picture.url && (
+                                                <IconButton
+                                                    className="close"
+                                                    size="small"
+                                                    disableRipple
+                                                    onClick={() => {
+                                                        setFieldValue("picture", { url: "", file: "" });
+                                                    }}
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        background: alpha(theme.palette.grey['A100'], .6),
+                                                        top: 2,
+                                                        right: 2,
+                                                        p: .25
+
+                                                    }}
+                                                >
+                                                    <IconUrl path="ic-x" width={16} height={16} />
+                                                </IconButton>
+                                            )}
+                                        </Box>
+                                        <FormControl fullWidth>
+                                            <Typography gutterBottom color="grey.500">{t("patient_rec_no")}
+                                                {" "} <span className="required">*</span>
+                                            </Typography>
+                                            <TextField
+                                                {...(values.fiche_id && {
+                                                    sx: {
+                                                        ".MuiInputBase-root": {
+                                                            bgcolor: theme.palette.grey[50]
+                                                        }
+                                                    }
+                                                })}
+                                                placeholder={t("patient_rec_no_placeholder")}
+                                                {...getFieldProps("fiche_id")}
+                                                error={Boolean(touched.fiche_id && errors.fiche_id)}
+                                                helperText={touched.fiche_id && errors.fiche_id}
                                             />
-                                            <IconUrl path="ic-linear-camera-add" width={28} height={28} />
-                                        </Avatar>
-                                        {values.picture.url && (
-                                            <IconButton
-                                                className="close"
-                                                size="small"
-                                                disableRipple
-                                                onClick={() => {
-                                                    setFieldValue("picture", { url: "", file: null });
+                                        </FormControl>
+                                    </Stack>
+                                    <Stack direction='row' spacing={2}>
+                                        <FormControl fullWidth sx={{ flex: .75 }}>
+                                            <Typography gutterBottom color="grey.500">{t("gender")}
+                                                {" "} <span className="required">*</span>
+                                            </Typography>
+                                            <Select
+                                                {...(values.gender && {
+                                                    sx: {
+                                                        "&.MuiInputBase-root": {
+                                                            bgcolor: theme.palette.grey[50]
+                                                        }
+                                                    }
+                                                })}
+                                                fullWidth
+                                                id="sms-input"
+                                                displayEmpty
+                                                size='small'
+                                                value={values.gender}
+                                                onChange={(res) => {
+                                                    setFieldValue("gender", res.target.value);
                                                 }}
-                                                sx={{
-                                                    position: 'absolute',
-                                                    background: alpha(theme.palette.grey['A100'], .6),
-                                                    top: 2,
-                                                    right: 2,
-                                                    p: .25
+                                                renderValue={(selected) => {
+                                                    if (!selected) {
+                                                        return (
+                                                            <Typography color={'text.secondary'}>{t("gender")}</Typography>
+                                                        )
+
+                                                    };
+                                                    return (
+                                                        <Typography color={'text.secondary'}>{selected === "1" ? t("mr") : t("mrs")}</Typography>
+                                                    )
+
 
                                                 }}
+
                                             >
-                                                <IconUrl path="ic-x" width={16} height={16} />
-                                            </IconButton>
-                                        )}
-                                    </Box>
+                                                {[{ title: 'mr', value: '1' }, { title: "mrs", value: '2' }].map((gender) => (
+                                                    <MenuItem
+                                                        key={gender.value}
+                                                        value={gender.value}
+                                                    >
+                                                        {t(gender.title)}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </FormControl>
+                                        <FormControl fullWidth sx={{ flex: 1 }}>
+                                            <Typography gutterBottom color="grey.500">{t("first-name")}
+                                                {" "} <span className="required">*</span>
+                                            </Typography>
+                                            <TextField
+                                                {...(values.firstName && {
+                                                    sx: {
+                                                        ".MuiInputBase-root": {
+                                                            "&.MuiInputBase-root": {
+                                                                bgcolor: theme.palette.grey[50]
+                                                            }
+                                                        }
+                                                    }
+                                                })}
+                                                placeholder={t("first-name-placeholder")}
+                                                {...getFieldProps("firstName")}
+                                                error={Boolean(touched.firstName && errors.firstName)}
+                                                helperText={touched.firstName && errors.firstName}
+                                            />
+                                        </FormControl>
+                                        <FormControl fullWidth sx={{ flex: 1 }}>
+                                            <Typography gutterBottom color="grey.500">{t("last-name")}
+                                                {" "} <span className="required">*</span>
+                                            </Typography>
+                                            <TextField
+                                                {...(values.lastName && {
+                                                    sx: {
+                                                        ".MuiInputBase-root": {
+                                                            "&.MuiInputBase-root": {
+                                                                bgcolor: theme.palette.grey[50]
+                                                            }
+                                                        }
+                                                    }
+                                                })}
+                                                placeholder={t("last-name-placeholder")}
+                                                {...getFieldProps("lastName")}
+                                                error={Boolean(touched.lastName && errors.lastName)}
+                                                helperText={touched.lastName && errors.lastName}
+                                            />
+                                        </FormControl>
+                                    </Stack>
+                                    <Stack direction='row' spacing={2}>
+                                        <FormControl fullWidth sx={{
+                                            flex: 1, ...(values.birthdate && {
+                                                "& .MuiInputBase-root": {
+                                                    "&.MuiInputBase-root": {
+                                                        bgcolor: theme.palette.grey[50]
+                                                    }
+                                                }
+                                            })
+                                        }}>
+                                            <Typography color={'grey.500'} gutterBottom>
+                                                {t("birthdate")}
+                                            </Typography>
+                                            <DatePicker
+
+                                                format={"dd/MM/yyyy"}
+                                                value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY").toDate() : null}
+                                                onChange={date => {
+                                                    const dateInput = moment(date as any);
+                                                    setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
+                                                    if (dateInput.isValid()) {
+                                                        const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                        setFieldValue("old", old > 120 ? "" : old);
+                                                    } else {
+                                                        setFieldValue("old", "");
+                                                    }
+                                                }}
+                                                slots={{
+                                                    openPickerIcon: CalendarPickerIcon,
+                                                }}
+                                                slotProps={{ textField: { size: "small" } }}
+                                            />
+                                        </FormControl>
+                                        <FormControl fullWidth sx={{ flex: .41 }}>
+                                            <Typography gutterBottom color="grey.500">{t("old")}
+                                            </Typography>
+                                            <TextField
+                                                InputProps={{
+                                                    readOnly: true
+                                                }}
+
+                                                placeholder={t("old")}
+                                                {...getFieldProps("old")}
+
+                                            />
+                                        </FormControl>
+                                    </Stack>
                                 </Stack>
                             </CardContent>
                         </Collapse>

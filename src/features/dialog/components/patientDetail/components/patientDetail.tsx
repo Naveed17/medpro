@@ -382,7 +382,8 @@ function PatientDetail({ ...props }) {
                 mutateAntecedents,
                 mutateAgenda,
                 editable,
-                setEditable
+                setEditable,
+                patientPhoto
             }} />
         }] : []),
         // ...(ability.can('manage', 'patients', 'patients__patient__details__history') ? [{

@@ -1,4 +1,4 @@
-import {Stack} from "@mui/material";
+import { Stack } from "@mui/material";
 import dynamic from "next/dynamic";
 
 const PersonalInfoCard = dynamic(() =>
@@ -10,14 +10,14 @@ const PersonalInsuranceCard = dynamic(() =>
 const AntecedentsCard = dynamic(() =>
     import('@features/card').then((mod) => mod.AntecedentsCard))
 
-function PersonInfoPanel({...props}) {
-    const {countries_api, contacts, contactData, ...other} = props;
+function PersonInfoPanel({ ...props }) {
+    const { countries_api, contacts, contactData, patientPhoto, ...other } = props;
     return (
-        <Stack spacing={2} className={"container"}>
-            <PersonalInfoCard {...{countries_api, ...other}} />
-            <PersonalInsuranceCard {...{contacts, ...other}} />
-            <PatientDetailContactCard {...{contacts, contactData, countries_api, ...other}} />
-            <AntecedentsCard {...other} />
+        <Stack className={"container"}>
+            <PersonalInfoCard {...{ countries_api, patientPhoto, ...other }} />
+            <PatientDetailContactCard {...{ contacts, contactData, countries_api, ...other }} />
+            <PersonalInsuranceCard {...{ contacts, ...other }} />
+            {/* <AntecedentsCard {...other} /> */}
         </Stack>
     );
 }

@@ -234,9 +234,8 @@ function PatientDetailsCard({ ...props }) {
             });
         }
     }
-    console.log(patient)
     if (!ready) return (<LoadingScreen button text={"loading-error"} />);
-
+    console.log(patient)
     return (
         <RootStyled>
             <FormikProvider value={formik}>
@@ -253,7 +252,7 @@ function PatientDetailsCard({ ...props }) {
                                     <Avatar
                                         src={values.picture.url}
                                         className='patient-avatar'>
-                                        <IconUrl path="ic-image" />
+                                        <IconUrl path={patient.gender === "M" ? "men-avatar" : "women-avatar"} />
                                     </Avatar>
                                 }
                                 <Stack spacing={.3}>
@@ -331,25 +330,23 @@ function PatientDetailsCard({ ...props }) {
                             }
                             <AvatarGroup max={3} sx={{ flexDirection: 'row' }}>
                                 {patientInsurances?.map((insurance: any, index: number) => (
-                                    <React.Fragment key={index}>
-                                        {(() => {
-                                            const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
-                                            return (
-                                                <Tooltip title={insuranceItem?.name}>
-                                                    {insuranceItem?.logoUrl ?
-                                                        <Avatar
-                                                            alt={insuranceItem?.name}
-                                                            src={insuranceItem?.logoUrl.url}
-                                                            className='assurance-avatar' variant={"circular"}>
-                                                            <IconUrl path="ic-img" />
-                                                        </Avatar>
-                                                        : <></>
-                                                    }
+                                    (() => {
+                                        const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
+                                        return (
+                                            <Tooltip key={index} title={insuranceItem?.name}>
+                                                {insuranceItem?.logoUrl ?
+                                                    <Avatar
+                                                        alt={insuranceItem?.name}
+                                                        src={insuranceItem?.logoUrl.url}
+                                                        className='assurance-avatar' variant={"circular"}>
+                                                        <IconUrl path="ic-img" />
+                                                    </Avatar>
+                                                    : <></>
+                                                }
 
-                                                </Tooltip>
-                                            )
-                                        })()}
-                                    </React.Fragment>
+                                            </Tooltip>
+                                        )
+                                    })()
                                 ))}
                             </AvatarGroup>
                         </Stack>
