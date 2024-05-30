@@ -9,7 +9,7 @@ import {
     Avatar,
     Box,
     Card,
-    CardContent, Chip, Divider,
+    CardContent, Chip,
     Grid, LinearProgress,
     List,
     ListItem,
@@ -105,7 +105,7 @@ function Statistics() {
 
     const increasePercentage = (newVal: number, oldVAl: number) => {
         const percentage = ((newVal - oldVAl) / newVal) * 100;
-        return percentage ? Math.ceil(percentage) : "--";
+        return percentage && percentage !== -Infinity ? Math.ceil(percentage) : "--";
     }
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -1049,13 +1049,7 @@ function Statistics() {
                                             <ChartStyled>
                                                 <Chart
                                                     type="area"
-                                                    series={[
-                                                        {name: 'patients', data: patientPerPeriod.slice(-12)},
-                                                        {
-                                                            name: 'appointments',
-                                                            data: appointmentPerPeriod.slice(-12)
-                                                        },
-                                                    ]}
+                                                    series={periodChartData}
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
