@@ -13,14 +13,14 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
         padding: "10px 0 0 10px"
     },
     '& .avatar-badge': {
-        width: 20,
-        height: 20,
+        width: 16,
+        height: 16,
         borderRadius: 20,
         border: `2px solid ${theme.palette.background.paper}`
     },
     "& .round-avatar": {
-        width: 40,
-        height: 40,
+        width: 36,
+        height: 36,
         borderRadius: 20,
         border: `2px solid ${theme.palette.background.paper}`
     },
@@ -51,7 +51,20 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
         }
     },
     "& .user-name": {
-        cursor: "pointer"
+        cursor: "pointer",
+        fontSize: 12,
+    },
+    "& .avatar-button": {
+        width: 36,
+        height: 36,
+        borderRadius: 20,
+        mr: 3,
+        cursor: "pointer",
+        border: `2px solid ${theme.palette.background.paper}`,
+        "& .MuiAvatar-img": {
+            width: 20,
+            height: 20
+        }
     }
 }))
 export default PausedConsultationPopoverStyled;

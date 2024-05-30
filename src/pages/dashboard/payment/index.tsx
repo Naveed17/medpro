@@ -168,7 +168,12 @@ function Payment() {
 
     const onConsultationStart = (event: EventDef) => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
+        router.push({
+            pathname: slugConsultation, query: {
+                inProgress: true,
+                agendaUuid: agenda?.uuid
+            }
+        }, slugConsultation, {locale: router.locale});
     }
 
     const getAppointments = useCallback(

@@ -110,7 +110,7 @@ function Calendar({...props}) {
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const openingHours = agendaConfig?.openingHours[0];
-    const calendarHeight = !isMobile ? "83vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
+    const calendarHeight = !isMobile ? (window.innerHeight > 900 ? "88vh" : "84.5vh") : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);

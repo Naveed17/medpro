@@ -9,7 +9,7 @@ import {
     Avatar,
     Box,
     Card,
-    CardContent, Chip, Divider,
+    CardContent, Chip,
     Grid, LinearProgress,
     List,
     ListItem,
@@ -105,7 +105,7 @@ function Statistics() {
 
     const increasePercentage = (newVal: number, oldVAl: number) => {
         const percentage = ((newVal - oldVAl) / newVal) * 100;
-        return percentage ? Math.ceil(percentage) : "--";
+        return percentage && percentage !== -Infinity ? Math.ceil(percentage) : "--";
     }
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -125,6 +125,7 @@ function Statistics() {
         millisecond: 0
     })).reverse();
     const appointmentPerPeriod = (appointmentStats?.period ? durations.map(duration => appointmentStats.period[`${duration.format("DD-MM-YYYY")} 00:00`] ?? 0) : []) as any[];
+    const salesPerPeriod = (appointmentStats?.ca ? durations.map(duration => appointmentStats.ca.find((sale: any) => sale.key === `${duration.format("DD-MM-YYYY")}`)?.sum_fees ?? 0) : []) as any[];
     const motifPerPeriod = (appointmentStats?.motif ?? []) as any[];
     const actPerPeriod = (appointmentStats?.act ?? []) as any[];
     const typePerPeriod = (appointmentStats?.type ?? []) as any[];
@@ -210,12 +211,16 @@ function Statistics() {
         if (statsPatientHttp && (appointmentPerPeriod.length > 0 || patientPerPeriod.length > 0)) {
             setPeriodChartData([
                 {
-                    name: 'patients',
+                    name: t('patients'),
                     data: patientPerPeriod.slice(-12)
                 },
                 {
-                    name: 'appointments',
+                    name: t('appointments'),
                     data: appointmentPerPeriod.slice(-12)
+                },
+                {
+                    name: t('sales'),
+                    data: salesPerPeriod.slice(-12)
                 },
             ])
         }
@@ -512,7 +517,7 @@ function Statistics() {
                                                                 {patientPerPeriod.reduce((total: number, val: number) => total + val, 0)}
                                                             </Typography>
                                                             <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                                {t("patients")}
+                                                                {t("all-patients")}
                                                             </Typography>
                                                         </Stack>
                                                     </Stack>
@@ -1044,13 +1049,7 @@ function Statistics() {
                                             <ChartStyled>
                                                 <Chart
                                                     type="area"
-                                                    series={[
-                                                        {name: 'patients', data: patientPerPeriod.slice(-12)},
-                                                        {
-                                                            name: 'appointments',
-                                                            data: appointmentPerPeriod.slice(-12)
-                                                        },
-                                                    ]}
+                                                    series={periodChartData}
                                                     options={merge(ChartsOption(), {
                                                         xaxis: {
                                                             position: "top",
