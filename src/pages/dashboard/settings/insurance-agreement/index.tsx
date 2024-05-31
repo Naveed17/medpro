@@ -183,7 +183,6 @@ function InsuranceAndAgreement() {
     }
 
     const saveChanges = (from: string) => {
-        console.log(agreement)
         const form = new FormData();
         form.append("insurance", agreement.insurance && agreement.insurance.uuid ? agreement.insurance.uuid : "")
         form.append("name", agreement.label)
