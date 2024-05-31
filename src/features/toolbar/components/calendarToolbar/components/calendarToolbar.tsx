@@ -99,11 +99,22 @@ function CalendarToolbar({...props}) {
                         display: "flex",
                         alignItems: "center"
                     }}>
-                        <Tooltip title={t("today", {ns: "common"})} TransitionComponent={Zoom}>
+                        <Tooltip
+                            title={t("today", {ns: "common"})} TransitionComponent={Zoom}>
                             <IconButton
+                                size={"large"}
                                 onClick={OnToday}
                                 aria-label="Calendar"
-                                sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
+                                sx={{
+                                    svg: {
+                                        width: 20,
+                                        height: 20,
+                                        m: .1
+                                    },
+                                    border: "1px solid",
+                                    mr: 1,
+                                    color: "primary.main"
+                                }}>
                                 <CalendarIcon/>
                             </IconButton>
                         </Tooltip>

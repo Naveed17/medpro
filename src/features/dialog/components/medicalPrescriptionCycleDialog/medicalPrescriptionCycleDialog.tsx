@@ -182,7 +182,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             })
         ),
     });
-
+    console.log("drugs", drugs);
     const getMedicForm = (drug: any) => {
         const unit = drug.cycles?.length > 0 && drug.cycles[0].dosage.match(formsRegExp)?.length > 0 ? drug.cycles[0].dosage.match(formsRegExp)[0] : "";
         const hasMultiValues = PrescriptionMultiUnits.includes(unit);
@@ -229,7 +229,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             cycle.dosage.split("•").length === 1 &&
                             cycle.dosage.split(formsRegExp) && cycle.dosage.split(formsRegExp).length > 0
                                 ? dosageMeal.find((meal) =>
-                                    cycle.dosage.split(formsRegExp).includes(t(meal.label))
+                                    cycle.dosage.split(formsRegExp).some(element => element?.includes(t(meal.label)))
                                 )?.label
                                 :
                                 cycle.dosage.split("•").length > 0 &&
@@ -237,7 +237,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp) &&
                                 cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp).length > 0 ?
                                     dosageMeal.find((meal) =>
-                                        cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp).includes(t(meal.label))
+                                        cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(formsRegExp).some(element => element?.includes(t(meal.label)))
                                     )?.label
                                     :
                                     "",
@@ -281,7 +281,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const {setFieldValue, values, getFieldProps, errors, touched} = formik;
-
+    console.log('values:', values);
     const {trigger: triggerDrugList} = useRequestQueryMutation("consultation/drugs");
     const {trigger: triggerPrescriptionModel} = useRequestQueryMutation("consultation/prescription/model");
     const {trigger: triggerPrescriptionParent} = useRequestQueryMutation("consultation/prescription/model/parent");
@@ -1099,7 +1099,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                     </Typography>
                                                                                 );
                                                                             }
-
                                                                             return t(selected, {ns: "consultation"});
                                                                         }}>
                                                                         {innerItem.dosageMeal.map(

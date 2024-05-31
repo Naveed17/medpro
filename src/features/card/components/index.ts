@@ -60,11 +60,16 @@ export * from './holidaysMobileCard';
 export * from './analysisMobileCard';
 export * from './medicalImagingMobileCard';
 export * from './featurePermissionsCard';
+export * from './actMobileCard'
+export * from './insuranceMobileCard'
 export * from './appointHistoryContainer';
 export * from './statsProgreesCard';
 export * from './doctorsMobileCard'
 export * from './statsProgreesCard';
 export * from './staffMobileCard';
+export * from './departmentMobileCard'
+export * from './insuranceAppointMobileCard';
+export * from './archiveInsuranceMobileCard'
 export * from './departmentMobileCard';
 export * from './rdvRequestCard';
 export * from './agendaTimelineCard';

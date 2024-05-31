@@ -25,9 +25,9 @@ export default function TextField(theme) {
               border: `1px solid ${theme.palette.divider}`,
             },
             background: theme.palette.common.white,
-            "&:has(input:read-only)": {
-              background: theme.palette.grey[50],
-            },
+            // "&:has(input:read-only)": {
+            //   background: theme.palette.grey[50],
+            // },
             "&:hover": {
               fieldset: {
                 border: `1px solid ${theme.palette.primary.main}`,

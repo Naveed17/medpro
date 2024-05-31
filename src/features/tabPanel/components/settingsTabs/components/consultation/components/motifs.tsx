@@ -1,5 +1,5 @@
-import React, { lazy, Suspense, useEffect, useRef, useState, } from "react";
-import { configSelector, dashLayoutSelector } from "@features/base";
+import React, { KeyboardEvent, lazy, ReactElement, Suspense, useEffect, useRef, useState, } from "react";
+import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
 import {
     Box,
     Button,
@@ -9,7 +9,10 @@ import {
     DialogContent,
     DialogTitle,
     Drawer,
+    FormControl,
+    InputAdornment,
     Stack,
+    TextField,
     Theme,
     Typography,
     useMediaQuery,
@@ -18,6 +21,7 @@ import {
 import { useTranslation } from "next-i18next";
 import CloseIcon from '@mui/icons-material/Close';
 import { EditMotifDialog } from "@features/dialog";
+import { SubHeader } from "@features/subHeader";
 import { useAppSelector } from "@lib/redux/hooks";
 import { Otable } from "@features/table";
 import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
@@ -32,6 +36,7 @@ import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
 import Can from "@features/casl/can";
 import { CustomIconButton } from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { debounce } from "lodash";
 
 const MotifListMobile = lazy(
@@ -251,7 +256,6 @@ function Motif() {
         i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-
     return (
         <>
 
@@ -266,18 +270,47 @@ function Motif() {
                                 width={1}
                                 mb={3}
                                 alignItems="center">
-                                <Typography color="text.primary" variant="subtitle1" fontWeight={600}>{t("title")}</Typography>
-                                <Can I={"manage"} a={"settings"} field={"settings__motif__create"}>
-                                    <CustomIconButton
-
-                                        color="primary"
-                                        onClick={() => {
-                                            editMotif(null as any, "add");
-                                        }}
-                                        sx={{ ml: "auto" }}>
-                                        <IconUrl path="ic-plus" width={16} height={16} color="white" />
-                                    </CustomIconButton>
-                                </Can>
+                                <Typography color="text.primary" variant="subtitle1"
+                                    fontWeight={600}>{t("title")}</Typography>
+                                <Stack direction={"row"} alignItems={"center"} spacing={2}>
+                                    <FormControl
+                                        component="form"
+                                        fullWidth
+                                        onSubmit={e => e.preventDefault()}>
+                                        <TextField
+                                            className={'search-input'}
+                                            sx={{
+                                                '& .MuiInputBase-root': {
+                                                    padding: 0,
+                                                }
+                                            }}
+                                            fullWidth
+                                            {...{ inputRef }}
+                                            InputProps={{
+                                                endAdornment: (
+                                                    <InputAdornment onClick={() => inputRef.current?.focus()}
+                                                        position="start">
+                                                        <SearchRoundedIcon color={"white"} />
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                            defaultValue={searchName ?? ""}
+                                            onChange={(e) => debouncedOnChange(e)}
+                                            placeholder={t(`search`)}
+                                        />
+                                    </FormControl>
+                                    <Can I={"manage"} a={"settings"} field={"settings__motif__create"}>
+                                        <Button
+                                            variant="contained"
+                                            color="success"
+                                            onClick={() => {
+                                                editMotif(null as any, "add");
+                                            }}
+                                            sx={{ ml: "auto" }}>
+                                            {t("add")}
+                                        </Button>
+                                    </Can>
+                                </Stack>
                             </Stack>
                         }
                         {...{

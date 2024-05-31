@@ -14,26 +14,26 @@ import {
     Tooltip,
     Typography, useTheme
 } from "@mui/material";
-import { onOpenPatientDrawer, TableRowStyled, setSelectedRows, tableActionSelector } from "@features/table";
+import {onOpenPatientDrawer, TableRowStyled, setSelectedRows, tableActionSelector} from "@features/table";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import React, { Fragment } from "react";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
-import { agendaSelector, setSelectedEvent } from "@features/calendar";
-import { setMoveDateTime } from "@features/dialog";
-import { ConditionalWrapper } from "@lib/hooks";
-import { useProfilePhoto } from "@lib/hooks/rest";
-import { SmallAvatar } from "@features/avatar";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {setMoveDateTime} from "@features/dialog";
+import {ConditionalWrapper} from "@lib/hooks";
+import {useProfilePhoto} from "@lib/hooks/rest";
+import {SmallAvatar} from "@features/avatar";
 import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import Can from "@features/casl/can";
 import { useRouter } from "next/router";
 
-function PatientRow({ ...props }) {
-    const { row, isItemSelected, t, loading, handleEvent, data, handleClick, selected } = props;
-    const { insurances } = data;
+function PatientRow({...props}) {
+    const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
+    const {insurances} = data;
     const dispatch = useAppDispatch();
     const theme = useTheme() as Theme;
     const { patientPhoto } = useProfilePhoto({ patientId: row?.uuid, hasPhoto: row?.hasPhoto });
@@ -73,7 +73,7 @@ function PatientRow({ ...props }) {
         >
             <TableCell padding="checkbox">
                 {loading ? (
-                    <Skeleton variant="circular" width={28} height={28} />
+                    <Skeleton variant="circular" width={28} height={28}/>
                 ) : (
                     <Checkbox
                         color="primary"
@@ -94,7 +94,7 @@ function PatientRow({ ...props }) {
                 <Box
                     display="flex"
                     alignItems="center"
-                    sx={{ img: { borderRadius: "4px" }, minWidth: 200 }}>
+                    sx={{img: {borderRadius: "4px"}, minWidth: 200}}>
                     <Box ml={1}>
                         <Typography
                             variant="body1"
@@ -102,20 +102,20 @@ function PatientRow({ ...props }) {
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                svg: { mr: 0.5 },
+                                svg: {mr: 0.5},
                                 "& [data-rmiz]": {
                                     width: 30
                                 }
                             }}
                             color="primary">
                             {loading ? (
-                                <Skeleton variant="text" width={100} />
+                                <Skeleton variant="text" width={100}/>
                             ) : (
                                 <>
                                     <Badge
                                         onClick={(event: any) => event.stopPropagation()}
                                         overlap="circular"
-                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                                         {...((row.nationality || row.hasDouble) && {
                                             badgeContent:
                                                 <AvatarGroup>
@@ -126,7 +126,7 @@ function PatientRow({ ...props }) {
                                                             }
                                                         })}
                                                         alt={"flag"}
-                                                        src={`https://flagcdn.com/${row.nationality.code}.svg`} />}
+                                                        src={`https://flagcdn.com/${row.nationality.code}.svg`}/>}
                                                     {row.hasDouble && <SmallAvatar
                                                         sx={{
                                                             background: theme.palette.warning.main
@@ -138,7 +138,7 @@ function PatientRow({ ...props }) {
                                                                 height: 16,
                                                                 marginLeft: .5,
                                                                 marginTop: -0.2
-                                                            }} />
+                                                            }}/>
                                                     </SmallAvatar>}
                                                 </AvatarGroup>
                                         })}>
@@ -147,7 +147,7 @@ function PatientRow({ ...props }) {
                                             wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                             <Fragment>
                                                 <Avatar
-                                                    {...(row.hasPhoto && { className: "zoom" })}
+                                                    {...(row.hasPhoto && {className: "zoom"})}
                                                     src={patientPhoto
                                                         ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
                                                         : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
@@ -159,13 +159,13 @@ function PatientRow({ ...props }) {
                                                         height: 36,
                                                         borderRadius: 1
                                                     }}>
-                                                    <IconUrl width={"36"} height={"36"} path="men-avatar" />
+                                                    <IconUrl width={"36"} height={"36"} path="men-avatar"/>
                                                 </Avatar>
                                             </Fragment>
                                         </ConditionalWrapper>
                                     </Badge>
 
-                                    <Stack marginLeft={2} spacing={0.4} style={{ cursor: 'pointer' }} onClick={(e) => {
+                                    <Stack marginLeft={2} spacing={0.4} style={{cursor: 'pointer'}} onClick={(e) => {
                                         e.stopPropagation();
                                         dispatch(
                                             onOpenPatientDrawer({
@@ -179,14 +179,14 @@ function PatientRow({ ...props }) {
                                         <Typography
                                             {...(mode !== "normal" && {
                                                 className: "blur-text",
-                                                sx: { overflow: "hidden", lineHeight: 1 }
+                                                sx: {overflow: "hidden", lineHeight: 1}
                                             })}
-                                            {...(mode === "normal" && { color: "primary.main" })}
+                                            {...(mode === "normal" && {color: "primary.main"})}
                                             fontWeight={600}> {row.firstName} {row.lastName}</Typography>
                                         {row.fiche_id &&
                                             <Stack direction='row' alignItems='center'>
                                                 <IconUrl path="ic-folder" width={16} height={16}
-                                                    color={theme.palette.text.secondary} />
+                                                         color={theme.palette.text.secondary}/>
                                                 <Tooltip title={row.fiche_id}>
                                                     <Typography
                                                         variant="body2"
@@ -200,18 +200,18 @@ function PatientRow({ ...props }) {
                                         }
                                         {row.hasInfo &&
                                             <Chip
-                                                sx={{ marginLeft: 1, height: 26 }}
+                                                sx={{marginLeft: 1, height: 26}}
                                                 color={"info"}
-                                                icon={<InfoRoundedIcon fontSize={"small"} color="action" />}
-                                                label={t("error.info-title")} />
+                                                icon={<InfoRoundedIcon fontSize={"small"} color="action"/>}
+                                                label={t("error.info-title")}/>
                                         }
 
 
                                         {loading ? (
-                                            <Skeleton variant="text" width={100} />
+                                            <Skeleton variant="text" width={100}/>
                                         ) : (
                                             <Stack direction={"row"}>
-                                                <IconUrl path="ic-anniverssaire-2" />
+                                                <IconUrl path="ic-anniverssaire-2"/>
                                                 <Typography
                                                     variant="body2"
                                                     fontWeight={500}
@@ -234,19 +234,19 @@ function PatientRow({ ...props }) {
             <TableCell>
                 <Box display="flex" component="span" alignItems="center">
                     {loading ? (
-                        <Skeleton variant="text" width={100} />
+                        <Skeleton variant="text" width={100}/>
                     ) : (
                         <>
                             {(row?.contact?.length > 0 ?
                                 <Stack direction={"row"}>
-                                    <IconUrl path="ic-phone" width={16} height={16} color={theme.palette.text.primary} />
+                                    <IconUrl path="ic-phone" width={16} height={16} color={theme.palette.text.primary}/>
                                     {row.contact[0].code &&
                                         <Typography
                                             {...(mode !== "normal" ? {
                                                 className: "blur-text",
-                                                sx: { overflow: "hidden", lineHeight: 1 }
+                                                sx: {overflow: "hidden", lineHeight: 1}
                                             } : {
-                                                sx: { ml: 0.6 }
+                                                sx: {ml: 0.6}
                                             })}
                                             fontWeight={600} variant={"body2"}
                                             fontSize={13}>{row.contact[0].code}</Typography>
@@ -254,9 +254,9 @@ function PatientRow({ ...props }) {
                                     <Typography
                                         {...(mode !== "normal" ? {
                                             className: "blur-text",
-                                            sx: { overflow: "hidden", lineHeight: 1 }
+                                            sx: {overflow: "hidden", lineHeight: 1}
                                         } : {
-                                            sx: { ml: 0.6 }
+                                            sx: {ml: 0.6}
                                         })}
                                         fontWeight={600} fontSize={13}
                                         variant={"body2"}>{row.contact[0].value}</Typography>
@@ -266,23 +266,23 @@ function PatientRow({ ...props }) {
                 </Box>
             </TableCell>
             <TableCell>
-                {loading ? <Skeleton variant="text" /> : (
+                {loading ? <Skeleton variant="text"/> : (
                     <Stack direction={"row"} alignItems={"center"}>
                         {row?.insurances?.length > 0 ?
-                            <AvatarGroup sx={{ "& .MuiAvatarGroup-avatar": { width: 24, height: 24 } }} max={3}>
+                            <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}} max={3}>
                                 {row.insurances.map((insuranceItem: any, index: number) =>
                                     <Tooltip key={index} title={insuranceItem?.insurance.name}>
                                         <Avatar variant={"circular"}>
                                             {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img
-                                                    style={{ width: 20, height: 20 }}
+                                                    style={{width: 20, height: 20}}
                                                     src={insurances.find(
                                                         (insurance: any) =>
                                                             insurance.uuid ===
                                                             insuranceItem?.insurance.uuid
-                                                    ).logoUrl.url}
-                                                    alt={insuranceItem?.name} />}
+                                                    )?.logoUrl?.url ?? '/static/icons/ic-assurance.svg'}
+                                                    alt={insuranceItem?.name}/>}
                                         </Avatar>
                                     </Tooltip>
                                 )}
@@ -295,7 +295,7 @@ function PatientRow({ ...props }) {
             <TableCell align={"center"}>
                 <Box display="flex" alignItems="center" margin={"auto"}>
                     {loading ? (
-                        <Skeleton variant="text" width={140} />
+                        <Skeleton variant="text" width={140}/>
                     ) : row.previousAppointments?.dayDate ? (
                         <>
                             <Box ml={1}>
@@ -308,10 +308,10 @@ function PatientRow({ ...props }) {
                                     fontSize={13}
                                 >
                                     {loading ? (
-                                        <Skeleton variant="text" width={100} />
+                                        <Skeleton variant="text" width={100}/>
                                     ) : (
                                         <>
-                                            <IconUrl path="ic-agenda-jour" width={16} height={16} />
+                                            <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                             {row.previousAppointments?.dayDate || "-"}
                                         </>
                                     )}
@@ -331,10 +331,10 @@ function PatientRow({ ...props }) {
                                     fontSize={13}
                                 >
                                     {loading ? (
-                                        <Skeleton variant="text" width={100} />
+                                        <Skeleton variant="text" width={100}/>
                                     ) : (
                                         <>
-                                            <IconUrl path="ic-time" width={16} height={16} />{" "}
+                                            <IconUrl path="ic-time" width={16} height={16}/>{" "}
                                             {row.previousAppointments?.startTime || "-"}
                                         </>
                                     )}
@@ -355,9 +355,9 @@ function PatientRow({ ...props }) {
                 </Box>
             </TableCell>
             <TableCell align={"center"}>
-                <Box display="flex" alignItems="center" sx={{ float: "left" }}>
+                <Box display="flex" alignItems="center" sx={{float: "left"}}>
                     {loading ? (
-                        <Skeleton variant="text" width={140} />
+                        <Skeleton variant="text" width={140}/>
                     ) : row.nextAppointment?.dayDate ? (
                         <Stack direction={"row"} margin={"auto"} sx={{
                             "& .MuiButtonBase-root": {
@@ -391,7 +391,7 @@ function PatientRow({ ...props }) {
                                     }}
                                     size="small">
                                     <IconUrl path="ic-historique" width={17} height={17}
-                                        color={theme.palette.primary.main} />
+                                             color={theme.palette.primary.main}/>
                                 </IconButton>
                             </Can>
                             <Box ml={1}>
@@ -403,7 +403,7 @@ function PatientRow({ ...props }) {
                                     fontWeight={600}
                                     fontSize={13}>
                                     <>
-                                        <IconUrl path="ic-agenda-jour" width={16} height={16} />
+                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         {row.nextAppointment?.dayDate}
                                     </>
                                 </Typography>
@@ -422,7 +422,7 @@ function PatientRow({ ...props }) {
                                     fontWeight={600}
                                     fontSize={13}>
                                     <>
-                                        <IconUrl path="ic-time" width={16} height={16} />
+                                        <IconUrl path="ic-time" width={16} height={16}/>
                                         {row.nextAppointment?.startTime}
                                     </>
                                 </Typography>
@@ -438,9 +438,9 @@ function PatientRow({ ...props }) {
                                 variant="text"
                                 size="small"
                                 color="primary"
-                                style={{ margin: "auto" }}
-                                startIcon={<IconUrl path="ic-agenda-+" />}
-                                sx={{ position: "relative", fontWeight: 600 }}>
+                                style={{margin: "auto"}}
+                                startIcon={<IconUrl path="ic-agenda-+"/>}
+                                sx={{position: "relative", fontWeight: 600}}>
                                 {t("table.add-appointment")}
                             </Button>
                         </Can>
@@ -456,10 +456,10 @@ function PatientRow({ ...props }) {
                                 variant="circular"
                                 width={22}
                                 height={22}
-                                sx={{ ml: 1 }}
+                                sx={{ml: 1}}
                             />
-                            <Skeleton variant="text" width={60} sx={{ ml: 1 }} />
-                            <Skeleton variant="text" width={60} />
+                            <Skeleton variant="text" width={60} sx={{ml: 1}}/>
+                            <Skeleton variant="text" width={60}/>
                         </>
                     ) : (
                         <Stack spacing={1} direction='row' alignItems='center' justifyContent='flex-end'>
@@ -473,9 +473,9 @@ function PatientRow({ ...props }) {
                                             handleEvent("EDIT", row, event);
                                         }}
                                         size="small"
-                                        sx={{ mt: .2 }}>
+                                        sx={{mt: .2}}>
                                         <IconUrl path="ic-edit-patient" width={16} height={16}
-                                            color={theme.palette.text.secondary} />
+                                                 color={theme.palette.text.secondary}/>
                                     </IconButton>
                                 </Tooltip>
                             </Can>
@@ -484,7 +484,7 @@ function PatientRow({ ...props }) {
                                     <IconButton
                                         disabled={loading}
                                         sx={{
-                                            mr: { md: 1 },
+                                            mr: {md: 1},
                                             '& .react-svg svg': {
                                                 width: 20,
                                                 height: 20
@@ -495,7 +495,7 @@ function PatientRow({ ...props }) {
                                             handleEvent("DELETE", row, event);
                                         }}
                                         size="small">
-                                        <IconUrl path="ic-delete" color={theme.palette.text.secondary} />
+                                        <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
                                     </IconButton>
                                 </Tooltip>
                             </Can>

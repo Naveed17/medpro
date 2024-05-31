@@ -61,6 +61,7 @@ declare module "@mui/material/Button" {
         "text-primary": true;
         consultationIP: true;
         "primary-light": true;
+        grey:true;
     }
 
     interface ButtonPropsColorOverrides {

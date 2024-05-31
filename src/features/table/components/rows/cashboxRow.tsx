@@ -118,6 +118,7 @@ function CashboxRow({...props}) {
         title: "no-data.title_consult",
         description: "no-data.des_consult",
     };
+
     return (
         <>
             <TableRowStyled
@@ -203,7 +204,7 @@ function CashboxRow({...props}) {
                         {row.patient && row.patient.insurances && row.patient.insurances.length > 0 ? (
                             row.patient.insurances.map((insurance: any) => (
                                 <Tooltip
-                                    key={insurance.insurance?.uuid + "ins"}
+                                    key={insurance?.uuid + "ins"}
                                     title={insurance.insurance.name}>
                                     <Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
                                         <ImageHandler
@@ -285,6 +286,16 @@ function CashboxRow({...props}) {
                                     />
                                 </HtmlTooltip>
                             ))}
+                        {row.insurance && <Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
+                            <ImageHandler
+                                alt={row.insurance.insurance?.name}
+                                src={
+                                    insurances.find(
+                                        (ins) => ins.uuid === row.insurance.insurance?.uuid
+                                    )?.logoUrl.url
+                                }
+                            />
+                        </Avatar>}
                     </Stack>
                 </TableCell>
                 <TableCell>
@@ -489,6 +500,35 @@ function CashboxRow({...props}) {
                                                                                 </Stack>
                                                                             )
                                                                         )}
+
+                                                                    {row.insurance && <Stack direction={"row"} spacing={1}><Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
+                                                                        <ImageHandler
+                                                                            alt={row.insurance.insurance?.name}
+                                                                            src={
+                                                                                insurances.find(
+                                                                                    (ins) => ins.uuid === row.insurance.insurance?.uuid
+                                                                                )?.logoUrl.url
+                                                                            }
+                                                                        />
+                                                                    </Avatar>
+                                                                        <Stack spacing={1}>
+                                                                            <Typography variant="body2">
+                                                                                {row.insurance.insurance.name}
+                                                                            </Typography>
+                                                                            <Typography variant="subtitle1" fontWeight={700}>
+                                                                                {row.amount}
+                                                                                <Typography
+                                                                                    variant="caption"
+                                                                                    fontSize={14}
+                                                                                    ml={0.2}
+                                                                                >
+                                                                                    {" "}
+                                                                                    {devise}
+                                                                                </Typography>
+                                                                            </Typography>
+                                                                        </Stack>
+                                                                    </Stack>
+                                                                    }
                                                                 </Stack>
                                                             </CardContent>
                                                         </Card>

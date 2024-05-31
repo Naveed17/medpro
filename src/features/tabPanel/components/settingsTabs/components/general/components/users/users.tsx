@@ -1,9 +1,9 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import { DashLayout, dashLayoutSelector } from "@features/base";
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { configSelector } from "@features/base";
-import { SubHeader } from "@features/subHeader";
+import React, {ReactElement, useEffect, useState} from "react";
+import {DashLayout, dashLayoutSelector} from "@features/base";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import {configSelector} from "@features/base";
+import {SubHeader} from "@features/subHeader";
 import {
     Box,
     Button,
@@ -17,31 +17,30 @@ import {
     Theme,
     MenuItem,
 } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import { Otable, resetUser } from "@features/table";
-import { useRouter } from "next/router";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { NoDataCard } from "@features/card";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { LoadingScreen } from "@features/loadingScreen";
+import {useTranslation} from "next-i18next";
+import {Otable, resetUser} from "@features/table";
+import {useRouter} from "next/router";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {NoDataCard} from "@features/card";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import IconUrl from "@themes/urlIcon";
-import { AccessMenage } from "@features/drawer";
-import { useMedicalEntitySuffix } from "@lib/hooks";
-import { LoadingButton } from "@mui/lab";
+import {AccessMenage} from "@features/drawer";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {LoadingButton} from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
-import { useSnackbar } from "notistack";
-import { UserMobileCard } from '@features/card';
-import { DesktopContainer } from "@themes/desktopConainter";
-import { MobileContainer } from "@themes/mobileContainer";
-import { useSendNotification } from "@lib/hooks/rest";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { Redirect } from "@features/redirect";
-import { ActionMenu } from "@features/menu";
-import { CustomIconButton } from "@features/buttons";
+import {useSnackbar} from "notistack";
+import {UserMobileCard} from '@features/card';
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import {useSendNotification} from "@lib/hooks/rest";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {Redirect} from "@features/redirect";
+import {ActionMenu} from "@features/menu";
+import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
-import { NewUserDialog } from "@features/dialog";
-import { setStepperIndex, stepperSelector } from "@features/stepper";
+import {NewUserDialog} from "@features/dialog";
+import {setStepperIndex, stepperSelector} from "@features/stepper";
 import Can from "@features/casl/can";
 
 const CardData = {
@@ -98,16 +97,16 @@ const headCells = [
 
 function Users() {
     const router = useRouter();
-    const { data: session } = useSession();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { enqueueSnackbar } = useSnackbar();
-    const { trigger: triggerNotificationPush } = useSendNotification();
+    const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {enqueueSnackbar} = useSnackbar();
+    const {trigger: triggerNotificationPush} = useSendNotification();
     const dispatch = useAppDispatch();
 
-    const { t, ready, i18n } = useTranslation("settings", { keyPrefix: "users.config" });
-    const { direction } = useAppSelector(configSelector);
-    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
-    const { currentStep } = useAppSelector(stepperSelector);
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "users.config"});
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {currentStep} = useAppSelector(stepperSelector);
     const [tabvalue, setTabValue] = useState(0);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [deleteActionDialog, setDeleteActionDialog] = useState("user");
@@ -121,22 +120,22 @@ function Users() {
     } | null>(null);
     const [newUserDialog, setNewUserDialog] = useState<boolean>(false)
 
-    const { jti, id: currentUser } = session?.user as any;
-    const { data: user } = session as Session;
+    const {jti, id: currentUser} = session?.user as any;
+    const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles;
 
-    const { trigger: triggerUserUpdate } = useRequestQueryMutation("/users/update");
-    const { trigger: triggerUserDelete } = useRequestQueryMutation("/users/delete");
-    const { trigger: triggerProfileUpdate } = useRequestQueryMutation("/profile/update");
+    const {trigger: triggerUserUpdate} = useRequestQueryMutation("/users/update");
+    const {trigger: triggerUserDelete} = useRequestQueryMutation("/users/delete");
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
-    const { data: httpUsersResponse, mutate } = useRequestQuery({
+    const {data: httpUsersResponse, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
-    }, { refetchOnWindowFocus: false });
+    }, {refetchOnWindowFocus: false});
 
     const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
     const popoverActions = [{
-        icon: <IconUrl path="ic-trash" color="white" />,
+        icon: <IconUrl path="ic-trash" color="white"/>,
         title: "delete-role",
         action: "onDeleteRole"
     }]
@@ -152,7 +151,7 @@ function Users() {
         }, {
             onSuccess: () => {
                 mutate();
-                enqueueSnackbar(t("updated"), { variant: "success" });
+                enqueueSnackbar(t("updated"), {variant: "success"});
                 if (action === "isDocSee") {
                     medicalEntityHasUser && triggerNotificationPush({
                         action: "push",
@@ -210,7 +209,7 @@ function Users() {
             url: `${urlMedicalEntitySuffix}/users/${selectedUser.uuid}/${router.locale}`
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("delete_success"), { variant: 'success' })
+                enqueueSnackbar(t("delete_success"), {variant: 'success'})
                 setDeleteDialog(false);
                 setTimeout(() => setLoading(false));
                 mutate();
@@ -248,7 +247,7 @@ function Users() {
     const handleTableEvent = (action: string, data: any) => {
         switch (action) {
             case "onUserDetail":
-
+                router.push(`/dashboard/settings/users/${data.ssoId}`);
                 break;
         }
     }
@@ -260,7 +259,7 @@ function Users() {
 
 
     if (roles.includes('ROLE_SECRETARY')) {
-        return <Redirect to='/dashboard/settings' />
+        return <Redirect to='/dashboard/settings'/>
     }
 
     return (
@@ -269,8 +268,10 @@ function Users() {
                 <>
                     <DesktopContainer>
                         <Otable
-                            toolbar={<Stack mb={4} direction="row" alignItems="center" mt={2} justifyContent="space-between" width={1}>
-                                <Typography color="text.primary" variant="subtitle1" fontWeight={600}>{t("users")}</Typography>
+                            toolbar={<Stack mb={4} direction="row" alignItems="center" mt={2}
+                                            justifyContent="space-between" width={1}>
+                                <Typography color="text.primary" variant="subtitle1"
+                                            fontWeight={600}>{t("users")}</Typography>
                                 <Can I={"manage"} a={"settings"} field={"settings__users__create"}>
                                     {tabvalue === 0 &&
                                         <CustomIconButton
@@ -280,10 +281,10 @@ function Users() {
                                                 setNewUserDialog(true);
                                             }}
                                             variant="filled"
-                                            sx={{ p: .6 }}
+                                            sx={{p: .6}}
                                             color={"primary"}
                                             size={"small"}>
-                                            <AgendaAddViewIcon />
+                                            <AgendaAddViewIcon/>
                                         </CustomIconButton>}
                                 </Can>
                             </Stack>}
@@ -291,7 +292,7 @@ function Users() {
                             handleEvent={(action: string, eventData: EventModal) => handleTableEvent(action, eventData)}
                             rows={users}
                             from={"users"}
-                            {...{ t, currentUser, handleChange }}
+                            {...{t, currentUser, handleChange}}
                             edit={onDelete}
                         />
                     </DesktopContainer>
@@ -299,14 +300,14 @@ function Users() {
                         <Stack spacing={1}>
                             {users.map((user) => (
                                 <React.Fragment key={user.uuid}>
-                                    <UserMobileCard data={user} t={t} />
+                                    <UserMobileCard data={user} t={t}/>
                                 </React.Fragment>
                             ))}
                         </Stack>
                     </MobileContainer>
                 </>
             ) : (
-                <NoDataCard t={t} ns={"settings"} data={CardData} />
+                <NoDataCard t={t} ns={"settings"} data={CardData}/>
             )}
             <Drawer
                 PaperProps={{
@@ -319,7 +320,7 @@ function Users() {
                 open={open}
                 dir={direction}
                 onClose={closeDraw}>
-                <AccessMenage {...{ t }} />
+                <AccessMenage {...{t}} />
             </Drawer>
 
             <Dialog
@@ -334,19 +335,19 @@ function Users() {
                 >
                     {t(`dialog.delete-${deleteActionDialog}-title`)}
                 </DialogTitle>
-                <DialogContent style={{ paddingTop: 20 }}>
+                <DialogContent style={{paddingTop: 20}}>
                     <Typography>
                         {t(`dialog.delete-${deleteActionDialog}-desc`)}
                     </Typography>
                 </DialogContent>
-                <DialogActions sx={{ borderTop: 1, borderColor: "divider", px: 1, py: 2 }}>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
                     <Stack direction="row" spacing={1}>
                         <Button
                             variant={"text-black"}
                             onClick={() => {
                                 setDeleteDialog(false);
                             }}
-                            startIcon={<CloseIcon />}>
+                            startIcon={<CloseIcon/>}>
                             {t("dialog.cancel")}
                         </Button>
                         <LoadingButton
@@ -354,21 +355,21 @@ function Users() {
                             loading={loading}
                             color="error"
                             onClick={() => deleteActionDialog === "user" ? deleteUser() : deleteProfile()}
-                            startIcon={<IconUrl path="setting/icdelete" color="white" />}>
+                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
                             {t("dialog.delete")}
                         </LoadingButton>
                     </Stack>
                 </DialogActions>
-            </Dialog >
+            </Dialog>
 
-            <ActionMenu {...{ contextMenu, handleClose }}>
+            <ActionMenu {...{contextMenu, handleClose}}>
                 {popoverActions.map((v: any, index) => (
                     <MenuItem
                         key={index}
                         className="popover-item"
                         onClick={() => OnMenuActions(v.action)}>
                         {v.icon}
-                        <Typography fontSize={15} sx={{ color: "#fff" }}>
+                        <Typography fontSize={15} sx={{color: "#fff"}}>
                             {t(v.title)}
                         </Typography>
                     </MenuItem>
@@ -385,9 +386,9 @@ function Users() {
                 open={newUserDialog}
                 onClose={handleCloseNewUserDialog}>
                 <NewUserDialog
-                    {...{ t }}
+                    {...{t}}
                     onNextPreviStep={handleNextPreviStep}
-                    onClose={handleCloseNewUserDialog} />
+                    onClose={handleCloseNewUserDialog}/>
             </Dialog>
 
         </>

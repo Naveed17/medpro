@@ -15,7 +15,6 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
         }),
     },
     "& .sidenav-main": {
-        
         width: 84,
         flexShrink: 0,
         "& .MuiDrawer-root": {
@@ -40,7 +39,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                     "&:not(.active):hover": {
                         "& .MuiListItemIcon-root": {
                             backgroundColor: theme.palette.info.main,
-                            boxShadow: theme.shadows[4],
+                            boxShadow: 'none',//theme.shadows[4],
                             border: `1px solid ${theme.palette.grey["A100"]}`,
                         },
                     }
@@ -71,6 +70,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                 },
                 "&.active": {
                     "& .MuiListItemIcon-root": {
+                        boxShadow: 'none',
                         backgroundColor: theme.palette.primary.main,
                         "& svg": {
                             "& path": {
@@ -88,7 +88,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
                 },
                 ".icon-background": {
                     backgroundColor: theme.palette.info.main,
-                    boxShadow: theme.shadows[4],
+                    boxShadow: 'none',//theme.shadows[4],
                     border: `1px solid ${theme.palette.grey["A100"]}`,
                     position: 'absolute',
                     width: 39,
@@ -111,7 +111,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
             "@media screen and (min-height: 750px)": {
                 marginTop: 20,
                 "& .action-bar-open": {
-                    padding: "10px 20px 10px 20px",
+                    padding: "10px 0px 10px 20px",
                     backgroundColor: theme.palette.background.paper,
                     overflowY: "auto",
                     overflowX: "hidden",
@@ -143,15 +143,16 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
         "&.active": {
             width: 284,
             opacity: 1,
+            boxShadow: 'none',
             backgroundColor: theme.palette.background.paper,
             zIndex: 100,
             visibility: "visible",
         },
         "& .action-bar-open": {
-            padding: "10px 20px 10px 20px",
+            padding: "10px 0px 10px 20px",
             backgroundColor: theme.palette.background.paper,
             overflowY: "auto",
-            overflow: "visible",
+            //overflow: "visible",
             height: "100%",
             zIndex: 1200,
             position: "fixed",
@@ -168,7 +169,7 @@ const MainMenuStyled = styled(Box)<any>(({theme}) => ({
         cursor: "pointer",
         "& span:hover": {
             backgroundColor: theme.palette.info.main,
-            boxShadow: theme.customShadows.infoButton,
+            boxShadow: 'none',//theme.customShadows.infoButton,
             borderRadius: 4,
             borderCollapse: "collapse",
             border: `1px solid ${theme.palette.grey["A100"]}`

@@ -29,14 +29,16 @@
     "location": "Lieu",
     "leave_and_absence": "Congés et absences",
     "time_off_types": "Types de congés",
-    "insurance": "Assurance",
+    "insurance": "Assurance & Convention",
     "sheets": "Fiches"
   },
   "general": {
     "title": "Général"
   },
   "scheduleAndLocation": {
-    "title": "Horaire et lieu"
+    "title": "Horaire et lieu",
+    "billing": "Billing",
+    "insurance_agreement": "Assurance & Convention"
   },
   "consultation": {
     "title": "Consultation"
@@ -116,8 +118,8 @@
   "motif": {
     "config": {
       "add": "Ajouter",
-      "title": "Motifs de consultation",
       "search": "Recherche",
+      "title": "Motifs de consultation",
       "path": "Paramètres > Motifs de consultation",
       "dialog": {
         "title": "Supprimer le motif",
@@ -796,6 +798,7 @@
       "title": "Titre",
       "type": "Nature",
       "exp_date": "date d’exp.",
+      "patient_part": "Part patient",
       "mtt": "Mtt t.m.",
       "tax": "Taux t.m.",
       "remb": "Remb.",
@@ -843,7 +846,9 @@
         "type": "Nature",
         "placeholder_type": "Tapez la nature de convention",
         "signed_agreement": "Avez-vous signé la convention ?",
-        "apci_placeholder": "Sélectionner ou tapez le code APCi"
+        "apci_placeholder": "Sélectionner ou tapez le code APCi",
+        "label": "Libellé",
+        "acts": "Actes"
       }
     },
     "alert": {
@@ -946,6 +951,100 @@
       "status": "statut",
       "action": "Action",
       "reset": "Réinitialiser"
+    }
+  },
+  "insurance": {
+    "config": {
+      "title": "Assurance & Convention",
+      "search": "Recherche",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "path": {
+        "root": "Paramètres > Assurance & Convention",
+        "update": "Paramètres > Assurance & Convention > Actes"
+      },
+      "act": "Acte",
+      "add": "Ajouter",
+      "table": {
+        "name": "Assurance",
+        "label": "Libellé",
+        "start_date": "Date de début",
+        "end_date": "Date de fin",
+        "empty": "",
+        "act": "Acte",
+        "fees": "Honoraires",
+        "rem_amount": "Montant de Remb.",
+        "patient_share": "Part patient",
+        "apci": "APCI",
+        "actions": "Actions",
+        "code": "Code acte",
+        "contribution": "Cotation",
+        "amount": "Montant",
+        "btn_action_text": "Assurances/Conventions",
+        "title": "Titre",
+        "type": "Nature",
+        "exp_date": "date d’exp.",
+        "mtt": "Mtt t.m.",
+        "tax": "Taux t.m.",
+        "remb": "Remb.",
+        "tax_remb": "Taux Remb.",
+        "action": "Action"
+      },
+      "dialog": {
+        "editAct": "Modifier acte",
+        "info": "Information d'acte",
+        "name": "Nom d'acte",
+        "price": "Prix",
+        "delete-act-title": "Acte supprimer",
+        "delete-act-desc": "Voulez-vous supprimer l'acte",
+        "cancel": "Annuler",
+        "delete": "Supprimer",
+        "back": "Retour",
+        "next": "Suivant",
+        "confirm": "Confirmer",
+        "confirm_add": "Confirmer & Ajouter une autre",
+        "confirm_save": "Confirmer & Ajouter une autre",
+        "title": "Ajouter une assurance / convention",
+        "create_act": "Ajouter un acte",
+        "switch": "Saisie Avancée",
+        "contribution_placeholder": "Tapez la cotation",
+        "amount_placeholder": "Tapez le montant",
+        "confirm_dialog_title": "Création de l’Assurance / Convention Réussie",
+        "exit": "Quitter",
+        "add_an_other": "Ajouter une Autre",
+        "confirm_dialog_desc": " Félicitations ! Votre nouvelle police d'assurance médicale ou convention a été créée avec succès. Consultez les détails et n'hésitez pas à ajouter d'autres polices au besoin.",
+        "stepper": {
+          "step-1": "Informations",
+          "step-2": "Détail de paiement",
+          "step-3": "Confirmation",
+          "insurance": "Assurance",
+          "agreement": "Convention",
+          "select_insurance": "Sélectionner l’assurance",
+          "name": "Nom de la convention",
+          "description": "Libellé",
+          "placeholer_description": "Tapez le libellé",
+          "start_date": "Date de début",
+          "end_date": "Date de fin",
+          "ticket_moderateur_amount": "Montant ticket moderateur",
+          "ticket_moderateur_amount_placeholder": "Tapez le montant ticket moderateur",
+          "refund_amount": "Montant de Remb.",
+          "mutual": "Mutuelle",
+          "select_mutual": "Sélectionner ou ajouter le mutuelle",
+          "type": "Nature",
+          "placeholder_type": "Tapez la nature de convention",
+          "signed_agreement": "Avez-vous signé la convention ?",
+          "apci_placeholder": "Sélectionner ou tapez le code APCi",
+          "label": "Libellé",
+          "acts": "Actes"
+        }
+      },
+      "no-data": {
+        "title": "Ajouter une Assurance & Convention",
+        "description": "Description"
+      },
+      "popover-actions": {
+        "add": "Ajouter"
+      }
     }
   },
   "appLock": {

@@ -1,25 +1,25 @@
-import { useEffect, useMemo } from "react";
+import {useEffect, useMemo} from "react";
 // material
-import { CssBaseline, useTheme } from "@mui/material";
+import {CssBaseline, useTheme} from "@mui/material";
 import {
     createTheme,
     ThemeProvider
 } from "@mui/material/styles";
 import palette from "@themes/palette";
 import typography from "@themes/typography";
-import { shadows, customShadows } from "@themes/shadows";
+import {shadows, customShadows} from "@themes/shadows";
 import componentsOverride from "./overrides";
-import { CacheProvider } from "@emotion/react";
-import { useRouter } from "next/router";
+import {CacheProvider} from "@emotion/react";
+import {useRouter} from "next/router";
 import createCache from "@emotion/cache";
-import { prefixer } from "stylis";
+import {prefixer} from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
-import { configSelector, setDirection, setLocalization } from "@features/base";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { Localization } from "@lib/localization";
+import {configSelector, setDirection, setLocalization} from "@features/base";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {Localization} from "@lib/localization";
 import * as locales from "@mui/material/locale";
 import moment from "moment-timezone";
-import { Poppins } from 'next/font/google';
+import {Poppins} from 'next/font/google';
 
 const poppins = Poppins({
     subsets: ['latin'],
@@ -30,8 +30,29 @@ const poppins = Poppins({
 
 type SupportedLocales = keyof typeof locales;
 
-function ThemeConfig({ children }: LayoutProps) {
-    const { mode } = useAppSelector(configSelector);
+const isBrowser = typeof document !== "undefined";
+let insertionPoint: any;
+
+if (isBrowser) {
+    const emotionInsertionPoint = document.querySelector(
+        'meta[name="emotion-insertion-point"]',
+    );
+    insertionPoint = emotionInsertionPoint ?? undefined;
+}
+
+const cacheRtl = createCache({
+    key: "mui-style-rtl",
+    stylisPlugins: [prefixer, rtlPlugin],
+    insertionPoint,
+});
+
+const cacheLtr = createCache({
+    key: "mui-style-ltr",
+    insertionPoint,
+});
+
+function ThemeConfig({children}: LayoutProps) {
+    const {mode} = useAppSelector(configSelector);
     const router = useRouter();
     const theme = useTheme();
     const lang: string | undefined = router.locale;
@@ -46,13 +67,6 @@ function ThemeConfig({ children }: LayoutProps) {
         dispatch(setLocalization(locale));
     }, [locale, dir, dispatch]);
 
-    // Create style cache
-    const styleCache = createCache({
-        key: dir === 'rtl' ? 'muirtl' : 'css',
-        stylisPlugins: dir === 'rtl' ? [prefixer, rtlPlugin] : []
-    });
-    // styleCache.compat = true;
-
     const themeWithLocale = useMemo(
         () => createTheme({
             components: {
@@ -66,7 +80,7 @@ function ThemeConfig({ children }: LayoutProps) {
                     },
                 },
             },
-            palette: { ...palette, mode: mode },
+            palette: {...palette, mode: mode},
             typography,
             direction: dir,
             shadows: shadows,
@@ -85,9 +99,9 @@ function ThemeConfig({ children }: LayoutProps) {
     themeWithLocale.components = componentsOverride(themeWithLocale);
 
     return (
-        <CacheProvider value={styleCache}>
+        <CacheProvider value={dir === 'rtl' ? cacheRtl : cacheLtr}>
             <ThemeProvider theme={themeWithLocale}>
-                <CssBaseline />
+                <CssBaseline/>
                 <main dir={dir} className={`${poppins.className}`}>
                     {children}
                 </main>

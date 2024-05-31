@@ -3,7 +3,7 @@ import {ConfigReducer} from "@features/base/reducer";
 import {SideBarReducer, ProfileMenuReducer} from "@features/menu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
-import {addPatientReducer, appointmentReducer, stepperProfileReducer,tabPanelReducer} from "@features/tabPanel";
+import {addPatientReducer, appointmentReducer, stepperProfileReducer, tabPanelReducer} from "@features/tabPanel";
 import {
     QsSidebarReducer,
     leftActionBarReducer,
@@ -36,6 +36,7 @@ import {persistReducer} from 'redux-persist';
 import {CaslReducer} from "@features/casl";
 import {ChatReducer} from "@features/chat";
 import {BoardReducer} from "@features/board";
+import {timeLineReducer} from "@features/timeline";
 
 const createNoopStorage = () => {
     return {
@@ -93,8 +94,9 @@ const rootReducer = combineReducers({
     minMaxWindow: minMaxWindowToggleReducer,
     stepper: StepperReducer,
     board: BoardReducer,
-    tabPanel:tabPanelReducer,
-    consultationContent: ConsultationContentReducer
+    consultationContent: ConsultationContentReducer,
+    tabPanel: tabPanelReducer,
+    timeLine: timeLineReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -450,6 +450,14 @@ const dialogData = [
         ),
     },
     {
+        action: "add-act",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/addAct/addActDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "department",
         component: dynamic((): any =>
             import(

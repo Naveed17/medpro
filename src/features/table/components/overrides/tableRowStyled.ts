@@ -19,7 +19,7 @@ const TableRowStyled = styled(TableRow)<any>(
                 fontSize:9,
                 color:theme.palette.common.white,
             }
-            
+
         },
         "& .MuiTableCell-root": {
             cursor: "pointer",
@@ -328,6 +328,13 @@ const TableRowStyled = styled(TableRow)<any>(
                 border: `1px solid ${theme.palette.divider}`,
                 padding: theme.spacing(.8),
             }
+        },
+        "&.cip-medical-proce-row":{
+            ".counter-btn":{
+            ".MuiButtonBase-root":{
+                backgroundColor: "transparent"
+
+            }}
         },
         "&.transactions-row":{
             ".custom-icon-button": { minWidth: 32, minHeight: 32, backgroundColor: theme.palette.primary.lighter }

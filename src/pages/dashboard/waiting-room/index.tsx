@@ -21,11 +21,7 @@ import {
     CardContent,
     ButtonGroup,
     Breadcrumbs,
-    Link,
-    Snackbar,
-    Alert,
-    Chip,
-    AlertTitle
+    Link
 } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
 import { RoomToolbar } from "@features/toolbar";
@@ -40,7 +36,7 @@ import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
 import moment from "moment-timezone";
 import { ActionMenu, toggleSideBar } from "@features/menu";
 import {
-    getBirthdayFormat,
+    getBirthdayFormat, isAppleDevise,
     prepareContextMenu,
     prepareSearchKeys,
     useMedicalEntitySuffix,
@@ -72,11 +68,9 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import { Board, boardSelector, borderRadius, setIsUnpaid, setOrderSort, setSortTime } from "@features/board";
-import CalendarIcon from "@themes/overrides/icons/calendarIcon";
+import { Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime } from "@features/board";
 import { CustomIconButton, CustomSwitch } from "@features/buttons";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { DropResult } from "react-beautiful-dnd";
+import { DropResult } from "@hello-pangea/dnd";
 import {
     appointmentSelector, resetAppointment, setAppointmentPatient,
     setAppointmentSubmit,
@@ -87,7 +81,7 @@ import { LoadingScreen } from "@features/loadingScreen";
 import { setDialog } from "@features/topNavBar";
 import { useLeavePageConfirm } from "@lib/hooks/useLeavePageConfirm";
 import { Label } from "@features/label";
-import { partition } from "lodash";
+import { partition, startCase } from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
 import Can, { AbilityContext } from "@features/casl/can";
@@ -96,6 +90,9 @@ import { getPrescriptionUI } from "@lib/hooks/setPrescriptionUI";
 import AddIcon from "@mui/icons-material/Add";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CircleIcon from '@mui/icons-material/Circle';
+import { Epg, Layout } from "planby";
+import { EventItem, PlanByTimeline, timeLineSelector, useTimeLine } from "@features/timeline";
+
 function WaitingRoom() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -107,7 +104,7 @@ function WaitingRoom() {
     const ability = useContext(AbilityContext);
 
     const { t, ready, i18n } = useTranslation(["waitingRoom", "common"]);
-    const { config: agenda } = useAppSelector(agendaSelector);
+    const { config: agenda, currentDate } = useAppSelector(agendaSelector);
     const { query: filter } = useAppSelector(leftActionBarSelector);
     const { direction } = useAppSelector(configSelector);
     const { tableState } = useAppSelector(tableActionSelector);
@@ -123,11 +120,13 @@ function WaitingRoom() {
     } = useAppSelector(appointmentSelector);
     const { next: is_next } = useAppSelector(dashLayoutSelector);
     const { filter: boardFilterData } = useAppSelector(boardSelector);
+    const { showStats, showTimeline } = useAppSelector(timeLineSelector);
 
     const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -142,6 +141,7 @@ function WaitingRoom() {
     const [popoverActions, setPopoverActions] = useState<any[]>([]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [waitingRoomsGroup, setWaitingRoomsGroup] = useState<any[]>([]);
+    const [sortedData, setSortedData] = useState<any[]>([]);
     const [withoutDateTime, setWithoutDateTime] = useState<boolean>(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddAppointmentTab, setQuickAddAppointmentTab] = useState(1);
@@ -165,6 +165,9 @@ function WaitingRoom() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [drugs, setDrugs] = useState<any>([]);
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
+
+    // Update timeLine Data
+    const { isLoading, getEpgProps, getLayoutProps, onScrollToNow } = useTimeLine({ data: sortedData });
 
     const openMenu = Boolean(anchorElMenu);
     const transitionDuration = {
@@ -191,7 +194,7 @@ function WaitingRoom() {
         refetchOnWindowFocus: false,
         ...(agenda && {
             variables: {
-                query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
+                query: `?mode=tooltip&start_date=${moment(currentDate.date).format("DD-MM-YYYY")}&end_date=${moment(currentDate.date).format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
             }
         })
     });
@@ -252,7 +255,10 @@ function WaitingRoom() {
             const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
             router.push({
                 pathname: slugConsultation,
-                query: { inProgress: true }
+                query: {
+                    inProgress: true,
+                    agendaUuid: agenda?.uuid
+                }
             }, slugConsultation, { locale: router.locale });
         } else {
             const defEvent = {
@@ -787,6 +793,7 @@ function WaitingRoom() {
                     return moment(`${d1.dayDate} ${d1[sortKey]}`, timeFormat).valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, timeFormat).valueOf()
                 });
             }
+            setSortedData(sortData.filter((item: any) => item.startTime !== "00:00"));
             let groupedData = sortData.group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0]];
@@ -823,7 +830,20 @@ function WaitingRoom() {
     useEffect(() => {
         dispatch(toggleSideBar(true));
         //reload resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
+        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"]);
+
+        onScrollToNow();
+        // listener timeline handler
+        const container = document.querySelector(".planby > div > div") as HTMLElement;
+        !isAppleDevise('macOS') && container?.addEventListener("wheel", function (e) {
+            console.log("wheel", e);
+            if (e.deltaY > 0) {
+                container.scrollLeft += 300;
+            } else {
+                container.scrollLeft -= 300;
+            }
+            e.preventDefault();
+        });
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
@@ -840,13 +860,43 @@ function WaitingRoom() {
                         display: "block"
                     }
                 }}>
+                {showTimeline && <Epg isLoading={isLoading} {...getEpgProps()}>
+                    <Layout
+                        {...getLayoutProps()}
+                        renderTimeline={(props: any) => <PlanByTimeline {...props} />}
+                        renderProgram={({ program, ...rest }: { program: any }) => (
+                            <EventItem key={program.data.uuid} program={program} {...rest} />
+                        )}
+                    />
+                </Epg>}
+                {/*         <Stack alignItems={"center"} width={"100%"}>
+                    <Fab
+                        color="info"
+                        onClick={event => {
+                            event.stopPropagation();
+                            dispatch(setShowDetails(!showTimeLineDetails));
+                        }}
+                        size={"small"}
+                        sx={{
+                            boxShadow: "none",
+                            minHeight: 20,
+                            height: 36,
+                            width: 36
+                        }}>
+                        <IconUrl path={showTimeLineDetails ? "ic-outline-arrow-up" : "ic-arrow-down"}/>
+                    </Fab>
+                </Stack>*/}
+
+
                 <RoomToolbar {...{
                     t,
                     tabIndex,
                     setTabIndex,
+                    onScrollToNow,
                     setPatientDetailDrawer,
                     nextConsultation,
                     columns: columns.current,
+                    currentDate,
                     is_next,
                     isActive
                 }} />
@@ -860,8 +910,8 @@ function WaitingRoom() {
                 <Box className="container">
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
-                            <Stack spacing={2}>
-                                <Stack direction='row' spacing={2}>
+                            <Stack spacing={1} {...(!showStats && { mt: -2 })}>
+                                {showStats && <Stack direction='row' spacing={2}>
                                     <Card sx={{ border: 'none', boxShadow: 'none', flex: 1, }}>
                                         <CardHeader
                                             sx={{ pb: 0 }}
@@ -872,50 +922,57 @@ function WaitingRoom() {
                                             }
                                             title={
                                                 <Stack spacing={.3}>
-                                                    <Typography fontWeight={600}>{t("appointments")}</Typography>
-                                                    <Typography fontWeight={600} fontSize={18}>56</Typography>
+                                                    <Typography
+                                                        fontWeight={600}>{startCase(t("appointments"))}</Typography>
+                                                    <Typography fontWeight={600}
+                                                        fontSize={18}>{sortedData?.length}</Typography>
                                                 </Stack>
                                             }
-
-
                                         />
                                         <CardContent>
                                             <Stack spacing={2}>
-                                                <ButtonGroup sx={{ button: { borderRadius: 4, flex: 1 }, width: 1 }} variant="contained" className="rdv-type-group" size="small">
-                                                    <Button className="btn-absent" >
+                                                <ButtonGroup sx={{ button: { borderRadius: 4, flex: 1 }, width: 1 }}
+                                                    variant="contained" className="rdv-type-group"
+                                                    size="small">
+                                                    <Button className="btn-absent">
                                                         <Typography component='span' className="ellipsis">
-                                                            05 Absent
+                                                            {`0 ${t('filter.absent')}`}
                                                         </Typography>
                                                     </Button>
                                                     <Button className="btn-confirm">
                                                         <Typography component='span' className="ellipsis">
-                                                            05 Confirmed
+                                                            {`${waitingRoomsGroup[1] ? waitingRoomsGroup[1].length : "0"} ${t('filter.confirm')}`}
                                                         </Typography>
                                                     </Button>
                                                     <Button className="btn-waiting ellipsis" style={{ flex: 2 }}>
-                                                        <Typography component='span' className="ellipsis">10 Waiting</Typography>
+                                                        <Typography component='span'
+                                                            className="ellipsis">{`${waitingRoomsGroup[3] ? waitingRoomsGroup[3].length : "0"} ${t('filter.pending')}`}</Typography>
                                                     </Button>
                                                     <Button className="btn-complete ellipsis" style={{ flex: 2 }}>
-                                                        <Typography component='span' className="ellipsis">28 Completed</Typography>
+                                                        <Typography component='span'
+                                                            className="ellipsis">{`${waitingRoomsGroup[5] ? waitingRoomsGroup[5].length : "0"} ${t('filter.done')}`}</Typography>
                                                     </Button>
                                                 </ButtonGroup>
                                                 <Breadcrumbs aria-label="breadcrumb" separator={null}>
-                                                    {["absent", "confirmed", "waiting", "completed"].map((item, idx) =>
+                                                    {["absent", "confirm", "pending", "done"].map((item, idx) =>
                                                         <Link
                                                             key={idx}
                                                             underline="none"
-                                                            sx={{ display: 'flex', alignItems: 'center', color: theme.palette.grey[400] }}
-                                                            color="inherit"
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                color: theme.palette.grey[400]
+                                                            }}
+                                                            color="inherit">
+                                                            <CircleIcon sx={{ mr: 0.5, width: 8, height: 8 }}
+                                                                htmlColor={theme.palette[
+                                                                    item === "absent" ? "error"
+                                                                        : item === "confirm" ? "success"
+                                                                            : item === "pending" ? "warning"
+                                                                                : "primary"
 
-                                                        >
-                                                            <CircleIcon sx={{ mr: 0.5, width: 8, height: 8 }} htmlColor={theme.palette[
-                                                                item === "absent" ? "error"
-                                                                    : item === "confirmed" ? "success"
-                                                                        : item === "waiting" ? "warning"
-                                                                            : "primary"
-
-                                                            ].light} />
-                                                            {t(item)}
+                                                                ].light} />
+                                                            {t(`filter.${item}`)}
                                                         </Link>
                                                     )}
 
@@ -938,17 +995,49 @@ function WaitingRoom() {
                                             }}
                                         >
                                             <CardHeader
-                                                sx={{ p: 1, border: `1px dashed ${theme.palette.divider}`, borderRadius: 1 }}
+                                                sx={{
+                                                    p: 1,
+                                                    border: `1px dashed ${theme.palette.divider}`,
+                                                    borderRadius: 1
+                                                }}
                                                 avatar={
                                                     <CustomIconButton sx={{ bgcolor: theme.palette.success.lighter }}>
-                                                        <IconUrl width={20} height={20} path="ic-filled-strongbox-2" color={theme.palette.success.main} />
+                                                        <IconUrl width={20} height={20} path="ic-filled-strongbox-2"
+                                                            color={theme.palette.success.main} />
                                                     </CustomIconButton>
 
                                                 }
                                                 title={
                                                     <Stack>
-                                                        <Typography fontWeight={600} color="primary.darker">{t("total_received")}</Typography>
-                                                        <Typography fontWeight={600} fontSize={18}>567
+                                                        <Typography fontWeight={600}
+                                                            color="primary.darker">{t("total_received")}</Typography>
+                                                        <Typography fontWeight={600} fontSize={18}>--
+                                                            <Typography variant="caption" ml={.5}>
+                                                                {devise}
+                                                            </Typography>
+                                                        </Typography>
+                                                    </Stack>
+
+                                                }
+                                            />
+                                            <CardHeader
+                                                sx={{
+                                                    p: 1,
+                                                    border: `1px dashed ${theme.palette.divider}`,
+                                                    borderRadius: 1
+                                                }}
+                                                avatar={
+                                                    <CustomIconButton sx={{ bgcolor: theme.palette.success.lighter }}>
+                                                        <IconUrl width={20} height={20} path="ic-filled-hand-money"
+                                                            color={theme.palette.success.main} />
+                                                    </CustomIconButton>
+
+                                                }
+                                                title={
+                                                    <Stack>
+                                                        <Typography fontWeight={600}
+                                                            color="primary.darker">{t("billed_consultation")}</Typography>
+                                                        <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
                                                             </Typography>
@@ -958,17 +1047,23 @@ function WaitingRoom() {
                                                 }
                                             />
                                             <CardHeader
-                                                sx={{ p: 1, border: `1px dashed ${theme.palette.divider}`, borderRadius: 1 }}
+                                                sx={{
+                                                    p: 1,
+                                                    border: `1px dashed ${theme.palette.divider}`,
+                                                    borderRadius: 1
+                                                }}
                                                 avatar={
                                                     <CustomIconButton sx={{ bgcolor: theme.palette.success.lighter }}>
-                                                        <IconUrl width={20} height={20} path="ic-filled-hand-money" color={theme.palette.success.main} />
+                                                        <IconUrl width={20} height={20} path="ic-filled-money-tick"
+                                                            color={theme.palette.success.main} />
                                                     </CustomIconButton>
 
                                                 }
                                                 title={
                                                     <Stack>
-                                                        <Typography fontWeight={600} color="primary.darker">{t("billed_consultation")}</Typography>
-                                                        <Typography fontWeight={600} fontSize={18}>567
+                                                        <Typography fontWeight={600}
+                                                            color="primary.darker">{t("paid")}</Typography>
+                                                        <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
                                                             </Typography>
@@ -978,37 +1073,22 @@ function WaitingRoom() {
                                                 }
                                             />
                                             <CardHeader
-                                                sx={{ p: 1, border: `1px dashed ${theme.palette.divider}`, borderRadius: 1 }}
-                                                avatar={
-                                                    <CustomIconButton sx={{ bgcolor: theme.palette.success.lighter }}>
-                                                        <IconUrl width={20} height={20} path="ic-filled-money-tick" color={theme.palette.success.main} />
-                                                    </CustomIconButton>
-
-                                                }
-                                                title={
-                                                    <Stack>
-                                                        <Typography fontWeight={600} color="primary.darker">{t("paid")}</Typography>
-                                                        <Typography fontWeight={600} fontSize={18}>567
-                                                            <Typography variant="caption" ml={.5}>
-                                                                TND
-                                                            </Typography>
-                                                        </Typography>
-                                                    </Stack>
-
-                                                }
-                                            />
-                                            <CardHeader
-                                                sx={{ p: 1, border: `1px dashed ${theme.palette.divider}`, borderRadius: 1 }}
+                                                sx={{
+                                                    p: 1,
+                                                    border: `1px dashed ${theme.palette.divider}`,
+                                                    borderRadius: 1
+                                                }}
                                                 avatar={
                                                     <CustomIconButton sx={{ bgcolor: theme.palette.error.lighter }}>
-                                                        <IconUrl width={20} height={20} path="ic-filled-money-remove" color={theme.palette.error.main} />
+                                                        <IconUrl width={20} height={20} path="ic-filled-money-remove"
+                                                            color={theme.palette.error.main} />
                                                     </CustomIconButton>
-
                                                 }
                                                 title={
                                                     <Stack>
-                                                        <Typography fontWeight={600} color="primary.darker">{t("unpaid")}</Typography>
-                                                        <Typography fontWeight={600} fontSize={18}>567
+                                                        <Typography fontWeight={600}
+                                                            color="primary.darker">{t("unpaid")}</Typography>
+                                                        <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
                                                             </Typography>
@@ -1025,14 +1105,16 @@ function WaitingRoom() {
                                         <CardContent>
                                             <Stack alignItems='center' spacing={2}>
                                                 <CustomIconButton sx={{ bgcolor: theme.palette.primary.lighter }}>
-                                                    <IconUrl width={20} height={20} path="ic-filled-logout" color={theme.palette.primary.main} />
+                                                    <IconUrl width={20} height={20} path="ic-filled-logout"
+                                                        color={theme.palette.primary.main} />
                                                 </CustomIconButton>
-                                                <Typography fontWeight={600} textAlign='center' color="primary.darker">{t("estimated_end_time")}</Typography>
-                                                <Typography variant="h5" lineHeight={1}>20.00</Typography>
+                                                <Typography fontWeight={600} textAlign='center'
+                                                    color="primary.darker">{t("estimated_end_time")}</Typography>
+                                                <Typography variant="h5" lineHeight={1}>--.--</Typography>
                                             </Stack>
                                         </CardContent>
                                     </Card>
-                                </Stack>
+                                </Stack>}
                                 <Board
                                     {...{ columns: columns.current, handleDragEvent, handleSortData, handleUnpaidFilter }}
                                     isUnpaidFilter={boardFilterData.unpaid}
@@ -1841,11 +1923,10 @@ function WaitingRoom() {
                     </MenuItem>
                 ))}
             </Menu>
-            <Snackbar
+            {/*<Snackbar
                 open={true}
                 autoHideDuration={5000}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
                 <Alert
                     severity="expire"
                     icon={<Label variant="filled" color="expire">Alert</Label>}
@@ -1862,7 +1943,7 @@ function WaitingRoom() {
                         } size="small" variant="contained" color="expire">+5 minutes</Button>
                     </Stack>
                 </Alert>
-            </Snackbar>
+            </Snackbar>*/}
         </>
     )
         ;

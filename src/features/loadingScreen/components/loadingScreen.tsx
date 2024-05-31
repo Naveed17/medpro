@@ -15,7 +15,6 @@ import MedProIcon from "@themes/overrides/icons/MedProIcon";
 import {useRouter} from "next/router";
 import {PaletteColor} from "@mui/material/styles";
 import {clearBrowserCache} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 
 const icons = [
     "ic-doctor",
@@ -35,7 +34,6 @@ function LoadingScreen({...props}) {
     } = props;
     const router = useRouter();
     const theme = useTheme();
-    const {update} = useSession();
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("sm")
     );
@@ -133,8 +131,7 @@ function LoadingScreen({...props}) {
                                     if (text === "loading-error-404") {
                                         await router.push("/dashboard/agenda");
                                     } else {
-                                        await update({refreshAccessToken: true});
-                                        router.reload();
+                                        await router.push("/");
                                     }
                                 });
 

@@ -7,13 +7,13 @@ const settingsData = {
             href: '/admin/settings/profile',
             disable: false
         },
-/*         {
-            name: "users",
-            icon: "setting/ic-users",
-            href: '/admin/settings/users',
-            disable: false
-        },*/
-         {
+        /*         {
+                    name: "users",
+                    icon: "setting/ic-users",
+                    href: '/admin/settings/users',
+                    disable: false
+                },*/
+        {
             name: "billing",
             icon: "setting/ic-banknote",
             href: '/admin/settings/billing',
@@ -22,93 +22,102 @@ const settingsData = {
     ],
     dashboard: [
         {
-        name:'general',
-        icon:'ic-outline-setting',
-        href: '/dashboard/settings/general',
-        disable: false,
-        submenu:[
-            {
-                name:'profile',
-                disable: false
-            },
-            {
-                name:"users",
-                disable:false
-            },
-            {
-                name:"plan_billing",
-                disable:false
-            },
-             {
-                name:"preferences",
-                disable:false
-            }
-            
-            
-        ]
-
+            name: 'general',
+            icon: 'ic-outline-setting',
+            href: '/dashboard/settings/general',
+            disable: false,
+            submenu: [
+                {
+                    name: 'profile',
+                    feature: 'profile',
+                    disable: false
+                },
+                {
+                    name: "users",
+                    feature: 'users',
+                    disable: false
+                }
+                // {
+                //     name: "plan_billing",
+                //     disable: false
+                // },
+                // {
+                //     name: "preferences",
+                //     disable: false
+                // }
+            ]
         },
-          {
-        name:'schedule-and-location',
-        icon:'ic-outline-location-time',
-        href: '/dashboard/settings/schedule-and-location',
-        disable: false,
-        submenu:[
-            {
-            name:'location',
-            disable: false
-           },
-           {
-            name:'leave_and_absence',
-            disable: false
-           },
-           {
-            name:'time_off_types',
-            disable: false
-           }
+        {
+            name: 'schedule-and-location',
+            icon: 'ic-outline-location-time',
+            href: '/dashboard/settings/schedule-and-location',
+            disable: false,
+            submenu: [
+                {
+                    name: 'location',
+                    feature: 'places',
+                    disable: false
+                },
+                {
+                    name: 'leave_and_absence',
+                    feature: 'holidays',
+                    disable: false
+                }
+                // {
+                //     name: 'time_off_types',
+                //     disable: false
+                // }
 
-    ]
-    },
-    {
-        name:'consultation',
-        icon:'ic-outline-stethoscope',
-        href: '/dashboard/settings/consultation',
-        disable: false,
-        submenu:[
-            {
-                name:"actfees",
-                disable: false
-            },
-             {
-                name:"insurance",
-                disable: false
-            },
-             {
-                name:"motifs",
-                disable: false
-            },
-             {
-                name:"sheets",
-                disable: false
-            },
-            {
-                name:"types",
-                disable: false
-            },
-            {
-                name:"drugs",
-                disable: false
-            },
-             {
-                name:"analysis",
-                disable: false
-            },
-            {
-                name:"medical_imaging",
-                disable: false
-            }
-        ]
-    },
+            ]
+        },
+        {
+            name: 'consultation',
+            icon: 'ic-outline-stethoscope',
+            href: '/dashboard/settings/consultation',
+            disable: false,
+            submenu: [
+                {
+                    name: "actfees",
+                    feature: 'holidays',
+                    disable: false
+                },
+                {
+                    name: "insurance",
+                    feature: 'insurance-agreement',
+                    disable: false
+                },
+                {
+                    name: "motifs",
+                    feature: 'motif',
+                    disable: false
+                },
+                {
+                    name: "sheets",
+                    feature: 'patient-file-templates',
+                    disable: false
+                },
+                {
+                    name: "types",
+                    feature: 'consultation-type',
+                    disable: false
+                },
+                {
+                    name: "drugs",
+                    feature: 'drugs',
+                    disable: false
+                },
+                {
+                    name: "analysis",
+                    feature: 'analysis',
+                    disable: false
+                },
+                {
+                    name: "medical_imaging",
+                    feature: 'medical-imaging',
+                    disable: false
+                }
+            ]
+        },
         // {
         //     name: "profile",
         //     icon: "setting/ic-patient",
@@ -157,7 +166,7 @@ const settingsData = {
             icon: "setting/ic-document",
             href: "/dashboard/settings/templates",
             disable: false,
-            submenu:[]
+            submenu: []
         },
         // {
         //     name: "type",
@@ -212,13 +221,13 @@ const settingsData = {
         //     href: "/dashboard/settings/users",
         //     disable: false
         // },
-        
+
         //  {
         //     name: "reseau",
         //     icon: "setting/ic-message-contour",
         //     href: "/setting/sms",
         // },
-        
+
         // {
         //     name: "instructions",
         //     icon: "setting/ic-messagerie",
@@ -231,7 +240,7 @@ const settingsData = {
             fill: "default",
             href: "/dashboard/settings/data",
             disable: false,
-            submenu:[]
+            submenu: []
         },
         //  {
         //      name: "app_lock",

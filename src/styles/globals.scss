@@ -389,7 +389,7 @@ fieldset {
 }
 
 .box {
-  border: 1px dashed #0096d6;
+  border: 1px dashed $primary;
   padding: 0;
 }
 
@@ -472,8 +472,6 @@ fieldset {
       .MuiTypography-root {
         color: #00234B
       }
-
-      ;
 
       svg {
         path {
@@ -697,6 +695,12 @@ fieldset {
   font-size: 18px;
 }
 
+.receipt-title {
+  font-size: 16px;
+  padding: 20px;
+  font-weight: bold;
+}
+
 ol,
 ul,
 menu {
@@ -707,4 +711,51 @@ menu {
 
 table {
   border-collapse: inherit;
+}
+
+// planby Timeline override styles
+.planby>div>div {
+  scroll-behavior: smooth;
+}
+
+.planby>div>div::-webkit-scrollbar {
+  display: none;
+}
+
+.planby>div>div>div:nth-child(1) {
+  border-radius: 4px;
+  height: 42px;
+  margin-top: -6px;
+
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -12px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    transform: translateX(40%) rotate(180deg);
+    border-color: rgba(0, 0, 0, 0);
+    border-bottom-color: $primary;
+    border-width: 8px;
+    border-radius: 20% 20% 20% 20%;
+    margin-left: -8px;
+  }
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: -12px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    transform: translateX(40%) rotate(0deg);
+    border-color: rgba(0, 0, 0, 0);
+    border-bottom-color: $primary;
+    border-width: 8px;
+    border-radius: 20% 20% 20% 20%;
+    margin-left: -8px;
+  }
 }

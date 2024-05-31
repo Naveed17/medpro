@@ -17,7 +17,8 @@ import {
     Skeleton,
     Stack,
     Toolbar,
-    Typography, useTheme
+    Typography,
+    useTheme
 } from "@mui/material";
 import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
 import { useSession } from "next-auth/react";
@@ -35,15 +36,14 @@ import { Dialog } from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import { useAppSelector } from "@lib/redux/hooks";
 import { dashLayoutSelector } from "@features/base";
-import { useMedicalEntitySuffix, prepareInsurancesData } from "@lib/hooks";
+import { prepareInsurancesData, useMedicalEntitySuffix } from "@lib/hooks";
 import { useInsurances } from "@lib/hooks/rest";
-import { ImageHandler } from "@features/image";
 
 import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
 
 import { LoadingScreen } from "@features/loadingScreen";
-import { Label } from "@features/label";
-import { CustomIconButton } from "@features/buttons";
+import { PatientInsurance } from "@features/patientInsurance";
+import { ImageHandler } from "@features/image";
 
 function PersonalInsuranceCard({ ...props }) {
     const {
@@ -306,116 +306,127 @@ function PersonalInsuranceCard({ ...props }) {
                                 pb: 0
                             })
                         }}>
-                        <CardHeader title={
-                            <Typography variant="subtitle1" fontSize={18}>
-                                {t("config.add-patient.assurance")}
-                            </Typography>
-                        }
-                            action={
-                                <IconButton size="small" sx={{
-                                    svg: {
-                                        transform: open ? "" : "scale(-1)",
-                                        transition: "transform 0.3s"
-                                    }
-                                }}>
-                                    <IconUrl path="ic-outline-arrow-up" width={16} height={16} />
-                                </IconButton>
-
-                            }
-                            sx={{
-                                cursor: 'pointer',
-                                ".MuiCardHeader-action": {
-                                    alignSelf: 'center'
-                                }
-                            }}
-                            onClick={() => handleTogglePanel()}
-                        />
-                        <Collapse in={open}>
-                            <CardContent>
-                                {patientInsurances?.map((insurance: any, index: number) => (
-                                    <Grid container key={`${index}-${insurance.uuid}`}>
-                                        <Stack sx={{
-                                            ...(index > 0 && {
-                                                marginTop: 1
-                                            }),
-                                            width: "inherit",
-                                            border: 1,
-                                            borderColor: 'divider',
-                                            borderStyle: 'dashed',
-                                            p: 1,
-                                            borderRadius: 1
-                                        }} direction="row" alignItems="center">
-                                            <Grid item md={12} sm={12} xs={12}>
-                                                {loading ? (
-                                                    <Skeleton variant="text" />
-                                                ) : (
-                                                    <>
-                                                        <Grid container spacing={1.2}>
-                                                            <Grid item xs={12}>
-                                                                <Stack direction='row' alignItems='center' spacing={1}>
-                                                                    {(() => {
-                                                                        const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
-                                                                        return <Typography variant="subtitle2" fontWeight={600}>{insuranceItem?.name}</Typography>
-                                                                    })()}
-                                                                    <Label
-                                                                        color="primary" sx={{ color: theme.palette.primary.main, fontWeight: 500, px: 2 }}>
-                                                                        {t(`social_insured.${SocialInsured.find(insur => insur.value === insurance.type.toString())?.label}`, { ns: "common" })}
-                                                                    </Label>
-                                                                    <Stack sx={{ "&.MuiStack-root": { ml: 'auto' } }} direction={"row"} alignItems={"center"} spacing={1}
-                                                                        justifyContent={"flex-end"}>
-                                                                        <IconButton
-                                                                            disabled={loadingRequest}
-
-                                                                            onClick={() => handleDeleteInsurance(insurance)}
-                                                                            size="small">
-                                                                            <IconUrl color={theme.palette.text.secondary}
-                                                                                path="ic-trash" width={16} height={16} />
-                                                                        </IconButton>
-                                                                        <CustomIconButton
-                                                                            disabled={loadingRequest}
-                                                                            className="btn-edit"
-                                                                            onClick={() => handleEditInsurance(insurance)}
-                                                                            size="small">
-                                                                            <IconUrl color={theme.palette.text.secondary}
-                                                                                path="ic-edit-patient" width={16} height={16} />
-                                                                        </CustomIconButton>
-
-                                                                    </Stack>
-                                                                </Stack>
-                                                            </Grid>
-
-                                                            <Grid item xs={12}>
-                                                                {(() => {
-                                                                    const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
-                                                                    return (<Stack direction={"row"} spacing={2} alignItems='center'>
-                                                                        {insuranceItem?.logoUrl &&
-                                                                            <ImageHandler
-                                                                                alt={insuranceItem?.name}
-                                                                                src={insuranceItem?.logoUrl.url}
-                                                                            />}
-                                                                        <Stack>
-                                                                            <Typography
-                                                                                variant={"subtitle1"}
-                                                                            >
-                                                                                {insurance.insuranceNumber}
-                                                                            </Typography>
-                                                                            <Typography color="grey.500" fontWeight={500}>
-                                                                                {t("config.add-patient.expire_insurance")}
-                                                                            </Typography>
-                                                                        </Stack>
-                                                                    </Stack>)
-                                                                })()}
-                                                            </Grid>
-                                                        </Grid>
-
-                                                    </>
-                                                )}
-                                            </Grid>
-                                        </Stack>
-                                    </Grid>))
-                                }
-                            </CardContent>
-                        </Collapse>
+                        <PatientInsurance {...{
+                            patientInsurances,
+                            mutatePatientInsurances,
+                            patient,
+                            urlMedicalEntitySuffix,
+                            medicalEntityHasUser
+                        }} />
+                        {/*<AppBar position="static" color={"transparent"}>
+                            <Toolbar variant="dense">
+                                <Box sx={{flexGrow: 1}}>
+                                    <Typography
+                                        variant="body1"
+                                        sx={{fontWeight: "bold"}}
+                                        gutterBottom>
+                                        {loading ? (
+                                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                                        ) : (
+                                            t("config.add-patient.assurance")
+                                        )}
+                                    </Typography>
+                                </Box>
+                                <LoadingButton
+                                    disabled={editable.personalInfoCard || editable.patientDetailContactCard}
+                                    loading={loadingRequest}
+                                    className='btn-add'
+                                    onClick={() => {
+                                        handleAddInsurance();
+                                        setInsuranceDialog(true);
+                                    }}
+                                    startIcon={<AddIcon/>}
+                                    size="small">
+                                    {t("config.add-patient.add")}
+                                </LoadingButton>
+                            </Toolbar>
+                        </AppBar>
+                        {patientInsurances?.map((insurance: any, index: number) => (
+                            <Grid container key={`${index}-${insurance.uuid}`}>
+                                <Stack sx={{
+                                    ...(index === 0 && {
+                                        marginTop: 1
+                                    }),
+                                    width: "inherit"
+                                }} direction="row" alignItems="center">
+                                    <Grid item md={12} sm={12} xs={12}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <>
+                                                <Grid container spacing={1.2}>
+                                                    <Grid item xs={6} md={3}>
+                                                        {(() => {
+                                                            const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
+                                                            return (<Stack direction={"row"}>
+                                                                {insuranceItem?.logoUrl &&
+                                                                    <ImageHandler
+                                                                        alt={insuranceItem?.name}
+                                                                        src={insuranceItem?.logoUrl.url}
+                                                                    />}
+                                                                <Typography
+                                                                    ml={1}>{insuranceItem?.name}</Typography>
+                                                            </Stack>)
+                                                        })()}
+                                                    </Grid>
+                                                    <Grid item xs={6} md={2}>
+                                                        <Stack direction={"row"}
+                                                               justifyContent={"space-between"}
+                                                               alignItems={"center"}>
+                                                            <Typography
+                                                                variant={"body2"}
+                                                            >
+                                                                {insurance.insuranceNumber}
+                                                            </Typography>
+                                                        </Stack>
+                                                    </Grid>
+                                                    <Grid item xs={6} md={3}>
+                                                        <Stack direction={"row"}
+                                                               justifyContent={"space-between"}
+                                                               alignItems={"center"}>
+                                                            <Typography
+                                                                variant={"body2"}
+                                                            >
+                                                                {t(`social_insured.${SocialInsured.find(insur => insur.value === insurance.type.toString())?.label}`, {ns: "common"})}
+                                                            </Typography>
+                                                        </Stack>
+                                                    </Grid>
+                                                    {!editable.personalInsuranceCard &&
+                                                        <Grid pt={.5} pb={.5} item xs={6} md={4}>
+                                                            <Stack direction={"row"} alignItems={"center"} spacing={1}
+                                                                   justifyContent={"flex-end"}>
+                                                                <IconButton
+                                                                    disabled={loadingRequest}
+                                                                    className="btn-edit"
+                                                                    onClick={() => handleEditInsurance(insurance)}
+                                                                    size="small">
+                                                                    <IconUrl color={theme.palette.text.secondary}
+                                                                             path="ic-edit-patient"/>
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    disabled={loadingRequest}
+                                                                    sx={{
+                                                                        '& .react-svg svg': {
+                                                                            width: 20,
+                                                                            height: 20
+                                                                        }
+                                                                    }}
+                                                                    onClick={() => handleDeleteInsurance(insurance)}
+                                                                    size="small">
+                                                                    <IconUrl color={theme.palette.text.secondary}
+                                                                             path="ic-trash"/>
+                                                                </IconButton>
+                                                            </Stack>
+                                                        </Grid>}
+                                                </Grid>
+                                                {(patientInsurances.length - 1) !== index &&
+                                                    <Divider sx={{marginBottom: 1}}/>}
+                                            </>
+                                        )}
+                                    </Grid>
+                                </Stack>
+                            </Grid>))
+                        }*/}
                     </Paper>
                 </PersonalInfoStyled>
                 <Dialog

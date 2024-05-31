@@ -59,15 +59,6 @@ import {
     setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
-import {
-    AppointmentDetail,
-    Dialog,
-    dialogMoveSelector,
-    PatientDetail,
-    preConsultationSelector,
-    QuickAddAppointment,
-    setMoveDateTime
-} from "@features/dialog";
 import { AppointmentListMobile, timerSelector } from "@features/card";
 import { FilterButton } from "@features/buttons";
 import { AgendaFilter, leftActionBarSelector, resetFilter } from "@features/leftActionBar";
@@ -83,6 +74,15 @@ import {
     useMedicalEntitySuffix,
     useMutateOnGoing
 } from "@lib/hooks";
+import {
+    AppointmentDetail,
+    Dialog,
+    dialogMoveSelector,
+    PatientDetail,
+    preConsultationSelector,
+    QuickAddAppointment,
+    setMoveDateTime
+} from "@features/dialog";
 import { DateClickArg } from "@fullcalendar/interaction";
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
@@ -750,7 +750,10 @@ function Agenda() {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push({
                 pathname: slugConsultation,
-                query: { inProgress: true }
+                query: {
+                    inProgress: true,
+                    agendaUuid: agenda?.uuid
+                }
             }, slugConsultation, { locale: router.locale }).then(() => {
                 dispatch(openDrawer({ type: "view", open: false }));
             })

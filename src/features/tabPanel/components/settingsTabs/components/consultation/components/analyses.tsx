@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { configSelector } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useEffect, useState } from "react";
+import { configSelector, DashLayout } from "@features/base";
 import {
     Box,
     Button,
@@ -172,6 +174,9 @@ function Analysis() {
 
     const analysis = ((analysisResponse as HttpResponse)?.data?.list ?? []) as AnalysisModel[];
     const analysisMobileRes = isMobile ? ((analysisResponse as HttpResponse)?.data ?? []) as AnalysisModel[] : [];
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
+
     return (
         <>
 

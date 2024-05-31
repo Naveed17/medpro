@@ -162,7 +162,10 @@
       "listen": "Listen",
       "documents": "Documents",
       "created-at": "Created At",
-      "created-by": "Created By"
+      "created-by": "Created By",
+      "label": "Label",
+      "start_date": "Start date",
+      "end_date": "End date"
     },
     "add-patient": {
       "personal-info": "Personal Information",
@@ -403,5 +406,26 @@
     "father": "Father",
     "mother": "Mother",
     "both": "Both"
+  },
+  "insurance": {
+    "agreement": "Insurance / Agreement",
+    "select": "Select insurance / agreement",
+    "member": "Membership number",
+    "insuranceBook": "Insurance book",
+    "book_placeholder": "Enter insurance book number",
+    "member_placeholder": "Enter the membership number",
+    "cashbox": "Box",
+    "cashbox_placeholder": "Select checkout",
+    "insured": "Insured",
+    "insured_placeholder": "Select the insured",
+    "apci": "APCI",
+    "apci_placeholder": "Select APCI",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "noInsurance": "No insurance for this patient",
+    "addInsurance": "Click on the « + » button to add insurance",
+    "expire": "Expire",
+    "edit": "Edit",
+    "save": "Save"
   }
 }

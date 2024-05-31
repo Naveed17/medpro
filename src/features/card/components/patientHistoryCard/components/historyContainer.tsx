@@ -93,7 +93,7 @@ function HistoryContainer({...props}) {
             type: "fees",
             name: "note_fees",
             info: selectedActs,
-            consultationFees: app.appointment.consultation_fees,
+            //consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
             patient: `${type} ${patient.firstName} ${patient.lastName}`,
             age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : ""
@@ -456,7 +456,7 @@ function HistoryContainer({...props}) {
                                                                 </Grid>
                                                             </Grid>
 
-                                                            <Grid container spacing={2} pb={1} pt={1}
+                                                            {/*<Grid container spacing={2} pb={1} pt={1}
                                                                   style={{borderBottom: '1px dashed gray'}}>
                                                                 <Grid item xs={3}>
                                                                     <Typography className={"feesContent"}
@@ -470,7 +470,7 @@ function HistoryContainer({...props}) {
                                                                         ? app?.appointment.consultation_fees
                                                                         : "--"} {devise}</Typography>
                                                                 </Grid>
-                                                            </Grid>
+                                                            </Grid>*/}
                                                             {app?.appointment.acts.map(
                                                                 (act: any, idx: number) => (
                                                                     <Grid container pb={1} pt={1}
