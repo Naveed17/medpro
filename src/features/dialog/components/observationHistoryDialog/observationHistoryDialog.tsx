@@ -1,5 +1,5 @@
-import {CardContent, Stack, TextField, Typography, useTheme} from "@mui/material";
-import React, {memo, useEffect, useState} from "react";
+import {CardContent, Stack, Typography, useTheme} from "@mui/material";
+import React, {useEffect, useState} from "react";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import moment from "moment/moment";
 import {useRequestQuery} from "@lib/axios";
@@ -54,7 +54,7 @@ function ObservationHistoryDialog({...props}) {
                         <Stack
                             spacing={1}
                             direction="row"
-                            style={{borderBottom:"1px solid #CECECE",paddingBottom:10}}
+                            style={{borderBottom: "1px solid #CECECE", paddingBottom: 10}}
                             alignItems="center">
                             <AccessTimeIcon style={{fontSize: 13}}/>
                             <Typography style={{fontSize: 12}}>
