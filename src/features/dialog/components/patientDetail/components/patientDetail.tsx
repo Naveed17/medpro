@@ -50,7 +50,6 @@ import {useSnackbar} from "notistack";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {
     useFeaturePermissions,
-    useProfilePhoto,
     useSendNotification
 } from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
