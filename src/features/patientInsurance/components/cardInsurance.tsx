@@ -1,15 +1,31 @@
-import React from 'react';
-import {IconButton, Stack, Typography, useTheme} from "@mui/material";
+import React, {useState} from 'react';
+import {
+    Button, Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Stack,
+    Typography,
+    useTheme
+} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useInsurances} from "@lib/hooks/rest";
 import {SocialInsured} from "@lib/constants";
+import {Theme} from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
 
 const CardInsurance = ({...props}) => {
 
     const {pi, t, setSelectedInsurance, deleteInsurance} = props;
     const {insurances} = useInsurances()
 
+    const [openDelete,setOpenDelete] = useState(false)
+
     const theme = useTheme();
+
     return (
         <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
             <Stack>
@@ -42,12 +58,51 @@ const CardInsurance = ({...props}) => {
                 <IconButton
                     onClick={event => {
                         event.stopPropagation();
-                        deleteInsurance(pi.uuid)
+                        setOpenDelete(true)
                     }}
                     size="small">
                     <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
                 </IconButton>
             </Stack>
+
+            <Dialog onClose={() => setOpenDelete(false)}
+                    PaperProps={{
+                        sx: {
+                            width: "100%"
+                        }
+                    }} maxWidth="sm" open={openDelete}>
+                <DialogTitle sx={{
+                    bgcolor: (theme: Theme) => theme.palette.error.main,
+                    px: 1,
+                    py: 2,
+
+                }}>
+                    {t("insurance.title_delete")}
+                </DialogTitle>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Typography>
+                        {t("insurance.desc_delete")}
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setOpenDelete(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("insurance.cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            color="error"
+                            onClick={() => deleteInsurance(pi.uuid)}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("insurance.delete")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </Stack>
     );
 }

@@ -967,6 +967,9 @@
         "confirm_add": "Confirm & Add an other",
         "confirm_save": "Confirm & Add an other",
         "title": "Add insurance / agreement",
+        "title_delete": "Delete a convention",
+        "desc_delete": "Are you sure to remove this convention ?",
+
         "create_act": "Add act",
         "switch": "Advanced Input",
         "contribution_placeholder": "Type the quote",

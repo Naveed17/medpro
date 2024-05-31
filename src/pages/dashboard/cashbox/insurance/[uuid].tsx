@@ -5,7 +5,7 @@ import {useTranslation} from "next-i18next";
 import {
     Button,
     Card,
-    CardContent,
+    CardContent, Dialog, DialogActions, DialogContent, DialogTitle,
     FormControl,
     IconButton,
     InputAdornment,
@@ -41,6 +41,9 @@ import {InsuranceAppointMobileCard, NoDataCard} from "@features/card";
 import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment-timezone";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
 
 function InscDetail() {
 
@@ -232,6 +235,7 @@ function InscDetail() {
     const [editMode, setEditMode] = useState(false)
     const [selectedMPI, setSelectedMPI] = useState<any>(null)
     const [hasMPI, setHasMPI] = useState("")
+    const [openDelete, setOpenDelete] = useState("")
 
     const topCard = [
         {
@@ -731,7 +735,7 @@ function InscDetail() {
                             headers={headCellsArchiveSlip}
                             handleEvent={(uuid: string, from: string, name?: string) => {
                                 if (from === "delete")
-                                    deleteDoc(uuid)
+                                    setOpenDelete(uuid)
                                 else
                                     exportDoc(uuid, name)
                             }}
@@ -746,6 +750,44 @@ function InscDetail() {
                     </DesktopContainer>
                 </Card>
             </TabPanel>
+
+            <Dialog onClose={() => setOpenDelete("")}
+                    PaperProps={{
+                        sx: {
+                            width: "100%"
+                        }
+                    }} maxWidth="sm" open={openDelete !== ""}>
+                <DialogTitle sx={{
+                    bgcolor: (theme: Theme) => theme.palette.error.main,
+                    px: 1,
+                    py: 2,
+                }}>
+                    {t("title_delete")}
+                </DialogTitle>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Typography>
+                        {t("desc_delete")}
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setOpenDelete("");
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            color="error"
+                            onClick={() => deleteDoc(openDelete)}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("delete")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </Stack>
     );
 }
