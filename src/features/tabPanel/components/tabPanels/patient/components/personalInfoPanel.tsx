@@ -1,4 +1,5 @@
-import {Stack} from "@mui/material";
+import React from "react";
+import Stack from "@mui/material/Stack";
 import dynamic from "next/dynamic";
 import {useContactType, useCountries} from "@lib/hooks/rest";
 
@@ -18,7 +19,7 @@ function PersonInfoPanel({...props}) {
 
     return (
         <Stack spacing={2} className={"container"}>
-            {/*<PersonalInfoCard {...{countries_api, ...other}} />*/}
+            <PersonalInfoCard {...{countries_api, ...other}} />
             <PersonalInsuranceCard {...{contacts, ...other}} />
             <PatientDetailContactCard {...{contacts, contactData, countries_api: [], ...other}} />
             <AntecedentsCard {...other} />

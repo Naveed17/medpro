@@ -7,13 +7,6 @@ import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-export const MyTextInput: any = memo(({...props}) => {
-    return (
-        <TextField {...props} />
-    );
-})
-MyTextInput.displayName = "TextField";
-
 function ObservationHistoryDialog({...props}) {
     const {data: {patient_uuid, t}} = props;
 

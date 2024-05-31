@@ -39,13 +39,6 @@ const GroupItems = styled('ul')({
     padding: 0,
 });
 
-export const MyTextInput: any = memo(({...props}) => {
-    return (
-        <TextField {...props} />
-    );
-})
-MyTextInput.displayName = "TextField";
-
 function InsuranceAddDialog({...props}) {
     const {data} = props;
     const {
