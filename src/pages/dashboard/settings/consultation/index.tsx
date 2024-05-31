@@ -67,7 +67,7 @@ function Consultation() {
                 <Stack spacing={2} mt={2}>
                     <Breadcrumbs data={breadcrumbsDataMap}/>
                     <Typography variant="subtitle1" fontWeight={600}>
-                        {t("consultation.title")}
+                        {t("menu.consultation")}
                     </Typography>
                     <Tabs
                         value={currentIndex}
