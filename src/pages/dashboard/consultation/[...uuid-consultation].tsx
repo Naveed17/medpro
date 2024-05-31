@@ -1269,14 +1269,6 @@ function ConsultationInProgress() {
             setInsuranceGenerated(sheet?.insuranceGenerated)
             setLoading(false)
 
-           /* let _acts: AppointmentActModel[] = []
-            medicalProfessionalData && medicalProfessionalData.acts.map(act => {
-                _acts.push({qte: 1, selected: false, ...act})
-            })
-            acts.length === 0 && setActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
-
-            setMPActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
-*/
             if (router.query["tab"]?.toString())
                 setSelectedTab(router.query["tab"]?.toString())
 
@@ -1317,7 +1309,6 @@ function ConsultationInProgress() {
     useEffect(()=>{
         if (httpPatientInsuranceFees){
             const insuranceFees = httpPatientInsuranceFees.data;
-            console.log(insuranceFees)
             let _acts: AppointmentActModel[] = []
             insuranceFees.forEach((act:any) => {
                 _acts.push({qte: 1, selected: false, ...act})

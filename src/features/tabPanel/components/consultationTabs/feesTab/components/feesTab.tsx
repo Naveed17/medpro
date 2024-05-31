@@ -140,8 +140,8 @@ function FeesTab({...props}) {
                     _acts[index].fees = act.price;
                     _acts[index].insurance_act = act.insurance_act;
                     _acts[index].insurance = act.insurance;
-                    _acts[index].patientPart = act.patientPart;
-                    _acts[index].contribution = act.refund;
+                    _acts[index].patient_part = act.patientPart;
+                    _acts[index].refund = act.refund;
                 }
             })
 
@@ -161,7 +161,9 @@ function FeesTab({...props}) {
 
         const _acts: { act_uuid: string; name: string; qte: number; price: number; }[] = [];
         let _total = 0
+
         actsList.filter((act: any) => act.selected).forEach((act: any) => {
+            console.log(act)
             _total += act.fees * act.qte
             _acts.push({
                 act_uuid: act.uuid,
