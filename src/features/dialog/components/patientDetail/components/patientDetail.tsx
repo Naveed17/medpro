@@ -36,7 +36,7 @@ import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import React, {SyntheticEvent, useContext, useEffect, useRef, useState} from "react";
+import React, {SyntheticEvent, useContext, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
