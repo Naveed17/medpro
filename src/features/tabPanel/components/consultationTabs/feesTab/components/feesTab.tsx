@@ -308,7 +308,7 @@ function FeesTab({...props}) {
                                             {t("table.reimb")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.contribution) : 0), 0)} {devise}
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.refund) : 0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -320,7 +320,7 @@ function FeesTab({...props}) {
                                             {t("table.patient_part")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.patientPart) : 0), 0)} {devise}
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected && curr.patient_part ? Number(curr.patient_part) : 0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>

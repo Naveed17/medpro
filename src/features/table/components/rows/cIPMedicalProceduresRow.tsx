@@ -156,7 +156,7 @@ function CIPMedicalProceduresRow({...props}) {
 
                 </TableCell>
                 <TableCell align="center">
-                    {row.selected ? <InputBaseStyled
+                    { row.insurances?.length > 0 && (row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -189,10 +189,10 @@ function CIPMedicalProceduresRow({...props}) {
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    /> : <Typography>{row.refund}</Typography>}
+                    /> : <Typography>{row.refund}</Typography>)}
                 </TableCell>
                 <TableCell align="center">
-                    {row.selected ? <InputBaseStyled
+                    {row.insurances?.length > 0 &&  ( row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -225,7 +225,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    /> : <Typography>{row.patient_part}</Typography>}
+                    /> : <Typography>{row.patient_part}</Typography>)}
                 </TableCell>
                 <TableCell align={"center"}>
                     {row.selected && row.uuid !== 'consultation_type' ? (
