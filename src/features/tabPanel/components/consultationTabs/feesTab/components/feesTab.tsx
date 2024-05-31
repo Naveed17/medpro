@@ -163,7 +163,6 @@ function FeesTab({...props}) {
         let _total = 0
 
         actsList.filter((act: any) => act.selected).forEach((act: any) => {
-            console.log(act)
             _total += act.fees * act.qte
             _acts.push({
                 act_uuid: act.uuid,
