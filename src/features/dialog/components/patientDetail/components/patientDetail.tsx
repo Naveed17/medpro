@@ -66,7 +66,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {AbilityContext} from "@features/casl/can";
 import {setPermissions} from "@features/casl";
 import dynamic from "next/dynamic";
-import {useAudioRecorder} from "react-audio-voice-recorder";
 
 function a11yProps(index: number) {
     return {
