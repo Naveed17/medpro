@@ -426,6 +426,10 @@
     "addInsurance": "Click on the « + » button to add insurance",
     "expire": "Expire",
     "edit": "Edit",
-    "save": "Save"
+    "save": "Save",
+    "title_delete": "Delete insurance / agreement",
+    "desc_delete": "Are you sure to remove this convention?",
+    "delete": "Delete",
+    "cancel": "Cancel"
   }
 }

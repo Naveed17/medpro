@@ -122,8 +122,8 @@ const AddInsurance = ({...props}) => {
             insurance: {
                 insurance_book: pi && pi.insuranceBook ? pi.insuranceBook?.insuranceNumber : "",
                 insurance_book_uuid: pi && pi.insuranceBook ? pi.insuranceBook?.uuid : "",
-                start_date: pi && pi.insuranceBook ? new Date(moment(pi.insuranceBook?.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
-                end_date: pi && pi.insuranceBook ? new Date(moment(pi.insuranceBook?.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
+                start_date: pi && pi.insuranceBook && pi.insuranceBook?.startDate ? new Date(moment(pi.insuranceBook?.startDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
+                end_date: pi && pi.insuranceBook && pi.insuranceBook?.endDate ? new Date(moment(pi.insuranceBook?.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
                 insurance_key: "",
                 insurance_number: pi && pi.insuranceNumber ? pi.insuranceNumber : "",
                 insurance_uuid: pi && pi.insurance? pi.insurance.uuid : "",

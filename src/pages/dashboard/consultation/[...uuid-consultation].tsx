@@ -1270,14 +1270,6 @@ function ConsultationInProgress() {
             setInsuranceGenerated(sheet?.insuranceGenerated)
             setLoading(false)
 
-            let _acts: AppointmentActModel[] = []
-            medicalProfessionalData && medicalProfessionalData.acts.map(act => {
-                _acts.push({ qte: 1, selected: false, ...act })
-            })
-            acts.length === 0 && setActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
-
-            setMPActs(_acts.sort((a, b) => a.act.name.localeCompare(b.act.name)));
-
             if (router.query["tab"]?.toString())
                 setSelectedTab(router.query["tab"]?.toString())
 
@@ -1338,6 +1330,7 @@ function ConsultationInProgress() {
             const data = (httpPatientPreview as HttpResponse).data;
             dispatch(SetPatient({ uuid: sheet?.patient, birthdate: "", gender: "M", ...data }))
             setPatient(data)
+            mutateInsurance()
         }
     }, [dispatch, httpPatientPreview, sheet?.patient])
 

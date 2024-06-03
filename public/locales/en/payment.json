@@ -217,6 +217,10 @@
     "archive": "Archive",
     "export": "Export",
     "stat": "Statistical",
+    "title_delete": "Delete document",
+    "desc_delete": "Are you sure to delete document ?",
+    "delete": "Delete",
+    "cancel": "Cancel",
     "table": {
       "memberNo": "Member no",
       "date": "Date",
@@ -224,6 +228,7 @@
       "name": "Name",
       "quality": "Quality",
       "act": "Act",
+      "acts": "Acts",
       "apci": "APCI",
       "amount": "Amount",
       "patientPart": "Part patient",

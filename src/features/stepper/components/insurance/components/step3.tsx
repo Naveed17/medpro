@@ -51,7 +51,7 @@ function Step3({...props}) {
                         {t("dialog.stepper.label")}
                     </Typography>
                     <Typography width={1} variant="body2" fontWeight={500}>
-                        {agreement.label}
+                        {agreement.label ? agreement.label : " -"}
                     </Typography>
                 </ListItem>
                 <ListItem
@@ -65,7 +65,7 @@ function Step3({...props}) {
                         {t("dialog.stepper.start_date")}
                     </Typography>
                     <Typography width={1} variant="body2" fontWeight={500}>
-                        {agreement.startDate && moment(agreement.startDate).format("DD/MM/YYYY")}
+                        {agreement.startDate ? moment(agreement.startDate,"DD-MM-YYYY").format("DD/MM/YYYY") : "-"}
                     </Typography>
                 </ListItem>
                 <ListItem
@@ -79,7 +79,7 @@ function Step3({...props}) {
                         {t("dialog.stepper.end_date")}
                     </Typography>
                     <Typography width={1} variant="body2" fontWeight={500}>
-                        {agreement.endDate && moment(agreement.endDate).format("DD/MM/YYYY")}
+                        {agreement.endDate ? moment(agreement.endDate,"DD-MM-YYYY").format("DD/MM/YYYY"): "-"}
                     </Typography>
                 </ListItem>
                 <ListItem
