@@ -62,7 +62,7 @@ function Home() {
 
     useEffect(() => {
         if (status === "unauthenticated") {
-            signIn('keycloak', {callbackUrl: `/${router.locale}`});
+            //signIn('keycloak', {callbackUrl: `/${router.locale}`});
         } else if (status === "authenticated") {
             setLoading(false);
         }
