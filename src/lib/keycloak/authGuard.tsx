@@ -17,19 +17,11 @@ function AuthGuard({children}: LayoutProps) {
     const hasFeatureAccess = features?.find((feature: FeatureModel) => slugFeature?.includes(feature.slug)) ?? false;
 
     useEffect(() => {
-        if (status === "unauthenticated" && router.asPath !== "/auth/signIn") {
-            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar' : '/')});
-        }
-    }, [status, router]);
-
-    useEffect(() => {
         // check if the error has occurred
-        if (session?.error === "RefreshAccessTokenError") {
-            signIn('keycloak', {
-                callbackUrl: `/${router.locale}`,
-            }); // Force sign in to hopefully resolve error
+        if (session?.error === "RefreshAccessTokenError" || (status === "unauthenticated" && router.asPath !== "/auth/signIn")) {
+            signIn('keycloak', {callbackUrl: `/${router.locale}`}); // Force sign in to hopefully resolve error
         }
-    }, [session?.error, router]);
+    }, [session, router, status]);
     // Make sure that you show a loading state for BOTH loading and unauthenticated.
     // This is because when status becomes `unathenticated` the component renders,
     // returns children and then the useEffect redirect is fired afterward,
