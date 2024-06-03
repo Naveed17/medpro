@@ -8,6 +8,11 @@ const TableRowStyled = styled(TableRow)<any>(
             borderRadius: 8,
             padding: theme.spacing(.8),
         },
+        ".txt":{
+            color:"black",
+            fontWeight:"bold",
+            fontSize:12
+        },
         ".btn-doc":{
             border: `1px solid ${theme.palette.divider}`,
             background: theme.palette.background.default,
@@ -19,7 +24,7 @@ const TableRowStyled = styled(TableRow)<any>(
                 fontSize:9,
                 color:theme.palette.common.white,
             }
-            
+
         },
         "& .MuiTableCell-root": {
             cursor: "pointer",
