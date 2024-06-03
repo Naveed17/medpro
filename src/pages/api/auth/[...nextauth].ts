@@ -60,7 +60,17 @@ export const authOptions: NextAuthOptions = {
             clientId: process.env.KEYCLOAK_ID!,
             clientSecret: process.env.KEYCLOAK_SECRET!,
             issuer: process.env.KEYCLOAK_ISSUER,
-            requestTokenUrl: process.env.KEYCLOAK_AUTH_TOKEN_URL
+            requestTokenUrl: process.env.KEYCLOAK_AUTH_TOKEN_URL,
+            authorization: {
+                params: {
+                    grant_type: 'authorization_code',
+                    scope: 'openid email country profile',
+                    response_type: 'code'
+                }
+            },
+            httpOptions: {
+                timeout: 30000
+            }
         }),
         CredentialsProvider({
             id: "credentials",
