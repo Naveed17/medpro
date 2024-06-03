@@ -62,7 +62,7 @@ function CIPMedicalProceduresRow({...props}) {
             row.refund = 0;
         } else {
             row.insurance_act = insurance.uuid;
-            row.patient_part = insurance.patient_part;
+            row.patient_part = row.fees - insurance.refund;
             row.refund = insurance.refund;
         }
         editMotif(row, "change");
@@ -151,12 +151,12 @@ function CIPMedicalProceduresRow({...props}) {
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    /> : <Typography>{row.fees}</Typography>}
+                    /> : <Typography className={"txt"}>{row.fees} {devise}</Typography>}
 
 
                 </TableCell>
                 <TableCell align="center">
-                    { row.insurances?.length > 0 && (row.selected ? <InputBaseStyled
+                  {/*  { row.insurances?.length > 0 && (row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -189,7 +189,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    /> : <Typography>{row.refund}</Typography>)}
+                    /> */} <Typography className={"txt"}>{row.refund} {row.refund && devise}</Typography>
                 </TableCell>
                 <TableCell align="center">
                     {row.insurances?.length > 0 &&  ( row.selected ? <InputBaseStyled
@@ -225,7 +225,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    /> : <Typography>{row.patient_part}</Typography>)}
+                    /> : <Typography className={"txt"}>{row.patient_part} {row.patient_part && devise}</Typography>)}
                 </TableCell>
                 <TableCell align={"center"}>
                     {row.selected && row.uuid !== 'consultation_type' ? (
@@ -295,10 +295,7 @@ function CIPMedicalProceduresRow({...props}) {
                 </TableCell>
 
                 <TableCell align={"center"}>
-                <Typography style={{
-                    fontWeight: "bold",
-                    color: "black"
-                }}>{row.qte ? row.fees * row.qte : row.fees}</Typography>
+                <Typography className={"txt"}>{row.qte ? row.fees * row.qte : row.fees} {devise}</Typography>
                 </TableCell>
             </TableRowStyled>
 

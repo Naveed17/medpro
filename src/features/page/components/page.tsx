@@ -725,7 +725,8 @@ function Page({...props}) {
                             setBlockDrag(true)
                         }}
                         onResizeStop={(e, direction, ref, d) => {
-                            data.content.width += d
+                            data.content.width ?data.content.width += d.width : data.content.width = data.content.maxWidth + d.width;
+
                             const _height = document.getElementById(`content${id}`)?.clientHeight;
 
                             if (id === 0)

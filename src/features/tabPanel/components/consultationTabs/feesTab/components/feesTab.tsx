@@ -171,7 +171,7 @@ function FeesTab({...props}) {
                 price: act.fees,
                 ...(act.insurance_act ? {insurance_act: act.insurance_act} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {insurance_act: act.insurances[0].uuid}: null),
                 ...(act.insurance && {insurance: act.insurance}),
-                ...(act.patient_part ? {patient_part: act.patient_part}  : act.insurances.length > 0 && rowUuid === act.uuid && from ? {patient_part: act.insurances[0].patient_part} : null),
+                ...(act.patient_part ? {patient_part: act.patient_part}  : act.insurances.length > 0 && rowUuid === act.uuid && from ? {patient_part: act.fees - act.insurances[0].refund} : null),
                 ...(act.refund ? {refund: act.refund} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {refund: act.insurances[0].refund} : null)
             });
         });
