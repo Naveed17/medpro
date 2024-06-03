@@ -92,7 +92,7 @@ function BoardItem({...props}) {
     const {t: commonTranslation} = useTranslation(["common", "waitingRoom"]);
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
-    const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {next: is_next, doctorHasStarted} = useAppSelector(dashLayoutSelector);
     const {mode} = useAppSelector(agendaSelector);
     const {opened} = useAppSelector(sideBarSelector);
 
@@ -188,7 +188,7 @@ function BoardItem({...props}) {
                                         }}
                                         color={(quote.content.startTime === "00:00" ? 'warning' : (duration >= -1 && ![4, 5].includes(quote.content.status) ? 'expire' : 'primary')) as any}
                                         variant={"contained"}
-                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : (duration >= -1 && ![4, 5].includes(quote.content.status) ? 'RR' : 'AR')}{!isDragging ? `-${index + 1}` : ""}</Button>}
+                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : (duration >= -1 && doctorHasStarted && ![4, 5].includes(quote.content.status) ? 'RR' : 'AR')}{!isDragging ? `-${index + 1}` : ""}</Button>}
                                     <Tooltip
                                         title={`${quote.content.patient.firstName} ${quote.content.patient.lastName}`}>
                                         <Typography

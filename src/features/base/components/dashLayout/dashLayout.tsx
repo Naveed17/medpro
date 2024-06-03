@@ -274,6 +274,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 waiting_room: calendarData.waiting_room,
                 import_data: calendarData.import_data,
                 newCashBox: demo,
+                doctorHasStarted: !!calendarData?.doctor_started,
                 next: calendarData?.next ?? null,
                 nb_appointment: calendarData.nb_appointment ?? 0,
                 pending: calendarData.pending ?? 0,
