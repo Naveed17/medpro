@@ -917,7 +917,7 @@ function PatientContactDetailCard({ ...props }) {
                                 <FieldArray
                                     name={"phones"}
                                     render={() => (values.phones.map((phone: any, index: number) => (
-                                        <Stack direction={"row"} spacing={2} key={index}>
+                                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1, sm: 2 }} key={index}>
                                             <FormControl fullWidth sx={{ flex: 1.5 }}>
                                                 <Typography gutterBottom color="grey.500">{t("config.add-patient.relation")}
                                                     {" "} <span className="required">*</span>
@@ -951,113 +951,115 @@ function PatientContactDetailCard({ ...props }) {
                                                     }}
                                                 />
                                             </FormControl>
-                                            <FormControl fullWidth sx={{
+                                            <Stack direction='row' flex={3} alignItems='center' spacing={{ xs: 1, sm: 2 }}>
+                                                <FormControl fullWidth sx={{
 
-                                                flex: 3,
-                                                ".MuiInputBase-input": {
-                                                    borderLeft: 1,
-                                                    borderColor: 'divider',
-                                                    ml: 1
-                                                },
+                                                    flex: 3,
+                                                    ".MuiInputBase-input": {
+                                                        borderLeft: 1,
+                                                        borderColor: 'divider',
+                                                        ml: 1
+                                                    },
 
-                                                ...(phone.value && {
-                                                    ".MuiInputBase-root": {
-                                                        "&.MuiInputBase-root": {
-                                                            bgcolor: theme.palette.grey[50]
-                                                        }
-                                                    }
-                                                })
-                                            }}>
-                                                <Typography gutterBottom color="grey.500">{t("config.add-patient.phone")}
-                                                    {" "} <span className="required">*</span>
-                                                </Typography>
-                                                {phone?.code && <PhoneInput
-                                                    ref={phoneInputRef}
-                                                    international
-                                                    fullWidth
-                                                    error={Boolean(errors.phones && (errors.phones as any)[index])}
-                                                    withCountryCallingCode
-                                                    {...((editable && Boolean(errors.phones && (errors.phones as any)[index])) &&
-                                                    {
-                                                        helperText: `${t("phone_format", { ns: "common" })}: ${getFieldProps(`phones[${index}].value`)?.value ?
-                                                            getFieldProps(`phones[${index}].value`).value : ""}`
-                                                    })}
-                                                    InputProps={{
-                                                        sx: {
-                                                            "& .MuiOutlinedInput-root input": {
-                                                                paddingLeft: 1
+                                                    ...(phone.value && {
+                                                        ".MuiInputBase-root": {
+                                                            "&.MuiInputBase-root": {
+                                                                bgcolor: theme.palette.grey[50]
                                                             }
-                                                        },
-                                                        startAdornment: (
-                                                            <InputAdornment
-                                                                position="start"
-                                                                sx={{
-                                                                    maxWidth: "3rem",
-                                                                    ...((isMobile || !editable) && {
-                                                                        "& .MuiAutocomplete-root": {
-                                                                            width: 20
+                                                        }
+                                                    })
+                                                }}>
+                                                    <Typography gutterBottom color="grey.500">{t("config.add-patient.phone")}
+                                                        {" "} <span className="required">*</span>
+                                                    </Typography>
+                                                    {phone?.code && <PhoneInput
+                                                        ref={phoneInputRef}
+                                                        international
+                                                        fullWidth
+                                                        error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                                        withCountryCallingCode
+                                                        {...((editable && Boolean(errors.phones && (errors.phones as any)[index])) &&
+                                                        {
+                                                            helperText: `${t("phone_format", { ns: "common" })}: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                getFieldProps(`phones[${index}].value`).value : ""}`
+                                                        })}
+                                                        InputProps={{
+                                                            sx: {
+                                                                "& .MuiOutlinedInput-root input": {
+                                                                    paddingLeft: 1
+                                                                }
+                                                            },
+                                                            startAdornment: (
+                                                                <InputAdornment
+                                                                    position="start"
+                                                                    sx={{
+                                                                        maxWidth: "3rem",
+                                                                        ...((isMobile || !editable) && {
+                                                                            "& .MuiAutocomplete-root": {
+                                                                                width: 20
+                                                                            },
+                                                                        }),
+                                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                                            outline: "none",
+                                                                            borderColor: "transparent"
                                                                         },
-                                                                    }),
-                                                                    "& .MuiOutlinedInput-notchedOutline": {
-                                                                        outline: "none",
-                                                                        borderColor: "transparent"
-                                                                    },
-                                                                    "& fieldset": {
-                                                                        border: "none!important",
-                                                                        boxShadow: "none!important"
-                                                                    },
-                                                                }}>
-                                                                <Stack direction={'row'}
-                                                                    alignItems={"center"}
-                                                                    spacing={3}>
-                                                                    <CountrySelect
-                                                                        showCountryFlagOnly={true}
-                                                                        sx={{
-                                                                            ...(isMobile && {
-                                                                                "& .MuiInputAdornment-root": {
-                                                                                    width: 20
-                                                                                }
-                                                                            }),
-                                                                            ...(!editable && {
-                                                                                "& .MuiAutocomplete-endAdornment": {
-                                                                                    display: "none"
-                                                                                }
-                                                                            })
-                                                                        }}
+                                                                        "& fieldset": {
+                                                                            border: "none!important",
+                                                                            boxShadow: "none!important"
+                                                                        },
+                                                                    }}>
+                                                                    <Stack direction={'row'}
+                                                                        alignItems={"center"}
+                                                                        spacing={3}>
+                                                                        <CountrySelect
+                                                                            showCountryFlagOnly={true}
+                                                                            sx={{
+                                                                                ...(isMobile && {
+                                                                                    "& .MuiInputAdornment-root": {
+                                                                                        width: 20
+                                                                                    }
+                                                                                }),
+                                                                                ...(!editable && {
+                                                                                    "& .MuiAutocomplete-endAdornment": {
+                                                                                        display: "none"
+                                                                                    }
+                                                                                })
+                                                                            }}
 
-                                                                        {...(isMobile && { small: true })}
-                                                                        initCountry={{
-                                                                            code: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
-                                                                            name: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
-                                                                            phone: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
-                                                                        }}
-                                                                        onSelect={(state: any) => {
-                                                                            setFieldValue(`phones[${index}].value`, "");
-                                                                            setFieldValue(`phones[${index}].code`, state.phone);
-                                                                        }} />
+                                                                            {...(isMobile && { small: true })}
+                                                                            initCountry={{
+                                                                                code: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                                name: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                                phone: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
+                                                                            }}
+                                                                            onSelect={(state: any) => {
+                                                                                setFieldValue(`phones[${index}].value`, "");
+                                                                                setFieldValue(`phones[${index}].code`, state.phone);
+                                                                            }} />
 
-                                                                </Stack>
+                                                                    </Stack>
 
-                                                            </InputAdornment>)
-                                                    }}
-                                                    country={getCountryByCode(phone.code)?.code as any}
-                                                    value={phone?.value ? phone.value : ""}
-                                                    onChange={value => setFieldValue(`phones[${index}].value`, value)}
-                                                    inputComponent={CustomInput as any}
-                                                />}
-                                            </FormControl>
-                                            {phone?.isWhatsapp &&
-                                                <Link sx={{ flex: .25, alignSelf: 'flex-end' }} underline="none" href={`https://wa.me/${phone.value}`} target="_blank">
-                                                    <CustomIconButton style={{ minHeight: 38, minWidth: 38 }} sx={{ bgcolor: theme.palette.common.white, border: 1, borderColor: 'divider' }}>
-                                                        <IconUrl
-                                                            width={"16"}
-                                                            height={"16"}
-                                                            path={"ic-whatsapp"}
-                                                            className="ic-tell"
-                                                        />
-                                                    </CustomIconButton>
-                                                </Link>
-                                            }
+                                                                </InputAdornment>)
+                                                        }}
+                                                        country={getCountryByCode(phone.code)?.code as any}
+                                                        value={phone?.value ? phone.value : ""}
+                                                        onChange={value => setFieldValue(`phones[${index}].value`, value)}
+                                                        inputComponent={CustomInput as any}
+                                                    />}
+                                                </FormControl>
+                                                {phone?.isWhatsapp &&
+                                                    <Link sx={{ flex: .25, alignSelf: 'flex-end' }} underline="none" href={`https://wa.me/${phone.value}`} target="_blank">
+                                                        <CustomIconButton style={{ minHeight: 38, minWidth: 38 }} sx={{ bgcolor: theme.palette.common.white, border: 1, borderColor: 'divider' }}>
+                                                            <IconUrl
+                                                                width={"16"}
+                                                                height={"16"}
+                                                                path={"ic-whatsapp"}
+                                                                className="ic-tell"
+                                                            />
+                                                        </CustomIconButton>
+                                                    </Link>
+                                                }
+                                            </Stack>
                                         </Stack>
                                     )))}
                                 />
@@ -1110,7 +1112,7 @@ function PatientContactDetailCard({ ...props }) {
 
                                     />
                                 </FormControl>
-                                <Stack direction='row' spacing={2}>
+                                <Stack direction={{ xs: "column", sm: 'row' }} spacing={2}>
                                     <FormControl fullWidth>
                                         <Typography gutterBottom color="grey.500">{t("config.add-patient.country")}</Typography>
                                         <Autocomplete
@@ -1223,7 +1225,7 @@ function PatientContactDetailCard({ ...props }) {
                                         {...getFieldProps("email")}
                                     />
                                 </FormControl>
-                                <Stack direction='row' spacing={2}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                                     <FormControl fullWidth>
                                         <Typography gutterBottom color="grey.500">{t("config.add-patient.nationality")}</Typography>
 

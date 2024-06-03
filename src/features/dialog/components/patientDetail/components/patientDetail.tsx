@@ -560,12 +560,9 @@ function PatientDetail({ ...props }) {
 
 
                         <LoadingButton onClick={() => setOpenUploadDialog(true)}
-                            sx={{
-                                borderColor: 'divider',
-                                bgcolor: theme => theme.palette.grey['A500'],
-                            }}
-                            variant="outlined"
-                            color="info"
+
+                            variant="primary-light"
+
                             loading={loadingRequest}
 
                             startIcon={<IconUrl path="fileadd" width={20} height={20} />}>

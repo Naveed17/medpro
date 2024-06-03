@@ -262,7 +262,7 @@ function PatientDetailsCard({ ...props }) {
                                     <Typography component='div' fontWeight={600} color="primary" fontSize={18} variant='subtitle1'>
                                         {loading ? <Skeleton width={100} /> : values.name}
                                     </Typography>
-                                    <Stack direction='row' alignItems='center' spacing={.5}>
+                                    <Stack sx={{ display: { xs: 'none', sm: 'flex' } }} direction='row' alignItems='center' spacing={.5}>
                                         <IconUrl path="ic-outline-call" width={16} height={16} color={theme.palette.text.secondary} />
                                         <Typography component={'div'} fontWeight={500} color='text.secondary'>
                                             {loading ? <Skeleton width={100} /> : <span>{contactData && ((contactData?.contact[0] as ContactModel)?.code + "  " + (contactData?.contact[0] as ContactModel)?.value) || "--"}</span>}
@@ -278,7 +278,7 @@ function PatientDetailsCard({ ...props }) {
                                                     fontWeight={500} color='text.secondary'
                                                 >
                                                     {values.birthdate} {" "}
-                                                    ({" "}{getBirthdayFormat(patient, t)}{" "})
+                                                    <Typography component='span' sx={{ display: { xs: 'none', sm: 'inline' } }} >({" "}{getBirthdayFormat(patient, t)}{" "})</Typography>
                                                 </Typography>}
                                     </Stack>
                                 </Stack>
@@ -292,10 +292,10 @@ function PatientDetailsCard({ ...props }) {
                                         <IconUrl path="ic-filled-call" width={20} height={20} />
                                     </CustomIconButton>
                                 </Link>
-                                <CustomIconButton>
+                                <CustomIconButton sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
                                     <IconUrl path="ic-outline-sms-edit" color={theme.palette.text.secondary} width={20} height={20} />
                                 </CustomIconButton>
-                                <CustomIconButton>
+                                <CustomIconButton sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
                                     <IconUrl path="ic-outline-square-share-line" color={theme.palette.text.secondary} width={20} height={20} />
                                 </CustomIconButton>
                                 <CustomIconButton>
@@ -331,7 +331,7 @@ function PatientDetailsCard({ ...props }) {
                                     </Label>
                                 </div>
                             }
-                            <AvatarGroup max={3} sx={{ flexDirection: 'row' }}>
+                            <AvatarGroup max={3} sx={{ flexDirection: 'row', display: { xs: 'none', sm: 'flex' } }}>
                                 {patientInsurances?.map((insurance: any, index: number) => (
                                     (() => {
                                         const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);

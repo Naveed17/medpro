@@ -13,15 +13,23 @@ export default function Tabs(theme) {
             color: theme.palette.action.disabled,
           },
           button: {
-            "&.Mui-selected": {
-              color: theme.palette.primary.main,
-            },
             ".MuiTab-iconWrapper": {
               ".MuiBadge-badge": {
                 position: 'static',
-                transform: 'none'
+                transform: 'none',
+                backgroundColor: theme.palette.grey[100],
+                color: theme.palette.text.secondary
               }
-            }
+            },
+            "&.Mui-selected": {
+              color: theme.palette.primary.main,
+              ".MuiTab-iconWrapper": {
+                ".MuiBadge-badge": {
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.common.white
+                }
+              }
+            },
           },
           "&.tabs-bg-white": {
             position: "sticky",
@@ -41,6 +49,7 @@ export default function Tabs(theme) {
                 minHeight: 40,
                 color: theme.palette.grey[700],
                 padding: theme.spacing(1, 1.5),
+                maxWidth: '100%',
                 "&.Mui-selected": {
                   backgroundColor: theme.palette.primary.lighter,
                   color: theme.palette.primary.main,

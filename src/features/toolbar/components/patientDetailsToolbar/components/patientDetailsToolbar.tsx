@@ -1,5 +1,5 @@
 //material-ui
-import { Box, List, ListItem, IconButton, CardHeader, useTheme, Typography, Stack } from "@mui/material";
+import { Box, List, ListItem, IconButton, CardHeader, useTheme, Typography, Stack, useMediaQuery } from "@mui/material";
 // utils
 import Icon from "@themes/urlIcon";
 import { RootStyled } from "./overrides";
@@ -7,7 +7,8 @@ import { CustomIconButton } from "@features/buttons";
 
 function PatientDetailsToolbar({ ...props }) {
     const { onClose, t, fiche_id } = props;
-    const theme = useTheme()
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     return (
         <RootStyled sx={{ minWidth: { md: 600, xs: "100%" } }}>
             <CardHeader
@@ -18,7 +19,7 @@ function PatientDetailsToolbar({ ...props }) {
                     </CustomIconButton>
                 }
                 title={<Typography variant="subtitle1">
-                    {t("medical_rec_title")}
+                    {isMobile ? t("medical_record") : t("medical_rec_title")}
                 </Typography>}
                 subheader={
                     <Typography variant="subtitle2" color="grey.500">
