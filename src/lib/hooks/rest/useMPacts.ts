@@ -21,7 +21,7 @@ function useMPActs({...props}) {
         ...ReactQueryNoValidateConfig,
         ...(medical_professional && { variables: { query: !isMobile && !noPagination ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true" } })
     });
-console.log(httpActsResponse)
+
     return {
         acts: (Array.isArray(httpActsResponse) ? httpActsResponse : ((httpActsResponse as HttpResponse)?.data ?? [])) as any,
         mutateActs,
