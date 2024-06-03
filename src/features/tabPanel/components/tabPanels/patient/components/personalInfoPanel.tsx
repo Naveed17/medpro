@@ -21,7 +21,7 @@ function PersonInfoPanel({...props}) {
         <Stack spacing={2} className={"container"}>
             <PersonalInfoCard {...{countries_api, ...other}} />
             <PersonalInsuranceCard {...{contacts, ...other}} />
-            <PatientDetailContactCard {...{contacts, contactData, countries_api: [], ...other}} />
+            <PatientDetailContactCard {...{contacts, contactData, countries_api, ...other}} />
             <AntecedentsCard {...other} />
         </Stack>
     );
