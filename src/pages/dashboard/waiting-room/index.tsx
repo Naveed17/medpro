@@ -685,18 +685,20 @@ function WaitingRoom() {
             name: 'today-rdv',
             url: '#',
             icon: <CalendarIcon/>,
-            action: <CustomIconButton
-                sx={{mr: 1, p: .6}}
-                onClick={() => {
-                    setWithoutDateTime(false);
-                    setQuickAddAppointment(true);
-                    setTimeout(() => setQuickAddAppointmentTab(1));
-                }}
-                variant="filled"
-                color={"primary"}
-                size={"small"}>
-                <AgendaAddViewIcon/>
-            </CustomIconButton>
+            ...(ability.can('manage', 'waiting-room', 'waiting-room__waiting-room__appointment-create') && {
+                action: <CustomIconButton
+                    sx={{mr: 1, p: .6}}
+                    onClick={() => {
+                        setWithoutDateTime(false);
+                        setQuickAddAppointment(true);
+                        setTimeout(() => setQuickAddAppointmentTab(1));
+                    }}
+                    variant="filled"
+                    color={"primary"}
+                    size={"small"}>
+                    <AgendaAddViewIcon/>
+                </CustomIconButton>
+            })
         },
         {
             id: '3',

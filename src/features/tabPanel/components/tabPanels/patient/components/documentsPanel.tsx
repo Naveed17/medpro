@@ -244,7 +244,6 @@ function DocumentsPanel({...props}) {
                 }
                 if (router.pathname === "/dashboard/consultation/[...uuid-consultation]") {
                     const appointmentUuid = (router.query["uuid-consultation"] ?? [""])[0];
-                    console.log("appointmentUuid", appointmentUuid);
                     appointmentUuid && invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUuid}/documents/${router.locale}`]);
                 }
             },
