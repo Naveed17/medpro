@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useRouter} from "next/router";
-import {signIn, useSession} from "next-auth/react";
+import {useSession} from "next-auth/react";
 import React, {useEffect, useState} from "react";
 import {
     Box,
