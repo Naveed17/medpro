@@ -22,6 +22,14 @@ const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
+        id: "fees",
+        numeric: true,
+        disablePadding: false,
+        label: "fees",
+        sortable: true,
+        align: "center",
+    },
+    {
         id: "refund",
         numeric: true,
         disablePadding: false,

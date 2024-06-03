@@ -7,7 +7,7 @@ import {useInsurances} from "@lib/hooks/rest";
 
 function InsuranceFeesRow({...props}) {
 
-    const {row, data, } = props;
+    const {row, data} = props;
     const {devise,insurance_act,handleChangeInsurance} = data;
     const {insurances: allInsurances} = useInsurances();
 
@@ -35,6 +35,9 @@ function InsuranceFeesRow({...props}) {
                         )?.logoUrl?.url}/>
                     <Typography>{row.insurance.name}</Typography>
                 </Stack>
+            </TableCell>
+            <TableCell align="center">
+                <Typography>{row.fees} {devise}</Typography>
             </TableCell>
             <TableCell align="center">
                 <Typography>{row.refund} {devise}</Typography>

@@ -59,7 +59,7 @@ function FeesTab({...props}) {
             id: "amount",
             numeric: true,
             disablePadding: false,
-            label: "reimb",
+            label: "remb",
             sortable: true,
             align: "center",
         },
@@ -305,7 +305,7 @@ function FeesTab({...props}) {
                                 <CardContent>
                                     <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
                                         <Typography variant="body2">
-                                            {t("table.reimb")}
+                                            {t("table.remb")}
                                         </Typography>
                                         <Typography fontWeight={700}>
                                             {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.refund) : 0), 0)} {devise}
