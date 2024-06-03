@@ -1,4 +1,4 @@
-import React, {ChangeEvent, memo, useEffect, useRef, useState} from "react";
+import React, {ChangeEvent, useEffect, useRef, useState} from "react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
@@ -43,6 +43,7 @@ import {useTranslation} from "next-i18next";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {AsyncAutoComplete} from "@features/autoComplete";
+import {MyTextInput} from "@features/input";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -56,12 +57,6 @@ const GroupItems = styled('ul')({
     padding: 0,
 });
 
-const MyTextInput: any = memo(({...props}) => {
-    return (
-        <TextField {...props}/>
-    );
-})
-MyTextInput.displayName = "TextField";
 
 function AddPatientStep2({...props}) {
     const {onNext, selectedPatient, t} = props;

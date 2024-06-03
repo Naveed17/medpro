@@ -7,7 +7,6 @@ import {
     Grid,
     Stack,
     Box,
-    InputBase,
     AppBar,
     Toolbar,
     MenuItem,
@@ -15,8 +14,11 @@ import {
     Avatar,
     useMediaQuery,
     InputAdornment,
-    TextField, Autocomplete, Divider, IconButton, Button,
+    Divider, IconButton, Button,
 } from "@mui/material";
+import InputBase from "@mui/material/InputBase";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
 import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider, FieldArray} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
@@ -39,7 +41,6 @@ import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {LoadingScreen} from "@features/loadingScreen";
 import {ToggleButtonStyled} from "@features/toolbar";
 import Icon from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
@@ -62,8 +63,8 @@ function PatientContactDetailCard({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
+    const {t} = useTranslation(["patient", "common"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation(["patient", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
@@ -95,7 +96,6 @@ function PatientContactDetailCard({...props}) {
     });
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
-
 
     const initialValue = {
         country: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.country?.uuid : "",
@@ -243,8 +243,6 @@ function PatientContactDetailCard({...props}) {
             }
         }
     }, [editable]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -877,4 +875,4 @@ function PatientContactDetailCard({...props}) {
     );
 }
 
-export default PatientContactDetailCard;
+export default React.memo(PatientContactDetailCard);

@@ -13,7 +13,7 @@ import {DefaultCountry, SocialInsured} from "@lib/constants";
 import Icon from "@themes/urlIcon";
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
-import React, {memo, useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -38,13 +38,6 @@ const GroupHeader = styled('div')(({theme}) => ({
 const GroupItems = styled('ul')({
     padding: 0,
 });
-
-export const MyTextInput: any = memo(({...props}) => {
-    return (
-        <TextField {...props} />
-    );
-})
-MyTextInput.displayName = "TextField";
 
 function InsuranceAddDialog({...props}) {
     const {data} = props;
