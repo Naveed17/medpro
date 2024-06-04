@@ -617,7 +617,6 @@ function Agenda() {
                         enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
                         // refresh on going api
                         mutateOnGoing();
-
                     }
                 });
                 break;

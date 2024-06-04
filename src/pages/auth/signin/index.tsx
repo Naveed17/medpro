@@ -18,10 +18,12 @@ function SignIn() {
 
     useEffect(() => {
         if (status === "unauthenticated" && !error) {
-            signIn(router.asPath.includes("?token=") ? 'credentials' : 'keycloak', {
-                ...(router.asPath.includes("?token=") && {token}),
-                callbackUrl: (router.locale === 'ar' ? '/ar' : '/')
-            });
+            const hasRouterToken = router.asPath.includes("?token=");
+            signIn(hasRouterToken ? 'credentials' : 'keycloak',
+                {
+                    ...(hasRouterToken && {token}),
+                    callbackUrl: `/${router.locale}`
+                });
         }
     });
 

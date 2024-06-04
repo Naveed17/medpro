@@ -93,7 +93,7 @@ function PausedConsultationPopover({...props}) {
             }}>
             {next && (
                 <>
-                    <Toolbar>
+                    <Toolbar sx={{ml: 2}}>
                         <Typography variant="subtitle2" fontWeight={700}>
                             {t("pending")}
                         </Typography>

@@ -46,6 +46,7 @@ import {useTranslation} from "next-i18next";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {AsyncAutoComplete} from "@features/autoComplete";
+import {MyTextInput} from "@features/input";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AddIcon from "@mui/icons-material/Add";
 import AddInsurance from "@features/patientInsurance/components/addInsurance";
@@ -62,12 +63,6 @@ const GroupItems = styled('ul')({
     padding: 0,
 });
 
-const MyTextInput: any = memo(({...props}) => {
-    return (
-        <TextField {...props}/>
-    );
-})
-MyTextInput.displayName = "TextField";
 
 function AddPatientStep2({...props}) {
     const {onNext, selectedPatient, t} = props;

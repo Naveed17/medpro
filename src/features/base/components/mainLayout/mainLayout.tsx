@@ -581,53 +581,57 @@ function MainLayout({...props}) {
                     />}
             </Dialog>
 
-            {!isMobile && <Draggable bounds={{bottom: 0, right: 0}}><Stack direction={"row"}
-                                                                           spacing={2}
-                                                                           alignItems={'center'}
-                                                                           sx={{
-                                                                               position: "fixed",
-                                                                               bottom: 75,
-                                                                               right: 40,
-                                                                               zIndex: 99
-                                                                           }}>
-                {message && <Stack direction={"row"}
-                                   padding={1}
-                                   spacing={2}
-                                   borderRadius={2}
-                                   alignItems={"center"}
-                                   style={{
-                                       background: theme.palette.info.main,
-                                       width: 300,
-                                       boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
-                                   }}>
-                    <Avatar sx={{bgcolor: theme.palette.primary.main}}>W</Avatar>
-                    <Stack spacing={0} width={"100%"}>
-                        <Stack direction={"row"} justifyContent={"space-between"}>
-                            <Typography fontSize={12}>{message.user}</Typography>
-                            <Typography fontSize={11} color={"#7C878E"}
-                                        fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
-                        </Stack>
-                        <Typography style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            display: "-webkit-box",
-                            lineClamp: 1,
-                            boxOrient: "vertical",
-                        }}>
-                            <div dangerouslySetInnerHTML={{__html: message.message}}></div>
-                        </Typography>
-                    </Stack>
-                </Stack>}
-                <Fab color="info"
-                     style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
-                     onClick={() => {
-                         dispatch(setOpenChat(true))
-                     }}>
-                    <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
-                        <IconUrl path={"chat"} width={30} height={30}/>
-                    </Badge>
-                </Fab>
-            </Stack>
+            {!isMobile && <Draggable
+                bounds={"body"}>
+                <Stack direction={"row"}
+                       spacing={2}
+                       alignItems={'center'}
+                       sx={{
+                           position: "fixed",
+                           bottom: 75,
+                           right: 40,
+                           zIndex: 1200
+                       }}>
+                    {message &&
+                        <Stack direction={"row"}
+                               padding={1}
+                               spacing={2}
+                               borderRadius={2}
+                               zIndex={100}
+                               alignItems={"center"}
+                               style={{
+                                   background: theme.palette.info.main,
+                                   width: 300,
+                                   boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
+                               }}>
+                            <Avatar sx={{bgcolor: theme.palette.primary.main}}>W</Avatar>
+                            <Stack spacing={0} width={"100%"}>
+                                <Stack direction={"row"} justifyContent={"space-between"}>
+                                    <Typography fontSize={12}>{message.user}</Typography>
+                                    <Typography fontSize={11} color={"#7C878E"}
+                                                fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
+                                </Stack>
+                                <Typography style={{
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    display: "-webkit-box",
+                                    lineClamp: 1,
+                                    boxOrient: "vertical",
+                                }}>
+                                    <div dangerouslySetInnerHTML={{__html: message.message}}></div>
+                                </Typography>
+                            </Stack>
+                        </Stack>}
+                    <Fab color="info"
+                         style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                         onClick={() => {
+                             dispatch(setOpenChat(true))
+                         }}>
+                        <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
+                            <IconUrl path={"chat"} width={30} height={30}/>
+                        </Badge>
+                    </Fab>
+                </Stack>
             </Draggable>}
         </AbilityContext.Provider>
     );
