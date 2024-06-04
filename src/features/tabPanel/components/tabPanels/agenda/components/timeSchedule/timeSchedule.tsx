@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
-import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
@@ -26,7 +25,8 @@ import {
     Autocomplete,
     DialogActions, Divider,
     IconButton,
-    LinearProgress, List, ListItemButton, ListItemText, Stack,
+    LinearProgress,
+    Stack,
     Switch,
     Tab,
     Tabs,

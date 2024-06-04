@@ -4,12 +4,8 @@ import Box from "@mui/material/Box";
 import MenuList from "@mui/material/MenuList";
 import {
     Button,
-    Divider,
     IconButton,
     InputAdornment,
-    InputBase,
-    LinearProgress,
-    Paper,
     Stack,
     TextField,
     Theme,
@@ -21,7 +17,6 @@ import {debounce} from "lodash";
 import {onResetPatient} from "@features/tabPanel";
 import {useAppDispatch} from "@lib/redux/hooks";
 import IconUrl from "@themes/urlIcon";
-import CircularProgress from "@mui/material/CircularProgress";
 import {FacebookCircularProgress} from "@features/progressUI";
 
 function AutoComplete({...props}) {

@@ -1,8 +1,8 @@
 import {TextIconRadio} from "@features/buttons";
 import {
     Box,
-    FormControlLabel, Grid,
-    List, ListItemText,
+    FormControlLabel,
+    List,
     MenuItem,
     RadioGroup,
     Select,
@@ -19,10 +19,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
 import {IconsTypes, openDrawer, setStepperIndex} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {dashLayoutSelector} from "@features/base";
 
 function EventType({...props}) {
