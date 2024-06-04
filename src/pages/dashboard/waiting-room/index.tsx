@@ -1,11 +1,11 @@
-import {GetStaticProps} from "next";
-import React, {ReactElement, useContext, useEffect, useRef, useState} from "react";
+import { GetStaticProps } from "next";
+import React, { ReactElement, useContext, useEffect, useRef, useState } from "react";
 //components
-import {NoDataCard, resetTimer, timerSelector, WaitingRoomMobileCard} from "@features/card";
+import { NoDataCard, resetTimer, timerSelector, WaitingRoomMobileCard } from "@features/card";
 // next-i18next
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {useTranslation} from "next-i18next";
-import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
+import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
 import {
     Box,
     Button,
@@ -23,18 +23,18 @@ import {
     Breadcrumbs,
     Link
 } from "@mui/material";
-import {SubHeader} from "@features/subHeader";
-import {RoomToolbar} from "@features/toolbar";
-import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
-import {Session} from "next-auth";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import { SubHeader } from "@features/subHeader";
+import { RoomToolbar } from "@features/toolbar";
+import { onOpenPatientDrawer, Otable, tableActionSelector } from "@features/table";
+import { Session } from "next-auth";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {ActionMenu, toggleSideBar} from "@features/menu";
+import { ActionMenu, toggleSideBar } from "@features/menu";
 import {
     getBirthdayFormat, isAppleDevise,
     prepareContextMenu,
@@ -58,8 +58,8 @@ import {
     WaitingHeadCells,
     WaitingTodayCells
 } from "@lib/constants";
-import {EventDef} from "@fullcalendar/core/internal";
-import {LoadingButton} from "@mui/lab";
+import { EventDef } from "@fullcalendar/core/internal";
+import { LoadingButton } from "@mui/lab";
 import {
     agendaSelector,
     AppointmentStatus,
@@ -68,60 +68,61 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime} from "@features/board";
-import {CustomIconButton, CustomSwitch} from "@features/buttons";
-import {DropResult} from "@hello-pangea/dnd";
+import { Board, boardSelector, setIsUnpaid, setOrderSort, setSortTime } from "@features/board";
+import { CustomIconButton, CustomSwitch } from "@features/buttons";
+import { DropResult } from "@hello-pangea/dnd";
 import {
     appointmentSelector, resetAppointment, setAppointmentPatient,
     setAppointmentSubmit,
     TabPanel
 } from "@features/tabPanel";
-import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
-import {LoadingScreen} from "@features/loadingScreen";
-import {setDialog} from "@features/topNavBar";
-import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
-import {Label} from "@features/label";
-import {partition, startCase} from "lodash";
+import { leftActionBarSelector, resetFilter } from "@features/leftActionBar";
+import { LoadingScreen } from "@features/loadingScreen";
+import { setDialog } from "@features/topNavBar";
+import { useLeavePageConfirm } from "@lib/hooks/useLeavePageConfirm";
+import { Label } from "@features/label";
+import { partition, startCase } from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
-import Can, {AbilityContext} from "@features/casl/can";
+import Can, { AbilityContext } from "@features/casl/can";
 import _ from "lodash";
-import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import { getPrescriptionUI } from "@lib/hooks/setPrescriptionUI";
 import AddIcon from "@mui/icons-material/Add";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CircleIcon from '@mui/icons-material/Circle';
-import {Epg, Layout} from "planby";
-import {EventItem, PlanByTimeline, timeLineSelector, useTimeLine} from "@features/timeline";
+import { Epg, Layout } from "planby";
+import { EventItem, PlanByTimeline, timeLineSelector, useTimeLine } from "@features/timeline";
 
 function WaitingRoom() {
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const { trigger: mutateOnGoing } = useMutateOnGoing();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const ability = useContext(AbilityContext);
 
-    const {t, ready, i18n} = useTranslation(["waitingRoom", "common"]);
-    const {config: agenda, currentDate} = useAppSelector(agendaSelector);
-    const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {direction} = useAppSelector(configSelector);
-    const {tableState} = useAppSelector(tableActionSelector);
-    const {isActive} = useAppSelector(timerSelector);
-    const {model} = useAppSelector(preConsultationSelector);
+    const { t, ready, i18n } = useTranslation(["waitingRoom", "common"]);
+    const { config: agenda, currentDate } = useAppSelector(agendaSelector);
+    const { query: filter } = useAppSelector(leftActionBarSelector);
+    const { direction } = useAppSelector(configSelector);
+    const { tableState } = useAppSelector(tableActionSelector);
+    const { isActive } = useAppSelector(timerSelector);
+    const { model } = useAppSelector(preConsultationSelector);
     const {
         motif,
         recurringDates,
         duration,
         patient,
-        type
+        type,
+        finalize
     } = useAppSelector(appointmentSelector);
-    const {next: is_next} = useAppSelector(dashLayoutSelector);
-    const {filter: boardFilterData} = useAppSelector(boardSelector);
-    const {showStats, showTimeline} = useAppSelector(timeLineSelector);
+    const { next: is_next } = useAppSelector(dashLayoutSelector);
+    const { filter: boardFilterData } = useAppSelector(boardSelector);
+    const { showStats, showTimeline } = useAppSelector(timeLineSelector);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
@@ -145,14 +146,14 @@ function WaitingRoom() {
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddAppointmentTab, setQuickAddAppointmentTab] = useState(1);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
-    const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
-    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [openUploadDialog, setOpenUploadDialog] = useState({ dialog: false, loading: false });
+    const [documentConfig, setDocumentConfig] = useState({ name: "", description: "", type: "analyse", files: [] });
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [menuOptions] = useState<any[]>([
         //{index: 0, key: "startTime", value: "start-time"},
-        {index: 1, key: "arrivalTime", value: "arrival-time"},
-        {index: 2, key: "estimatedStartTime", value: "smart-list"}
+        { index: 1, key: "arrivalTime", value: "arrival-time" },
+        { index: 2, key: "estimatedStartTime", value: "smart-list" }
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
@@ -166,7 +167,7 @@ function WaitingRoom() {
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
 
     // Update timeLine Data
-    const {isLoading, getEpgProps, getLayoutProps, onScrollToNow} = useTimeLine({data: sortedData});
+    const { isLoading, getEpgProps, getLayoutProps, onScrollToNow } = useTimeLine({ data: sortedData });
 
     const openMenu = Boolean(anchorElMenu);
     const transitionDuration = {
@@ -174,13 +175,13 @@ function WaitingRoom() {
         exit: theme.transitions.duration.leavingScreen,
     };
 
-    const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
-    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
-    const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
-    const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
-    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
-    const {trigger: triggerPreviewDocument} = useRequestQueryMutation("/agenda/appointment/document/preview");
-    const {trigger: triggerDrugsManage} = useRequestQueryMutation("/drugs/manage");
+    const { trigger: updateTrigger } = useRequestQueryMutation("/agenda/appointment/update");
+    const { trigger: updateAppointmentStatus } = useRequestQueryMutation("/agenda/update/appointment/status");
+    const { trigger: handlePreConsultationData } = useRequestQueryMutation("/pre-consultation/update");
+    const { trigger: addAppointmentTrigger } = useRequestQueryMutation("/agenda/appointment/add");
+    const { trigger: triggerUploadDocuments } = useRequestQueryMutation("/agenda/appointment/documents");
+    const { trigger: triggerPreviewDocument } = useRequestQueryMutation("/agenda/appointment/document/preview");
+    const { trigger: triggerDrugsManage } = useRequestQueryMutation("/drugs/manage");
 
     const {
         data: httpWaitingRoomsResponse,
@@ -235,7 +236,7 @@ function WaitingRoom() {
     }
 
     const handleUploadDocuments = () => {
-        setOpenUploadDialog({...openUploadDialog, loading: true});
+        setOpenUploadDialog({ ...openUploadDialog, loading: true });
         const params = new FormData();
         documentConfig.files.map((file: any) => {
             params.append(`files[${file.type}][]`, file.file, file.name);
@@ -245,7 +246,7 @@ function WaitingRoom() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/documents/${router.locale}`,
             data: params
         }, {
-            onSuccess: () => setOpenUploadDialog({loading: false, dialog: false})
+            onSuccess: () => setOpenUploadDialog({ loading: false, dialog: false })
         });
     }
 
@@ -258,7 +259,7 @@ function WaitingRoom() {
                     inProgress: true,
                     agendaUuid: agenda?.uuid
                 }
-            }, slugConsultation, {locale: router.locale});
+            }, slugConsultation, { locale: router.locale });
         } else {
             const defEvent = {
                 publicId: row?.uuid,
@@ -267,8 +268,8 @@ function WaitingRoom() {
                 }
             } as EventDef;
             dispatch(setSelectedEvent(defEvent));
-            dispatch(openDrawer({type: "view", open: false}));
-            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+            dispatch(openDrawer({ type: "view", open: false }));
+            dispatch(setDialog({ dialog: "switchConsultationDialog", value: true }));
         }
     }
 
@@ -282,9 +283,9 @@ function WaitingRoom() {
             }]
             :
             recurringDates.map(recurringDate => ({
-                    "start_date": recurringDate.date,
-                    "start_time": recurringDate.time
-                })
+                "start_date": recurringDate.date,
+                "start_time": recurringDate.time
+            })
             )));
         motif && params.append('consultation_reasons', motif.toString());
         params.append('title', `${patient?.firstName} ${patient?.lastName}`);
@@ -300,7 +301,7 @@ function WaitingRoom() {
         }, {
             onSuccess: (value) => {
                 mutateWaitingRoom();
-                dispatch(setAppointmentSubmit({uuids: value?.data.data}));
+                dispatch(setAppointmentSubmit({ uuids: value?.data.data }));
                 dispatch(setStepperIndex(0));
                 setTimeout(() => setQuickAddAppointment(false));
             },
@@ -343,7 +344,7 @@ function WaitingRoom() {
                 break;
             case "onConsultationView":
                 const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
-                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                router.push(slugConsultation, slugConsultation, { locale: router.locale });
                 break;
             case "onPreConsultation":
                 setOpenPreConsultationDialog(true);
@@ -367,10 +368,10 @@ function WaitingRoom() {
                 handleAppointmentStatus(row?.uuid as string, '10');
                 break;
             case "onAddConsultationDocuments":
-                setOpenUploadDialog({...openUploadDialog, dialog: true});
+                setOpenUploadDialog({ ...openUploadDialog, dialog: true });
                 break;
             case "onPatientDetail":
-                dispatch(onOpenPatientDrawer({patientId: row?.patient.uuid}));
+                dispatch(onOpenPatientDrawer({ patientId: row?.patient.uuid }));
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
@@ -540,7 +541,7 @@ function WaitingRoom() {
         setRow(data.row);
         switch (data.action) {
             case "PATIENT_DETAILS":
-                dispatch(onOpenPatientDrawer({patientId: data.row.patient.uuid}));
+                dispatch(onOpenPatientDrawer({ patientId: data.row.patient.uuid }));
                 setPatientDetailDrawer(true);
                 break;
             case "START_CONSULTATION":
@@ -548,7 +549,7 @@ function WaitingRoom() {
                 break;
             case "OPEN_CONSULTATION":
                 const slugConsultation = `/dashboard/consultation/${data.row?.uuid}`;
-                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                router.push(slugConsultation, slugConsultation, { locale: router.locale });
                 break;
             case "CANCEL_APPOINTMENT":
                 handleAppointmentStatus(data.row?.uuid as string, '6');
@@ -666,7 +667,7 @@ function WaitingRoom() {
                         createdAt: moment().format('DD/MM/YYYY'),
                         description: "",
                         patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
-                        age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                        age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
                         print: true
                     });
                     setOpenDocPreviewDialog(true);
@@ -695,9 +696,9 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <IconUrl width={16} height={16} color={theme.palette.primary.main} path="ic-filled-calendar-date"/>,
+            icon: <IconUrl width={16} height={16} color={theme.palette.primary.main} path="ic-filled-calendar-date" />,
             action: <CustomIconButton
-                sx={{mr: 1, maxWidth: 32, maxHeight: 32}}
+                sx={{ mr: 1, maxWidth: 32, maxHeight: 32 }}
                 onClick={() => {
                     setWithoutDateTime(false);
                     setQuickAddAppointment(true);
@@ -706,17 +707,17 @@ function WaitingRoom() {
 
                 color={"primary"}
                 size={"small"}>
-                <AgendaAddViewIcon fontSize="small"/>
+                <AgendaAddViewIcon fontSize="small" />
             </CustomIconButton>
         },
         {
             id: '3',
             name: 'waiting-room',
             url: '#',
-            icon: <IconUrl width={16} height={16} color={theme.palette.primary.main} path="ic-filled-sofa"/>,
+            icon: <IconUrl width={16} height={16} color={theme.palette.primary.main} path="ic-filled-sofa" />,
             ...(ability.can('manage', 'waiting-room', 'waiting-room__waiting-room__appointment-create') && {
                 action: <CustomIconButton
-                    sx={{p: .6, maxWidth: 32, maxHeight: 32}}
+                    sx={{ p: .6, maxWidth: 32, maxHeight: 32 }}
                     onClick={() => {
                         setWithoutDateTime(true);
                         setQuickAddAppointment(true);
@@ -725,7 +726,7 @@ function WaitingRoom() {
                     variant="filled"
                     color={"primary"}
                     size={"small"}>
-                    <AgendaAddViewIcon/>
+                    <AgendaAddViewIcon />
                 </CustomIconButton>
             })
         },
@@ -733,17 +734,17 @@ function WaitingRoom() {
             id: '4,8',
             name: 'ongoing',
             url: '#',
-            icon: <IconUrl width={16} height={16} color={theme.palette.primary.main} path="ic-filled-timer-start"/>
+            icon: <IconUrl width={16} height={16} color={theme.palette.primary.main} path="ic-filled-timer-start" />
         },
         {
             id: '5',
             name: 'finished',
             url: '#',
-            icon: <IconUrl width={16} height={16} color={theme.palette.primary.main} path="ic-filled-tick-square"/>
+            icon: <IconUrl width={16} height={16} color={theme.palette.primary.main} path="ic-filled-tick-square" />
         }]);
 
     const Toolbar = () => (
-        <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
+        <Card sx={{ minWidth: 235, border: 'none', mb: 2, overflow: 'visible' }}>
             <CardHeader
                 component={Stack}
                 borderBottom={1}
@@ -762,7 +763,7 @@ function WaitingRoom() {
                     }
                 }}
                 avatar={columns.current[1].icon}
-                {...(columns.current[1].action && {action: columns.current[1].action})}
+                {...(columns.current[1].action && { action: columns.current[1].action })}
                 title={
                     <Stack direction='row' alignItems='center' spacing={3}>
                         <Typography
@@ -770,7 +771,7 @@ function WaitingRoom() {
                             fontSize={14}>
                             {t(`tabs.${columns.current[1].name}`)}
                             <Label variant="filled" color="info"
-                                   sx={{ml: 1, height: 'auto', p: .6, minWidth: 20, fontWeight: 400}}>
+                                sx={{ ml: 1, height: 'auto', p: .6, minWidth: 20, fontWeight: 400 }}>
                                 {waitingRoomsGroup[3]?.length ?? ""}
                             </Label>
                         </Typography>
@@ -849,7 +850,7 @@ function WaitingRoom() {
         dispatch(resetFilter());
     });
 
-    if (!ready) return (<LoadingScreen button text={"loading"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading"} />);
 
     return (
         <>
@@ -862,8 +863,8 @@ function WaitingRoom() {
                 {showTimeline && <Epg isLoading={isLoading} {...getEpgProps()}>
                     <Layout
                         {...getLayoutProps()}
-                        renderTimeline={(props) => <PlanByTimeline {...props} />}
-                        renderProgram={({program, ...rest}) => (
+                        renderTimeline={(props: any) => <PlanByTimeline {...props} />}
+                        renderProgram={({ program, ...rest }: { program: any }) => (
                             <EventItem key={program.data.uuid} program={program} {...rest} />
                         )}
                     />
@@ -904,19 +905,19 @@ function WaitingRoom() {
                 <LinearProgress
                     sx={{
                         visibility: !httpWaitingRoomsResponse || loading || isWaitingRoomsLoading ? "visible" : "hidden"
-                    }} color="warning"/>
+                    }} color="warning" />
 
                 <Box className="container">
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
-                            <Stack spacing={1} {...(!showStats && {mt: -2})}>
+                            <Stack spacing={1} {...(!showStats && { mt: -2 })}>
                                 {showStats && <Stack direction='row' spacing={2}>
-                                    <Card sx={{border: 'none', boxShadow: 'none', flex: 1,}}>
+                                    <Card sx={{ border: 'none', boxShadow: 'none', flex: 1, }}>
                                         <CardHeader
-                                            sx={{pb: 0}}
+                                            sx={{ pb: 0 }}
                                             avatar={
-                                                <CustomIconButton sx={{bgcolor: theme.palette.primary.lighter}}>
-                                                    <IconUrl width={20} height={20} path="ic-outline-agenda-tick"/>
+                                                <CustomIconButton sx={{ bgcolor: theme.palette.primary.lighter }}>
+                                                    <IconUrl width={20} height={20} path="ic-outline-agenda-tick" />
                                                 </CustomIconButton>
                                             }
                                             title={
@@ -924,15 +925,15 @@ function WaitingRoom() {
                                                     <Typography
                                                         fontWeight={600}>{startCase(t("appointments"))}</Typography>
                                                     <Typography fontWeight={600}
-                                                                fontSize={18}>{sortedData?.length}</Typography>
+                                                        fontSize={18}>{sortedData?.length}</Typography>
                                                 </Stack>
                                             }
                                         />
                                         <CardContent>
                                             <Stack spacing={2}>
-                                                <ButtonGroup sx={{button: {borderRadius: 4, flex: 1}, width: 1}}
-                                                             variant="contained" className="rdv-type-group"
-                                                             size="small">
+                                                <ButtonGroup sx={{ button: { borderRadius: 4, flex: 1 }, width: 1 }}
+                                                    variant="contained" className="rdv-type-group"
+                                                    size="small">
                                                     <Button className="btn-absent">
                                                         <Typography component='span' className="ellipsis">
                                                             {`0 ${t('filter.absent')}`}
@@ -943,13 +944,13 @@ function WaitingRoom() {
                                                             {`${waitingRoomsGroup[1] ? waitingRoomsGroup[1].length : "0"} ${t('filter.confirm')}`}
                                                         </Typography>
                                                     </Button>
-                                                    <Button className="btn-waiting ellipsis" style={{flex: 2}}>
+                                                    <Button className="btn-waiting ellipsis" style={{ flex: 2 }}>
                                                         <Typography component='span'
-                                                                    className="ellipsis">{`${waitingRoomsGroup[3] ? waitingRoomsGroup[3].length : "0"} ${t('filter.pending')}`}</Typography>
+                                                            className="ellipsis">{`${waitingRoomsGroup[3] ? waitingRoomsGroup[3].length : "0"} ${t('filter.pending')}`}</Typography>
                                                     </Button>
-                                                    <Button className="btn-complete ellipsis" style={{flex: 2}}>
+                                                    <Button className="btn-complete ellipsis" style={{ flex: 2 }}>
                                                         <Typography component='span'
-                                                                    className="ellipsis">{`${waitingRoomsGroup[5] ? waitingRoomsGroup[5].length : "0"} ${t('filter.done')}`}</Typography>
+                                                            className="ellipsis">{`${waitingRoomsGroup[5] ? waitingRoomsGroup[5].length : "0"} ${t('filter.done')}`}</Typography>
                                                     </Button>
                                                 </ButtonGroup>
                                                 <Breadcrumbs aria-label="breadcrumb" separator={null}>
@@ -963,14 +964,14 @@ function WaitingRoom() {
                                                                 color: theme.palette.grey[400]
                                                             }}
                                                             color="inherit">
-                                                            <CircleIcon sx={{mr: 0.5, width: 8, height: 8}}
-                                                                        htmlColor={theme.palette[
-                                                                            item === "absent" ? "error"
-                                                                                : item === "confirm" ? "success"
-                                                                                    : item === "pending" ? "warning"
-                                                                                        : "primary"
+                                                            <CircleIcon sx={{ mr: 0.5, width: 8, height: 8 }}
+                                                                htmlColor={theme.palette[
+                                                                    item === "absent" ? "error"
+                                                                        : item === "confirm" ? "success"
+                                                                            : item === "pending" ? "warning"
+                                                                                : "primary"
 
-                                                                            ].light}/>
+                                                                ].light} />
                                                             {t(`filter.${item}`)}
                                                         </Link>
                                                     )}
@@ -1000,16 +1001,16 @@ function WaitingRoom() {
                                                     borderRadius: 1
                                                 }}
                                                 avatar={
-                                                    <CustomIconButton sx={{bgcolor: theme.palette.success.lighter}}>
+                                                    <CustomIconButton sx={{ bgcolor: theme.palette.success.lighter }}>
                                                         <IconUrl width={20} height={20} path="ic-filled-strongbox-2"
-                                                                 color={theme.palette.success.main}/>
+                                                            color={theme.palette.success.main} />
                                                     </CustomIconButton>
 
                                                 }
                                                 title={
                                                     <Stack>
                                                         <Typography fontWeight={600}
-                                                                    color="primary.darker">{t("total_received")}</Typography>
+                                                            color="primary.darker">{t("total_received")}</Typography>
                                                         <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 {devise}
@@ -1026,16 +1027,16 @@ function WaitingRoom() {
                                                     borderRadius: 1
                                                 }}
                                                 avatar={
-                                                    <CustomIconButton sx={{bgcolor: theme.palette.success.lighter}}>
+                                                    <CustomIconButton sx={{ bgcolor: theme.palette.success.lighter }}>
                                                         <IconUrl width={20} height={20} path="ic-filled-hand-money"
-                                                                 color={theme.palette.success.main}/>
+                                                            color={theme.palette.success.main} />
                                                     </CustomIconButton>
 
                                                 }
                                                 title={
                                                     <Stack>
                                                         <Typography fontWeight={600}
-                                                                    color="primary.darker">{t("billed_consultation")}</Typography>
+                                                            color="primary.darker">{t("billed_consultation")}</Typography>
                                                         <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
@@ -1052,16 +1053,16 @@ function WaitingRoom() {
                                                     borderRadius: 1
                                                 }}
                                                 avatar={
-                                                    <CustomIconButton sx={{bgcolor: theme.palette.success.lighter}}>
+                                                    <CustomIconButton sx={{ bgcolor: theme.palette.success.lighter }}>
                                                         <IconUrl width={20} height={20} path="ic-filled-money-tick"
-                                                                 color={theme.palette.success.main}/>
+                                                            color={theme.palette.success.main} />
                                                     </CustomIconButton>
 
                                                 }
                                                 title={
                                                     <Stack>
                                                         <Typography fontWeight={600}
-                                                                    color="primary.darker">{t("paid")}</Typography>
+                                                            color="primary.darker">{t("paid")}</Typography>
                                                         <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
@@ -1078,15 +1079,15 @@ function WaitingRoom() {
                                                     borderRadius: 1
                                                 }}
                                                 avatar={
-                                                    <CustomIconButton sx={{bgcolor: theme.palette.error.lighter}}>
+                                                    <CustomIconButton sx={{ bgcolor: theme.palette.error.lighter }}>
                                                         <IconUrl width={20} height={20} path="ic-filled-money-remove"
-                                                                 color={theme.palette.error.main}/>
+                                                            color={theme.palette.error.main} />
                                                     </CustomIconButton>
                                                 }
                                                 title={
                                                     <Stack>
                                                         <Typography fontWeight={600}
-                                                                    color="primary.darker">{t("unpaid")}</Typography>
+                                                            color="primary.darker">{t("unpaid")}</Typography>
                                                         <Typography fontWeight={600} fontSize={18}>--
                                                             <Typography variant="caption" ml={.5}>
                                                                 TND
@@ -1103,91 +1104,91 @@ function WaitingRoom() {
                                     }}>
                                         <CardContent>
                                             <Stack alignItems='center' spacing={2}>
-                                                <CustomIconButton sx={{bgcolor: theme.palette.primary.lighter}}>
+                                                <CustomIconButton sx={{ bgcolor: theme.palette.primary.lighter }}>
                                                     <IconUrl width={20} height={20} path="ic-filled-logout"
-                                                             color={theme.palette.primary.main}/>
+                                                        color={theme.palette.primary.main} />
                                                 </CustomIconButton>
                                                 <Typography fontWeight={600} textAlign='center'
-                                                            color="primary.darker">{t("estimated_end_time")}</Typography>
+                                                    color="primary.darker">{t("estimated_end_time")}</Typography>
                                                 <Typography variant="h5" lineHeight={1}>--.--</Typography>
                                             </Stack>
                                         </CardContent>
                                     </Card>
                                 </Stack>}
                                 <Board
-                                    {...{columns: columns.current, handleDragEvent, handleSortData, handleUnpaidFilter}}
+                                    {...{ columns: columns.current, handleDragEvent, handleSortData, handleUnpaidFilter }}
                                     isUnpaidFilter={boardFilterData.unpaid}
                                     handleEvent={handleTableActions}
-                                    data={waitingRoomsGroup}/>
+                                    data={waitingRoomsGroup} />
                             </Stack>
                         </TabPanel>
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
                         {!!waitingRoomsGroup[1]?.length ? <>
-                                <DesktopContainer>
-                                    <Otable
-                                        sx={{mt: 2}}
-                                        {...{
-                                            openMenu,
-                                            doctor_country,
-                                            roles,
-                                            tabIndex,
-                                            loading: loadingRequest,
-                                            setLoading: setLoadingRequest
-                                        }}
-                                        toolbar={
-                                            <CardHeader
-                                                sx={{
-                                                    pt: 0,
-                                                    px: 0,
-                                                    pb: 1,
+                            <DesktopContainer>
+                                <Otable
+                                    sx={{ mt: 2 }}
+                                    {...{
+                                        openMenu,
+                                        doctor_country,
+                                        roles,
+                                        tabIndex,
+                                        loading: loadingRequest,
+                                        setLoading: setLoadingRequest
+                                    }}
+                                    toolbar={
+                                        <CardHeader
+                                            sx={{
+                                                pt: 0,
+                                                px: 0,
+                                                pb: 1,
+                                                m: 0,
+                                                borderBottom: 1,
+                                                borderColor: "divider",
+                                                ".MuiCardHeader-action": {
                                                     m: 0,
-                                                    borderBottom: 1,
-                                                    borderColor: "divider",
-                                                    ".MuiCardHeader-action": {
-                                                        m: 0,
-                                                    }
-                                                }}
-                                                avatar={columns.current[0].icon}
-                                                {...(columns.current[0].action && {action: columns.current[0].action})}
-                                                title={
-                                                    <Typography
-                                                        color={"text.primary"} fontWeight={700}
-                                                        fontSize={14}>
-                                                        {t(`tabs.${columns.current[0].name}`)}
-                                                        <Label variant="filled" color="info"
-                                                               sx={{ml: 1, height: 'auto', p: .6, minWidth: 20}}>
-                                                            {waitingRoomsGroup[1].length}
-                                                        </Label>
-                                                    </Typography>}
+                                                }
+                                            }}
+                                            avatar={columns.current[0].icon}
+                                            {...(columns.current[0].action && { action: columns.current[0].action })}
+                                            title={
+                                                <Typography
+                                                    color={"text.primary"} fontWeight={700}
+                                                    fontSize={14}>
+                                                    {t(`tabs.${columns.current[0].name}`)}
+                                                    <Label variant="filled" color="info"
+                                                        sx={{ ml: 1, height: 'auto', p: .6, minWidth: 20 }}>
+                                                        {waitingRoomsGroup[1].length}
+                                                    </Label>
+                                                </Typography>}
+                                        />
+                                    }
+                                    headers={WaitingTodayCells}
+                                    rows={waitingRoomsGroup[1]}
+                                    from={"waitingRoom"}
+                                    t={t}
+                                    pagination
+                                    handleEvent={handleTableActions}
+                                />
+                            </DesktopContainer>
+                            <MobileContainer>
+                                <Stack spacing={1}>
+                                    {waitingRoomsGroup[1].map((item: any, i: number) => (
+                                        <React.Fragment key={item.uuid}>
+                                            <WaitingRoomMobileCard
+                                                quote={item}
+                                                index={i}
+                                                handleEvent={handleTableActions}
                                             />
-                                        }
-                                        headers={WaitingTodayCells}
-                                        rows={waitingRoomsGroup[1]}
-                                        from={"waitingRoom"}
-                                        t={t}
-                                        pagination
-                                        handleEvent={handleTableActions}
-                                    />
-                                </DesktopContainer>
-                                <MobileContainer>
-                                    <Stack spacing={1}>
-                                        {waitingRoomsGroup[1].map((item: any, i: number) => (
-                                            <React.Fragment key={item.uuid}>
-                                                <WaitingRoomMobileCard
-                                                    quote={item}
-                                                    index={i}
-                                                    handleEvent={handleTableActions}
-                                                />
-                                            </React.Fragment>
-                                        ))}
-                                    </Stack>
-                                </MobileContainer>
-                            </>
+                                        </React.Fragment>
+                                    ))}
+                                </Stack>
+                            </MobileContainer>
+                        </>
                             :
                             <NoDataCard
-                                {...{t}}
-                                sx={{mt: 8}}
+                                {...{ t }}
+                                sx={{ mt: 8 }}
                                 onHandleClick={() => {
                                     setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
@@ -1200,51 +1201,51 @@ function WaitingRoom() {
                                     description: "desc",
                                     buttons: [{
                                         text: "table.no-data.event.title",
-                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
+                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"} />,
                                         variant: "warning",
                                         color: "white"
                                     }]
-                                }}/>
+                                }} />
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={2}>
                         {!!waitingRoomsGroup[3]?.length ? <>
-                                <DesktopContainer>
-                                    <Otable
+                            <DesktopContainer>
+                                <Otable
 
-                                        {...{
-                                            doctor_country,
-                                            roles,
-                                            loading: loadingRequest,
-                                            setLoading: setLoadingRequest
-                                        }}
-                                        toolbar={<Toolbar/>}
-                                        headers={WaitingHeadCells}
-                                        rows={waitingRoomsGroup[3]}
-                                        from={"waitingRoom"}
-                                        t={t}
-                                        pagination
-                                        handleEvent={handleTableActions}
-                                    />
-                                </DesktopContainer>
-                                <MobileContainer>
-                                    <Stack spacing={1}>
-                                        {waitingRoomsGroup[3].map((item: any, i: number) => (
-                                            <React.Fragment key={item.uuid}>
-                                                <WaitingRoomMobileCard
-                                                    quote={item}
-                                                    index={i}
-                                                    handleEvent={handleTableActions}
-                                                />
-                                            </React.Fragment>
-                                        ))}
-                                    </Stack>
-                                </MobileContainer>
-                            </>
+                                    {...{
+                                        doctor_country,
+                                        roles,
+                                        loading: loadingRequest,
+                                        setLoading: setLoadingRequest
+                                    }}
+                                    toolbar={<Toolbar />}
+                                    headers={WaitingHeadCells}
+                                    rows={waitingRoomsGroup[3]}
+                                    from={"waitingRoom"}
+                                    t={t}
+                                    pagination
+                                    handleEvent={handleTableActions}
+                                />
+                            </DesktopContainer>
+                            <MobileContainer>
+                                <Stack spacing={1}>
+                                    {waitingRoomsGroup[3].map((item: any, i: number) => (
+                                        <React.Fragment key={item.uuid}>
+                                            <WaitingRoomMobileCard
+                                                quote={item}
+                                                index={i}
+                                                handleEvent={handleTableActions}
+                                            />
+                                        </React.Fragment>
+                                    ))}
+                                </Stack>
+                            </MobileContainer>
+                        </>
                             :
                             <NoDataCard
-                                {...{t}}
-                                sx={{mt: 8}}
+                                {...{ t }}
+                                sx={{ mt: 8 }}
                                 onHandleClick={() => {
                                     setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
@@ -1257,11 +1258,11 @@ function WaitingRoom() {
                                     description: "desc",
                                     buttons: [{
                                         text: "table.no-data.event.title",
-                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
+                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"} />,
                                         variant: "warning",
                                         color: "white"
                                     }]
-                                }}/>
+                                }} />
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={3}>
@@ -1270,7 +1271,7 @@ function WaitingRoom() {
                                 <DesktopContainer>
 
                                     <Otable
-                                        sx={{mt: 1, pr: 2}}
+                                        sx={{ mt: 1, pr: 2 }}
                                         {...{
                                             doctor_country,
                                             roles,
@@ -1310,14 +1311,14 @@ function WaitingRoom() {
                             </>
                             :
                             <NoDataCard
-                                {...{t}}
-                                sx={{mt: 8}}
+                                {...{ t }}
+                                sx={{ mt: 8 }}
                                 ns={"waitingRoom"}
                                 data={{
                                     mainIcon: "ic_waiting_room",
                                     title: "empty",
                                     description: "desc"
-                                }}/>
+                                }} />
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={4}>
@@ -1325,7 +1326,7 @@ function WaitingRoom() {
                             <>
                                 <DesktopContainer>
                                     <Otable
-                                        sx={{mt: 1, pr: 2}}
+                                        sx={{ mt: 1, pr: 2 }}
                                         {...{
                                             doctor_country,
                                             roles,
@@ -1333,9 +1334,9 @@ function WaitingRoom() {
                                             setLoading: setLoadingRequest
                                         }}
                                         toolbar={<Stack direction='row' mb={1} alignItems='center' borderBottom={1}
-                                                        borderColor="divider" py={1}>
+                                            borderColor="divider" py={1}>
                                             <Stack direction='row' alignItems='center' spacing={1}>
-                                                <IconUrl path="ic-dubble-check-round"/>
+                                                <IconUrl path="ic-dubble-check-round" />
                                                 <Typography fontWeight={600}>
                                                     {t("tabs.finished")}
                                                 </Typography>
@@ -1345,7 +1346,7 @@ function WaitingRoom() {
                                             </Stack>
                                             <Stack ml="auto" direction={"row"} alignItems={"center"}
 
-                                                   sx={{height: 28}}>
+                                                sx={{ height: 28 }}>
                                                 <CustomSwitch
                                                     className="custom-switch"
                                                     name="active"
@@ -1355,7 +1356,7 @@ function WaitingRoom() {
 
                                                 />
                                                 <Typography variant={"body2"}
-                                                            fontSize={12}>{t("tabs.payed")}</Typography>
+                                                    fontSize={12}>{t("tabs.payed")}</Typography>
                                             </Stack>
                                         </Stack>}
                                         headers={_.tail(WaitingHeadCells)}
@@ -1382,28 +1383,28 @@ function WaitingRoom() {
                             </>
                             :
                             <NoDataCard
-                                {...{t}}
-                                sx={{mt: 8}}
+                                {...{ t }}
+                                sx={{ mt: 8 }}
                                 ns={"waitingRoom"}
                                 data={{
                                     mainIcon: "ic_waiting_room",
                                     title: "empty",
                                     description: "desc"
-                                }}/>
+                                }} />
                         }
                     </TabPanel>
 
-                    <ActionMenu {...{contextMenu, handleClose}}>
+                    <ActionMenu {...{ contextMenu, handleClose }}>
                         {popoverActions.map((context: any, index) => (
                             <Can key={index}
-                                 I={"manage"}
-                                 a={context.feature as any} {...(context.permission !== "*" && {field: context.permission})}>
+                                I={"manage"}
+                                a={context.feature as any} {...(context.permission !== "*" && { field: context.permission })}>
                                 <MenuItem
                                     key={index}
                                     className="popover-item"
                                     onClick={() => OnMenuActions(context.action)}>
                                     {context.icon}
-                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                    <Typography fontSize={15} sx={{ color: "#fff" }}>
                                         {t(context.title)}
                                     </Typography>
                                 </MenuItem>
@@ -1420,23 +1421,23 @@ function WaitingRoom() {
                             }}
                             unmountOnExit>
                             <Fab color="primary" aria-label="add"
-                                 onClick={() => {
-                                     setWithoutDateTime(false);
-                                     setQuickAddAppointment(true);
-                                     setTimeout(() => setQuickAddAppointmentTab(tabIndex === 1 ? 1 : 3));
-                                 }}
-                                 sx={{
-                                     position: "fixed",
-                                     bottom: 16,
-                                     right: 16
-                                 }}>
-                                <SpeedDialIcon/>
+                                onClick={() => {
+                                    setWithoutDateTime(false);
+                                    setQuickAddAppointment(true);
+                                    setTimeout(() => setQuickAddAppointmentTab(tabIndex === 1 ? 1 : 3));
+                                }}
+                                sx={{
+                                    position: "fixed",
+                                    bottom: 16,
+                                    right: 16
+                                }}>
+                                <SpeedDialIcon />
                             </Fab>
                         </Zoom>
                     )}
                     <Menu
                         id="sort-menu"
-                        {...{anchorEl}}
+                        {...{ anchorEl }}
                         open={anchorEl !== null}
                         anchorOrigin={{
                             vertical: 'top',
@@ -1461,7 +1462,7 @@ function WaitingRoom() {
                                 onClick={() => handleSortSelect(option)}>
                                 <Box
                                     component={Radio}
-                                    checkedIcon={<TripOriginRoundedIcon/>}
+                                    checkedIcon={<TripOriginRoundedIcon />}
                                     checked={option.value === boardFilterData.sort}
                                     sx={{
                                         width: 17, height: 17, mr: '5px', ml: '-2px',
@@ -1521,8 +1522,8 @@ function WaitingRoom() {
                     setQuickAddPatient(false);
                 }}>
                 <QuickAddAppointment
-                    {...{t, withoutDateTime}}
-                    handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
+                    {...{ t, withoutDateTime }}
+                    handleAddPatient={(action: boolean) => setQuickAddPatient(action)} />
                 <Paper
                     sx={{
                         display: quickAddPatient ? "none" : "inline-block",
@@ -1532,29 +1533,55 @@ function WaitingRoom() {
                         p: "1rem"
                     }}
                     className="action">
-                    <Button
-                        sx={{
-                            mr: 1
-                        }}
-                        variant="text-primary"
-                        onClick={() => {
-                            dispatch(resetAppointment());
-                            setQuickAddAppointment(false)
-                        }}
-                        startIcon={<CloseIcon/>}>
-                        {t("cancel", {ns: "common"})}
-                    </Button>
-                    <LoadingButton
-                        loading={loadingRequest}
-                        variant="contained"
-                        color={"primary"}
-                        onClick={event => {
-                            event.stopPropagation();
-                            handleAddAppointment();
-                        }}
-                        disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
-                        {t("save", {ns: "common"})}
-                    </LoadingButton>
+                    {!finalize ?
+                        <>
+                            <Button
+                                sx={{
+                                    mr: 1
+                                }}
+                                variant="text-primary"
+                                onClick={() => {
+                                    dispatch(resetAppointment());
+                                    setQuickAddAppointment(false)
+                                }}
+                                startIcon={<CloseIcon />}>
+                                {t("cancel", { ns: "common" })}
+                            </Button>
+                            <LoadingButton
+                                loading={loadingRequest}
+                                variant="contained"
+                                color={"primary"}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleAddAppointment();
+                                }}
+                                disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
+                                {t("save", { ns: "common" })}
+                            </LoadingButton>
+                        </>
+                        :
+                        <Stack pt={2} px={2} mx={-2} direction='row' justifyContent='space-between' alignItems='center' borderTop={1} borderColor='divider'>
+                            <Button variant="text-black">
+                                {t("steppers.final-step.btn-close")}
+                            </Button>
+                            <Stack direction='row' alignItems='center' spacing={2}>
+                                <LoadingButton
+                                    {...{ loading }}
+                                    variant="google"
+                                    sx={{ bgcolor: theme.palette.grey[50] }}
+                                >
+                                    {t("steppers.final-step.btn-another-rdv-schedule")}
+                                </LoadingButton>
+                                <LoadingButton
+                                    {...{ loading }}
+                                    variant="contained"
+
+                                >
+                                    {t("steppers.final-step.btn-complete")}
+                                </LoadingButton>
+                            </Stack>
+                        </Stack>
+                    }
                 </Paper>
             </Drawer>
 
@@ -1563,17 +1590,17 @@ function WaitingRoom() {
                 open={patientDetailDrawer}
                 dir={direction}
                 onClose={() => {
-                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                    dispatch(onOpenPatientDrawer({ patientId: "" }));
                     setPatientDetailDrawer(false);
                 }}>
                 <PatientDetail
-                    {...{isAddAppointment, patientId: tableState.patientId}}
+                    {...{ isAddAppointment, patientId: tableState.patientId }}
                     onCloseDialog={() => {
-                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        dispatch(onOpenPatientDrawer({ patientId: "" }));
                         setPatientDetailDrawer(false);
                     }}
                     onConsultationStart={(event: EventDef) => startConsultation(event)}
-                    onAddAppointment={() => console.log("onAddAppointment")}/>
+                    onAddAppointment={() => console.log("onAddAppointment")} />
             </Drawer>
 
             <Dialog
@@ -1610,22 +1637,22 @@ function WaitingRoom() {
                 }}
                 size={"md"}
                 title={t("pre_consultation_dialog_title")}
-                {...(!loadingRequest && {dialogClose: () => setOpenPreConsultationDialog(false)})}
+                {...(!loadingRequest && { dialogClose: () => setOpenPreConsultationDialog(false) })}
                 actionDialog={
                     <Stack direction={"row"}
-                           justifyContent={"space-between"} width={"100%"}>
+                        justifyContent={"space-between"} width={"100%"}>
                         <Button
                             variant={"text-black"}
                             onClick={() => setOpenPreConsultationDialog(false)}
-                            startIcon={<CloseIcon/>}>
-                            {t("cancel", {ns: "common"})}
+                            startIcon={<CloseIcon />}>
+                            {t("cancel", { ns: "common" })}
                         </Button>
                         <Button
                             disabled={loadingRequest}
                             variant="contained"
                             onClick={() => submitPreConsultationData()}
-                            startIcon={<IconUrl path="iconfinder_save"/>}>
-                            {t("save", {ns: "common"})}
+                            startIcon={<IconUrl path="iconfinder_save" />}>
+                            {t("save", { ns: "common" })}
                         </Button>
                     </Stack>
                 }
@@ -1635,20 +1662,20 @@ function WaitingRoom() {
                 color={theme.palette.error.main}
                 contrastText={theme.palette.error.contrastText}
                 dialogClose={() => setDeleteDialog(false)}
-                sx={{direction: direction}}
+                sx={{ direction: direction }}
                 action={() => {
                     return (
-                        <Box sx={{minHeight: 150}}>
-                            <Typography sx={{textAlign: "center"}}
-                                        variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`, {ns: "common"})} </Typography>
-                            <Typography sx={{textAlign: "center"}}
-                                        margin={2}>{t(`dialogs.delete-dialog.description`, {ns: "common"})}</Typography>
+                        <Box sx={{ minHeight: 150 }}>
+                            <Typography sx={{ textAlign: "center" }}
+                                variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`, { ns: "common" })} </Typography>
+                            <Typography sx={{ textAlign: "center" }}
+                                margin={2}>{t(`dialogs.delete-dialog.description`, { ns: "common" })}</Typography>
 
                             <Grid container spacing={1}>
                                 {deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).map((option: any, index: number) =>
                                     <Grid key={option.key} item
-                                          md={12 / deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).length}
-                                          xs={12}>
+                                        md={12 / deleteAppointmentOptions.filter(option => !(row?.status !== 5 && option.key === "delete-transaction")).length}
+                                        xs={12}>
                                         <Card
                                             sx={{
                                                 padding: 1,
@@ -1663,7 +1690,7 @@ function WaitingRoom() {
                                                 }
                                             }}>
                                             <FormControlLabel
-                                                label={t(`dialogs.delete-dialog.${option.key}`, {ns: "common"})}
+                                                label={t(`dialogs.delete-dialog.${option.key}`, { ns: "common" })}
                                                 checked={option.selected}
                                                 control={
                                                     <Checkbox
@@ -1686,14 +1713,14 @@ function WaitingRoom() {
                         </Box>)
                 }}
                 open={deleteDialog}
-                title={t(`dialogs.delete-dialog.title`, {ns: "common"})}
+                title={t(`dialogs.delete-dialog.title`, { ns: "common" })}
                 actionDialog={
                     <Stack direction="row" alignItems="center" justifyContent={"space-between"} width={"100%"}>
                         <Button
                             variant="text-black"
                             onClick={() => setDeleteDialog(false)}
-                            startIcon={<CloseIcon/>}>
-                            {t(`dialogs.delete-dialog.cancel`, {ns: "common"})}
+                            startIcon={<CloseIcon />}>
+                            {t(`dialogs.delete-dialog.cancel`, { ns: "common" })}
                         </Button>
                         <LoadingButton
                             loading={loadingRequest}
@@ -1703,15 +1730,15 @@ function WaitingRoom() {
                             color={"error"}
                             onClick={() => handleDeleteAppointment()}
                             startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                path="ic-trash"></IconUrl>}>
-                            {t(`dialogs.delete-dialog.confirm`, {ns: "common"})}
+                                path="ic-trash"></IconUrl>}>
+                            {t(`dialogs.delete-dialog.confirm`, { ns: "common" })}
                         </LoadingButton>
                     </Stack>
                 }
             />
 
             <Dialog
-                {...{direction}}
+                {...{ direction }}
                 action={"add_a_document"}
                 open={openUploadDialog.dialog}
                 data={{
@@ -1720,7 +1747,7 @@ function WaitingRoom() {
                     setState: setDocumentConfig
                 }}
                 size={"md"}
-                sx={{minHeight: 400}}
+                sx={{ minHeight: 400 }}
                 title={t("doc_detail_title")}
                 {...(!openUploadDialog.loading && {
                     dialogClose: () => setOpenUploadDialog({
@@ -1733,10 +1760,10 @@ function WaitingRoom() {
                         <Button
                             variant={"text-black"}
                             onClick={() => {
-                                setOpenUploadDialog({...openUploadDialog, dialog: false});
+                                setOpenUploadDialog({ ...openUploadDialog, dialog: false });
                             }}
-                            startIcon={<CloseIcon/>}>
-                            {t("cancel", {ns: "common"})}
+                            startIcon={<CloseIcon />}>
+                            {t("cancel", { ns: "common" })}
                         </Button>
                         <LoadingButton
                             loading={openUploadDialog.loading}
@@ -1746,15 +1773,15 @@ function WaitingRoom() {
                                 event.stopPropagation();
                                 handleUploadDocuments();
                             }}
-                            startIcon={<IconUrl path="iconfinder_save"/>}>
-                            {t("save", {ns: "common"})}
+                            startIcon={<IconUrl path="iconfinder_save" />}>
+                            {t("save", { ns: "common" })}
                         </LoadingButton>
                     </Stack>
                 }
             />
 
             <Dialog
-                {...{direction}}
+                {...{ direction }}
                 action={getPrescriptionUI()}
                 open={openAddPrescriptionDialog}
                 data={{
@@ -1772,29 +1799,29 @@ function WaitingRoom() {
                 sx={{
                     p: 1.5
                 }}
-                title={t("requestedPrescription", {ns: "common"})}
+                title={t("requestedPrescription", { ns: "common" })}
                 onClose={() => setOpenAddPrescriptionDialog(false)}
                 dialogClose={() => setOpenAddPrescriptionDialog(false)}
                 actionDialog={
                     <Stack
-                        sx={{width: "100%"}}
-                        direction={{xs: 'column', sm: 'row'}}
+                        sx={{ width: "100%" }}
+                        direction={{ xs: 'column', sm: 'row' }}
                         justifyContent={"space-between"}>
 
-                        <Button sx={{alignSelf: 'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
+                        <Button sx={{ alignSelf: 'flex-start' }} startIcon={<AddIcon />} onClick={() => {
                             dispatch(handleDrawerAction("addDrug"));
                         }}>
-                            {t("add_drug", {ns: "common"})}
+                            {t("add_drug", { ns: "common" })}
                         </Button>
-                        <Stack direction={"row"} justifyContent={{xs: 'space-between', sm: 'flex-start'}}
-                               spacing={1.2}
-                               mt={{xs: 1, md: 0}}>
+                        <Stack direction={"row"} justifyContent={{ xs: 'space-between', sm: 'flex-start' }}
+                            spacing={1.2}
+                            mt={{ xs: 1, md: 0 }}>
                             <Button
                                 color={"black"}
                                 variant={"text"}
                                 onClick={() => setOpenAddPrescriptionDialog(false)}
-                                startIcon={<CloseIcon/>}>
-                                {t("cancel", {ns: "common"})}
+                                startIcon={<CloseIcon />}>
+                                {t("cancel", { ns: "common" })}
                             </Button>
 
                             <LoadingButton
@@ -1806,19 +1833,19 @@ function WaitingRoom() {
                                 disabled={drugs?.length === 0}
                                 startIcon={
                                     <IconUrl
-                                        {...(drugs?.length === 0 && {color: "white"})}
-                                        path={"iconfinder_save"}/>}>
-                                {t("save", {ns: "common"})}
+                                        {...(drugs?.length === 0 && { color: "white" })}
+                                        path={"iconfinder_save"} />}>
+                                {t("save", { ns: "common" })}
                             </LoadingButton>
                             <LoadingButton
                                 loading={loadingRequest}
                                 loadingPosition={"start"}
                                 variant="contained"
-                                sx={{width: {xs: 1, sm: 'auto'}}}
+                                sx={{ width: { xs: 1, sm: 'auto' } }}
                                 onClick={() => handleSavePrescription()}
                                 disabled={drugs?.length === 0}
-                                startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
-                                {t("save_print", {ns: "common"})}
+                                startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"} />}>
+                                {t("save_print", { ns: "common" })}
                             </LoadingButton>
                         </Stack>
                     </Stack>}
@@ -1839,8 +1866,8 @@ function WaitingRoom() {
                 }}
                 size={"lg"}
                 direction={'ltr'}
-                sx={{p: 0}}
-                title={t("config.doc_detail_title", {ns: "patient"})}
+                sx={{ p: 0 }}
+                title={t("config.doc_detail_title", { ns: "patient" })}
                 onClose={closeDocPreviewDialog}
                 dialogClose={closeDocPreviewDialog}
             />
@@ -1883,14 +1910,14 @@ function WaitingRoom() {
                     }} key={idx}>
                         <ListItemIcon>
                             <IconUrl path={document.icon} width={20} height={20}
-                                     color={theme.palette.text.primary}/>
+                                color={theme.palette.text.primary} />
                         </ListItemIcon>
-                        <ListItemText sx={{mr: 2}} primary={t(document.key, {ns: "common"})}/>
+                        <ListItemText sx={{ mr: 2 }} primary={t(document.key, { ns: "common" })} />
                         <Stack direction='row' alignItems='center' spacing={1}>
                             <IconButton
                                 disableRipple
                                 size="small">
-                                <IconUrl path="ic-voir-new"/>
+                                <IconUrl path="ic-voir-new" />
                             </IconButton>
                         </Stack>
                     </MenuItem>
@@ -1922,7 +1949,7 @@ function WaitingRoom() {
         ;
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, [

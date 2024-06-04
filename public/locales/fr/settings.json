@@ -40,6 +40,9 @@
     "billing": "Billing",
     "insurance_agreement": "Assurance & Convention"
   },
+  "consultation": {
+    "title": "Consultation"
+  },
   "profile": {
     "upload-logo": "Télécharger le logo",
     "specialities": "Spécialité",
@@ -1002,6 +1005,8 @@
         "confirm_add": "Confirmer & Ajouter une autre",
         "confirm_save": "Confirmer & Ajouter une autre",
         "title": "Ajouter une assurance / convention",
+        "title_delete": "Supprimer une convention",
+        "desc_delete": "Êtes-vous sûr de supprimer cette convention ?",
         "create_act": "Ajouter un acte",
         "switch": "Saisie Avancée",
         "contribution_placeholder": "Tapez la cotation",

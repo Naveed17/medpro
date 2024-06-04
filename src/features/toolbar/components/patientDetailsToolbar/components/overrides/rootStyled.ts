@@ -29,6 +29,9 @@ const RootStyled = styled(Box)(({theme}) => ({
             paddingLeft: "16px",
             paddingRight: "16px",
         },
+        ".MuiCardHeader-action":{
+            alignSelf:"center"
+        }
     },
     "& .patient-info": {
         borderBottom: `1px solid ${theme.palette.divider}`,

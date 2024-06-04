@@ -3,47 +3,15 @@ import {Card} from "@mui/material";
 
 const RootStyled = styled(Card)(({theme}) => ({
     border: "none",
-    "& .MuiSelect-select": {
-        padding: "0 2rem 0 1rem"
-    },
-    "& .MuiInputBase-root": {
-        background: "no-repeat!important",
-        height: 38,
-        pt: 2,
-        "&:hover": {
-            backgroundColor: "none"
-        },
-    },
-    "& fieldset": {
-        border: "none!important",
-        boxShadow: "none!important"
-    },
-    "& .MuiCardContent-root": {
-        paddingTop: 0
-    },
-    "& .MuiAppBar-root": {
-        border: "none",
-        //borderBottom: "1px solid #E0E0E0",
-        height: 46,
-        marginBottom: 12,
-        "&.MuiTypography-root": {
-            fontSize: 12,
-            pt: 0
-        }
-    },
-    "& .MuiToolbar-root": {
-        float: "right",
-        padding: 0
-    },
+    borderRadius:0,
+    boxShadow: "none",
+    
+    
     "& .MuiAutocomplete-popperDisablePortal": {
         minWidth: "200px"
     },
-    "& .phone-handler": {
-        // paddingTop: 0
-    },
-    "& .app-bar-header": {
-        marginBottom: 14
-    },
+    
+    
     "& .grid-border": {
         width: "100%",
         border: `1px solid ${theme.palette.grey['A100']}`,
@@ -53,15 +21,14 @@ const RootStyled = styled(Card)(({theme}) => ({
             paddingLeft: 12
         }
     },
-    "& input": {
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-        textOverflow: "ellipsis"
-    },
+    
     "& .grid-container-border": {
         borderRadius: 8,
         border: `1px dashed ${theme.palette.grey['A100']}`,
         padding: '6px 0'
+    },
+    ".required":{
+        color: theme.palette.error.main
     }
 }));
 export default RootStyled

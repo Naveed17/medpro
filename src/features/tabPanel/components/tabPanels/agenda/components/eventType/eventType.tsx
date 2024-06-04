@@ -2,7 +2,7 @@ import { TextIconRadio } from "@features/buttons";
 import {
     Box,
     FormControlLabel, Grid,
-    LinearProgress, List, ListItemText,
+    List, ListItemText,
     MenuItem,
     RadioGroup,
     Select,
@@ -61,13 +61,6 @@ function EventType({ ...props }) {
 
     return (
         <>
-            <LinearProgress
-                sx={{
-                    visibility: !appointmentTypes ? "visible" : "hidden",
-                }}
-                color="warning"
-            />
-
             <Box className="inner-section type-time-slot" sx={{ width: "100%" }}>
                 <FormControlStyled
                     sx={{ padding: 0 }}
@@ -99,76 +92,66 @@ function EventType({ ...props }) {
                         <List
                             sx={{ width: '100%', p: 0 }}
                             component="nav">
-                            <ListItemText primary={
-                                <Grid container alignItems={"center"}>
-                                    <Grid item md={5} xs={12}>
-                                        <Typography pr={2} sx={{ fontSize: "1rem", fontWeight: "bold" }} color="text.primary">
-                                            {t("stepper-0.title")} :
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item md={7} xs={12}>
-                                        <Select
-                                            id={"duration"}
-                                            value={type}
-                                            size={"small"}
-                                            displayEmpty
-                                            sx={{
-                                                width: "100%",
-                                                "& .MuiSelect-select": {
-                                                    display: "flex",
-                                                },
-                                            }}
-                                            onChange={(event) => handleTypeChange(event.target.value as string)}
-                                            renderValue={(selected) => {
-                                                if (selected.length === 0) {
-                                                    return <em>{t("stepper-0.type-placeholder")}</em>;
-                                                }
+                            <Select
+                                id={"duration"}
+                                value={type}
+                                size={"small"}
+                                displayEmpty
+                                sx={{
+                                    width: "100%",
+                                    "& .MuiSelect-select": {
+                                        display: "flex",
+                                    },
+                                }}
+                                onChange={(event) => handleTypeChange(event.target.value as string)}
+                                renderValue={(selected) => {
+                                    if (selected.length === 0) {
+                                        return <em>{t("stepper-0.type-placeholder")}</em>;
+                                    }
 
-                                                const type = appointmentTypes?.find(
-                                                    (itemType) => itemType.uuid === selected
-                                                );
-                                                return (
-                                                    <Stack direction={"row"} alignItems={"center"}>
-                                                        <ModelDot
-                                                            icon={type && IconsTypes[type.icon]}
-                                                            color={type?.color}
-                                                            selected={false}
-                                                            {...(theme.direction === 'rtl' && {
-                                                                style: {
-                                                                    marginLeft: 10
-                                                                }
-                                                            })}
-                                                            marginRight={theme.direction !== "rtl" ? 10 : 0}></ModelDot>
-                                                        <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                                                            {type?.name}
-                                                        </Typography>
-                                                    </Stack>
-                                                );
-                                            }}>
-                                            {appointmentTypes?.map((type) => (
-                                                <MenuItem
-                                                    sx={{ display: "flex" }}
-                                                    className="text-inner"
-                                                    value={type.uuid}
-                                                    key={type.uuid}>
-                                                    <ModelDot
-                                                        icon={type && IconsTypes[type.icon]}
-                                                        color={type?.color}
-                                                        selected={false}
-                                                        {...(theme.direction === 'rtl' && {
-                                                            style: {
-                                                                marginLeft: 10
-                                                            }
-                                                        })}
-                                                        marginRight={theme.direction !== "rtl" ? 10 : 0}></ModelDot>
-                                                    <Typography sx={{ fontSize: "16px" }}>
-                                                        {type.name}
-                                                    </Typography>
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </Grid>
-                                </Grid>} />
+                                    const type = appointmentTypes?.find(
+                                        (itemType) => itemType.uuid === selected
+                                    );
+                                    return (
+                                        <Stack direction={"row"} alignItems={"center"}>
+                                            <ModelDot
+                                                icon={type && IconsTypes[type.icon]}
+                                                color={type?.color}
+                                                selected={false}
+                                                {...(theme.direction === 'rtl' && {
+                                                    style: {
+                                                        marginLeft: 10
+                                                    }
+                                                })}
+                                                marginRight={theme.direction !== "rtl" ? 10 : 0}></ModelDot>
+                                            <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
+                                                {type?.name}
+                                            </Typography>
+                                        </Stack>
+                                    );
+                                }}>
+                                {appointmentTypes?.map((type) => (
+                                    <MenuItem
+                                        sx={{ display: "flex" }}
+                                        className="text-inner"
+                                        value={type.uuid}
+                                        key={type.uuid}>
+                                        <ModelDot
+                                            icon={type && IconsTypes[type.icon]}
+                                            color={type?.color}
+                                            selected={false}
+                                            {...(theme.direction === 'rtl' && {
+                                                style: {
+                                                    marginLeft: 10
+                                                }
+                                            })}
+                                            marginRight={theme.direction !== "rtl" ? 10 : 0}></ModelDot>
+                                        <Typography sx={{ fontSize: "16px" }}>
+                                            {type.name}
+                                        </Typography>
+                                    </MenuItem>
+                                ))}
+                            </Select>
                         </List>)}
                 </FormControlStyled>
             </Box>

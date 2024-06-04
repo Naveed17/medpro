@@ -1,50 +1,56 @@
-import {useState} from "react";
+import { useState } from "react";
 // material
-import {Typography, IconButton, Box, List, ListItem} from "@mui/material";
-import {useTheme} from "@mui/material/styles";
+import { Typography, IconButton, Box, List, ListItem, ListItemIcon, ListItemAvatar } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 // router
 import Icon from "@themes/urlIcon";
-import {Popover} from "@features/popover";
+import { Popover } from "@features/popover";
 import SettingTableStyled from "./overrides/SettingTableStyled";
+import { Label } from "@features/label";
 
 const menuList = [
     {
         title: "Patient Details",
-        icon: <CheckRoundedIcon/>,
+        icon: <CheckRoundedIcon />,
         action: "onOpenPatientDrawer",
     },
     {
         title: "Edit Patient",
-        icon: <CheckRoundedIcon/>,
+        icon: <CheckRoundedIcon />,
         action: "onOpenEditPatient",
     },
     {
         title: "Cancel",
-        icon: <CheckRoundedIcon/>,
+        icon: <CheckRoundedIcon />,
         action: "onCancel",
     },
 ];
 
-export default function MobileTable({...props}) {
-    const {item, size, contextMenuList = null, button = null, onAction, onDeleteItem = null} = props;
+export default function MobileTable({ ...props }) {
+    const { item, size, contextMenuList = null, button = null, onAction, onDeleteItem = null } = props;
     const theme = useTheme();
     const [openTooltip, setOpenTooltip] = useState(false);
 
     return (
-        <SettingTableStyled {...(onDeleteItem && {onClick: () => onDeleteItem()})}>
-            <List className="patient-config-list">
+        <SettingTableStyled  {...(onDeleteItem && { onClick: () => onDeleteItem() })}>
+            <List className="patient-config-list" component='div'>
                 <ListItem
+                    component="div"
                     disablePadding
-                    className={item.status}
                     sx={{
                         borderRadius:
                             !size && size !== "small" ? "0px 10px 10px 0px" : "6px",
                     }}>
-                    <Box sx={{mr: "4px"}}>
-                        <Typography variant="body1" color="text.primary">
+                    <ListItemAvatar>
+                        <Icon path="ic-outline-agenda-tick" width={20} height={20} />
+                    </ListItemAvatar>
+                    <ListItemIcon>
+                        <Label sx={{ bgcolor: item.color, }} className="consultation-label" variant="filled">
                             {item.name}
-                        </Typography>
+                        </Label>
+                    </ListItemIcon>
+                    <Box sx={{ mr: .5, ml: 1 }}>
                         {!size && size !== "small" && (
                             <Typography
                                 sx={{
@@ -54,17 +60,17 @@ export default function MobileTable({...props}) {
                                         width: 12,
                                         height: 12,
                                         mr: 1,
-                                        "& path": {fill: theme.palette.error.main},
+                                        "& path": { fill: theme.palette.error.main },
                                     },
                                 }}
                                 variant="body2"
                                 color="primary.main"
                                 component="span">
-                                <Icon path="ic-video"/>
+                                <Icon path="ic-video" />
                             </Typography>
                         )}
 
-                        <Box sx={{display: "flex", alignItems: "center"}}>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
                             <Typography
                                 sx={{
                                     display: "flex",
@@ -72,16 +78,16 @@ export default function MobileTable({...props}) {
                                     color: "text.primary",
                                     mr: 1,
                                     "& svg": {
-                                        width: 12,
-                                        height: 12,
+                                        width: 14,
+                                        height: 14,
                                         mr: 1,
-                                        "& path": {fill: theme.palette.text.secondary},
+                                        "& path": { fill: theme.palette.text.secondary },
                                     },
                                 }}
                                 variant="body2"
                                 color="primary.main"
                                 component="span">
-                                <Icon path="ic-agenda"/>
+                                <Icon path="ic-agenda-jour" />
                                 {item.date}
                             </Typography>
                             <Typography
@@ -90,21 +96,21 @@ export default function MobileTable({...props}) {
                                     alignItems: "center",
                                     color: "text.primary",
                                     "& svg": {
-                                        width: 12,
-                                        height: 12,
+                                        width: 14,
+                                        height: 14,
                                         mr: "4px",
-                                        "& path": {fill: theme.palette.text.secondary},
+                                        "& path": { fill: theme.palette.text.secondary },
                                     },
                                 }}
                                 variant="body2"
                                 color="primary.main"
                                 component="span">
-                                <Icon path="ic-time"/>
+                                <Icon path="ic-time" />
                                 {item.time}
                             </Typography>
                         </Box>
                     </Box>
-                    <Box>
+                    <Box sx={{ ml: 'auto' }}>
                         {contextMenuList ? <div>
                             <Popover
                                 open={openTooltip}
@@ -119,9 +125,9 @@ export default function MobileTable({...props}) {
                                         onClick={() => {
                                             setOpenTooltip(true);
                                         }}
-                                        sx={{display: "block", ml: "auto"}}
+                                        sx={{ display: "block", ml: "auto" }}
                                         size="small">
-                                        <Icon path="more-vert"/>
+                                        <Icon path="more-vert" />
                                     </IconButton>
                                 }
                             />

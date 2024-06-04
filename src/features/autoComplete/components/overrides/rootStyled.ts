@@ -1,13 +1,16 @@
 import {styled} from '@mui/material/styles';
 
 const RootStyled = styled('div')(({theme}) => ({
-    "& .MuiPaper-root": {
-        width: "100%",
-        backgroundColor: theme.palette.info.main
-    },
-    '& .MuiInputBase-root': {
-        backgroundColor: `${theme.palette.info.main} !important`,
-    },
+   '.btn-add-patient':{
+    border:`1px solid ${theme.palette.primary.light}`,
+    backgroundColor:theme.palette.primary.lighter,
+    "&.btn-add-patient":{
+    minHeight:35,
+    paddingTop:10.83,
+    paddingBottom:10.83,
+}
+   },
+    
     '& .MuiList-root': {
         marginLeft: -10,
         marginRight: -10,

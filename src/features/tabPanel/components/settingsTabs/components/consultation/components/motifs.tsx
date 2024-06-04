@@ -1,5 +1,5 @@
-import React, {KeyboardEvent, lazy, ReactElement, Suspense, useEffect, useRef, useState,} from "react";
-import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import React, { KeyboardEvent, lazy, ReactElement, Suspense, useEffect, useRef, useState, } from "react";
+import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
 import {
     Box,
     Button,
@@ -8,33 +8,36 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Drawer, FormControl, InputAdornment,
-    Stack, TextField,
+    Drawer,
+    FormControl,
+    InputAdornment,
+    Stack,
+    TextField,
     Theme,
     Typography,
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import CloseIcon from '@mui/icons-material/Close';
-import {EditMotifDialog} from "@features/dialog";
-import {SubHeader} from "@features/subHeader";
-import {useAppSelector} from "@lib/redux/hooks";
-import {Otable} from "@features/table";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
-import {useSnackbar} from "notistack";
-import {LoadingButton} from "@mui/lab";
+import { EditMotifDialog } from "@features/dialog";
+import { SubHeader } from "@features/subHeader";
+import { useAppSelector } from "@lib/redux/hooks";
+import { Otable } from "@features/table";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { useDateConverture, useMedicalEntitySuffix } from "@lib/hooks";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { useSnackbar } from "notistack";
+import { LoadingButton } from "@mui/lab";
 import Icon from "@themes/urlIcon";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
 import Can from "@features/casl/can";
-import {CustomIconButton} from "@features/buttons";
+import { CustomIconButton } from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import {debounce} from "lodash";
+import { debounce } from "lodash";
 
 const MotifListMobile = lazy(
     (): any => import("@features/card/components/motifListMobile/motifListMobile")
@@ -44,13 +47,13 @@ function Motif() {
     const theme: Theme = useTheme();
     const router = useRouter();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const {direction} = useAppSelector(configSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "motif.config",});
+    const { direction } = useAppSelector(configSelector);
+    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
+    const { t, ready, i18n } = useTranslation(["settings", "common"], { keyPrefix: "motif.config", });
 
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -67,15 +70,15 @@ function Motif() {
     const [selected, setSelected] = useState<null | any>();
     const [searchName, setSearchName] = useState<null | any>(null);
 
-    const {trigger: triggerMotifUpdate} = useRequestQueryMutation("/settings/motif/update");
-    const {trigger: triggerMotifDelete} = useRequestQueryMutation("/settings/motif/delete");
+    const { trigger: triggerMotifUpdate } = useRequestQueryMutation("/settings/motif/update");
+    const { trigger: triggerMotifDelete } = useRequestQueryMutation("/settings/motif/delete");
 
-    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
+    const { data: httpConsultReasonResponse, mutate: mutateConsultReason } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true${searchName ? `&name=${searchName}` : ''}` : "?sort=true"}})
+        ...(medicalEntityHasUser && { variables: { query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true${searchName ? `&name=${searchName}` : ''}` : "?sort=true" } })
     });
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data?.list as ConsultationReasonModel[];
@@ -128,32 +131,32 @@ function Motif() {
                 props.isEnabled = !props.isEnabled;
                 if (!props.isEnabled) {
                     state.isEnabled = false;
-                    setState({...state});
+                    setState({ ...state });
                 }
                 form.append(
                     "attribute",
-                    JSON.stringify({attribute: "isEnable", value: props.isEnabled})
+                    JSON.stringify({ attribute: "isEnable", value: props.isEnabled })
                 );
                 break;
             case "duration":
                 props.duration = value;
                 form.append(
                     "attribute",
-                    JSON.stringify({attribute: "duration", value})
+                    JSON.stringify({ attribute: "duration", value })
                 );
                 break;
             case "min":
                 props.minimumDelay = value;
                 form.append(
                     "attribute",
-                    JSON.stringify({attribute: "minimumDelay", value})
+                    JSON.stringify({ attribute: "minimumDelay", value })
                 );
                 break;
             case "max":
                 props.maximumDelay = value;
                 form.append(
                     "attribute",
-                    JSON.stringify({attribute: "maximumDelay", value})
+                    JSON.stringify({ attribute: "maximumDelay", value })
                 );
                 break;
             default:
@@ -167,7 +170,7 @@ function Motif() {
         }, {
             onSuccess: () => {
                 mutateConsultReason();
-                enqueueSnackbar(t("updated"), {variant: "success"});
+                enqueueSnackbar(t("updated"), { variant: "success" });
             },
             onSettled: () => setTimeout(() => {
                 closeSnackbar();
@@ -178,7 +181,7 @@ function Motif() {
     const handleConfig = (props: any, event: string) => {
         // @ts-ignore
         state[event] = !state[event];
-        setState({...state});
+        setState({ ...state });
     };
 
     const editMotif = (props: any, event: string) => {
@@ -202,7 +205,7 @@ function Motif() {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});
+                enqueueSnackbar(t("alert.delete-reason"), { variant: "success" });
                 setLoading(false);
                 setTimeout(() => setOpen(false));
                 mutateConsultReason();
@@ -256,9 +259,8 @@ function Motif() {
     return (
         <>
 
-
             <DesktopContainer>
-                <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
                     <Otable
                         headers={headCells}
                         toolbar={
@@ -269,7 +271,7 @@ function Motif() {
                                 mb={3}
                                 alignItems="center">
                                 <Typography color="text.primary" variant="subtitle1"
-                                            fontWeight={600}>{t("title")}</Typography>
+                                    fontWeight={600}>{t("title")}</Typography>
                                 <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                     <FormControl
                                         component="form"
@@ -283,12 +285,12 @@ function Motif() {
                                                 }
                                             }}
                                             fullWidth
-                                            {...{inputRef}}
+                                            {...{ inputRef }}
                                             InputProps={{
                                                 endAdornment: (
                                                     <InputAdornment onClick={() => inputRef.current?.focus()}
-                                                                    position="start">
-                                                        <SearchRoundedIcon color={"white"}/>
+                                                        position="start">
+                                                        <SearchRoundedIcon color={"white"} />
                                                     </InputAdornment>
                                                 ),
                                             }}
@@ -304,7 +306,7 @@ function Motif() {
                                             onClick={() => {
                                                 editMotif(null as any, "add");
                                             }}
-                                            sx={{ml: "auto"}}>
+                                            sx={{ ml: "auto" }}>
                                             {t("add")}
                                         </Button>
                                     </Can>
@@ -365,19 +367,19 @@ function Motif() {
                 <DialogTitle>
                     {t("dialog.title")}
                 </DialogTitle>
-                <DialogContent style={{paddingTop: 20}}>
+                <DialogContent style={{ paddingTop: 20 }}>
                     <Typography>
                         {t("dialog.desc")}
                     </Typography>
                 </DialogContent>
-                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                <DialogActions sx={{ borderTop: 1, borderColor: "divider", px: 1, py: 2 }}>
                     <Stack direction="row" spacing={1}>
                         <Button
                             onClick={() => {
                                 setLoading(false);
                                 setOpen(false);
                             }}
-                            startIcon={<CloseIcon/>}>
+                            startIcon={<CloseIcon />}>
                             {t("dialog.cancel")}
                         </Button>
                         <LoadingButton
@@ -385,7 +387,7 @@ function Motif() {
                             loading={loading}
                             color="error"
                             onClick={() => removeReason(selected?.uuid as any)}
-                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            startIcon={<Icon path="setting/icdelete" color="white" />}>
                             {t("dialog.delete")}
                         </LoadingButton>
                     </Stack>

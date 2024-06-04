@@ -75,7 +75,8 @@ declare module "@mui/material/Alert" {
     interface AlertPropsColorOverrides {
         primary:true;
         expire:true;
-
+        white:true;
+       
     }
 }
 declare module "@mui/material/CircularProgress" {

@@ -19,6 +19,12 @@ const FormControlStyled = styled(FormControl)<any>(({theme}) => ({
         }
     }, "& .MuiSelect-select": {
         padding: "5px 10px"
+    },
+    ".MuiOutlinedInput-root":{
+        backgroundColor: theme.palette.grey[50],
+        fieldset:{
+            border: `1px solid ${theme.palette.grey[400]}`,
+        }
     }
 }));
 
