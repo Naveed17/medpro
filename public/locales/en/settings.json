@@ -1034,6 +1034,7 @@
       "background": "Import Current Document",
       "title": "Title",
       "date": "Date",
+      "insuranceCode": "Insurance ID",
       "patient": "Patient Name",
       "firstName": "First & Last Name",
       "configPatient": "Configure Patient Name",

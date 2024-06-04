@@ -583,6 +583,66 @@ function Page({...props}) {
                         </div>}
                     </Resizable>}
 
+                    {/*Insurance*/}
+                    {data.insuranceCode?.show && id == 0 && <Resizable
+                        defaultSize={{
+                            width: `${data.insuranceCode?.width ? data.insuranceCode?.width + "px" : 300}`,
+                            height: "fit-content",
+                        }}
+                        className={`${selectedElement === "insuranceCode" ? "selected" : "notSelected"} insuranceCode`}
+                        style={{
+                            transform: `translate(${data.insuranceCode?.x}px, ${data.insuranceCode?.y}px)`,
+                            width: `${data.insuranceCode?.width ? data.insuranceCode?.width + "px" : "fit-content"}`,
+                            height: `fit-content`,
+                            position:"absolute",
+                            zIndex:99,
+                            ...(!editMode && {border: 0})
+                        }}
+                        bounds={"parent"}
+                        enable={{
+                            right: selectedElement === "insuranceCode",
+                        }}
+                        onResizeStart={() => {
+                            setBlockDrag(true)
+                        }}
+                        onResizeStop={(e, direction, ref, d) => {
+                            data.insuranceCode.width = document.getElementById(`insuranceCode${id}`)?.clientWidth
+                            data.insuranceCode.maxHeight += d.height
+                            setData({...data})
+                            setBlockDrag(false)
+                        }}>
+
+                        <div id={`insuranceCode${id}`} onClick={(ev) => {
+                            ev.stopPropagation()
+                            setSelectedElement("insuranceCode")
+                        }}>
+                            {data.insuranceCode?.prefix} {data.insuranceCode?.content}
+                        </div>
+                        {editMode && <div className={"menuTop"}>
+                            <div className={"btnMenu"}
+                                 onClick={() => {
+                                     data.insuranceCode.show = false;
+                                     setData({...data})
+                                 }}>
+                                <Icon path={"ic-delete"}/>
+                            </div>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("insuranceCode")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>
+                            <div className={"btnMenu"}
+                                 style={{backgroundColor: selectedElement === "insuranceCode" ? theme.palette.success.main : theme.palette.info.main}}
+                                 onClick={() => {
+                                     setSelectedElement(selectedElement !== "insuranceCode" ? "insuranceCode" : "")
+                                 }}>
+                                <Icon path={selectedElement !== "insuranceCode" ? "ic-edit-patient" : "ic-check"}/>
+                            </div>
+                        </div>}
+                    </Resizable>}
+
                     {
                         data.other && id == 0 && data.other.map((other: any, index: number) => (
                             <Resizable
