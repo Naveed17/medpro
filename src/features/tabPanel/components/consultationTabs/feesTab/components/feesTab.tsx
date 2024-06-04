@@ -59,7 +59,7 @@ function FeesTab({...props}) {
             id: "amount",
             numeric: true,
             disablePadding: false,
-            label: "reimb",
+            label: "remb",
             sortable: true,
             align: "center",
         },
@@ -171,7 +171,7 @@ function FeesTab({...props}) {
                 price: act.fees,
                 ...(act.insurance_act ? {insurance_act: act.insurance_act} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {insurance_act: act.insurances[0].uuid}: null),
                 ...(act.insurance && {insurance: act.insurance}),
-                ...(act.patient_part ? {patient_part: act.patient_part}  : act.insurances.length > 0 && rowUuid === act.uuid && from ? {patient_part: act.insurances[0].patient_part} : null),
+                ...(act.patient_part ? {patient_part: act.patient_part}  : act.insurances.length > 0 && rowUuid === act.uuid && from ? {patient_part: act.fees - act.insurances[0].refund} : null),
                 ...(act.refund ? {refund: act.refund} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {refund: act.insurances[0].refund} : null)
             });
         });
@@ -305,7 +305,7 @@ function FeesTab({...props}) {
                                 <CardContent>
                                     <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
                                         <Typography variant="body2">
-                                            {t("table.reimb")}
+                                            {t("table.remb")}
                                         </Typography>
                                         <Typography fontWeight={700}>
                                             {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.refund) : 0), 0)} {devise}

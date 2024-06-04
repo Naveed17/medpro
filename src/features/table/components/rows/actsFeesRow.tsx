@@ -248,7 +248,7 @@ function ActFeesRow({...props}) {
                                         {t("save")}
                                     </Typography>
                                 </IconButton>
-                            ) : !row.hasData && (
+                            ) :
                                 <IconButton
                                     size="small"
                                     className="btn-edit"
@@ -258,7 +258,7 @@ function ActFeesRow({...props}) {
                                     }}>
                                     <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                 </IconButton>
-                            )}
+                            }
                             {!row.hasData && <IconButton
                                 onClick={() => {
                                     data.handleSelected(row);

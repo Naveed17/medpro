@@ -129,7 +129,7 @@ function RDVRow({...props}) {
         });
     }
 
-    const handleAppointmentStatus = (uuid: string, status: string) => {
+    const handleAppointmentStatus = (uuid: string, status: string, pendingRefresh = false) => {
         const form = new FormData();
         form.append('status', status);
         updateAppointmentStatus({
@@ -141,6 +141,10 @@ function RDVRow({...props}) {
                 // refresh on going api
                 mutateOnGoing();
                 mutatePatientHistory();
+                if (pendingRefresh) {
+                    // update pending notifications status
+                    invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
+                }
             }
         });
     }
@@ -159,6 +163,8 @@ function RDVRow({...props}) {
                 // refresh on going api
                 mutateOnGoing();
                 mutatePatientHistory();
+                // Mutate agenda
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`]);
                 setDeleteDialog(false);
             },
             onSettled: () => setLoadingReq(false)
@@ -191,6 +197,9 @@ function RDVRow({...props}) {
                 break;
             case "onPatientNoShow":
                 handleAppointmentStatus(appointmentData?.uuid as string, '10');
+                break;
+            case "onConfirmAppointment":
+                handleAppointmentStatus(appointmentData?.uuid as string, '1', true);
                 break;
             case "onLeaveWaitingRoom":
                 handleAppointmentStatus(appointmentData?.uuid as string, '1');

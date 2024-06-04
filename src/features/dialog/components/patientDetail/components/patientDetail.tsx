@@ -1,21 +1,22 @@
-import { Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab, Tabs } from "@mui/material";
-import { consultationSelector, PatientDetailsToolbar, SetSelectedDialog } from "@features/toolbar";
-import { onOpenPatientDrawer } from "@features/table";
-import { PatientDetailsCard } from "@features/card";
+import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab, Tabs} from "@mui/material";
+import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
+import {onOpenPatientDrawer} from "@features/table";
+import {PatientDetailsCard} from "@features/card";
+
 const MedicalRec = dynamic(() =>
     import('@features/tabPanel').then((mod) => mod.PatientMedicalRecordPanel))
 const PersonalInfoPanel = dynamic(() =>
     import('@features/tabPanel').then((mod) => mod.PersonalInfoPanel))
 const TransactionPanel = dynamic(() =>
     import('@features/tabPanel').then((mod) => mod.TransactionPanel))
-// const HistoryPanel = dynamic(() =>
-//     import('@features/tabPanel').then((mod) => mod.HistoryPanel))
+const HistoryPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.HistoryPanel))
 const DocumentsPanel = dynamic(() =>
     import('@features/tabPanel').then((mod) => mod.DocumentsPanel))
-// const NotesPanel = dynamic(() =>
-//     import('@features/tabPanel').then((mod) => mod.NotesPanel))
-// const PatientFile = dynamic(() =>
-//     import('@features/files').then((mod) => mod.PatientFile))
+const NotesPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.NotesPanel))
+const PatientFile = dynamic(() =>
+    import('@features/files').then((mod) => mod.PatientFile))
 
 import {
     EventType,
@@ -25,30 +26,30 @@ import {
     TabPanel,
     TimeSchedule
 } from "@features/tabPanel";
-import { GroupTable } from "@features/groupTable";
+import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import { SpeedDial } from "@features/speedDial";
-import { CustomStepper } from "@features/customStepper";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { useRouter } from "next/router";
-import { useTranslation } from "next-i18next";
+import {SpeedDial} from "@features/speedDial";
+import {CustomStepper} from "@features/customStepper";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import React, { SyntheticEvent, useContext, useEffect, useState } from "react";
+import React, {SyntheticEvent, useContext, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
-import { EventDef } from "@fullcalendar/core/internal";
+import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import { AppointmentDetail, Dialog, handleDrawerAction } from "@features/dialog";
-import { LoadingButton } from "@mui/lab";
-import { agendaSelector, openDrawer } from "@features/calendar";
+import {AppointmentDetail, Dialog, handleDrawerAction} from "@features/dialog";
+import {LoadingButton} from "@mui/lab";
+import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
-import { configSelector, dashLayoutSelector } from "@features/base";
-import { useSnackbar } from "notistack";
-import { getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing } from "@lib/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {useSnackbar} from "notistack";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {
     useAntecedentTypes,
     useContactType, useCountries,
@@ -56,18 +57,17 @@ import {
     useProfilePhoto,
     useSendNotification
 } from "@lib/hooks/rest";
-import { getPrescriptionUI } from "@lib/hooks/setPrescriptionUI";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
-import { Theme } from "@mui/material/styles";
-import { SwitchPrescriptionUI } from "@features/buttons";
+import {Theme} from "@mui/material/styles";
+import {SwitchPrescriptionUI} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
-import { DefaultCountry } from "@lib/constants";
-import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
-import { LoadingScreen } from "@features/loadingScreen";
-import { AbilityContext } from "@features/casl/can";
-import { setPermissions } from "@features/casl";
+import {DefaultCountry} from "@lib/constants";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {LoadingScreen} from "@features/loadingScreen";
+import {AbilityContext} from "@features/casl/can";
+import {setPermissions} from "@features/casl";
 import dynamic from "next/dynamic";
-import { useAudioRecorder } from "react-audio-voice-recorder";
 
 function a11yProps(index: number) {
     return {
@@ -76,7 +76,7 @@ function a11yProps(index: number) {
     };
 }
 
-function PatientDetail({ ...props }) {
+function PatientDetail({...props}) {
     const {
         patientId,
         isAddAppointment = false,
@@ -89,29 +89,26 @@ function PatientDetail({ ...props }) {
     } = props;
 
     const dispatch = useAppDispatch();
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
-    const { data: session } = useSession();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { allAntecedents } = useAntecedentTypes();
-    const { trigger: invalidateQueries } = useInvalidateQueries();
-    const { trigger: mutateOnGoing } = useMutateOnGoing();
-    const { permissions } = useFeaturePermissions("patient", true);
+    const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {permissions} = useFeaturePermissions("patient", true);
     const ability = useContext(AbilityContext);
-    const { contacts } = useContactType();
-    const { countries: countries_api } = useCountries("nationality=true");
 
-    const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
-    const { t: translate } = useTranslation("consultation");
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {t: translate} = useTranslation("consultation");
 
-    const { direction } = useAppSelector(configSelector);
-    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         config: agenda,
         sortedData: groupSortedData,
         openViewDrawer
     } = useAppSelector(agendaSelector);
-    const { selectedDialog } = useAppSelector(consultationSelector);
+    const {selectedDialog} = useAppSelector(consultationSelector);
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
@@ -119,7 +116,7 @@ function PatientDetail({ ...props }) {
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
-    const [documentConfig, setDocumentConfig] = useState({ name: "", description: "", type: "analyse", files: [] });
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
         {
             title: "tabs.time-slot",
@@ -140,7 +137,6 @@ function PatientDetail({ ...props }) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
-    const [antecedentsData, setAntecedentsData] = useState<any[] | null>(null);
     const [editable, setEditable] = useState({
         personalInfoCard: false,
         personalInsuranceCard: false,
@@ -150,15 +146,15 @@ function PatientDetail({ ...props }) {
     const [rest, setRest] = useState(0);
     const [openUploadDialog, setOpenUploadDialog] = useState(false);
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
-    const { jti } = session?.user as any;
+    const {jti} = session?.user as any;
     const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
-    const { trigger: updateAppointmentStatus } = useRequestQueryMutation("/agenda/appointment/status");
-    const { trigger: triggerUploadDocuments } = useRequestQueryMutation("/patient/documents");
-    const { trigger: triggerConsultationUpdate } = useRequestQueryMutation("consultation/data/update");
-    const { trigger: triggerNotificationPush } = useSendNotification();
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status");
+    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/patient/documents");
+    const {trigger: triggerConsultationUpdate} = useRequestQueryMutation("consultation/data/update");
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
@@ -173,35 +169,29 @@ function PatientDetail({ ...props }) {
     } : null);
 
     const patient = ((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel) ?? null;
-    const {
-        data: httpPatientInsurancesResponse,
-    } = useRequestQuery(medicalEntityHasUser && patient ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/insurances/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
-    const { data: httpPatientWallet, mutate: walletMutate } = useRequestQuery(medicalEntityHasUser && patient ? {
+
+    const {data: httpPatientWallet, mutate: walletMutate} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
-    const { patientPhoto } = useProfilePhoto({ patientId, hasPhoto: patient?.hasPhoto });
-
     const {
         data: httpAntecedentsResponse,
         mutate: mutateAntecedents
-    } = useRequestQuery(medicalEntityHasUser && patientId ? {
+    } = useRequestQuery(medicalEntityHasUser && httpPatientWallet ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/antecedents/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const {
         data: httpPatientContactResponse
-    } = useRequestQuery(medicalEntityHasUser && patient ? {
+    } = useRequestQuery(medicalEntityHasUser && httpAntecedentsResponse ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/contact/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
+    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as AntecedentsModel[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -210,7 +200,7 @@ function PatientDetail({ ...props }) {
     const handleActionFab = (fabAction: any) => {
         setOpenFabAdd(false);
         switch (fabAction.action) {
-            case "add-appointment":
+            case "add-appointment" :
                 dispatch(setAppointmentPatient(patient as any));
                 setIsAdd(!isAdd)
                 break;
@@ -221,8 +211,8 @@ function PatientDetail({ ...props }) {
     }
 
     const closePatientDialog = () => {
-        dispatch(openDrawer({ type: "patient", open: false }));
-        dispatch(onOpenPatientDrawer({ patientId: "", patientAction: "" }));
+        dispatch(openDrawer({type: "patient", open: false}));
+        dispatch(onOpenPatientDrawer({patientId: "", patientAction: ""}));
         onCloseDialog(false);
     }
     // handle tab change
@@ -239,12 +229,12 @@ function PatientDetail({ ...props }) {
     }
 
     const submitStepper = (index: number) => {
-        const steps: any = stepperData.map((stepper) => ({ ...stepper }));
+        const steps: any = stepperData.map((stepper) => ({...stepper}));
         if (stepperData.length !== index) {
             steps[index].disabled = false;
             setStepperData(steps);
         } else {
-            setStepperData(steps.map((stepper: any) => ({ ...stepper, disabled: true })));
+            setStepperData(steps.map((stepper: any) => ({...stepper, disabled: true})));
             mutatePatientDetails();
             mutatePatientList && mutatePatientList();
         }
@@ -316,7 +306,7 @@ function PatientDetail({ ...props }) {
                             appUuid: selectedDialog.appUuid,
                             createdAt: moment().format('DD/MM/YYYY'),
                             description: "",
-                            age: res[0].patient?.birthdate ? getBirthdayFormat({ birthdate: res[0].patient.birthdate }, t) : "",
+                            age: res[0].patient?.birthdate ? getBirthdayFormat({birthdate: res[0].patient.birthdate}, t) : "",
                             patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                         });
                         setOpenDialog(true);
@@ -339,7 +329,7 @@ function PatientDetail({ ...props }) {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t(`alert.on-waiting-room`), { variant: "success" });
+                enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
                 // mutate ongoing api
                 mutateOnGoing();
                 // update pending notifications status
@@ -374,30 +364,27 @@ function PatientDetail({ ...props }) {
             children: <PersonalInfoPanel loading={!patient} {...{
                 patient,
                 contactData,
-                contacts,
-                countries_api,
                 mutatePatientDetails,
                 mutatePatientList,
                 antecedentsData,
                 mutateAntecedents,
                 mutateAgenda,
                 editable,
-                setEditable,
-                patientPhoto
+                setEditable
             }} />
         }] : []),
-        // ...(ability.can('manage', 'patients', 'patients__patient__details__history') ? [{
-        //     title: "tabs.history",
-        //     children: <HistoryPanel {...{
-        //         t,
-        //         patient,
-        //         closePatientDialog
-        //     }} />
-        // }] : []),
-        // ...(ability.can('manage', 'patients', 'patients__patient__details__appointment') ? [{
-        //     title: "tabs.appointment",
-        //     children: <GroupTable from="patient" data={{ patient, translate: t, closePatientDialog }} />
-        // }] : []),
+        ...(ability.can('manage', 'patients', 'patients__patient__details__history') ? [{
+            title: "tabs.history",
+            children: <HistoryPanel {...{
+                t,
+                patient,
+                closePatientDialog
+            }} />
+        }] : []),
+        ...(ability.can('manage', 'patients', 'patients__patient__details__appointment') ? [{
+            title: "tabs.appointment",
+            children: <GroupTable from="patient" data={{patient, translate: t, closePatientDialog}}/>
+        }] : []),
         ...(ability.can('manage', 'patients', 'patients__patient__details__documents') ? [{
             title: "tabs.documents",
             children: <DocumentsPanel
@@ -420,22 +407,22 @@ function PatientDetail({ ...props }) {
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }] : []),
-        // ...(ability.can('manage', 'patients', 'patients__patient__details__note') ? [{
-        //     title: "tabs.notes",
-        //     children: <NotesPanel loading={!patient}  {...{ t, patient, mutatePatientDetails }} />,
-        //     permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        // }] : []),
-        // ...(ability.can('manage', 'patients', 'patients__patient__details__resume') ? [{
-        //     title: "tabs.recap",
-        //     children: <PatientFile {...{ patient, antecedentsData, t, allAntecedents }} />,
-        //     permission: ["ROLE_PROFESSIONAL"]
-        // }] : [])
+        ...(ability.can('manage', 'patients', 'patients__patient__details__note') ? [{
+            title: "tabs.notes",
+            children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        }] : []),
+        ...(ability.can('manage', 'patients', 'patients__patient__details__resume') ? [{
+            title: "tabs.recap",
+            children: <PatientFile {...{patient, antecedentsData, t}} />,
+            permission: ["ROLE_PROFESSIONAL"]
+        }] : [])
     ];
-    const patientInsurances = (httpPatientInsurancesResponse as HttpResponse)?.data as PatientInsurancesModel[];
+
     useEffect(() => {
         // Load patient authorizations if they have not yet been loaded
         if (permissions?.length > 0) {
-            dispatch(setPermissions({ "patients": permissions.map(permission => permission?.slug) }));
+            dispatch(setPermissions({"patients": permissions.map(permission => permission?.slug)}));
         }
     }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -453,26 +440,21 @@ function PatientDetail({ ...props }) {
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (httpAntecedentsResponse) {
-            setAntecedentsData((httpAntecedentsResponse as HttpResponse)?.data as any[]);
-        }
-    }, [httpAntecedentsResponse])
-
-    useEffect(() => {
         if (httpPatientWallet) {
             setWallet((httpPatientWallet as HttpResponse).data.wallet)
             setRest((httpPatientWallet as HttpResponse).data.rest_amount)
         }
     }, [httpPatientWallet])
-    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
             {!isAdd ?
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
-                    <Backdrop open={openFabAdd} />
+                    <Backdrop open={openFabAdd}/>
                     {" "}
-                    <PatientDetailsToolbar fiche_id={patient?.fiche_id} t={t} onClose={closePatientDialog} />
+                    <PatientDetailsToolbar onClose={closePatientDialog}/>
 
                     <PatientDetailsCard
                         loading={!patient}
@@ -484,18 +466,16 @@ function PatientDetail({ ...props }) {
                             antecedentsData,
                             mutateAntecedents,
                             onConsultationStart,
-                            patientPhoto,
                             mutatePatientList,
                             mutateAgenda,
                             walletMutate,
                             roles,
                             closePatientDialog,
                             setEditableSection: setEditable,
-                            rest, devise,
-                            patientInsurances
+                            rest, devise
                         }}
                     />
-                    <Box className={"container"} sx={{ width: '100%' }}>
+                    <Box className={"container"} sx={{width: '100%'}}>
                         <Tabs
                             value={index}
                             onChange={handleStepperIndexChange}
@@ -511,7 +491,7 @@ function PatientDetail({ ...props }) {
                                 />)
                             )}
                         </Tabs>
-                        <Divider />
+                        <Divider/>
                         {tabsContent.map((tabContent, tabContentIndex) => (
                             <TabPanel
                                 key={`tabContent-${tabContentIndex}`}
@@ -527,16 +507,16 @@ function PatientDetail({ ...props }) {
                                 position: "fixed",
                                 bottom: 16,
                                 right: 16,
-                                display: { md: "none", xs: "flex" },
+                                display: {md: "none", xs: "flex"},
                             }}
                             onClose={handleCloseFab}
                             onOpen={handleOpenFab}
                             open={openFabAdd}
                             handleItemClick={handleActionFab}
                             actions={[
-                                { icon: <SpeedDialIcon />, name: t("tabs.add-appo"), action: "add-appointment" },
+                                {icon: <SpeedDialIcon/>, name: t("tabs.add-appo"), action: "add-appointment"},
                                 {
-                                    icon: <IconUrl path="fileadd" width={20} height={20} />,
+                                    icon: <IconUrl path="fileadd" width={20} height={20}/>,
                                     name: t("tabs.import"),
                                     action: "import-document"
                                 },
@@ -555,17 +535,17 @@ function PatientDetail({ ...props }) {
                             p: 2,
                             mt: 'auto',
                             textAlign: "right",
-                            display: { md: "block", xs: "none" }
+                            display: {md: "block", xs: "none"}
                         }}>
 
 
                         <LoadingButton onClick={() => setOpenUploadDialog(true)}
 
-                            variant="primary-light"
+                                       variant="primary-light"
 
-                            loading={loadingRequest}
+                                       loading={loadingRequest}
 
-                            startIcon={<IconUrl path="fileadd" width={20} height={20} />}>
+                                       startIcon={<IconUrl path="fileadd" width={20} height={20}/>}>
                             {t("upload_document")}
                         </LoadingButton>
 
@@ -574,11 +554,11 @@ function PatientDetail({ ...props }) {
                             variant="contained"
                             disabled={!patient}
                             color="primary"
-                            startIcon={<Icon path="ic-agenda-+" />}
+                            startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{
                                 mr: 1,
                                 ml: 1,
-                                width: { md: "auto", sm: "100%", xs: "100%" },
+                                width: {md: "auto", sm: "100%", xs: "100%"},
                             }}
                             onClick={() => {
                                 dispatch(resetAppointment());
@@ -607,7 +587,7 @@ function PatientDetail({ ...props }) {
                         size={info && ["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                         dialogClose={handleCloseDialog}
                         {...(info === "document_detail" && {
-                            sx: { p: 0 },
+                            sx: {p: 0},
                         })}
                         title={t(info === "document_detail" ? "doc_detail_title" : "")}
                         {...((info === "document_detail" || info === "end_consultation") && {
@@ -615,27 +595,27 @@ function PatientDetail({ ...props }) {
                         })}
                         {...((info && ["medical_prescription", "medical_prescription_cycle"].includes(info)) && {
                             headerDialog: (<DialogTitle
-                                sx={{
-                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
-                                    position: "relative",
-                                }}
-                                id="scroll-dialog-title">
-                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-                                    {translate(`consultationIP.${info}`)}
-                                    <SwitchPrescriptionUI {...{
-                                        t: translate,
-                                        keyPrefix: "consultationIP",
-                                        handleSwitchUI
-                                    }} />
-                                </Stack>
-                            </DialogTitle>
+                                    sx={{
+                                        backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                                        position: "relative",
+                                    }}
+                                    id="scroll-dialog-title">
+                                    <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+                                        {translate(`consultationIP.${info}`)}
+                                        <SwitchPrescriptionUI {...{
+                                            t: translate,
+                                            keyPrefix: "consultationIP",
+                                            handleSwitchUI
+                                        }} />
+                                    </Stack>
+                                </DialogTitle>
                             ),
-                            actionDialog: <DialogActions sx={{ width: "100%" }}>
-                                <Stack sx={{ width: "100%" }}
-                                    direction={"row"}
-                                    justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
+                            actionDialog: <DialogActions sx={{width: "100%"}}>
+                                <Stack sx={{width: "100%"}}
+                                       direction={"row"}
+                                       justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                     {info === "medical_prescription_cycle" &&
-                                        <Button startIcon={<AddIcon />} onClick={() => {
+                                        <Button startIcon={<AddIcon/>} onClick={() => {
                                             dispatch(handleDrawerAction("addDrug"));
                                         }}>
                                             {translate("consultationIP.add_drug")}
@@ -643,14 +623,14 @@ function PatientDetail({ ...props }) {
                                     <Stack direction={"row"} spacing={1.2}>
                                         <Button
                                             onClick={handleCloseDialog}
-                                            startIcon={<CloseIcon />}>
+                                            startIcon={<CloseIcon/>}>
                                             {translate("cancel")}
                                         </Button>
                                         <Button
                                             variant="contained"
                                             onClick={handleSaveDialog}
                                             disabled={info === "medical_prescription_cycle" && state.length === 0}
-                                            startIcon={<SaveRoundedIcon />}>
+                                            startIcon={<SaveRoundedIcon/>}>
                                             {translate("consultationIP.save")}
                                         </Button>
                                     </Stack>
@@ -674,17 +654,17 @@ function PatientDetail({ ...props }) {
                         }}
                         size={"md"}
                         direction={"ltr"}
-                        sx={{ minHeight: 400 }}
+                        sx={{minHeight: 400}}
                         title={t("doc_detail_title")}
                         dialogClose={handleCloseUploadDialog}
                         onClose={handleCloseUploadDialog}
                         actionDialog={
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
-                                width={"100%"}>
+                                   width={"100%"}>
                                 <Button
                                     variant={"text-black"}
                                     onClick={handleCloseUploadDialog}
-                                    startIcon={<CloseIcon />}>
+                                    startIcon={<CloseIcon/>}>
                                     {t("add-patient.cancel")}
                                 </Button>
                                 <Button
@@ -694,7 +674,7 @@ function PatientDetail({ ...props }) {
                                         handleCloseUploadDialog();
                                         handleUploadDocuments();
                                     }}
-                                    startIcon={<IconUrl path="iconfinder_save" />}>
+                                    startIcon={<IconUrl path="iconfinder_save"/>}>
                                     {t("add-patient.register")}
                                 </Button>
                             </Stack>
@@ -703,7 +683,7 @@ function PatientDetail({ ...props }) {
                 </PatientDetailStyled>
                 : (
                     <CustomStepper
-                        {...{ stepperData, t }}
+                        {...{stepperData, t}}
                         modal={"patient"}
                         OnSubmitStepper={submitStepper}
                         OnAction={(action: string, event: EventDef) => {
@@ -741,9 +721,9 @@ function PatientDetail({ ...props }) {
                 open={openViewDrawer}
                 dir={direction}
                 onClose={() => {
-                    dispatch(openDrawer({ type: "view", open: false }));
+                    dispatch(openDrawer({type: "view", open: false}));
                 }}>
-                <AppointmentDetail {...{ patientId }} />
+                <AppointmentDetail {...{patientId}}/>
             </Drawer>
 
         </>

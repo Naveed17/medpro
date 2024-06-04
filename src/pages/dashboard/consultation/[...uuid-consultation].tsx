@@ -1330,9 +1330,9 @@ function ConsultationInProgress() {
             const data = (httpPatientPreview as HttpResponse).data;
             dispatch(SetPatient({ uuid: sheet?.patient, birthdate: "", gender: "M", ...data }))
             setPatient(data)
-            mutateInsurance()
+            mutateInsurance && mutateInsurance()
         }
-    }, [dispatch, httpPatientPreview, sheet?.patient])
+    }, [dispatch, httpPatientPreview, sheet?.patient]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setPatientDetailDrawer(tableState.patientId !== '');

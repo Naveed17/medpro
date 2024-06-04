@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "next-i18next";
+import React, {useEffect, useState} from "react";
+import {useTranslation} from "next-i18next";
 // material
 import {
     AppBar,
@@ -22,36 +22,36 @@ import {
     useTheme
 } from "@mui/material";
 //components
-import { DocumentCard, NoDataCard } from "@features/card";
-import { Dialog as CustomDialog, Dialog } from "@features/dialog";
+import {DocumentCard, NoDataCard} from "@features/card";
+import {Dialog as CustomDialog, Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import { a11yProps, useMedicalEntitySuffix, useMedicalProfessionalSuffix } from "@lib/hooks";
-import { TabPanel } from "@features/tabPanel";
-import { useAppSelector } from "@lib/redux/hooks";
-import { consultationSelector } from "@features/toolbar";
-import { useRouter } from "next/router";
+import {a11yProps, useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {TabPanel} from "@features/tabPanel";
+import {useAppSelector} from "@lib/redux/hooks";
+import {consultationSelector} from "@features/toolbar";
+import {useRouter} from "next/router";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { configSelector, dashLayoutSelector } from "@features/base";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import moment from "moment/moment";
 import Add from "@mui/icons-material/Add";
 import DocumentCardStyled from "@features/card/components/documentCard/components/overrides/documentCardStyle";
 
-import { LoadingScreen } from "@features/loadingScreen";
+import {LoadingScreen} from "@features/loadingScreen";
 import Autocomplete from "@mui/material/Autocomplete";
-import { MuiAutocompleteSelectAll } from "@features/muiAutocompleteSelectAll";
-import { Theme } from "@mui/material/styles";
-import { LoadingButton } from "@mui/lab";
-import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
-import { useSnackbar } from "notistack";
-import PreviewA4 from "@features/files/components/previewA4";
-import { CustomIconButton } from "@features/buttons";
+import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+import {Theme} from "@mui/material/styles";
+import {LoadingButton} from "@mui/lab";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useSnackbar} from "notistack";
+import {agendaSelector} from "@features/calendar";
+import {CustomIconButton} from "@features/buttons";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
@@ -70,7 +70,7 @@ const AddAppointmentCardData = {
     description: "config.no-data.documents.description",
     buttons: [{
         text: "config.no-data.documents.button-text",
-        icon: <IconUrl width={20} height={20} path={'fileadd'} />,
+        icon: <IconUrl width={20} height={20} path={'fileadd'}/>,
         variant: "primary",
         color: "white"
     }]
@@ -82,14 +82,14 @@ const AddQuoteCardData = {
     description: "config.no-data.documents.quote-description",
     buttons: [{
         text: "config.no-data.documents.add_quote",
-        icon: <IconUrl width={20} height={20} path={'fileadd'} />,
+        icon: <IconUrl width={20} height={20} path={'fileadd'}/>,
         variant: "primary",
         color: "white"
     }]
 };
 
-function DocFilter({ ...props }) {
-    const { titleSearch, setTitleSearch, theme, handleSelectAll, selectedAll, queryState, setQueryState, t } = props
+function DocFilter({...props}) {
+    const {titleSearch, setTitleSearch, theme, handleSelectAll, selectedAll, queryState, setQueryState, t} = props
     return (
         <Grid container spacing={1}>
             <Grid item md={6} xs={12}>
@@ -99,17 +99,17 @@ function DocFilter({ ...props }) {
                     onChange={(ev) => {
                         setTitleSearch(ev.target.value)
                     }} style={{
-                        background: theme.palette.grey["A500"],
-                        border: `1px solid ${theme.palette.grey["200"]}`,
-                        width: "100%",
-                        borderRadius: 6
-                    }} placeholder={t('search')}></TextField>
+                    background: theme.palette.grey["A500"],
+                    border: `1px solid ${theme.palette.grey["200"]}`,
+                    width: "100%",
+                    borderRadius: 6
+                }} placeholder={t('search')}></TextField>
             </Grid>
             <Grid item md={6} xs={12}>
                 <Typography fontSize={12} mb={1} color={"#6F7482"}>{t('type-title')}</Typography>
                 <MuiAutocompleteSelectAll.Provider
                     value={{
-                        onSelectAll: (selectedAll) => void handleSelectAll({ types: selectedAll ? [] : typeofDocs }),
+                        onSelectAll: (selectedAll) => void handleSelectAll({types: selectedAll ? [] : typeofDocs}),
                         selectedAll,
                         indeterminate: !!queryState.types.length && !selectedAll,
                     }}>
@@ -122,15 +122,15 @@ function DocFilter({ ...props }) {
                         noOptionsText={t("noType")}
                         ListboxComponent={MuiAutocompleteSelectAll.ListBox}
                         value={queryState.types ? queryState.types : []}
-                        style={{ width: "100%" }}
-                        onChange={(event, value) => setQueryState({ types: value })}
+                        style={{width: "100%"}}
+                        onChange={(event, value) => setQueryState({types: value})}
                         options={typeofDocs ? typeofDocs : []}
                         getOptionLabel={option => option ? t(option) : ""}
                         isOptionEqualToValue={(option: any, value) => option === value}
-                        renderOption={(params, option, { selected }) => (
+                        renderOption={(params, option, {selected}) => (
                             <MenuItem {...params}>
-                                <Checkbox checked={selected} />
-                                <Typography sx={{ ml: 1 }}>{t(option)}</Typography>
+                                <Checkbox checked={selected}/>
+                                <Typography sx={{ml: 1}}>{t(option)}</Typography>
                             </MenuItem>)}
                         renderInput={(params) => (
                             <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
@@ -140,10 +140,10 @@ function DocFilter({ ...props }) {
                                     width: "100%",
                                     borderRadius: 6
                                 }}
-                                    {...params}
-                                    sx={{ paddingLeft: 0 }}
-                                    placeholder={t("type-placeholder")}
-                                    variant="outlined"
+                                           {...params}
+                                           sx={{paddingLeft: 0}}
+                                           placeholder={t("type-placeholder")}
+                                           variant="outlined"
                                 />
                             </FormControl>)}
                     />
@@ -153,7 +153,7 @@ function DocFilter({ ...props }) {
     )
 }
 
-function DocumentsPanel({ ...props }) {
+function DocumentsPanel({...props}) {
     const {
         documentViewIndex: currentTab,
         handleTabChange,
@@ -164,17 +164,19 @@ function DocumentsPanel({ ...props }) {
     } = props;
     const router = useRouter();
     const theme = useTheme();
-    const { data: session } = useSession();
-    const { patientDocuments, mutatePatientDocuments } = useDocumentsPatient({ patientId: patient?.uuid });
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { medical_professional } = useMedicalProfessionalSuffix();
-    const { enqueueSnackbar } = useSnackbar();
+    const {data: session} = useSession();
+    const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medical_professional} = useMedicalProfessionalSuffix();
+    const {enqueueSnackbar} = useSnackbar();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     // translation
-    const { t, ready } = useTranslation(["consultation", "patient"]);
-    const { selectedDialog } = useAppSelector(consultationSelector);
-    const { medicalEntityHasUser, secretaryAccess } = useAppSelector(dashLayoutSelector);
-    const { direction } = useAppSelector(configSelector);
+    const {t, ready} = useTranslation(["consultation", "patient"]);
+    const {selectedDialog} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser, secretaryAccess} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     // filter checked array
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -199,9 +201,9 @@ function DocumentsPanel({ ...props }) {
 
     const selectedAll = queryState.types.length === typeofDocs?.length;
 
-    const { trigger: triggerQuoteUpdate } = useRequestQueryMutation("/patient/quote");
-    const { trigger: triggerDocumentDelete } = useRequestQueryMutation("/patient/documents/delete");
-    const { trigger: triggerDocumentSpeechToText } = useRequestQueryMutation("/patient/document/speech-to-text");
+    const {trigger: triggerQuoteUpdate} = useRequestQueryMutation("/patient/quote");
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/patient/documents/delete");
+    const {trigger: triggerDocumentSpeechToText} = useRequestQueryMutation("/patient/document/speech-to-text");
 
     const {
         data: httpAppDocPatientResponse,
@@ -211,19 +213,19 @@ function DocumentsPanel({ ...props }) {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/documents/${router.locale}`
     } : null);
 
-    const { data: httpQuotesResponse, mutate: mutateQuotes } = useRequestQuery(patient ? {
+    const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequestQuery(patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/quotes/${router.locale}`
     } : null);
 
-    const { data: httpProfessionalsActs } = useRequestQuery(medical_professional ? {
+    const {data: httpProfessionalsActs} = useRequestQuery(medical_professional ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
     } : null);
 
     const documents = (httpAppDocPatientResponse as HttpResponse)?.data.reduce((docs: any[], doc: any) => [...(docs ?? []), ...doc?.documents], []) ?? [];
     const quotes = (httpQuotesResponse as HttpResponse)?.data ?? [];
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const handleClose = () => {
@@ -242,6 +244,10 @@ function DocumentsPanel({ ...props }) {
                 } else {
                     mutateAppDocPatient();
                 }
+                if (router.pathname === "/dashboard/consultation/[...uuid-consultation]") {
+                    const appointmentUuid = (router.query["uuid-consultation"] ?? [""])[0];
+                    appointmentUuid && invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUuid}/documents/${router.locale}`]);
+                }
             },
             onSettled: () => {
                 setDeleteDialog(false);
@@ -256,13 +262,13 @@ function DocumentsPanel({ ...props }) {
             ...(data.type?.includes("audio") ? [
                 {
                     title: "speech_to_text",
-                    icon: <Icon color={"white"} width={20} height={20} path="ic-micro" />,
+                    icon: <Icon color={"white"} width={20} height={20} path="ic-micro"/>,
                     action: "onSpeechToText",
                 }
             ] : []),
             {
                 title: "delete_document",
-                icon: <Icon color={"white"} width={20} height={20} path="ic-trash" />,
+                icon: <Icon color={"white"} width={20} height={20} path="ic-trash"/>,
                 action: "onDeleteDocument",
             }
         ])
@@ -297,18 +303,18 @@ function DocumentsPanel({ ...props }) {
                         queryState,
                         setQueryState,
                         t
-                    }} />
+                    }}/>
                     <Box display='grid' mt={2} className={'document-container'}
-                        {...(documents.length > 0 && {
-                            sx: {
-                                gridGap: 16,
-                                gridTemplateColumns: {
-                                    xs: "repeat(1,minmax(0,1fr))",
-                                    md: "repeat(2,minmax(0,1fr))",
-                                    lg: "repeat(2,minmax(0,1fr))",
-                                },
-                            }
-                        })}>
+                         {...(documents.length > 0 && {
+                             sx: {
+                                 gridGap: 16,
+                                 gridTemplateColumns: {
+                                     xs: "repeat(1,minmax(0,1fr))",
+                                     md: "repeat(2,minmax(0,1fr))",
+                                     lg: "repeat(2,minmax(0,1fr))",
+                                 },
+                             }
+                         })}>
                         {documents.length > 0 ?
                             documents.sort((a: any, b: any) => {
                                 return moment(b.createdAt, 'DD-MM-YYYY HH:mm').diff(moment(a.createdAt, 'DD-MM-YYYY HH:mm'))
@@ -316,35 +322,17 @@ function DocumentsPanel({ ...props }) {
                                 title: string
                             }) => doc.title.toLowerCase().includes(titleSearch.toLowerCase())).filter((doc: MedicalDocuments) =>
                                 queryState.types.length === 0 ? true : queryState.types.some((st: string) => st === doc.documentType)).map((card: any, idx: number) =>
-                                    <React.Fragment key={`doc-item-${idx}`}>
-                                        <DocumentCard
-                                            onClick={() => showDoc(card)}
-                                            handleMoreAction={handleContextMenu}
-                                            {...{ t, data: card, date: true, time: true, title: true, width: "13rem" }} />
-                                        {/* <PreviewA4
-                                            {...{
-                                                eventHandler: null,
-                                                data: card,
-                                                values: null,
-                                                nbPage: 1,
-                                                state: {
-                                                    content: card.content,
-                                                    description: "",
-                                                    doctor: "",
-                                                    name: "certif",
-                                                    patient: "Patient",
-                                                    title: card.title,
-                                                    type: "write_certif",
-                                                },
-                                                loading,
-                                            }}
-                                        /> */}
-                                    </React.Fragment>
-                                )
+                                <React.Fragment key={`doc-item-${idx}`}>
+                                    <DocumentCard
+                                        onClick={() => showDoc(card)}
+                                        handleMoreAction={handleContextMenu}
+                                        {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
+                                </React.Fragment>
+                            )
                             :
                             <NoDataCard t={t} ns={"patient"}
-                                onHandleClick={() => setOpenUploadDialog(true)}
-                                data={AddAppointmentCardWithoutButtonsData} />
+                                        onHandleClick={() => setOpenUploadDialog(true)}
+                                        data={AddAppointmentCardWithoutButtonsData}/>
                         }
                     </Box>
                 </>,
@@ -363,30 +351,30 @@ function DocumentsPanel({ ...props }) {
                         queryState,
                         setQueryState,
                         t
-                    }} />
+                    }}/>
                     <Grid container mt={2} spacing={1}>
                         {patientDocuments?.length > 0 ?
                             patientDocuments?.filter((doc) => doc.title.includes(titleSearch)).filter((doc: MedicalDocuments) =>
                                 queryState.types.length === 0 ? true : queryState.types.some((st: string) => st === doc.documentType)).map((card: any, idx: number) =>
-                                    <Grid key={`doc-item-${idx}`} item md={6} xs={12}
-                                        alignItems={"center"}
-                                        sx={{
-                                            "& .sub-title": {
-                                                paddingRight: "1rem"
-                                            }
-                                        }}>
-                                        <React.Fragment>
-                                            <DocumentCard
-                                                onClick={() => showDoc(card)}
-                                                handleMoreAction={handleContextMenu}
-                                                {...{ t, data: card, date: true, time: true, title: true, width: "13rem" }} />
-                                        </React.Fragment>
-                                    </Grid>
-                                )
+                                <Grid key={`doc-item-${idx}`} item md={6} xs={12}
+                                      alignItems={"center"}
+                                      sx={{
+                                          "& .sub-title": {
+                                              paddingRight: "1rem"
+                                          }
+                                      }}>
+                                    <React.Fragment>
+                                        <DocumentCard
+                                            onClick={() => showDoc(card)}
+                                            handleMoreAction={handleContextMenu}
+                                            {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
+                                    </React.Fragment>
+                                </Grid>
+                            )
                             :
                             <NoDataCard t={t} ns={"patient"}
-                                onHandleClick={() => setOpenUploadDialog(true)}
-                                data={AddAppointmentCardData} />
+                                        onHandleClick={() => setOpenUploadDialog(true)}
+                                        data={AddAppointmentCardData}/>
                         }
                     </Grid>
                 </>,
@@ -531,7 +519,7 @@ function DocumentsPanel({ ...props }) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/stt/${selectedDocument?.uuid}/${router.locale}`
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), { variant: "info" });
+                enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});
             },
             onSettled: () => setLoadingRequest(false)
         });
@@ -575,7 +563,7 @@ function DocumentsPanel({ ...props }) {
                     }
                 } else {
                     _acts.push({
-                        act: { uuid: act.act.uuid, name: act.act.name },
+                        act: {uuid: act.act.uuid, name: act.act.name},
                         fees: act.fees,
                         isTopAct: false,
                         qte: act.qte ? act.qte : 1,
@@ -592,7 +580,7 @@ function DocumentsPanel({ ...props }) {
         }
     }, [httpProfessionalsActs]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"} />);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>
@@ -605,21 +593,21 @@ function DocumentsPanel({ ...props }) {
                 }}>
                 <CardContent>
                     <AppBar position="static" color={"transparent"}
-                        className={"app-bar-header"}>
+                            className={"app-bar-header"}>
                         <Toolbar variant="dense">
                             <Stack direction={"row"}
-                                alignItems={"center"}
-                                style={{ width: "100%" }}
-                                justifyContent={"space-between"}>
+                                   alignItems={"center"}
+                                   style={{width: "100%"}}
+                                   justifyContent={"space-between"}>
                                 <Typography
                                     variant="body1"
-                                    sx={{ fontWeight: "bold" }}
+                                    sx={{fontWeight: "bold"}}
                                     gutterBottom>
-                                    {t("config.tabs.quotes", { ns: 'patient' })}
+                                    {t("config.tabs.quotes", {ns: 'patient'})}
                                 </Typography>
                                 <IconButton onClick={() => {
                                     setOpenQuoteDialog(true)
-                                }}><Add /></IconButton>
+                                }}><Add/></IconButton>
                             </Stack>
                         </Toolbar>
                     </AppBar>
@@ -628,12 +616,12 @@ function DocumentsPanel({ ...props }) {
                         color="warning"
                         sx={{
                             mt: -2, mb: 2, visibility: loading ? "visible" : "hidden"
-                        }} />
+                        }}/>
 
                     <Grid container spacing={1.2}>
                         {quotes.map((card: any, idx: number) =>
                             <Grid item xs={12} md={6} key={`doc-item-${idx}`}>
-                                <DocumentCardStyled style={{ width: "100%" }}>
+                                <DocumentCardStyled style={{width: "100%"}}>
                                     <Stack direction={"row"} spacing={2} onClick={() => {
                                         let _acts: any[] = [];
                                         acts.map(act => {
@@ -649,21 +637,21 @@ function DocumentsPanel({ ...props }) {
                                             showQuote(card.uuid, _acts, card.notes)
                                         })
                                     }}
-                                        alignItems={"center"}
-                                        padding={2}>
-                                        <IconUrl width={25} height={25} path={"ic-quote"} />
+                                           alignItems={"center"}
+                                           padding={2}>
+                                        <IconUrl width={25} height={25} path={"ic-quote"}/>
                                         <Stack>
                                             <Typography
-                                                fontSize={13}>{t("config.tabs.quotes", { ns: 'patient' })}</Typography>
+                                                fontSize={13}>{t("config.tabs.quotes", {ns: 'patient'})}</Typography>
                                             <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                                 <Icon path="ic-agenda" height={11} width={11}
-                                                    color={theme.palette.text.primary} />
+                                                      color={theme.palette.text.primary}/>
                                                 <Typography variant="body2">
                                                     {moment(card.date_quote, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
                                                 </Typography>
 
                                                 <Icon path="ic-time" height={11} width={11}
-                                                    color={theme.palette.text.primary} />
+                                                      color={theme.palette.text.primary}/>
                                                 <Typography variant="body2">
                                                     {moment(card.date_quote, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}
                                                 </Typography>
@@ -676,8 +664,8 @@ function DocumentsPanel({ ...props }) {
                     </Grid>
 
                     {quotes.length == 0 && <NoDataCard t={t} ns={"patient"}
-                        onHandleClick={() => setOpenQuoteDialog(true)}
-                        data={AddQuoteCardData} />}
+                                                       onHandleClick={() => setOpenQuoteDialog(true)}
+                                                       data={AddQuoteCardData}/>}
                 </CardContent>
             </PanelCardStyled>
             {(documents.length > 0 || patientDocuments?.length > 0) ? (
@@ -695,61 +683,67 @@ function DocumentsPanel({ ...props }) {
                         <CardContent>
                             <Stack direction='row' alignItems='center' justifyContent='space-between' my={2}>
                                 <Typography variant="subtitle2" fontSize={18} fontWeight={600}>
-                                    {t("patient_details.patient_documents", { ns: 'patient' })}
+                                    {t("patient_details.patient_documents", {ns: 'patient'})}
                                 </Typography>
-                                <CustomIconButton color="primary" icon="ic-plus" iconProps={{ width: 16, height: 16, color: theme.palette.common.white }} />
+                                <CustomIconButton color="primary" icon="ic-plus" iconProps={{
+                                    width: 16,
+                                    height: 16,
+                                    color: theme.palette.common.white
+                                }}/>
                             </Stack>
                             <Box>
-                                <Tabs className="custom-tabs" value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
+                                <Tabs className="custom-tabs" value={currentTab} onChange={handleTabsChange}
+                                      aria-label="documents tabs">
                                     {tabsContent.map((tabHeader, tabHeaderIndex) =>
-                                        <Tab icon={<Badge badgeContent={2} />} iconPosition="end" key={`tabHeaderIndex-${tabHeaderIndex}`}
-                                            label={tabHeader.title} {...a11yProps(tabHeaderIndex)} />)}
+                                        <Tab icon={<Badge badgeContent={2}/>} iconPosition="end"
+                                             key={`tabHeaderIndex-${tabHeaderIndex}`}
+                                             label={tabHeader.title} {...a11yProps(tabHeaderIndex)} />)}
                                 </Tabs>
                                 <LinearProgress sx={{
                                     mt: loadingRequest || loading ? 0 : -.6,
                                     visibility: loadingRequest || loading ? "visible" : "hidden"
-                                }} color="warning" />
+                                }} color="warning"/>
                             </Box>
                             {tabsContent.map((tabContent, tabContentIndex) =>
                                 <TabPanel key={`tabContentIndex-${tabContentIndex}`} value={currentTab}
-                                    index={tabContentIndex}>
+                                          index={tabContentIndex}>
                                     {tabContent.children}
                                 </TabPanel>)}
                         </CardContent>
                     </PanelCardStyled>
                 </>
             ) : !loading &&
-            <PanelCardStyled
-                sx={{
-                    "& .MuiCardContent-root": {
-                        background: "white"
-                    },
-                    marginBottom: "1rem"
-                }}>
-                <CardContent>
-                    <NoDataCard t={t} ns={"patient"}
-                        onHandleClick={() => setOpenUploadDialog(true)}
-                        data={AddAppointmentCardData} />
-                </CardContent>
-            </PanelCardStyled>
+                <PanelCardStyled
+                    sx={{
+                        "& .MuiCardContent-root": {
+                            background: "white"
+                        },
+                        marginBottom: "1rem"
+                    }}>
+                    <CardContent>
+                        <NoDataCard t={t} ns={"patient"}
+                                    onHandleClick={() => setOpenUploadDialog(true)}
+                                    data={AddAppointmentCardData}/>
+                    </CardContent>
+                </PanelCardStyled>
             }
 
             <Dialog action={"document_detail"}
-                open={openDialog}
-                data={{
-                    state: document, setState: setDocument,
-                    setOpenDialog, patient,
-                    mutatePatientDocuments,
-                    documentViewIndex: currentTab,
-                    source: "patient",
-                    setLoadingRequest
-                }}
-                size={"lg"}
-                direction={'ltr'}
-                sx={{ p: 0 }}
-                title={t("config.doc_detail_title", { ns: "patient" })}
-                onClose={handleCloseDialog}
-                dialogClose={handleCloseDialog}
+                    open={openDialog}
+                    data={{
+                        state: document, setState: setDocument,
+                        setOpenDialog, patient,
+                        mutatePatientDocuments,
+                        documentViewIndex: currentTab,
+                        source: "patient",
+                        setLoadingRequest
+                    }}
+                    size={"lg"}
+                    direction={'ltr'}
+                    sx={{p: 0}}
+                    title={t("config.doc_detail_title", {ns: "patient"})}
+                    onClose={handleCloseDialog}
+                    dialogClose={handleCloseDialog}
             />
 
             {isViewerOpen.length > 0 && (
@@ -780,7 +774,7 @@ function DocumentsPanel({ ...props }) {
                                 padding: theme.spacing(2),
                                 display: "flex",
                                 alignItems: "center",
-                                svg: { color: "#fff", marginRight: theme.spacing(1), fontSize: 20 },
+                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
                                 cursor: "pointer",
                             }
                         }
@@ -788,7 +782,7 @@ function DocumentsPanel({ ...props }) {
                 }}
                 anchorPosition={
                     contextMenu !== null
-                        ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
                         : undefined
                 }
                 anchorOrigin={{
@@ -805,15 +799,15 @@ function DocumentsPanel({ ...props }) {
                         className="popover-item"
                         onClick={() => OnMenuActions(v.action)}>
                         {v.icon}
-                        <Typography fontSize={15} sx={{ color: "#fff" }}>
-                            {t(`config.${v.title}`, { ns: "patient" })}
+                        <Typography fontSize={15} sx={{color: "#fff"}}>
+                            {t(`config.${v.title}`, {ns: "patient"})}
                         </Typography>
                     </MenuItem>
                 ))}
             </Menu>
 
             <CustomDialog
-                {...{ direction }}
+                {...{direction}}
                 action={"remove"}
                 open={deleteDialog}
                 data={{
@@ -829,15 +823,15 @@ function DocumentsPanel({ ...props }) {
                     <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
                         <Button
                             variant="text-primary" onClick={() => {
-                                setDeleteDialog(false);
-                            }}
-                            startIcon={<CloseIcon />}>{t('consultationIP.cancel')}</Button>
+                            setDeleteDialog(false);
+                        }}
+                            startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
                         <LoadingButton
                             loading={loadingReq}
                             onClick={handleDeleteDocument}
                             variant="contained"
-                            startIcon={<IconUrl path="ic-trash" color="white" />}
-                            sx={{ backgroundColor: (theme: Theme) => theme.palette.error.main }}
+                            startIcon={<IconUrl path="ic-trash" color="white"/>}
+                            sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
                         >{t('consultationIP.remove')}</LoadingButton>
                     </Stack>
                 }
@@ -852,8 +846,8 @@ function DocumentsPanel({ ...props }) {
                 open={openQuoteDialog}
                 size={"md"}
                 direction={"ltr"}
-                sx={{ minHeight: 400 }}
-                title={t("config.tabs.quotes", { ns: 'patient' })}
+                sx={{minHeight: 400}}
+                title={t("config.tabs.quotes", {ns: 'patient'})}
                 dialogClose={() => {
                     setOpenQuoteDialog(false)
                 }}
@@ -862,21 +856,21 @@ function DocumentsPanel({ ...props }) {
                 }}
                 actionDialog={
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
-                        width={"100%"}>
+                           width={"100%"}>
                         <Button
                             variant={"text-black"}
                             onClick={() => {
                                 setOpenQuoteDialog(false)
                             }}
-                            startIcon={<CloseIcon />}>
+                            startIcon={<CloseIcon/>}>
                             {t("cancel")}
                         </Button>
                         <Button
                             variant="contained"
                             onClick={() => saveQuote()}
                             disabled={acts.filter(act => act.selected).length === 0}
-                            startIcon={<IconUrl path="iconfinder_save" />}>
-                            {t("consultationIP.save", { ns: 'consultation' })}
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
+                            {t("consultationIP.save", {ns: 'consultation'})}
                         </Button>
                     </Stack>
                 }

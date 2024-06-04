@@ -16,44 +16,44 @@ import {
     useTheme,
 } from "@mui/material";
 // styled
-import { RootStyled } from "./overrides";
+import {RootStyled} from "./overrides";
 // utils
 import IconUrl from "@themes/urlIcon";
-import { pxToRem } from "@themes/formatFontSize";
-import { useTranslation } from "next-i18next";
+import {pxToRem} from "@themes/formatFontSize";
+import {useTranslation} from "next-i18next";
 
-import { Form, FormikProvider, useFormik } from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
-import { InputStyled } from "@features/tabPanel";
-import React, { useRef, useState } from "react";
-import { CropImage } from "@features/image";
-import { useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
-import { LoadingButton } from "@mui/lab";
+import {InputStyled} from "@features/tabPanel";
+import React, {useRef, useState} from "react";
+import {CropImage} from "@features/image";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
-import { agendaSelector, openDrawer, setSelectedEvent } from "@features/calendar";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix } from "@lib/hooks";
-import { configSelector, dashLayoutSelector } from "@features/base";
-import { Label } from "@features/label";
+import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {Label} from "@features/label";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import moment from "moment-timezone";
-import { timerSelector } from "@features/card";
-import { LoadingScreen } from "@features/loadingScreen";
-import { Dialog } from "@features/dialog";
-import { setMessage, setOpenChat } from "@features/chat/actions";
-import { setDialog } from "@features/topNavBar";
+import {timerSelector} from "@features/card";
+import {LoadingScreen} from "@features/loadingScreen";
+import {Dialog} from "@features/dialog";
+import {setMessage, setOpenChat} from "@features/chat/actions";
+import {setDialog} from "@features/topNavBar";
 import Can from "@features/casl/can";
-import { CustomIconButton } from "@features/buttons";
-import { useInsurances } from "@lib/hooks/rest";
+import {useProfilePhoto} from "@lib/hooks/rest";
+import {CustomIconButton} from "@features/buttons";
+import {useInsurances} from "@lib/hooks/rest";
 
-function PatientDetailsCard({ ...props }) {
+function PatientDetailsCard({...props}) {
     const {
         isBeta,
         contactData,
         patient,
-        patientPhoto,
         mutatePatientList,
         mutateAgenda,
         loading = false,
@@ -62,16 +62,18 @@ function PatientDetailsCard({ ...props }) {
         closePatientDialog,
         rest,
         devise,
-        patientInsurances
+        patientInsurances = [],
     } = props;
     const dispatch = useAppDispatch();
-    const { insurances } = useInsurances();
+    const {insurances} = useInsurances();
     const router = useRouter();
     const theme = useTheme();
     const ref = useRef(null);
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { trigger: invalidateQueries } = useInvalidateQueries();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -88,22 +90,22 @@ function PatientDetailsCard({ ...props }) {
         }
     });
 
-    const { t, ready } = useTranslation("patient", { keyPrefix: "patient-details" });
-    const { t: commonTranslation } = useTranslation("common");
-    const { selectedEvent: appointment, config: agendaConfig } = useAppSelector(agendaSelector);
-    const { medicalEntityHasUser, appointmentTypes } = useAppSelector(dashLayoutSelector);
-    const { isActive } = useAppSelector(timerSelector);
-    const { direction } = useAppSelector(configSelector);
+    const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {t: commonTranslation} = useTranslation("common");
+    const {selectedEvent: appointment, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {isActive} = useAppSelector(timerSelector);
+    const {direction} = useAppSelector(configSelector);
 
-    const { values, getFieldProps, setFieldValue } = formik;
+    const {values, getFieldProps, setFieldValue} = formik;
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 
-    const { trigger: triggerPatientUpdate } = useRequestQueryMutation("/patient/update/photo");
-    const { trigger: triggerAddAppointment } = useRequestQueryMutation("/agenda/appointment/add");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update/photo");
+    const {trigger: triggerAddAppointment} = useRequestQueryMutation("/agenda/appointment/add");
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -130,7 +132,7 @@ function PatientDetailsCard({ ...props }) {
             data: form
         }, {
             onSuccess: (value: any) => {
-                const { data, status } = value?.data;
+                const {data, status} = value?.data;
                 if (status === 'success') {
                     if (!isActive) {
                         const slugConsultation = `/dashboard/consultation/${data[0]}`;
@@ -140,7 +142,7 @@ function PatientDetailsCard({ ...props }) {
                                 inProgress: true,
                                 agendaUuid: agendaConfig?.uuid
                             }
-                        }, slugConsultation, { locale: router.locale }).then(() => {
+                        }, slugConsultation, {locale: router.locale}).then(() => {
                             closePatientDialog && closePatientDialog();
                             setRequestLoading(false);
                         });
@@ -152,8 +154,8 @@ function PatientDetailsCard({ ...props }) {
                             }
                         } as any;
                         dispatch(setSelectedEvent(defEvent));
-                        dispatch(openDrawer({ type: "view", open: false }));
-                        dispatch(setDialog({ dialog: "switchConsultationDialog", value: true }));
+                        dispatch(openDrawer({type: "view", open: false}));
+                        dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
                         closePatientDialog && closePatientDialog();
                         setRequestLoading(false);
                     }
@@ -237,8 +239,9 @@ function PatientDetailsCard({ ...props }) {
             });
         }
     }
-    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
-    console.log(patient)
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <RootStyled>
             <FormikProvider value={formik}>
@@ -247,38 +250,47 @@ function PatientDetailsCard({ ...props }) {
                         <Stack direction='row' alignItems='center' justifyContent='space-between'>
                             <Stack direction='row' alignItems='center' spacing={2}>
                                 {loading ? <Skeleton
-                                    variant="rectangular"
-                                    width={pxToRem(80)}
-                                    height={pxToRem(80)}
-                                    sx={{ borderRadius: pxToRem(10) }}
-                                /> :
+                                        variant="rectangular"
+                                        width={pxToRem(80)}
+                                        height={pxToRem(80)}
+                                        sx={{borderRadius: pxToRem(10)}}
+                                    /> :
                                     <Avatar
                                         src={values.picture.url}
                                         className='patient-avatar'>
-                                        <IconUrl path={patient.gender === "M" ? "men-avatar" : "women-avatar"} />
+                                        <IconUrl path={patient.gender === "M" ? "men-avatar" : "women-avatar"}/>
                                     </Avatar>
                                 }
                                 <Stack spacing={.3}>
-                                    <Typography component='div' fontWeight={600} color="primary" fontSize={18} variant='subtitle1'>
-                                        {loading ? <Skeleton width={100} /> : values.name}
+                                    <Typography component='div' fontWeight={600} color="primary" fontSize={18}
+                                                variant='subtitle1'>
+                                        {loading ? <Skeleton width={100}/> : values.name}
                                     </Typography>
-                                    <Stack sx={{ display: { xs: 'none', sm: 'flex' } }} direction='row' alignItems='center' spacing={.5}>
-                                        <IconUrl path="ic-outline-call" width={16} height={16} color={theme.palette.text.secondary} />
+                                    <Stack sx={{display: {xs: 'none', sm: 'flex'}}} direction='row' alignItems='center'
+                                           spacing={.5}>
+                                        <IconUrl path="ic-outline-call" width={16} height={16}
+                                                 color={theme.palette.text.secondary}/>
                                         <Typography component={'div'} fontWeight={500} color='text.secondary'>
-                                            {loading ? <Skeleton width={100} /> : <span>{contactData && ((contactData?.contact[0] as ContactModel)?.code + "  " + (contactData?.contact[0] as ContactModel)?.value) || "--"}</span>}
+                                            {loading ? <Skeleton width={100}/> :
+                                                <span>{contactData && ((contactData?.contact[0] as ContactModel)?.code + "  " + (contactData?.contact[0] as ContactModel)?.value) || "--"}</span>}
                                         </Typography>
                                     </Stack>
                                     <Stack direction='row' alignItems='center' spacing={.5}>
-                                        <IconUrl path="ic-outline-cake" />
+                                        <IconUrl path="ic-outline-cake"/>
                                         {
-                                            loading ? <Skeleton width={100} /> :
+                                            loading ? <Skeleton width={100}/> :
                                                 patient?.birthdate &&
                                                 <Typography
                                                     component='div'
                                                     fontWeight={500} color='text.secondary'
                                                 >
                                                     {values.birthdate} {" "}
-                                                    <Typography component='span' sx={{ display: { xs: 'none', sm: 'inline' } }} >({" "}{getBirthdayFormat(patient, t)}{" "})</Typography>
+                                                    <Typography component='span' sx={{
+                                                        display: {
+                                                            xs: 'none',
+                                                            sm: 'inline'
+                                                        }
+                                                    }}>({" "}{getBirthdayFormat(patient, t)}{" "})</Typography>
                                                 </Typography>}
                                     </Stack>
                                 </Stack>
@@ -289,22 +301,26 @@ function PatientDetailsCard({ ...props }) {
                                     href={`tel:${(contactData?.contact[0] as ContactModel)?.code}${(contactData?.contact[0] as ContactModel)?.value}`}
                                 >
                                     <CustomIconButton color="success">
-                                        <IconUrl path="ic-filled-call" width={20} height={20} />
+                                        <IconUrl path="ic-filled-call" width={20} height={20}/>
                                     </CustomIconButton>
                                 </Link>
-                                <CustomIconButton sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
-                                    <IconUrl path="ic-outline-sms-edit" color={theme.palette.text.secondary} width={20} height={20} />
+                                <CustomIconButton sx={{display: {xs: 'none', sm: 'inline-flex'}}}>
+                                    <IconUrl path="ic-outline-sms-edit" color={theme.palette.text.secondary} width={20}
+                                             height={20}/>
                                 </CustomIconButton>
-                                <CustomIconButton sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
-                                    <IconUrl path="ic-outline-square-share-line" color={theme.palette.text.secondary} width={20} height={20} />
+                                <CustomIconButton sx={{display: {xs: 'none', sm: 'inline-flex'}}}>
+                                    <IconUrl path="ic-outline-square-share-line" color={theme.palette.text.secondary}
+                                             width={20} height={20}/>
                                 </CustomIconButton>
                                 <CustomIconButton>
-                                    <IconUrl path="ic-Filled-more-vertical" color={theme.palette.text.secondary} width={20} height={20} />
+                                    <IconUrl path="ic-Filled-more-vertical" color={theme.palette.text.secondary}
+                                             width={20} height={20}/>
                                 </CustomIconButton>
                             </Stack>
                         </Stack>
                         <Stack direction='row' alignItems='center' spacing={1}>
-                            <Label color="success" sx={{ color: theme.palette.success.main, fontSize: 14, fontWeight: 500 }}>
+                            <Label color="success"
+                                   sx={{color: theme.palette.success.main, fontSize: 14, fontWeight: 500}}>
                                 {commonTranslation('credit')}
                                 <Typography mx={.5} fontSize={14} fontWeight={600} variant="caption">123</Typography>
                                 {devise}
@@ -331,7 +347,7 @@ function PatientDetailsCard({ ...props }) {
                                     </Label>
                                 </div>
                             }
-                            <AvatarGroup max={3} sx={{ flexDirection: 'row', display: { xs: 'none', sm: 'flex' } }}>
+                            <AvatarGroup max={3} sx={{flexDirection: 'row', display: {xs: 'none', sm: 'flex'}}}>
                                 {patientInsurances?.map((insurance: any, index: number) => (
                                     (() => {
                                         const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
@@ -342,7 +358,7 @@ function PatientDetailsCard({ ...props }) {
                                                         alt={insuranceItem?.name}
                                                         src={insuranceItem?.logoUrl.url}
                                                         className='assurance-avatar' variant={"circular"}>
-                                                        <IconUrl path="ic-img" />
+                                                        <IconUrl path="ic-img"/>
                                                     </Avatar>
                                                     : <></>
                                                 }
@@ -358,7 +374,7 @@ function PatientDetailsCard({ ...props }) {
                             onClick={startConsultationFormPatient}
                             variant="contained"
                             color="warning"
-                            startIcon={<IconUrl path="ic-filled-play-1" width={16} height={16} />}>
+                            startIcon={<IconUrl path="ic-filled-play-1" width={16} height={16}/>}>
                             <Typography
                                 component='strong' variant={"body2"}
                                 fontSize={13}>{t("start-consultation")}</Typography>
@@ -367,7 +383,7 @@ function PatientDetailsCard({ ...props }) {
                 </Form>
             </FormikProvider>
             <CropImage
-                {...{ setFieldValue }}
+                {...{setFieldValue}}
                 filedName={"picture.url"}
                 open={openUploadPicture}
                 img={values.picture.url}
@@ -397,7 +413,7 @@ function PatientDetailsCard({ ...props }) {
                 }}
                 size={"lg"}
                 fullWidth
-                title={t("payment_dialog_title", { ns: "payment" })}
+                title={t("payment_dialog_title", {ns: "payment"})}
                 dialogClose={() => {
                     setOpenPaymentDialog(false)
                 }}

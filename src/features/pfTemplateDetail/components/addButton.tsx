@@ -3,10 +3,11 @@ import StyledMenu from "./overrides/styledMenu";
 import {Box, Button, MenuItem} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {
-  capitalizeFirst,
+    capitalizeFirst,
 } from "@lib/hooks";
+
 function AddButton({...props}) {
-    const {onClickEvent, t,list, ...rest} = props;
+    const {onClickEvent, t, list, ...rest} = props;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -17,7 +18,7 @@ function AddButton({...props}) {
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const handleEvent = (prop:string) =>{
+    const handleEvent = (prop: string) => {
         onClickEvent(prop)
         handleClose()
     }
@@ -37,8 +38,8 @@ function AddButton({...props}) {
                 variant="contained"
                 disableElevation
                 onClick={handleClick}
-                startIcon={<IconUrl path={"ic-doc-add"} />}
-                >
+                startIcon={<IconUrl path={"ic-doc-add"}/>}
+            >
                 {t && t("btnAdd")}
             </Button>
             <StyledMenu
@@ -76,15 +77,15 @@ function AddButton({...props}) {
                     }
                 }}
                 onClose={handleClose}>
-                 {
-                    list.map((menu:any,idx:number)=> (
-                <MenuItem disableRipple key={idx} onClick={() => handleEvent(menu)}>
-                    { menu.name === "unfolded" ? capitalizeFirst(t(menu.name)):capitalizeFirst(menu.name)}
-                </MenuItem>
+                {
+                    list.map((menu: any, idx: number) => (
+                        <MenuItem disableRipple key={idx} onClick={() => handleEvent(menu)}>
+                            {menu.name === "unfolded" ? capitalizeFirst(t(menu.name)) : capitalizeFirst(menu.name)}
+                        </MenuItem>
                     ))
-                 }   
-               
-                
+                }
+
+
             </StyledMenu>
         </Box>
     )

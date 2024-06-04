@@ -65,7 +65,7 @@ function ModifyUser() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {data: session} = useSession();
 
-    const {t, ready} = useTranslation("settings");
+    const {t, ready} = useTranslation(["settings", 'menu']);
     const {agendas} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -366,7 +366,7 @@ function ModifyUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
-
+    console.log("values", values)
     if (!ready || error) {
         return <LoadingScreen button {...(error ? {
             OnClick: () => router.push('/dashboard/settings/users'),
@@ -771,7 +771,7 @@ function ModifyUser() {
                                 <Grid item xs={12} md={3}>
                                     <Paper sx={{px: 2, pb: 2, pt: 1, borderRadius: 1}}>
                                         <Typography my={2} fontSize={16} fontWeight={800} variant="body2">
-                                            {startCase(t("features"))}
+                                            {startCase(t(`main-menu.features`, {ns: "menu"}))}
                                         </Typography>
                                         <List disablePadding>
                                             {Object.entries(values?.roles)?.map((role: any) => (
@@ -802,7 +802,7 @@ function ModifyUser() {
                                                            justifyContent={"space-between"} spacing={2}>
                                                         <Typography fontSize={14} fontWeight={600}
                                                                     variant='caption'>
-                                                            {startCase(role[0])}
+                                                            {startCase(t(`main-menu.${role[0]}`, {ns: "menu"}))}
                                                         </Typography>
 
                                                         {role[1][0]?.hasProfile && <Badge sx={{ml: 2}}

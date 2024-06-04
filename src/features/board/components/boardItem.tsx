@@ -91,14 +91,15 @@ function BoardItem({...props}) {
     const {t: commonTranslation} = useTranslation(["common", "waitingRoom"]);
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
-    const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {next: is_next, doctorHasStarted} = useAppSelector(dashLayoutSelector);
     const {mode} = useAppSelector(agendaSelector);
     const {opened} = useAppSelector(sideBarSelector);
 
     const localInitTimer = moment(`${initTimer}`, "HH:mm");
-    const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
-    const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote?.content.dayDate} ${quote?.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
+    const waitingTime = getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)?.split(" ");
 
+    const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
+    const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote?.content.dayDate} ${quote?.content.startTime}`, "DD-MM-YYYY HH:mm").add(waitingTime[0], waitingTime[1]))).asMilliseconds());
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
@@ -212,7 +213,7 @@ function BoardItem({...props}) {
                                         }}
                                         color={(quote.content.startTime === "00:00" ? 'warning' : (duration >= -1 && ![4, 5].includes(quote.content.status) ? 'expire' : 'primary')) as any}
                                         variant={"contained"}
-                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : (duration >= -1 && ![4, 5].includes(quote.content.status) ? 'RR' : 'AR')}{!isDragging ? `-${index + 1}` : ""}</Button>}
+                                        size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : (duration >= -1 && doctorHasStarted && ![4, 5].includes(quote.content.status) ? 'RR' : 'AR')}{!isDragging ? `-${index + 1}` : ""}</Button>}
                                     <Tooltip
                                         title={`${quote.content.patient.firstName} ${quote.content.patient.lastName}`}>
                                         <Typography

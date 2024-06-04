@@ -29,35 +29,35 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import { useAppSelector } from "@lib/redux/hooks";
 import { addPatientSelector, appointmentSelector, CustomInput, InputStyled } from "@features/tabPanel";
 import * as Yup from "yup";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
-import { styled } from "@mui/material/styles";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { isValidPhoneNumber } from "libphonenumber-js";
-import { countries as dialCountries } from "@features/countrySelect/countries";
-import { DefaultCountry, PatientContactRelation, SocialInsured } from "@lib/constants";
-import { dashLayoutSelector } from "@features/base";
-import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
-import { DatePicker } from "@mui/x-date-pickers";
+import {isValidPhoneNumber} from "libphonenumber-js";
+import {countries as dialCountries} from "@features/countrySelect/countries";
+import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
+import {dashLayoutSelector} from "@features/base";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
-import { useContactType, useCountries, useInsurances } from "@lib/hooks/rest";
-import { ImageHandler } from "@features/image";
-import { LoadingButton } from "@mui/lab";
-import { CountrySelect } from "@features/countrySelect";
-import { arrayUniqueByKey, getBirthday, useMedicalEntitySuffix } from "@lib/hooks";
-import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
-import { LoadingScreen } from "@features/loadingScreen";
-import { ToggleButtonStyled } from "@features/toolbar";
+import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
+import {LoadingButton} from "@mui/lab";
+import {CountrySelect} from "@features/countrySelect";
+import {arrayUniqueByKey, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {LoadingScreen} from "@features/loadingScreen";
+import {ToggleButtonStyled} from "@features/toolbar";
 import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
-import { AsyncAutoComplete } from "@features/autoComplete";
-import SortIcon from "@themes/overrides/icons/sortIcon";
+import {AsyncAutoComplete} from "@features/autoComplete";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
+import {MyTextInput} from "@features/input";
 
-const GroupHeader = styled('div')(({ theme }) => ({
+const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
     top: '-8px',
     padding: '4px 10px',
@@ -73,17 +73,10 @@ interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;
 }
 
-export const MyTextInput: any = memo(({ ...props }) => {
-    return (
-        <TextField {...props} />
-    );
-})
-MyTextInput.displayName = "TextField";
-
 const ExpandMore = styled((props: ExpandMoreProps) => {
-    const { expand, ...other } = props;
+    const {expand, ...other} = props;
     return <IconButton {...other} />;
-})(({ theme, expand }) => ({
+})(({theme, expand}) => ({
     "& .MuiTypography-root": {
         fontSize: 12
     },
@@ -96,7 +89,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
     }
 }));
 
-function OnStepPatient({ ...props }) {
+function OnStepPatient({...props}) {
     const {
         onClose,
         handleAddPatient = null,
@@ -105,24 +98,24 @@ function OnStepPatient({ ...props }) {
         translationPrefix = "add-patient",
     } = props;
 
-    const { data: session } = useSession();
+    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const topRef = useRef(null);
     const phoneInputRef = useRef(null);
-    const { insurances } = useInsurances();
-    const { contacts } = useContactType();
-    const { countries } = useCountries("nationality=true");
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const {insurances} = useInsurances();
+    const {contacts} = useContactType();
+    const {countries} = useCountries("nationality=true");
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const { t, ready } = useTranslation(translationKey, { keyPrefix: translationPrefix });
-    const { t: commonTranslation } = useTranslation("common");
+    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
+    const {t: commonTranslation} = useTranslation("common");
 
-    const { patient: selectedPatient } = useAppSelector(appointmentSelector);
-    const { stepsData: patient } = useAppSelector(addPatientSelector);
-    const { last_fiche_id } = useAppSelector(dashLayoutSelector);
+    const {patient: selectedPatient} = useAppSelector(appointmentSelector);
+    const {stepsData: patient} = useAppSelector(addPatientSelector);
+    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const locations = medical_entity?.location ?? null;
@@ -131,12 +124,12 @@ function OnStepPatient({ ...props }) {
         firstName: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
-            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
+            .matches(/^[^-\s][aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         lastName: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
-            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
+            .matches(/^[^-\s][aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -256,7 +249,7 @@ function OnStepPatient({ ...props }) {
                     lastName: ""
                 }],
             gender: selectedPatient
-                ? selectedPatient.gender === "M" ? "mr" : "mrs"
+                ? selectedPatient.gender === "M" ? "1" : "2"
                 : patient.step1.gender,
             nationality: selectedPatient && selectedPatient.nationality ? selectedPatient.nationality.uuid : '',
             country: address.length > 0 && address[0]?.city ? address[0]?.city?.country?.uuid : patient.step2.country,
@@ -299,11 +292,11 @@ function OnStepPatient({ ...props }) {
         onSubmit: async (values) => {
             if (OnSubmit) {
                 setLoading(true);
-                OnSubmit({ ...values, contact: contacts[0], countryCode: selectedCountry });
+                OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
             }
         },
     });
-    const { values, handleSubmit, touched, errors, setFieldValue, getFieldProps, setValues } = formik;
+    const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps, setValues} = formik;
 
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [contactRelations] = useState(PatientContactRelation.map(relation => ({
@@ -321,17 +314,17 @@ function OnStepPatient({ ...props }) {
     const [error, setError] = useState<boolean>(false);
     const [loadingRequestAddressedBy, setLoadingRequestAddressedBy] = useState(false);
 
-    const { data: httpStatesResponse } = useRequestQuery(expanded && values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(expanded && values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const { data: httpProfessionalLocationResponse } = useRequestQuery((expanded && locations && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((expanded && locations && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const { trigger: triggerAddressedBy } = useRequestQueryMutation("/patient/addressed-by/add");
+    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
     const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state ?? null;
@@ -416,7 +409,7 @@ function OnStepPatient({ ...props }) {
             errors.hasOwnProperty("lastName") ||
             errors.hasOwnProperty("phones") ||
             errors.hasOwnProperty("gender")) {
-            (topRef.current as unknown as HTMLElement)?.scrollIntoView({ behavior: 'smooth' });
+            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
         }
     }, [errors, touched]);
 
@@ -426,7 +419,7 @@ function OnStepPatient({ ...props }) {
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
@@ -532,18 +525,18 @@ function OnStepPatient({ ...props }) {
                                 </Typography>
                             </Typography>
                             <RadioGroup row aria-label="gender"
-                                sx={{
-                                    ml: ".2rem"
-                                }}
-                                {...getFieldProps("gender")}>
+                                        sx={{
+                                            ml: ".2rem"
+                                        }}
+                                        {...getFieldProps("gender")}>
                                 <FormControlLabel
                                     value={1}
-                                    control={<Radio size="small" />}
+                                    control={<Radio size="small"/>}
                                     label={t("mr")}
                                 />
                                 <FormControlLabel
                                     value={2}
-                                    control={<Radio size="small" />}
+                                    control={<Radio size="small"/>}
                                     label={t("mrs")}
                                 />
                             </RadioGroup>
@@ -764,7 +757,7 @@ function OnStepPatient({ ...props }) {
                                                     options={contactRelations}
                                                     getOptionLabel={(option: any) => option?.label ? option.label : ""}
                                                     isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
-                                                    renderOption={(params, option, { selected }) => (
+                                                    renderOption={(params, option) => (
                                                         <MenuItem
                                                             {...params}
                                                             value={option.key}>
@@ -772,7 +765,7 @@ function OnStepPatient({ ...props }) {
                                                         </MenuItem>)}
                                                     renderInput={(params) => {
                                                         return (<TextField {...params}
-                                                            placeholder={t("add-patient.relation-placeholder")} />)
+                                                                           placeholder={t("add-patient.relation-placeholder")}/>)
                                                     }}
                                                 />
                                             </Box>
