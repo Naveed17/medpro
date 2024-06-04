@@ -19,6 +19,7 @@ function SignIn() {
     useEffect(() => {
         if (status === "unauthenticated" && !error) {
             const hasRouterToken = router.asPath.includes("?token=");
+            console.log('signIn page');
             signIn(hasRouterToken ? 'credentials' : 'keycloak',
                 {
                     ...(hasRouterToken && {token}),
