@@ -24,7 +24,7 @@ import {
     useTheme
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, {memo, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {addPatientSelector, appointmentSelector, CustomInput} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -53,8 +53,8 @@ import {ToggleButtonStyled} from "@features/toolbar";
 import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
 import {AsyncAutoComplete} from "@features/autoComplete";
-import SortIcon from "@themes/overrides/icons/sortIcon";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
+import {MyTextInput} from "@features/input";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -71,13 +71,6 @@ const GroupItems = styled('ul')({
 interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;
 }
-
-export const MyTextInput: any = memo(({...props}) => {
-    return (
-        <TextField {...props} />
-    );
-})
-MyTextInput.displayName = "TextField";
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
     const {expand, ...other} = props;
@@ -130,12 +123,12 @@ function OnStepPatient({...props}) {
         firstName: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
-            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
+            .matches(/^[^-\s][aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         lastName: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
-            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
+            .matches(/^[^-\s][aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -648,7 +641,7 @@ function OnStepPatient({...props}) {
                                                     options={contactRelations}
                                                     getOptionLabel={(option: any) => option?.label ? option.label : ""}
                                                     isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
-                                                    renderOption={(params, option, {selected}) => (
+                                                    renderOption={(params, option) => (
                                                         <MenuItem
                                                             {...params}
                                                             value={option.key}>

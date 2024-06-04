@@ -1,18 +1,11 @@
-import {CardContent, Stack, TextField, Typography, useTheme} from "@mui/material";
-import React, {memo, useEffect, useState} from "react";
+import {CardContent, Stack, Typography, useTheme} from "@mui/material";
+import React, {useEffect, useState} from "react";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import moment from "moment/moment";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-
-export const MyTextInput: any = memo(({...props}) => {
-    return (
-        <TextField {...props} />
-    );
-})
-MyTextInput.displayName = "TextField";
 
 function ObservationHistoryDialog({...props}) {
     const {data: {patient_uuid, t}} = props;
@@ -61,7 +54,7 @@ function ObservationHistoryDialog({...props}) {
                         <Stack
                             spacing={1}
                             direction="row"
-                            style={{borderBottom:"1px solid #CECECE",paddingBottom:10}}
+                            style={{borderBottom: "1px solid #CECECE", paddingBottom: 10}}
                             alignItems="center">
                             <AccessTimeIcon style={{fontSize: 13}}/>
                             <Typography style={{fontSize: 12}}>

@@ -8,7 +8,9 @@ export type dashLayoutState = {
     newCashBox?: boolean;
     medicalEntityHasUser?: string;
     medicalProfessionalData?: MedicalProfessionalDataModel;
+    doctor_started?: boolean;
     secretaryAccess?: boolean;
+    doctorHasStarted?: boolean;
     appointmentTypes?: AppointmentTypeModel[];
     notifications?: any[];
     last_fiche_id?: string;
@@ -33,6 +35,7 @@ const initialState: dashLayoutState = {
     waiting_room: 0,
     nb_appointment: 0,
     allowNotification: false,
+    doctorHasStarted: false,
     import_data: [],
     notifications: [],
     last_fiche_id: "0",

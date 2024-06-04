@@ -1,22 +1,27 @@
-import React, {memo, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 // hook
 import {useTranslation} from "next-i18next";
-import {Form, FormikProvider, useFormik} from "formik";
+import {useFormik} from "formik";
 // material
 import {
-    AppBar, Autocomplete, Avatar,
+    AppBar,
+    Avatar,
     Box,
-    Grid, InputAdornment,
-    InputBase, ListItem, ListItemText,
+    Grid,
+    InputAdornment,
+    ListItem,
     MenuItem,
     Paper,
     Skeleton,
     Stack,
-    TextField,
     Toolbar,
     Typography,
     useTheme
 } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import ListItemText from "@mui/material/ListItemText";
+import InputBase from "@mui/material/InputBase";
+import TextField from "@mui/material/TextField";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -32,18 +37,9 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
 import {AsyncAutoComplete} from "@features/autoComplete";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
-
-export const MyTextInput: any = memo(({...props}) => {
-    return (
-        <TextField {...props} />
-    );
-})
-MyTextInput.displayName = "TextField";
 
 function PersonalInfo({...props}) {
     const {
@@ -58,12 +54,12 @@ function PersonalInfo({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const [loadingRequest, setLoadingRequest] = useState(false);
-
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
     const {t: commonTranslation} = useTranslation("common");
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
     const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
@@ -177,700 +173,698 @@ function PersonalInfo({...props}) {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <FormikProvider value={formik}>
-            <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-                <PersonalInfoStyled>
-                    <Paper
-                        sx={{
-                            "& .MuiTypography-root": {
-                                fontSize: 12,
-                                pt: 0
-                            },
-                            p: 1.5, borderWidth: 0
-                        }}>
-                        <AppBar position="static" color={"transparent"}>
-                            <Toolbar variant="dense">
-                                <Box sx={{flexGrow: 1}}>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{fontWeight: "bold"}}
-                                        gutterBottom>
-                                        {loading ? (
-                                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                                        ) : (
-                                            t("personal-info")
-                                        )}
-                                    </Typography>
-                                </Box>
-                                {editable ?
-                                    <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                        <LoadingButton
-                                            onClick={() => setEditable({...defaultEditStatus, personalInfoCard: false})}
-                                            disabled={Object.keys(errors).length > 0}
-                                            className='btn-add'
-                                            sx={{margin: 'auto'}}
-                                            size='small'
-                                            startIcon={<SaveAsIcon/>}>
-                                            {t('register')}
-                                        </LoadingButton>
-                                    </Stack>
-                                    :
+        <form onSubmit={handleSubmit}>
+            <PersonalInfoStyled>
+                <Paper
+                    sx={{
+                        "& .MuiTypography-root": {
+                            fontSize: 12,
+                            pt: 0
+                        },
+                        p: 1.5, borderWidth: 0
+                    }}>
+                    <AppBar position="static" color={"transparent"}>
+                        <Toolbar variant="dense">
+                            <Box sx={{flexGrow: 1}}>
+                                <Typography
+                                    variant="body1"
+                                    sx={{fontWeight: "bold"}}
+                                    gutterBottom>
+                                    {loading ? (
+                                        <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                                    ) : (
+                                        t("personal-info")
+                                    )}
+                                </Typography>
+                            </Box>
+                            {editable ?
+                                <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
                                     <LoadingButton
-                                        loading={loadingRequest}
-                                        loadingPosition={"start"}
-                                        disabled={disableActions}
-                                        onClick={() => {
-                                            setEditable({
-                                                patientDetailContactCard: false,
-                                                personalInsuranceCard: false,
-                                                personalInfoCard: true
-                                            });
-                                        }}
-                                        startIcon={<IconUrl
-                                            {...(disableActions && {color: "white"})}
-                                            path={"setting/edit"}/>}
-                                        color="primary" size="small">
-                                        {t("edit")}
+                                        onClick={() => setEditable({...defaultEditStatus, personalInfoCard: false})}
+                                        disabled={Object.keys(errors).length > 0}
+                                        className='btn-add'
+                                        sx={{margin: 'auto'}}
+                                        size='small'
+                                        startIcon={<SaveAsIcon/>}>
+                                        {t('register')}
                                     </LoadingButton>
-                                }
-                            </Toolbar>
-                        </AppBar>
+                                </Stack>
+                                :
+                                <LoadingButton
+                                    loading={loadingRequest}
+                                    loadingPosition={"start"}
+                                    disabled={disableActions}
+                                    onClick={() => {
+                                        setEditable({
+                                            patientDetailContactCard: false,
+                                            personalInsuranceCard: false,
+                                            personalInfoCard: true
+                                        });
+                                    }}
+                                    startIcon={<IconUrl
+                                        {...(disableActions && {color: "white"})}
+                                        path={"setting/edit"}/>}
+                                    color="primary" size="small">
+                                    {t("edit")}
+                                </LoadingButton>
+                            }
+                        </Toolbar>
+                    </AppBar>
 
-                        <Grid container spacing={1}
-                              onClick={() => {
-                                  if (!editable) {
-                                      setEditable({
-                                          patientDetailContactCard: false,
-                                          personalInsuranceCard: false,
-                                          personalInfoCard: true
-                                      });
-                                  }
-                              }}
-                              sx={{
-                                  marginTop: "0.4rem"
-                              }}>
-                            <Grid sx={{"& .MuiGrid-item": {pt: .4}}} item md={6} sm={6} xs={12}>
-                                <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    justifyItems={"center"}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("gender")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        {...(editable ? {
-                                                sx: {
-                                                    border: `1px solid ${theme.palette.grey['A100']}`,
-                                                    borderRadius: .5,
-                                                    "& .MuiSelect-select": {
-                                                        pl: 1.5
-                                                    }
-                                                }
-                                            } :
-                                            {
-                                                sx: {
-                                                    "& .MuiSelect-select": {
-                                                        p: 0
-                                                    }
-                                                }
-                                            })}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <Select
-                                                fullWidth
-                                                sx={{
-                                                    pl: 0,
-                                                    "& .MuiSvgIcon-root": {
-                                                        display: !editable ? "none" : "inline-block"
-                                                    }
-                                                }}
-                                                size="medium"
-                                                readOnly={!editable}
-                                                error={Boolean(touched.gender && errors.gender)}
-                                                {...getFieldProps("gender")}>
-                                                <MenuItem
-                                                    value={1}>{t(getBirthday(patient.birthdate).years < 18 ? "male" : "mr")}</MenuItem>
-                                                <MenuItem
-                                                    value={2}>{t(getBirthday(patient.birthdate).years < 18 ? "female" : "mrs")}</MenuItem>
-                                            </Select>
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack
-                                    sx={{
-                                        "& .MuiInputBase-root": {
-                                            width: "100%"
-                                        }
-                                    }}
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("first-name")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <InputBase
-                                                placeholder={t("name-placeholder")}
-                                                readOnly={!editable}
-                                                error={Boolean(touched.firstName && errors.firstName)}
-                                                {...getFieldProps("firstName")}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack
-                                    sx={{
-                                        "& .MuiInputBase-root": {
-                                            width: "100%"
-                                        }
-                                    }}
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("last-name")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <InputBase
-                                                placeholder={t("name-placeholder")}
-                                                readOnly={!editable}
-                                                error={Boolean(touched.lastName && errors.lastName)}
-                                                {...getFieldProps("lastName")}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("birthdate")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        className={`datepicker-grid-border ${!editable ? "datepicker-style" : ""}`}
-                                        {...(editable ? {
+                    <Grid container spacing={1}
+                          onClick={() => {
+                              if (!editable) {
+                                  setEditable({
+                                      patientDetailContactCard: false,
+                                      personalInsuranceCard: false,
+                                      personalInfoCard: true
+                                  });
+                              }
+                          }}
+                          sx={{
+                              marginTop: "0.4rem"
+                          }}>
+                        <Grid sx={{"& .MuiGrid-item": {pt: .4}}} item md={6} sm={6} xs={12}>
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                justifyItems={"center"}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("gender")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable ? {
                                             sx: {
                                                 border: `1px solid ${theme.palette.grey['A100']}`,
-                                                borderRadius: 1,
+                                                borderRadius: .5,
+                                                "& .MuiSelect-select": {
+                                                    pl: 1.5
+                                                }
                                             }
-                                        } : {
+                                        } :
+                                        {
                                             sx: {
-                                                "& .MuiOutlinedInput-root button": {
-                                                    display: "none"
+                                                "& .MuiSelect-select": {
+                                                    p: 0
                                                 }
                                             }
                                         })}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <DatePicker
-                                                readOnly={!editable}
-                                                format={"dd/MM/yyyy"}
-                                                value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY").toDate() : null}
-                                                onChange={date => {
-                                                    const dateInput = moment(date);
-                                                    setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
-                                                    if (dateInput.isValid()) {
-                                                        const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
-                                                        setFieldValue("old", old > 120 ? "" : old);
-                                                    } else {
-                                                        setFieldValue("old", "");
-                                                    }
-                                                }}
-                                                slots={{
-                                                    openPickerIcon: CalendarPickerIcon,
-                                                }}
-                                                slotProps={{textField: {size: "small"}}}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack
-                                    sx={{
-                                        "& .MuiInputBase-root": {
-                                            width: "100%"
-                                        }
-                                    }}
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("old")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <InputBase
-                                                placeholder={t("old-placeholder")}
-                                                endAdornment={<Typography
-                                                    mr={1}>{commonTranslation(`times.years`)}</Typography>}
-                                                readOnly={!editable}
-                                                error={Boolean(touched.email && errors.email)}
-                                                value={values.old ?? ""}
-                                                onChange={event => {
-                                                    const old = parseInt(event.target.value);
-                                                    setFieldValue("old", old ? old : "");
-                                                    if (old) {
-                                                        setFieldValue("birthdate", (values.birthdate ?
-                                                            moment(values.birthdate, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old).format("DD-MM-YYYY")
-                                                        );
-                                                    }
-                                                }}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack
-                                    sx={{
-                                        "& .MuiInputBase-root": {
-                                            width: "100%"
-                                        }
-                                    }}
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("email")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <InputBase
-                                                placeholder={t("email-placeholder")}
-                                                readOnly={!editable}
-                                                type={"email"}
-                                                error={Boolean(touched.email && errors.email)}
-                                                {...getFieldProps("email")}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack
-                                    sx={{
-                                        "& .MuiInputBase-root": {
-                                            width: "100%"
-                                        }
-                                    }}
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("cin")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <InputBase
-                                                placeholder={t("cin-placeholder")}
-                                                readOnly={!editable}
-                                                error={Boolean(touched.cin && errors.cin)}
-                                                {...getFieldProps("cin")}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack
-                                    sx={{
-                                        "& .MuiInputBase-root": {
-                                            width: "100%"
-                                        }
-                                    }}
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("profession")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <InputBase
-                                                placeholder={t("profession-placeholder")}
-                                                readOnly={!editable}
-                                                error={Boolean(touched.cin && errors.cin)}
-                                                {...getFieldProps("profession")}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack
-                                    sx={{
-                                        "& .MuiInputBase-root": {
-                                            width: "100%"
-                                        }
-                                    }}
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("family_doctor")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        {...(editable && {className: "grid-border"})}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <InputBase
-                                                placeholder={t("family_doctor-placeholder")}
-                                                readOnly={!editable}
-                                                error={Boolean(touched.cin && errors.cin)}
-                                                {...getFieldProps("familyDoctor")}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack direction="row" spacing={1}
-                                       alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography
-                                            className="label"
-                                            variant="body2"
-                                            color="text.secondary"
-                                            width="50%">
-                                            {t("nationality")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        sx={{
-                                            ...(!editable && {
-                                                "& .MuiAutocomplete-endAdornment": {
-                                                    display: "none"
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <Select
+                                            fullWidth
+                                            sx={{
+                                                pl: 0,
+                                                "& .MuiSvgIcon-root": {
+                                                    display: !editable ? "none" : "inline-block"
                                                 }
-                                            }),
-                                            "& .MuiInputBase-root": {
-                                                paddingLeft: 0,
-                                                width: "100%",
-                                                height: "100%"
-                                            },
-                                            "& .MuiSelect-select": {
-                                                pl: 0
-                                            }
-                                        }}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton width={100}/>
-                                        ) : (
-                                            <Autocomplete
-                                                id={"nationality"}
-                                                disabled={!countries_api || !editable}
-                                                autoHighlight
-                                                disableClearable
-                                                size="small"
-                                                value={countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) ?
-                                                    countries_api.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) : null}
-                                                onChange={(e, v: any) => {
-                                                    setFieldValue("nationality", v.uuid);
-                                                }}
-                                                {...(editable && {
-                                                    sx: {
-                                                        color: "text.secondary",
-                                                        borderRadius: .6,
-                                                        border: `1px solid ${theme.palette.grey['A100']}`
-                                                    }
-                                                })}
-                                                options={countries_api ? [...new Map(countries_api.map((country: CountryModel) => [country["nationality"], country])).values()] : []}
-                                                loading={!countries_api}
-                                                getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
-                                                isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
-                                                renderOption={(props, option) => (
-                                                    <MenuItem {...props}>
-                                                        {option?.code && <Avatar
-                                                            sx={{
-                                                                width: 26,
-                                                                height: 18,
-                                                                borderRadius: 0.4
-                                                            }}
-                                                            alt={"flags"}
-                                                            src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
-                                                        />}
-                                                        <Typography
-                                                            sx={{ml: 1}}>{option.nationality}</Typography>
-                                                    </MenuItem>
-                                                )}
-                                                renderInput={params => {
-                                                    const country = countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value);
-                                                    params.InputProps.startAdornment = country && (
-                                                        <InputAdornment position="start">
-                                                            {country?.code && <Avatar
-                                                                sx={{
-                                                                    width: 24,
-                                                                    height: 16,
-                                                                    borderRadius: 0.4,
-                                                                    ml: ".5rem",
-                                                                    mr: -.8
-                                                                }}
-                                                                alt={country.name}
-                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
-                                                            />}
-                                                        </InputAdornment>
-                                                    );
-
-                                                    return <TextField color={"info"}
-                                                                      {...params}
-                                                                      sx={{paddingLeft: 0}}
-                                                                      placeholder={t("nationality")}
-                                                                      variant="outlined" fullWidth/>;
-                                                }}/>
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack direction="row" spacing={1}
-                                       alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography
-                                            className="label"
-                                            variant="body2"
-                                            color="text.secondary"
-                                            width="50%">
-                                            {t("addressed-by")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        sx={{
-                                            ...(!editable && {
-                                                "& .MuiAutocomplete-endAdornment": {
-                                                    display: "none"
-                                                }
-                                            }),
-                                            "& .MuiInputBase-root": {
-                                                paddingLeft: 0,
-                                                width: "100%",
-                                                height: "100%"
-                                            },
-                                            "& .MuiSelect-select": {
-                                                pl: 0
-                                            }
-                                        }}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton width={100}/>
-                                        ) : (
-                                            <AsyncAutoComplete
-                                                freeSolo
-                                                loading={loadingRequest}
-                                                value={values.addressedBy}
-                                                {...(editable && {
-                                                    sx: {
-                                                        color: "text.secondary",
-                                                        borderRadius: .6,
-                                                        border: `1px solid ${theme.palette.grey['A100']}`
-                                                    }
-                                                })}
-                                                url={`${urlMedicalEntitySuffix}/addressedBy/${router.locale}`}
-                                                onChangeData={(event: any) => {
-                                                    if (event?.inputValue || typeof event === "string") {
-                                                        // Create a new value from the user input
-                                                        setLoadingRequest(true);
-                                                        const params = new FormData();
-                                                        params.append("name", event?.inputValue ?? event);
-                                                        triggerAddressedBy({
-                                                            method: "POST",
-                                                            url: `${urlMedicalEntitySuffix}/addressedBy/${router.locale}`,
-                                                            data: params
-                                                        }, {
-                                                            onSuccess: (result) => {
-                                                                const data = (result?.data as HttpResponse)?.data;
-                                                                console.log("data", data);
-                                                                setFieldValue("addressedBy", {
-                                                                    uuid: data?.uuid,
-                                                                    name: event?.inputValue ?? event
-                                                                });
-                                                            },
-                                                            onSettled: () => setLoadingRequest(false)
-                                                        })
-                                                    } else {
-                                                        setFieldValue("addressedBy", event);
-                                                    }
-                                                }}
-                                                getOptionLabel={(option: any) => {
-                                                    // Value selected with enter, right from the input
-                                                    if (typeof option === "string") {
-                                                        return option;
-                                                    }
-                                                    // Add "xxx" option created dynamically
-                                                    if (option.inputValue) {
-                                                        return option.inputValue;
-                                                    }
-                                                    // Regular option
-                                                    return option.name;
-                                                }}
-                                                filterOptions={(options: any, params: any) => {
-                                                    const {inputValue} = params;
-                                                    const filtered = options.filter((option: any) =>
-                                                        option.name
-                                                            .toLowerCase()
-                                                            .includes(inputValue.toLowerCase())
-                                                    );
-                                                    // Suggest the creation of a new value
-                                                    const isExisting = options.some(
-                                                        (option: any) =>
-                                                            inputValue.toLowerCase() ===
-                                                            option.name.toLowerCase()
-                                                    );
-                                                    if (inputValue !== "" && !isExisting) {
-                                                        filtered.push({
-                                                            inputValue,
-                                                            name: `${t("add")} "${inputValue}"`,
-                                                            isVerified: false,
-                                                        });
-                                                    }
-                                                    return filtered;
-                                                }}
-                                                renderOption={(props: any, option: any) => (
-                                                    <ListItem {...props}>
-                                                        <ListItemText primary={`${option?.name}`}/>
-                                                    </ListItem>
-                                                )}
-                                                isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
-                                                placeholder={t("addressed-by-placeholder")}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
-                            <Grid item md={6} sm={6} xs={12}>
-                                <Stack direction="row" spacing={1}
-                                       alignItems="center">
-                                    <Grid item md={3} sm={6} xs={3}>
-                                        <Typography
-                                            className="label"
-                                            variant="body2"
-                                            color="text.secondary"
-                                            width="50%">
-                                            {t("civil-status")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid
-                                        sx={{
-                                            ...(!editable && {
-                                                "& .MuiAutocomplete-endAdornment": {
-                                                    display: "none"
-                                                }
-                                            }),
-                                            "& .MuiInputBase-root": {
-                                                paddingLeft: 0,
-                                                width: "100%",
-                                                height: "100%"
-                                            },
-                                            "& .MuiSelect-select": {
-                                                pl: 0
-                                            }
-                                        }}
-                                        item md={8} sm={6} xs={9}>
-                                        {loading ? (
-                                            <Skeleton width={100}/>
-                                        ) : (
-                                            <AsyncAutoComplete
-                                                value={values.civilStatus}
-                                                {...(editable && {
-                                                    sx: {
-                                                        color: "text.secondary",
-                                                        borderRadius: .6,
-                                                        border: `1px solid ${theme.palette.grey['A100']}`
-                                                    }
-                                                })}
-                                                url={`api/public/civil-status/${router.locale}`}
-                                                onChangeData={(event: any) => {
-                                                    setFieldValue("civilStatus", event);
-                                                }}
-                                                getOptionLabel={(option: any) => {
-                                                    // Value selected with enter, right from the input
-                                                    if (typeof option === "string") {
-                                                        return option;
-                                                    }
-                                                    // Add "xxx" option created dynamically
-                                                    if (option.inputValue) {
-                                                        return option.inputValue;
-                                                    }
-                                                    // Regular option
-                                                    return option.name;
-                                                }}
-                                                renderOption={(props: any, option: any) => (
-                                                    <ListItem {...props}>
-                                                        <ListItemText primary={`${option?.name}`}/>
-                                                    </ListItem>
-                                                )}
-                                                isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
-                                                placeholder={t("civil-status-placeholder")}
-                                            />
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>
+                                            }}
+                                            size="medium"
+                                            readOnly={!editable}
+                                            error={Boolean(touched.gender && errors.gender)}
+                                            {...getFieldProps("gender")}>
+                                            <MenuItem
+                                                value={1}>{t(getBirthday(patient.birthdate).years < 18 ? "male" : "mr")}</MenuItem>
+                                            <MenuItem
+                                                value={2}>{t(getBirthday(patient.birthdate).years < 18 ? "female" : "mrs")}</MenuItem>
+                                        </Select>
+                                    )}
+                                </Grid>
+                            </Stack>
                         </Grid>
-                    </Paper>
-                </PersonalInfoStyled>
-            </Form>
-        </FormikProvider>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        width: "100%"
+                                    }
+                                }}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("first-name")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable && {className: "grid-border"})}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <InputBase
+                                            placeholder={t("name-placeholder")}
+                                            readOnly={!editable}
+                                            error={Boolean(touched.firstName && errors.firstName)}
+                                            {...getFieldProps("firstName")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        width: "100%"
+                                    }
+                                }}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("last-name")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable && {className: "grid-border"})}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <InputBase
+                                            placeholder={t("name-placeholder")}
+                                            readOnly={!editable}
+                                            error={Boolean(touched.lastName && errors.lastName)}
+                                            {...getFieldProps("lastName")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("birthdate")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    className={`datepicker-grid-border ${!editable ? "datepicker-style" : ""}`}
+                                    {...(editable ? {
+                                        sx: {
+                                            border: `1px solid ${theme.palette.grey['A100']}`,
+                                            borderRadius: 1,
+                                        }
+                                    } : {
+                                        sx: {
+                                            "& .MuiOutlinedInput-root button": {
+                                                display: "none"
+                                            }
+                                        }
+                                    })}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <DatePicker
+                                            readOnly={!editable}
+                                            format={"dd/MM/yyyy"}
+                                            value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY").toDate() : null}
+                                            onChange={date => {
+                                                const dateInput = moment(date);
+                                                setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
+                                                if (dateInput.isValid()) {
+                                                    const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                    setFieldValue("old", old > 120 ? "" : old);
+                                                } else {
+                                                    setFieldValue("old", "");
+                                                }
+                                            }}
+                                            slots={{
+                                                openPickerIcon: CalendarPickerIcon,
+                                            }}
+                                            slotProps={{textField: {size: "small"}}}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        width: "100%"
+                                    }
+                                }}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("old")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable && {className: "grid-border"})}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <InputBase
+                                            placeholder={t("old-placeholder")}
+                                            endAdornment={<Typography
+                                                mr={1}>{commonTranslation(`times.years`)}</Typography>}
+                                            readOnly={!editable}
+                                            error={Boolean(touched.email && errors.email)}
+                                            value={values.old ?? ""}
+                                            onChange={event => {
+                                                const old = parseInt(event.target.value);
+                                                setFieldValue("old", old ? old : "");
+                                                if (old) {
+                                                    setFieldValue("birthdate", (values.birthdate ?
+                                                        moment(values.birthdate, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old).format("DD-MM-YYYY")
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        width: "100%"
+                                    }
+                                }}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("email")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable && {className: "grid-border"})}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <InputBase
+                                            placeholder={t("email-placeholder")}
+                                            readOnly={!editable}
+                                            type={"email"}
+                                            error={Boolean(touched.email && errors.email)}
+                                            {...getFieldProps("email")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        width: "100%"
+                                    }
+                                }}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("cin")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable && {className: "grid-border"})}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <InputBase
+                                            placeholder={t("cin-placeholder")}
+                                            readOnly={!editable}
+                                            error={Boolean(touched.cin && errors.cin)}
+                                            {...getFieldProps("cin")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        width: "100%"
+                                    }
+                                }}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("profession")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable && {className: "grid-border"})}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <InputBase
+                                            placeholder={t("profession-placeholder")}
+                                            readOnly={!editable}
+                                            error={Boolean(touched.cin && errors.cin)}
+                                            {...getFieldProps("profession")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        width: "100%"
+                                    }
+                                }}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("family_doctor")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable && {className: "grid-border"})}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <InputBase
+                                            placeholder={t("family_doctor-placeholder")}
+                                            readOnly={!editable}
+                                            error={Boolean(touched.cin && errors.cin)}
+                                            {...getFieldProps("familyDoctor")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack direction="row" spacing={1}
+                                   alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography
+                                        className="label"
+                                        variant="body2"
+                                        color="text.secondary"
+                                        width="50%">
+                                        {t("nationality")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    sx={{
+                                        ...(!editable && {
+                                            "& .MuiAutocomplete-endAdornment": {
+                                                display: "none"
+                                            }
+                                        }),
+                                        "& .MuiInputBase-root": {
+                                            paddingLeft: 0,
+                                            width: "100%",
+                                            height: "100%"
+                                        },
+                                        "& .MuiSelect-select": {
+                                            pl: 0
+                                        }
+                                    }}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton width={100}/>
+                                    ) : (
+                                        <Autocomplete
+                                            id={"nationality"}
+                                            disabled={!countries_api || !editable}
+                                            autoHighlight
+                                            disableClearable
+                                            size="small"
+                                            value={countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) ?
+                                                countries_api.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) : null}
+                                            onChange={(e, v: any) => {
+                                                setFieldValue("nationality", v.uuid);
+                                            }}
+                                            {...(editable && {
+                                                sx: {
+                                                    color: "text.secondary",
+                                                    borderRadius: .6,
+                                                    border: `1px solid ${theme.palette.grey['A100']}`
+                                                }
+                                            })}
+                                            options={countries_api ? [...new Map(countries_api.map((country: CountryModel) => [country["nationality"], country])).values()] : []}
+                                            loading={!countries_api}
+                                            getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
+                                            isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
+                                            renderOption={(props, option) => (
+                                                <MenuItem {...props}>
+                                                    {option?.code && <Avatar
+                                                        sx={{
+                                                            width: 26,
+                                                            height: 18,
+                                                            borderRadius: 0.4
+                                                        }}
+                                                        alt={"flags"}
+                                                        src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                    />}
+                                                    <Typography
+                                                        sx={{ml: 1}}>{option.nationality}</Typography>
+                                                </MenuItem>
+                                            )}
+                                            renderInput={params => {
+                                                const country = countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value);
+                                                params.InputProps.startAdornment = country && (
+                                                    <InputAdornment position="start">
+                                                        {country?.code && <Avatar
+                                                            sx={{
+                                                                width: 24,
+                                                                height: 16,
+                                                                borderRadius: 0.4,
+                                                                ml: ".5rem",
+                                                                mr: -.8
+                                                            }}
+                                                            alt={country.name}
+                                                            src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                        />}
+                                                    </InputAdornment>
+                                                );
+
+                                                return <TextField color={"info"}
+                                                                  {...params}
+                                                                  sx={{paddingLeft: 0}}
+                                                                  placeholder={t("nationality")}
+                                                                  variant="outlined" fullWidth/>;
+                                            }}/>
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack direction="row" spacing={1}
+                                   alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography
+                                        className="label"
+                                        variant="body2"
+                                        color="text.secondary"
+                                        width="50%">
+                                        {t("addressed-by")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    sx={{
+                                        ...(!editable && {
+                                            "& .MuiAutocomplete-endAdornment": {
+                                                display: "none"
+                                            }
+                                        }),
+                                        "& .MuiInputBase-root": {
+                                            paddingLeft: 0,
+                                            width: "100%",
+                                            height: "100%"
+                                        },
+                                        "& .MuiSelect-select": {
+                                            pl: 0
+                                        }
+                                    }}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton width={100}/>
+                                    ) : (
+                                        <AsyncAutoComplete
+                                            freeSolo
+                                            loading={loadingRequest}
+                                            value={values.addressedBy}
+                                            {...(editable && {
+                                                sx: {
+                                                    color: "text.secondary",
+                                                    borderRadius: .6,
+                                                    border: `1px solid ${theme.palette.grey['A100']}`
+                                                }
+                                            })}
+                                            url={`${urlMedicalEntitySuffix}/addressedBy/${router.locale}`}
+                                            onChangeData={(event: any) => {
+                                                if (event?.inputValue || typeof event === "string") {
+                                                    // Create a new value from the user input
+                                                    setLoadingRequest(true);
+                                                    const params = new FormData();
+                                                    params.append("name", event?.inputValue ?? event);
+                                                    triggerAddressedBy({
+                                                        method: "POST",
+                                                        url: `${urlMedicalEntitySuffix}/addressedBy/${router.locale}`,
+                                                        data: params
+                                                    }, {
+                                                        onSuccess: (result) => {
+                                                            const data = (result?.data as HttpResponse)?.data;
+                                                            console.log("data", data);
+                                                            setFieldValue("addressedBy", {
+                                                                uuid: data?.uuid,
+                                                                name: event?.inputValue ?? event
+                                                            });
+                                                        },
+                                                        onSettled: () => setLoadingRequest(false)
+                                                    })
+                                                } else {
+                                                    setFieldValue("addressedBy", event);
+                                                }
+                                            }}
+                                            getOptionLabel={(option: any) => {
+                                                // Value selected with enter, right from the input
+                                                if (typeof option === "string") {
+                                                    return option;
+                                                }
+                                                // Add "xxx" option created dynamically
+                                                if (option.inputValue) {
+                                                    return option.inputValue;
+                                                }
+                                                // Regular option
+                                                return option.name;
+                                            }}
+                                            filterOptions={(options: any, params: any) => {
+                                                const {inputValue} = params;
+                                                const filtered = options.filter((option: any) =>
+                                                    option.name
+                                                        .toLowerCase()
+                                                        .includes(inputValue.toLowerCase())
+                                                );
+                                                // Suggest the creation of a new value
+                                                const isExisting = options.some(
+                                                    (option: any) =>
+                                                        inputValue.toLowerCase() ===
+                                                        option.name.toLowerCase()
+                                                );
+                                                if (inputValue !== "" && !isExisting) {
+                                                    filtered.push({
+                                                        inputValue,
+                                                        name: `${t("add")} "${inputValue}"`,
+                                                        isVerified: false,
+                                                    });
+                                                }
+                                                return filtered;
+                                            }}
+                                            renderOption={(props: any, option: any) => (
+                                                <ListItem {...props}>
+                                                    <ListItemText primary={`${option?.name}`}/>
+                                                </ListItem>
+                                            )}
+                                            isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                            placeholder={t("addressed-by-placeholder")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={6} sm={6} xs={12}>
+                            <Stack direction="row" spacing={1}
+                                   alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography
+                                        className="label"
+                                        variant="body2"
+                                        color="text.secondary"
+                                        width="50%">
+                                        {t("civil-status")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    sx={{
+                                        ...(!editable && {
+                                            "& .MuiAutocomplete-endAdornment": {
+                                                display: "none"
+                                            }
+                                        }),
+                                        "& .MuiInputBase-root": {
+                                            paddingLeft: 0,
+                                            width: "100%",
+                                            height: "100%"
+                                        },
+                                        "& .MuiSelect-select": {
+                                            pl: 0
+                                        }
+                                    }}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton width={100}/>
+                                    ) : (
+                                        <AsyncAutoComplete
+                                            value={values.civilStatus}
+                                            {...(editable && {
+                                                sx: {
+                                                    color: "text.secondary",
+                                                    borderRadius: .6,
+                                                    border: `1px solid ${theme.palette.grey['A100']}`
+                                                }
+                                            })}
+                                            url={`api/public/civil-status/${router.locale}`}
+                                            onChangeData={(event: any) => {
+                                                setFieldValue("civilStatus", event);
+                                            }}
+                                            getOptionLabel={(option: any) => {
+                                                // Value selected with enter, right from the input
+                                                if (typeof option === "string") {
+                                                    return option;
+                                                }
+                                                // Add "xxx" option created dynamically
+                                                if (option.inputValue) {
+                                                    return option.inputValue;
+                                                }
+                                                // Regular option
+                                                return option.name;
+                                            }}
+                                            renderOption={(props: any, option: any) => (
+                                                <ListItem {...props}>
+                                                    <ListItemText primary={`${option?.name}`}/>
+                                                </ListItem>
+                                            )}
+                                            isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
+                                            placeholder={t("civil-status-placeholder")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </PersonalInfoStyled>
+        </form>
     );
 }
 
-export default PersonalInfo;
+export default React.memo(PersonalInfo);
