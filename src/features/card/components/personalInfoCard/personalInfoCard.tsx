@@ -1,58 +1,51 @@
-import React, { memo, useEffect, useState } from "react";
+import React, {memo, useEffect, useState} from "react";
 // hook
-import { useTranslation } from "next-i18next";
-import { Form, FormikProvider, useFormik } from "formik";
+import {useTranslation} from "next-i18next";
+import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
-    AppBar, Autocomplete, Avatar,
+    alpha,
+    Avatar,
     Box,
     CardContent,
     CardHeader,
     Collapse,
-    Grid, IconButton, InputAdornment,
-    InputBase, ListItem, ListItemText,
+    FormControl,
+    IconButton,
     MenuItem,
     Paper,
-    Skeleton,
     Stack,
     TextField,
-    Toolbar,
     Typography,
     useTheme,
-    alpha,
-    FormControl,
-    InputLabel
 } from "@mui/material";
-import SaveAsIcon from "@mui/icons-material/SaveAs";
-import { useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
 import * as Yup from "yup";
-import { useSnackbar } from "notistack";
+import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
 import Select from '@mui/material/Select';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import moment from "moment-timezone";
-import { LoadingButton } from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { agendaSelector, setSelectedEvent } from "@features/calendar";
-import { dashLayoutSelector } from "@features/base";
-import { checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix } from "@lib/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {dashLayoutSelector} from "@features/base";
+import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 
 
-import { LoadingScreen } from "@features/loadingScreen";
-import { AsyncAutoComplete } from "@features/autoComplete";
+import {LoadingScreen} from "@features/loadingScreen";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
-import { InputStyled } from "@features/tabPanel";
+import {InputStyled} from "@features/tabPanel";
 
-export const MyTextInput: any = memo(({ ...props }) => {
+export const MyTextInput: any = memo(({...props}) => {
     return (
         <TextField {...props} />
     );
 })
 MyTextInput.displayName = "TextField";
 
-function PersonalInfo({ ...props }) {
+function PersonalInfo({...props}) {
     const {
         patient, mutatePatientDetails, mutatePatientList = null,
         mutateAgenda = null, countries_api,
@@ -63,18 +56,18 @@ function PersonalInfo({ ...props }) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const theme = useTheme();
-    const { enqueueSnackbar } = useSnackbar();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const {enqueueSnackbar} = useSnackbar();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const [openPanel, setOpenPanel] = useState<boolean>(true)
     const [loadingRequest, setLoadingRequest] = useState(false);
 
-    const { t, ready } = useTranslation("patient", { keyPrefix: "config.add-patient" });
-    const { t: commonTranslation } = useTranslation("common");
-    const { selectedEvent: appointment } = useAppSelector(agendaSelector);
-    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
+    const {t: commonTranslation} = useTranslation("common");
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const { trigger: triggerPatientUpdate } = useRequestQueryMutation("/patient/update");
-    const { trigger: triggerAddressedBy } = useRequestQueryMutation("/patient/addressed-by/add");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
+    const {trigger: triggerAddressedBy} = useRequestQueryMutation("/patient/addressed-by/add");
     const handleTogglePanels = () => {
         setOpenPanel(!openPanel)
     }
@@ -99,7 +92,10 @@ function PersonalInfo({ ...props }) {
         nationality: Yup.string()
     });
     const initialValue = {
-        picture: { url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""), file: "" },
+        picture: {
+            url: (!loading && patientPhoto ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url : ""),
+            file: ""
+        },
         fiche_id: !loading ? `${patient.fiche_id}` : "",
         gender: !loading && patient.gender
             ? patient.gender === "M" ? "1" : "2"
@@ -169,12 +165,12 @@ function PersonalInfo({ ...props }) {
                     } as any;
                     dispatch(setSelectedEvent(event));
                 }
-                enqueueSnackbar(t(`alert.patient-edit`), { variant: "success" });
+                enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
             }
         });
     }
 
-    const { handleSubmit, values, errors, touched, getFieldProps, setFieldValue } = formik;
+    const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
     const editable = defaultEditStatus.personalInfoCard;
     const disableActions = defaultEditStatus.personalInsuranceCard || defaultEditStatus.patientDetailContactCard;
     const handleDrop = (acceptedFiles: FileList) => {
@@ -191,13 +187,13 @@ function PersonalInfo({ ...props }) {
         }
     }, [editable]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
                 <PersonalInfoStyled>
-                    <Paper sx={{ border: 'none', borderRadius: 0 }}>
+                    <Paper sx={{border: 'none', borderRadius: 0}}>
                         {/* <AppBar position="static" color={"transparent"}>
                             <Toolbar variant="dense">
                                 <Box sx={{flexGrow: 1}}>
@@ -888,7 +884,7 @@ function PersonalInfo({ ...props }) {
                                                 transition: "transform 0.3s"
                                             }
                                         }}>
-                                            <IconUrl path="ic-outline-arrow-up" width={16} height={16} />
+                                            <IconUrl path="ic-outline-arrow-up" width={16} height={16}/>
                                         </IconButton>
 
                                     }
@@ -918,7 +914,7 @@ function PersonalInfo({ ...props }) {
                                              }}
                                         >
                                             <Avatar
-                                                sx={{ width: 70, height: 70, cursor: 'pointer' }}
+                                                sx={{width: 70, height: 70, cursor: 'pointer'}}
                                                 component='label'
                                                 htmlFor="contained-button-file"
                                                 src={values.picture.url}
@@ -928,7 +924,7 @@ function PersonalInfo({ ...props }) {
                                                     id="contained-button-file"
                                                     type="file"
                                                 />
-                                                <IconUrl path="ic-linear-camera-add" width={28} height={28} />
+                                                <IconUrl path="ic-linear-camera-add" width={28} height={28}/>
                                             </Avatar>
                                             {values.picture.url && (
                                                 <IconButton
@@ -936,7 +932,7 @@ function PersonalInfo({ ...props }) {
                                                     size="small"
                                                     disableRipple
                                                     onClick={() => {
-                                                        setFieldValue("picture", { url: "", file: "" });
+                                                        setFieldValue("picture", {url: "", file: ""});
                                                     }}
                                                     sx={{
                                                         position: 'absolute',
@@ -947,7 +943,7 @@ function PersonalInfo({ ...props }) {
 
                                                     }}
                                                 >
-                                                    <IconUrl path="ic-x" width={16} height={16} />
+                                                    <IconUrl path="ic-x" width={16} height={16}/>
                                                 </IconButton>
                                             )}
                                         </Box>
@@ -971,7 +967,7 @@ function PersonalInfo({ ...props }) {
                                         </FormControl>
                                     </Stack>
                                     <Stack direction='row' spacing={2}>
-                                        <FormControl fullWidth sx={{ flex: .75 }}>
+                                        <FormControl fullWidth sx={{flex: .75}}>
                                             <Typography gutterBottom color="grey.500">{t("gender")}
                                                 {" "} <span className="required">*</span>
                                             </Typography>
@@ -994,19 +990,25 @@ function PersonalInfo({ ...props }) {
                                                 renderValue={(selected) => {
                                                     if (!selected) {
                                                         return (
-                                                            <Typography color={'text.secondary'}>{t("gender")}</Typography>
+                                                            <Typography
+                                                                color={'text.secondary'}>{t("gender")}</Typography>
                                                         )
 
-                                                    };
+                                                    }
+                                                    ;
                                                     return (
-                                                        <Typography color={'text.secondary'}>{selected === "1" ? t("mr") : t("mrs")}</Typography>
+                                                        <Typography
+                                                            color={'text.secondary'}>{selected === "1" ? t("mr") : t("mrs")}</Typography>
                                                     )
 
 
                                                 }}
 
                                             >
-                                                {[{ title: 'mr', value: '1' }, { title: "mrs", value: '2' }].map((gender) => (
+                                                {[{title: 'mr', value: '1'}, {
+                                                    title: "mrs",
+                                                    value: '2'
+                                                }].map((gender) => (
                                                     <MenuItem
                                                         key={gender.value}
                                                         value={gender.value}
@@ -1016,7 +1018,7 @@ function PersonalInfo({ ...props }) {
                                                 ))}
                                             </Select>
                                         </FormControl>
-                                        <FormControl fullWidth sx={{ flex: 1 }}>
+                                        <FormControl fullWidth sx={{flex: 1}}>
                                             <Typography gutterBottom color="grey.500">{t("first-name")}
                                                 {" "} <span className="required">*</span>
                                             </Typography>
@@ -1036,7 +1038,7 @@ function PersonalInfo({ ...props }) {
                                                 helperText={touched.firstName && errors.firstName}
                                             />
                                         </FormControl>
-                                        <FormControl fullWidth sx={{ flex: 1 }}>
+                                        <FormControl fullWidth sx={{flex: 1}}>
                                             <Typography gutterBottom color="grey.500">{t("last-name")}
                                                 {" "} <span className="required">*</span>
                                             </Typography>
@@ -1087,10 +1089,10 @@ function PersonalInfo({ ...props }) {
                                                 slots={{
                                                     openPickerIcon: CalendarPickerIcon,
                                                 }}
-                                                slotProps={{ textField: { size: "small" } }}
+                                                slotProps={{textField: {size: "small"}}}
                                             />
                                         </FormControl>
-                                        <FormControl fullWidth sx={{ flex: .41 }}>
+                                        <FormControl fullWidth sx={{flex: .41}}>
                                             <Typography gutterBottom color="grey.500">{t("old")}
                                             </Typography>
                                             <TextField
@@ -1110,7 +1112,7 @@ function PersonalInfo({ ...props }) {
                     </Paper>
                 </PersonalInfoStyled>
             </Form>
-        </FormikProvider >
+        </FormikProvider>
     );
 }
 
