@@ -137,9 +137,9 @@ function Step1({...props}) {
                         {t("dialog.stepper.start_date")}{" "}
                     </Typography>
                     <DatePicker
-                        value={moment(agreement?.startDate, "DD-MM-YYYY").toDate()}
+                        value={agreement?.startDate}
                         onChange={(newValue: any) => {
-                            dispatch(SetAgreement({...agreement, startDate: moment(newValue).format("DD-MM-YYYY")}))
+                            dispatch(SetAgreement({...agreement, startDate:newValue}))
                         }}/>
                 </Stack>
                 <Stack spacing={0.5} width={1}>
@@ -147,11 +147,9 @@ function Step1({...props}) {
                         {t("dialog.stepper.end_date")}
                     </Typography>
                     <DatePicker
-                        value={moment(agreement?.endDate, "DD-MM-YYYY").toDate()}
+                        value={agreement?.endDate}
                         onChange={(newValue: any) => {
-                            let _agreement = {...agreement}
-                            _agreement.endDate = moment(newValue).format("DD-MM-YYYY");
-                            dispatch(SetAgreement(_agreement))
+                            dispatch(SetAgreement({...agreement,endDate:newValue}))
                         }}
                     />
                 </Stack>

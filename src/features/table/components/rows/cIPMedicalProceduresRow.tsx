@@ -22,6 +22,14 @@ const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
+        id: "fees",
+        numeric: true,
+        disablePadding: false,
+        label: "fees",
+        sortable: true,
+        align: "center",
+    },
+    {
         id: "refund",
         numeric: true,
         disablePadding: false,
@@ -62,11 +70,11 @@ function CIPMedicalProceduresRow({...props}) {
             row.refund = 0;
         } else {
             row.insurance_act = insurance.uuid;
-            row.patient_part = insurance.patient_part;
+            row.patient_part = row.fees - insurance.refund;
             row.refund = insurance.refund;
         }
         editMotif(row, "change");
-        handleEvent()
+        handleEvent(row.uuid,false)
         setCollapse(false)
     }
 
@@ -86,7 +94,7 @@ function CIPMedicalProceduresRow({...props}) {
                             color="primary"
                             onChange={() => {
                                 editMotif(row, "check");
-                                handleEvent()
+                                handleEvent(row.uuid, true)
                             }}
                             checked={row.selected}
                         />
@@ -140,7 +148,7 @@ function CIPMedicalProceduresRow({...props}) {
                             setTimeout(() => {
                                 dispatch(SetLoading(false))
                             }, 3000)
-                            handleEvent()
+                            handleEvent(row.uuid, false)
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e: any) => {
@@ -151,12 +159,12 @@ function CIPMedicalProceduresRow({...props}) {
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    /> : <Typography>{row.fees}</Typography>}
+                    /> : <Typography className={"txt"}>{row.fees} {devise}</Typography>}
 
 
                 </TableCell>
                 <TableCell align="center">
-                    {row.selected ? <InputBaseStyled
+                  {/*  { row.insurances?.length > 0 && (row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -166,7 +174,7 @@ function CIPMedicalProceduresRow({...props}) {
                         }}
                         readOnly={!row.selected}
                         id={row.uuid}
-                        value={row.contribution | 0}
+                        value={row.refund | 0}
                         placeholder={"--"}
                         autoFocus={selected === row.uuid}
                         onFocus={(event) => {
@@ -178,21 +186,21 @@ function CIPMedicalProceduresRow({...props}) {
                             setTimeout(() => {
                                 dispatch(SetLoading(false))
                             }, 3000)
-                            handleEvent()
+                            handleEvent(row.uuid, false)
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e: any) => {
                             if (!isNaN(e.currentTarget.value)) {
-                                row.contribution = Number(e.currentTarget.value);
+                                row.refund = Number(e.currentTarget.value);
                                 editMotif(row, "change", e.currentTarget.value);
                                 dispatch(SetLoading(true))
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    /> : <Typography>{row.contribution}</Typography>}
+                    /> */} <Typography className={"txt"}>{row.refund} {row.refund && devise}</Typography>
                 </TableCell>
                 <TableCell align="center">
-                    {row.selected ? <InputBaseStyled
+                    {row.insurances?.length > 0 &&  ( row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -202,7 +210,7 @@ function CIPMedicalProceduresRow({...props}) {
                         }}
                         readOnly={!row.selected}
                         id={row.uuid}
-                        value={row.patientPart | 0}
+                        value={row.patient_part | 0}
                         placeholder={"--"}
                         autoFocus={selected === row.uuid}
                         onFocus={(event) => {
@@ -214,18 +222,18 @@ function CIPMedicalProceduresRow({...props}) {
                             setTimeout(() => {
                                 dispatch(SetLoading(false))
                             }, 3000)
-                            handleEvent()
+                            handleEvent(row.uuid, false)
                         }}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e: any) => {
                             if (!isNaN(e.currentTarget.value)) {
-                                row.patientPart = Number(e.currentTarget.value);
+                                row.patient_part = Number(e.currentTarget.value);
                                 editMotif(row, "change", e.currentTarget.value);
                                 dispatch(SetLoading(true))
                                 debouncedOnChange(row.uuid)
                             }
                         }}
-                    /> : <Typography>{row.patientPart}</Typography>}
+                    /> : <Typography className={"txt"}>{row.patient_part} {row.patient_part && devise}</Typography>)}
                 </TableCell>
                 <TableCell align={"center"}>
                     {row.selected && row.uuid !== 'consultation_type' ? (
@@ -239,7 +247,7 @@ function CIPMedicalProceduresRow({...props}) {
                                     e.stopPropagation();
                                     row.qte = row.qte - 1;
                                     editMotif(row, "change");
-                                    handleEvent()
+                                    handleEvent(row.uuid, false)
                                 }}>
                                 <RemoveIcon width={1} height={1}/>
                             </IconButton>
@@ -254,7 +262,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 }}
                                 onBlur={() => {
                                     setSelected("");
-                                    handleEvent()
+                                    handleEvent(row.uuid, false)
                                 }}
                                 autoFocus={selected === row.uuid + "qte"}
                                 onChange={(e) => {
@@ -272,7 +280,7 @@ function CIPMedicalProceduresRow({...props}) {
                                     e.stopPropagation();
                                     row.qte = row.qte + 1;
                                     editMotif(row, "change");
-                                    handleEvent()
+                                    handleEvent(row.uuid, false)
                                 }}>
                                 <AddIcon/>
                             </IconButton>
@@ -295,10 +303,7 @@ function CIPMedicalProceduresRow({...props}) {
                 </TableCell>
 
                 <TableCell align={"center"}>
-                <Typography style={{
-                    fontWeight: "bold",
-                    color: "black"
-                }}>{row.qte ? row.fees * row.qte : row.fees}</Typography>
+                <Typography className={"txt"}>{row.qte ? row.fees * row.qte : row.fees} {devise}</Typography>
                 </TableCell>
             </TableRowStyled>
 

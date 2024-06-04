@@ -4,7 +4,19 @@ import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
-import {Box, Button, DialogTitle, MenuItem, Paper, Stack, Typography, useTheme} from "@mui/material";
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    MenuItem,
+    Paper,
+    Stack,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {Otable} from "@features/table";
 import {Dialog as MedDialog} from "@features/dialog";
@@ -26,6 +38,9 @@ import {useSession} from "next-auth/react";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import moment from "moment/moment";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
 
 const stepperData = [
     {
@@ -114,12 +129,12 @@ function InsuranceAndAgreement() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const [search, setSearch] = React.useState("")
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
     const [openAgreementDialog, setAgreementDialog] = useState(false);
+    const [openDelete, setOpenDelete] = useState("");
     const [collapse, setCollapse] = useState(false);
     const [agreements, setAgreements] = useState([]);
     const [selectedRow, setSelectedRow] = useState<any>(null);
@@ -132,22 +147,27 @@ function InsuranceAndAgreement() {
     const OnMenuActions = (props: any) => {
         setContextMenu(null);
     }
+
+    const deleteInsurance = () => {
+        trigger(
+            {
+                method: "DELETE",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${openDelete}/${router.locale}`,
+            },
+            {
+                onSuccess: () => {
+                    setOpenDelete("")
+                    mutate()
+                }
+            }
+        );
+    }
     const handleTableActions = (props: { action: string, event: MouseEvent, data: any }) => {
         const {action, event, data} = props;
         switch (action) {
             case "DELETE":
                 event.preventDefault();
-                trigger(
-                    {
-                        method: "DELETE",
-                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${data.uuid}/${router.locale}`,
-                    },
-                    {
-                        onSuccess: () => {
-                            mutate()
-                        }
-                    }
-                );
+                setOpenDelete(data.uuid)
                 break;
             case "ON_ROUTE":
                 event.preventDefault();
@@ -167,8 +187,10 @@ function InsuranceAndAgreement() {
         form.append("insurance", agreement.insurance && agreement.insurance.uuid ? agreement.insurance.uuid : "")
         form.append("name", agreement.label)
         form.append("mutual", agreement.name ? agreement.name : "")
-        form.append("start_date", agreement.startDate ? moment(agreement.startDate).format("DD/MM/YYYY") : moment().format("DD/MM/YYYY"))
-        form.append("end_date", agreement.endDate ? moment(agreement.endDate).format("DD/MM/YYYY") : moment().add(1, "year").format("DD/MM/YYYY"))
+        if (agreement.startDate)
+            form.append("start_date", moment(agreement.startDate).format("DD/MM/YYYY"))
+        if (agreement.endDate)
+            form.append("end_date", moment(agreement.endDate).format("DD/MM/YYYY"))
         if (selectedRow === null)
             form.append("acts", JSON.stringify(agreement.acts))
         form.append("medicalEntityHasUsers", medicalEntityHasUser as string)
@@ -392,6 +414,44 @@ function InsuranceAndAgreement() {
                 }
             />
 
+            <Dialog onClose={() => setOpenDelete("")}
+                    PaperProps={{
+                        sx: {
+                            width: "100%"
+                        }
+                    }} maxWidth="sm" open={openDelete !== ""}>
+                <DialogTitle sx={{
+                    bgcolor: (theme: Theme) => theme.palette.error.main,
+                    px: 1,
+                    py: 2,
+
+                }}>
+                    {t("dialog.title_delete")}
+                </DialogTitle>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Typography>
+                        {t("dialog.desc_delete")}
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setOpenDelete("");
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            color="error"
+                            onClick={() => deleteInsurance()}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("dialog.delete")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
