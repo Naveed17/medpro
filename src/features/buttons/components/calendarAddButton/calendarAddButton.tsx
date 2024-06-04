@@ -39,10 +39,7 @@ function CalendarAddButton({...props}) {
             }}>
             <CustomIconButton
                 onClick={handleClick}
-                variant="filled"
-                sx={{p: .6}}
-                color={"primary"}
-                size={"small"}>
+                color={"primary"}>
                 <AgendaAddViewIcon/>
             </CustomIconButton>
             <StyledMenu

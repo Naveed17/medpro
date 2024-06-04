@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, {useCallback, useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import Box from "@mui/material/Box";
 import MenuList from "@mui/material/MenuList";
@@ -15,15 +15,17 @@ import {
     Theme,
     useMediaQuery
 } from "@mui/material";
-import { PatientAppointmentCard } from "@features/card";
+import {PatientAppointmentCard} from "@features/card";
 import AddIcon from '@mui/icons-material/Add';
-import { debounce } from "lodash";
-import { onResetPatient } from "@features/tabPanel";
-import { useAppDispatch } from "@lib/redux/hooks";
+import {debounce} from "lodash";
+import {onResetPatient} from "@features/tabPanel";
+import {useAppDispatch} from "@lib/redux/hooks";
 import IconUrl from "@themes/urlIcon";
+import CircularProgress from "@mui/material/CircularProgress";
+import {FacebookCircularProgress} from "@features/progressUI";
 
-function AutoComplete({ ...props }) {
-    const { data, defaultValue, loading, onSelectData, onSearchChange, t, onAddPatient, size } = props;
+function AutoComplete({...props}) {
+    const {data, defaultValue, loading, onSelectData, onSearchChange, t, onAddPatient, size} = props;
 
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
@@ -38,7 +40,7 @@ function AutoComplete({ ...props }) {
         onAddPatient();
     }, [onAddPatient]);
 
-    const handleListItemClick = ({ ...props }) => {
+    const handleListItemClick = ({...props}) => {
         onSelectData(props);
     };
 
@@ -56,8 +58,8 @@ function AutoComplete({ ...props }) {
                 <TextField
                     fullWidth
                     key={`${defaultValue}-input`}
-                    {...{ defaultValue }}
-                    sx={{ ml: 1, flex: 1 }}
+                    {...{defaultValue}}
+                    sx={{ml: 1, flex: 1}}
                     placeholder={t("stepper-2.search_placeholder")}
                     autoFocus
                     onKeyDown={onKeyDown}
@@ -70,11 +72,18 @@ function AutoComplete({ ...props }) {
                             setFocus(false);
                         }
                     }}
-                    inputProps={{ 'aria-label': 'Chercher un patient' }}
+                    inputProps={{'aria-label': 'Chercher un patient'}}
                     InputProps={{
                         startAdornment: <InputAdornment position="start">
-                            <IconUrl path="ic-outline-search-normal" />
+                            <IconUrl path="ic-outline-search-normal"/>
                         </InputAdornment>,
+                        ...(loading && {
+                            endAdornment: (
+                                <React.Fragment>
+                                    <FacebookCircularProgress color="inherit" size={20}/>
+                                </React.Fragment>
+                            )
+                        })
                     }}
                 />
                 {isMobile || size === "small" ?
@@ -85,7 +94,7 @@ function AutoComplete({ ...props }) {
                             dispatch(onResetPatient());
                             handleOnAddPatient()
                         }}>
-                        <AddIcon />
+                        <AddIcon/>
                     </IconButton>
                     :
                     <Button
@@ -97,7 +106,7 @@ function AutoComplete({ ...props }) {
                         size={"small"}
                         color="primary"
                         aria-label="directions">
-                        <AddIcon />
+                        <AddIcon/>
                         {t('stepper-2.add_button')}
                     </Button>}
             </Stack>
@@ -106,11 +115,11 @@ function AutoComplete({ ...props }) {
                     <MenuList
                         id={"item-list"}
                         autoFocusItem={!focus}>
-                        {loading && <LinearProgress color="warning" />}
+                        {/*{loading && <LinearProgress color="warning"/>}*/}
                         {data?.map((item: any) => (
                             <PatientAppointmentCard
-                                {...{ handleListItemClick, item }}
-                                key={item.uuid} />
+                                {...{handleListItemClick, item}}
+                                key={item.uuid}/>
                         ))}
                     </MenuList>
                 </Box>
