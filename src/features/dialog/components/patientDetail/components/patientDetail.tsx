@@ -454,7 +454,7 @@ function PatientDetail({...props}) {
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
                     <Backdrop open={openFabAdd}/>
                     {" "}
-                    <PatientDetailsToolbar onClose={closePatientDialog}/>
+                    <PatientDetailsToolbar {...{t}} onClose={closePatientDialog}/>
 
                     <PatientDetailsCard
                         loading={!patient}
