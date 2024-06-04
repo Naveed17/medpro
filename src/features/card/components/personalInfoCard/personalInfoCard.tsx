@@ -48,7 +48,7 @@ MyTextInput.displayName = "TextField";
 function PersonalInfo({...props}) {
     const {
         patient, mutatePatientDetails, mutatePatientList = null,
-        mutateAgenda = null, countries_api,
+        mutateAgenda = null,
         patientPhoto,
         loading = false, editable: defaultEditStatus, setEditable
     } = props;

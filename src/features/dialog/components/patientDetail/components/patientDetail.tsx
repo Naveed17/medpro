@@ -2,22 +2,6 @@ import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetailsCard} from "@features/card";
-
-const MedicalRec = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.PatientMedicalRecordPanel))
-const PersonalInfoPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.PersonalInfoPanel))
-const TransactionPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.TransactionPanel))
-const HistoryPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.HistoryPanel))
-const DocumentsPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.DocumentsPanel))
-const NotesPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.NotesPanel))
-const PatientFile = dynamic(() =>
-    import('@features/files').then((mod) => mod.PatientFile))
-
 import {
     EventType,
     Instruction,
@@ -50,13 +34,7 @@ import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
-import {
-    useAntecedentTypes,
-    useContactType, useCountries,
-    useFeaturePermissions,
-    useProfilePhoto,
-    useSendNotification
-} from "@lib/hooks/rest";
+import {useFeaturePermissions, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
@@ -68,6 +46,21 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {AbilityContext} from "@features/casl/can";
 import {setPermissions} from "@features/casl";
 import dynamic from "next/dynamic";
+
+const MedicalRec = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.PatientMedicalRecordPanel))
+const PersonalInfoPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.PersonalInfoPanel))
+const TransactionPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.TransactionPanel))
+const HistoryPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.HistoryPanel))
+const DocumentsPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.DocumentsPanel))
+const NotesPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.NotesPanel))
+const PatientFile = dynamic(() =>
+    import('@features/files').then((mod) => mod.PatientFile))
 
 function a11yProps(index: number) {
     return {
