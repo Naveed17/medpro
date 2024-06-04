@@ -19,6 +19,7 @@ function AuthGuard({children}: LayoutProps) {
     useEffect(() => {
         // check if the error has occurred
         if (session?.error === "RefreshAccessTokenError" || (status === "unauthenticated" && !["/auth/signIn", "/", `/${router.locale}`].includes(router.asPath))) {
+            console.log('signIn auth guard');
             signIn('keycloak', {callbackUrl: `/${router.locale}`}); // Force sign in to hopefully resolve error
         }
     }, [session, router, status]);
