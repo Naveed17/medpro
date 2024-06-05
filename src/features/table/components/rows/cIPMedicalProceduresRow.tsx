@@ -1,5 +1,5 @@
 import TableCell from "@mui/material/TableCell";
-import {Button, Checkbox, IconButton, Paper, Stack, Tooltip, Typography} from "@mui/material";
+import {Button, Checkbox, IconButton, Paper, Stack, Typography} from "@mui/material";
 import {Theme, useTheme} from "@mui/material/styles";
 import {Otable, TableRowStyled} from "@features/table";
 import React, {useState} from "react";
@@ -68,16 +68,18 @@ function CIPMedicalProceduresRow({...props}) {
             row.insurance_act = null;
             row.patient_part = 0;
             row.refund = 0;
+            row.code_pa = "";
         } else {
             row.insurance_act = insurance.uuid;
             row.patient_part = row.fees - insurance.refund;
             row.refund = insurance.refund;
+            row.code_pa = insurance.code_pa;
         }
         editMotif(row, "change");
-        handleEvent(row.uuid,false)
+        handleEvent(row.uuid, false)
         setCollapse(false)
     }
-
+    console.log(row)
     const debouncedOnChange = debounce(lostFocus, 1500);
 
     return (
@@ -109,17 +111,47 @@ function CIPMedicalProceduresRow({...props}) {
 
                         {
                             row.insurances?.length > 0 &&
-
-                            <IconButton disabled={!row.selected} onClick={() => setCollapse(!collapse)}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                {row.insurance ? <img
-                                        alt={"insurance name"}
-                                        width={20} height={20}
-                                        src={allInsurances.find((insurance: any) => insurance.uuid === row.insurance)?.logoUrl?.url}/> :
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <IconUrl path={"ic-assurance"} width={20} height={20}/>
-                                }
-                            </IconButton>
+                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                <IconButton disabled={!row.selected} onClick={() => setCollapse(!collapse)}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    {row.insurance ? <img
+                                            alt={"insurance name"}
+                                            width={20} height={20}
+                                            src={allInsurances.find((insurance: any) => insurance.uuid === row.insurance)?.logoUrl?.url}/> :
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <IconUrl path={"ic-assurance"} width={20} height={20}/>
+                                    }
+                                </IconButton>
+                                {row.pre_approval && <InputBaseStyled
+                                    size="small"
+                                    sx={{
+                                        fontSize: 13,
+                                        fontWeight: 600,
+                                        input: {
+                                            p: .5,
+                                            textAlign: "center"
+                                        }
+                                    }}
+                                    id={row.uuid}
+                                    value={row.code_pa}
+                                    placeholder={"code PA"}
+                                    autoFocus={selected === row.uuid}
+                                    onChange={(e: any) => {
+                                        row.code_pa =e.target.value;
+                                    }}
+                                    onFocus={(event) => {
+                                        event.target.select();
+                                        setSelected(row.uuid);
+                                    }}
+                                    onBlur={() => {
+                                        setSelected("");
+                                        setTimeout(() => {
+                                            dispatch(SetLoading(false))
+                                        }, 3000)
+                                        handleEvent(row.uuid, false)
+                                    }}
+                                />}
+                            </Stack>
                         }
                     </Stack>
                 </TableCell>
@@ -164,7 +196,7 @@ function CIPMedicalProceduresRow({...props}) {
 
                 </TableCell>
                 <TableCell align="center">
-                  {/*  { row.insurances?.length > 0 && (row.selected ? <InputBaseStyled
+                    {/*  { row.insurances?.length > 0 && (row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -200,7 +232,7 @@ function CIPMedicalProceduresRow({...props}) {
                     /> */} <Typography className={"txt"}>{row.refund} {row.refund && devise}</Typography>
                 </TableCell>
                 <TableCell align="center">
-                    {row.insurances?.length > 0 &&  ( row.selected ? <InputBaseStyled
+                    {row.insurances?.length > 0 && (row.selected ? <InputBaseStyled
                         size="small"
                         sx={{
                             fontSize: 13, fontWeight: 600, input: {
@@ -303,11 +335,11 @@ function CIPMedicalProceduresRow({...props}) {
                 </TableCell>
 
                 <TableCell align={"center"}>
-                <Typography className={"txt"}>{row.qte ? row.fees * row.qte : row.fees} {devise}</Typography>
+                    <Typography className={"txt"}>{row.qte ? row.fees * row.qte : row.fees} {devise}</Typography>
                 </TableCell>
             </TableRowStyled>
 
-           {collapse && <TableRowStyled className="row-collapse">
+            {collapse && <TableRowStyled className="row-collapse">
                 <TableCell colSpan={7}
                            style={{
                                backgroundColor: "none",

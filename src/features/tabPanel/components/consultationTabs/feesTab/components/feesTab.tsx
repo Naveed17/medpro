@@ -142,6 +142,7 @@ function FeesTab({...props}) {
                     _acts[index].insurance = act.insurance;
                     _acts[index].patient_part = act.patientPart;
                     _acts[index].refund = act.refund;
+                    _acts[index].code_pa = act.code_pa;
                 }
             })
 
