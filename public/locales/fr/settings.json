@@ -946,6 +946,7 @@
         "end_date": "Date de fin",
         "empty": "",
         "act": "Acte",
+        "ap": "A.P",
         "fees": "Honoraires",
         "rem_amount": "Montant de Remb.",
         "patient_share": "Part patient",

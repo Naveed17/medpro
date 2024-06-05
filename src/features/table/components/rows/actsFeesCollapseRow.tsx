@@ -11,7 +11,7 @@ function ActsFeesCollapseRow({...props}) {
         <TableRowStyled className="act-fees-collapse-row">
             <TableCell>
                 <Typography fontWeight={700} color="text.primary">
-                    {row.insurance ? row.insurance?.name : row.mutual}
+                    {row.insurance ? row.insurance?.name : row.mutual} {row.label}
                 </Typography>
             </TableCell>
             <TableCell>

@@ -74,14 +74,22 @@ function InscDetail() {
             align: "center",
             sortable: false,
         },
-        ...(apcis.length > 0 ? [{
+        {
+            id: "AP",
+            numeric: true,
+            disablePadding: false,
+            label: "AP",
+            align: "center",
+            sortable: false,
+        },
+       /* ...(apcis.length > 0 ? [{
             id: "apci",
             numeric: false,
             disablePadding: false,
             label: "apci",
             align: "center",
             sortable: false,
-        }]:[]),
+        }]:[]),*/
         {
             id: "action",
             numeric: false,
