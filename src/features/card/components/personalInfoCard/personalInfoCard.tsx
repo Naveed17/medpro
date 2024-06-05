@@ -80,7 +80,8 @@ function PersonalInfo({...props}) {
         profession: Yup.string(),
         cin: Yup.string(),
         familyDoctor: Yup.string(),
-        nationality: Yup.string()
+        nationality: Yup.string(),
+        family_doctor_code: Yup.string()
     });
 
     const initialValue = {
@@ -97,7 +98,8 @@ function PersonalInfo({...props}) {
         civilStatus: !loading && patient.civilStatus && patient.civilStatus !== "null" ? patient.civilStatus : "",
         profession: !loading && patient.profession && patient.profession !== "null" ? patient.profession : "",
         familyDoctor: !loading && patient.familyDoctor && patient.familyDoctor !== "null" ? patient.familyDoctor : "",
-        nationality: !loading && patient?.nationality && patient.nationality !== "null" ? patient.nationality.uuid : ""
+        nationality: !loading && patient?.nationality && patient.nationality !== "null" ? patient.nationality.uuid : "",
+        family_doctor_code: !loading && patient?.family_doctor_code && patient.family_doctor_code !== "null" ? patient.family_doctor_code : ""
     };
     const flattenedObject = flattenObject(initialValue);
 
@@ -121,6 +123,7 @@ function PersonalInfo({...props}) {
         params.append('profession', values.profession);
         params.append('family_doctor', values.familyDoctor);
         params.append('nationality', values.nationality);
+        params.append('family_doctor_code', values.family_doctor_code);
         values.addressedBy?.uuid && params.append('addressed_by', values.addressedBy.uuid);
         values.civilStatus?.uuid && params.append('civil_status', values.civilStatus.uuid);
         values.birthdate?.length > 0 && params.append('birthdate', values.birthdate);
@@ -577,7 +580,6 @@ function PersonalInfo({...props}) {
                                     )}
                                 </Grid>
                             </Stack>
-
                         </Grid>
                         <Grid item md={6} sm={6} xs={12}>
                             <Stack direction="row" spacing={1}
@@ -855,6 +857,38 @@ function PersonalInfo({...props}) {
                                             )}
                                             isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
                                             placeholder={t("civil-status-placeholder")}
+                                        />
+                                    )}
+                                </Grid>
+                            </Stack>
+                        </Grid>
+
+                        <Grid item md={12} sm={12} xs={12}>
+                            <Stack
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        width: "100%"
+                                    }
+                                }}
+                                direction="row"
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item md={3} sm={6} xs={3}>
+                                    <Typography variant="body1" color="text.secondary" noWrap>
+                                        {t("family_doctor_code")}
+                                    </Typography>
+                                </Grid>
+                                <Grid
+                                    {...(editable && {className: "grid-border"})}
+                                    item md={8} sm={6} xs={9}>
+                                    {loading ? (
+                                        <Skeleton variant="text"/>
+                                    ) : (
+                                        <InputBase
+                                            placeholder={t("family_doctor_code-placeholder")}
+                                            readOnly={!editable}
+                                            error={Boolean(touched.family_doctor_code && errors.family_doctor_code)}
+                                            {...getFieldProps("family_doctor_code")}
                                         />
                                     )}
                                 </Grid>

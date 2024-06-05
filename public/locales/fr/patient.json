@@ -206,6 +206,8 @@
       "last-name-error": "Le nom de famille doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "last-name-placeholder": "Tapez le nom de famille",
       "birthdate": "D.Naissance",
+      "family_doctor_code": "Code du médecin de famille",
+      "family_doctor_code-placeholder": "Code assurance du médecin de famille",
       "family_doctor": "Médecin",
       "family_doctor-placeholder": "Médecin correspondant",
       "country": "Pays",
