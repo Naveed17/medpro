@@ -421,6 +421,7 @@ function ConsultationInProgress() {
                 cin: patient?.idCard,
                 tel: patient?.contact && patient?.contact?.length > 0 ? patient?.contact[0] : "",
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                insurance: patient?.insurances.find(pi => pi?.insurance.hasApci)?.insuranceNumber,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -461,8 +462,8 @@ function ConsultationInProgress() {
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 uuidDoc: uuidDoc,
                 documentHeader: card.header ? card.header : null,
-                patient: `${type} ${patient?.firstName
-                } ${patient?.lastName}`,
+                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+                insurance: patient?.insurances.find(pi => pi?.insurance.hasApci)?.insuranceNumber,
                 cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient,
