@@ -1,7 +1,4 @@
-import {
-    ProgramItem,
-    useProgram,
-} from "planby";
+import {useProgram,} from "planby";
 import {Card, CardContent, Typography, useTheme} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {timeLineSelector} from "@features/timeline";

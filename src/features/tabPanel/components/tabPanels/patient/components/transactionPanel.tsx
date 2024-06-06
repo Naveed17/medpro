@@ -3,10 +3,8 @@ import {
     Button,
     Card,
     CardContent,
-    IconButton,
     InputAdornment,
     LinearProgress,
-    Paper,
     Stack,
     TextField,
     Theme,
@@ -19,16 +17,14 @@ import PanelStyled from "./overrides/panelStyle";
 import {useTranslation} from "next-i18next";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
-import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 import CloseIcon from "@mui/icons-material/Close";
 import {NoDataCard, TransactionMobileCard} from "@features/card";
-import {motion} from "framer-motion";
 import {Dialog} from "@features/dialog";
 import {LoadingButton} from "@mui/lab";
 import Can from "@features/casl/can";

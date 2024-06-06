@@ -1,12 +1,11 @@
 import RootStyled from './overrides/rootStyled';
-import { Avatar, Box, IconButton, Stack, Typography, useTheme } from "@mui/material";
+import {Avatar, Box, IconButton, Stack, Typography, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
-import React, { useState } from "react";
+import React, {useState} from "react";
 import Zoom from "react-medium-image-zoom";
 import CircularProgress from '@mui/material/CircularProgress';
-import { useProfilePhoto } from "@lib/hooks/rest";
+import {useProfilePhoto} from "@lib/hooks/rest";
 
 function PatientAppointmentCard({ ...props }) {
     const { item: patient, handleListItemClick = null, listing, onReset, onEdit, ...rest } = props;

@@ -2,26 +2,18 @@ import React, {useCallback, useState} from "react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
-import {Divider, IconButton, Stack, Theme, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {Divider, IconButton, Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {agendaSelector, CustomPickersDay} from "@features/calendar";
 import moment from "moment-timezone";
-import {
-    PickersCalendarHeaderProps,
-    PickersDay,
-    PickersDayProps,
-    StaticDatePicker
-} from "@mui/x-date-pickers";
+import {PickersCalendarHeaderProps, StaticDatePicker} from "@mui/x-date-pickers";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {highlightedDays, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {MobileContainer as smallScreen} from "@lib/constants";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import {ChevronLeft, ChevronRight} from "@mui/icons-material";
 import {styled} from '@mui/material/styles';
 import {startCase} from "lodash";
 import IconUrl from "@themes/urlIcon";
-
 
 const CustomCalendarHeaderRoot = styled(Stack)({
     padding: '7px 16px',

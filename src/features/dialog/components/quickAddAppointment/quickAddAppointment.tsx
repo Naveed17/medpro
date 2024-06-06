@@ -1,11 +1,11 @@
 import QuickAddAppointmentStyled from "./overrides/quickAddAppointmentStyled";
-import { EventType, Patient, TimeSchedule, appointmentSelector } from "@features/tabPanel";
-import { useRef, useState } from "react";
-import { Button, CardHeader, Divider, IconButton, Stack, Theme, Typography, useTheme } from "@mui/material";
-import { CustomIconButton } from "@features/buttons";
+import {appointmentSelector, Patient, TimeSchedule} from "@features/tabPanel";
+import {useRef} from "react";
+import {Button, CardHeader, Divider, IconButton, Stack, Theme, Typography, useTheme} from "@mui/material";
+import {CustomIconButton} from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
-import { Label } from "@features/label";
-import { useAppSelector } from "@lib/redux/hooks";
+import {Label} from "@features/label";
+import {useAppSelector} from "@lib/redux/hooks";
 
 function QuickAddAppointment({ ...props }) {
     const { handleAddPatient, t, withoutDateTime = false, handleClose } = props;

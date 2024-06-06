@@ -1,32 +1,24 @@
 import React, {useEffect, useRef, useState} from "react";
 import RootStyled from "./overrides/rootStyle";
 import {
-    Typography,
-    Skeleton,
-    CardContent,
-    Grid,
-    Stack,
-    Box,
-    AppBar,
-    Toolbar,
-    MenuItem,
-    useTheme,
     Avatar,
-    useMediaQuery,
-    InputAdornment,
-    Divider, IconButton, Button,
+    CardContent,
     CardHeader,
     Collapse,
     FormControl,
-    Select,
+    IconButton,
+    InputAdornment,
     Link,
+    MenuItem,
+    Stack,
+    Typography,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
-import InputBase from "@mui/material/InputBase";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import {useTranslation} from "next-i18next";
-import {useFormik, Form, FormikProvider, FieldArray} from "formik";
-import SaveAsIcon from "@mui/icons-material/SaveAs";
+import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import IconUrl from "@themes/urlIcon";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -36,7 +28,6 @@ import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 import {countries as countriesData} from "@features/countrySelect/countries";
 import * as Yup from "yup";
-import {LoadingButton} from "@mui/lab";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {DefaultCountry, PatientContactRelation} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
@@ -46,11 +37,7 @@ import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {ToggleButtonStyled} from "@features/toolbar";
-import Icon from "@themes/urlIcon";
-import AddIcon from "@mui/icons-material/Add";
 import {CustomIconButton} from "@features/buttons";
-import {useCountries} from "@lib/hooks/rest";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 

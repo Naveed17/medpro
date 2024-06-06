@@ -7,7 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, CalendarPickers, CustomPickersDay, setStepperIndex} from "@features/calendar";
+import {agendaSelector, CalendarPickers, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -15,17 +15,23 @@ import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
 import moment from "moment-timezone";
 import {
+    appointmentSelector,
     EventType,
-    appointmentSelector, setAppointmentDate,
-    setAppointmentDuration, setAppointmentMotif, setAppointmentRecurringDates
+    setAppointmentDate,
+    setAppointmentDuration,
+    setAppointmentMotif,
+    setAppointmentRecurringDates
 } from "@features/tabPanel";
 import {TimeSlot} from "@features/timeSlot";
 import {PatientCardMobile} from "@features/card";
 import {
     Autocomplete,
-    DialogActions, Divider,
-    IconButton, InputAdornment,
-    LinearProgress, Select,
+    DialogActions,
+    Divider,
+    IconButton,
+    InputAdornment,
+    LinearProgress,
+    Select,
     Stack,
     Switch,
     Tab,

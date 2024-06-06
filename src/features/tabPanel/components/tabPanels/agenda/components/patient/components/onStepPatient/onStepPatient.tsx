@@ -1,36 +1,32 @@
-import {FieldArray, Form, FormikProvider, useFormik} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import {
     Autocomplete,
     Avatar,
     Box,
     Button,
-    Card,
-    CardContent,
-    CardHeader,
     Collapse,
     FormControl,
-    FormControlLabel,
     FormHelperText,
     Grid,
     IconButton,
     IconButtonProps,
-    InputAdornment, ListItem, ListItemText,
+    InputAdornment,
+    ListItem,
+    ListItemText,
     MenuItem,
-    Radio,
-    RadioGroup,
     Select,
     Stack,
     TextField,
     Typography,
     useTheme
 } from "@mui/material";
-import moment from "moment-timezone";
-import React, {memo, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {addPatientSelector, appointmentSelector, CustomInput, InputStyled} from "@features/tabPanel";
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {styled} from "@mui/material/styles";
@@ -41,21 +37,16 @@ import {DefaultCountry, Gender, PatientContactRelation, SocialInsured} from "@li
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
-import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
-import {arrayUniqueByKey, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
+import {arrayUniqueByKey, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {LoadingScreen} from "@features/loadingScreen";
 import {ToggleButtonStyled} from "@features/toolbar";
-import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
 import {AsyncAutoComplete} from "@features/autoComplete";
-import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
-import {MyTextInput} from "@features/input";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
