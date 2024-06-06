@@ -34,7 +34,6 @@ import PhoneInput from "react-phone-number-input/input";
 import {CustomInput} from "@features/tabPanel";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {LocalizationProvider} from "@mui/x-date-pickers";
 import moment from "moment-timezone";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
@@ -52,7 +51,7 @@ const GroupItems = styled('ul')({
 });
 
 const AddInsurance = ({...props}) => {
-    const { pi, requestAction = "POST", handleUpdatePatient} = props;
+    const {pi, requestAction = "POST", handleUpdatePatient} = props;
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -126,7 +125,7 @@ const AddInsurance = ({...props}) => {
                 end_date: pi && pi.insuranceBook && pi.insuranceBook?.endDate ? new Date(moment(pi.insuranceBook?.endDate, 'DD-MM-YYYY').format('MM/DD/YYYY')) : "",
                 insurance_key: "",
                 insurance_number: pi && pi.insuranceNumber ? pi.insuranceNumber : "",
-                insurance_uuid: pi && pi.insurance? pi.insurance.uuid : "",
+                insurance_uuid: pi && pi.insurance ? pi.insurance.uuid : "",
                 insurance_type: pi ? pi.type.toString() : "",
                 insurance_social: {
                     firstName: pi && pi.insuredPerson ? pi.insuredPerson.firstName : "",
@@ -147,7 +146,20 @@ const AddInsurance = ({...props}) => {
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
-            handleUpdatePatient({...{values, selectedBox, apcis, contacts, selectedConv, requestAction, setSelected, setSelectedConv, resetForm, pi}});
+            handleUpdatePatient({
+                ...{
+                    values,
+                    selectedBox,
+                    apcis,
+                    contacts,
+                    selectedConv,
+                    requestAction,
+                    setSelected,
+                    setSelectedConv,
+                    resetForm,
+                    pi
+                }
+            });
         }
     });
 
@@ -155,8 +167,8 @@ const AddInsurance = ({...props}) => {
     const {t: commonTranslation} = useTranslation("common");
 
     const [selected, setSelected] = useState<InsuranceModel | null>(pi ? insurances.find(insc => insc.uuid === pi.insurance.uuid) as InsuranceModel : null);
-    const [boxes, setBoxes] = useState<InsuranceBoxModel[]>([]);
-    const [selectedBox, setSelectedBox] = useState<InsuranceBoxModel | null>(null);
+    const [boxes, setBoxes] = useState<InsuranceBoxModel[]>(pi ? pi.insurance.boxes : []);
+    const [selectedBox, setSelectedBox] = useState<InsuranceBoxModel | null>(pi && pi?.insuranceBook ? pi?.insuranceBook.box : null);
     const [apcisList, setApcisList] = useState<ApciModel[]>([]);
     const [apcis, setApcis] = useState<string[]>(pi ? pi.apci?.map((a: { uuid: string }) => a.uuid) : []);
     const [conventions, setConventions] = useState<any[]>([]);
@@ -318,23 +330,6 @@ const AddInsurance = ({...props}) => {
                         className="label"
                         variant="body2"
                         color="text.secondary">
-                        {t("insurance.member")}
-                    </Typography>
-                    <TextField
-                        variant="outlined"
-                        placeholder={t("insurance.member_placeholder")}
-                        size="small"
-                        value={getFieldProps(`insurance.insurance_number`)?.value || null}
-                        onChange={(ev) => {
-                            setFieldValue(`insurance.insurance_number`, ev.target.value);
-                        }}
-                        fullWidth/>
-                </Stack>
-                <Stack spacing={1} style={{width: "100%"}}>
-                    <Typography
-                        className="label"
-                        variant="body2"
-                        color="text.secondary">
                         {t("insurance.insuranceBook")}
                     </Typography>
                     <TextField
@@ -368,6 +363,24 @@ const AddInsurance = ({...props}) => {
                         fullWidth
                     />
                 </Stack>
+                <Stack spacing={1} style={{width: "100%"}}>
+                    <Typography
+                        className="label"
+                        variant="body2"
+                        color="text.secondary">
+                        {t("insurance.member")}
+                    </Typography>
+                    <TextField
+                        variant="outlined"
+                        placeholder={t("insurance.member_placeholder")}
+                        size="small"
+                        value={getFieldProps(`insurance.insurance_number`)?.value || null}
+                        onChange={(ev) => {
+                            setFieldValue(`insurance.insurance_number`, ev.target.value);
+                        }}
+                        fullWidth/>
+                </Stack>
+
             </Stack>
 
             <Stack direction={"row"} spacing={1}>
@@ -502,18 +515,18 @@ const AddInsurance = ({...props}) => {
                                     minWidth: "auto"
                                 }
                             }}>
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {t("config.add-patient.birthdate")}
-                                    </Typography>
-                                    <DatePicker
-                                        value={moment(getFieldProps(`insurance.insurance_social.birthday`).value, "DD-MM-YYYY").toDate()}
-                                        onChange={(date: Date) => {
-                                            if (moment(date).isValid()) {
-                                                setFieldValue(`insurance.insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                            }
-                                        }}
-                                        format="dd/MM/yyyy"
-                                    />
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                    {t("config.add-patient.birthdate")}
+                                </Typography>
+                                <DatePicker
+                                    value={moment(getFieldProps(`insurance.insurance_social.birthday`).value, "DD-MM-YYYY").toDate()}
+                                    onChange={(date: Date) => {
+                                        if (moment(date).isValid()) {
+                                            setFieldValue(`insurance.insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                        }
+                                    }}
+                                    format="dd/MM/yyyy"
+                                />
                             </Box>
                             <Box>
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -621,8 +634,21 @@ const AddInsurance = ({...props}) => {
             </Stack>}
 
             <Button variant={"contained"}
-                    onClick={()=>{
-                        handleUpdatePatient({...{values, selectedBox, apcis, contacts, selectedConv, requestAction, setSelected, setSelectedConv, resetForm, pi}});
+                    onClick={() => {
+                        handleUpdatePatient({
+                            ...{
+                                values,
+                                selectedBox,
+                                apcis,
+                                contacts,
+                                selectedConv,
+                                requestAction,
+                                setSelected,
+                                setSelectedConv,
+                                resetForm,
+                                pi
+                            }
+                        });
                     }}>{t(pi ? t('insurance.edit') : t('insurance.add'))}</Button>
         </Stack>
     );

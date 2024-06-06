@@ -470,8 +470,8 @@ function InscDetail() {
                                     {
                                         editMode ?
                                             <DatePicker
-                                                value={moment(selectedMPI?.start_date, "DD-MM-YYYY").toDate() || ""}
-                                                format="dd/MM/yyyy"
+                                                value={moment(selectedMPI?.start_date, "DD-MM-YYYY").toDate() || null}
+                                                format="dd-MM-yyyy"
                                                 slots={{
                                                     openPickerIcon: CalendarPickerIcon,
                                                 }}
@@ -500,7 +500,7 @@ function InscDetail() {
                                     {
                                         editMode ? <DatePicker
                                                 defaultValue={selectedMPI?.end_date}
-                                                value={moment(selectedMPI?.end_date, "DD-MM-YYYY").toDate() || ""}
+                                                value={moment(selectedMPI?.end_date, "DD-MM-YYYY").toDate() || null}
                                                 format="dd-MM-yyyy"
                                                 slots={{
                                                     openPickerIcon: CalendarPickerIcon,

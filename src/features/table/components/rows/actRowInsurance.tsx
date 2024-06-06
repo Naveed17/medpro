@@ -26,6 +26,7 @@ function ActRowInsurance({...props}) {
     const [patient_part, setPatient_part] = useState(row.patient_part);
     const [refund, setRefund] = useState(row.refund);
     const [selected, setSelected] = useState(false);
+    const [period, setPeriod] = useState(row.period);
     const [apci, setApci] = useState<string[]>(typeof row.apci === 'string' ? row.apci.split(',') : row.apci.map((item: any) => item.uuid));
 
     const handleSelect = (event: SelectChangeEvent<typeof apci>) => {
@@ -50,6 +51,7 @@ function ActRowInsurance({...props}) {
         form.append("patient_part", row.patient_part)
         form.append("apcis", row.apci)
         form.append("pre_approval", row.pre_approval)
+        form.append("period", row.period)
         trigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${row.uuid}/${router.locale}`,
@@ -157,6 +159,20 @@ function ActRowInsurance({...props}) {
                 </Select> : <Typography>{getCode(apci).join(',')}</Typography>}
 
             </TableCell>}
+
+            <TableCell align={"center"}>
+                {selected ? <InputBaseStyled
+                    placeholder={"--"}
+                    value={period}
+                    onChange={(e) => {
+                        if (!isNaN(Number(e.target.value))) {
+                            setPeriod(e.target.value);
+                            row.period = Number(e.target.value);
+                            handleChange(row)
+                        }
+                    }}/> : <Typography>{row.period ? row.period : "-"} J </Typography>}
+            </TableCell>
+
             <TableCell align={"center"}>
                 {selected ?  <Checkbox checked={row.pre_approval} onChange={(ev) => {
                     row.pre_approval = ev.target.checked

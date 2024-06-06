@@ -81,6 +81,14 @@ function InscDetail() {
             sortable: false,
         }] : []),
         {
+            id: "period",
+            numeric: true,
+            disablePadding: false,
+            label: "period",
+            align: "center",
+            sortable: false,
+        },
+        {
             id: "AP",
             numeric: true,
             disablePadding: false,
@@ -88,6 +96,7 @@ function InscDetail() {
             align: "center",
             sortable: false,
         },
+
         {
             id: "action",
             numeric: false,
