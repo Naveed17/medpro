@@ -3,15 +3,22 @@ import {
     Autocomplete,
     Box,
     Button,
-    CardContent, Checkbox, Divider,
-    FormControl, FormControlLabel, FormGroup, Grid,
-    IconButton, InputAdornment,
+    CardContent,
+    Checkbox,
+    Divider,
+    FormControl,
+    FormControlLabel,
+    FormGroup,
+    Grid,
+    IconButton,
+    InputAdornment,
     Link,
     List,
     ListItem,
     Stack,
     TextField,
-    Typography, useTheme,
+    Typography,
+    useTheme,
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
@@ -24,8 +31,8 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
-import {configSelector, dashLayoutSelector} from "@features/base";
-import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions, useInvalidateQueries} from "@lib/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {ConditionalWrapper, filterReasonOptions, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {debounce} from "lodash";
 import {MobileTimePicker} from "@mui/x-date-pickers/MobileTimePicker";
 import SortIcon from "@themes/overrides/icons/sortIcon";
@@ -546,7 +553,7 @@ function AppointmentCard({...props}) {
                                                             InputProps={{
                                                                 endAdornment: (
                                                                     <InputAdornment position="end">
-                                                                        <SortIcon/>
+                                                                        <SortIcon sx={{width: 18, height: 18}}/>
                                                                     </InputAdornment>
                                                                 ),
                                                             }}

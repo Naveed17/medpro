@@ -1,12 +1,13 @@
 import {useState} from "react";
 // material
-import {Typography, IconButton, Box, List, ListItem} from "@mui/material";
+import {Typography, IconButton, Box, List, ListItem, ListItemIcon, ListItemAvatar} from "@mui/material";
 import {useTheme} from "@mui/material/styles";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 // router
 import Icon from "@themes/urlIcon";
 import {Popover} from "@features/popover";
 import SettingTableStyled from "./overrides/SettingTableStyled";
+import {Label} from "@features/label";
 
 const menuList = [
     {
@@ -32,19 +33,24 @@ export default function MobileTable({...props}) {
     const [openTooltip, setOpenTooltip] = useState(false);
 
     return (
-        <SettingTableStyled {...(onDeleteItem && {onClick: () => onDeleteItem()})}>
-            <List className="patient-config-list">
+        <SettingTableStyled  {...(onDeleteItem && {onClick: () => onDeleteItem()})}>
+            <List className="patient-config-list" component='div'>
                 <ListItem
+                    component="div"
                     disablePadding
-                    className={item.status}
                     sx={{
                         borderRadius:
                             !size && size !== "small" ? "0px 10px 10px 0px" : "6px",
                     }}>
-                    <Box sx={{mr: "4px"}}>
-                        <Typography variant="body1" color="text.primary">
-                            {item.name}
-                        </Typography>
+                    <ListItemAvatar>
+                        <Icon path="ic-outline-agenda-tick" width={20} height={20}/>
+                    </ListItemAvatar>
+                    <ListItemIcon>
+                        <Label sx={{bgcolor: item?.type?.color}} className="consultation-label" variant="filled">
+                            {item?.type?.name}
+                        </Label>
+                    </ListItemIcon>
+                    <Box sx={{mr: .5, ml: 1}}>
                         {!size && size !== "small" && (
                             <Typography
                                 sx={{
@@ -72,8 +78,8 @@ export default function MobileTable({...props}) {
                                     color: "text.primary",
                                     mr: 1,
                                     "& svg": {
-                                        width: 12,
-                                        height: 12,
+                                        width: 14,
+                                        height: 14,
                                         mr: 1,
                                         "& path": {fill: theme.palette.text.secondary},
                                     },
@@ -81,17 +87,17 @@ export default function MobileTable({...props}) {
                                 variant="body2"
                                 color="primary.main"
                                 component="span">
-                                <Icon path="ic-agenda"/>
+                                <Icon path="ic-agenda-jour"/>
                                 {item.date}
                             </Typography>
-                            <Typography
+                            {item.time !== "00:00" && <Typography
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
                                     color: "text.primary",
                                     "& svg": {
-                                        width: 12,
-                                        height: 12,
+                                        width: 14,
+                                        height: 14,
                                         mr: "4px",
                                         "& path": {fill: theme.palette.text.secondary},
                                     },
@@ -101,10 +107,10 @@ export default function MobileTable({...props}) {
                                 component="span">
                                 <Icon path="ic-time"/>
                                 {item.time}
-                            </Typography>
+                            </Typography>}
                         </Box>
                     </Box>
-                    <Box>
+                    <Box sx={{ml: 'auto'}}>
                         {contextMenuList ? <div>
                             <Popover
                                 open={openTooltip}

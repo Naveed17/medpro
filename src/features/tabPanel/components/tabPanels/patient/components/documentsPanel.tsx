@@ -3,6 +3,7 @@ import {useTranslation} from "next-i18next";
 // material
 import {
     AppBar,
+    Badge,
     Box,
     Button,
     CardContent,
@@ -28,7 +29,7 @@ import ImageViewer from "react-simple-image-viewer";
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import {a11yProps, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {a11yProps, useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
@@ -49,6 +50,8 @@ import {LoadingButton} from "@mui/lab";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
+import {agendaSelector} from "@features/calendar";
+import {CustomIconButton} from "@features/buttons";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
@@ -166,12 +169,14 @@ function DocumentsPanel({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     const {selectedDialog} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser, secretaryAccess} = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     // filter checked array
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -238,6 +243,10 @@ function DocumentsPanel({...props}) {
                     mutatePatientDocuments();
                 } else {
                     mutateAppDocPatient();
+                }
+                if (router.pathname === "/dashboard/consultation/[...uuid-consultation]") {
+                    const appointmentUuid = (router.query["uuid-consultation"] ?? [""])[0];
+                    appointmentUuid && invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUuid}/documents/${router.locale}`]);
                 }
             },
             onSettled: () => {
@@ -672,10 +681,22 @@ function DocumentsPanel({...props}) {
                             }
                         }}>
                         <CardContent>
-                            <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                                <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
+                            <Stack direction='row' alignItems='center' justifyContent='space-between' my={2}>
+                                <Typography variant="subtitle2" fontSize={18} fontWeight={600}>
+                                    {t("patient_details.patient_documents", {ns: 'patient'})}
+                                </Typography>
+                                <CustomIconButton color="primary" icon="ic-plus" iconProps={{
+                                    width: 16,
+                                    height: 16,
+                                    color: theme.palette.common.white
+                                }}/>
+                            </Stack>
+                            <Box>
+                                <Tabs className="custom-tabs" value={currentTab} onChange={handleTabsChange}
+                                      aria-label="documents tabs">
                                     {tabsContent.map((tabHeader, tabHeaderIndex) =>
-                                        <Tab key={`tabHeaderIndex-${tabHeaderIndex}`}
+                                        <Tab icon={<Badge badgeContent={2}/>} iconPosition="end"
+                                             key={`tabHeaderIndex-${tabHeaderIndex}`}
                                              label={tabHeader.title} {...a11yProps(tabHeaderIndex)} />)}
                                 </Tabs>
                                 <LinearProgress sx={{

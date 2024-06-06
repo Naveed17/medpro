@@ -239,7 +239,9 @@ function CalendarToolbar({...props}) {
                         className={"toggle-button"}
                         sx={{
                             ...(mode !== "normal" && {border: "none"}),
-                            background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
+                            background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500'],
+                            minWidth: 40,
+                            minHeight: 40,
                         }}>
                         <IconUrl width={19} height={19}
                                  path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>

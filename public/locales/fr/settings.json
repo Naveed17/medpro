@@ -40,6 +40,9 @@
     "billing": "Billing",
     "insurance_agreement": "Assurance & Convention"
   },
+  "consultation": {
+    "title": "Consultation"
+  },
   "profile": {
     "upload-logo": "Télécharger le logo",
     "specialities": "Spécialité",
@@ -969,6 +972,8 @@
         "end_date": "Date de fin",
         "empty": "",
         "act": "Acte",
+        "ap": "A.P",
+        "period": "Période",
         "fees": "Honoraires",
         "rem_amount": "Montant de Remb.",
         "patient_share": "Part patient",
@@ -1002,6 +1007,8 @@
         "confirm_add": "Confirmer & Ajouter une autre",
         "confirm_save": "Confirmer & Ajouter une autre",
         "title": "Ajouter une assurance / convention",
+        "title_delete": "Supprimer une convention",
+        "desc_delete": "Êtes-vous sûr de supprimer cette convention ?",
         "create_act": "Ajouter un acte",
         "switch": "Saisie Avancée",
         "contribution_placeholder": "Tapez la cotation",
@@ -1133,6 +1140,7 @@
       "background": "Importer le document actuel",
       "title": "Titre",
       "date": "Date",
+      "insuranceCode": "ID assurance",
       "patient": "Nom patient",
       "firstName": "Nom & prénom",
       "configPatient": "Configurer nom du patient",

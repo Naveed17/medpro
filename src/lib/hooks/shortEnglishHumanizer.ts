@@ -1,4 +1,4 @@
 const humanizeDuration = require("humanize-duration");
-import {humanizerConfig} from "@lib/constants";
+import {HumanizerConfig} from "@lib/constants";
 
-export const shortEnglishHumanizer = humanizeDuration.humanizer(humanizerConfig);
+export const shortEnglishHumanizer = humanizeDuration.humanizer(HumanizerConfig);

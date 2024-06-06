@@ -233,7 +233,6 @@ function ActFeesRow({...props}) {
                                     size="small"
                                     className="btn-edit"
                                     disabled={fees?.length === 0}
-                                    color={"primary"}
                                     sx={{mr: {md: 1}}}
                                     onClick={() => {
                                         editMotif(row, fees, name, code, contribution);
@@ -248,7 +247,7 @@ function ActFeesRow({...props}) {
                                         {t("save")}
                                     </Typography>
                                 </IconButton>
-                            ) : !row.hasData && (
+                            ) :
                                 <IconButton
                                     size="small"
                                     className="btn-edit"
@@ -258,8 +257,8 @@ function ActFeesRow({...props}) {
                                     }}>
                                     <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                                 </IconButton>
-                            )}
-                            {!row.hasData && <IconButton
+                            }
+                            {!row.hasData && edit === row.uuid && <IconButton
                                 onClick={() => {
                                     data.handleSelected(row);
                                 }}

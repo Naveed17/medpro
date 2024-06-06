@@ -5,7 +5,8 @@ import {
     setAppointmentInstruction,
     setAppointmentMotif,
     setAppointmentPatient, setAppointmentRecurringDates, setAppointmentSubmit,
-    setAppointmentType
+    setAppointmentType,
+    setAppointmentFinalize
 } from "./actions";
 
 export type AppointmentState = {
@@ -20,7 +21,8 @@ export type AppointmentState = {
         uuids: Array<string>;
         patient: PatientWithNextAndLatestAppointment | null;
         recurringDates: RecurringDateModel[];
-    } | null
+    } | null;
+    finalize: boolean | any
 };
 
 const initialState: AppointmentState = {
@@ -38,7 +40,8 @@ const initialState: AppointmentState = {
         smsRappel: true,
         timeRappel: new Date("2022-01-01T18:00:00.000Z")
     },
-    submitted: null
+    submitted: null,
+    finalize:true
 };
 
 export const appointmentReducer = createReducer(initialState, (builder) => {
@@ -62,5 +65,7 @@ export const appointmentReducer = createReducer(initialState, (builder) => {
         return {...state, ...initialState};
     }).addCase(resetSubmitAppointment, (state, action) => {
         return {...state, submitted: null};
-    });
+    }).addCase(setAppointmentFinalize, (state, action) => {
+        state.finalize = action.payload;
+    })
 });

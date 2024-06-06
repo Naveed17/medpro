@@ -1,6 +1,6 @@
 {
   "sub-header": {
-    "title": "List of Patients",
+    "title": "Patients",
     "merge-patient": "Merge Patients",
     "add-patient": "Add Patient"
   },
@@ -55,6 +55,7 @@
   },
   "config": {
     "reason_for_consultation": "Reason for Consultation",
+    "medical_rec_title": "Patient medical record",
     "acts": "Acts",
     "disease": "Disease",
     "insurance": "Insurance",
@@ -201,6 +202,8 @@
       "last-name-error": "Last name must be at least 3 characters, without special characters",
       "last-name-placeholder": "Type patient's last name",
       "birthdate": "Birthdate",
+      "family_doctor_code": "Family doctor code",
+      "family_doctor_code-placeholder": "Family doctor insurance code",
       "family_doctor": "Family Doctor",
       "family_doctor-placeholder": "Family Doctor",
       "country": "Country",
@@ -415,7 +418,7 @@
     "member_placeholder": "Enter the membership number",
     "cashbox": "Box",
     "cashbox_placeholder": "Select checkout",
-    "insured":"Insured",
+    "insured": "Insured",
     "insured_placeholder": "Select the insured",
     "apci": "APCI",
     "apci_placeholder": "Select APCI",
@@ -425,7 +428,10 @@
     "addInsurance": "Click on the « + » button to add insurance",
     "expire": "Expire",
     "edit": "Edit",
-    "save": "Save"
+    "save": "Save",
+    "title_delete": "Delete insurance / agreement",
+    "desc_delete": "Are you sure to remove this convention?",
+    "delete": "Delete",
+    "cancel": "Cancel"
   }
-
 }

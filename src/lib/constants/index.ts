@@ -265,7 +265,7 @@ export const tinymceToolbarNotes = " bold italic underline forecolor backcolor |
 
 export const MobileContainer: number = 820
 
-export const humanizerConfig = {
+export const HumanizerConfig = {
     language: "shortEn",
     languages: {
         shortEn: {
@@ -281,7 +281,7 @@ export const humanizerConfig = {
     },
 }
 
-export const deleteAppointmentOptionsData = [
+export const DeleteAppointmentOptionsData = [
     {
         key: "delete-appointment-insertion",
         selected: true
@@ -296,11 +296,11 @@ export const deleteAppointmentOptionsData = [
     }
 ]
 
-export const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses', 'lens','payment_receipt']
+export const GeneratedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses', 'lens', 'payment_receipt']
 
-export const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
+export const Slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
 
-export const multiMedias = ['video', 'audio', 'photo'];
+export const MultiMedias = ['video', 'audio', 'photo'];
 
 export const PsychomotorDevelopmentXY = [
     {
@@ -342,6 +342,16 @@ export const PsychomotorDevelopmentXY = [
     }
 ]
 
-export const signs = ['Bélier: Le Bélier', 'Taureau: Le Taureau', 'Gémeaux: Les Gémeaux', 'Cancer: Le Crabe', 'Lion: Le Lion', 'Vierge: La Vierge', 'Balance: La Balance', 'Scorpion: Le Scorpion', 'Sagittaire: Le Sagittaire', 'Capricorne: Le Capricorne', 'Verseau: Le Verseau', 'Poissons: Les Poissons'];
+export const Signs = ['Bélier: Le Bélier', 'Taureau: Le Taureau', 'Gémeaux: Les Gémeaux', 'Cancer: Le Crabe', 'Lion: Le Lion', 'Vierge: La Vierge', 'Balance: La Balance', 'Scorpion: Le Scorpion', 'Sagittaire: Le Sagittaire', 'Capricorne: Le Capricorne', 'Verseau: Le Verseau', 'Poissons: Les Poissons'];
 
-export const arabicRegExp = /[\u0600-\u06FF]/;
+export const ArabicRegExp = /[\u0600-\u06FF]/;
+
+export const Gender = [
+    {
+        title: 'mr',
+        value: '1'
+    },
+    {
+        title: "mrs",
+        value: '2'
+    }];

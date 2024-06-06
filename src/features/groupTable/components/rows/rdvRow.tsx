@@ -27,7 +27,7 @@ import moment from "moment/moment";
 import {LoadingButton} from "@mui/lab";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {FacebookCircularProgress} from "@features/progressUI";
-import {deleteAppointmentOptionsData} from "@lib/constants";
+import {DeleteAppointmentOptionsData} from "@lib/constants";
 import Can from "@features/casl/can";
 
 function RDVRow({...props}) {
@@ -57,7 +57,7 @@ function RDVRow({...props}) {
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
-    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(DeleteAppointmentOptionsData);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
 
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
@@ -129,7 +129,7 @@ function RDVRow({...props}) {
         });
     }
 
-    const handleAppointmentStatus = (uuid: string, status: string) => {
+    const handleAppointmentStatus = (uuid: string, status: string, pendingRefresh = false) => {
         const form = new FormData();
         form.append('status', status);
         updateAppointmentStatus({
@@ -141,6 +141,10 @@ function RDVRow({...props}) {
                 // refresh on going api
                 mutateOnGoing();
                 mutatePatientHistory();
+                if (pendingRefresh) {
+                    // update pending notifications status
+                    invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
+                }
             }
         });
     }
@@ -159,6 +163,8 @@ function RDVRow({...props}) {
                 // refresh on going api
                 mutateOnGoing();
                 mutatePatientHistory();
+                // Mutate agenda
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`]);
                 setDeleteDialog(false);
             },
             onSettled: () => setLoadingReq(false)
@@ -191,6 +197,9 @@ function RDVRow({...props}) {
                 break;
             case "onPatientNoShow":
                 handleAppointmentStatus(appointmentData?.uuid as string, '10');
+                break;
+            case "onConfirmAppointment":
+                handleAppointmentStatus(appointmentData?.uuid as string, '1', true);
                 break;
             case "onLeaveWaitingRoom":
                 handleAppointmentStatus(appointmentData?.uuid as string, '1');

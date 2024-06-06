@@ -1,7 +1,7 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
-import {configSelector, DashLayout} from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useEffect, useState } from "react";
+import { configSelector, DashLayout } from "@features/base";
 import {
     Box,
     Button,
@@ -17,23 +17,23 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {useTranslation} from "next-i18next";
-import {SubHeader} from "@features/subHeader";
-import {useAppSelector} from "@lib/redux/hooks";
-import {Otable} from "@features/table";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useSnackbar} from "notistack";
-import {LoadingButton} from "@mui/lab";
+import { useTranslation } from "next-i18next";
+import { SubHeader } from "@features/subHeader";
+import { useAppSelector } from "@lib/redux/hooks";
+import { Otable } from "@features/table";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { LoadingScreen } from "@features/loadingScreen";
+import { useSnackbar } from "notistack";
+import { LoadingButton } from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {AnalysisDrawer} from "@features/drawer";
-import {AnalysisMobileCard} from "@features/card";
+import { useMedicalProfessionalSuffix } from "@lib/hooks";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import { AnalysisDrawer } from "@features/drawer";
+import { AnalysisMobileCard } from "@features/card";
 import Can from "@features/casl/can";
 import { CustomIconButton } from "@features/buttons";
 import IconUrl from "@themes/urlIcon";
@@ -42,10 +42,10 @@ function Analysis() {
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useRouter();
-    const {enqueueSnackbar} = useSnackbar();
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
-    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "analysis.config"});
-    const {direction} = useAppSelector(configSelector);
+    const { enqueueSnackbar } = useSnackbar();
+    const { urlMedicalProfessionalSuffix } = useMedicalProfessionalSuffix();
+    const { t, ready, i18n } = useTranslation(["settings", "common"], { keyPrefix: "analysis.config" });
+    const { direction } = useAppSelector(configSelector);
     const [loading, setLoading] = useState(false);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [edit, setEdit] = useState(false);
@@ -97,14 +97,14 @@ function Analysis() {
         },
     ];
 
-    const {trigger: triggerAnalysisDelete} = useRequestQueryMutation("/settings/analysis/delete");
+    const { trigger: triggerAnalysisDelete } = useRequestQueryMutation("/settings/analysis/delete");
 
-    const {data: analysisResponse, mutate: mutateAnalysis} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const { data: analysisResponse, mutate: mutateAnalysis } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/analysis/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(urlMedicalProfessionalSuffix && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
+        ...(urlMedicalProfessionalSuffix && { variables: { query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true" } })
     });
 
     const removeAnalyise = (uuid: any) => {
@@ -114,7 +114,7 @@ function Analysis() {
             url: `${urlMedicalProfessionalSuffix}/analysis/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("alert.delete"), {variant: "success"});
+                enqueueSnackbar(t("alert.delete"), { variant: "success" });
                 setLoading(false);
                 setTimeout(() => setOpen(false));
                 mutateAnalysis();
@@ -175,7 +175,7 @@ function Analysis() {
     const analysis = ((analysisResponse as HttpResponse)?.data?.list ?? []) as AnalysisModel[];
     const analysisMobileRes = isMobile ? ((analysisResponse as HttpResponse)?.data ?? []) as AnalysisModel[] : [];
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <>
@@ -220,7 +220,7 @@ function Analysis() {
                     <Stack spacing={1} py={3.7}>
                         {analysisMobileRes?.slice(0, displayedItems).map((row, idx) => (
                             <React.Fragment key={idx}>
-                                <AnalysisMobileCard data={row} edit={configAnalysis} t={t}/>
+                                <AnalysisMobileCard data={row} edit={configAnalysis} t={t} />
                             </React.Fragment>
                         ))}
                     </Stack>
@@ -244,17 +244,17 @@ function Analysis() {
                 <DialogTitle>
                     {t("dialog.delete.title")}
                 </DialogTitle>
-                <DialogContent style={{paddingTop: 20}}>
+                <DialogContent style={{ paddingTop: 20 }}>
                     <Typography>
                         {t("dialog.delete.desc")}
                     </Typography>
                 </DialogContent>
-                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                <DialogActions sx={{ borderTop: 1, borderColor: "divider", px: 1, py: 2 }}>
                     <Stack direction="row" spacing={1}>
                         <Button
                             variant="text-black"
                             onClick={() => setOpen(false)}
-                            startIcon={<CloseIcon/>}>
+                            startIcon={<CloseIcon />}>
                             {t("dialog.cancel")}
                         </Button>
                         <LoadingButton
@@ -262,7 +262,7 @@ function Analysis() {
                             loading={loading}
                             color="error"
                             onClick={() => removeAnalyise(selected?.uuid as any)}
-                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            startIcon={<Icon path="setting/icdelete" color="white" />}>
                             {t("dialog.delete.delete")}
                         </LoadingButton>
                     </Stack>

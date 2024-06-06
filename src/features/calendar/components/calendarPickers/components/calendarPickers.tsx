@@ -2,55 +2,22 @@ import React, {useCallback, useState} from "react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
-import {Divider, IconButton, Stack, Theme, Typography, useMediaQuery, useTheme} from "@mui/material";
-import {agendaSelector} from "@features/calendar";
+import {Divider, IconButton, Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {agendaSelector, CustomPickersDay} from "@features/calendar";
 import moment from "moment-timezone";
-import {
-    PickersCalendarHeaderProps,
-    PickersDay,
-    PickersDayProps,
-    StaticDatePicker
-} from "@mui/x-date-pickers";
+import {PickersCalendarHeaderProps, StaticDatePicker} from "@mui/x-date-pickers";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {highlightedDays, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {MobileContainer as smallScreen} from "@lib/constants";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import {ChevronLeft, ChevronRight} from "@mui/icons-material";
 import {styled} from '@mui/material/styles';
 import {startCase} from "lodash";
+import IconUrl from "@themes/urlIcon";
 
-function CustomPickersDay(props: PickersDayProps<any> & {
-    day_count?: any,
-    is_mobile: boolean,
-    theme: Theme
-}) {
-    const {day_count, is_mobile, theme, day, today, selected} = props;
-    const note = day_count && day_count[moment(day).format('DD-MM-YYYY')];
-    return (
-        <PickersDay {...props}>
-            <Stack alignItems={"center"} justifyContent={"center"} spacing={0} m={Boolean(is_mobile) ? 0 : 2}>
-                <Typography fontSize={12} fontWeight={600}>{day.getDate()}</Typography>
-                {!(today || selected) && note > 0 ?
-                    <FiberManualRecordIcon
-                        sx={{
-                            position: 'absolute',
-                            bottom: 0,
-                            width: 10,
-                            height: 10,
-                            color: highlightedDays(note, theme)
-                        }}
-                    /> : undefined}
-            </Stack>
-        </PickersDay>
-    )
-}
-
-const CustomCalendarHeaderRoot = styled('div')({
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: '6px 16px',
+const CustomCalendarHeaderRoot = styled(Stack)({
+    padding: '7px 16px',
+    height: 44,
     alignItems: 'center',
 });
 
@@ -62,18 +29,18 @@ function CustomCalendarHeader(props: PickersCalendarHeaderProps<any>) {
     const selectPreviousMonth = () => onMonthChange(currentMonthMoment.subtract(1, 'month').toDate(), 'right');
 
     return (
-        <Stack>
-            <CustomCalendarHeaderRoot>
+        <Stack className="picker-header">
+            <CustomCalendarHeaderRoot direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
                 <Stack spacing={1} direction="row">
-                    <IconButton onClick={selectPreviousMonth} title="Previous month">
-                        <ChevronLeft color="text" sx={{mr: 'auto', color: "text.secondary"}}/>
+                    <IconButton onClick={selectPreviousMonth} title="Previous month" size="small">
+                        <IconUrl path="ic-outline-arrow-left"/>
                     </IconButton>
                 </Stack>
                 <Typography variant="body2"
                             fontSize={20}>{startCase(currentMonthMoment.format('MMM YYYY'))}</Typography>
                 <Stack spacing={1} direction="row">
-                    <IconButton onClick={selectNextMonth} title="Next month" >
-                        <ChevronRight color="text" sx={{ml: 'auto', color: "text.secondary"}}/>
+                    <IconButton onClick={selectNextMonth} title="Next month" size="small">
+                        <IconUrl path="ic-outline-arrow-right" width={16} height={16}/>
                     </IconButton>
                 </Stack>
             </CustomCalendarHeaderRoot>

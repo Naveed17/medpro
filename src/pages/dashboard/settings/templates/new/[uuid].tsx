@@ -1,7 +1,7 @@
-import { GetStaticPaths, GetStaticProps } from "next";
-import React, { ReactElement, useEffect, useRef, useState } from "react";
-import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
-import { useTranslation } from "next-i18next";
+import {GetStaticPaths, GetStaticProps} from "next";
+import React, {ReactElement, useEffect, useRef, useState} from "react";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import {useTranslation} from "next-i18next";
 import {
     Box,
     Button,
@@ -20,35 +20,34 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
-import { useRouter } from "next/router";
-import { useSnackbar } from "notistack";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {useSnackbar} from "notistack";
 
-import { useReactToPrint } from "react-to-print";
-import { SubHeader } from "@features/subHeader";
-import { RootStyled } from "@features/toolbar";
+import {useReactToPrint} from "react-to-print";
+import {SubHeader} from "@features/subHeader";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import ModeEditOutlineRoundedIcon from '@mui/icons-material/ModeEditOutlineRounded';
-import { Dialog } from "@features/dialog";
-import { Theme } from "@mui/material/styles";
+import {Dialog} from "@features/dialog";
+import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
-import { LoadingButton } from "@mui/lab";
-import { useAppSelector } from "@lib/redux/hooks";
+import {LoadingButton} from "@mui/lab";
+import {useAppSelector} from "@lib/redux/hooks";
 import Autocomplete from "@mui/material/Autocomplete";
-import { MuiAutocompleteSelectAll } from "@features/muiAutocompleteSelectAll";
-import { useMedicalProfessionalSuffix } from "@lib/hooks";
-import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
-import { LoadingScreen } from "@features/loadingScreen";
-import { Doc } from "@features/page";
+import {LoadingScreen} from "@features/loadingScreen";
+import {Doc} from "@features/page";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import PageStyled from "@features/page/components/overrides/pageStyled";
-import { UploadFile } from "@features/uploadFile";
-import { getServerTranslations } from "@lib/i18n/getServerTranslations";
-import { CustomIconButton } from "@features/buttons";
-import { Breadcrumbs } from "@features/breadcrumbs";
+import {UploadFile} from "@features/uploadFile";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import {CustomIconButton} from "@features/buttons";
+import {Breadcrumbs} from "@features/breadcrumbs";
 
 function DocsConfig() {
     const router = useRouter();
@@ -64,6 +63,7 @@ function DocsConfig() {
         title: { show: false, content: 'ORDONNANCE MEDICALE', x: 0, y: 150 },
         date: { show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "left" },
         patient: { show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250 },
+        insuranceCode: {show: false, prefix: '', content: '00 000 000', x: 40, y: 270},
         cin: { show: false, prefix: 'CIN : ', content: '', x: 40, y: 274 },
         age: { show: false, prefix: 'AGE:', content: '', x: 40, y: 316 },
         size: 'portraitA4',
@@ -104,6 +104,7 @@ function DocsConfig() {
         date: { show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "left", width: 160 },
         patient: { show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250 },
         cin: { show: false, prefix: 'CIN : ', content: '00000000', x: 40, y: 274 },
+        insuranceCode: {show: false, prefix: '', content: '00 000 000', x: 40, y: 270},
         age: { show: false, prefix: 'AGE:', content: 'X ans', x: 40, y: 316 },
         size: 'portraitA4',
         isNew: true,

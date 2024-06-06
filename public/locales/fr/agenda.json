@@ -2,6 +2,7 @@
   "pending": "Rdv en attente",
   "enter-waiting-room": "Ajouter à la salle d’attente",
   "leave-waiting-room": "Quitter la salle d’attente",
+  "add-new-rdv": "Prendre un nouveau rendez-vous",
   "add": "Ajouter RDV",
   "add-quick": "Ajout rapide",
   "add_leave": "Ajouter un congé",
@@ -110,6 +111,12 @@
     }
   },
   "steppers": {
+    "sms-rem-text": "Programmer un rappel par SMS pour le patient",
+    "lang-label": "Langue du SMS",
+    "load": "Chargement...",
+    "day": "Jour",
+    "time": "Heure",
+    "instr": "Type Instruction pour le patient",
     "tabs": {
       "tab-1": "Type",
       "tab-2": "Créneau horaire",
@@ -134,7 +141,11 @@
     },
     "stepper-1": {
       "title": "Réservez un créneau horaire",
+      "time": "Heure",
+      "date": "Date",
       "sub-title": "Créneau horaire",
+      "time-picker": "Horloge de poche",
+      "visit-type": "Type de visite",
       "reason-consultation": "Motif",
       "reason-consultation-placeholder": "Choisissez votre motif",
       "practitioner": "Praticien",
@@ -151,6 +162,9 @@
       "change-time": "Modifier l'heure",
       "confirm-time": "Confirmer",
       "cancel-time": "Annuler",
+      "time-slot-off": "Sans heure",
+      "time-slot-off-desc": "Créneau horaire désactivé. Souhaitez-vous l'activer ?",
+      "turn-on": "Ajouter un créneau horaire",
       "duration": {
         "title": "Durée de consultation",
         "hours": "heures",
@@ -159,11 +173,14 @@
       }
     },
     "stepper-2": {
-      "title": "Choisissez le patient",
+      "title": "Patient",
       "sub-title": "vous devez ajouter un patient",
       "add_button": "Ajouter un nouveau patient",
       "search_placeholder": "Chercher un patient",
       "patient": {
+        "title": "Patient",
+        "referred_by": "Saisi par",
+        "select_referred_by": "Sélectionner la référence",
         "personal-info": "Informations",
         "invalidDate": "La date est invalide",
         "additional-information": "Informations supplémentaires",
@@ -259,6 +276,17 @@
       "day": "Jour",
       "added": "RDV ajouté",
       "description": ""
+    },
+    "final-step": {
+      "title": "Nomination Ajouté avec succès",
+      "rdv-for": "Le rendez-vous pour",
+      "on": "sur",
+      "at": "au",
+      "successfully-added": "a été ajouté avec succès au système.",
+      "btn-view-rec": "Dossier complet du patient",
+      "btn-close": "Fermer",
+      "btn-another-rdv-schedule": "Fixer un autre rendez-vous",
+      "btn-complete": "Compléter"
     },
     "next": "Suivant",
     "back": "Retour",

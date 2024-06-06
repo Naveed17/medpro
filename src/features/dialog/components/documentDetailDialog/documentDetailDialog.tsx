@@ -60,7 +60,7 @@ import {FacebookCircularProgress} from "@features/progressUI";
 import {LoadingScreen} from "@features/loadingScreen";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Doc} from "@features/page";
-import {generatedDocs, multiMedias, slugs} from "@lib/constants";
+import {GeneratedDocs, MultiMedias, Slugs} from "@lib/constants";
 import {downloadFileFromUrl} from "@lib/hooks/downloadFileFromUrl";
 
 function DocumentDetailDialog({...props}) {
@@ -159,7 +159,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'print',
             icon: "menu/ic-print",
-            disabled: multiMedias.some(media => media === state?.type)
+            disabled: MultiMedias.some(media => media === state?.type)
         },
         {
             title: 'email',
@@ -168,7 +168,7 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'settings',
             icon: "docs/ic-note",
-            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: MultiMedias.some(media => media === state?.type) || !GeneratedDocs.some(media => media === state?.type)
         },
         {
             title: 'download',
@@ -187,32 +187,32 @@ function DocumentDetailDialog({...props}) {
         ...(data.isNew ? [{
             title: 'editMode',
             icon: `text-selection`,
-            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: MultiMedias.some(media => media === state?.type) || !GeneratedDocs.some(media => media === state?.type)
         }] : []),
         ...(data.isNew ? [{
             title: 'bg2ePage',
             icon: `menu/${bg2ePage ? 'ic-eye-closed' : 'ic-open-eye'}`,
-            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: MultiMedias.some(media => media === state?.type) || !GeneratedDocs.some(media => media === state?.type)
         }] : []),
         ...(!data.isNew ? [{
             title: data.header.show ? 'hide' : 'show',
             icon: `menu/${!data.header.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: MultiMedias.some(media => media === state?.type) || !GeneratedDocs.some(media => media === state?.type)
         }] : []),
         ...(!data.isNew ? [{
             title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
             icon: `menu/${!data.header.page ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: MultiMedias.some(media => media === state?.type) || !GeneratedDocs.some(media => media === state?.type)
         }] : []),
         {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: `menu/${!data.title.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
-            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: MultiMedias.some(media => media === state?.type) || !GeneratedDocs.some(media => media === state?.type)
         },
         {
             title: data.patient.show ? 'hidepatient' : 'showpatient',
             icon: `menu/${data.patient.show ? 'ic-cancel-patient' : 'ic-user'}`,
-            disabled: multiMedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            disabled: MultiMedias.some(media => media === state?.type) || !GeneratedDocs.some(media => media === state?.type)
         }
     ]
 
@@ -278,7 +278,7 @@ function DocumentDetailDialog({...props}) {
                 setDownloadMode(true);
                 setEditMode(false)
                 setSendEmailDrawer(true);
-                if (generatedDocs.some(doc => doc == state?.type)) {
+                if (GeneratedDocs.some(doc => doc == state?.type)) {
                     const file = await generatePdfFromHtml(componentRef, "blob");
                     setDownloadMode(false);
                     setPreviewDoc(file);
@@ -383,7 +383,7 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
-                if (generatedDocs.some(doc => doc == state?.type)) {
+                if (GeneratedDocs.some(doc => doc == state?.type)) {
                     setEditMode(false)
                     setDownloadMode(true);
                     const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
@@ -554,7 +554,7 @@ function DocumentDetailDialog({...props}) {
                     }
                 } else {
                     const templates: any[] = [];
-                    const slug = slugs[generatedDocs.findIndex(gd => gd === state?.type)];
+                    const slug = Slugs[GeneratedDocs.findIndex(gd => gd === state?.type)];
                     docInfo.map((di: {
                         types: any[];
                     }) => {
@@ -620,7 +620,7 @@ function DocumentDetailDialog({...props}) {
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const generatedDocsNode = generatedDocs.some(doc => doc === state?.type) &&
+    const generatedDocsNode = GeneratedDocs.some(doc => doc === state?.type) &&
         <div>
             {loading ? <div className={data.size ? data.size : "portraitA5"}></div> :
                 data.isNew ? <Box ref={previewDocRef}>
@@ -710,11 +710,11 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
-                        {!multiMedias.some(multi => multi === state?.type) &&
+                        {!MultiMedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
                                     {generatedDocsNode}
-                                    {!generatedDocs.some(doc => doc === state?.type) &&
+                                    {!GeneratedDocs.some(doc => doc === state?.type) &&
                                         <Box sx={{
                                             '.react-pdf__Page': {
                                                 marginBottom: 1,
@@ -776,7 +776,7 @@ function DocumentDetailDialog({...props}) {
                                 </Box>
                             </Box>
                         }
-                        {multiMedias.some(multi => multi === state?.type) &&
+                        {MultiMedias.some(multi => multi === state?.type) &&
                             <Box>
                                 {state?.type === 'photo' &&
                                     <TransformWrapper initialScale={1}>

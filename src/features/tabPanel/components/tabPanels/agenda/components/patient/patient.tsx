@@ -132,18 +132,14 @@ function Patient({...props}) {
     const patients = (httpPatientResponse as HttpResponse)?.data as PatientModel[] ?? [];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-
+    console.log('select', select)
     return (
         <div>
             {!addPatient ?
                 <>
-                    <Box className="inner-section">
-                        <Typography sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
+                    <Box className="inner-section" {...(!!select && {mt: 3})}>
+                        <Typography sx={{fontSize: "1rem", fontWeight: "bold", mb: 1}} color="text.primary">
                             {t("stepper-2.title")}
-                        </Typography>
-                        <Typography variant="body1" sx={{textTransform: 'uppercase'}} color="text.primary" mt={3}
-                                    mb={1}>
-                            {t("stepper-2.sub-title")}
                         </Typography>
                         <AutoCompleteButton
                             onSearchChange={handleSearchChange}

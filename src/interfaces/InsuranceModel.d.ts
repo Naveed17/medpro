@@ -6,4 +6,6 @@ interface InsuranceModel {
     hasApci:boolean;
     hasExport:boolean;
     boxes:InsuranceBoxModel[];
+    insurance:any;
+    insuranceNumber:number;
 }

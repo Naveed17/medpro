@@ -5,7 +5,7 @@ import {useTranslation} from "next-i18next";
 import {
     Button,
     Card,
-    CardContent,
+    CardContent, Dialog, DialogActions, DialogContent, DialogTitle,
     FormControl,
     IconButton,
     InputAdornment,
@@ -41,6 +41,9 @@ import {InsuranceAppointMobileCard, NoDataCard} from "@features/card";
 import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment-timezone";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
 
 function InscDetail() {
 
@@ -101,6 +104,13 @@ function InscDetail() {
             numeric: true,
             disablePadding: false,
             label: "mtt_requested",
+            sortable: true,
+            align: "center",
+        }, {
+            id: "actions",
+            numeric: true,
+            disablePadding: false,
+            label: "actions",
             sortable: true,
             align: "center",
         },
@@ -232,6 +242,7 @@ function InscDetail() {
     const [editMode, setEditMode] = useState(false)
     const [selectedMPI, setSelectedMPI] = useState<any>(null)
     const [hasMPI, setHasMPI] = useState("")
+    const [openDelete, setOpenDelete] = useState("")
 
     const topCard = [
         {
@@ -305,7 +316,7 @@ function InscDetail() {
             data: form
         }, {
             onSuccess: (res) => {
-                exportDoc(res.data.data.uuid, `Bordereau ${filterCB.start_date} - ${filterCB.end_date}`);
+                exportDoc(res.data.data.uuid, `Bordereau ${filterCB.start_date} - ${filterCB.end_date}`,"pdf");
                 mutate()
                 mutateApp();
                 setSelectedTab("archived")
@@ -333,11 +344,11 @@ function InscDetail() {
         });
     }
 
-    const exportDoc = (uuid: string, name?: string) => {
+    const exportDoc = (uuid: string, name?: string,from?:string) => {
         trigger(
             {
                 method: "GET",
-                url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/export/pdf/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/export/${from}/${router.locale}`,
             },
             {
                 onSuccess: (result) => {
@@ -459,8 +470,8 @@ function InscDetail() {
                                     {
                                         editMode ?
                                             <DatePicker
-                                                value={moment(selectedMPI?.start_date, "DD-MM-YYYY").toDate() || ""}
-                                                format="dd/MM/yyyy"
+                                                value={moment(selectedMPI?.start_date, "DD-MM-YYYY").toDate() || null}
+                                                format="dd-MM-yyyy"
                                                 slots={{
                                                     openPickerIcon: CalendarPickerIcon,
                                                 }}
@@ -489,7 +500,7 @@ function InscDetail() {
                                     {
                                         editMode ? <DatePicker
                                                 defaultValue={selectedMPI?.end_date}
-                                                value={moment(selectedMPI?.end_date, "DD-MM-YYYY").toDate() || ""}
+                                                value={moment(selectedMPI?.end_date, "DD-MM-YYYY").toDate() || null}
                                                 format="dd-MM-yyyy"
                                                 slots={{
                                                     openPickerIcon: CalendarPickerIcon,
@@ -729,11 +740,23 @@ function InscDetail() {
                         <Otable
                             {...{t, devise}}
                             headers={headCellsArchiveSlip}
-                            handleEvent={(uuid: string, from: string, name?: string) => {
+                            handleEvent={(uuid: string, from: string, name?: string,type?:string) => {
                                 if (from === "delete")
-                                    deleteDoc(uuid)
+                                    setOpenDelete(uuid)
+                                    if (from ==="edit"){
+                                        console.log(uuid)
+
+                                        trigger({
+                                            method: "GET",
+                                            url: `${urlMedicalEntitySuffix}/insurance-dockets-appointments/${uuid}/${router.locale}`,
+                                        }, {
+                                            onSuccess: (res) => {
+                                                console.log(res.data)
+                                            }
+                                        });
+                                    }
                                 else
-                                    exportDoc(uuid, name)
+                                    exportDoc(uuid, name,type)
                             }}
                             rows={dockets.filter((ev: any) => {
                                 return ev.name?.toLowerCase().includes(search.toLowerCase())
@@ -746,6 +769,44 @@ function InscDetail() {
                     </DesktopContainer>
                 </Card>
             </TabPanel>
+
+            <Dialog onClose={() => setOpenDelete("")}
+                    PaperProps={{
+                        sx: {
+                            width: "100%"
+                        }
+                    }} maxWidth="sm" open={openDelete !== ""}>
+                <DialogTitle sx={{
+                    bgcolor: (theme: Theme) => theme.palette.error.main,
+                    px: 1,
+                    py: 2,
+                }}>
+                    {t("title_delete")}
+                </DialogTitle>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Typography>
+                        {t("desc_delete")}
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setOpenDelete("");
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            color="error"
+                            onClick={() => deleteDoc(openDelete)}
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
+                            {t("delete")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </Stack>
     );
 }

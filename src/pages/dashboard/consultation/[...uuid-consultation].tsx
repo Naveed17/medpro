@@ -1,14 +1,12 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetServerSideProps} from "next";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
     Avatar,
     Box,
     Button,
     Card,
     CardMedia,
-    Checkbox,
     Dialog as DialogMui,
     DialogActions,
     DialogContent,
@@ -147,7 +145,7 @@ function ConsultationInProgress() {
         isPaused
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
-    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const { trigger: invalidateQueries } = useInvalidateQueries();
     const nodeRef = React.useRef(null);
     const nodeRefMedia = React.useRef(null);
 
@@ -364,7 +362,10 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
-    const {data: httpPatientInsuranceFees, mutate: mutateInsurance} = useRequestQuery(app_uuid && medical_professional_uuid ? {
+    const {
+        data: httpPatientInsuranceFees,
+        mutate: mutateInsurance
+    } = useRequestQuery(app_uuid && medical_professional_uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${app_uuid}/professionals/${medical_professional_uuid}/acts/${router.locale}`
     } : null);
@@ -422,6 +423,7 @@ function ConsultationInProgress() {
                 cin: patient?.idCard,
                 tel: patient?.contact && patient?.contact?.length > 0 ? patient?.contact[0] : "",
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                insurance: patient?.insurances.find(pi => pi?.insurance.hasApci)?.insuranceNumber,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -462,8 +464,8 @@ function ConsultationInProgress() {
                 age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 uuidDoc: uuidDoc,
                 documentHeader: card.header ? card.header : null,
-                patient: `${type} ${patient?.firstName
-                } ${patient?.lastName}`,
+                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+                insurance: patient?.insurances.find(pi => pi?.insurance.hasApci)?.insuranceNumber,
                 cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient,
@@ -1305,19 +1307,19 @@ function ConsultationInProgress() {
             }
 
         }
-    }, [ sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(()=>{
-        if (httpPatientInsuranceFees){
+    useEffect(() => {
+        if (httpPatientInsuranceFees) {
             const insuranceFees = httpPatientInsuranceFees.data;
             let _acts: AppointmentActModel[] = []
-            insuranceFees.forEach((act:any) => {
+            insuranceFees.forEach((act: any) => {
                 _acts.push({qte: 1, selected: false, ...act})
             })
             setActs(_acts);
             setMPActs(_acts); //.sort((a, b) => a.act.name.localeCompare(b.act.name))
         }
-    },[httpPatientInsuranceFees])
+    }, [httpPatientInsuranceFees])
 
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {
@@ -1330,9 +1332,9 @@ function ConsultationInProgress() {
             const data = (httpPatientPreview as HttpResponse).data;
             dispatch(SetPatient({uuid: sheet?.patient, birthdate: "", gender: "M", ...data}))
             setPatient(data)
-            mutateInsurance()
+            mutateInsurance && mutateInsurance()
         }
-    }, [dispatch, httpPatientPreview, sheet?.patient])
+    }, [dispatch, httpPatientPreview, sheet?.patient]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setPatientDetailDrawer(tableState.patientId !== '');
@@ -1392,18 +1394,18 @@ function ConsultationInProgress() {
                         borderTopLeftRadius: 5,
                         borderTopRightRadius: 5
                     }}>
-                        <IconUrl color={"white"} path={'history'}/>
+                        <IconUrl color={"white"} path={'history'} />
                         <Typography fontSize={18}
-                                    color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
-                        <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
-                            width={15} height={15} path={"close"}/></IconButton>
+                            color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
+                        <IconButton sx={{ width: 30, height: 30 }} onClick={() => setOpenHistoryDialog(false)}><IconUrl
+                            width={15} height={15} path={"close"} /></IconButton>
                     </Stack>
                     <div style={{
                         overflow: 'auto',
                         height: 400,
                         padding: 20
                     }}>
-                        <ObservationHistoryDialog data={{patient_uuid: sheet.patient, t}}/>
+                        <ObservationHistoryDialog data={{ patient_uuid: sheet.patient, t }} />
                     </div>
 
                 </div>
@@ -1411,9 +1413,9 @@ function ConsultationInProgress() {
 
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
-                       width={"100%"}>
+                    width={"100%"}>
                     <Stack spacing={1.5} direction="row" alignItems="center">
-                        <IconUrl path={'ic-speaker'}/>
+                        <IconUrl path={'ic-speaker'} />
                         {!isMobile &&
                             <Typography>{t('consultationIP.updateHistory')} {patient?.firstName} {patient?.lastName}, <b>{sheet?.date}</b>.</Typography>}
                     </Stack>
@@ -1425,7 +1427,7 @@ function ConsultationInProgress() {
                         className="btn-action"
                         color="warning"
                         size="small"
-                        startIcon={<IconUrl path="ic-retour"/>}>
+                        startIcon={<IconUrl path="ic-retour" />}>
                         {t('consultationIP.back')}
                     </LoadingButton>
                 </Stack>
@@ -1466,12 +1468,12 @@ function ConsultationInProgress() {
             </SubHeader>}
 
 
-            {<HistoryAppointementContainer {...{isHistory, loading}}>
+            {<HistoryAppointementContainer {...{ isHistory, loading }}>
                 <Grid container>
                     <Grid item xs={12} md={showDocument ? 10 : 12}>
-                        <Box style={{paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : ""}}
-                             id={"container-tab"}
-                             className="container-scroll scrollbar-hidden">
+                        <Box style={{ paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : "" }}
+                            id={"container-tab"}
+                            className="container-scroll scrollbar-hidden">
                             <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
                                 <HistoryTab
                                     {...{
@@ -1500,7 +1502,7 @@ function ConsultationInProgress() {
                                 />
                             </TabPanel>
                             <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                                {sheetExam && fullOb && <Card><MyCardStyled style={{border: 0}}>
+                                {sheetExam && fullOb && <Card><MyCardStyled style={{ border: 0 }}>
                                     <ConsultationDetailCard
                                         {...{
                                             changes,
@@ -1628,7 +1630,7 @@ function ConsultationInProgress() {
                                 <LinearProgress sx={{
                                     marginTop: '-0.5rem',
                                     visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
-                                }} color="warning"/>
+                                }} color="warning" />
                                 <DocumentsTab
                                     {...{
                                         documents,
@@ -1680,13 +1682,13 @@ function ConsultationInProgress() {
                     handleClose={() => setFilterDrawer(false)}
                     open={filterdrawer}
                     title={null}>
-                    <ConsultationFilter/>
+                    <ConsultationFilter />
                 </DrawerBottom>
 
                 <Stack
-                    direction={{md: "row", xs: "column"}}
+                    direction={{ md: "row", xs: "column" }}
                     position="fixed"
-                    sx={{right: 10, bottom: 70, zIndex: 999}}
+                    sx={{ right: 10, bottom: 70, zIndex: 999 }}
                     spacing={2}>
                     {pendingDocuments?.map((item: any) => (
                         <React.Fragment key={item.id}>
@@ -1928,7 +1930,7 @@ function ConsultationInProgress() {
                         )
                     })}
                     actionDialog={
-                        info ? (
+                        info && state.type !== "fees" ? (
                             <Stack sx={{width: "100%"}}
                                    direction={"row"}
                                    {...(info === "medical_prescription_cycle" && {
@@ -2001,20 +2003,18 @@ function ConsultationInProgress() {
                 />
             </Drawer>
 
-            {
-                isViewerOpen.length > 0 && (
-                    <ImageViewer
-                        src={[isViewerOpen, isViewerOpen]}
-                        currentIndex={0}
-                        disableScroll={false}
-                        backgroundStyle={{
-                            backgroundColor: "rgba(6, 150, 214,0.5)",
-                        }}
-                        closeOnClickOutside={true}
-                        onClose={closeImageViewer}
-                    />
-                )
-            }
+            {isViewerOpen.length > 0 && (
+                <ImageViewer
+                    src={[isViewerOpen, isViewerOpen]}
+                    currentIndex={0}
+                    disableScroll={false}
+                    backgroundStyle={{
+                        backgroundColor: "rgba(6, 150, 214,0.5)",
+                    }}
+                    closeOnClickOutside={true}
+                    onClose={closeImageViewer}
+                />
+            )}
 
             {
                 (record || selectedAudio !== null) &&
@@ -2031,17 +2031,17 @@ function ConsultationInProgress() {
                             id={"record"}
                             direction={"row"}
                             spacing={1}
-                            style={{width: "100%", padding: 10}}>
+                            style={{ width: "100%", padding: 10 }}>
                             {selectedAudio === null ?
                                 <>
                                     {!saveAudioSection ?
                                         <Stack className={'record-container'} direction={"row"} alignItems={"center"}
-                                               {...((isPaused || saveAudio) && {sx: {"& .record-button .react-svg": {height: 16}}})}
-                                               spacing={2}>
+                                            {...((isPaused || saveAudio) && { sx: { "& .record-button .react-svg": { height: 16 } } })}
+                                            spacing={2}>
                                             <Fab
                                                 size={"small"}
                                                 component={motion.div}
-                                                {...((isPaused || saveAudio) && {className: "is-paused"})}
+                                                {...((isPaused || saveAudio) && { className: "is-paused" })}
                                                 sx={{
                                                     height: 30,
                                                     minHeight: 30,
@@ -2058,8 +2058,8 @@ function ConsultationInProgress() {
                                                 layout
                                                 transition={{
                                                     delay: 0.5,
-                                                    x: {duration: 0.2},
-                                                    default: {ease: "linear"},
+                                                    x: { duration: 0.2 },
+                                                    default: { ease: "linear" },
                                                 }}
                                                 color={(isPaused || saveAudio) ? "white" : "error"}
                                                 variant={"extended"}>
@@ -2070,79 +2070,33 @@ function ConsultationInProgress() {
                                                         width: 20,
                                                         height: 20,
                                                         borderRadius: 20
-                                                    }}/> : <MicIcon/>}
+                                                    }} /> : <MicIcon />}
                                                 <div className={"recording-text"}
-                                                     id={'timer'}
-                                                     style={{fontSize: 14, ...((isPaused || saveAudio) && {color: theme.palette.text.primary})}}>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</div>
+                                                    id={'timer'}
+                                                    style={{ fontSize: 14, ...((isPaused || saveAudio) && { color: theme.palette.text.primary }) }}>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</div>
                                                 {(!isPaused && !saveAudio) && <div className="recording-circle"></div>}
                                             </Fab>
 
-                                        <CustomIconButton
-                                            className={"btn-action record-button"}
-                                            onClick={(event: any) => {
-                                                event.stopPropagation();
-                                                togglePauseResume();
-                                                if (isPaused) {
-                                                    startWatch();
-                                                } else {
-                                                    pauseWatch();
-                                                }
-                                            }}
-                                            variant="filled"
-                                            color={(isPaused || saveAudio) ? "error" : "primary"}
-                                            size={"small"}>
-                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-record-circle' : 'ic-pause'}/>
-                                        </CustomIconButton>
-                                        {(isPaused || saveAudio) && <LoadingButton
-                                            className={"btn-action"}
-                                            loading={loadingRequest}
-                                            loadingPosition={"start"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSaveAudio(true);
-                                                stopRecording();
-                                            }}
-                                            variant='contained'
-                                            size={"small"}
-                                            color={"error"}
-                                            startIcon={<IconUrl path={'ic-stop-record'} color={'white'}/>}
-                                            sx={{
-                                                "& .MuiSvgIcon-root": {
-                                                    width: 16,
-                                                    height: 16,
-                                                    pl: 0
-                                                }
-                                            }}>
-                                            <Typography>{t("consultationIP.stop")}</Typography>
-                                        </LoadingButton>}
-                                        <IconButton
-                                            className={"btn-action"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSaveAudio(false);
-                                                stopRecording();
-                                                dispatch(SetRecord(false));
-                                                resetWatch();
-                                            }}>
-                                            <IconUrl width={24} height={24} path={'ic-trash'}/>
-                                        </IconButton>
-                                        <IconButton
-                                            className={"close-button btn-action"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSaveAudioSection(true);
-                                            }}>
-                                            <CloseIcon htmlColor={"white"}/>
-                                        </IconButton>
-                                    </Stack>
-                                    :
-                                    <>
-                                        <Stack direction={"row"} className={"btn-action"} spacing={1}>
-                                            <LoadingButton
+                                            <CustomIconButton
+                                                className={"btn-action record-button"}
+                                                onClick={(event: any) => {
+                                                    event.stopPropagation();
+                                                    togglePauseResume();
+                                                    if (isPaused) {
+                                                        startWatch();
+                                                    } else {
+                                                        pauseWatch();
+                                                    }
+                                                }}
+                                                variant="filled"
+                                                color={(isPaused || saveAudio) ? "error" : "primary"}
+                                                size={"small"}>
+                                                <IconUrl path={(isPaused || saveAudio) ? 'ic-record-circle' : 'ic-pause'} />
+                                            </CustomIconButton>
+                                            {(isPaused || saveAudio) && <LoadingButton
                                                 className={"btn-action"}
                                                 loading={loadingRequest}
                                                 loadingPosition={"start"}
-                                                startIcon={<IconUrl width={20} height={20} path={'iconfinder_save'}/>}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     setSaveAudio(true);
@@ -2150,7 +2104,8 @@ function ConsultationInProgress() {
                                                 }}
                                                 variant='contained'
                                                 size={"small"}
-                                                color={"primary"}
+                                                color={"error"}
+                                                startIcon={<IconUrl path={'ic-stop-record'} color={'white'} />}
                                                 sx={{
                                                     "& .MuiSvgIcon-root": {
                                                         width: 16,
@@ -2158,45 +2113,90 @@ function ConsultationInProgress() {
                                                         pl: 0
                                                     }
                                                 }}>
-                                                <Typography>{t("consultationIP.close-save")}</Typography>
-                                            </LoadingButton>
-                                            <Button
+                                                <Typography>{t("consultationIP.stop")}</Typography>
+                                            </LoadingButton>}
+                                            <IconButton
                                                 className={"btn-action"}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
-                                                    setSaveAudioSection(false);
-                                                }}
-                                                variant='contained'
-                                                size={"small"}
-                                                color={"white"}
-                                                sx={{
-                                                    "& .MuiSvgIcon-root": {
-                                                        width: 16,
-                                                        height: 16,
-                                                        pl: 0
-                                                    }
+                                                    setSaveAudio(false);
+                                                    stopRecording();
+                                                    dispatch(SetRecord(false));
+                                                    resetWatch();
                                                 }}>
-                                                <Typography>{t("consultationIP.cancel")}</Typography>
-                                            </Button>
+                                                <IconUrl width={24} height={24} path={'ic-trash'} />
+                                            </IconButton>
+                                            <IconButton
+                                                className={"close-button btn-action"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setSaveAudioSection(true);
+                                                }}>
+                                                <CloseIcon htmlColor={"white"} />
+                                            </IconButton>
                                         </Stack>
-                                        <IconButton
-                                            className={"close-button btn-action"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSaveAudio(false);
-                                                stopRecording();
-                                                dispatch(SetRecord(false));
-                                                resetWatch();
-                                                setSaveAudioSection(false);
-                                            }}>
-                                            <CloseIcon htmlColor={"white"}/>
-                                        </IconButton>
-                                    </>
-                                }
-                            </>
-                            :
-                            <>
-                                {!deleteAudio ? <AudioPlayer
+                                        :
+                                        <>
+                                            <Stack direction={"row"} className={"btn-action"} spacing={1}>
+                                                <LoadingButton
+                                                    className={"btn-action"}
+                                                    loading={loadingRequest}
+                                                    loadingPosition={"start"}
+                                                    startIcon={<IconUrl width={20} height={20} path={'iconfinder_save'} />}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setSaveAudio(true);
+                                                        stopRecording();
+                                                    }}
+                                                    variant='contained'
+                                                    size={"small"}
+                                                    color={"primary"}
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}>
+                                                    <Typography>{t("consultationIP.close-save")}</Typography>
+                                                </LoadingButton>
+                                                <Button
+                                                    className={"btn-action"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setSaveAudioSection(false);
+                                                    }}
+                                                    variant='contained'
+                                                    size={"small"}
+                                                    color={"white"}
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}>
+                                                    <Typography>{t("consultationIP.cancel")}</Typography>
+                                                </Button>
+                                            </Stack>
+                                            <IconButton
+                                                className={"close-button btn-action"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setSaveAudio(false);
+                                                    stopRecording();
+                                                    dispatch(SetRecord(false));
+                                                    resetWatch();
+                                                    setSaveAudioSection(false);
+                                                }}>
+                                                <CloseIcon htmlColor={"white"} />
+                                            </IconButton>
+                                        </>
+                                    }
+                                </>
+                                :
+                                <>
+                                    {!deleteAudio ? <AudioPlayer
                                         autoPlay
                                         showDownloadProgress={false}
                                         hasDefaultKeyBindings={false}
@@ -2264,65 +2264,65 @@ function ConsultationInProgress() {
                                         style={{marginTop: 10}}
                                         src={selectedAudio.uri.url}
                                     />
-                                    :
-                                    <>
-                                        <Stack direction={"row"} spacing={1}>
-                                            <LoadingButton
-                                                className={"btn-action"}
-                                                loading={loadingRequest}
-                                                loadingPosition={"start"}
-                                                startIcon={<IconUrl width={20} height={20} path={'ic-trash'}/>}
+                                        :
+                                        <>
+                                            <Stack direction={"row"} spacing={1}>
+                                                <LoadingButton
+                                                    className={"btn-action"}
+                                                    loading={loadingRequest}
+                                                    loadingPosition={"start"}
+                                                    startIcon={<IconUrl width={20} height={20} path={'ic-trash'} />}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        removeAudioDoc();
+                                                    }}
+                                                    variant='contained'
+                                                    size={"small"}
+                                                    color={"error"}
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}>
+                                                    <Typography>{t("consultationIP.yes-delete")}</Typography>
+                                                </LoadingButton>
+                                                <Button
+                                                    className={"btn-action"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setDeleteAudio(false);
+                                                    }}
+                                                    variant='contained'
+                                                    size={"small"}
+                                                    color={"white"}
+                                                    sx={{
+                                                        "& .MuiSvgIcon-root": {
+                                                            width: 16,
+                                                            height: 16,
+                                                            pl: 0
+                                                        }
+                                                    }}>
+                                                    <Typography>{t("consultationIP.cancel")}</Typography>
+                                                </Button>
+                                            </Stack>
+                                            <IconButton
+                                                className={"close-button btn-action"}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
-                                                    removeAudioDoc();
-                                                }}
-                                                variant='contained'
-                                                size={"small"}
-                                                color={"error"}
-                                                sx={{
-                                                    "& .MuiSvgIcon-root": {
-                                                        width: 16,
-                                                        height: 16,
-                                                        pl: 0
-                                                    }
+                                                    setSelectedAudio(null);
+                                                    setTimeout(() => setDeleteAudio(false));
                                                 }}>
-                                                <Typography>{t("consultationIP.yes-delete")}</Typography>
-                                            </LoadingButton>
-                                            <Button
-                                                className={"btn-action"}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    setDeleteAudio(false);
-                                                }}
-                                                variant='contained'
-                                                size={"small"}
-                                                color={"white"}
-                                                sx={{
-                                                    "& .MuiSvgIcon-root": {
-                                                        width: 16,
-                                                        height: 16,
-                                                        pl: 0
-                                                    }
-                                                }}>
-                                                <Typography>{t("consultationIP.cancel")}</Typography>
-                                            </Button>
-                                        </Stack>
-                                        <IconButton
-                                            className={"close-button btn-action"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                setSelectedAudio(null);
-                                                setTimeout(() => setDeleteAudio(false));
-                                            }}>
-                                            <CloseIcon htmlColor={"white"}/>
-                                        </IconButton>
-                                    </>
-                                }
-                            </>
-                        }
-                    </RecondingBoxStyled>
-                </CardMedia>
-            </Draggable>}
+                                                <CloseIcon htmlColor={"white"} />
+                                            </IconButton>
+                                        </>
+                                    }
+                                </>
+                            }
+                        </RecondingBoxStyled>
+                    </CardMedia>
+                </Draggable>}
         </>
     );
 }

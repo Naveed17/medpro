@@ -48,8 +48,8 @@ function InsuranceAgreementRow({...props}) {
             </TableCell>
             <TableCell align="center">
                 {row ? (
-                    <Stack direction='row' alignItems='center' justifyContent='center' spacing={1}>
-                        <IconUrl path="ic-agenda-jour"/>
+                     <Stack direction='row' alignItems='center' justifyContent='center' spacing={1}>
+                        {row.startDate && <IconUrl path="ic-agenda-jour"/>}
                         <Typography fontSize={13} fontWeight={600} color="text.primary">
                             {row.startDate}
                         </Typography>
@@ -61,7 +61,7 @@ function InsuranceAgreementRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Stack direction='row' alignItems='center' justifyContent='center' spacing={1}>
-                        <IconUrl path="ic-agenda-jour"/>
+                        {row.endDate && <IconUrl path="ic-agenda-jour"/>}
                         <Typography fontSize={13} fontWeight={600} color="text.primary">
                             {row.endDate}
                         </Typography>
@@ -83,8 +83,8 @@ function InsuranceAgreementRow({...props}) {
                                 insurance: row.insurance,
                                 label: row.label,
                                 name: !row.insurance.isConvention ? row.insurance.name : row.mutual,
-                                startDate: moment(row.startDate, 'DD-MM-YYYY'),
-                                endDate: moment(row.endDate, 'DD-MM-YYYY'),
+                                startDate: new Date(row.startDate),
+                                endDate: new Date(row.endDate),
                                 acts: []
                             }))
                             setSelectedRow(row)

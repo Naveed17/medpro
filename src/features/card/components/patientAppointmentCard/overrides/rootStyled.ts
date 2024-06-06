@@ -3,31 +3,24 @@ import {MenuItem} from "@mui/material";
 
 const RootStyled = styled(MenuItem)(({theme, styleprops}: any) => {
     return {
-        borderTop: `${!styleprops ? `1px solid ${theme.palette.grey["A300"]}` : 'none'}`,
+        //borderBottom: `${!styleprops ? `1px solid ${theme.palette.grey["A300"]}` : 'none'}`,
         ...(styleprops && {
-            border: `1px solid ${theme.palette.divider}`,
+            border: `1px dashed ${theme.palette.primary.light}`,
             borderRadius: 8,
         }),
-        backgroundColor: theme.palette.common.white,
-        paddingTop: styleprops ? theme.spacing(2.8) : theme.spacing(1.75),
-        paddingBottom: styleprops ? theme.spacing(2.8) : theme.spacing(1.75),
+        backgroundColor:styleprops ? theme.palette.primary.lighter : theme.palette.common.white,
+        ...(styleprops ? {padding:theme.spacing(1.5)} :{padding: theme.spacing(1),paddingLeft:theme.spacing(2)}),
+
+        "&.MuiMenuItem-root":{minHeight:56},
         '& .MuiAvatar-root': {
-            width: 30,
-            height: 30,
-        },
-        '& .MuiButtonBase-root': {
-            backgroundColor: theme.palette.grey["A60"],
-            opacity: 0.5,
-            color: theme.palette.common.white,
-            width: 30,
-            height: 30,
-            borderRadius: 10,
-            '&:hover': {
-                backgroundColor: theme.palette.grey["A60"],
-            }
+            width: 40,
+            height: 40,
+            padding:theme.spacing(.3),
+            boxShadow: "0px 0px 0px 2px rgba(6, 150, 214, 0.25)",
+
         },
         '&:hover': {
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: styleprops ? theme.palette.primary.lighter : theme.palette.common.white,
         }
     }
 });

@@ -18,7 +18,10 @@ import {
     Zoom,
     Fab,
     Checkbox,
-    FormControlLabel, MenuItem, LinearProgress, Card, Grid, InputAdornment
+    FormControlLabel, MenuItem, LinearProgress, Card, Grid, InputAdornment,
+    Alert,
+    AlertTitle,
+    IconButton
 } from "@mui/material";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -54,7 +57,7 @@ import {
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
-import {ActionMenu, toggleSideBar} from "@features/menu";
+import {ActionMenu, sideBarSelector, toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -89,6 +92,8 @@ import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {CustomIconButton} from "@features/buttons";
+import {Breadcrumbs} from "@features/breadcrumbs";
+import {debounce} from "lodash";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -175,6 +180,7 @@ function Patients() {
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
     const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {openUploadDialog} = useAppSelector(addPatientSelector);
+    const {opened} = useAppSelector(sideBarSelector);
 
     const {data: user} = session as Session;
     const {jti} = session?.user as any;
@@ -571,7 +577,7 @@ function Patients() {
     }
 
     const handleClickOpen = () => {
-        setOpen(true);
+        dispatch(toggleSideBar(opened))
     }
 
     const handleCloseMenu = () => {
@@ -664,6 +670,14 @@ function Patients() {
                 break;
         }
     }
+    const breadcrumbsData = [
+
+        {
+            title: "Patients",
+            href: null
+        }
+
+    ]
     const currentPageParams = httpPatientsResponse?.pageParams.findIndex(pageIndex => pageIndex === page) ?? 0;
     const currentPage = (httpPatientsResponse?.pages[currentPageParams === -1 ? 0 : currentPageParams] as any)?.data.data as PaginationModel ?? null;
 
@@ -705,6 +719,8 @@ function Patients() {
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
 
+    const debouncedOnChange = debounce(onFilterPatient, 500);
+
     if (!ready) return (<LoadingScreen button text={"loading"}/>);
 
     return (
@@ -712,22 +728,26 @@ function Patients() {
             <SubHeader
                 sx={{
                     ".MuiToolbar-root": {
-                        flexDirection: {xs: "column", md: "row"},
-                        py: {md: 0, xs: 2},
+                        py: 2,
                     },
                 }}>
-                <PatientToolbar
-                    {...{mutatePatient: mutatePatients}}
-                    onAddPatient={() => {
-                        dispatch(onResetPatient());
-                        setSelectedPatient(null);
-                        setPatientDrawer(true);
-                    }}
-                />
-                {isMobile && (
+                <Stack width={1} spacing={2}>
+                    <Breadcrumbs data={breadcrumbsData}/>
+                    <PatientToolbar
+                        {...{mutatePatient: mutatePatients}}
+                        onAddPatient={() => {
+                            dispatch(onResetPatient());
+                            setSelectedPatient(null);
+                            setPatientDrawer(true);
+                        }}
+                    />
+
                     <Stack direction="row" spacing={2} width={1} mt={2.5}>
+                        <CustomIconButton sx={{minWidth: 38}} color="back" onClick={handleClickOpen}>
+                            <IconUrl path="ic-filter-outlined"/>
+                        </CustomIconButton>
                         <TextField
-                            onChange={(e) => onFilterPatient(e.target.value)}
+                            onChange={(e) => debouncedOnChange(e.target.value)}
                             fullWidth
                             placeholder={t("filter.search")}
                             InputProps={{
@@ -736,12 +756,41 @@ function Patients() {
                                 </InputAdornment>,
                             }}
                         />
-                        <CustomIconButton sx={{minWidth: 38}} color="back" onClick={handleClickOpen}>
-                            <IconUrl path="ic-filter-outlined"/>
-                        </CustomIconButton>
+
                     </Stack>
-                )}
+
+                </Stack>
             </SubHeader>
+            <Alert
+                color="white"
+                sx={{
+                    bgcolor: 'common.white',
+                    border: 'none',
+                    borderRadius: 0,
+                    mt: '1px',
+                    px: 3,
+                    ".MuiAlert-action": {alignItems: 'center'}
+                }}
+                icon={<CustomIconButton sx={{bgcolor: theme.palette.error.lighter, maxHeight: 40}}>
+                    <IconUrl path="ic-filled-sms-left" width={20} height={20} color={theme.palette.error.main}/>
+                </CustomIconButton>}
+
+                action={<Stack direction='row' alignItems="center" spacing={1}>
+                    <Button
+                        size="small"
+                        variant="contained">
+                        Upgrade
+                    </Button>
+                    <IconButton size="small">
+                        <IconUrl path="ic-outline-close" width={16} height={16}/>
+
+                    </IconButton>
+                </Stack>}>
+                <AlertTitle>Running Out of SMS Credits</AlertTitle>
+                You &apos; re running low on SMS credits, but worry not! Enjoy unlimited SMS by upgrading your plan now.
+                Plus,
+                get this exclusive offer for only 400 TND .
+            </Alert>
             <LinearProgress sx={{
                 visibility: loadingRequest || isLoading ? "visible" : "hidden"
             }} color="warning"/>
@@ -1150,6 +1199,12 @@ function Patients() {
                 anchor={"right"}
                 open={patientDetailDrawer}
                 dir={direction}
+                PaperProps={{
+                    sx: {
+                        maxWidth: 600,
+                        width: '100%'
+                    }
+                }}
                 onClose={() => {
                     dispatch(onOpenPatientDrawer({patientId: ""}));
                     setPatientDetailDrawer(false);

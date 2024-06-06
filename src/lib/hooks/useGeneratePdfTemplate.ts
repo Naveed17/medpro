@@ -1,6 +1,6 @@
 import {degrees, PDFDocument, PDFFont, rgb} from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
-import {arabicRegExp, PsychomotorDevelopmentXY, signs} from "@lib/constants";
+import {ArabicRegExp, PsychomotorDevelopmentXY, Signs} from "@lib/constants";
 import {useCallback} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -34,7 +34,7 @@ function useGeneratePdfTemplate() {
         //load arabic font and embed it to pdf document
         let arabicFontBytes: ArrayBuffer;
         let arabicCustomFont: PDFFont;
-        if (arabicRegExp.test(patient.firstName) || arabicRegExp.test(patient.lastName)) {
+        if (ArabicRegExp.test(patient.firstName) || ArabicRegExp.test(patient.lastName)) {
             arabicFontBytes = await fetch("/static/fonts/arabic/arabic_regular.ttf").then((res) => res.arrayBuffer());
             arabicCustomFont = await pdfDoc.embedFont(arabicFontBytes);
         }
@@ -64,7 +64,7 @@ function useGeneratePdfTemplate() {
                 font: customFont,
                 color: textColor
             })
-            const isArabicFont = arabicRegExp.test(patient.firstName) || arabicRegExp.test(patient.lastName);
+            const isArabicFont = ArabicRegExp.test(patient.firstName) || ArabicRegExp.test(patient.lastName);
             copiedPages[0].drawText(`${patient.firstName} ${patient.lastName}`, {
                 x: 170,
                 y: isArabicFont ? 346 : 344,
@@ -120,7 +120,7 @@ function useGeneratePdfTemplate() {
             // Draw bebe Zodiac sign
             const birthdate = moment(patient.birthdate, "DD-MM-YYYY");
             const sign = Number(new Intl.DateTimeFormat('fr-TN-u-ca-persian', {month: 'numeric'}).format(birthdate.toDate())) - 1;
-            copiedPages[0].drawText(signs[sign].split(':')[0], {
+            copiedPages[0].drawText(Signs[sign].split(':')[0], {
                 x: 157,
                 y: 208.5,
                 size: 14,

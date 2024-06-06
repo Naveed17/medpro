@@ -59,7 +59,7 @@ function FeesTab({...props}) {
             id: "amount",
             numeric: true,
             disablePadding: false,
-            label: "reimb",
+            label: "remb",
             sortable: true,
             align: "center",
         },
@@ -142,6 +142,7 @@ function FeesTab({...props}) {
                     _acts[index].insurance = act.insurance;
                     _acts[index].patient_part = act.patientPart;
                     _acts[index].refund = act.refund;
+                    _acts[index].code_pa = act.code_pa;
                 }
             })
 
@@ -171,8 +172,9 @@ function FeesTab({...props}) {
                 price: act.fees,
                 ...(act.insurance_act ? {insurance_act: act.insurance_act} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {insurance_act: act.insurances[0].uuid}: null),
                 ...(act.insurance && {insurance: act.insurance}),
-                ...(act.patient_part ? {patient_part: act.patient_part}  : act.insurances.length > 0 && rowUuid === act.uuid && from ? {patient_part: act.insurances[0].patient_part} : null),
-                ...(act.refund ? {refund: act.refund} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {refund: act.insurances[0].refund} : null)
+                ...(act.patient_part ? {patient_part: act.patient_part}  : act.insurances.length > 0 && rowUuid === act.uuid && from ? {patient_part: act.fees - act.insurances[0].refund} : null),
+                ...(act.refund ? {refund: act.refund} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {refund: act.insurances[0].refund} : null),
+                ...(act.code_pa ? {code_pa: act.code_pa} : act.insurances.length > 0 && rowUuid === act.uuid && from  ? {code_pa: act.insurances[0].code_pa} : null)
             });
         });
         setTotal(_total);
@@ -305,10 +307,10 @@ function FeesTab({...props}) {
                                 <CardContent>
                                     <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
                                         <Typography variant="body2">
-                                            {t("table.reimb")}
+                                            {t("table.remb")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.contribution) : 0), 0)} {devise}
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.refund) : 0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -320,7 +322,7 @@ function FeesTab({...props}) {
                                             {t("table.patient_part")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected ? Number(curr.patientPart) : 0), 0)} {devise}
+                                            {acts.reduce((acc: number, curr: any) => acc + (curr.selected && curr.patient_part ? Number(curr.patient_part) : 0), 0)} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>

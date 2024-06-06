@@ -2,20 +2,6 @@ import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetailsCard} from "@features/card";
-
-const PersonalInfoPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.PersonalInfoPanel))
-const TransactionPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.TransactionPanel))
-const HistoryPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.HistoryPanel))
-const DocumentsPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.DocumentsPanel))
-const NotesPanel = dynamic(() =>
-    import('@features/tabPanel').then((mod) => mod.NotesPanel))
-const PatientFile = dynamic(() =>
-    import('@features/files').then((mod) => mod.PatientFile))
-
 import {
     EventType,
     Instruction,
@@ -48,13 +34,7 @@ import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
-import {
-    useAntecedentTypes,
-    useContactType, useCountries,
-    useFeaturePermissions,
-    useProfilePhoto,
-    useSendNotification
-} from "@lib/hooks/rest";
+import {useFeaturePermissions, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
@@ -66,6 +46,21 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {AbilityContext} from "@features/casl/can";
 import {setPermissions} from "@features/casl";
 import dynamic from "next/dynamic";
+
+const MedicalRec = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.PatientMedicalRecordPanel))
+const PersonalInfoPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.PersonalInfoPanel))
+const TransactionPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.TransactionPanel))
+const HistoryPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.HistoryPanel))
+const DocumentsPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.DocumentsPanel))
+const NotesPanel = dynamic(() =>
+    import('@features/tabPanel').then((mod) => mod.NotesPanel))
+const PatientFile = dynamic(() =>
+    import('@features/files').then((mod) => mod.PatientFile))
 
 function a11yProps(index: number) {
     return {
@@ -91,13 +86,10 @@ function PatientDetail({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {allAntecedents} = useAntecedentTypes();
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {permissions} = useFeaturePermissions("patient", true);
     const ability = useContext(AbilityContext);
-    const {contacts} = useContactType();
-    const {countries: countries_api} = useCountries("nationality=true");
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -138,7 +130,6 @@ function PatientDetail({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
-    const [antecedentsData, setAntecedentsData] = useState<any[] | null>(null);
     const [editable, setEditable] = useState({
         personalInfoCard: false,
         personalInsuranceCard: false,
@@ -177,24 +168,23 @@ function PatientDetail({...props}) {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
-    const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
-
     const {
         data: httpAntecedentsResponse,
         mutate: mutateAntecedents
-    } = useRequestQuery(medicalEntityHasUser && patientId ? {
+    } = useRequestQuery(medicalEntityHasUser && httpPatientWallet ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/antecedents/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const {
         data: httpPatientContactResponse
-    } = useRequestQuery(medicalEntityHasUser && patient ? {
+    } = useRequestQuery(medicalEntityHasUser && httpAntecedentsResponse ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/contact/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
+    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as AntecedentsModel[];
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -357,12 +347,16 @@ function PatientDetail({...props}) {
 
     const tabsContent = [
         ...(ability.can('manage', 'patients', 'patients__patient__details__informations') ? [{
+            title: "medical_record",
+            children: <MedicalRec loading={!patient} {...{
+                t
+            }} />
+        }] : []),
+        ...(ability.can('manage', 'patients', 'patients__patient__details__informations') ? [{
             title: "tabs.personal-info",
             children: <PersonalInfoPanel loading={!patient} {...{
                 patient,
                 contactData,
-                contacts,
-                countries_api,
                 mutatePatientDetails,
                 mutatePatientList,
                 antecedentsData,
@@ -413,7 +407,7 @@ function PatientDetail({...props}) {
         }] : []),
         ...(ability.can('manage', 'patients', 'patients__patient__details__resume') ? [{
             title: "tabs.recap",
-            children: <PatientFile {...{patient, antecedentsData, t, allAntecedents}} />,
+            children: <PatientFile {...{patient, antecedentsData, t}} />,
             permission: ["ROLE_PROFESSIONAL"]
         }] : [])
     ];
@@ -439,12 +433,6 @@ function PatientDetail({...props}) {
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (httpAntecedentsResponse) {
-            setAntecedentsData((httpAntecedentsResponse as HttpResponse)?.data as any[]);
-        }
-    }, [httpAntecedentsResponse])
-
-    useEffect(() => {
         if (httpPatientWallet) {
             setWallet((httpPatientWallet as HttpResponse).data.wallet)
             setRest((httpPatientWallet as HttpResponse).data.rest_amount)
@@ -459,7 +447,7 @@ function PatientDetail({...props}) {
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
                     <Backdrop open={openFabAdd}/>
                     {" "}
-                    <PatientDetailsToolbar onClose={closePatientDialog}/>
+                    <PatientDetailsToolbar {...{t}} onClose={closePatientDialog}/>
 
                     <PatientDetailsCard
                         loading={!patient}
@@ -471,7 +459,6 @@ function PatientDetail({...props}) {
                             antecedentsData,
                             mutateAntecedents,
                             onConsultationStart,
-                            patientPhoto,
                             mutatePatientList,
                             mutateAgenda,
                             walletMutate,
@@ -481,7 +468,7 @@ function PatientDetail({...props}) {
                             rest, devise
                         }}
                     />
-                    <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
+                    <Box className={"container"} sx={{width: '100%'}}>
                         <Tabs
                             value={index}
                             onChange={handleStepperIndexChange}
@@ -501,7 +488,7 @@ function PatientDetail({...props}) {
                         {tabsContent.map((tabContent, tabContentIndex) => (
                             <TabPanel
                                 key={`tabContent-${tabContentIndex}`}
-                                padding={1}
+                                padding={0}
                                 value={index}
                                 index={tabContentIndex}>
                                 {tabContent.children}
@@ -546,12 +533,9 @@ function PatientDetail({...props}) {
 
 
                         <LoadingButton onClick={() => setOpenUploadDialog(true)}
-                                       sx={{
-                                           borderColor: 'divider',
-                                           bgcolor: theme => theme.palette.grey['A500'],
-                                       }}
-                                       variant="outlined"
-                                       color="info"
+
+                                       variant="primary-light"
+
                                        loading={loadingRequest}
 
                                        startIcon={<IconUrl path="fileadd" width={20} height={20}/>}>

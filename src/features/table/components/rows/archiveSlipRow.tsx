@@ -68,31 +68,48 @@ function ArchiveSlipRow({...props}) {
             </TableCell>
             <TableCell align="center">
                 {row ? (
-                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"}>
                         <Typography fontSize={13} fontWeight={600} color="text.primary">
                             {row.total ? row.total : "-"} {devise}
                         </Typography>
-
-                        <IconButton
-                            size="small"
-                            className="btn-edit"
-                            onClick={()=>handleEvent(row.uuid,'export',row.name)}
-                            sx={{mr: {md: 1}}}>
-                            <IconUrl color={theme.palette.text.secondary} path="download" width={20} height={20}/>
-                        </IconButton>
-
-                        <IconButton
-                            size="small"
-                            className="btn-edit"
-                            onClick={()=>handleEvent(row.uuid,'delete')}
-                            sx={{mr: {md: 1}}}>
-                            <IconUrl color={theme.palette.text.secondary} path="ic-delete"/>
-                        </IconButton>
-                    </Stack>
                 ) : (
                     <Skeleton variant="text" width={100}/>
                 )}
+            </TableCell>
+            <TableCell>
+                <Stack direction={"row"} spacing={1} justifyContent={"center"}>
 
+                    {/*<IconButton
+                        size="small"
+                        className="btn-edit"
+                        onClick={()=>handleEvent(row.uuid,'edit')}
+                        sx={{mr: {md: 1}}}>
+                        <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient" width={20} height={20}/>
+                    </IconButton>*/}
+
+                    <IconButton
+                        size="small"
+                        className="btn-edit"
+                        onClick={()=>handleEvent(row.uuid,'export',row.name,'txt')}
+                        sx={{mr: {md: 1}}}>
+                        <IconUrl color={theme.palette.text.secondary} path="txt" width={20} height={20}/>
+                    </IconButton>
+
+                    <IconButton
+                        size="small"
+                        className="btn-edit"
+                        onClick={()=>handleEvent(row.uuid,'export',row.name,'pdf')}
+                        sx={{mr: {md: 1}}}>
+                        <IconUrl color={theme.palette.text.secondary} path="download-pdf" width={20} height={20}/>
+                    </IconButton>
+
+                    <IconButton
+                        size="small"
+                        className="btn-edit"
+                        onClick={()=>handleEvent(row.uuid,'delete')}
+                        sx={{mr: {md: 1}}}>
+                        <IconUrl color={theme.palette.text.secondary} path="ic-delete"/>
+                    </IconButton>
+                </Stack>
             </TableCell>
             {/*<TableCell align="left">
                 {row ? (

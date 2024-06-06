@@ -56,7 +56,7 @@ import {
     setAppointmentDate,
     setAppointmentPatient,
     setAppointmentRecurringDates,
-    setAppointmentSubmit,
+    setAppointmentSubmit, setAppointmentType,
     TimeSchedule
 } from "@features/tabPanel";
 import {AppointmentListMobile, timerSelector} from "@features/card";
@@ -88,7 +88,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
-import {DefaultCountry, deleteAppointmentOptionsData, MobileContainer as smallScreen} from "@lib/constants";
+import {DefaultCountry, DeleteAppointmentOptionsData, MobileContainer as smallScreen} from "@lib/constants";
 import IconUrl from "@themes/urlIcon";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -130,11 +130,12 @@ function Agenda() {
         patient,
         type,
         submitted,
-        recurringDates
+        recurringDates,
+        finalize
     } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper,
         selectedEvent, actionSet, openMoveDrawer, openAbsenceDrawer,
@@ -190,7 +191,7 @@ function Agenda() {
     ]);
     const [event, setEvent] = useState<EventDef | null>();
     const [openFabAdd, setOpenFabAdd] = useState(false);
-    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(DeleteAppointmentOptionsData);
     const [cancelAppointmentOption, setCancelAppointmentOption] = useState(true);
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
     const calendarRef = useRef<FullCalendar | null>(null);
@@ -617,7 +618,6 @@ function Agenda() {
                         enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
                         // refresh on going api
                         mutateOnGoing();
-
                     }
                 });
                 break;
@@ -999,6 +999,7 @@ function Agenda() {
                 dispatch(openDrawer({type: "add", open: true}));
                 break;
             case "add-quick":
+                appointmentTypes && dispatch(setAppointmentType(appointmentTypes[0]?.uuid));
                 setQuickAddAppointment(true);
                 break;
         }
@@ -1065,16 +1066,16 @@ function Agenda() {
     const handleActionFab = (action: any) => {
         setOpenFabAdd(false);
         switch (action.key) {
-            case "add_leave" :
+            case "add_leave":
                 dispatch(openDrawer({type: "absence", open: true}));
                 break;
-            case "add_chat" :
+            case "add_chat":
                 dispatch(setOpenChat(true))
                 break;
-            case "add-quick" :
+            case "add-quick":
                 handleAddAppointment("add-quick");
                 break;
-            case "add-complete" :
+            case "add-complete":
                 handleAddAppointment("add-complete");
                 break;
         }
@@ -1349,7 +1350,7 @@ function Agenda() {
                         dispatch(openDrawer({type: "absence", open: false}));
                         dispatch(resetAbsenceData());
                     }}>
-                    <AbsenceDrawer main={true} {...{t}}/>
+                    <AbsenceDrawer main={true} {...{t}} />
                     <Paper
                         sx={{
                             display: "inline-block",
@@ -1394,6 +1395,7 @@ function Agenda() {
                     }}>
                     <QuickAddAppointment
                         {...{t}}
+                        handleClose={() => setQuickAddAppointment(false)}
                         handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                     <Paper
                         sx={{
@@ -1404,26 +1406,54 @@ function Agenda() {
                             p: "1rem"
                         }}
                         className="action">
-                        <Button
-                            sx={{
-                                mr: 1
-                            }}
-                            variant="text-primary"
-                            onClick={() => setQuickAddAppointment(false)}
-                            startIcon={<CloseIcon/>}>
-                            {t(`dialogs.quick_add_appointment-dialog.cancel`)}
-                        </Button>
-                        <LoadingButton
-                            {...{loading}}
-                            variant="contained"
-                            color={"primary"}
-                            onClick={event => {
-                                event.stopPropagation();
-                                handleAddAppointmentRequest();
-                            }}
-                            disabled={recurringDates.length === 0 || type === "" || !patient}>
-                            {t(`dialogs.quick_add_appointment-dialog.confirm`)}
-                        </LoadingButton>
+                        {finalize ?
+                            <>
+                                <Button
+                                    sx={{
+                                        mr: 1
+                                    }}
+                                    variant="text-primary"
+                                    onClick={() => setQuickAddAppointment(false)}
+                                    startIcon={<CloseIcon/>}>
+                                    {t(`dialogs.quick_add_appointment-dialog.cancel`)}
+                                </Button>
+                                <LoadingButton
+                                    {...{loading}}
+                                    variant="contained"
+                                    color={"primary"}
+                                    onClick={event => {
+                                        event.stopPropagation();
+                                        handleAddAppointmentRequest();
+                                    }}
+                                    disabled={recurringDates.length === 0 || type === "" || !patient}>
+                                    {t(`dialogs.quick_add_appointment-dialog.confirm`)}
+                                </LoadingButton>
+                            </> : <Stack pt={2} px={2} mx={-2} direction='row' justifyContent='space-between'
+                                         alignItems='center' borderTop={1} borderColor='divider'>
+                                <Button
+                                    onClick={() => setQuickAddAppointment(false)}
+                                    variant="text-black">
+                                    {t("steppers.final-step.btn-close")}
+                                </Button>
+                                <Stack direction='row' alignItems='center' spacing={2}>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        variant="google"
+                                        sx={{bgcolor: theme.palette.grey[50]}}
+                                    >
+                                        {t("steppers.final-step.btn-another-rdv-schedule")}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        onClick={() => setQuickAddAppointment(false)}
+                                        {...{loading}}
+                                        variant="contained"
+
+                                    >
+                                        {t("steppers.final-step.btn-complete")}
+                                    </LoadingButton>
+                                </Stack>
+                            </Stack>
+                        }
                     </Paper>
                 </Drawer>
 

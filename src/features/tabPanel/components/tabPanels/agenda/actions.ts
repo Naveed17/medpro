@@ -10,4 +10,5 @@ export const setAppointmentPatient = createAction<PatientWithNextAndLatestAppoin
 export const setAppointmentInstruction = createAction<AppointmentInstructionModel>("appointment/setAppointmentInstruction ");
 export const resetAppointment = createAction("appointment/resetAppointment");
 export const resetSubmitAppointment = createAction("appointment/resetSubmitAppointment");
+export const setAppointmentFinalize = createAction<string>("appointment/setAppointmentFinalize");
 

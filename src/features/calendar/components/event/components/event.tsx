@@ -1,29 +1,29 @@
-import {Avatar, Box, Chip, Fade, IconButton, Stack, Typography, useMediaQuery} from "@mui/material";
+import { Avatar, Box, Chip, Fade, IconButton, Stack, Typography, useMediaQuery } from "@mui/material";
 import React from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
-import {ConditionalWrapper, convertHexToRGBA} from "@lib/hooks";
-import {alpha, Theme} from "@mui/material/styles";
+import { ConditionalWrapper, convertHexToRGBA } from "@lib/hooks";
+import { alpha, Theme } from "@mui/material/styles";
 import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
-import {useRouter} from "next/router";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {AppointmentPopoverCard, timerSelector} from "@features/card";
-import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
-import {setDialog} from "@features/topNavBar";
-import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
-import {MobileContainer as smallScreen} from "@lib/constants";
+import { useRouter } from "next/router";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { AppointmentPopoverCard, timerSelector } from "@features/card";
+import { agendaSelector, openDrawer, setSelectedEvent } from "@features/calendar";
+import { setDialog } from "@features/topNavBar";
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
+import { MobileContainer as smallScreen } from "@lib/constants";
 
-function Event({...props}) {
-    const {isBeta, event, roles, view, open, t, OnMenuActions} = props;
+function Event({ ...props }) {
+    const { isBeta, event, roles, view, open, t, OnMenuActions } = props;
     const appointment = event.event._def.extendedProps;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
-    const {isActive} = useAppSelector(timerSelector);
-    const {mode, config: agendaConfig} = useAppSelector(agendaSelector);
+    const { isActive } = useAppSelector(timerSelector);
+    const { mode, config: agendaConfig } = useAppSelector(agendaSelector);
 
     const handleStartConsultation = (event: any) => {
         if (!isActive) {
@@ -34,11 +34,11 @@ function Event({...props}) {
                     inProgress: true,
                     agendaUuid: agendaConfig?.uuid
                 }
-            }, slugConsultation, {locale: router.locale});
+            }, slugConsultation, { locale: router.locale });
         } else {
             dispatch(setSelectedEvent(event));
-            dispatch(openDrawer({type: "view", open: false}));
-            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+            dispatch(openDrawer({ type: "view", open: false }));
+            dispatch(setDialog({ dialog: "switchConsultationDialog", value: true }));
         }
     }
 
@@ -65,23 +65,23 @@ function Event({...props}) {
                     }
                 }}
                 TransitionComponent={Fade}
-                TransitionProps={{timeout: 600}}
+                TransitionProps={{ timeout: 600 }}
                 title={
                     <React.Fragment>
                         {appointment?.new &&
-                            <Chip label={t("event.new", {ns: 'common'})}
-                                  sx={{
-                                      position: "absolute",
-                                      right: 4,
-                                      top: 4,
-                                      fontSize: 10
-                                  }}
-                                  size="small"
-                                  color={"primary"}/>}
+                            <Chip label={t("event.new", { ns: 'common' })}
+                                sx={{
+                                    position: "absolute",
+                                    right: 4,
+                                    top: 4,
+                                    fontSize: 10
+                                }}
+                                size="small"
+                                color={"primary"} />}
                         <AppointmentPopoverCard
-                            {...{isBeta, t, OnMenuActions}}
-                            style={{width: "fit-content", border: "none"}}
-                            data={event.event._def}/>
+                            {...{ isBeta, t, OnMenuActions }}
+                            style={{ width: "fit-content", border: "none" }}
+                            data={event.event._def} />
                     </React.Fragment>
                 }>
                 {children}
@@ -89,12 +89,12 @@ function Event({...props}) {
             }>
             <EventStyled
                 sx={{
-                    ...((isBeta && event.event._def.ui.display !== "background" && !appointment?.payed) && {backgroundColor: (theme: Theme) => alpha(theme.palette.expire.main, 0.2)}),
+                    ...((isBeta && event.event._def.ui.display !== "background" && !appointment?.payed) && { backgroundColor: (theme: Theme) => alpha(theme.palette.expire.main, 0.2) }),
                     ...(appointment?.patient?.isArchived && {
                         backgroundColor: (theme: Theme) => alpha(theme.palette.grey['A100'], 0.5),
                         opacity: 0.5
                     }),
-                    ...(appointment?.motif?.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} ${view === "timeGridDay" ? '99.5' : '97.5'}%, ${appointment?.motif?.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
+                    ...(appointment?.motif?.length > 0 && { background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} ${view === "timeGridDay" ? '99.5' : '97.5'}%, ${appointment?.motif?.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})` }),
                     "&:before": {
                         background: event.borderColor
                     },
@@ -107,48 +107,48 @@ function Event({...props}) {
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"
                 className="fc-event-main-box">
-                <Stack height={1} width={1}
-                       spacing={.5}  {...(appointment?.dur === 15 && {justifyContent: "center"})}>
+                <Stack sx={{ pl: .5 }} height={1} width={1}
+                    spacing={.5}  {...(appointment?.dur === 15 && { justifyContent: "center" })}>
                     {appointment?.dur > 15 && (
                         <Stack direction='row' alignItems={'center'} pl={.5}>
                             <Typography variant="body2" color="text.primary">
                                 {moment(appointment?.time).format("HH:mm")}
                             </Typography>
-                            {appointment?.new && <Box className="badge"/>}
+                            {appointment?.new && <Box className="badge" />}
                             {!appointment?.patient?.isArchived ? <Typography
-                                    variant="body2"
-                                    {...((appointment?.status?.key === "WAITING_ROOM" &&
-                                            appointment?.hasErrors?.length === 0) &&
-                                        {className: "ic-waiting"})}
-                                    component={"span"}
-                                    color="text.primary">
-                                    {appointment?.status?.icon}
-                                    {appointment?.hasErrors?.length > 0 && <DangerIcon className={"ic-danger"}/>}
-                                </Typography>
+                                variant="body2"
+                                {...((appointment?.status?.key === "WAITING_ROOM" &&
+                                    appointment?.hasErrors?.length === 0) &&
+                                    { className: "ic-waiting" })}
+                                component={"span"}
+                                color="text.primary">
+                                {appointment?.status?.icon}
+                                {appointment?.hasErrors?.length > 0 && <DangerIcon className={"ic-danger"} />}
+                            </Typography>
                                 :
-                                <DeletedPatientIcon/>
+                                <DeletedPatientIcon />
                             }
                         </Stack>
                     )}
                     <Stack
                         direction='row'
-                        sx={{height: '100%'}}
+                        sx={{ height: '100%' }}
                         alignItems={appointment?.dur > 15 ? "flex-start" : 'center'}>
                         {appointment?.dur <= 15 && (
                             <>
-                                {appointment?.new && <Box className="badge"/>}
+                                {appointment?.new && <Box className="badge" />}
                                 {!appointment?.patient?.isArchived ? <Typography
-                                        variant="body2"
-                                        {...((appointment?.status?.key === "WAITING_ROOM" &&
-                                                appointment?.hasErrors?.length === 0) &&
-                                            {className: "ic-waiting"})}
-                                        component={"span"}
-                                        color="text.primary">
-                                        {appointment?.status?.icon}
-                                        {appointment?.hasErrors?.length > 0 && <DangerIcon className={"ic-danger"}/>}
-                                    </Typography>
+                                    variant="body2"
+                                    {...((appointment?.status?.key === "WAITING_ROOM" &&
+                                        appointment?.hasErrors?.length === 0) &&
+                                        { className: "ic-waiting" })}
+                                    component={"span"}
+                                    color="text.primary">
+                                    {appointment?.status?.icon}
+                                    {appointment?.hasErrors?.length > 0 && <DangerIcon className={"ic-danger"} />}
+                                </Typography>
                                     :
-                                    <DeletedPatientIcon/>
+                                    <DeletedPatientIcon />
                                 }
                             </>
                         )}
@@ -163,8 +163,8 @@ function Event({...props}) {
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
-                                        ...((appointment?.isOnline || appointment?.motif?.length > 0) && {width: "96%"}),
-                                        ...((appointment?.hasErrors?.length > 0 && (appointment?.isOnline || appointment?.motif?.length > 0)) && {width: "94%"})
+                                        ...((appointment?.isOnline || appointment?.motif?.length > 0) && { width: "96%" }),
+                                        ...((appointment?.hasErrors?.length > 0 && (appointment?.isOnline || appointment?.motif?.length > 0)) && { width: "94%" })
                                     }
                                 }
                             })}
@@ -172,20 +172,20 @@ function Event({...props}) {
                             fontWeight={600}
                             noWrap>
                             {view === "timeGridDay" && mode === "normal" ? (
-                                    <Stack spacing={.5} alignItems={"center"}
-                                           direction={appointment?.dur > 15 ? "column" : "row"}>
-                                        <span>{event.event._def.title}</span>
-                                        {appointment?.patient?.contact?.length > 0 && <>
-                                            <Icon path="ic-phone"/>
-                                            {appointment?.patient?.contact[0]?.code} {appointment?.patient?.contact[0].value}
-                                        </>}
-                                        {appointment?.motif?.length > 0 &&
-                                            <span {...(appointment?.dur > 15 && {style: {paddingBottom: 4}})}>{"Motif: "}{appointment?.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
-                                    </Stack>
-                                )
+                                <Stack spacing={.5} alignItems={"center"}
+                                    direction={appointment?.dur > 15 ? "column" : "row"}>
+                                    <span>{event.event._def.title}</span>
+                                    {appointment?.patient?.contact?.length > 0 && <>
+                                        <Icon path="ic-phone" />
+                                        {appointment?.patient?.contact[0]?.code} {appointment?.patient?.contact[0].value}
+                                    </>}
+                                    {appointment?.motif?.length > 0 &&
+                                        <span {...(appointment?.dur > 15 && { style: { paddingBottom: 4 } })}>{"Motif: "}{appointment?.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
+                                </Stack>
+                            )
                                 :
                                 <span
-                                    {...(mode !== "normal" && {className: "blur-text"})}
+                                    {...(mode !== "normal" && { className: "blur-text" })}
                                     style={{
                                         width: '100%',
                                         ...(mode === "normal" && {
@@ -201,11 +201,11 @@ function Event({...props}) {
                             src="/static/icons/Med-logo_.svg"
                         />}
                         {(event.event._def.ui.display !== "background" &&
-                                !["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment?.status?.key) &&
-                                !roles.includes('ROLE_SECRETARY') &&
-                                !appointment?.patient?.isArchived &&
-                                moment(appointment?.time).format("DD-MM-YYYY") === moment().format("DD-MM-YYYY") &&
-                                !isMobile) &&
+                            !["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment?.status?.key) &&
+                            !roles.includes('ROLE_SECRETARY') &&
+                            !appointment?.patient?.isArchived &&
+                            moment(appointment?.time).format("DD-MM-YYYY") === moment().format("DD-MM-YYYY") &&
+                            !isMobile) &&
                             <IconButton
                                 onClick={ev => {
                                     ev.stopPropagation();
@@ -216,7 +216,7 @@ function Event({...props}) {
                                     alignSelf: appointment?.dur > 15 ? "flex-end" : 'flex-start',
                                     mr: appointment?.isOnline ? (appointment?.hasErrors?.length > 0 ? .5 : 0) + 2 : appointment?.motif?.length > 0 ? .5 : 0
                                 }}>
-                                <Icon path={"ic-play-audio-black"}/>
+                                <Icon path={"ic-play-audio-black"} />
                             </IconButton>}
                     </Stack>
                 </Stack>

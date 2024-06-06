@@ -1,10 +1,10 @@
-import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {useTranslation} from "next-i18next";
+import React, { ReactElement, useEffect, useState } from "react";
+import { DashLayout, dashLayoutSelector } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
-import {SubHeader} from "@features/subHeader";
+import { SubHeader } from "@features/subHeader";
 import {
     Avatar,
     Box,
@@ -19,71 +19,72 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {StatsToolbar} from "@features/toolbar";
-import {merge} from 'lodash';
-import {ChartsOption, ChartStyled} from "@features/charts";
+import { StatsToolbar } from "@features/toolbar";
+import { merge } from 'lodash';
+import { ChartsOption, ChartStyled } from "@features/charts";
 import IconUrl from "@themes/urlIcon";
-import {toggleSideBar} from "@features/menu";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {agendaSelector} from "@features/calendar";
-import {CalendarViewButton} from "@features/buttons";
+import { toggleSideBar } from "@features/menu";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
+import { useRouter } from "next/router";
+import { useMedicalEntitySuffix } from "@lib/hooks";
+import { agendaSelector } from "@features/calendar";
+import { CalendarViewButton } from "@features/buttons";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import moment from "moment-timezone";
-import {startCase} from 'lodash';
-import {LoadingScreen} from "@features/loadingScreen";
-import {TabPanel} from "@features/tabPanel";
+import { startCase } from 'lodash';
+import { LoadingScreen } from "@features/loadingScreen";
+import { TabPanel } from "@features/tabPanel";
 import NumberIcon from "@themes/overrides/icons/numberIcon";
 import TimerIcon from "@themes/overrides/icons/timerIcon";
-import {BorderLinearProgressStyled, StatsProgressCard} from "@features/card";
-import {useCountries} from "@lib/hooks/rest";
-import {DefaultCountry} from "@lib/constants";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
-import {renderToString} from "react-dom/server";
+import { BorderLinearProgressStyled, StatsProgressCard } from "@features/card";
+import { useCountries } from "@lib/hooks/rest";
+import { DefaultCountry } from "@lib/constants";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { renderToString } from "react-dom/server";
 import Image from "next/image";
+import { Breadcrumbs } from "@features/breadcrumbs";
 
-const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 function Statistics() {
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
-    const {countries} = useCountries();
+    const { data: session } = useSession();
+    const { countries } = useCountries();
     const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
 
-    const {t, ready, i18n} = useTranslation(["stats", "common"]);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
+    const { t, ready, i18n } = useTranslation(["stats", "common"]);
+    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
+    const { config: agenda } = useAppSelector(agendaSelector);
 
     const [value, setValue] = React.useState(0);
     const [viewChart, setViewChart] = useState('month');
     const [periodChartData, setPeriodChartData] = useState<any[]>([]);
-    const [fullScreenChart, setFullScreenChart] = useState({"act": false, "motif": false, "type": false});
+    const [fullScreenChart, setFullScreenChart] = useState({ "act": false, "motif": false, "type": false });
     const [state, setState] = useState({
         rdv_type: {
             view: "numbers",
             RDV_TYPE_OPTIONS: [
-                {value: "numbers", label: "Numbers", text: "Numbers", icon: NumberIcon, format: "N"},
-                {value: "duration", label: "Duration", text: "Durée", icon: TimerIcon, format: "T"},
+                { value: "numbers", label: "Numbers", text: "Numbers", icon: NumberIcon, format: "N" },
+                { value: "duration", label: "Duration", text: "Durée", icon: TimerIcon, format: "T" },
             ],
         },
         act_by_rdv: {
             view: "numbers",
             ACT_BY_RDV_OPTIONS: [
-                {value: "numbers", label: "Numbers", text: "Numbers", icon: NumberIcon, format: "N"},
+                { value: "numbers", label: "Numbers", text: "Numbers", icon: NumberIcon, format: "N" },
             ]
         },
         motif_by_consult: {
             view: "numbers",
             MOTIF_BY_CONSULT_OPTIONS: [
-                {value: "numbers", label: "Numbers", text: "Numbers", icon: NumberIcon, format: "N"},
-                {value: "duration", label: "Duration", text: "Durée", icon: TimerIcon, format: "T"}
+                { value: "numbers", label: "Numbers", text: "Numbers", icon: NumberIcon, format: "N" },
+                { value: "duration", label: "Duration", text: "Durée", icon: TimerIcon, format: "T" }
             ]
         }
     })
@@ -91,17 +92,17 @@ function Statistics() {
     const [selectedConsultationReason, setSelectedConsultationReason] = useState<any>(null);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
-    const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
+    const { data: statsAppointmentHttp } = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-stats/${router.locale}?format=${viewChart}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: statsPatientHttp} = useRequestQuery(statsAppointmentHttp && medicalEntityHasUser ? {
+    const { data: statsPatientHttp } = useRequestQuery(statsAppointmentHttp && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patient-stats/${router.locale}?format=${viewChart}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {trigger: triggerConsultationReason} = useRequestQueryMutation("/stats/consultation-reason/get");
+    const { trigger: triggerConsultationReason } = useRequestQueryMutation("/stats/consultation-reason/get");
 
     const increasePercentage = (newVal: number, oldVAl: number) => {
         const percentage = ((newVal - oldVAl) / newVal) * 100;
@@ -112,14 +113,14 @@ function Statistics() {
         setValue(newValue);
     };
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const {rdv_type, act_by_rdv, motif_by_consult} = state
+    const { rdv_type, act_by_rdv, motif_by_consult } = state
     const appointmentStats = ((statsAppointmentHttp as HttpResponse)?.data ?? []) as any;
     const start = moment().add(1, `${viewChart}s` as any);
-    const durations = Array.from({length: 12}, (_) => moment(start.subtract(1, `${viewChart}s` as any)).set({
-        ...(viewChart === "month" && {date: 1}),
+    const durations = Array.from({ length: 12 }, (_) => moment(start.subtract(1, `${viewChart}s` as any)).set({
+        ...(viewChart === "month" && { date: 1 }),
         hour: 0,
         minute: 0,
         millisecond: 0
@@ -140,9 +141,9 @@ function Statistics() {
     })) : []) as any[];
     const patientPerIncreasePercentage = increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])
     const VIEW_OPTIONS = [
-        {value: "day", label: "Day", text: "Jour", icon: TodayIcon, format: "D"},
+        { value: "day", label: "Day", text: "Jour", icon: TodayIcon, format: "D" },
         //{value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
-        {value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM"}
+        { value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM" }
     ];
     const genders = {
         "f": "female",
@@ -197,7 +198,7 @@ function Statistics() {
                     if (statsPerPeriod.common_start_time && statsPerPeriod.common_end_time) {
                         if (statsPerPeriod.common_start_time[day[1]]) {
                             schedulesData.push({
-                                x: t(`days.${day[0]}`, {ns: "common"}),
+                                x: t(`days.${day[0]}`, { ns: "common" }),
                                 y: [moment.duration(statsPerPeriod.common_start_time[day[1]]).asHours(), moment.duration(statsPerPeriod.common_end_time[day[1]]).asHours()]
                             })
                         }
@@ -225,30 +226,45 @@ function Statistics() {
             ])
         }
     }, [patientStats]); // eslint-disable-line react-hooks/exhaustive-deps
+    const tabsData = ["tab_all", "tab_rdv", "tab_patients", "tab_working_time"]
+    const breadcrumbsData = [
+        {
+            title: "Statistics",
+            href: "/dashboard/statistics",
+        },
+        {
+            title: t("sub-header.tabs." + tabsData[value]),
+            href: null,
+        }
 
+    ]
     useEffect(() => {
         dispatch(toggleSideBar(true));
         //reload resources from cdn servers
         i18n.reloadResources(i18n.resolvedLanguage, ["stats", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading"}/>);
-
+    if (!ready) return (<LoadingScreen button text={"loading"} />);
     return (
         <>
             <SubHeader
                 sx={{
                     ".MuiToolbar-root": {
-                        flexDirection: {xs: "column", md: "row"},
-                        py: {md: 0, xs: 2},
+                        py: 2
                     },
                 }}>
-                <StatsToolbar {...{handleChange, value}} />
+                <Stack width={1}>
+                    <Breadcrumbs data={breadcrumbsData} />
+                    <Typography variant="subtitle1" mt={1}>
+                        {t("sub-header.title")}
+                    </Typography>
+                    <StatsToolbar {...{ handleChange, value, tabsData }} />
+                </Stack>
             </SubHeader>
 
             <LinearProgress sx={{
                 visibility: loadingRequest ? "visible" : "hidden"
-            }} color="warning"/>
+            }} color="warning" />
             <Box className="container">
                 <TabPanel padding={.1} value={value} index={0}>
                     <Grid container spacing={2} mb={3}>
@@ -263,9 +279,9 @@ function Statistics() {
                                                 boxShadow: theme.shadows[5],
                                                 flex: 1,
                                             }}>
-                                            <CardContent sx={{height: "100%"}}>
+                                            <CardContent sx={{ height: "100%" }}>
                                                 <Stack spacing={2} justifyContent={"center"} height={"100%"}>
-                                                    <IconUrl path={"stats/ic-calendar-card"}/>
+                                                    <IconUrl path={"stats/ic-calendar-card"} />
                                                     <Stack>
                                                         <Typography
                                                             fontSize={14}
@@ -287,9 +303,9 @@ function Statistics() {
                                                 boxShadow: theme.shadows[5],
                                                 flex: 1,
                                             }}>
-                                            <CardContent sx={{height: "100%"}}>
+                                            <CardContent sx={{ height: "100%" }}>
                                                 <Stack spacing={2} justifyContent={"center"} height={"100%"}>
-                                                    <IconUrl path={"stats/ic-document-card"}/>
+                                                    <IconUrl path={"stats/ic-document-card"} />
                                                     <Stack>
                                                         <Typography
                                                             fontSize={14}
@@ -314,14 +330,14 @@ function Statistics() {
                                             boxShadow: theme.shadows[5],
                                             height: 1
                                         }}>
-                                        <CardContent sx={{pb: 0}}>
+                                        <CardContent sx={{ pb: 0 }}>
                                             <Stack ml={2} direction={"row"} spacing={2}
-                                                   justifyContent={"space-between"}>
+                                                justifyContent={"space-between"}>
                                                 <Typography fontWeight={600} fontSize={24} variant="caption">
                                                     {t("activity")}
                                                 </Typography>
                                                 <CalendarViewButton
-                                                    {...{t}}
+                                                    {...{ t }}
                                                     view={viewChart}
                                                     sx={{
                                                         "& .MuiButtonBase-root": {
@@ -345,7 +361,7 @@ function Statistics() {
                                                             categories: durations.map(date =>
                                                                 startCase(date.format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', '')))
                                                         },
-                                                        tooltip: {x: {show: false}, marker: {show: false}},
+                                                        tooltip: { x: { show: false }, marker: { show: false } },
                                                         colors: ['#1BC47D', '#FEC400'],
                                                         grid: {
                                                             show: true,
@@ -393,7 +409,7 @@ function Statistics() {
                                         }}>
                                         <CardContent>
                                             <Typography variant="subtitle1"
-                                                        fontWeight={700}>{t("working_hours")}</Typography>
+                                                fontWeight={700}>{t("working_hours")}</Typography>
                                             <Stack direction='row' alignItems='center' mt={2}>
                                                 <Stack width={1}>
                                                     <Typography variant="h6" fontWeight={700}>
@@ -410,11 +426,11 @@ function Statistics() {
                                                 <Stack width={1} pl={2} borderLeft={1} borderColor='divider'>
                                                     <Typography variant="h6" fontWeight={700}>
                                                         {statsPerPeriod?.day_common_end_time ? moment(statsPerPeriod.day_common_end_time, "HH:mm").format("H") : "--"}<Typography
-                                                        variant="caption" fontWeight={500}>h</Typography>
+                                                            variant="caption" fontWeight={500}>h</Typography>
                                                         {" "}
                                                         {statsPerPeriod?.day_common_end_time ? moment(statsPerPeriod.day_common_end_time, "HH:mm").format("mm") : "--"}<Typography
-                                                        variant="caption"
-                                                        fontWeight={500}>min</Typography>
+                                                            variant="caption"
+                                                            fontWeight={500}>min</Typography>
                                                     </Typography>
                                                     <Typography variant="body2" fontWeight={500}>
                                                         {t("end_time")}
@@ -424,7 +440,7 @@ function Statistics() {
                                             <ChartStyled>
                                                 <Chart
                                                     type='rangeBar'
-                                                    series={[{data: schedules}]}
+                                                    series={[{ data: schedules }]}
                                                     options={merge(ChartsOption(), {
                                                         chart: {
                                                             height: 350,
@@ -443,16 +459,16 @@ function Statistics() {
                                                             },
                                                         },
                                                         tooltip: {
-                                                            custom: ({seriesIndex, dataPointIndex, w}: any) => {
+                                                            custom: ({ seriesIndex, dataPointIndex, w }: any) => {
                                                                 const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
                                                                 return renderToString(
                                                                     <Card>
                                                                         <CardContent>
                                                                             <Typography
                                                                                 variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => {
-                                                                                const duration = moment.duration(item, 'hours');
-                                                                                return `${duration.hours()}:${duration.minutes()} h ${index === 0 ? '- ' : ''}`
-                                                                            })}
+                                                                                    const duration = moment.duration(item, 'hours');
+                                                                                    return `${duration.hours()}:${duration.minutes()} h ${index === 0 ? '- ' : ''}`
+                                                                                })}
                                                                             </Typography>
                                                                         </CardContent>
                                                                     </Card>);
@@ -507,13 +523,13 @@ function Statistics() {
                                                 boxShadow: theme.shadows[5]
                                             }}>
                                             <CardContent>
-                                                <Stack direction={{xs: 'column', md: 'row'}} alignItems={"center"}>
+                                                <Stack direction={{ xs: 'column', md: 'row' }} alignItems={"center"}>
                                                     <Stack direction={"row"} spacing={1.2} alignItems={"center"}
-                                                           width={1}>
-                                                        <IconUrl path={"stats/ic-user-card"}/>
+                                                        width={1}>
+                                                        <IconUrl path={"stats/ic-user-card"} />
                                                         <Stack>
                                                             <Typography fontWeight={600} fontSize={24}
-                                                                        variant="caption">
+                                                                variant="caption">
                                                                 {patientPerPeriod.reduce((total: number, val: number) => total + val, 0)}
                                                             </Typography>
                                                             <Typography fontSize={12} fontWeight={500} variant="body2">
@@ -521,26 +537,26 @@ function Statistics() {
                                                             </Typography>
                                                         </Stack>
                                                     </Stack>
-                                                    <Stack my={{xs: 2, md: 0}} px={{xs: 0, md: 2}} mr={{xs: 0, md: 2}}
-                                                           direction={"row"} spacing={1.2} alignItems={"center"}
-                                                           width={1}
-                                                           borderRight={{xs: 0, md: 1.5}} borderLeft={{xs: 0, md: 1.5}}
-                                                           borderColor={{xs: 'transparent', md: 'divider'}}>
-                                                        <IconUrl path={"stats/ic-new-patients-card"}/>
+                                                    <Stack my={{ xs: 2, md: 0 }} px={{ xs: 0, md: 2 }} mr={{ xs: 0, md: 2 }}
+                                                        direction={"row"} spacing={1.2} alignItems={"center"}
+                                                        width={1}
+                                                        borderRight={{ xs: 0, md: 1.5 }} borderLeft={{ xs: 0, md: 1.5 }}
+                                                        borderColor={{ xs: 'transparent', md: 'divider' }}>
+                                                        <IconUrl path={"stats/ic-new-patients-card"} />
                                                         <Stack>
                                                             <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                                                 <Typography fontWeight={600} fontSize={24}
-                                                                            variant="caption">
+                                                                    variant="caption">
                                                                     {patientPerPeriod[patientPerPeriod.length - 1]}
                                                                 </Typography>
 
                                                                 <Stack direction={"row"}>
                                                                     <IconUrl
                                                                         path={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "ic-down-left" : "ic-up-right") : "ic-up-right"}
-                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
+                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main} />
                                                                     <Typography fontWeight={700} fontSize={14}
-                                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
-                                                                                variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
+                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
+                                                                        variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
                                                                 </Stack>
                                                             </Stack>
                                                             <Typography fontSize={12} fontWeight={500} variant="body2">
@@ -549,13 +565,13 @@ function Statistics() {
                                                         </Stack>
                                                     </Stack>
                                                     <Stack direction={"row"} spacing={1.2} alignItems={"center"}
-                                                           width={1}>
-                                                        <IconUrl path={"stats/ic-waiting-hour-card"}/>
+                                                        width={1}>
+                                                        <IconUrl path={"stats/ic-waiting-hour-card"} />
                                                         <Stack>
                                                             <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                                                 <Typography lineHeight={1} fontWeight={600}
-                                                                            fontSize={24}
-                                                                            variant="subtitle1">
+                                                                    fontSize={24}
+                                                                    variant="subtitle1">
                                                                     {statsPerPeriod ? statsPerPeriod["waiting_time"] : "--"}
                                                                 </Typography>
                                                                 <Typography variant="caption">
@@ -578,18 +594,18 @@ function Statistics() {
                                             }}>
                                             <CardContent>
                                                 <Typography mb={2} variant="subtitle1"
-                                                            fontWeight={700}>{t("patient_by_location")}</Typography>
+                                                    fontWeight={700}>{t("patient_by_location")}</Typography>
                                                 <Grid container spacing={2}>
-                                                    <Grid item xs={12} md={5} sx={{position: "relative"}}>
+                                                    <Grid item xs={12} md={5} sx={{ position: "relative" }}>
                                                         <Image src={"/static/img/earth.png"}
-                                                               style={{
-                                                                   position: "absolute",
-                                                                   left: "30%",
-                                                                   top: "38%"
-                                                               }}
-                                                               alt={"earth"}
-                                                               width={window.innerWidth * 0.09}
-                                                               height={window.innerHeight * 0.1}/>
+                                                            style={{
+                                                                position: "absolute",
+                                                                left: "30%",
+                                                                top: "38%"
+                                                            }}
+                                                            alt={"earth"}
+                                                            width={window.innerWidth * 0.09}
+                                                            height={window.innerHeight * 0.1} />
                                                         <ChartStyled>
                                                             <Chart
                                                                 type='donut'
@@ -627,9 +643,9 @@ function Statistics() {
                                                     </Grid>
                                                     <Grid item xs={12} md={7}>
                                                         <Stack direction="row" alignItems='center'
-                                                               spacing={2}
-                                                               justifyContent={{xs: 'center', md: 'stretch'}}
-                                                               sx={{py: {xs: 2, md: 0}}}>
+                                                            spacing={2}
+                                                            justifyContent={{ xs: 'center', md: 'stretch' }}
+                                                            sx={{ py: { xs: 2, md: 0 } }}>
                                                             <Stack
                                                                 width={"100%"}
                                                                 sx={{
@@ -638,16 +654,16 @@ function Statistics() {
                                                                     padding: 1
                                                                 }}>
                                                                 <Typography fontWeight={700} color='primary'
-                                                                            fontSize={28}
-                                                                            variant="subtitle1">
+                                                                    fontSize={28}
+                                                                    variant="subtitle1">
                                                                     {Math.round(patientPerLocation.find(location => location.code === doctor_country?.code)?.doc_count / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                                     <Typography fontSize={12} fontWeight={500}
-                                                                                variant="caption">
+                                                                        variant="caption">
                                                                         %
                                                                     </Typography>
                                                                 </Typography>
                                                                 <Typography fontSize={12} fontWeight={500}
-                                                                            variant="body2">
+                                                                    variant="body2">
                                                                     {t("national")}
                                                                 </Typography>
                                                             </Stack>
@@ -659,30 +675,30 @@ function Statistics() {
                                                                     padding: 1
                                                                 }}>
                                                                 <Typography fontWeight={700} color='warning.main'
-                                                                            fontSize={28}
-                                                                            variant="subtitle1">
+                                                                    fontSize={28}
+                                                                    variant="subtitle1">
                                                                     {Math.round(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country?.code !== val.code ? val.doc_count : 0), 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                                     <Typography fontSize={12} fontWeight={500}
-                                                                                variant="caption">
+                                                                        variant="caption">
                                                                         %
                                                                     </Typography>
                                                                 </Typography>
                                                                 <Typography fontSize={12} fontWeight={500}
-                                                                            variant="body2">
+                                                                    variant="body2">
                                                                     {t("inter_national")}
                                                                 </Typography>
                                                             </Stack>
                                                         </Stack>
-                                                        <List sx={{mt: 2}}>
+                                                        <List sx={{ mt: 2 }}>
                                                             {patientPerLocation.map((country, idx) => (
                                                                 <ListItem
                                                                     key={idx}
                                                                     disablePadding
-                                                                    sx={{pb: 1}}
+                                                                    sx={{ pb: 1 }}
                                                                     secondaryAction={<Typography fontWeight={600}>
                                                                         {`${Math.round(country.doc_count / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100)} %`}
                                                                     </Typography>}>
-                                                                    <ListItemIcon sx={{minWidth: 45}}>
+                                                                    <ListItemIcon sx={{ minWidth: 45 }}>
                                                                         <Avatar
                                                                             sx={{
                                                                                 width: 30,
@@ -693,7 +709,7 @@ function Statistics() {
                                                                             src={`https://flagcdn.com/${country.code}.svg`}
                                                                         />
                                                                     </ListItemIcon>
-                                                                    <ListItemText sx={{m: 0}} primary={country.name}/>
+                                                                    <ListItemText sx={{ m: 0 }} primary={country.name} />
                                                                 </ListItem>
                                                             ))}
 
@@ -705,7 +721,7 @@ function Statistics() {
                                     </Stack>
                                 </Grid>
                                 <Grid item xs={12} md={6}>
-                                    <Stack direction={{xs: "column", md: 'row'}} spacing={2} height={1}>
+                                    <Stack direction={{ xs: "column", md: 'row' }} spacing={2} height={1}>
                                         <Card
                                             sx={{
                                                 borderRadius: "12px",
@@ -715,8 +731,8 @@ function Statistics() {
                                                 width: 1
                                             }}>
                                             <CardContent>
-                                                <Typography mb={{xs: 1, md: 7}} variant="subtitle1"
-                                                            fontWeight={700}>{t("patient_by_age")}</Typography>
+                                                <Typography mb={{ xs: 1, md: 7 }} variant="subtitle1"
+                                                    fontWeight={700}>{t("patient_by_age")}</Typography>
                                                 <ChartStyled>
                                                     <Chart
                                                         type='donut'
@@ -772,11 +788,11 @@ function Statistics() {
                                                     />
                                                 </ChartStyled>
                                                 <Stack alignItems='center'
-                                                       direction={'row'}
-                                                       justifyContent='center'
-                                                       pt={4}
-                                                       pb={{xs: 6, md: 0}}
-                                                       spacing={1}>
+                                                    direction={'row'}
+                                                    justifyContent='center'
+                                                    pt={4}
+                                                    pb={{ xs: 6, md: 0 }}
+                                                    spacing={1}>
                                                     {patientPerAge?.map((gender: any, index: number) =>
                                                         <Chip
                                                             sx={{
@@ -786,11 +802,11 @@ function Statistics() {
                                                                 fontWeight: "bold"
                                                             }}
                                                             key={index}
-                                                            label={gender.key}/>
+                                                            label={gender.key} />
                                                     )}
                                                 </Stack>
-                                            </CardContent>
-                                        </Card>
+                                            </CardContent >
+                                        </Card >
                                         <Card
                                             sx={{
                                                 borderRadius: "12px",
@@ -801,7 +817,7 @@ function Statistics() {
                                             }}>
                                             <CardContent>
                                                 <Typography
-                                                    mb={{xs: 1, md: 7}} variant="subtitle1"
+                                                    mb={{ xs: 1, md: 7 }} variant="subtitle1"
                                                     fontWeight={700}>{t("patient_by_gender")}</Typography>
                                                 <ChartStyled>
                                                     <Chart
@@ -833,10 +849,10 @@ function Statistics() {
                                                     />
                                                 </ChartStyled>
                                                 <Stack direction='row'
-                                                       alignItems='center'
-                                                       justifyContent='center'
-                                                       spacing={2}
-                                                       mt={2}>
+                                                    alignItems='center'
+                                                    justifyContent='center'
+                                                    spacing={2}
+                                                    mt={2}>
                                                     {patientPerGender.filter(gender => gender.key !== "u").map((gender, index) =>
                                                         <Stack key={gender.key} direction={"row"} alignItems={"center"}>
                                                             <Stack alignItems={"center"} sx={{
@@ -845,33 +861,35 @@ function Statistics() {
                                                                 padding: 1
                                                             }}>
                                                                 <Typography fontWeight={700}
-                                                                            color={index === 0 ? 'primary' : 'error.main'}
-                                                                            fontSize={28}
-                                                                            variant="subtitle1">
+                                                                    color={index === 0 ? 'primary' : 'error.main'}
+                                                                    fontSize={28}
+                                                                    variant="subtitle1">
                                                                     {Math.round(gender?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
                                                                     <Typography fontSize={12} fontWeight={500}
-                                                                                variant="caption">
+                                                                        variant="caption">
                                                                         %
                                                                     </Typography>
                                                                 </Typography>
                                                                 <Typography fontSize={12} fontWeight={500}
-                                                                            variant="body2">
+                                                                    variant="body2">
                                                                     {t(genders[gender.key as keyof typeof genders])}
                                                                 </Typography>
                                                             </Stack>
-                                                        </Stack>
-                                                    )}
-                                                </Stack>
-                                            </CardContent>
-                                        </Card>
-                                    </Stack>
-                                </Grid>
+                                                        </Stack >
+                                                    )
+                                                    }
+                                                </Stack >
+                                            </CardContent >
+                                        </Card >
+                                    </Stack >
+                                </Grid >
                             </>
                         }
-                        {((!fullScreenChart.motif && !fullScreenChart.act) || fullScreenChart.type) &&
+                        {
+                            ((!fullScreenChart.motif && !fullScreenChart.act) || fullScreenChart.type) &&
                             <Grid item xs={12} md={fullScreenChart.type ? 12 : 4}>
                                 <StatsProgressCard
-                                    {...{t, theme, fullScreenChart}}
+                                    {...{ t, theme, fullScreenChart }}
                                     type={"type"}
                                     view={rdv_type.view}
                                     handleFullChart={(data: any) => setFullScreenChart(data)}
@@ -902,10 +920,11 @@ function Statistics() {
                                 />
                             </Grid>
                         }
-                        {((!fullScreenChart.motif && !fullScreenChart.type) || fullScreenChart.act) &&
+                        {
+                            ((!fullScreenChart.motif && !fullScreenChart.type) || fullScreenChart.act) &&
                             <Grid item xs={12} md={fullScreenChart.act ? 12 : 4}>
                                 <StatsProgressCard
-                                    {...{t, theme, fullScreenChart}}
+                                    {...{ t, theme, fullScreenChart }}
                                     type={"act"}
                                     view={act_by_rdv.view}
                                     handleFullChart={(data: any) => setFullScreenChart(data)}
@@ -930,10 +949,11 @@ function Statistics() {
                                 />
                             </Grid>
                         }
-                        {((!fullScreenChart.type && !fullScreenChart.act) || fullScreenChart.motif) &&
+                        {
+                            ((!fullScreenChart.type && !fullScreenChart.act) || fullScreenChart.motif) &&
                             <Grid item xs={12} md={fullScreenChart.motif ? 12 : 4}>
                                 <StatsProgressCard
-                                    {...{t, theme, fullScreenChart}}
+                                    {...{ t, theme, fullScreenChart }}
                                     type={"motif"}
                                     view={motif_by_consult.view}
                                     handleFullChart={(data: any) => setFullScreenChart(data)}
@@ -959,8 +979,8 @@ function Statistics() {
                                 />
                             </Grid>
                         }
-                    </Grid>
-                </TabPanel>
+                    </Grid >
+                </TabPanel >
                 <TabPanel padding={.1} value={value} index={1}>
                     <Grid container spacing={2}>
                         {(!fullScreenChart.motif && !fullScreenChart.act && !fullScreenChart.type) &&
@@ -974,9 +994,9 @@ function Statistics() {
                                                 boxShadow: theme.shadows[5],
                                                 flex: 1,
                                             }}>
-                                            <CardContent sx={{height: "100%"}}>
+                                            <CardContent sx={{ height: "100%" }}>
                                                 <Stack spacing={2} justifyContent={"center"} height={"100%"}>
-                                                    <IconUrl path={"stats/ic-calendar-card"}/>
+                                                    <IconUrl path={"stats/ic-calendar-card"} />
                                                     <Stack>
                                                         <Typography
                                                             fontSize={14}
@@ -998,9 +1018,9 @@ function Statistics() {
                                                 boxShadow: theme.shadows[5],
                                                 flex: 1,
                                             }}>
-                                            <CardContent sx={{height: "100%"}}>
+                                            <CardContent sx={{ height: "100%" }}>
                                                 <Stack spacing={2} justifyContent={"center"} height={"100%"}>
-                                                    <IconUrl path={"stats/ic-document-card"}/>
+                                                    <IconUrl path={"stats/ic-document-card"} />
                                                     <Stack>
                                                         <Typography
                                                             fontSize={14}
@@ -1016,7 +1036,7 @@ function Statistics() {
                                             </CardContent>
                                         </Card>
                                     </Stack>
-                                </Grid>
+                                </Grid >
                                 <Grid item xs={12} md={6}>
                                     <Card
                                         sx={{
@@ -1025,14 +1045,14 @@ function Statistics() {
                                             boxShadow: theme.shadows[5],
                                             height: 1
                                         }}>
-                                        <CardContent sx={{pb: 0}}>
+                                        <CardContent sx={{ pb: 0 }}>
                                             <Stack ml={2} direction={"row"} spacing={2}
-                                                   justifyContent={"space-between"}>
+                                                justifyContent={"space-between"}>
                                                 <Typography fontWeight={600} fontSize={24} variant="caption">
                                                     {t("activity")}
                                                 </Typography>
                                                 <CalendarViewButton
-                                                    {...{t}}
+                                                    {...{ t }}
                                                     view={viewChart}
                                                     sx={{
                                                         "& .MuiButtonBase-root": {
@@ -1056,7 +1076,7 @@ function Statistics() {
                                                             categories: durations.map(date =>
                                                                 startCase(date.format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', '')))
                                                         },
-                                                        tooltip: {x: {show: false}, marker: {show: false}},
+                                                        tooltip: { x: { show: false }, marker: { show: false } },
                                                         colors: ['#1BC47D', '#FEC400'],
                                                         grid: {
                                                             show: true,
@@ -1097,10 +1117,11 @@ function Statistics() {
                             </>
                         }
 
-                        {((!fullScreenChart.type && !fullScreenChart.act) || fullScreenChart.motif) &&
+                        {
+                            ((!fullScreenChart.type && !fullScreenChart.act) || fullScreenChart.motif) &&
                             <Grid item xs={12} md={fullScreenChart.motif ? 12 : 4}>
                                 <StatsProgressCard
-                                    {...{t, theme, fullScreenChart}}
+                                    {...{ t, theme, fullScreenChart }}
                                     type={"motif"}
                                     view={motif_by_consult.view}
                                     handleFullChart={(data: any) => setFullScreenChart(data)}
@@ -1127,10 +1148,11 @@ function Statistics() {
                             </Grid>
                         }
 
-                        {((!fullScreenChart.motif && !fullScreenChart.act) || fullScreenChart.type) &&
+                        {
+                            ((!fullScreenChart.motif && !fullScreenChart.act) || fullScreenChart.type) &&
                             <Grid item xs={12} md={fullScreenChart.type ? 12 : 6}>
                                 <StatsProgressCard
-                                    {...{t, theme, fullScreenChart}}
+                                    {...{ t, theme, fullScreenChart }}
                                     type={"type"}
                                     view={rdv_type.view}
                                     handleFullChart={(data: any) => setFullScreenChart(data)}
@@ -1162,10 +1184,11 @@ function Statistics() {
                             </Grid>
                         }
 
-                        {((!fullScreenChart.motif && !fullScreenChart.type) || fullScreenChart.act) &&
+                        {
+                            ((!fullScreenChart.motif && !fullScreenChart.type) || fullScreenChart.act) &&
                             <Grid item xs={12} md={fullScreenChart.act ? 12 : 6}>
                                 <StatsProgressCard
-                                    {...{t, theme, fullScreenChart}}
+                                    {...{ t, theme, fullScreenChart }}
                                     type={"act"}
                                     view={act_by_rdv.view}
                                     handleFullChart={(data: any) => setFullScreenChart(data)}
@@ -1190,8 +1213,8 @@ function Statistics() {
                                 />
                             </Grid>
                         }
-                    </Grid>
-                </TabPanel>
+                    </Grid >
+                </TabPanel >
                 <TabPanel padding={.3} value={value} index={2}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={7}>
@@ -1203,9 +1226,9 @@ function Statistics() {
                                         boxShadow: theme.shadows[5]
                                     }}>
                                     <CardContent>
-                                        <Stack direction={{xs: 'column', md: 'row'}} alignItems={"center"}>
+                                        <Stack direction={{ xs: 'column', md: 'row' }} alignItems={"center"}>
                                             <Stack direction={"row"} spacing={1.2} alignItems={"center"} width={1}>
-                                                <IconUrl path={"stats/ic-user-card"}/>
+                                                <IconUrl path={"stats/ic-user-card"} />
                                                 <Stack>
                                                     <Typography fontWeight={600} fontSize={24} variant="caption">
                                                         {patientPerPeriod.reduce((total: number, val: number) => total + val, 0)}
@@ -1215,11 +1238,11 @@ function Statistics() {
                                                     </Typography>
                                                 </Stack>
                                             </Stack>
-                                            <Stack my={{xs: 2, md: 0}} px={{xs: 0, md: 2}} mr={{xs: 0, md: 2}}
-                                                   direction={"row"} spacing={1.2} alignItems={"center"} width={1}
-                                                   borderRight={{xs: 0, md: 1.5}} borderLeft={{xs: 0, md: 1.5}}
-                                                   borderColor={{xs: 'transparent', md: 'divider'}}>
-                                                <IconUrl path={"stats/ic-new-patients-card"}/>
+                                            <Stack my={{ xs: 2, md: 0 }} px={{ xs: 0, md: 2 }} mr={{ xs: 0, md: 2 }}
+                                                direction={"row"} spacing={1.2} alignItems={"center"} width={1}
+                                                borderRight={{ xs: 0, md: 1.5 }} borderLeft={{ xs: 0, md: 1.5 }}
+                                                borderColor={{ xs: 'transparent', md: 'divider' }}>
+                                                <IconUrl path={"stats/ic-new-patients-card"} />
                                                 <Stack>
                                                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                                         <Typography fontWeight={600} fontSize={24} variant="caption">
@@ -1229,10 +1252,10 @@ function Statistics() {
                                                         <Stack direction={"row"}>
                                                             <IconUrl
                                                                 path={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "ic-down-left" : "ic-up-right") : "ic-up-right"}
-                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main}/>
+                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? theme.palette.error.main : theme.palette.success.main) : theme.palette.success.main} />
                                                             <Typography fontWeight={700} fontSize={14}
-                                                                        color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
-                                                                        variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
+                                                                color={patientPerIncreasePercentage !== "--" ? (patientPerIncreasePercentage < 0 ? "error.main" : "success.main") : "success.main"}
+                                                                variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
                                                         </Stack>
                                                     </Stack>
                                                     <Typography fontSize={12} fontWeight={500} variant="body2">
@@ -1241,11 +1264,11 @@ function Statistics() {
                                                 </Stack>
                                             </Stack>
                                             <Stack direction={"row"} spacing={1.2} alignItems={"center"} width={1}>
-                                                <IconUrl path={"stats/ic-waiting-hour-card"}/>
+                                                <IconUrl path={"stats/ic-waiting-hour-card"} />
                                                 <Stack>
                                                     <Stack direction={"row"} spacing={1} alignItems={"flex-end"}>
                                                         <Typography lineHeight={1} fontWeight={600} fontSize={24}
-                                                                    variant="subtitle1">
+                                                            variant="subtitle1">
                                                             {statsPerPeriod ? statsPerPeriod["waiting_time"] : "--"}
                                                         </Typography>
                                                         <Typography variant="caption">
@@ -1260,7 +1283,7 @@ function Statistics() {
                                         </Stack>
 
                                     </CardContent>
-                                </Card>
+                                </Card >
                                 <Card
                                     sx={{
                                         minHeight: 646,
@@ -1270,18 +1293,18 @@ function Statistics() {
                                     }}>
                                     <CardContent>
                                         <Typography mb={2} variant="subtitle1"
-                                                    fontWeight={700}>{t("patient_by_location")}</Typography>
+                                            fontWeight={700}>{t("patient_by_location")}</Typography>
                                         <Grid container spacing={2}>
-                                            <Grid item xs={12} md={8} sx={{position: "relative"}}>
+                                            <Grid item xs={12} md={8} sx={{ position: "relative" }}>
                                                 <Image src={"/static/img/earth.png"}
-                                                       style={{
-                                                           position: "absolute",
-                                                           left: "33%",
-                                                           top: "28%"
-                                                       }}
-                                                       alt={"earth"}
-                                                       width={window.innerWidth * 0.13}
-                                                       height={window.innerHeight * 0.12}/>
+                                                    style={{
+                                                        position: "absolute",
+                                                        left: "33%",
+                                                        top: "28%"
+                                                    }}
+                                                    alt={"earth"}
+                                                    width={window.innerWidth * 0.13}
+                                                    height={window.innerHeight * 0.12} />
                                                 <ChartStyled>
                                                     <Chart
                                                         type='donut'
@@ -1328,10 +1351,10 @@ function Statistics() {
                                                             padding: 2
                                                         }}>
                                                         <Typography fontWeight={700} color='primary' fontSize={56}
-                                                                    variant="subtitle1">
+                                                            variant="subtitle1">
                                                             {Math.round((patientPerLocation.find(location => location.code === doctor_country.code)?.doc_count ?? 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                             <Typography fontSize={18} fontWeight={700}
-                                                                        variant="caption">
+                                                                variant="caption">
                                                                 %
                                                             </Typography>
                                                         </Typography>
@@ -1346,10 +1369,10 @@ function Statistics() {
                                                             padding: 2
                                                         }}>
                                                         <Typography fontWeight={700} color='warning.main' fontSize={56}
-                                                                    variant="subtitle1">
+                                                            variant="subtitle1">
                                                             {Math.round(patientPerLocation.reduce((total: number, val: any) => total + (doctor_country.code !== val.code ? val.doc_count : 0), 0) / patientPerLocation.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                             <Typography fontSize={18} fontWeight={500}
-                                                                        variant="caption">
+                                                                variant="caption">
                                                                 %
                                                             </Typography>
                                                         </Typography>
@@ -1358,16 +1381,16 @@ function Statistics() {
                                                         </Typography>
                                                     </Stack>
                                                 </Stack>
-                                                <List sx={{mt: 2}}>
+                                                <List sx={{ mt: 2 }}>
                                                     {patientPerLocation.map((country, idx) => (
                                                         <ListItem
                                                             key={idx}
                                                             disablePadding
-                                                            sx={{pb: 1}}
+                                                            sx={{ pb: 1 }}
                                                             secondaryAction={<Typography fontWeight={600}>
                                                                 {country.doc_count}
                                                             </Typography>}>
-                                                            <ListItemIcon sx={{minWidth: 45}}>
+                                                            <ListItemIcon sx={{ minWidth: 45 }}>
                                                                 <Avatar
                                                                     sx={{
                                                                         width: 30,
@@ -1378,7 +1401,7 @@ function Statistics() {
                                                                     src={`https://flagcdn.com/${country.code}.svg`}
                                                                 />
                                                             </ListItemIcon>
-                                                            <ListItemText sx={{m: 0}} primary={country.name}/>
+                                                            <ListItemText sx={{ m: 0 }} primary={country.name} />
                                                         </ListItem>
                                                     ))}
 
@@ -1387,8 +1410,8 @@ function Statistics() {
                                         </Grid>
                                     </CardContent>
                                 </Card>
-                            </Stack>
-                        </Grid>
+                            </Stack >
+                        </Grid >
                         <Grid item xs={12} md={5}>
                             <Stack spacing={2} height={1}>
                                 <Card
@@ -1401,35 +1424,35 @@ function Statistics() {
                                     }}>
                                     <CardContent>
                                         <Typography mb={2} variant="subtitle1"
-                                                    fontWeight={700}>{t("patient_by_gender")}</Typography>
+                                            fontWeight={700}>{t("patient_by_gender")}</Typography>
                                         <Stack direction='row' alignItems='center'>
                                             <Stack width={"33%"} spacing={2}>
                                                 {patientPerGender.filter(gender => gender.key !== "u").map((gender, index) =>
                                                     <Stack key={gender.key} alignItems={"center"}>
                                                         <Stack alignItems={"center"}
-                                                               sx={{
-                                                                   border: `2px dotted ${theme.palette.grey['A300']}`,
-                                                                   borderRadius: 2,
-                                                                   padding: 2
-                                                               }}>
+                                                            sx={{
+                                                                border: `2px dotted ${theme.palette.grey['A300']}`,
+                                                                borderRadius: 2,
+                                                                padding: 2
+                                                            }}>
                                                             <Typography fontWeight={700}
-                                                                        color={index === 0 ? 'primary' : 'error.main'}
-                                                                        fontSize={28}
-                                                                        variant="subtitle1">
+                                                                color={index === 0 ? 'primary' : 'error.main'}
+                                                                fontSize={28}
+                                                                variant="subtitle1">
                                                                 {Math.round(gender?.doc_count / (patientPerGender.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
                                                                 <Typography fontSize={12} fontWeight={500}
-                                                                            variant="caption">
+                                                                    variant="caption">
                                                                     %
                                                                 </Typography>
                                                             </Typography>
                                                             <Typography fontSize={12} fontWeight={500}
-                                                                        variant="body2">
+                                                                variant="body2">
                                                                 {t(genders[gender.key as keyof typeof genders])}
                                                             </Typography>
                                                         </Stack>
-                                                    </Stack>
+                                                    </Stack >
                                                 )}
-                                            </Stack>
+                                            </Stack >
                                             <ChartStyled>
                                                 <Chart
                                                     type='donut'
@@ -1461,10 +1484,10 @@ function Statistics() {
                                                     }
                                                 />
                                             </ChartStyled>
-                                        </Stack>
+                                        </Stack >
 
-                                    </CardContent>
-                                </Card>
+                                    </CardContent >
+                                </Card >
                                 <Card
                                     sx={{
                                         borderRadius: "12px",
@@ -1475,12 +1498,12 @@ function Statistics() {
                                     }}>
                                     <CardContent>
                                         <Stack direction={"row"} alignItems={"center"}
-                                               spacing={6}
-                                               justifyContent={"center"}>
+                                            spacing={6}
+                                            justifyContent={"center"}>
                                             <Stack>
                                                 <Typography mb={2} variant="subtitle1"
-                                                            fontWeight={700}>{t("patient_by_age")}</Typography>
-                                                <ChartStyled sx={{pb: 6}}>
+                                                    fontWeight={700}>{t("patient_by_age")}</Typography>
+                                                <ChartStyled sx={{ pb: 6 }}>
                                                     <Chart
                                                         type='donut'
                                                         series={
@@ -1539,10 +1562,10 @@ function Statistics() {
                                                         height={320}
                                                     />
                                                 </ChartStyled>
-                                            </Stack>
+                                            </Stack >
                                             <Stack alignItems='center'
-                                                   justifyContent='center'
-                                                   spacing={1}>
+                                                justifyContent='center'
+                                                spacing={1}>
                                                 {patientPerAge?.map((gender: any, index: number) =>
                                                     <Chip
                                                         sx={{
@@ -1552,16 +1575,16 @@ function Statistics() {
                                                             fontWeight: "bold"
                                                         }}
                                                         key={index}
-                                                        label={gender.key}/>
+                                                        label={gender.key} />
                                                 )}
                                             </Stack>
-                                        </Stack>
-                                    </CardContent>
-                                </Card>
-                            </Stack>
-                        </Grid>
-                    </Grid>
-                </TabPanel>
+                                        </Stack >
+                                    </CardContent >
+                                </Card >
+                            </Stack >
+                        </Grid >
+                    </Grid >
+                </TabPanel >
                 <TabPanel padding={.3} value={value} index={3}>
                     <Grid container spacing={2}>
                         <Grid item md={3} xs={12}>
@@ -1573,7 +1596,7 @@ function Statistics() {
                                 }}>
                                     <CardContent>
                                         <Stack direction='row' alignItems='center' spacing={1}>
-                                            <IconUrl path="stats/ic-start"/>
+                                            <IconUrl path="stats/ic-start" />
                                             <Stack width={1}>
                                                 <Typography variant="h6" fontWeight={700}>
                                                     {statsPerPeriod?.day_common_start_time ? moment(statsPerPeriod.day_common_start_time, "HH:mm").format("H") : "--"}
@@ -1596,7 +1619,7 @@ function Statistics() {
                                 }}>
                                     <CardContent>
                                         <Stack direction='row' alignItems='center' spacing={1}>
-                                            <IconUrl path="stats/ic-end"/>
+                                            <IconUrl path="stats/ic-end" />
                                             <Stack width={1}>
                                                 <Typography variant="h6" fontWeight={700}>
                                                     {statsPerPeriod?.day_common_end_time ? moment(statsPerPeriod.day_common_end_time, "HH:mm").format("H") : "--"}
@@ -1624,12 +1647,12 @@ function Statistics() {
                                 }}>
                                 <CardContent>
                                     <Typography mb={2} variant="subtitle1"
-                                                fontWeight={700}>{t("working_hours")}</Typography>
+                                        fontWeight={700}>{t("working_hours")}</Typography>
 
                                     <ChartStyled>
                                         <Chart
                                             type='rangeBar'
-                                            series={[{data: schedules}]}
+                                            series={[{ data: schedules }]}
                                             options={merge(ChartsOption(), {
                                                 chart: {
                                                     height: 350,
@@ -1670,16 +1693,16 @@ function Statistics() {
                                                     },
                                                 },
                                                 tooltip: {
-                                                    custom: ({seriesIndex, dataPointIndex, w}: any) => {
+                                                    custom: ({ seriesIndex, dataPointIndex, w }: any) => {
                                                         const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
                                                         return renderToString(
                                                             <Card>
                                                                 <CardContent>
                                                                     <Typography
                                                                         variant={"body2"}><strong>{data.x}</strong> : {data.y.map((item: number, index: number) => {
-                                                                        const duration = moment.duration(item, 'hours');
-                                                                        return `${duration.hours()}:${duration.minutes()} h ${index === 0 ? '- ' : ''}`
-                                                                    })}
+                                                                            const duration = moment.duration(item, 'hours');
+                                                                            return `${duration.hours()}:${duration.minutes()} h ${index === 0 ? '- ' : ''}`
+                                                                        })}
                                                                     </Typography>
                                                                 </CardContent>
                                                             </Card>);
@@ -1738,14 +1761,14 @@ function Statistics() {
                                     boxShadow: theme.shadows[5],
                                     height: 1
                                 }}>
-                                <CardContent sx={{pb: 0}}>
+                                <CardContent sx={{ pb: 0 }}>
                                     <Stack direction={"row"} spacing={1.2} alignItems={"center"} width={1} mb={2}>
-                                        <IconUrl path={"ic-consultation-reasons"}/>
+                                        <IconUrl path={"ic-consultation-reasons"} />
                                         <Stack>
                                             <Typography fontWeight={600} fontSize={24} variant="caption">
                                                 {motifPerPeriod.length}
                                             </Typography>
-                                            <Typography fontSize={{md: 11, xl: 12}} fontWeight={500} variant="body2">
+                                            <Typography fontSize={{ md: 11, xl: 12 }} fontWeight={500} variant="body2">
                                                 {t("reason")}
                                             </Typography>
                                         </Stack>
@@ -1754,23 +1777,23 @@ function Statistics() {
                                         <Stack spacing={0} key={index} mb={.3}>
                                             <Card
                                                 sx={{
-                                                    ...(motif.key === selectedConsultationReason?.key && {backgroundColor: "#E6F7FE"}),
+                                                    ...(motif.key === selectedConsultationReason?.key && { backgroundColor: "#E6F7FE" }),
                                                     border: "none",
                                                     cursor: "pointer"
                                                 }}
                                                 onClick={() => handleConsultationReasonSet(motif)}>
                                                 <CardContent>
                                                     <Stack direction='row' alignItems='center'
-                                                           justifyContent='space-between'>
+                                                        justifyContent='space-between'>
                                                         <Typography variant="body2"
-                                                                    fontWeight={800}>{startCase(t(motif.key))}</Typography>
+                                                            fontWeight={800}>{startCase(t(motif.key))}</Typography>
                                                         <Typography fontSize={20} fontWeight={600}
-                                                                    lineHeight={1.2}>{motif.doc_count}
+                                                            lineHeight={1.2}>{motif.doc_count}
                                                         </Typography>
                                                     </Stack>
                                                     <BorderLinearProgressStyled bgcolor={"#ff5b6e"}
-                                                                                variant="determinate"
-                                                                                value={motif.doc_count}/>
+                                                        variant="determinate"
+                                                        value={motif.doc_count} />
                                                 </CardContent>
                                             </Card>
                                         </Stack>
@@ -1788,19 +1811,19 @@ function Statistics() {
                                             boxShadow: theme.shadows[5],
                                             height: 1
                                         }}>
-                                        <CardContent sx={{pb: 0}}>
+                                        <CardContent sx={{ pb: 0 }}>
                                             <Stack mb={1}>
                                                 <Typography fontWeight={600} fontSize={24} variant="caption">
                                                     {startCase(t(selectedConsultationReason?.key)) ?? "--"}
                                                 </Typography>
-                                                <Typography fontSize={{md: 11, xl: 12}} fontWeight={500}
-                                                            variant="body2">
-                                                    {t("consultation_reson", {ns: "common"})}
+                                                <Typography fontSize={{ md: 11, xl: 12 }} fontWeight={500}
+                                                    variant="body2">
+                                                    {t("consultation_reson", { ns: "common" })}
                                                 </Typography>
                                             </Stack>
 
-                                            <Stack direction="row" alignItems={"center"} sx={{width: "100%"}}
-                                                   spacing={1.2}>
+                                            <Stack direction="row" alignItems={"center"} sx={{ width: "100%" }}
+                                                spacing={1.2}>
                                                 <Card
                                                     sx={{
                                                         border: `1px dotted ${theme.palette.grey['A300']}`,
@@ -1809,17 +1832,17 @@ function Statistics() {
                                                     }}>
                                                     <CardContent>
                                                         <Stack direction='row' alignItems='center'
-                                                               justifyContent='space-between'>
+                                                            justifyContent='space-between'>
                                                             <Typography variant="body2"
-                                                                        fontWeight={800}>{startCase(t("count"))}</Typography>
+                                                                fontWeight={800}>{startCase(t("count"))}</Typography>
                                                             <Typography fontSize={20} fontWeight={600}
-                                                                        lineHeight={1.2}>{selectedConsultationReason?.doc_count}
+                                                                lineHeight={1.2}>{selectedConsultationReason?.doc_count}
                                                             </Typography>
                                                         </Stack>
 
                                                         <BorderLinearProgressStyled bgcolor={"#ff5b6e"}
-                                                                                    variant="determinate"
-                                                                                    value={selectedConsultationReason?.doc_count ?? 0}/>
+                                                            variant="determinate"
+                                                            value={selectedConsultationReason?.doc_count ?? 0} />
                                                     </CardContent>
                                                 </Card>
 
@@ -1831,17 +1854,17 @@ function Statistics() {
                                                     }}>
                                                     <CardContent>
                                                         <Stack direction='row' alignItems='center'
-                                                               justifyContent='space-between'>
+                                                            justifyContent='space-between'>
                                                             <Typography variant="body2"
-                                                                        fontWeight={800}>{startCase(t("duration"))}</Typography>
+                                                                fontWeight={800}>{startCase(t("duration"))}</Typography>
                                                             <Typography fontSize={16} fontWeight={600}
-                                                                        lineHeight={1.2}>{selectedConsultationReason?.mean_duration} min
+                                                                lineHeight={1.2}>{selectedConsultationReason?.mean_duration} min
                                                             </Typography>
                                                         </Stack>
 
                                                         <BorderLinearProgressStyled bgcolor={"#ff5b6e"}
-                                                                                    variant="determinate"
-                                                                                    value={parseInt(selectedConsultationReason?.mean_duration) || 0}/>
+                                                            variant="determinate"
+                                                            value={parseInt(selectedConsultationReason?.mean_duration) || 0} />
                                                     </CardContent>
                                                 </Card>
                                             </Stack>
@@ -1858,18 +1881,18 @@ function Statistics() {
                                         }}>
                                         <CardContent>
                                             <Typography mb={2} variant="subtitle1"
-                                                        fontWeight={700}>{t("patient_by_location")}</Typography>
+                                                fontWeight={700}>{t("patient_by_location")}</Typography>
                                             <Grid container spacing={2}>
-                                                <Grid item xs={12} md={5} sx={{position: "relative"}}>
+                                                <Grid item xs={12} md={5} sx={{ position: "relative" }}>
                                                     <Image src={"/static/img/earth.png"}
-                                                           style={{
-                                                               position: "absolute",
-                                                               left: "27%",
-                                                               top: "39%"
-                                                           }}
-                                                           alt={"earth"}
-                                                           width={180}
-                                                           height={30}/>
+                                                        style={{
+                                                            position: "absolute",
+                                                            left: "27%",
+                                                            top: "39%"
+                                                        }}
+                                                        alt={"earth"}
+                                                        width={180}
+                                                        height={30} />
                                                     <ChartStyled>
                                                         <Chart
                                                             type='donut'
@@ -1902,11 +1925,11 @@ function Statistics() {
                                                 </Grid>
                                                 <Grid item xs={12} md={7}>
                                                     <Stack direction="row"
-                                                           alignItems='center'
-                                                           width={"100%"}
-                                                           spacing={2}
-                                                           justifyContent={{xs: 'center', md: 'stretch'}}
-                                                           sx={{py: {xs: 2, md: 0}}}>
+                                                        alignItems='center'
+                                                        width={"100%"}
+                                                        spacing={2}
+                                                        justifyContent={{ xs: 'center', md: 'stretch' }}
+                                                        sx={{ py: { xs: 2, md: 0 } }}>
                                                         <Stack
                                                             width={"100%"}
                                                             sx={{
@@ -1915,16 +1938,16 @@ function Statistics() {
                                                                 padding: 1
                                                             }}>
                                                             <Typography fontWeight={700} color='primary'
-                                                                        fontSize={28}
-                                                                        variant="subtitle1">
+                                                                fontSize={28}
+                                                                variant="subtitle1">
                                                                 {Math.round(selectedConsultationReason?.location?.find((location: any) => location.code === doctor_country?.code)?.doc_count / selectedConsultationReason?.location?.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                                 <Typography fontSize={12} fontWeight={500}
-                                                                            variant="caption">
+                                                                    variant="caption">
                                                                     %
                                                                 </Typography>
                                                             </Typography>
                                                             <Typography fontSize={12} fontWeight={500}
-                                                                        variant="body2">
+                                                                variant="body2">
                                                                 {t("national")}
                                                             </Typography>
                                                         </Stack>
@@ -1936,30 +1959,30 @@ function Statistics() {
                                                                 padding: 1
                                                             }}>
                                                             <Typography fontWeight={700} color='warning.main'
-                                                                        fontSize={28}
-                                                                        variant="subtitle1">
+                                                                fontSize={28}
+                                                                variant="subtitle1">
                                                                 {Math.round(selectedConsultationReason?.location?.reduce((total: number, val: any) => total + (doctor_country?.code !== val.code ? val.doc_count : 0), 0) / selectedConsultationReason?.location?.reduce((total: number, val: any) => total + val.doc_count, 0) * 100) || "__"}
                                                                 <Typography fontSize={12} fontWeight={500}
-                                                                            variant="caption">
+                                                                    variant="caption">
                                                                     %
                                                                 </Typography>
                                                             </Typography>
                                                             <Typography fontSize={12} fontWeight={500}
-                                                                        variant="body2">
+                                                                variant="body2">
                                                                 {t("inter_national")}
                                                             </Typography>
                                                         </Stack>
                                                     </Stack>
-                                                    <List sx={{mt: 2}}>
+                                                    <List sx={{ mt: 2 }}>
                                                         {selectedConsultationReason?.location?.map((country: any, idx: number) => (
                                                             <ListItem
                                                                 key={idx}
                                                                 disablePadding
-                                                                sx={{pb: 1}}
+                                                                sx={{ pb: 1 }}
                                                                 secondaryAction={<Typography fontWeight={600}>
                                                                     {`${Math.round(country.doc_count / selectedConsultationReason?.location?.reduce((total: number, val: any) => total + val.doc_count, 0) * 100)} %`}
                                                                 </Typography>}>
-                                                                <ListItemIcon sx={{minWidth: 45}}>
+                                                                <ListItemIcon sx={{ minWidth: 45 }}>
                                                                     <Avatar
                                                                         sx={{
                                                                             width: 32,
@@ -1970,7 +1993,7 @@ function Statistics() {
                                                                         src={`https://flagcdn.com/${country.code}.svg`}
                                                                     />
                                                                 </ListItemIcon>
-                                                                <ListItemText sx={{m: 0}} primary={country.name}/>
+                                                                <ListItemText sx={{ m: 0 }} primary={country.name} />
                                                             </ListItem>
                                                         ))}
 
@@ -1982,7 +2005,7 @@ function Statistics() {
                                 </Stack>
                                 <Stack>
                                     <Grid item xs={12} md={12}>
-                                        <Stack direction={{xs: "column", md: 'row'}} spacing={2}>
+                                        <Stack direction={{ xs: "column", md: 'row' }} spacing={2}>
                                             <Card
                                                 sx={{
                                                     borderRadius: "12px",
@@ -1993,10 +2016,10 @@ function Statistics() {
                                                 }}>
                                                 <CardContent>
                                                     <Stack direction={"row"} alignItems={"center"}
-                                                           justifyContent={"center"}>
+                                                        justifyContent={"center"}>
                                                         <Stack>
                                                             <Typography mb={3} variant="subtitle1"
-                                                                        fontWeight={700}>{t("patient_by_age")}</Typography>
+                                                                fontWeight={700}>{t("patient_by_age")}</Typography>
                                                             <ChartStyled>
                                                                 <Chart
                                                                     type='donut'
@@ -2055,9 +2078,9 @@ function Statistics() {
                                                             </ChartStyled>
                                                         </Stack>
                                                         <Stack alignItems='center'
-                                                               justifyContent='center'
-                                                               pt={4}
-                                                               spacing={1}>
+                                                            justifyContent='center'
+                                                            pt={4}
+                                                            spacing={1}>
                                                             {selectedConsultationReason?.age?.map((gender: any, index: number) =>
                                                                 <Chip
                                                                     sx={{
@@ -2067,7 +2090,7 @@ function Statistics() {
                                                                         fontWeight: "bold"
                                                                     }}
                                                                     key={index}
-                                                                    label={gender.key}/>
+                                                                    label={gender.key} />
                                                             )}
                                                         </Stack>
                                                     </Stack>
@@ -2083,7 +2106,7 @@ function Statistics() {
                                                 }}>
                                                 <CardContent>
                                                     <Stack direction={"row"} alignItems={"center"}
-                                                           justifyContent={"center"}>
+                                                        justifyContent={"center"}>
                                                         <Stack>
                                                             <Typography
                                                                 mb={7} variant="subtitle1"
@@ -2121,30 +2144,30 @@ function Statistics() {
 
 
                                                         <Stack alignItems='center'
-                                                               justifyContent='center'
-                                                               spacing={2}
-                                                               mt={2}>
+                                                            justifyContent='center'
+                                                            spacing={2}
+                                                            mt={2}>
                                                             {selectedConsultationReason?.gender?.filter((gender: any) => gender.key !== "u").map((gender: any, index: number) =>
                                                                 <Stack key={gender.key} direction={"row"}
-                                                                       alignItems={"center"}>
+                                                                    alignItems={"center"}>
                                                                     <Stack alignItems={"center"}
-                                                                           sx={{
-                                                                               border: `2px dotted ${theme.palette.grey['A300']}`,
-                                                                               borderRadius: 2,
-                                                                               padding: 1
-                                                                           }}>
+                                                                        sx={{
+                                                                            border: `2px dotted ${theme.palette.grey['A300']}`,
+                                                                            borderRadius: 2,
+                                                                            padding: 1
+                                                                        }}>
                                                                         <Typography fontWeight={700}
-                                                                                    color={index === 0 ? 'primary' : 'error.main'}
-                                                                                    fontSize={28}
-                                                                                    variant="subtitle1">
+                                                                            color={index === 0 ? 'primary' : 'error.main'}
+                                                                            fontSize={28}
+                                                                            variant="subtitle1">
                                                                             {Math.round(gender?.doc_count / (selectedConsultationReason?.gender?.reduce((total: number, val: any) => total + val.doc_count, 0)) * 100) || "__"}
                                                                             <Typography fontSize={12} fontWeight={500}
-                                                                                        variant="caption">
+                                                                                variant="caption">
                                                                                 %
                                                                             </Typography>
                                                                         </Typography>
                                                                         <Typography fontSize={12} fontWeight={500}
-                                                                                    variant="body2">
+                                                                            variant="body2">
                                                                             {t(genders[gender.key as keyof typeof genders])}
                                                                         </Typography>
                                                                     </Stack>
@@ -2161,12 +2184,12 @@ function Statistics() {
                         </Grid>
                     </Grid>
                 </TabPanel>
-            </Box>
+            </Box >
         </>
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'stats']))

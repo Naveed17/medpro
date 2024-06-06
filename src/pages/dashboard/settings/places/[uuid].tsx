@@ -51,6 +51,7 @@ import {Dialog, resetOpeningData} from "@features/dialog";
 import {dialogOpeningHoursSelector} from "@features/dialog/components/openingHoursDialog";
 import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 import {CustomTimePicker} from "@features/customTimePicker";
+import Can from "@features/casl/can";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -1079,14 +1080,16 @@ function PlacesDetail() {
                             <Button onClick={() => router.back()}>
                                 {t("motif.dialog.cancel")}
                             </Button>
-                            <LoadingButton
-                                disabled={Object.keys(errors).length > 0}
-                                loading={loading}
-                                type="submit"
-                                variant="contained"
-                                color="primary">
-                                {t("motif.dialog.save")}
-                            </LoadingButton>
+                            <Can I={"manage"} a={"settings"} field={"settings__places__update"}>
+                                <LoadingButton
+                                    disabled={Object.keys(errors).length > 0}
+                                    loading={loading}
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary">
+                                    {t("motif.dialog.save")}
+                                </LoadingButton>
+                            </Can>
                         </Stack>
                     </FormStyled>
                 </FormikProvider>

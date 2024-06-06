@@ -7,7 +7,7 @@ import {useInsurances} from "@lib/hooks/rest";
 
 function InsuranceFeesRow({...props}) {
 
-    const {row, data, } = props;
+    const {row, data} = props;
     const {devise,insurance_act,handleChangeInsurance} = data;
     const {insurances: allInsurances} = useInsurances();
 
@@ -37,11 +37,22 @@ function InsuranceFeesRow({...props}) {
                 </Stack>
             </TableCell>
             <TableCell align="center">
+                <Typography>{row.fees} {devise}</Typography>
+            </TableCell>
+
+            <TableCell align="center">
                 <Typography>{row.refund} {devise}</Typography>
             </TableCell>
             <TableCell align="center">
                 <Typography>{row.patient_part} {devise}</Typography>
             </TableCell>
+            <TableCell align="center">
+                <Typography>{row.period  ? row.period : "-"}J</Typography>
+            </TableCell>
+            <TableCell align="center">
+                <Typography>{row.pre_approval ? "O":"N"} </Typography>
+            </TableCell>
+
         </TableRowStyled>
     );
 }

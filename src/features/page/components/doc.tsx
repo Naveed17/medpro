@@ -214,11 +214,12 @@ function Doc({...props}) {
                 setData({...data})
             }
             data.age.content = state.age
-            setData({...data})
             data.patient.content = state.patient;
             if (data.cin)
                 data.cin.content = state.cin;
-
+            if (data.insuranceCode)
+                data.insuranceCode.content = state.insurance;
+            setData({...data})
         }
         setLoading(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -335,7 +336,7 @@ function Doc({...props}) {
                     onClose={() => {
                         setValue("")
                     }}>
-                {data[value] ? ["patient", "date", "cin", "age"].includes(value) ? <Stack spacing={1} p={2}>
+                {data[value] ? ["patient", "date", "cin", "age","insuranceCode"].includes(value) ? <Stack spacing={1} p={2}>
                     <Typography fontSize={12}>Prefix</Typography>
                     <TextField
                         value={data[value].prefix}

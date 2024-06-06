@@ -54,7 +54,7 @@ import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import {
     DefaultCountry,
-    deleteAppointmentOptionsData,
+    DeleteAppointmentOptionsData,
     WaitingHeadCells,
     WaitingTodayCells
 } from "@lib/constants";
@@ -115,7 +115,8 @@ function WaitingRoom() {
         recurringDates,
         duration,
         patient,
-        type
+        type,
+        finalize
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const {filter: boardFilterData} = useAppSelector(boardSelector);
@@ -155,7 +156,7 @@ function WaitingRoom() {
         {index: 2, key: "estimatedStartTime", value: "smart-list"}
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
-    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(DeleteAppointmentOptionsData);
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | HTMLElement>(null);
     const [documentsPreview, setDocumentsPreview] = React.useState<any[]>([]);
     const [openDocPreviewDialog, setOpenDocPreviewDialog] = useState<boolean>(false);
@@ -862,8 +863,8 @@ function WaitingRoom() {
                 {showTimeline && <Epg isLoading={isLoading} {...getEpgProps()}>
                     <Layout
                         {...getLayoutProps()}
-                        renderTimeline={(props) => <PlanByTimeline {...props} />}
-                        renderProgram={({program, ...rest}) => (
+                        renderTimeline={(props: any) => <PlanByTimeline {...props} />}
+                        renderProgram={({program, ...rest}: { program: any }) => (
                             <EventItem key={program.data.uuid} program={program} {...rest} />
                         )}
                     />
@@ -1532,29 +1533,56 @@ function WaitingRoom() {
                         p: "1rem"
                     }}
                     className="action">
-                    <Button
-                        sx={{
-                            mr: 1
-                        }}
-                        variant="text-primary"
-                        onClick={() => {
-                            dispatch(resetAppointment());
-                            setQuickAddAppointment(false)
-                        }}
-                        startIcon={<CloseIcon/>}>
-                        {t("cancel", {ns: "common"})}
-                    </Button>
-                    <LoadingButton
-                        loading={loadingRequest}
-                        variant="contained"
-                        color={"primary"}
-                        onClick={event => {
-                            event.stopPropagation();
-                            handleAddAppointment();
-                        }}
-                        disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
-                        {t("save", {ns: "common"})}
-                    </LoadingButton>
+                    {!finalize ?
+                        <>
+                            <Button
+                                sx={{
+                                    mr: 1
+                                }}
+                                variant="text-primary"
+                                onClick={() => {
+                                    dispatch(resetAppointment());
+                                    setQuickAddAppointment(false)
+                                }}
+                                startIcon={<CloseIcon/>}>
+                                {t("cancel", {ns: "common"})}
+                            </Button>
+                            <LoadingButton
+                                loading={loadingRequest}
+                                variant="contained"
+                                color={"primary"}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleAddAppointment();
+                                }}
+                                disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
+                                {t("save", {ns: "common"})}
+                            </LoadingButton>
+                        </>
+                        :
+                        <Stack pt={2} px={2} mx={-2} direction='row' justifyContent='space-between' alignItems='center'
+                               borderTop={1} borderColor='divider'>
+                            <Button variant="text-black">
+                                {t("steppers.final-step.btn-close")}
+                            </Button>
+                            <Stack direction='row' alignItems='center' spacing={2}>
+                                <LoadingButton
+                                    {...{loading}}
+                                    variant="google"
+                                    sx={{bgcolor: theme.palette.grey[50]}}
+                                >
+                                    {t("steppers.final-step.btn-another-rdv-schedule")}
+                                </LoadingButton>
+                                <LoadingButton
+                                    {...{loading}}
+                                    variant="contained"
+
+                                >
+                                    {t("steppers.final-step.btn-complete")}
+                                </LoadingButton>
+                            </Stack>
+                        </Stack>
+                    }
                 </Paper>
             </Drawer>
 

@@ -12,10 +12,10 @@ import {setSelectedEvent} from "@features/calendar";
 import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
 
 const humanizeDuration = require("humanize-duration");
-import {humanizerConfig} from "@lib/constants";
+import {HumanizerConfig} from "@lib/constants";
 import {Label} from '@features/label';
 
-const shortEnglishHumanizer = humanizeDuration.humanizer(humanizerConfig);
+const shortEnglishHumanizer = humanizeDuration.humanizer(HumanizerConfig);
 
 function CipCard2nd({...props}) {
     const {openPatientDialog, onClose} = props;

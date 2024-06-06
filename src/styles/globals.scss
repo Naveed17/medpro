@@ -512,7 +512,7 @@ fieldset {
   width: 100% !important;
 }
 
-.react-draggable > div > div {
+.react-draggable>div>div {
   opacity: 1 !important;
 }
 
@@ -610,9 +610,11 @@ fieldset {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 1;
   }
@@ -622,9 +624,11 @@ fieldset {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 1;
   }
@@ -634,9 +638,11 @@ fieldset {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 1;
   }
@@ -646,9 +652,11 @@ fieldset {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.2;
   }
+
   100% {
     opacity: 1;
   }
@@ -687,12 +695,15 @@ fieldset {
   font-size: 18px;
 }
 
-.receipt-title{
-  font-size:16px;
+.receipt-title {
+  font-size: 16px;
   padding: 20px;
   font-weight: bold;
 }
-ol, ul, menu {
+
+ol,
+ul,
+menu {
   list-style: none;
   margin: 0;
   padding: revert;
@@ -703,15 +714,15 @@ table {
 }
 
 // planby Timeline override styles
-.planby > div > div {
+.planby>div>div {
   scroll-behavior: smooth;
 }
 
-.planby > div > div::-webkit-scrollbar {
+.planby>div>div::-webkit-scrollbar {
   display: none;
 }
 
-.planby > div > div > div:nth-child(1) {
+.planby>div>div>div:nth-child(1) {
   border-radius: 4px;
   height: 42px;
   margin-top: -6px;

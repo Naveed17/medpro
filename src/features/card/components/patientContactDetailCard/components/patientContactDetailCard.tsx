@@ -1,25 +1,24 @@
 import React, {useEffect, useRef, useState} from "react";
 import RootStyled from "./overrides/rootStyle";
 import {
-    Typography,
-    Skeleton,
-    CardContent,
-    Grid,
-    Stack,
-    Box,
-    InputBase,
-    AppBar,
-    Toolbar,
-    MenuItem,
-    useTheme,
     Avatar,
-    useMediaQuery,
+    CardContent,
+    CardHeader,
+    Collapse,
+    FormControl,
+    IconButton,
     InputAdornment,
-    TextField, Autocomplete, Divider, IconButton, Button,
+    Link,
+    MenuItem,
+    Stack,
+    Typography,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
 import {useTranslation} from "next-i18next";
-import {useFormik, Form, FormikProvider, FieldArray} from "formik";
-import SaveAsIcon from "@mui/icons-material/SaveAs";
+import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import IconUrl from "@themes/urlIcon";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -27,9 +26,8 @@ import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {Session} from "next-auth";
 import dynamic from "next/dynamic";
-import {countries} from "@features/countrySelect/countries";
+import {countries as countriesData} from "@features/countrySelect/countries";
 import * as Yup from "yup";
-import {LoadingButton} from "@mui/lab";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {DefaultCountry, PatientContactRelation} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
@@ -39,10 +37,7 @@ import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {LoadingScreen} from "@features/loadingScreen";
-import {ToggleButtonStyled} from "@features/toolbar";
-import Icon from "@themes/urlIcon";
-import AddIcon from "@mui/icons-material/Add";
+import {CustomIconButton} from "@features/buttons";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -62,8 +57,8 @@ function PatientContactDetailCard({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
+    const {t} = useTranslation(["patient", "common"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation(["patient", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
@@ -71,7 +66,15 @@ function PatientContactDetailCard({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const [loadingRequest, setLoadingRequest] = useState(false);
+    const [openPanel, setOpenPanel] = useState<string[]>(["contact", "info"])
 
+    const handleTogglePanels = (props: string) => {
+        const panel = openPanel.includes(props)
+            ? openPanel.filter(panel => panel !== props)
+            : [...openPanel, props];
+        setOpenPanel(panel);
+
+    }
     const RegisterPatientSchema = Yup.object().shape({
         country: Yup.string()
             .min(3, t("config.add-patient.country-error")),
@@ -96,11 +99,15 @@ function PatientContactDetailCard({...props}) {
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
-
     const initialValue = {
+        nationality: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.country?.uuid : "",
         country: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.country?.uuid : "",
         region: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.uuid : "",
         zip_code: !loading && contactData?.address.length > 0 ? (contactData?.address[0]?.postalCode ? contactData?.address[0]?.postalCode : "") : "",
+        email: "",
+        id_card_number: "",
+        family_doctor: "",
+        profession: "",
         address:
             !loading && contactData?.address[0] ? (contactData?.address[0].street ? contactData?.address[0].street : "") : "",
         phones:
@@ -163,7 +170,7 @@ function PatientContactDetailCard({...props}) {
     };
 
     const getCountryByCode = (code: string) => {
-        return countries.find(country => country.phone === code)
+        return countriesData.find(country => country.phone === code)
     }
 
     const handleUpdatePatient = () => {
@@ -244,14 +251,38 @@ function PatientContactDetailCard({...props}) {
         }
     }, [editable]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-
     return (
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate>
                 <RootStyled>
-                    <CardContent>
-                        <Grid container>
+                    <CardHeader title={
+                        <Typography variant="subtitle1" fontSize={18}>
+                            {t("config.add-patient.contact")}
+                        </Typography>
+                    }
+                                action={
+                                    <IconButton size="small" sx={{
+                                        svg: {
+                                            transform: openPanel.includes("contact") ? "" : "scale(-1)",
+                                            transition: "transform 0.3s"
+                                        }
+                                    }}>
+                                        <IconUrl path="ic-outline-arrow-up" width={16} height={16}/>
+                                    </IconButton>
+
+                                }
+                                sx={{
+                                    cursor: 'pointer',
+                                    ".MuiCardHeader-action": {
+                                        alignSelf: 'center'
+                                    }
+                                }}
+                                onClick={() => handleTogglePanels("contact")}
+                    />
+                    <Collapse in={openPanel.includes("contact")}>
+                        <CardContent>
+                            <Stack spacing={2}>
+                                {/* <Grid container>
                             <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
                                 <Toolbar variant="dense">
                                     <Box sx={{flexGrow: 1}}>
@@ -869,12 +900,431 @@ function PatientContactDetailCard({...props}) {
                                     {t("config.add-patient.add")}
                                 </Button>
                             </Grid>
-                        </Grid>
-                    </CardContent>
+                        </Grid> */}
+                                <FieldArray
+                                    name={"phones"}
+                                    render={() => (values.phones.map((phone: any, index: number) => (
+                                        <Stack direction={{xs: 'column', sm: 'row'}} spacing={{xs: 1, sm: 2}}
+                                               key={index}>
+                                            <FormControl fullWidth sx={{flex: 1.5}}>
+                                                <Typography gutterBottom
+                                                            color="grey.500">{t("config.add-patient.relation")}
+                                                    {" "} <span className="required">*</span>
+                                                </Typography>
+                                                <Autocomplete
+                                                    size={"small"}
+                                                    value={getFieldProps(`phones[${index}].relation`) ?
+                                                        contactRelations.find(relation => relation.key === values.phones[index].relation) : ""}
+                                                    onChange={(event, relation: any) => {
+                                                        relation && setFieldValue(`phones[${index}].relation`, relation.key);
+                                                    }}
+                                                    id={"relation"}
+                                                    options={contactRelations}
+                                                    getOptionLabel={(option: any) => option?.label ? option.label : ""}
+                                                    isOptionEqualToValue={(option: any, value: any) => option.label === value?.label}
+                                                    renderOption={(params, option) => (
+                                                        <MenuItem
+                                                            {...params}
+                                                            value={option.key}>
+                                                            <Typography>{option.label}</Typography>
+                                                        </MenuItem>)}
+                                                    renderInput={(params) => {
+                                                        return (<TextField {...(values.phones[index].relation && {
+                                                            sx: {
+                                                                ".MuiInputBase-root": {
+                                                                    bgcolor: theme.palette.grey[50]
+                                                                }
+                                                            }
+                                                        })} {...params}
+                                                                           placeholder={t("config.add-patient.relation-placeholder")}/>)
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <Stack direction='row' flex={3} alignItems='center'
+                                                   spacing={{xs: 1, sm: 2}}>
+                                                <FormControl fullWidth sx={{
+
+                                                    flex: 3,
+                                                    ".MuiInputBase-input": {
+                                                        borderLeft: 1,
+                                                        borderColor: 'divider',
+                                                        ml: 1
+                                                    },
+
+                                                    ...(phone.value && {
+                                                        ".MuiInputBase-root": {
+                                                            "&.MuiInputBase-root": {
+                                                                bgcolor: theme.palette.grey[50]
+                                                            }
+                                                        }
+                                                    })
+                                                }}>
+                                                    <Typography gutterBottom
+                                                                color="grey.500">{t("config.add-patient.phone")}
+                                                        {" "} <span className="required">*</span>
+                                                    </Typography>
+                                                    {phone?.code && <PhoneInput
+                                                        ref={phoneInputRef}
+                                                        international
+                                                        fullWidth
+                                                        error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                                        withCountryCallingCode
+                                                        {...((editable && Boolean(errors.phones && (errors.phones as any)[index])) &&
+                                                            {
+                                                                helperText: `${t("phone_format", {ns: "common"})}: ${getFieldProps(`phones[${index}].value`)?.value ?
+                                                                    getFieldProps(`phones[${index}].value`).value : ""}`
+                                                            })}
+                                                        InputProps={{
+                                                            sx: {
+                                                                "& .MuiOutlinedInput-root input": {
+                                                                    paddingLeft: 1
+                                                                }
+                                                            },
+                                                            startAdornment: (
+                                                                <InputAdornment
+                                                                    position="start"
+                                                                    sx={{
+                                                                        maxWidth: "3rem",
+                                                                        ...((isMobile || !editable) && {
+                                                                            "& .MuiAutocomplete-root": {
+                                                                                width: 20
+                                                                            },
+                                                                        }),
+                                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                                            outline: "none",
+                                                                            borderColor: "transparent"
+                                                                        },
+                                                                        "& fieldset": {
+                                                                            border: "none!important",
+                                                                            boxShadow: "none!important"
+                                                                        },
+                                                                    }}>
+                                                                    <Stack direction={'row'}
+                                                                           alignItems={"center"}
+                                                                           spacing={3}>
+                                                                        <CountrySelect
+                                                                            showCountryFlagOnly={true}
+                                                                            sx={{
+                                                                                ...(isMobile && {
+                                                                                    "& .MuiInputAdornment-root": {
+                                                                                        width: 20
+                                                                                    }
+                                                                                }),
+                                                                                ...(!editable && {
+                                                                                    "& .MuiAutocomplete-endAdornment": {
+                                                                                        display: "none"
+                                                                                    }
+                                                                                })
+                                                                            }}
+
+                                                                            {...(isMobile && {small: true})}
+                                                                            initCountry={{
+                                                                                code: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                                name: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                                phone: getCountryByCode(values.phones[index]?.code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
+                                                                            }}
+                                                                            onSelect={(state: any) => {
+                                                                                setFieldValue(`phones[${index}].value`, "");
+                                                                                setFieldValue(`phones[${index}].code`, state.phone);
+                                                                            }}/>
+
+                                                                    </Stack>
+
+                                                                </InputAdornment>)
+                                                        }}
+                                                        country={getCountryByCode(phone.code)?.code as any}
+                                                        value={phone?.value ? phone.value : ""}
+                                                        onChange={value => setFieldValue(`phones[${index}].value`, value)}
+                                                        inputComponent={CustomInput as any}
+                                                    />}
+                                                </FormControl>
+                                                {phone?.isWhatsapp &&
+                                                    <Link sx={{flex: .25, alignSelf: 'flex-end'}} underline="none"
+                                                          href={`https://wa.me/${phone.value}`} target="_blank">
+                                                        <CustomIconButton style={{minHeight: 38, minWidth: 38}} sx={{
+                                                            bgcolor: theme.palette.common.white,
+                                                            border: 1,
+                                                            borderColor: 'divider'
+                                                        }}>
+                                                            <IconUrl
+                                                                width={"16"}
+                                                                height={"16"}
+                                                                path={"ic-whatsapp"}
+                                                                className="ic-tell"
+                                                            />
+                                                        </CustomIconButton>
+                                                    </Link>
+                                                }
+                                            </Stack>
+                                        </Stack>
+                                    )))}
+                                />
+
+
+                            </Stack>
+                        </CardContent>
+                    </Collapse>
+                    <CardHeader title={
+                        <Typography variant="subtitle1" fontSize={18}>
+                            {t("config.add-patient.additional_info")}
+                        </Typography>
+                    }
+                                action={
+                                    <IconButton size="small" sx={{
+                                        svg: {
+                                            transform: openPanel.includes("info") ? "" : "scale(-1)",
+                                            transition: "transform 0.3s"
+                                        }
+                                    }}>
+                                        <IconUrl path="ic-outline-arrow-up" width={16} height={16}/>
+                                    </IconButton>
+
+                                }
+                                sx={{
+                                    cursor: 'pointer',
+                                    ".MuiCardHeader-action": {
+                                        alignSelf: 'center'
+                                    }
+                                }}
+                                onClick={() => handleTogglePanels("info")}
+                    />
+                    <Collapse in={openPanel.includes("info")} timeout="auto" unmountOnExit>
+                        <CardContent>
+                            <Stack spacing={2}>
+                                <FormControl>
+                                    <Typography gutterBottom color="grey.500">{t("config.add-patient.address")}
+                                        {" "} <span className="required">*</span>
+                                    </Typography>
+                                    <TextField
+                                        placeholder={t("config.add-patient.address-placeholder")}
+                                        {...getFieldProps("address")}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <IconUrl path="ic-outline-location" width={20} height={20}
+                                                             color={theme.palette.grey[400]}/>
+                                                </InputAdornment>
+                                            )
+                                        }}
+
+                                    />
+                                </FormControl>
+                                <Stack direction={{xs: "column", sm: 'row'}} spacing={2}>
+                                    <FormControl fullWidth>
+                                        <Typography gutterBottom
+                                                    color="grey.500">{t("config.add-patient.country")}</Typography>
+                                        <Autocomplete
+                                            id={"country"}
+                                            disabled={!countries_api}
+                                            autoHighlight
+                                            disableClearable
+                                            size="small"
+                                            value={countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("country").value) ?
+                                                countries_api.find((country: CountryModel) => country.uuid === getFieldProps("country").value) : null}
+                                            onChange={(e, v: any) => {
+                                                setFieldValue("country", v.uuid);
+                                            }}
+                                            options={countries_api ? countries_api?.filter((country: CountryModel) => country.hasState) : []}
+                                            loading={!countries_api}
+                                            getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                            isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                            renderOption={(props, option) => (
+                                                <MenuItem {...props}>
+                                                    {option?.code && <Avatar
+                                                        sx={{
+                                                            width: 26,
+                                                            height: 18,
+                                                            borderRadius: 0.6
+                                                        }}
+                                                        alt={"flags"}
+                                                        src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                    />}
+                                                    <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                </MenuItem>
+                                            )}
+                                            renderInput={params => {
+                                                const country = countries_api?.find((country: CountryModel) => country.uuid === getFieldProps("country").value);
+                                                params.InputProps.startAdornment = country && (
+                                                    <InputAdornment position="start">
+                                                        {country?.code && <Avatar
+                                                            sx={{
+                                                                width: 24,
+                                                                height: 16,
+                                                                borderRadius: 0.6,
+                                                                ml: ".5rem",
+                                                                mr: -.8
+                                                            }}
+                                                            alt={country.name}
+                                                            src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                        />}
+                                                    </InputAdornment>
+                                                );
+
+                                                return <TextField color={"info"}
+                                                                  {...params}
+                                                                  sx={{paddingLeft: 0}}
+                                                                  placeholder={t("config.add-patient.country-placeholder")}
+                                                                  variant="outlined" fullWidth/>;
+                                            }}/>
+                                    </FormControl>
+                                    <FormControl fullWidth>
+                                        <Typography gutterBottom
+                                                    color="grey.500">{t("config.add-patient.region")}</Typography>
+                                        <Autocomplete
+                                            id={"region"}
+                                            disabled={!states}
+                                            autoHighlight
+                                            disableClearable
+                                            size="small"
+                                            value={states?.find(country => country.uuid === getFieldProps("region").value) ?
+                                                states.find(country => country.uuid === getFieldProps("region").value) : null}
+                                            onChange={(e, state: any) => {
+                                                setFieldValue("region", state.uuid);
+                                                setFieldValue("zip_code", state.zipCode);
+                                            }}
+                                            sx={{color: "text.secondary"}}
+                                            options={states ? states : []}
+                                            loading={!states}
+                                            getOptionLabel={(option) => option?.name ? option.name : ""}
+                                            isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                            renderOption={(props, option) => (
+                                                <MenuItem
+                                                    {...props}
+                                                    key={option.uuid}
+                                                    value={option.uuid}>
+                                                    <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                </MenuItem>
+                                            )}
+                                            renderInput={params => <TextField color={"info"}
+                                                                              {...params}
+                                                                              placeholder={t("config.add-patient.region-placeholder")}
+                                                                              sx={{paddingLeft: 0}}
+                                                                              variant="outlined"
+                                                                              fullWidth/>}/>
+                                    </FormControl>
+                                    <FormControl fullWidth>
+                                        <Typography gutterBottom
+                                                    color="grey.500">{t("config.add-patient.zip_code")}</Typography>
+                                        <TextField
+                                            placeholder={t("config.add-patient.zip_code-placeholder")}
+                                            {...getFieldProps("zip_code")}
+                                        />
+                                    </FormControl>
+                                </Stack>
+                                <FormControl fullWidth>
+                                    <Typography gutterBottom
+                                                color="grey.500">{t("config.add-patient.email")}</Typography>
+                                    <TextField
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <IconUrl path="ic-outline-sms" width={20} height={20}
+                                                             color={theme.palette.grey[400]}/>
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                        placeholder={t("config.add-patient.email-placeholder")}
+                                        {...getFieldProps("email")}
+                                    />
+                                </FormControl>
+                                <Stack direction={{xs: 'column', sm: 'row'}} spacing={2}>
+                                    <FormControl fullWidth>
+                                        <Typography gutterBottom
+                                                    color="grey.500">{t("config.add-patient.nationality")}</Typography>
+
+                                        <Autocomplete
+                                            id={"nationality"}
+                                            autoHighlight
+                                            disableClearable
+                                            size="small"
+                                            value={countries_api.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) ?
+                                                countries_api.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value) : ""}
+                                            onChange={(e, v: any) => {
+                                                setFieldValue("nationality", v.uuid);
+                                            }}
+                                            sx={{color: "text.secondary"}}
+                                            options={countries_api}
+                                            loading={countries_api.length === 0}
+                                            getOptionLabel={(option: any) => option?.name ?? ""}
+                                            isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                            renderOption={(props, option) => (
+                                                <Stack key={`nationality-${option.uuid}`}>
+                                                    <MenuItem
+                                                        {...props}
+
+                                                        value={option.uuid}>
+                                                        {option?.code && <Avatar
+                                                            sx={{
+                                                                width: 26,
+                                                                height: 18,
+                                                                borderRadius: 0.4
+                                                            }}
+                                                            alt={"flags"}
+                                                            src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                        />}
+                                                        <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                    </MenuItem>
+                                                </Stack>
+                                            )}
+                                            renderInput={params => {
+                                                const country = countriesData?.find((country: any) => country.uuid === getFieldProps("nationality").value);
+                                                params.InputProps.startAdornment = country && (
+                                                    <InputAdornment position="start">
+                                                        {country?.code && <Avatar
+                                                            sx={{
+                                                                width: 24,
+                                                                height: 16,
+                                                                borderRadius: 0.4,
+                                                                ml: ".5rem",
+                                                                mr: -.8
+                                                            }}
+                                                            alt={country.name}
+                                                            src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                        />}
+                                                    </InputAdornment>
+                                                );
+
+                                                return <TextField color={"info"}
+                                                                  {...params}
+                                                                  sx={{paddingLeft: 0}}
+                                                                  placeholder={t("add-patient.nationality-placeholder")}
+                                                                  variant="outlined" fullWidth/>;
+                                            }}/>
+                                    </FormControl>
+                                    <FormControl fullWidth>
+                                        <Typography gutterBottom
+                                                    color="grey.500">{t("config.add-patient.id_card_number")}</Typography>
+                                        <TextField
+                                            placeholder={t("config.add-patient.id_card_number_placeholder")}
+                                            {...getFieldProps("id_card_number")}
+                                        />
+                                    </FormControl>
+                                </Stack>
+                                <Stack direction='row' alignItems='center' spacing={2}>
+                                    <FormControl fullWidth>
+                                        <Typography gutterBottom
+                                                    color="grey.500">{t("config.add-patient.profession")}</Typography>
+                                        <TextField
+                                            placeholder={t("config.add-patient.profession-placeholder")}
+                                            {...getFieldProps("profession")}
+                                        />
+                                    </FormControl>
+                                    <FormControl fullWidth>
+                                        <Typography gutterBottom
+                                                    color="grey.500">{t("config.add-patient.family_doctor")}</Typography>
+                                        <TextField
+                                            placeholder={t("config.add-patient.family_doctor-placeholder")}
+                                            {...getFieldProps("profession")}
+                                        />
+                                    </FormControl>
+                                </Stack>
+                            </Stack>
+                        </CardContent>
+                    </Collapse>
                 </RootStyled>
             </Form>
         </FormikProvider>
     );
 }
 
-export default PatientContactDetailCard;
+export default React.memo(PatientContactDetailCard);

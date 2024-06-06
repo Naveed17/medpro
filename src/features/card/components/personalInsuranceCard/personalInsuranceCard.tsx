@@ -33,14 +33,15 @@ import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {prepareInsurancesData, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
+import {ImageHandler} from "@features/image";
 
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import Can from "@features/casl/can";
 import {PatientInsurance} from "@features/patientInsurance";
-import {ImageHandler} from "@features/image";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -326,18 +327,21 @@ function PersonalInsuranceCard({...props}) {
                                         )}
                                     </Typography>
                                 </Box>
-                                <LoadingButton
-                                    disabled={editable.personalInfoCard || editable.patientDetailContactCard}
-                                    loading={loadingRequest}
-                                    className='btn-add'
-                                    onClick={() => {
-                                        handleAddInsurance();
-                                        setInsuranceDialog(true);
-                                    }}
-                                    startIcon={<AddIcon/>}
-                                    size="small">
-                                    {t("config.add-patient.add")}
-                                </LoadingButton>
+                                <Can I={'manage'} a={"patients"}
+                                     field={'patients__patient__details__informations__insurances__create'}>
+                                    <LoadingButton
+                                        disabled={editable.personalInfoCard || editable.patientDetailContactCard}
+                                        loading={loadingRequest}
+                                        className='btn-add'
+                                        onClick={() => {
+                                            handleAddInsurance();
+                                            setInsuranceDialog(true);
+                                        }}
+                                        startIcon={<AddIcon/>}
+                                        size="small">
+                                        {t("config.add-patient.add")}
+                                    </LoadingButton>
+                                </Can>
                             </Toolbar>
                         </AppBar>
                         {patientInsurances?.map((insurance: any, index: number) => (
@@ -373,8 +377,7 @@ function PersonalInsuranceCard({...props}) {
                                                                justifyContent={"space-between"}
                                                                alignItems={"center"}>
                                                             <Typography
-                                                                variant={"body2"}
-                                                            >
+                                                                variant={"body2"}>
                                                                 {insurance.insuranceNumber}
                                                             </Typography>
                                                         </Stack>
@@ -384,8 +387,7 @@ function PersonalInsuranceCard({...props}) {
                                                                justifyContent={"space-between"}
                                                                alignItems={"center"}>
                                                             <Typography
-                                                                variant={"body2"}
-                                                            >
+                                                                variant={"body2"}>
                                                                 {t(`social_insured.${SocialInsured.find(insur => insur.value === insurance.type.toString())?.label}`, {ns: "common"})}
                                                             </Typography>
                                                         </Stack>
@@ -394,27 +396,33 @@ function PersonalInsuranceCard({...props}) {
                                                         <Grid pt={.5} pb={.5} item xs={6} md={4}>
                                                             <Stack direction={"row"} alignItems={"center"} spacing={1}
                                                                    justifyContent={"flex-end"}>
-                                                                <IconButton
-                                                                    disabled={loadingRequest}
-                                                                    className="btn-edit"
-                                                                    onClick={() => handleEditInsurance(insurance)}
-                                                                    size="small">
-                                                                    <IconUrl color={theme.palette.text.secondary}
-                                                                             path="ic-edit-patient"/>
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    disabled={loadingRequest}
-                                                                    sx={{
-                                                                        '& .react-svg svg': {
-                                                                            width: 20,
-                                                                            height: 20
-                                                                        }
-                                                                    }}
-                                                                    onClick={() => handleDeleteInsurance(insurance)}
-                                                                    size="small">
-                                                                    <IconUrl color={theme.palette.text.secondary}
-                                                                             path="ic-trash"/>
-                                                                </IconButton>
+                                                                <Can I={'manage'} a={"patients"}
+                                                                     field={'patients__patient__details__informations__insurances__update'}>
+                                                                    <IconButton
+                                                                        disabled={loadingRequest}
+                                                                        className="btn-edit"
+                                                                        onClick={() => handleEditInsurance(insurance)}
+                                                                        size="small">
+                                                                        <IconUrl color={theme.palette.text.secondary}
+                                                                                 path="ic-edit-patient"/>
+                                                                    </IconButton>
+                                                                </Can>
+                                                                <Can I={'manage'} a={"patients"}
+                                                                     field={'patients__patient__details__informations__insurances__delete'}>
+                                                                    <IconButton
+                                                                        disabled={loadingRequest}
+                                                                        sx={{
+                                                                            '& .react-svg svg': {
+                                                                                width: 20,
+                                                                                height: 20
+                                                                            }
+                                                                        }}
+                                                                        onClick={() => handleDeleteInsurance(insurance)}
+                                                                        size="small">
+                                                                        <IconUrl color={theme.palette.text.secondary}
+                                                                                 path="ic-trash"/>
+                                                                    </IconButton>
+                                                                </Can>
                                                             </Stack>
                                                         </Grid>}
                                                 </Grid>

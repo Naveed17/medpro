@@ -1,4 +1,4 @@
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import {
     Typography,
     Button,
@@ -6,28 +6,28 @@ import {
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import React, {useCallback} from "react";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {tableActionSelector} from "@features/table";
+import React, { useCallback } from "react";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { tableActionSelector } from "@features/table";
 import ArchiveRoundedIcon from '@mui/icons-material/ArchiveRounded';
-import {setDuplicated} from "@features/duplicateDetected";
-import {LoadingScreen} from "@features/loadingScreen";
+import { setDuplicated } from "@features/duplicateDetected";
+import { LoadingScreen } from "@features/loadingScreen";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
-import {CustomIconButton} from "@features/buttons";
+import { CustomIconButton } from "@features/buttons";
 import Can from "@features/casl/can";
-import {agendaSelector, setNavigatorMode} from "@features/calendar";
+import { agendaSelector, setNavigatorMode } from "@features/calendar";
 import IconUrl from "@themes/urlIcon";
-import {ToggleButtonStyled} from "@features/toolbar";
+import { ToggleButtonStyled } from "@features/toolbar";
 
-function PatientToolbar({...props}) {
-    const {onAddPatient, mutatePatient} = props;
+function PatientToolbar({ ...props }) {
+    const { onAddPatient, mutatePatient } = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
-    const {t, ready} = useTranslation("patient");
-    const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
-    const {mode} = useAppSelector(agendaSelector);
+    const { t, ready } = useTranslation("patient");
+    const { tableState: { rowsSelected } } = useAppSelector(tableActionSelector);
+    const { mode } = useAppSelector(agendaSelector);
 
     const onPatientDrawer = useCallback(() => {
         onAddPatient();
@@ -48,7 +48,7 @@ function PatientToolbar({...props}) {
                 justifyContent="space-between"
                 width={1}
                 alignItems="center">
-                <Typography variant="subtitle2" color="text.primary">
+                <Typography variant="subtitle1" fontWeight={600} color="text.primary">
                     {t("sub-header.title")}
                 </Typography>
                 <Stack direction={"row"} spacing={1.2}>
@@ -58,11 +58,11 @@ function PatientToolbar({...props}) {
                         onClick={() => dispatch(setNavigatorMode(mode === "normal" ? "discreet" : "normal"))}
                         className={"toggle-button"}
                         sx={{
-                            ...(mode !== "normal" && {border: "none"}),
+                            ...(mode !== "normal" && { border: "none" }),
                             background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
                         }}>
                         <IconUrl width={19} height={19}
-                                 path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>
+                            path={"ic-eye-slash"} {...(mode !== "normal" && { color: "white" })} />
                     </ToggleButtonStyled>
                     {isDesktop && (
                         <Stack direction={"row"} spacing={1.2}>
@@ -82,8 +82,8 @@ function PatientToolbar({...props}) {
                                     }}
                                     variant="contained"
                                     color="primary"
-                                    sx={{ml: "auto"}}
-                                    startIcon={<ArchiveRoundedIcon/>}>
+                                    sx={{ ml: "auto" }}
+                                    startIcon={<ArchiveRoundedIcon />}>
                                     {t("sub-header.merge-patient")}
                                 </Button>}
                             </Can>
@@ -91,10 +91,10 @@ function PatientToolbar({...props}) {
                                 <CustomIconButton
                                     onClick={onPatientDrawer}
                                     variant="filled"
-                                    sx={{p: .6}}
+                                    sx={{ p: .6 }}
                                     color={"primary"}
                                     size={"small"}>
-                                    <AgendaAddViewIcon/>
+                                    <AgendaAddViewIcon />
                                 </CustomIconButton>
                             </Can>
                         </Stack>

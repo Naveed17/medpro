@@ -151,7 +151,6 @@ function AddRDVStep1({...props}) {
                             {...{t}}
                             loading={!date}
                             data={timeData}
-                            limit={16}
                             onChange={(newTime: string) => setTime(newTime)}
                             value={time}
                             seeMore
