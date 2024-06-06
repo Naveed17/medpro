@@ -1,14 +1,12 @@
 import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetServerSideProps} from "next";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {
     Avatar,
     Box,
     Button,
     Card,
     CardMedia,
-    Checkbox,
     Dialog as DialogMui,
     DialogActions,
     DialogContent,
@@ -102,7 +100,6 @@ import {useChannel} from "ably/react";
 import {getServerTranslations} from "@lib/i18n/getServerTranslations";
 import {authOptions} from "../../api/auth/[...nextauth]";
 import axios from "axios";
-import {parseBody} from "next/dist/server/api-utils/node/parse-body";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -363,7 +360,10 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
-    const {data: httpPatientInsuranceFees, mutate: mutateInsurance} = useRequestQuery(app_uuid && medical_professional_uuid ? {
+    const {
+        data: httpPatientInsuranceFees,
+        mutate: mutateInsurance
+    } = useRequestQuery(app_uuid && medical_professional_uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${app_uuid}/professionals/${medical_professional_uuid}/acts/${router.locale}`
     } : null);
@@ -618,21 +618,21 @@ function ConsultationInProgress() {
 
     const DialogAction = () => {
         return (
-            <DialogActions style={{ justifyContent: "space-between", width: "100%" }}>
+            <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
                 <LoadingButton
                     loading={loading}
                     loadingPosition="start"
                     variant="text"
                     color={"black"}
                     onClick={leave}
-                    startIcon={<IconUrl path="ic-temps" />}>
-                    <Typography sx={{ display: { xs: "none", md: "flex" } }}>
+                    startIcon={<IconUrl path="ic-temps"/>}>
+                    <Typography sx={{display: {xs: "none", md: "flex"}}}>
                         {t("later_on")}
                     </Typography>
                 </LoadingButton>
                 <Stack direction={"row"} spacing={2} sx={{
                     ".MuiButton-startIcon": {
-                        mr: { xs: 0, md: 1 }
+                        mr: {xs: 0, md: 1}
                     }
                 }}>
                     {/*<Button
@@ -1305,19 +1305,19 @@ function ConsultationInProgress() {
             }
 
         }
-    }, [ sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(()=>{
-        if (httpPatientInsuranceFees){
+    useEffect(() => {
+        if (httpPatientInsuranceFees) {
             const insuranceFees = httpPatientInsuranceFees.data;
             let _acts: AppointmentActModel[] = []
-            insuranceFees.forEach((act:any) => {
+            insuranceFees.forEach((act: any) => {
                 _acts.push({qte: 1, selected: false, ...act})
             })
             setActs(_acts);
             setMPActs(_acts); //.sort((a, b) => a.act.name.localeCompare(b.act.name))
         }
-    },[httpPatientInsuranceFees])
+    }, [httpPatientInsuranceFees])
 
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {
@@ -1926,7 +1926,7 @@ function ConsultationInProgress() {
                         )
                     })}
                     actionDialog={
-                        info ? (
+                        info && state.type !== "fees" ? (
                             <Stack sx={{width: "100%"}}
                                    direction={"row"}
                                    {...(info === "medical_prescription_cycle" && {

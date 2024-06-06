@@ -309,7 +309,7 @@ function InscDetail() {
             data: form
         }, {
             onSuccess: (res) => {
-                exportDoc(res.data.data.uuid, `Bordereau ${filterCB.start_date} - ${filterCB.end_date}`);
+                exportDoc(res.data.data.uuid, `Bordereau ${filterCB.start_date} - ${filterCB.end_date}`,"pdf");
                 mutate()
                 mutateApp();
                 setSelectedTab("archived")
@@ -337,11 +337,11 @@ function InscDetail() {
         });
     }
 
-    const exportDoc = (uuid: string, name?: string) => {
+    const exportDoc = (uuid: string, name?: string,from?:string) => {
         trigger(
             {
                 method: "GET",
-                url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/export/pdf/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/insurance-dockets/${uuid}/export/${from}/${router.locale}`,
             },
             {
                 onSuccess: (result) => {
@@ -733,11 +733,11 @@ function InscDetail() {
                         <Otable
                             {...{t, devise}}
                             headers={headCellsArchiveSlip}
-                            handleEvent={(uuid: string, from: string, name?: string) => {
+                            handleEvent={(uuid: string, from: string, name?: string,type?:string) => {
                                 if (from === "delete")
                                     setOpenDelete(uuid)
                                 else
-                                    exportDoc(uuid, name)
+                                    exportDoc(uuid, name,type)
                             }}
                             rows={dockets.filter((ev: any) => {
                                 return ev.name?.toLowerCase().includes(search.toLowerCase())

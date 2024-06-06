@@ -208,9 +208,9 @@ function InscDetail() {
                         pagination
                     />
                 </DesktopContainer>
-                <MobileContainer>
+                {/*<MobileContainer>
                     <Paper component={Stack} spacing={1} sx={{p: 2, borderRadius: 1}}>
-                        {/*<Toolbar {...{t, search, handleSearch}} />*/}
+                        <Toolbar {...{t, search, handleSearch}} />
                         {
                             mainActes.map((act: ActModel) => (
                                 <React.Fragment key={act.uuid}>
@@ -219,7 +219,7 @@ function InscDetail() {
                             ))
                         }
                     </Paper>
-                </MobileContainer>
+                </MobileContainer>*/}
                 <Box p={4}>
                     <SubFooter sx={{".MuiToolbar-root": {justifyContent: 'flex-end'}}}>
                         <Button startIcon={<IconUrl path="ic-check"/>} variant="contained">
