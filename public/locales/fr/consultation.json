@@ -574,6 +574,8 @@
     "fees": "Honoraires",
     "remb": "Mnt de Remb.",
     "patient_part": "Part patient",
+    "period": "Période",
+    "ap": "A.P",
     "documents": "Documents",
     "created-at": "Crée le",
     "send_the_link": "Envoyer le lien du questionnaire",

@@ -423,7 +423,8 @@
     "both": "Les deux"
   },
   "insurance": {
-    "agreement": "Assurance / Convention",
+    "agreement": "Assurance",
+    "convention": "Convention",
     "select": "Sélectionner l'assurance / convention",
     "member": "Identifiant unique",
     "insuranceBook": "Carnet",

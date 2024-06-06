@@ -44,6 +44,20 @@ const headCells: readonly HeadCell[] = [
         label: "patient_part",
         sortable: true,
         align: "center",
+    },{
+        id: "period",
+        numeric: true,
+        disablePadding: false,
+        label: "period",
+        sortable: true,
+        align: "center",
+    },{
+        id: "ap",
+        numeric: true,
+        disablePadding: false,
+        label: "ap",
+        sortable: true,
+        align: "center",
     }
 ];
 

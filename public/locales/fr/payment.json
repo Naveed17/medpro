@@ -250,6 +250,8 @@
       "name": "Nom et prénom",
       "quality": "Qualité",
       "act": "Acte",
+      "acts": "Actes",
+      "actions": "Actions",
       "apci": "APCI",
       "amount": "Montant",
       "patientPart": "Part patient",

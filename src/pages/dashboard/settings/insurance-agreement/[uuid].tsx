@@ -8,12 +8,10 @@ import useApci from "@lib/hooks/rest/useApci";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {Box, Button, DialogTitle, Paper, Stack, Theme} from "@mui/material";
+import {Box, Button, DialogTitle, Theme} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {Otable} from "@features/table";
 import {SubHeader} from "@features/subHeader";
-import {MobileContainer} from "@themes/mobileContainer";
-import {ActMobileCard} from "@features/card";
 import {SubFooter} from "@features/subFooter";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
@@ -27,7 +25,7 @@ function InscDetail() {
     const router = useRouter();
     const {t} = useTranslation("settings", {keyPrefix: 'insurance.config'});
     const {apcis} = useApci(router.query.name as string);
-    const [search, setSearch] = React.useState("");
+    const [search, setSearch] = useState("");
     const [mainActes, setMainActes] = useState<any>([]);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -74,22 +72,31 @@ function InscDetail() {
             align: "center",
             sortable: false,
         },
-        {
-            id: "AP",
-            numeric: true,
-            disablePadding: false,
-            label: "AP",
-            align: "center",
-            sortable: false,
-        },
-       /* ...(apcis.length > 0 ? [{
+        ...(apcis.length > 0 ? [{
             id: "apci",
             numeric: false,
             disablePadding: false,
             label: "apci",
             align: "center",
             sortable: false,
-        }]:[]),*/
+        }] : []),
+        {
+            id: "period",
+            numeric: true,
+            disablePadding: false,
+            label: "period",
+            align: "center",
+            sortable: false,
+        },
+        {
+            id: "AP",
+            numeric: true,
+            disablePadding: false,
+            label: "ap",
+            align: "center",
+            sortable: false,
+        },
+
         {
             id: "action",
             numeric: false,
