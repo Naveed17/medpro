@@ -6,7 +6,7 @@ import {Card, CardContent, Typography, useTheme} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {timeLineSelector} from "@features/timeline";
 
-const EventItem = ({program, ...rest}: ProgramItem) => {
+const EventItem = ({program, ...rest}: any) => {
     const theme = useTheme();
     const {styles, formatTime, set12HoursTimeFormat} = useProgram({
         program,

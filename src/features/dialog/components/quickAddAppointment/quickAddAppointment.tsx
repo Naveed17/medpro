@@ -49,7 +49,7 @@ function QuickAddAppointment({ ...props }) {
                         <Label color="primary" sx={{ ml: 1 }}>
                             <Stack direction='row' component={'span'} alignItems='center' spacing={.5}>
                                 <IconUrl color={theme.palette.primary.main} width={16} height={16} path="ic-filled-user-id" />
-                                <Typography variant="caption" color='primary'>Patient's Name</Typography>
+                                <Typography variant="caption" color='primary'>Patient s Name</Typography>
                             </Stack>
                         </Label>
                         <Typography component='div' variant="subtitle2">
