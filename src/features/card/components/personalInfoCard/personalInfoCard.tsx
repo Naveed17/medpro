@@ -32,11 +32,10 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 import {InputStyled} from "@features/tabPanel";
+import {Gender} from "@lib/constants";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -995,24 +994,17 @@ function PersonalInfo({...props}) {
                                                         )
 
                                                     }
-                                                    ;
                                                     return (
                                                         <Typography
                                                             color={'text.secondary'}>{selected === "1" ? t("mr") : t("mrs")}</Typography>
                                                     )
 
 
-                                                }}
-
-                                            >
-                                                {[{title: 'mr', value: '1'}, {
-                                                    title: "mrs",
-                                                    value: '2'
-                                                }].map((gender) => (
+                                                }}>
+                                                {Gender.map((gender) => (
                                                     <MenuItem
                                                         key={gender.value}
-                                                        value={gender.value}
-                                                    >
+                                                        value={gender.value}>
                                                         {t(gender.title)}
                                                     </MenuItem>
                                                 ))}

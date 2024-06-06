@@ -54,7 +54,7 @@ import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import {
     DefaultCountry,
-    deleteAppointmentOptionsData,
+    DeleteAppointmentOptionsData,
     WaitingHeadCells,
     WaitingTodayCells
 } from "@lib/constants";
@@ -156,7 +156,7 @@ function WaitingRoom() {
         { index: 2, key: "estimatedStartTime", value: "smart-list" }
     ]);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
-    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(DeleteAppointmentOptionsData);
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | HTMLElement>(null);
     const [documentsPreview, setDocumentsPreview] = React.useState<any[]>([]);
     const [openDocPreviewDialog, setOpenDocPreviewDialog] = useState<boolean>(false);

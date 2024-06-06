@@ -28,7 +28,7 @@ function QuickAddAppointment({ ...props }) {
                     </IconButton>
                 }
             />
-            <Divider sx={{ mb: 2, }} />
+            <Divider />
             {finalize ?
                 <Stack p={3}>
                     <Typography variant="subtitle2" fontSize={18} fontWeight={600}>{t('filter.appointment')}</Typography>

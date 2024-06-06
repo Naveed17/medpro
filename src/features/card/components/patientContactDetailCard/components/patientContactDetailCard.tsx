@@ -1280,7 +1280,7 @@ function PatientContactDetailCard({...props}) {
                                                 </Stack>
                                             )}
                                             renderInput={params => {
-                                                const country = countriesData?.find((country: CountryModel) => country.uuid === getFieldProps("nationality").value);
+                                                const country = countriesData?.find((country: any) => country.uuid === getFieldProps("nationality").value);
                                                 params.InputProps.startAdornment = country && (
                                                     <InputAdornment position="start">
                                                         {country?.code && <Avatar

@@ -94,8 +94,7 @@ function PatientAppointmentCard({ ...props }) {
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onReset(null);
-                                }}
-                            >
+                                }}>
                                 <IconUrl path="ic-trash" width={16} height={16} color={theme.palette.text.secondary} />
                             </IconButton>
                         </Box>

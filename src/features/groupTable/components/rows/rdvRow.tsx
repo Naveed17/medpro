@@ -27,7 +27,7 @@ import moment from "moment/moment";
 import {LoadingButton} from "@mui/lab";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {FacebookCircularProgress} from "@features/progressUI";
-import {deleteAppointmentOptionsData} from "@lib/constants";
+import {DeleteAppointmentOptionsData} from "@lib/constants";
 import Can from "@features/casl/can";
 
 function RDVRow({...props}) {
@@ -57,7 +57,7 @@ function RDVRow({...props}) {
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
-    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(deleteAppointmentOptionsData);
+    const [deleteAppointmentOptions, setDeleteAppointmentOptions] = useState<any[]>(DeleteAppointmentOptionsData);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
 
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");

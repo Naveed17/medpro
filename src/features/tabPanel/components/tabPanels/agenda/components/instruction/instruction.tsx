@@ -333,6 +333,7 @@ function Instruction({...props}) {
                                     }}>
                                     <MobileTimePicker
                                         ampm={false}
+
                                         value={timeRappel}
                                         onChange={(newValue) => {
                                             setTimeRappel(newValue as Date);
@@ -344,7 +345,7 @@ function Instruction({...props}) {
                                                     InputProps={{
                                                         endAdornment: (
                                                             <InputAdornment position="end">
-                                                                <SortIcon/>
+                                                                <SortIcon sx={{width: 18, height: 18}}/>
                                                             </InputAdornment>
                                                         ),
                                                     }}

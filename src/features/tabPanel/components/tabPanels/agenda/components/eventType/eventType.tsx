@@ -47,7 +47,7 @@ function EventType({...props}) {
     };
 
     useEffect(() => {
-        if (appointmentTypes && defaultType !== null) {
+        if (appointmentTypes && defaultType !== null && type === undefined) {
             const type = appointmentTypes[defaultType];
             setTypeEvent(type.uuid);
             dispatch(setAppointmentType(type.uuid));
@@ -112,7 +112,7 @@ function EventType({...props}) {
                                     return (
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <ModelDot
-                                                icon={type && IconsTypes[type.icon]}
+                                                //icon={type && IconsTypes[type.icon]}
                                                 color={type?.color}
                                                 selected={false}
                                                 {...(theme.direction === 'rtl' && {
@@ -134,7 +134,7 @@ function EventType({...props}) {
                                         value={type.uuid}
                                         key={type.uuid}>
                                         <ModelDot
-                                            icon={type && IconsTypes[type.icon]}
+                                            // icon={type && IconsTypes[type.icon]}
                                             color={type?.color}
                                             selected={false}
                                             {...(theme.direction === 'rtl' && {

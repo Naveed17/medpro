@@ -7,7 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, CalendarPickers, setStepperIndex} from "@features/calendar";
+import {agendaSelector, CalendarPickers, CustomPickersDay, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -24,8 +24,8 @@ import {PatientCardMobile} from "@features/card";
 import {
     Autocomplete,
     DialogActions, Divider,
-    IconButton,
-    LinearProgress,
+    IconButton, InputAdornment,
+    LinearProgress, Select,
     Stack,
     Switch,
     Tab,
@@ -36,7 +36,7 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {AnimatePresence, motion} from "framer-motion";
-import {PickersActionBarProps, TimePicker} from '@mui/x-date-pickers';
+import {PickersActionBarProps, pickersLayoutClasses} from '@mui/x-date-pickers';
 import CloseIcon from "@mui/icons-material/Close";
 import ScheduleRoundedIcon from '@mui/icons-material/ScheduleRounded';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -46,6 +46,9 @@ import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import RootStyled from "./overrides/rootStyle";
+import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
+import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker";
+import {TimePicker} from "@mui/x-date-pickers/TimePicker";
 
 function ActionList(props: PickersActionBarProps & {
     customTime: Date | null,
@@ -126,7 +129,14 @@ function TimeSchedule({...props}) {
     const [timeAvailable, setTimeAvailable] = useState(false);
     const [customTime, setCustomTime] = useState<Date | null>(null);
     const [openTime, setOpenTime] = useState(initRecurringDates.length === 0);
-    const [selectTime, setSelectTime] = useState("time-slot")
+    const [selectTime, setSelectTime] = useState("time-slot");
+    const [openDatePicker, setOpenDatePicker] = useState(false);
+    const [openAutoCompleteReasons, setOpenAutoCompleteReasons] = useState(false);
+    const [reasons, setReasons] = useState<ConsultationReasonModel[]>([]);
+    const [loadingReqReasons, setLoadingReqReasons] = useState(false);
+
+    const createdToRef = useRef<any>(null);
+
     const {
         data: httpConsultReasonResponse,
         mutate: mutateReasonsData
@@ -137,8 +147,7 @@ function TimeSchedule({...props}) {
 
     const {trigger: triggerSlots} = useRequestQueryMutation("/agenda/slots");
     const {trigger: triggerAddReason} = useRequestQueryMutation("/agenda/motif/add");
-
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[] ?? [];
+    const {trigger: triggerGetReasons} = useRequestQueryMutation("/agenda/motif/get");
 
     const onTimeAvailable = useCallback((slots: TimeSlotModel[], time: string) => {
         return slots.find((item: TimeSlotModel) => item.start === time);
@@ -176,7 +185,7 @@ function TimeSchedule({...props}) {
                 setLoading(false);
             }
         });
-    }, [triggerSlots, medical_professional, agendaConfig?.uuid, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [medical_professional, agendaConfig?.uuid, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const onChangeReason = (reasons: ConsultationReasonModel[]) => {
         const reasonsUuid = reasons.map(reason => reason.uuid);
@@ -199,8 +208,10 @@ function TimeSchedule({...props}) {
         setDuration(event.target.value as string);
     };
 
-    const onChangeDatepicker = async (date: Date) => {
-        setDate(date);
+    const onChangeDatepicker = async (dateTime: Date) => {
+        setDate(dateTime);
+        console.log('onChangeDatepicker', dateTime)
+        !timeSlotActive && onTimeSlotChange("00:00", dateTime);
     };
 
     const onMenuActions = (recurringDate: RecurringDateModel, action: string, index: number) => {
@@ -232,8 +243,9 @@ function TimeSchedule({...props}) {
         onNext(2);
     }
 
-    const onTimeSlotChange = (newTime: string) => {
-        const newDateFormat = date?.toLocaleDateString('en-GB');
+    const onTimeSlotChange = (newTime: string, day?: Date) => {
+        console.log("newTime", newTime, "day", day, "date", date);
+        const newDateFormat = (day ?? date)?.toLocaleDateString('en-GB');
         const newDate = moment(`${newDateFormat} ${newTime}`, "DD/MM/YYYY HH:mm").toDate();
 
         dispatch(setAppointmentDate(newDate));
@@ -289,7 +301,26 @@ function TimeSchedule({...props}) {
             }
         }
     }, [date, duration, getSlots]); // eslint-disable-line react-hooks/exhaustive-deps
-    console.log('withoutDateTime', withoutDateTime, select, timeSlotActive)
+
+    // Setting the logic for the asynchronous function on page reload
+    useEffect(() => {
+        if (!openAutoCompleteReasons) {
+            return undefined;
+        }
+
+        (async () => {
+            setLoadingReqReasons(true);
+            triggerGetReasons({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}?sort=true`
+            }, {
+                onSuccess: (result) => {
+                    setReasons(((result?.data as HttpResponse)?.data)?.filter((item: ConsultationReasonModel) => item.isEnabled) ?? []);
+                    setLoadingReqReasons(false);
+                }
+            });
+        })();
+    }, [openAutoCompleteReasons]); // eslint-disable-line react-hooks/exhaustive-deps
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -310,232 +341,6 @@ function TimeSchedule({...props}) {
                         {t("stepper-1.title")}
                     </Typography>}
 
-                    {((recurringDates.length === 0 || moreDate) && !withoutDateTime) &&
-                        <Grid container spacing={1} sx={{height: "auto"}}>
-                            {!withoutDateTime && <Grid item md={6} xs={12}>
-                                <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-                                    {t("stepper-1.visit-type")}
-                                </Typography>
-                                <EventType select defaultType={0}/>
-                            </Grid>}
-                            <Grid item md={!withoutDateTime ? 6 : 12} xs={12}>
-                                <Typography variant="body1" color="text.primary" mt={withoutDateTime ? 1 : 3}
-                                            mb={1}>
-                                    {t("stepper-1.reason-consultation")}
-                                </Typography>
-                                <FormControl fullWidth size="small">
-                                    <Autocomplete
-                                        id={"select-reason"}
-                                        disabled={!reasons}
-                                        multiple
-                                        autoHighlight
-                                        freeSolo
-                                        disableClearable
-                                        size="small"
-                                        value={reasons && selectedReasons.length > 0 ? reasons.filter(motif => selectedReasons.includes(motif.uuid)) : []}
-                                        onChange={(e, newValue: any) => {
-                                            e.stopPropagation();
-                                            const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
-                                            if (addReason) {
-                                                // Create a new value from the user input
-                                                addNewReason(addReason.inputValue);
-                                            } else {
-                                                onChangeReason(newValue);
-                                            }
-                                        }}
-                                        filterOptions={(options, params) => {
-                                            const {inputValue} = params;
-                                            const filtered = options.filter(option => [option.name?.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
-                                            // Suggest the creation of a new value
-                                            const isExisting = options.some((option) => inputValue.toLowerCase() === option.name?.toLowerCase());
-                                            if (inputValue !== '' && !isExisting) {
-                                                filtered.push({
-                                                    inputValue,
-                                                    name: `${t('stepper-1.add_reason')} "${inputValue}"`,
-                                                });
-                                            }
-                                            return filtered;
-                                        }}
-                                        sx={{color: "text.secondary"}}
-                                        options={reasons ? reasons.filter(item => item.isEnabled) : []}
-                                        loading={reasons?.length === 0}
-                                        getOptionLabel={(option) => {
-                                            // Value selected with enter, right from the input
-                                            if (typeof option === 'string') {
-                                                return option;
-                                            }
-                                            // Add "xxx" option created dynamically
-                                            if (option.inputValue) {
-                                                return option.inputValue;
-                                            }
-                                            // Regular option
-                                            return option.name;
-                                        }}
-                                        isOptionEqualToValue={(option: any, value) => option.name === value?.name}
-                                        renderOption={(props, option) => (
-                                            <Stack key={option.uuid ? option.uuid : "-1"}>
-                                                {!option.uuid && <Divider/>}
-                                                <MenuItem
-                                                    {...props}
-                                                    {...(!option.uuid && {sx: {fontWeight: "bold"}})}
-                                                    value={option.uuid}>
-                                                    {!option.uuid && <AddOutlinedIcon/>}
-                                                    {option.name}
-                                                </MenuItem>
-                                            </Stack>
-                                        )}
-                                        renderInput={params => <TextField color={"info"}
-                                                                          {...params}
-                                                                          InputProps={{
-                                                                              ...params.InputProps,
-                                                                              endAdornment: (
-                                                                                  <React.Fragment>
-                                                                                      {loadingReq ?
-                                                                                          <CircularProgress
-                                                                                              color="inherit"
-                                                                                              size={20}/> : null}
-                                                                                      {params.InputProps.endAdornment}
-                                                                                  </React.Fragment>
-                                                                              ),
-                                                                          }}
-                                                                          placeholder={t("stepper-1.reason-consultation-placeholder")}
-                                                                          sx={{
-                                                                              paddingLeft: 0,
-                                                                              ".MuiInputBase-root": {minHeight: 42}
-                                                                          }}
-                                                                          variant="outlined" fullWidth/>}/>
-                                </FormControl>
-                            </Grid>
-
-                            <Grid item md={6} xs={12}>
-                                <Typography color="grey.500" mt={1} variant="body1" mb={1}>
-                                    {t("stepper-1.date")}
-                                </Typography>
-                                <CalendarPickers
-                                    className="rdv-date-picker"
-                                    renderDay
-                                    defaultValue={(location) ? date : null}
-                                    onDateChange={(newDate: Date) => onChangeDatepicker(newDate)}
-                                    shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
-                                />
-                            </Grid>
-                            <Grid
-                                item
-                                md={6} xs={12}>
-                                <Stack direction={"row"} alignItems={"center"}
-                                       justifyContent={"space-between"} mt="-1px">
-                                    <Typography variant="body1" align={"center"} color="grey.500">
-                                        {t("stepper-1.time")}
-                                    </Typography>
-
-                                    {/* <IconButton
-                                            sx={{ mt: -.5 }}
-                                            size="small"
-                                            disabled={!date}
-                                            color="primary"
-                                            onClick={() => {
-                                                changeDateRef.current = true;
-                                                setChangeTime(true);
-                                            }}>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient" />
-                                        </IconButton> */}
-                                    <Switch className="custom-switch"
-                                            checked={timeSlotActive}
-                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                setTimeSlotActive(event.target.checked);
-                                            }}
-                                    />
-                                </Stack>
-                                <Stack border={1} borderColor='divider' borderRadius={1} pb={.4} maxHeight={300}
-                                       height={1}>
-                                    <Tabs
-                                        value={selectTime}
-                                        onChange={handleChangeTime}
-                                        sx={{
-                                            borderBottom: 1, borderColor: 'divider',
-                                            mb: 1.4
-                                        }}>
-                                        <Tab value="time-slot" label={t("stepper-1.time-slot")}/>
-                                        <Tab value="time-picker" label={t("stepper-1.time-picker")}/>
-                                    </Tabs>
-                                    <AnimatePresence>
-                                        {selectTime === "time-slot" &&
-                                            <motion.div
-                                                key={'slot'}
-                                                style={{padding: '.5rem', overflow: 'scroll'}}
-                                                initial={{opacity: 0}}
-                                                animate={{opacity: 1}}
-                                                transition={{ease: "easeIn", duration: .2}}>
-                                                {timeSlotActive ?
-                                                    <TimeSlot
-                                                        {...{t}}
-                                                        sx={{width: 236, margin: "auto"}}
-                                                        loading={!date || loading}
-                                                        data={timeSlots}
-                                                        limit={limit}
-                                                        onChange={onTimeSlotChange}
-                                                        OnShowMore={() => setLimit(limit * 2)}
-                                                        value={time}
-                                                        seeMore={limit < timeSlots.length}
-                                                        seeMoreText={t("stepper-1.see-more")}
-                                                    /> :
-                                                    <Stack p={2} spacing={1.5} alignItems="center">
-                                                        <IconUrl path="ic-filled-alarm-off"
-                                                                 color={theme.palette.grey[500]} width={56}
-                                                                 height={56}/>
-                                                        <Typography variant="body1" fontWeight={600}
-                                                                    color="grey.900">{t("stepper-1.time-slot-off")}</Typography>
-                                                        <Typography textAlign='center'
-                                                                    color="grey.400">{t("stepper-1.time-slot-off-desc")}</Typography>
-                                                        <Button variant="contained"
-                                                                size="small"
-                                                                onClick={() => {
-                                                                    setTimeSlotActive(true);
-                                                                }}
-                                                        >{t("stepper-1.turn-on")}</Button>
-                                                    </Stack>
-                                                }
-                                            </motion.div>
-
-                                        }
-                                        {selectTime === "time-picker" &&
-                                            <motion.div
-                                                key={'picker'}
-                                                style={{padding: 8, textAlign: "center"}}
-                                                initial={{opacity: 0}}
-                                                animate={{opacity: 1}}
-                                                transition={{ease: "easeIn", duration: .2}}>
-                                                <TimePicker
-                                                    {...(!isMobile && {orientation: "landscape"})}
-                                                    className={"time-picker-schedule"}
-                                                    ampmInClock={false}
-                                                    ampm={false}
-                                                    maxTime={new Date(0, 0, 0, 20, 0)}
-                                                    minTime={new Date(0, 0, 0, 8)}
-                                                    shouldDisableTime={(timeValue, clockType) => clockType === "minutes" && (timeValue.getMinutes() % 5 !== 0)}
-                                                    value={customTime}
-                                                    onChange={(newValue) => setCustomTime(newValue)}
-                                                    slotProps={{
-                                                        actionBar: {
-                                                            customTime,
-                                                            t,
-                                                            setChangeTime,
-                                                            changeDateRef,
-                                                            onTimeSlotChange
-                                                        } as any
-                                                    }}
-                                                    slots={{
-                                                        actionBar: ActionList as any
-                                                    }}
-                                                />
-                                            </motion.div>
-                                        }
-
-                                    </AnimatePresence>
-                                </Stack>
-                            </Grid>
-                        </Grid>
-                    }
                     <AnimatePresence>
                         {((timeAvailable || recurringDates.length > 0) && !withoutDateTime) &&
                             <motion.div
@@ -579,9 +384,316 @@ function TimeSchedule({...props}) {
                                         variant="text">{t("stepper-1.add-more-date")}</Button>}
                                 <div ref={bottomRef}/>
                             </motion.div>
-
                         }
                     </AnimatePresence>
+
+                    {((recurringDates.length === 0 || moreDate) && !withoutDateTime) &&
+                        <Grid container spacing={1} sx={{height: "auto"}}>
+                            {!withoutDateTime && <Grid item md={6} xs={12}>
+                                <Typography variant="body1" color="text.primary" mt={1} mb={1}>
+                                    {t("stepper-1.visit-type")}
+                                </Typography>
+                                <EventType select defaultType={0}/>
+                            </Grid>}
+                            <Grid item md={!withoutDateTime ? 6 : 12} xs={12}>
+                                <Typography variant="body1" color="text.primary" mt={1}
+                                            mb={1}>
+                                    {t("stepper-1.reason-consultation")}
+                                </Typography>
+                                <FormControl fullWidth size="small">
+                                    <Autocomplete
+                                        id={"select-reason"}
+                                        disabled={!reasons}
+                                        multiple
+                                        autoHighlight
+                                        freeSolo
+                                        open={openAutoCompleteReasons}
+                                        onOpen={() => setOpenAutoCompleteReasons(true)}
+                                        onClose={() => setOpenAutoCompleteReasons(false)}
+                                        disableClearable
+                                        size="small"
+                                        value={reasons && selectedReasons.length > 0 ? reasons.filter(motif => selectedReasons.includes(motif.uuid)) : []}
+                                        onChange={(e, newValue: any) => {
+                                            e.stopPropagation();
+                                            const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
+                                            if (addReason) {
+                                                // Create a new value from the user input
+                                                addNewReason(addReason.inputValue);
+                                            } else {
+                                                onChangeReason(newValue);
+                                            }
+                                        }}
+                                        filterOptions={(options, params) => {
+                                            const {inputValue} = params;
+                                            const filtered = options.filter(option => [option.name?.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
+                                            // Suggest the creation of a new value
+                                            const isExisting = options.some((option) => inputValue.toLowerCase() === option.name?.toLowerCase());
+                                            if (inputValue !== '' && !isExisting) {
+                                                filtered.push({
+                                                    inputValue,
+                                                    name: `${t('stepper-1.add_reason')} "${inputValue}"`,
+                                                });
+                                            }
+                                            return filtered;
+                                        }}
+                                        sx={{color: "text.secondary"}}
+                                        options={reasons}
+                                        loading={reasons?.length === 0}
+                                        getOptionLabel={(option) => {
+                                            // Value selected with enter, right from the input
+                                            if (typeof option === 'string') {
+                                                return option;
+                                            }
+                                            // Add "xxx" option created dynamically
+                                            if (option.inputValue) {
+                                                return option.inputValue;
+                                            }
+                                            // Regular option
+                                            return option.name;
+                                        }}
+                                        loadingText={t('load')}
+                                        isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                        renderOption={(props, option) => {
+                                            const {key, ...otherProps} = props as any;
+                                            return (
+                                                <MenuItem key={option.uuid ? option.uuid : "-1"}
+                                                          value={option.uuid}  {...otherProps}>
+                                                    {!option.uuid && <Divider/>}
+                                                    <Typography
+                                                        {...(!option.uuid && {sx: {fontWeight: "bold"}})}>
+                                                        {!option.uuid && <AddOutlinedIcon/>}
+                                                        {option.name}
+                                                    </Typography>
+                                                </MenuItem>
+                                            )
+                                        }}
+                                        renderInput={params =>
+                                            <TextField color={"info"}
+                                                       {...params}
+                                                       InputProps={{
+                                                           ...params.InputProps,
+                                                           endAdornment: (
+                                                               <React.Fragment>
+                                                                   {loadingReq || loadingReqReasons ?
+                                                                       <CircularProgress
+                                                                           color="inherit"
+                                                                           size={20}/> : null}
+                                                                   {params.InputProps.endAdornment}
+                                                               </React.Fragment>
+                                                           ),
+                                                       }}
+                                                       placeholder={t("stepper-1.reason-consultation-placeholder")}
+                                                       sx={{
+                                                           paddingLeft: 0,
+                                                           ".MuiInputBase-root": {minHeight: 42}
+                                                       }}
+                                                       variant="outlined" fullWidth/>}/>
+                                </FormControl>
+                            </Grid>
+
+                            <Grid item md={6} xs={12}>
+                                <Typography color="grey.500" mt={1} variant="body1" mb={1}>
+                                    {t("stepper-1.date")}
+                                </Typography>
+                                <DateTimePicker
+                                    className={"custom-date-picker"}
+                                    open={openDatePicker}
+                                    onClose={() => {
+                                        setOpenDatePicker(false);
+                                    }}
+                                    value={moment(`${moment(date).format('DD-MM-YYYY')} ${time}`, 'DD-MM-YYYY HH:mm').toDate()}
+                                    format={`dd/MM/yyyy ${time !== "00:00" ? 'HH:mm' : ''}`}
+                                    slots={{
+                                        openPickerIcon: CalendarPickerIcon,
+                                    }}
+                                    viewRenderers={{
+                                        day: () => <CalendarPickers
+                                            className="rdv-date-picker"
+                                            renderDay
+                                            defaultValue={(location) ? date : null}
+                                            onDateChange={(newDate: Date) => onChangeDatepicker(newDate)}
+                                            shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
+                                        /> as any,
+                                        hours: () =>
+                                            <Stack>
+                                                <Stack maxHeight={300} height={1}>
+                                                    <Tabs
+                                                        value={selectTime}
+                                                        onChange={handleChangeTime}
+                                                        sx={{
+                                                            borderBottom: 1, borderColor: 'divider',
+                                                            mb: 1.4
+                                                        }}>
+                                                        <Tab value="time-slot" label={t("stepper-1.time-slot")}/>
+                                                        <Tab value="time-picker" label={t("stepper-1.time-picker")}/>
+                                                    </Tabs>
+                                                    <AnimatePresence>
+                                                        {selectTime === "time-slot" &&
+                                                            <motion.div
+                                                                key={'slot'}
+                                                                style={{padding: '.5rem', overflow: 'scroll'}}
+                                                                initial={{opacity: 0}}
+                                                                animate={{opacity: 1}}
+                                                                transition={{ease: "easeIn", duration: .2}}>
+                                                                {timeSlotActive ?
+                                                                    <TimeSlot
+                                                                        {...{t}}
+                                                                        sx={{width: 236, margin: "auto"}}
+                                                                        loading={!date || loading}
+                                                                        data={timeSlots}
+                                                                        limit={limit}
+                                                                        onChange={onTimeSlotChange}
+                                                                        OnShowMore={() => setLimit(limit * 2)}
+                                                                        value={time}
+                                                                        seeMore={limit < timeSlots.length}
+                                                                        seeMoreText={t("stepper-1.see-more")}
+                                                                    /> :
+                                                                    <Stack p={2} spacing={1.5} alignItems="center">
+                                                                        <IconUrl path="ic-filled-alarm-off"
+                                                                                 color={theme.palette.grey[500]}
+                                                                                 width={56}
+                                                                                 height={56}/>
+                                                                        <Typography variant="body1" fontWeight={600}
+                                                                                    color="grey.900">{t("stepper-1.time-slot-off")}</Typography>
+                                                                        <Typography textAlign='center'
+                                                                                    color="grey.400">{t("stepper-1.time-slot-off-desc")}</Typography>
+                                                                        <Button variant="contained"
+                                                                                size="small"
+                                                                                onClick={() => {
+                                                                                    setTimeSlotActive(true);
+                                                                                }}
+                                                                        >{t("stepper-1.turn-on")}</Button>
+                                                                    </Stack>
+                                                                }
+                                                            </motion.div>
+
+                                                        }
+                                                        {selectTime === "time-picker" &&
+                                                            <motion.div
+                                                                key={'picker'}
+                                                                style={{padding: 8, textAlign: "center"}}
+                                                                initial={{opacity: 0}}
+                                                                animate={{opacity: 1}}
+                                                                transition={{ease: "easeIn", duration: .2}}>
+                                                                <TimePicker
+                                                                    {...(!isMobile && {orientation: "landscape"})}
+                                                                    disabled={date === null}
+                                                                    className={"time-picker-schedule"}
+                                                                    ampmInClock={false}
+                                                                    ampm={false}
+                                                                    closeOnSelect={false}
+                                                                    maxTime={new Date(0, 0, 0, 20, 0)}
+                                                                    minTime={new Date(0, 0, 0, 8)}
+                                                                    shouldDisableTime={(timeValue, clockType) => clockType === "minutes" && (timeValue.getMinutes() % 5 !== 0)}
+                                                                    value={customTime}
+                                                                    onChange={(newValue) => {
+                                                                        setCustomTime(newValue)
+                                                                    }}
+                                                                    slotProps={{
+                                                                        actionBar: {
+                                                                            customTime,
+                                                                            t,
+                                                                            setChangeTime,
+                                                                            changeDateRef,
+                                                                            onTimeSlotChange
+                                                                        } as any
+                                                                    }}
+                                                                    slots={{
+                                                                        actionBar: ActionList as any
+                                                                    }}
+                                                                />
+                                                            </motion.div>
+                                                        }
+
+                                                    </AnimatePresence>
+                                                </Stack>
+                                                <Stack px={2} direction={"row"} alignItems={"center"}
+                                                       justifyContent={"space-between"} mt="-1px">
+                                                    <Typography variant="body1" align={"center"} color="grey.500">
+                                                        {t("stepper-1.time")}
+                                                    </Typography>
+                                                    <Switch
+                                                        className="custom-switch"
+                                                        checked={timeSlotActive}
+                                                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                            setTimeSlotActive(event.target.checked);
+                                                            !event.target.checked && setTime("00:00")
+                                                        }}
+                                                    />
+                                                </Stack>
+                                            </Stack>
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            inputRef: createdToRef,
+                                            onClick: () => {
+                                                setOpenDatePicker((prev: any) => !prev);
+                                                if (createdToRef && createdToRef.current !== null) {
+                                                    createdToRef.current.blur();
+                                                }
+                                            },
+                                            InputProps: {
+                                                endAdornment: (<InputAdornment position="end"/>),
+                                            },
+                                            fullWidth: true,
+                                            readOnly: true,
+                                            sx: {"& .MuiInputBase-root": {height: 42}}
+                                        } as any,
+                                        layout: {
+                                            sx: {
+                                                [`.${pickersLayoutClasses.contentWrapper}`]: {
+                                                    display: "-webkit-box",
+                                                    "& .MuiPickersLayout-root": {
+                                                        borderRadius: "8px 0 0 8px",
+                                                        "& .picker-header": {
+                                                            backgroundColor: theme.palette.grey[50],
+                                                            "& .MuiTypography-root": {
+                                                                fontSize: 15,
+                                                                fontWeight: "bold"
+                                                            }
+                                                        },
+                                                    },
+                                                }
+                                            }
+                                        },
+                                        actionBar: {
+                                            actions: [],
+                                        }
+                                    }
+                                    }
+                                />
+                            </Grid>
+
+                            {!withoutDateTime && <Grid item md={6} xs={12}>
+                                <Typography variant="body1" color="text.primary" mt={1} mb={1}>
+                                    {t("stepper-1.duration.title")}
+                                </Typography>
+                                <FormControl fullWidth size="small">
+                                    <Select
+                                        labelId="select-duration"
+                                        id="select-duration"
+                                        sx={{height: 42}}
+                                        onChange={onChangeDuration}
+                                        value={duration as string}
+                                        displayEmpty
+                                        renderValue={selected => {
+                                            if (selected.length === 0) {
+                                                return <em>{t("stepper-1.duration.placeholder")}</em>;
+                                            }
+
+                                            return <>{getTimeFromMinutes(parseInt(selected))}</>;
+                                        }}>
+                                        {durations?.map((duration) => (
+                                            <MenuItem value={duration} key={duration}>
+                                                {getTimeFromMinutes(duration)}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>}
+
+                        </Grid>
+                    }
                 </Stack>
             </ConditionalWrapper>
 

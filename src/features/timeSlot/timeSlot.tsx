@@ -58,7 +58,7 @@ export default function TimeSlot({...props}) {
                             <Chip
                                 {...rest}
                                 className={value === item.start ? "active" : ""}
-                                onClick={() => onChange(item.start, index)}
+                                onClick={() => onChange(item.start)}
                                 disabled={item.disabled}
                                 label={item.start}
                                 sx={{

@@ -34,11 +34,19 @@ export const siteHeader = {
         }
     ],
     sidebarItems: [
-        {
+/*        {
             icon: "ic-dashboard",
             name: "dashboard",
             slug: "dashboard",
             href: '/dashboard',
+            badge: 0,
+            enabled: true
+        },*/
+        {
+            icon: "ic-dashboard",
+            name: "dashboard",
+            slug: "waiting-room",
+            href: '/dashboard/waiting-room',
             badge: 0,
             enabled: true
         },
@@ -47,14 +55,6 @@ export const siteHeader = {
             name: "agenda",
             slug: "agenda",
             href: '/dashboard/agenda',
-            badge: 0,
-            enabled: true
-        },
-        {
-            icon: "ic-salle-sidenav",
-            name: "waiting-room",
-            slug: "waiting-room",
-            href: '/dashboard/waiting-room',
             badge: 0,
             enabled: true
         },

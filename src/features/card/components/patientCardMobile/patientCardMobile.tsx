@@ -90,7 +90,7 @@ export default function MobileTable({...props}) {
                                 <Icon path="ic-agenda-jour"/>
                                 {item.date}
                             </Typography>
-                            <Typography
+                            {item.time !== "00:00" && <Typography
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
@@ -107,7 +107,7 @@ export default function MobileTable({...props}) {
                                 component="span">
                                 <Icon path="ic-time"/>
                                 {item.time}
-                            </Typography>
+                            </Typography>}
                         </Box>
                     </Box>
                     <Box sx={{ml: 'auto'}}>

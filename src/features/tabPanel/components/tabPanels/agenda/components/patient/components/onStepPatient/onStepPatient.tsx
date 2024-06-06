@@ -1,4 +1,4 @@
-import { FieldArray, Form, FormikProvider, useFormik } from "formik";
+import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
     Autocomplete,
     Avatar,
@@ -25,9 +25,9 @@ import {
     useTheme
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, { memo, useEffect, useRef, useState } from "react";
-import { useAppSelector } from "@lib/redux/hooks";
-import { addPatientSelector, appointmentSelector, CustomInput, InputStyled } from "@features/tabPanel";
+import React, {memo, useEffect, useRef, useState} from "react";
+import {useAppSelector} from "@lib/redux/hooks";
+import {addPatientSelector, appointmentSelector, CustomInput, InputStyled} from "@features/tabPanel";
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
@@ -37,7 +37,7 @@ import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {DefaultCountry, PatientContactRelation, SocialInsured} from "@lib/constants";
+import {DefaultCountry, Gender, PatientContactRelation, SocialInsured} from "@lib/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -210,7 +210,7 @@ function OnStepPatient({...props}) {
             }))
     });
     const address = selectedPatient && selectedPatient.address ? selectedPatient.address : [];
-
+    console.log("selectedPatient", selectedPatient)
     const formik = useFormik({
         initialValues: {
             avatar: '',
@@ -420,7 +420,7 @@ function OnStepPatient({...props}) {
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-
+    console.log("values", values)
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -435,15 +435,16 @@ function OnStepPatient({...props}) {
                 autoComplete="off"
                 noValidate
                 onSubmit={handleSubmit}>
-                <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 1, overflow: "visible" }}>
+                <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
                     {t("title")}
                 </Typography>
-                <Stack spacing={2} className="inner-section" sx={{ border: `1px dashed ${theme.palette.divider}`, borderRadius: 1 }} p={2} >
-                    <div ref={topRef} />
+                <Stack spacing={2} className="inner-section"
+                       sx={{border: `1px dashed ${theme.palette.divider}`, borderRadius: 1}} p={2}>
+                    <div ref={topRef}/>
                     <Box>
                         <Stack direction="row" alignItems="flex-end" spacing={2}>
                             <Avatar
-                                sx={{ width: 70, height: 70, cursor: 'pointer' }}
+                                sx={{width: 70, height: 70, cursor: 'pointer'}}
                                 component='label'
                                 htmlFor="contained-button-file"
                                 src={values.avatar}
@@ -453,7 +454,7 @@ function OnStepPatient({...props}) {
                                     id="contained-button-file"
                                     type="file"
                                 />
-                                <IconUrl path="ic-linear-camera-add" width={28} height={28} />
+                                <IconUrl path="ic-linear-camera-add" width={28} height={28}/>
                             </Avatar>
                             <Stack>
                                 <Typography fontWeight={500} variant="body2" color="text.secondary" gutterBottom>
@@ -493,23 +494,21 @@ function OnStepPatient({...props}) {
                                         renderValue={(selected) => {
                                             if (!selected) {
                                                 return (
-                                                    <Typography color={'text.secondary'}>{t("select_referred_by")}</Typography>
+                                                    <Typography
+                                                        color={'text.secondary'}>{t("select_referred_by")}</Typography>
                                                 )
 
-                                            };
+                                            }
                                             return (
                                                 <Typography color={'text.secondary'}>{selected}</Typography>
                                             )
 
 
-                                        }}
-
-                                    >
+                                        }}>
                                         {[1, 2, 3].map((time) => (
                                             <MenuItem
                                                 key={time}
-                                                value={time}
-                                            >
+                                                value={time}>
                                                 {time}
                                             </MenuItem>
                                         ))}
@@ -569,21 +568,17 @@ function OnStepPatient({...props}) {
                                                     <Typography color={'text.secondary'}>{t("gender")}</Typography>
                                                 )
 
-                                            };
+                                            }
                                             return (
-                                                <Typography color={'text.secondary'}>{selected}</Typography>
+                                                <Typography
+                                                    color={'text.secondary'}>{t(Gender.find(item => item.value === selected)?.title)}</Typography>
                                             )
-
-
-                                        }}
-
-                                    >
-                                        {["mr", "mrs"].map((gender) => (
+                                        }}>
+                                        {Gender.map((gender) => (
                                             <MenuItem
-                                                key={gender}
-                                                value={gender}
-                                            >
-                                                {t(gender)}
+                                                key={gender.value}
+                                                value={gender.value}>
+                                                {t(gender.title)}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -613,7 +608,7 @@ function OnStepPatient({...props}) {
                                             error={Boolean(touched.firstName && errors.firstName)}
                                         />
                                         {Boolean(touched.firstName && errors.firstName) &&
-                                            <FormHelperText error sx={{ maxWidth: "280px" }}>
+                                            <FormHelperText error sx={{maxWidth: "280px"}}>
                                                 {String(errors.firstName)}
                                             </FormHelperText>}
                                     </Grid>
@@ -636,7 +631,7 @@ function OnStepPatient({...props}) {
                                             error={Boolean(touched.lastName && errors.lastName)}
                                         />
                                         {Boolean(touched.lastName && errors.lastName) &&
-                                            <FormHelperText error sx={{ maxWidth: "280px" }}>
+                                            <FormHelperText error sx={{maxWidth: "280px"}}>
                                                 {String(errors.lastName)}
                                             </FormHelperText>}
                                     </Grid>
@@ -733,7 +728,7 @@ function OnStepPatient({...props}) {
                         {values.phones.map((phoneObject, index: number) => (
                             <Stack key={index}>
                                 <Box>
-                                    <Grid container spacing={{ xs: 1, md: 2 }}>
+                                    <Grid container spacing={{xs: 1, md: 2}}>
                                         <Grid item xs={6} md={4}>
                                             <Box>
                                                 <Typography
@@ -819,10 +814,10 @@ function OnStepPatient({...props}) {
                                                         ),
                                                     }}
                                                     {...(values.phones[index].phone?.length > 0 &&
-                                                    {
-                                                        helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
-                                                            getFieldProps(`phones[${index}].phone`).value : ""}`
-                                                    })}
+                                                        {
+                                                            helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                                getFieldProps(`phones[${index}].phone`).value : ""}`
+                                                        })}
                                                     error={Boolean(errors.phones && (errors.phones as any)[index])}
                                                     country={phoneObject.dial?.code.toUpperCase() as any}
                                                     value={getFieldProps(`phones[${index}].phone`) ?
@@ -848,11 +843,11 @@ function OnStepPatient({...props}) {
                                                     className={"toggle-button"}
                                                     sx={{
                                                         minWidth: 34,
-                                                        ...(values.phones[index].isWhatsapp && { border: "none" }),
+                                                        ...(values.phones[index].isWhatsapp && {border: "none"}),
                                                         background: values.phones[index].isWhatsapp ? theme.palette.primary.main : theme.palette.grey['A500']
                                                     }}>
                                                     <IconUrl width={19} height={19}
-                                                        path={`ic-whatsapp${values.phones[index].isWhatsapp ? '-white' : ''}`} />
+                                                             path={`ic-whatsapp${values.phones[index].isWhatsapp ? '-white' : ''}`}/>
                                                 </ToggleButtonStyled>
 
                                                 {index > 0 && <IconButton
@@ -867,13 +862,13 @@ function OnStepPatient({...props}) {
                                                             },
                                                         },
                                                     }}>
-                                                    <Icon path="ic-moin" />
+                                                    <Icon path="ic-moin"/>
                                                 </IconButton>}
                                             </Stack>
                                         </Grid>
                                     </Grid>
                                     {values.phones[index].relation !== "himself" &&
-                                        <Grid container spacing={{ xs: 1, md: 2 }} pt={1}>
+                                        <Grid container spacing={{xs: 1, md: 2}} pt={1}>
                                             <Grid item md={6} xs={12} lg={6}>
                                                 <Box>
                                                     <Typography
@@ -922,7 +917,7 @@ function OnStepPatient({...props}) {
 
                         ))}
                     </Stack>
-                    <Button size={"small"} sx={{ width: 160 }} onClick={handleAddPhone} startIcon={<AddIcon />}>
+                    <Button size={"small"} sx={{width: 160}} onClick={handleAddPhone} startIcon={<AddIcon/>}>
                         {t("add-contact")}
                     </Button>
 
@@ -935,7 +930,7 @@ function OnStepPatient({...props}) {
                             onClick={handleExpandClick}
                             aria-expanded={expanded}
                             aria-label="show more">
-                            <ExpandMoreIcon />
+                            <ExpandMoreIcon/>
                             <Typography>{expanded ? t("less-detail") : t("more-detail")}</Typography>
                         </ExpandMore>
                     </Box>
@@ -963,7 +958,7 @@ function OnStepPatient({...props}) {
                                     size="small"
                                     value={(countriesData.find(country => country.uuid === values.nationality) ?? null) as any}
                                     onChange={(e, v: any) => setFieldValue("nationality", v.uuid)}
-                                    sx={{ color: "text.secondary" }}
+                                    sx={{color: "text.secondary"}}
                                     options={countriesData}
                                     loading={countriesData.length === 0}
                                     getOptionLabel={(option: any) => option?.name ?? ""}
@@ -979,7 +974,7 @@ function OnStepPatient({...props}) {
                                                 alt={"flags"}
                                                 src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                             />}
-                                            <Typography sx={{ ml: 1 }}>{option.name}</Typography>
+                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
                                         </MenuItem>
                                     )}
                                     renderInput={params => {
@@ -1001,15 +996,15 @@ function OnStepPatient({...props}) {
                                         );
 
                                         return <TextField color={"info"}
-                                            {...params}
-                                            sx={{ paddingLeft: 0 }}
-                                            placeholder={t("nationality")}
-                                            variant="outlined" fullWidth />;
-                                    }} />
+                                                          {...params}
+                                                          sx={{paddingLeft: 0}}
+                                                          placeholder={t("nationality")}
+                                                          variant="outlined" fullWidth/>;
+                                    }}/>
                             </FormControl>
                         </Box>
-                        <fieldset style={{ marginBottom: 10, padding: 8 }}>
-                            <legend style={{ fontWeight: "bold" }}>{t("address-group")}</legend>
+                        <fieldset style={{marginBottom: 10, padding: 8}}>
+                            <legend style={{fontWeight: "bold"}}>{t("address-group")}</legend>
                             <Box>
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
                                     {t("address")}
@@ -1043,7 +1038,7 @@ function OnStepPatient({...props}) {
                                         onChange={(e, v: any) => {
                                             setFieldValue("country", v.uuid);
                                         }}
-                                        sx={{ color: "text.secondary" }}
+                                        sx={{color: "text.secondary"}}
                                         options={countriesData.filter(country => country.hasState)}
                                         loading={countriesData.length === 0}
                                         getOptionLabel={(option: any) => option?.name ?? ""}
@@ -1062,7 +1057,7 @@ function OnStepPatient({...props}) {
                                                     alt={"flags"}
                                                     src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                                 />}
-                                                <Typography sx={{ ml: 1 }}>{option.name}</Typography>
+                                                <Typography sx={{ml: 1}}>{option.name}</Typography>
                                             </MenuItem>
                                         )}
                                         renderInput={params => {
@@ -1084,11 +1079,11 @@ function OnStepPatient({...props}) {
                                             );
 
                                             return <TextField color={"info"}
-                                                {...params}
-                                                sx={{ paddingLeft: 0 }}
-                                                placeholder={t("country-placeholder")}
-                                                variant="outlined" fullWidth />;
-                                        }} />
+                                                              {...params}
+                                                              sx={{paddingLeft: 0}}
+                                                              placeholder={t("country-placeholder")}
+                                                              variant="outlined" fullWidth/>;
+                                        }}/>
                                 </FormControl>
                             </Box>
                             <Box>
@@ -1113,7 +1108,7 @@ function OnStepPatient({...props}) {
                                                     setFieldValue("region", state.uuid);
                                                     setFieldValue("zip_code", state.zipCode);
                                                 }}
-                                                sx={{ color: "text.secondary" }}
+                                                sx={{color: "text.secondary"}}
                                                 options={states}
                                                 loading={states?.length === 0}
                                                 getOptionLabel={(option) => option?.name ?? ""}
@@ -1123,16 +1118,16 @@ function OnStepPatient({...props}) {
                                                         {...props}
                                                         key={option.uuid}
                                                         value={option.uuid}>
-                                                        <Typography sx={{ ml: 1 }}>{option.name}</Typography>
+                                                        <Typography sx={{ml: 1}}>{option.name}</Typography>
                                                     </MenuItem>
                                                 )}
                                                 renderInput={params => <TextField color={"info"}
-                                                    {...params}
-                                                    placeholder={t("region-placeholder")}
-                                                    sx={{ paddingLeft: 0 }}
-                                                    variant="outlined" fullWidth />} />
+                                                                                  {...params}
+                                                                                  placeholder={t("region-placeholder")}
+                                                                                  sx={{paddingLeft: 0}}
+                                                                                  variant="outlined" fullWidth/>}/>
                                             {errors.region && (
-                                                <FormHelperText error sx={{ mx: 0 }}>
+                                                <FormHelperText error sx={{mx: 0}}>
                                                     {errors.region as string}
                                                 </FormHelperText>
                                             )}
@@ -1559,7 +1554,7 @@ function OnStepPatient({...props}) {
                                             return option.name;
                                         }}
                                         filterOptions={(options: any, params: any) => {
-                                            const { inputValue } = params;
+                                            const {inputValue} = params;
                                             const filtered = options.filter((option: any) =>
                                                 option.name
                                                     .toLowerCase()
@@ -1582,7 +1577,7 @@ function OnStepPatient({...props}) {
                                         }}
                                         renderOption={(props: any, option: any) => (
                                             <ListItem {...props}>
-                                                <ListItemText primary={`${option?.name}`} />
+                                                <ListItemText primary={`${option?.name}`}/>
                                             </ListItem>
                                         )}
                                         isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
@@ -1613,7 +1608,7 @@ function OnStepPatient({...props}) {
                                         }}
                                         renderOption={(props: any, option: any) => (
                                             <ListItem {...props}>
-                                                <ListItemText primary={`${option?.name}`} />
+                                                <ListItemText primary={`${option?.name}`}/>
                                             </ListItem>
                                         )}
                                         isOptionEqualToValue={(option: any, value: any) => option?.uuid === value?.uuid}
@@ -1647,7 +1642,7 @@ function OnStepPatient({...props}) {
                         {t("cancel")}
                     </Button>
                     <LoadingButton
-                        {...{ loading }}
+                        {...{loading}}
                         disabled={error}
                         variant="contained" type="submit" color="primary">
                         {t("next")}

@@ -113,6 +113,7 @@
   "steppers": {
     "sms-rem-text": "Programmer un rappel par SMS pour le patient",
     "lang-label": "Langue du SMS",
+    "load": "Chargement...",
     "day": "Jour",
     "time": "Heure",
     "instr": "Type Instruction pour le patient",

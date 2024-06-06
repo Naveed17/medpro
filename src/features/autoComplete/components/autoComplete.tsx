@@ -105,12 +105,10 @@ function AutoComplete({...props}) {
                         {t('stepper-2.add_button')}
                     </Button>}
             </Stack>
-            {
-                focus && <Box className="scroll-main">
+            {focus && <Box className="scroll-main">
                     <MenuList
                         id={"item-list"}
                         autoFocusItem={!focus}>
-                        {/*{loading && <LinearProgress color="warning"/>}*/}
                         {data?.map((item: any) => (
                             <PatientAppointmentCard
                                 {...{handleListItemClick, item}}
