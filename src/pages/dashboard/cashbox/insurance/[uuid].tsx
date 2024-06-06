@@ -106,6 +106,13 @@ function InscDetail() {
             label: "mtt_requested",
             sortable: true,
             align: "center",
+        }, {
+            id: "actions",
+            numeric: true,
+            disablePadding: false,
+            label: "actions",
+            sortable: true,
+            align: "center",
         },
         /*        {
                     id: "mtt_granted",
@@ -736,6 +743,18 @@ function InscDetail() {
                             handleEvent={(uuid: string, from: string, name?: string,type?:string) => {
                                 if (from === "delete")
                                     setOpenDelete(uuid)
+                                    if (from ==="edit"){
+                                        console.log(uuid)
+
+                                        trigger({
+                                            method: "GET",
+                                            url: `${urlMedicalEntitySuffix}/insurance-dockets-appointments/${uuid}/${router.locale}`,
+                                        }, {
+                                            onSuccess: (res) => {
+                                                console.log(res.data)
+                                            }
+                                        });
+                                    }
                                 else
                                     exportDoc(uuid, name,type)
                             }}
