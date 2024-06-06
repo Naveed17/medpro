@@ -160,6 +160,7 @@ function ActRowInsurance({...props}) {
             <TableCell align={"center"}>
                 {selected ?  <Checkbox checked={row.pre_approval} onChange={(ev) => {
                     row.pre_approval = ev.target.checked
+                    handleChange(row)
                 }}/>: <Typography>{row.pre_approval ? "O":"N"}</Typography>}
             </TableCell>
             <TableCell align={"center"}>

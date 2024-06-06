@@ -51,14 +51,12 @@ function CIPMedicalProceduresRow({...props}) {
 
     const {row, data, editMotif, handleEvent, t} = props;
     const {devise} = data;
-
     const {insurances: allInsurances} = useInsurances();
     const dispatch = useAppDispatch();
     const theme = useTheme() as Theme;
 
     const [selected, setSelected] = useState<string>("");
     const [collapse, setCollapse] = useState(false)
-
     const lostFocus = (uuid: string) => {
         document.getElementById(uuid)?.blur()
     }
@@ -68,18 +66,18 @@ function CIPMedicalProceduresRow({...props}) {
             row.insurance_act = null;
             row.patient_part = 0;
             row.refund = 0;
-            row.code_pa = "";
+            row.pre_approval = false;
         } else {
             row.insurance_act = insurance.uuid;
             row.patient_part = row.fees - insurance.refund;
             row.refund = insurance.refund;
             row.code_pa = insurance.code_pa;
+            row.pre_approval = insurance.pre_approval
         }
         editMotif(row, "change");
         handleEvent(row.uuid, false)
         setCollapse(false)
     }
-    console.log(row)
     const debouncedOnChange = debounce(lostFocus, 1500);
 
     return (
@@ -122,7 +120,8 @@ function CIPMedicalProceduresRow({...props}) {
                                         <IconUrl path={"ic-assurance"} width={20} height={20}/>
                                     }
                                 </IconButton>
-                                {row.pre_approval && <InputBaseStyled
+                                {row.insurance_act && row.insurances.find((ins:{uuid:string}) => ins.uuid === row.insurance_act).pre_approval
+                                    && <InputBaseStyled
                                     size="small"
                                     sx={{
                                         fontSize: 13,
@@ -137,7 +136,10 @@ function CIPMedicalProceduresRow({...props}) {
                                     placeholder={"code PA"}
                                     autoFocus={selected === row.uuid}
                                     onChange={(e: any) => {
-                                        row.code_pa =e.target.value;
+                                        row.code_pa = e.currentTarget.value;
+                                        editMotif(row, "change", e.currentTarget.value);
+                                        dispatch(SetLoading(true))
+                                        debouncedOnChange(row.uuid)
                                     }}
                                     onFocus={(event) => {
                                         event.target.select();
@@ -333,7 +335,6 @@ function CIPMedicalProceduresRow({...props}) {
                         </>
                     )}
                 </TableCell>
-
                 <TableCell align={"center"}>
                     <Typography className={"txt"}>{row.qte ? row.fees * row.qte : row.fees} {devise}</Typography>
                 </TableCell>
