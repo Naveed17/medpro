@@ -1,14 +1,12 @@
-import React, { ReactElement, useContext, useEffect, useState } from "react";
-import { GetServerSideProps } from "next";
-import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
+import {GetServerSideProps} from "next";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Avatar,
     Box,
     Button,
     Card,
     CardMedia,
-    Checkbox,
     Dialog as DialogMui,
     DialogActions,
     DialogContent,
@@ -23,7 +21,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     AppointHistoryContainerStyled,
     ConsultationDetailCard,
@@ -33,14 +31,14 @@ import {
     resetTimer,
     timerSelector
 } from "@features/card";
-import { agendaSelector, openDrawer, setStepperIndex } from "@features/calendar";
-import { useTranslation } from "next-i18next";
-import { getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing } from "@lib/hooks";
-import { useRouter } from "next/router";
-import { alpha, Theme } from "@mui/material/styles";
-import { AppToolbar } from "@features/toolbar/components/appToolbar";
-import { MyCardStyled, SubHeader } from "@features/subHeader";
-import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
+import {useTranslation} from "next-i18next";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {useRouter} from "next/router";
+import {alpha, Theme} from "@mui/material/styles";
+import {AppToolbar} from "@features/toolbar/components/appToolbar";
+import {MyCardStyled, SubHeader} from "@features/subHeader";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {
     appointmentSelector,
     DocumentPreview,
@@ -54,9 +52,9 @@ import {
     TimeSchedule
 } from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
-import { LoadingButton } from "@mui/lab";
-import { SubFooter } from "@features/subFooter";
-import { consultationSelector, SetPatient, SetRecord, SetSelectedDialog } from "@features/toolbar";
+import {LoadingButton} from "@mui/lab";
+import {SubFooter} from "@features/subFooter";
+import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog} from "@features/toolbar";
 import {
     ChatDiscussionDialog,
     Dialog,
@@ -67,40 +65,40 @@ import {
 } from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
-import { useSession } from "next-auth/react";
-import { DrawerBottom } from "@features/drawerBottom";
+import {useSession} from "next-auth/react";
+import {DrawerBottom} from "@features/drawerBottom";
 import {
     consultationContentSelector,
     ConsultationFilter,
     setContentPatient,
     setContentUploadDialog
 } from "@features/leftActionBar";
-import { CustomStepper } from "@features/customStepper";
+import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
-import { onOpenPatientDrawer, tableActionSelector } from "@features/table";
-import { DefaultCountry } from "@lib/constants";
-import { getServerSession, Session } from "next-auth";
-import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
-import { useSendNotification, useWidgetModels } from "@lib/hooks/rest";
-import { useLeavePageConfirm } from "@lib/hooks/useLeavePageConfirm";
+import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
+import {DefaultCountry} from "@lib/constants";
+import {getServerSession, Session} from "next-auth";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useSendNotification, useWidgetModels} from "@lib/hooks/rest";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import Draggable from "react-draggable";
 import DialogTitle from "@mui/material/DialogTitle";
-import { CustomIconButton, SwitchPrescriptionUI } from "@features/buttons";
-import { getPrescriptionUI } from "@lib/hooks/setPrescriptionUI";
-import { motion } from "framer-motion";
+import {CustomIconButton, SwitchPrescriptionUI} from "@features/buttons";
+import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
+import {motion} from "framer-motion";
 import MicIcon from "@mui/icons-material/Mic";
 import useStopwatch from "@lib/hooks/useStopwatch";
-import { useAudioRecorder } from "react-audio-voice-recorder";
-import AudioPlayer, { RHAP_UI } from "react-h5-audio-player";
-import { ConsultationCard } from "@features/consultationCard";
-import { useSnackbar } from "notistack";
-import { AbilityContext } from "@features/casl/can";
-import { useChannel } from "ably/react";
-import { getServerTranslations } from "@lib/i18n/getServerTranslations";
-import { authOptions } from "../../api/auth/[...nextauth]";
+import {useAudioRecorder} from "react-audio-voice-recorder";
+import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
+import {ConsultationCard} from "@features/consultationCard";
+import {useSnackbar} from "notistack";
+import {AbilityContext} from "@features/casl/can";
+import {useChannel} from "ably/react";
+import {getServerTranslations} from "@lib/i18n/getServerTranslations";
+import {authOptions} from "../../api/auth/[...nextauth]";
 import axios from "axios";
 
 const grid = 5;
@@ -125,20 +123,20 @@ const getListStyle = (isDraggingOver: boolean) => ({
 function ConsultationInProgress() {
     const theme = useTheme();
     const router = useRouter();
-    const { data: session } = useSession();
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { models } = useWidgetModels({ filter: "" })
-    const { trigger: mutateOnGoing } = useMutateOnGoing();
-    const { enqueueSnackbar } = useSnackbar();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {models} = useWidgetModels({filter: ""})
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {enqueueSnackbar} = useSnackbar();
     const {
         minutes,
         seconds,
         start: startWatch,
         pause: pauseWatch,
         reset: resetWatch
-    } = useStopwatch({ autoStart: false });
+    } = useStopwatch({autoStart: false});
     const {
         startRecording,
         stopRecording,
@@ -151,16 +149,16 @@ function ConsultationInProgress() {
     const nodeRef = React.useRef(null);
     const nodeRefMedia = React.useRef(null);
 
-    const { t, i18n } = useTranslation("consultation");
+    const {t, i18n} = useTranslation("consultation");
     //***** SELECTORS ****//
-    const { medicalEntityHasUser, medicalProfessionalData } = useAppSelector(dashLayoutSelector);
-    const { config: agenda, openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
-    const { isActive, event } = useAppSelector(timerSelector);
-    const { selectedDialog, record } = useAppSelector(consultationSelector);
-    const { direction } = useAppSelector(configSelector);
-    const { tableState } = useAppSelector(tableActionSelector);
-    const { uploadDialog, patient: patientUploadDocs } = useAppSelector(consultationContentSelector);
-    const { drawer } = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
+    const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const {isActive, event} = useAppSelector(timerSelector);
+    const {selectedDialog, record} = useAppSelector(consultationSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {tableState} = useAppSelector(tableActionSelector);
+    const {uploadDialog, patient: patientUploadDocs} = useAppSelector(consultationContentSelector);
+    const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {
         type,
         motif,
@@ -168,28 +166,28 @@ function ConsultationInProgress() {
         recurringDates
     } = useAppSelector(appointmentSelector);
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData.medical_professional.uuid;
     const app_uuid = (router.query["uuid-consultation"] ?? [""])[0];
     const general_information = (user as UserDataResponse).general_information;
     const cardPositions = localStorage.getItem('cardPositions') !== null ? JSON.parse((localStorage.getItem('cardPositions') as string)) : null
     const sDoc = localStorage.getItem('showDocument') ? localStorage.getItem('showDocument') == 'true' : false
-    const { trigger: triggerAppointmentEdit } = useRequestQueryMutation("appointment/edit");
-    const { trigger: updateAppointmentStatus } = useRequestQueryMutation("/agenda/appointment/status/update");
-    const { trigger: triggerDocumentChat } = useRequestQueryMutation("/chat/document");
-    const { trigger: triggerDrugsUpdate } = useRequestQueryMutation("/drugs/update");
-    const { trigger: triggerNotificationPush } = useSendNotification();
-    const { trigger: triggerDocumentDelete } = useRequestQueryMutation("/document/delete");
-    const { trigger: triggerDocumentSpeechToText } = useRequestQueryMutation("/document/speech-to-text");
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
+    const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
+    const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
+    const {trigger: triggerNotificationPush} = useSendNotification();
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/document/delete");
+    const {trigger: triggerDocumentSpeechToText} = useRequestQueryMutation("/document/speech-to-text");
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const { channel } = useChannel(medical_entity?.uuid);
+    const {channel} = useChannel(medical_entity?.uuid);
 
-    const { inProgress } = router.query;
-    const { jti } = session?.user as any;
+    const {inProgress} = router.query;
+    const {jti} = session?.user as any;
     const EventStepper = [
         {
             title: "steppers.tabs.tab-1",
@@ -211,10 +209,10 @@ function ConsultationInProgress() {
 
     const [selectedTab, setSelectedTab] = useState<string>("consultation_form");
     const [changes, setChanges] = useState([
-        { name: "patientInfo", txt: "patientInfo", icon: "docs/ic-note", checked: false },
-        { name: "fiche", txt: "fiche", icon: "ic-text", checked: false },
-        { index: 0, name: "prescription", txt: "prescription", icon: "docs/ic-prescription", checked: false },
-        { index: 4, name: "insuranceGenerated", txt: "insurance", icon: "docs/ic-analyse", checked: false },
+        {name: "patientInfo", txt: "patientInfo", icon: "docs/ic-note", checked: false},
+        {name: "fiche", txt: "fiche", icon: "ic-text", checked: false},
+        {index: 0, name: "prescription", txt: "prescription", icon: "docs/ic-prescription", checked: false},
+        {index: 4, name: "insuranceGenerated", txt: "insurance", icon: "docs/ic-analyse", checked: false},
         {
             index: 3,
             name: "requested-analysis",
@@ -229,7 +227,7 @@ function ConsultationInProgress() {
             icon: "docs/ic-soura",
             checked: false,
         },
-        { index: 1, name: "medical-certificate", txt: "rapport", icon: "docs/ic-note", checked: false },
+        {index: 1, name: "medical-certificate", txt: "rapport", icon: "docs/ic-note", checked: false},
     ]);
     const [isHistory, setIsHistory] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
@@ -285,8 +283,8 @@ function ConsultationInProgress() {
             }
         ]]);
     const [mobileCards, setMobileCards] = useState([[
-        { id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen" },
-        { id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen" }
+        {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
+        {id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}
     ]]);
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
     const [deleteAudio, setDeleteAudio] = useState(false);
@@ -312,7 +310,7 @@ function ConsultationInProgress() {
     });
 
     // ********** Requests ********** \\
-    const { data: httpSheetResponse, mutate: mutateSheetData } = useRequestQuery(agenda && medicalEntityHasUser ? {
+    const {data: httpSheetResponse, mutate: mutateSheetData} = useRequestQuery(agenda && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -345,12 +343,12 @@ function ConsultationInProgress() {
         }] : [])
     ]
 
-    const { data: httpPatientPreview, mutate: mutatePatient } = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
+    const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${sheet?.patient}/preview/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const { data: httpPreviousResponse } = useRequestQuery(sheet?.hasHistory && agenda ? {
+    const {data: httpPreviousResponse} = useRequestQuery(sheet?.hasHistory && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/previous/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -362,25 +360,28 @@ function ConsultationInProgress() {
     } = useRequestQuery(medical_professional_uuid && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
-    } : null, { refetchOnWindowFocus: false });
+    } : null, {refetchOnWindowFocus: false});
 
-    const { data: httpPatientInsuranceFees, mutate: mutateInsurance } = useRequestQuery(app_uuid && medical_professional_uuid ? {
+    const {
+        data: httpPatientInsuranceFees,
+        mutate: mutateInsurance
+    } = useRequestQuery(app_uuid && medical_professional_uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${app_uuid}/professionals/${medical_professional_uuid}/acts/${router.locale}`
     } : null);
 
     const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : [];
 
-    const { trigger: triggerUploadAudio } = useRequestQueryMutation("/document/upload");
-    const { trigger: triggerDrugsGet } = useRequestQueryMutation("/drugs/get");
-    const { trigger: createDiscussion } = useRequestQueryMutation("/chat/new");
+    const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
+    const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
+    const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
     // ********** Requests ********** \\
     const changeModel = (prop: ModalModel, ind: number, index: number) => {
         selectedModel.default_modal = prop;
         setSelectedModel(selectedModel);
 
         const form = new FormData();
-        form.append("modal_data", JSON.stringify({ ...JSON.parse(localStorage.getItem(`Modeldata${app_uuid}`) as string) }));
+        form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${app_uuid}`) as string)}));
         form.append("modal_uuid", selectedModel?.default_modal.uuid);
         triggerAppointmentEdit({
             method: "PUT",
@@ -400,7 +401,7 @@ function ConsultationInProgress() {
         _cards[ind][index].expanded = true;
 
         const _locPosition = JSON.parse(localStorage.getItem("cardPositions") as string)
-        localStorage.setItem(`cardPositions`, JSON.stringify({ ..._locPosition, widget: true }))
+        localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition, widget: true}))
 
         _cards[ind][index].config = false;
         setCards([..._cards])
@@ -421,7 +422,8 @@ function ConsultationInProgress() {
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
                 tel: patient?.contact && patient?.contact?.length > 0 ? patient?.contact[0] : "",
-                age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                insurance: patient?.insurances.find(pi => pi?.insurance.hasApci)?.insuranceNumber,
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -459,11 +461,11 @@ function ConsultationInProgress() {
                 description: card.description,
                 info,
                 detectedType: card.type,
-                age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 uuidDoc: uuidDoc,
                 documentHeader: card.header ? card.header : null,
-                patient: `${type} ${patient?.firstName
-                    } ${patient?.lastName}`,
+                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+                insurance: patient?.insurances.find(pi => pi?.insurance.hasApci)?.insuranceNumber,
                 cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient,
@@ -499,7 +501,7 @@ function ConsultationInProgress() {
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/stt/${selectedAudio?.uuid}/${router.locale}`
             }, {
                 onSuccess: () => {
-                    enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), { variant: "info" });
+                    enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});
                 },
                 onSettled: () => setLoadingRequest(false)
             });
@@ -536,7 +538,7 @@ function ConsultationInProgress() {
         e.stopPropagation();
         if (event) {
             const slugConsultation = `/dashboard/consultation/${event.publicId}`;
-            router.replace(slugConsultation, slugConsultation, { locale: router.locale });
+            router.replace(slugConsultation, slugConsultation, {locale: router.locale});
         }
     }
 
@@ -553,9 +555,9 @@ function ConsultationInProgress() {
         switch (action) {
             case "onDetailPatient":
                 dispatch(
-                    onOpenPatientDrawer({ patientId: event.extendedProps.patient.uuid })
+                    onOpenPatientDrawer({patientId: event.extendedProps.patient.uuid})
                 );
-                dispatch(openDrawer({ type: "add", open: false }));
+                dispatch(openDrawer({type: "add", open: false}));
                 setPatientDetailDrawer(true);
                 break;
         }
@@ -572,7 +574,7 @@ function ConsultationInProgress() {
         }, {
             onSuccess: () => {
                 dispatch(resetTimer());
-                dispatch(openDrawer({ type: "view", open: false }));
+                dispatch(openDrawer({type: "view", open: false}));
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
             }
@@ -618,21 +620,21 @@ function ConsultationInProgress() {
 
     const DialogAction = () => {
         return (
-            <DialogActions style={{ justifyContent: "space-between", width: "100%" }}>
+            <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
                 <LoadingButton
                     loading={loading}
                     loadingPosition="start"
                     variant="text"
                     color={"black"}
                     onClick={leave}
-                    startIcon={<IconUrl path="ic-temps" />}>
-                    <Typography sx={{ display: { xs: "none", md: "flex" } }}>
+                    startIcon={<IconUrl path="ic-temps"/>}>
+                    <Typography sx={{display: {xs: "none", md: "flex"}}}>
                         {t("later_on")}
                     </Typography>
                 </LoadingButton>
                 <Stack direction={"row"} spacing={2} sx={{
                     ".MuiButton-startIcon": {
-                        mr: { xs: 0, md: 1 }
+                        mr: {xs: 0, md: 1}
                     }
                 }}>
                     {/*<Button
@@ -647,9 +649,9 @@ function ConsultationInProgress() {
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
                         startIcon={addFinishAppointment ?
-                            <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary} /> :
-                            <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"} />}>
-                        <Typography sx={{ display: { xs: "none", md: "flex" } }} color={"text.primary"}>
+                            <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary}/> :
+                            <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"}/>}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
                             {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
                         </Typography>
                     </Button>
@@ -662,8 +664,8 @@ function ConsultationInProgress() {
                         onClick={() => {
                             saveConsultation();
                         }}
-                        startIcon={<IconUrl path="ic-check" />}>
-                        <Typography sx={{ display: { xs: "none", md: "flex" } }}>
+                        startIcon={<IconUrl path="ic-check"/>}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t("end_consultation_btn")}
                         </Typography>
                     </LoadingButton>
@@ -767,7 +769,7 @@ function ConsultationInProgress() {
             onSuccess: () => {
                 dispatch(resetTimer());
                 dispatch(resetAppointment());
-                dispatch(openDrawer({ type: "view", open: false }));
+                dispatch(openDrawer({type: "view", open: false}));
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
@@ -803,7 +805,7 @@ function ConsultationInProgress() {
                     doctor: '',
                     patient: state.patient,
                     birthdate: state.birthdate,
-                    age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+                    age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                     cin: '',
                     createdAt: moment().format('DD/MM/YYYY'),
                     description: "",
@@ -827,7 +829,7 @@ function ConsultationInProgress() {
             info,
             createdAt: moment().format("DD/MM/YYYY"),
             patient: ` ${patient?.firstName} ${patient?.lastName}`,
-            age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
         });
         setOpenDialog(true);
     }
@@ -885,7 +887,7 @@ function ConsultationInProgress() {
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
-                                age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 print: true
                             });
                             setOpenDialog(true);
@@ -933,7 +935,7 @@ function ConsultationInProgress() {
                                 description: "",
                                 info: res[0]["requested_analyses_has_analyses"],
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
-                                age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 print: true
                             });
                             setOpenDialog(true);
@@ -975,7 +977,7 @@ function ConsultationInProgress() {
                                 type: "requested-medical-imaging",
                                 info: res[0]["requested_medical_imaging_has_medical_imaging"],
                                 createdAt: moment().format('DD/MM/YYYY'),
-                                age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 description: "",
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
                                 print: true,
@@ -1053,7 +1055,7 @@ function ConsultationInProgress() {
                                 doctor: state.name,
                                 patient: state.patient,
                                 birthdate: patient?.birthdate,
-                                age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 cin: patient?.idCard,
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
@@ -1213,7 +1215,7 @@ function ConsultationInProgress() {
         return result;
     };
     const onDragEnd = (result: any) => {
-        const { source, destination } = result;
+        const {source, destination} = result;
 
         // dropped outside the list
         if (!destination) {
@@ -1239,7 +1241,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (uploadDialog) {
             setInfo("add_a_document");
-            setState({ name: "", description: "", type: "", files: [] });
+            setState({name: "", description: "", type: "", files: []});
             setOpenDialogSave(true);
             setOpenDialog(true);
         }
@@ -1285,7 +1287,7 @@ function ConsultationInProgress() {
             localStorage.setItem(`Modeldata${app_uuid}`, JSON.stringify(sheetModal.data))
 
             if (!cardPositions)
-                localStorage.setItem(`cardPositions`, JSON.stringify({ widget: false, exam: true, history: false }))
+                localStorage.setItem(`cardPositions`, JSON.stringify({widget: false, exam: true, history: false}))
 
             if (sheet?.hasHistory === false) {
                 setCards([[
@@ -1312,7 +1314,7 @@ function ConsultationInProgress() {
             const insuranceFees = httpPatientInsuranceFees.data;
             let _acts: AppointmentActModel[] = []
             insuranceFees.forEach((act: any) => {
-                _acts.push({ qte: 1, selected: false, ...act })
+                _acts.push({qte: 1, selected: false, ...act})
             })
             setActs(_acts);
             setMPActs(_acts); //.sort((a, b) => a.act.name.localeCompare(b.act.name))
@@ -1328,7 +1330,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (httpPatientPreview) {
             const data = (httpPatientPreview as HttpResponse).data;
-            dispatch(SetPatient({ uuid: sheet?.patient, birthdate: "", gender: "M", ...data }))
+            dispatch(SetPatient({uuid: sheet?.patient, birthdate: "", gender: "M", ...data}))
             setPatient(data)
             mutateInsurance && mutateInsurance()
         }
@@ -1711,18 +1713,18 @@ function ConsultationInProgress() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer({ type: "add", open: false }));
+                        dispatch(openDrawer({type: "add", open: false}));
                     }}>
                     <Box height={"100%"}>
                         <CustomStepper
-                            {...{ currentStepper, t }}
+                            {...{currentStepper, t}}
                             modal={"consultation"}
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
                             OnCustomAction={handleTableActions}
                             stepperData={EventStepper}
                             scroll
-                            minWidth={726} />
+                            minWidth={726}/>
                     </Box>
                 </Drawer>
 
@@ -1732,16 +1734,16 @@ function ConsultationInProgress() {
                     dir={direction}
                     sx={{
                         "& .MuiPaper-root": {
-                            width: { xs: "100%", sm: "40%" }
+                            width: {xs: "100%", sm: "40%"}
                         }
                     }}
                     onClose={() => {
                         setOpenChat(false)
                     }}>
                     <ChatDiscussionDialog data={{
-                        session, app_uuid, setOpenChat, patient: { ...patient, uuid: sheet?.patient },
+                        session, app_uuid, setOpenChat, patient: {...patient, uuid: sheet?.patient},
                         setInfo, setOpenDialog, router, setState, mutateDoc
-                    }} />
+                    }}/>
                 </Drawer>
 
             </HistoryAppointementContainer>}
@@ -1749,9 +1751,9 @@ function ConsultationInProgress() {
             <SubFooter>
                 <Stack
                     width={1}
-                    spacing={{ xs: 1, md: 0 }}
-                    padding={{ xs: 1, md: 0 }}
-                    direction={{ xs: "column", md: "row" }}
+                    spacing={{xs: 1, md: 0}}
+                    padding={{xs: 1, md: 0}}
+                    direction={{xs: "column", md: "row"}}
                     alignItems="flex-end"
                     justifyContent={"flex-end"}>
                     {/*{selectedTab === "medical_procedures" && (
@@ -1786,9 +1788,9 @@ function ConsultationInProgress() {
                         }}
                         color={"error"}
                         className="btn-action"
-                        startIcon={<IconUrl path="ic-check" />}
+                        startIcon={<IconUrl path="ic-check"/>}
                         variant="contained"
-                        sx={{ ".react-svg": { mr: 1 } }}>
+                        sx={{".react-svg": {mr: 1}}}>
                         {t("end_of_consultation")}
                     </LoadingButton>}
                 </Stack>
@@ -1801,11 +1803,11 @@ function ConsultationInProgress() {
                 fullWidth={true}
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description">
-                <DialogTitle sx={{ backgroundColor: theme.palette.primary.main }} id="scroll-dialog-title">
+                <DialogTitle sx={{backgroundColor: theme.palette.primary.main}} id="scroll-dialog-title">
                     {t('consultationIP.patient_observation_history')}
                 </DialogTitle>
                 <DialogContent dividers={true}>
-                    <ObservationHistoryDialog data={{ patient_uuid: sheet?.patient, t }} />
+                    <ObservationHistoryDialog data={{patient_uuid: sheet?.patient, t}}/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => {
@@ -1850,7 +1852,7 @@ function ConsultationInProgress() {
                 }}
                 size={"lg"}
                 color={theme.palette.error.main}
-                actionDialog={<DialogAction />}
+                actionDialog={<DialogAction/>}
             />
 
 
@@ -1859,12 +1861,12 @@ function ConsultationInProgress() {
                     action={info}
                     open={openDialog}
                     {...(!["medical_prescription", "medical_prescription_cycle"].includes(info) && {
-                        PaperProps: {
-                            sx: {
-                                overflow: 'hidden'
+                            PaperProps: {
+                                sx: {
+                                    overflow: 'hidden'
+                                }
                             }
                         }
-                    }
                     )}
                     data={{
                         appuuid: app_uuid,
@@ -1880,11 +1882,11 @@ function ConsultationInProgress() {
                     }}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={direction}
-                    sx={{ height: info === "insurance_document_print" ? 600 : 480 }}
+                    sx={{height: info === "insurance_document_print" ? 600 : 480}}
                     {...(info === "document_detail" && {
-                        sx: { height: 480, p: 0 },
+                        sx: {height: 480, p: 0},
                     })}
-                    {...(info === "write_certif" && { enableFullScreen: true })}
+                    {...(info === "write_certif" && {enableFullScreen: true})}
                     title={t(`consultationIP.${info === "document_detail" ? "doc_detail_title" : info}`)}
                     {...(info === "document_detail" && {
                         onClose: handleCloseDialog,
@@ -1892,17 +1894,17 @@ function ConsultationInProgress() {
                     dialogClose={handleCloseDialog}
                     {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
                         headerDialog: (<DialogTitle
-                            sx={{
-                                backgroundColor: (theme: Theme) => theme.palette.primary.main,
-                                position: "relative",
-                            }}
-                            id="scroll-dialog-title">
-                            <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent={"space-between"}
-                                alignItems={{ xs: 'flex-start', sm: 'center' }}>
-                                {t(`consultationIP.${info}`)}
-                                <SwitchPrescriptionUI {...{ t, keyPrefix: "consultationIP", handleSwitchUI }} />
-                            </Stack>
-                        </DialogTitle>
+                                sx={{
+                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                                    position: "relative",
+                                }}
+                                id="scroll-dialog-title">
+                                <Stack direction={{xs: 'column', sm: 'row'}} justifyContent={"space-between"}
+                                       alignItems={{xs: 'flex-start', sm: 'center'}}>
+                                    {t(`consultationIP.${info}`)}
+                                    <SwitchPrescriptionUI {...{t, keyPrefix: "consultationIP", handleSwitchUI}} />
+                                </Stack>
+                            </DialogTitle>
                         ),
                         sx: {
                             p: 1.5,
@@ -1913,45 +1915,45 @@ function ConsultationInProgress() {
                     })}
                     {...(info === 'write_certif' && {
                         actionDialog: (
-                            <Stack sx={{ width: "100%" }} direction={"row"} justifyContent={"flex-end"}>
-                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon />}>
+                            <Stack sx={{width: "100%"}} direction={"row"} justifyContent={"flex-end"}>
+                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                     {t("consultationIP.cancel")}
                                 </Button>
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveCertif}
                                     disabled={info.includes("medical_prescription") && state?.length === 0}
-                                    startIcon={<SaveRoundedIcon />}>
+                                    startIcon={<SaveRoundedIcon/>}>
                                     {t("consultationIP.save")}
                                 </Button>
                             </Stack>
                         )
                     })}
                     actionDialog={
-                        info ? (
-                            <Stack sx={{ width: "100%" }}
-                                direction={"row"}
-                                {...(info === "medical_prescription_cycle" && {
-                                    direction: { xs: 'column', sm: 'row' },
+                        info && state.type !== "fees" ? (
+                            <Stack sx={{width: "100%"}}
+                                   direction={"row"}
+                                   {...(info === "medical_prescription_cycle" && {
+                                       direction: {xs: 'column', sm: 'row'},
 
-                                })}
-                                justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
+                                   })}
+                                   justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&
-                                    <Button sx={{ alignSelf: 'flex-start' }} startIcon={<AddIcon />} onClick={() => {
+                                    <Button sx={{alignSelf: 'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
                                         dispatch(handleDrawerAction("addDrug"));
                                     }}>
                                         {t("consultationIP.add_drug")}
                                     </Button>}
-                                <Stack direction={"row"} justifyContent={{ xs: 'space-between', sm: 'flex-start' }}
-                                    spacing={1.2}
-                                    {...(info === "medical_prescription_cycle" && {
-                                        mt: { xs: 1, md: 0 }
-                                    })}>
+                                <Stack direction={"row"} justifyContent={{xs: 'space-between', sm: 'flex-start'}}
+                                       spacing={1.2}
+                                       {...(info === "medical_prescription_cycle" && {
+                                           mt: {xs: 1, md: 0}
+                                       })}>
                                     <Button
                                         color={"black"}
                                         variant={"text"}
                                         onClick={handleCloseDialog}
-                                        startIcon={<CloseIcon />}>
+                                        startIcon={<CloseIcon/>}>
                                         {t("consultationIP.cancel")}
                                     </Button>
                                     {(info !== "insurance_document_print" && openDialogSave) && <>
@@ -1962,16 +1964,16 @@ function ConsultationInProgress() {
                                             disabled={state?.length === 0}
                                             startIcon={
                                                 <IconUrl
-                                                    {...(state?.length === 0 && { color: "white" })}
-                                                    path={"iconfinder_save"} />}>
+                                                    {...(state?.length === 0 && {color: "white"})}
+                                                    path={"iconfinder_save"}/>}>
                                             {t("consultationIP.save")}
                                         </Button>
                                         {info !== "add_a_document" && <Button
                                             variant="contained"
-                                            sx={{ width: { xs: 1, sm: 'auto' } }}
+                                            sx={{width: {xs: 1, sm: 'auto'}}}
                                             onClick={() => handleSaveDialog()}
                                             disabled={state?.length === 0}
-                                            startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"} />}>
+                                            startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
                                             {t("consultationIP.save_print")}
                                         </Button>}
                                     </>}
@@ -1987,13 +1989,13 @@ function ConsultationInProgress() {
                 open={patientDetailDrawer}
                 dir={direction}
                 onClose={() => {
-                    dispatch(onOpenPatientDrawer({ patientId: "" }));
+                    dispatch(onOpenPatientDrawer({patientId: ""}));
                     setPatientDetailDrawer(false);
                 }}>
                 <PatientDetail
-                    {...{ isAddAppointment, mutate: mutatePatient }}
+                    {...{isAddAppointment, mutate: mutatePatient}}
                     onCloseDialog={() => {
-                        dispatch(onOpenPatientDrawer({ patientId: "" }));
+                        dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
                     }}
                     onAddAppointment={() => console.log("onAddAppointment")}
@@ -2001,20 +2003,18 @@ function ConsultationInProgress() {
                 />
             </Drawer>
 
-            {
-                isViewerOpen.length > 0 && (
-                    <ImageViewer
-                        src={[isViewerOpen, isViewerOpen]}
-                        currentIndex={0}
-                        disableScroll={false}
-                        backgroundStyle={{
-                            backgroundColor: "rgba(6, 150, 214,0.5)",
-                        }}
-                        closeOnClickOutside={true}
-                        onClose={closeImageViewer}
-                    />
-                )
-            }
+            {isViewerOpen.length > 0 && (
+                <ImageViewer
+                    src={[isViewerOpen, isViewerOpen]}
+                    currentIndex={0}
+                    disableScroll={false}
+                    backgroundStyle={{
+                        backgroundColor: "rgba(6, 150, 214,0.5)",
+                    }}
+                    closeOnClickOutside={true}
+                    onClose={closeImageViewer}
+                />
+            )}
 
             {
                 (record || selectedAudio !== null) &&
@@ -2207,12 +2207,12 @@ function ConsultationInProgress() {
                                                 <IconButton
                                                     className={"btn-action"}
                                                     key={"close-icon"}
-                                                    sx={{ ml: 1 }}
+                                                    sx={{ml: 1}}
                                                     onClick={(event) => {
                                                         event.stopPropagation();
                                                         setSelectedAudio(null);
                                                     }}>
-                                                    <CloseIcon htmlColor={"white"} />
+                                                    <CloseIcon htmlColor={"white"}/>
                                                 </IconButton>
                                             ]
                                         }
@@ -2226,7 +2226,7 @@ function ConsultationInProgress() {
                                                         event.stopPropagation();
                                                         handleSpeechToText();
                                                     }}>
-                                                    <IconUrl width={20} height={20} path={'ic-ia-document'} />
+                                                    <IconUrl width={20} height={20} path={'ic-ia-document'}/>
                                                 </IconButton>,
                                                 <IconButton
                                                     className={"btn-action"}
@@ -2235,7 +2235,7 @@ function ConsultationInProgress() {
                                                         event.stopPropagation();
                                                         setDeleteAudio(true)
                                                     }}>
-                                                    <IconUrl width={20} height={20} path={'ic-trash'} />
+                                                    <IconUrl width={20} height={20} path={'ic-trash'}/>
                                                 </IconButton>
                                             ]
                                         }
@@ -2245,23 +2245,23 @@ function ConsultationInProgress() {
                                                 variant="filled"
                                                 color={"primary"}
                                                 size={"small"}>
-                                                <IconUrl path={'ic-play-audio'} />
+                                                <IconUrl path={'ic-play-audio'}/>
                                             </CustomIconButton>,
                                             pause: <CustomIconButton
                                                 className={"btn-action"}
                                                 variant="filled"
                                                 color={"primary"}
                                                 size={"small"}>
-                                                <IconUrl path={'ic-pause'} />
+                                                <IconUrl path={'ic-pause'}/>
                                             </CustomIconButton>,
                                             rewind: <IconButton className={"btn-action"}>
-                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'} />
+                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'}/>
                                             </IconButton>,
                                             forward: <IconButton className={"btn-action"}>
-                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'} />
+                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'}/>
                                             </IconButton>
                                         }}
-                                        style={{ marginTop: 10 }}
+                                        style={{marginTop: 10}}
                                         src={selectedAudio.uri.url}
                                     />
                                         :
@@ -2327,9 +2327,9 @@ function ConsultationInProgress() {
     );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ locale, query, ...context }) => {
+export const getServerSideProps: GetServerSideProps = async ({locale, query, ...context}) => {
     const session = await getServerSession(context.req, context.res, authOptions)
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 

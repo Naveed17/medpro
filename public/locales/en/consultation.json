@@ -570,6 +570,8 @@
     "total": "Total",
     "fees": "Fees",
     "remb": "Reimbursement",
+    "period": "Period",
+    "ap": "P.A",
     "patient_part": "Patient part",
     "documents": "Documents",
     "created-at": "Created at",

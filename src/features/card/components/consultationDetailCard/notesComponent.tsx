@@ -196,6 +196,7 @@ function NotesComponent({...props}) {
                                         uuid: string;
                                     }) => m.uuid === ev.target.value);
                                     setFieldValue('notes', model.content)
+                                    saveChanges("notes", model.content)
                                 }}
                                 displayEmpty
                                 sx={{

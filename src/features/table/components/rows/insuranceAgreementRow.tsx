@@ -83,8 +83,8 @@ function InsuranceAgreementRow({...props}) {
                                 insurance: row.insurance,
                                 label: row.label,
                                 name: !row.insurance.isConvention ? row.insurance.name : row.mutual,
-                                startDate: moment(row.startDate, 'DD-MM-YYYY'),
-                                endDate: moment(row.endDate, 'DD-MM-YYYY'),
+                                startDate: new Date(row.startDate),
+                                endDate: new Date(row.endDate),
                                 acts: []
                             }))
                             setSelectedRow(row)

@@ -39,12 +39,20 @@ function InsuranceFeesRow({...props}) {
             <TableCell align="center">
                 <Typography>{row.fees} {devise}</Typography>
             </TableCell>
+
             <TableCell align="center">
                 <Typography>{row.refund} {devise}</Typography>
             </TableCell>
             <TableCell align="center">
                 <Typography>{row.patient_part} {devise}</Typography>
             </TableCell>
+            <TableCell align="center">
+                <Typography>{row.period  ? row.period : "-"}J</Typography>
+            </TableCell>
+            <TableCell align="center">
+                <Typography>{row.pre_approval ? "O":"N"} </Typography>
+            </TableCell>
+
         </TableRowStyled>
     );
 }

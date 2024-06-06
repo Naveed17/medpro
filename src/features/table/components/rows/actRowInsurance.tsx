@@ -1,5 +1,15 @@
 import TableCell from "@mui/material/TableCell";
-import {Button, IconButton, MenuItem, Select, SelectChangeEvent, Skeleton, Typography, useTheme} from "@mui/material";
+import {
+    Button,
+    Checkbox,
+    IconButton,
+    MenuItem,
+    Select,
+    SelectChangeEvent,
+    Skeleton,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import InputBaseStyled from "../overrides/inputBaseStyled";
 import React, {useState} from "react";
@@ -16,6 +26,7 @@ function ActRowInsurance({...props}) {
     const [patient_part, setPatient_part] = useState(row.patient_part);
     const [refund, setRefund] = useState(row.refund);
     const [selected, setSelected] = useState(false);
+    const [period, setPeriod] = useState(row.period);
     const [apci, setApci] = useState<string[]>(typeof row.apci === 'string' ? row.apci.split(',') : row.apci.map((item: any) => item.uuid));
 
     const handleSelect = (event: SelectChangeEvent<typeof apci>) => {
@@ -39,6 +50,8 @@ function ActRowInsurance({...props}) {
         form.append("refund", row.refund ? row.refund : 0)
         form.append("patient_part", row.patient_part)
         form.append("apcis", row.apci)
+        form.append("pre_approval", row.pre_approval)
+        form.append("period", row.period)
         trigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${row.uuid}/${router.locale}`,
@@ -120,7 +133,6 @@ function ActRowInsurance({...props}) {
                             px: 1,
                             textAlign: 'left'
                         }
-
                     }}
                     value={apci}
                     onChange={handleSelect}
@@ -147,6 +159,26 @@ function ActRowInsurance({...props}) {
                 </Select> : <Typography>{getCode(apci).join(',')}</Typography>}
 
             </TableCell>}
+
+            <TableCell align={"center"}>
+                {selected ? <InputBaseStyled
+                    placeholder={"--"}
+                    value={period}
+                    onChange={(e) => {
+                        if (!isNaN(Number(e.target.value))) {
+                            setPeriod(e.target.value);
+                            row.period = Number(e.target.value);
+                            handleChange(row)
+                        }
+                    }}/> : <Typography>{row.period ? row.period : "-"} J </Typography>}
+            </TableCell>
+
+            <TableCell align={"center"}>
+                {selected ?  <Checkbox checked={row.pre_approval} onChange={(ev) => {
+                    row.pre_approval = ev.target.checked
+                    handleChange(row)
+                }}/>: <Typography>{row.pre_approval ? "O":"N"}</Typography>}
+            </TableCell>
             <TableCell align={"center"}>
                 {selected ? <>
                     <Button size={"small"}
