@@ -117,7 +117,7 @@ function TimeSchedule({...props}) {
 
     const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const selectedAppointmentType = appointmentTypes?.find((item) => item.uuid === type)
-
+    console.log("withoutDateTime", withoutDateTime);
     const [selectedReasons, setSelectedReasons] = useState<string[]>(motif);
     const [duration, setDuration] = useState(initDuration);
     const [durations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240]);
@@ -216,7 +216,6 @@ function TimeSchedule({...props}) {
 
     const onChangeDatepicker = async (dateTime: Date) => {
         setDate(dateTime);
-        console.log('onChangeDatepicker', dateTime)
         !timeSlotActive && onTimeSlotChange("00:00", dateTime);
     };
 
@@ -250,7 +249,6 @@ function TimeSchedule({...props}) {
     }
 
     const onTimeSlotChange = (newTime: string, day?: Date) => {
-        console.log("newTime", newTime, "day", day, "date", date);
         const newDateFormat = (day ?? date)?.toLocaleDateString('en-GB');
         const newDate = moment(`${newDateFormat} ${newTime}`, "DD/MM/YYYY HH:mm").toDate();
 
@@ -327,6 +325,7 @@ function TimeSchedule({...props}) {
             });
         })();
     }, [openAutoCompleteReasons]); // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -393,15 +392,15 @@ function TimeSchedule({...props}) {
                         }
                     </AnimatePresence>
 
-                    {((recurringDates.length === 0 || moreDate) && !withoutDateTime) &&
+                    {(recurringDates.length === 0 || moreDate) &&
                         <Grid container spacing={1} sx={{height: "auto"}}>
-                            {!withoutDateTime && <Grid item md={6} xs={12}>
+                            <Grid item md={6} xs={12}>
                                 <Typography variant="body1" color="text.primary" mt={1} mb={1}>
                                     {t("stepper-1.visit-type")}
                                 </Typography>
                                 <EventType select defaultType={0}/>
-                            </Grid>}
-                            <Grid item md={!withoutDateTime ? 6 : 12} xs={12}>
+                            </Grid>
+                            <Grid item md={6} xs={12}>
                                 <Typography variant="body1" color="text.primary" mt={1}
                                             mb={1}>
                                     {t("stepper-1.reason-consultation")}
@@ -497,7 +496,7 @@ function TimeSchedule({...props}) {
                                 </FormControl>
                             </Grid>
 
-                            <Grid item md={6} xs={12}>
+                            {!withoutDateTime && <Grid item md={6} xs={12}>
                                 <Typography color="grey.500" mt={1} variant="body1" mb={1}>
                                     {t("stepper-1.date")}
                                 </Typography>
@@ -668,7 +667,7 @@ function TimeSchedule({...props}) {
                                     }
                                     }
                                 />
-                            </Grid>
+                            </Grid>}
 
                             {!withoutDateTime && <Grid item md={6} xs={12}>
                                 <Typography variant="body1" color="text.primary" mt={1} mb={1}>
