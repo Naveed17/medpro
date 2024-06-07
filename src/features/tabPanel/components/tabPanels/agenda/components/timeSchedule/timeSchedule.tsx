@@ -9,7 +9,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, CalendarPickers, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -50,7 +50,6 @@ import {dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import RootStyled from "./overrides/rootStyle";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker";
@@ -117,7 +116,7 @@ function TimeSchedule({...props}) {
 
     const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const selectedAppointmentType = appointmentTypes?.find((item) => item.uuid === type)
-    console.log("withoutDateTime", withoutDateTime);
+
     const [selectedReasons, setSelectedReasons] = useState<string[]>(motif);
     const [duration, setDuration] = useState(initDuration);
     const [durations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240]);
@@ -142,14 +141,6 @@ function TimeSchedule({...props}) {
     const [loadingReqReasons, setLoadingReqReasons] = useState(false);
 
     const createdToRef = useRef<any>(null);
-
-    const {
-        data: httpConsultReasonResponse,
-        mutate: mutateReasonsData
-    } = useRequestQuery(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}?sort=true`
-    } : null, ReactQueryNoValidateConfig);
 
     const {trigger: triggerSlots} = useRequestQueryMutation("/agenda/slots");
     const {trigger: triggerAddReason} = useRequestQueryMutation("/agenda/motif/add");
@@ -289,10 +280,15 @@ function TimeSchedule({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
             data: params
         }, {
-            onSuccess: () => mutateReasonsData().then((result: any) => {
-                const reasonsUpdated = (result?.data as HttpResponse)?.data?.data as ConsultationReasonModel[];
-                onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
-                setLoadingReq(false);
+            onSuccess: () => triggerGetReasons({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}?sort=true`
+            }, {
+                onSuccess: (result) => {
+                    const reasonsUpdated = (result?.data as HttpResponse)?.data?.data as ConsultationReasonModel[];
+                    onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
+                    setLoadingReq(false);
+                }
             })
         });
     }

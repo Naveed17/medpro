@@ -1,12 +1,16 @@
 import {createReducer} from "@reduxjs/toolkit";
 import {
-    resetAppointment, resetSubmitAppointment,
-    setAppointmentDate, setAppointmentDuration,
+    resetAppointment,
+    resetSubmitAppointment,
+    setAppointmentDate,
+    setAppointmentDuration,
+    setAppointmentFinalize,
     setAppointmentInstruction,
     setAppointmentMotif,
-    setAppointmentPatient, setAppointmentRecurringDates, setAppointmentSubmit,
-    setAppointmentType,
-    setAppointmentFinalize
+    setAppointmentPatient,
+    setAppointmentRecurringDates,
+    setAppointmentSubmit,
+    setAppointmentType
 } from "./actions";
 
 export type AppointmentState = {
