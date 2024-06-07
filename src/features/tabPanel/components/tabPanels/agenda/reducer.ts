@@ -1,12 +1,16 @@
 import {createReducer} from "@reduxjs/toolkit";
 import {
-    resetAppointment, resetSubmitAppointment,
-    setAppointmentDate, setAppointmentDuration,
+    resetAppointment,
+    resetSubmitAppointment,
+    setAppointmentDate,
+    setAppointmentDuration,
+    setAppointmentFinalize,
     setAppointmentInstruction,
     setAppointmentMotif,
-    setAppointmentPatient, setAppointmentRecurringDates, setAppointmentSubmit,
-    setAppointmentType,
-    setAppointmentFinalize
+    setAppointmentPatient,
+    setAppointmentRecurringDates,
+    setAppointmentSubmit,
+    setAppointmentType
 } from "./actions";
 
 export type AppointmentState = {
@@ -28,7 +32,7 @@ export type AppointmentState = {
 const initialState: AppointmentState = {
     type: "",
     motif: [],
-    duration : "15",
+    duration: "15",
     date: null,
     recurringDates: [],
     patient: null,
@@ -41,7 +45,7 @@ const initialState: AppointmentState = {
         timeRappel: new Date("2022-01-01T18:00:00.000Z")
     },
     submitted: null,
-    finalize:true
+    finalize: false
 };
 
 export const appointmentReducer = createReducer(initialState, (builder) => {
@@ -60,7 +64,10 @@ export const appointmentReducer = createReducer(initialState, (builder) => {
     }).addCase(setAppointmentInstruction, (state, action) => {
         state.instruction = action.payload;
     }).addCase(setAppointmentSubmit, (state, action) => {
-        return {...initialState, submitted: {...action.payload, patient: state.patient, recurringDates: state.recurringDates}};
+        return {
+            ...initialState,
+            submitted: {...action.payload, patient: state.patient, recurringDates: state.recurringDates}
+        };
     }).addCase(resetAppointment, (state, action) => {
         return {...state, ...initialState};
     }).addCase(resetSubmitAppointment, (state, action) => {

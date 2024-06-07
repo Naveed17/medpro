@@ -47,7 +47,8 @@ function EventType({...props}) {
     };
 
     useEffect(() => {
-        if (appointmentTypes && defaultType !== null && type === undefined) {
+        console.log(appointmentTypes, defaultType, type)
+        if (appointmentTypes && defaultType !== null && [undefined, ''].includes(type)) {
             const type = appointmentTypes[defaultType];
             setTypeEvent(type.uuid);
             dispatch(setAppointmentType(type.uuid));

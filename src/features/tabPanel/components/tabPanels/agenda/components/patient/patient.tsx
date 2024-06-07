@@ -132,7 +132,7 @@ function Patient({...props}) {
     const patients = (httpPatientResponse as HttpResponse)?.data as PatientModel[] ?? [];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-    console.log('select', select)
+
     return (
         <div>
             {!addPatient ?

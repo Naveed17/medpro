@@ -1569,15 +1569,12 @@ function WaitingRoom() {
                                 <LoadingButton
                                     {...{loading}}
                                     variant="google"
-                                    sx={{bgcolor: theme.palette.grey[50]}}
-                                >
+                                    sx={{bgcolor: theme.palette.grey[50]}}>
                                     {t("steppers.final-step.btn-another-rdv-schedule")}
                                 </LoadingButton>
                                 <LoadingButton
                                     {...{loading}}
-                                    variant="contained"
-
-                                >
+                                    variant="contained">
                                     {t("steppers.final-step.btn-complete")}
                                 </LoadingButton>
                             </Stack>

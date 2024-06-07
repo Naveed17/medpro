@@ -9,7 +9,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, CalendarPickers, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -50,7 +50,6 @@ import {dashLayoutSelector} from "@features/base";
 import {ConditionalWrapper, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import RootStyled from "./overrides/rootStyle";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
 import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker";
@@ -143,14 +142,6 @@ function TimeSchedule({...props}) {
 
     const createdToRef = useRef<any>(null);
 
-    const {
-        data: httpConsultReasonResponse,
-        mutate: mutateReasonsData
-    } = useRequestQuery(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}?sort=true`
-    } : null, ReactQueryNoValidateConfig);
-
     const {trigger: triggerSlots} = useRequestQueryMutation("/agenda/slots");
     const {trigger: triggerAddReason} = useRequestQueryMutation("/agenda/motif/add");
     const {trigger: triggerGetReasons} = useRequestQueryMutation("/agenda/motif/get");
@@ -216,7 +207,6 @@ function TimeSchedule({...props}) {
 
     const onChangeDatepicker = async (dateTime: Date) => {
         setDate(dateTime);
-        console.log('onChangeDatepicker', dateTime)
         !timeSlotActive && onTimeSlotChange("00:00", dateTime);
     };
 
@@ -250,7 +240,6 @@ function TimeSchedule({...props}) {
     }
 
     const onTimeSlotChange = (newTime: string, day?: Date) => {
-        console.log("newTime", newTime, "day", day, "date", date);
         const newDateFormat = (day ?? date)?.toLocaleDateString('en-GB');
         const newDate = moment(`${newDateFormat} ${newTime}`, "DD/MM/YYYY HH:mm").toDate();
 
@@ -291,10 +280,15 @@ function TimeSchedule({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
             data: params
         }, {
-            onSuccess: () => mutateReasonsData().then((result: any) => {
-                const reasonsUpdated = (result?.data as HttpResponse)?.data?.data as ConsultationReasonModel[];
-                onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
-                setLoadingReq(false);
+            onSuccess: () => triggerGetReasons({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}?sort=true`
+            }, {
+                onSuccess: (result) => {
+                    const reasonsUpdated = (result?.data as HttpResponse)?.data?.data as ConsultationReasonModel[];
+                    onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
+                    setLoadingReq(false);
+                }
             })
         });
     }
@@ -327,6 +321,7 @@ function TimeSchedule({...props}) {
             });
         })();
     }, [openAutoCompleteReasons]); // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -393,15 +388,15 @@ function TimeSchedule({...props}) {
                         }
                     </AnimatePresence>
 
-                    {((recurringDates.length === 0 || moreDate) && !withoutDateTime) &&
+                    {(recurringDates.length === 0 || moreDate) &&
                         <Grid container spacing={1} sx={{height: "auto"}}>
-                            {!withoutDateTime && <Grid item md={6} xs={12}>
+                            <Grid item md={6} xs={12}>
                                 <Typography variant="body1" color="text.primary" mt={1} mb={1}>
                                     {t("stepper-1.visit-type")}
                                 </Typography>
                                 <EventType select defaultType={0}/>
-                            </Grid>}
-                            <Grid item md={!withoutDateTime ? 6 : 12} xs={12}>
+                            </Grid>
+                            <Grid item md={6} xs={12}>
                                 <Typography variant="body1" color="text.primary" mt={1}
                                             mb={1}>
                                     {t("stepper-1.reason-consultation")}
@@ -497,7 +492,7 @@ function TimeSchedule({...props}) {
                                 </FormControl>
                             </Grid>
 
-                            <Grid item md={6} xs={12}>
+                            {!withoutDateTime && <Grid item md={6} xs={12}>
                                 <Typography color="grey.500" mt={1} variant="body1" mb={1}>
                                     {t("stepper-1.date")}
                                 </Typography>
@@ -668,7 +663,7 @@ function TimeSchedule({...props}) {
                                     }
                                     }
                                 />
-                            </Grid>
+                            </Grid>}
 
                             {!withoutDateTime && <Grid item md={6} xs={12}>
                                 <Typography variant="body1" color="text.primary" mt={1} mb={1}>
