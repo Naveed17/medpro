@@ -143,7 +143,7 @@ function CustomStepper({ ...props }) {
                                             fontWeight: 400,
                                             fontSize: { md: 14, xs: 10 },
                                         }}>
-                                        <b>{i + 1}.</b> {t(`${v.title}`)}
+                                        {t(`${v.title}`)}
                                     </Box>
                                 }
                                 className={index > i ? "submitted" : index < i ? "pending" : ""}

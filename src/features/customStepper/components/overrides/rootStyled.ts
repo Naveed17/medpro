@@ -29,6 +29,7 @@ const RootStyled = styled("div")(({theme}) => ({
                 ".tab-icon":{
                     border: "2px solid " + theme.palette.primary.main,
                     boxShadow: "0px 0px 0px 2px rgba(6, 150, 214, 0.25)",
+                    backgroundColor: theme.palette.common.white,
                     '.dot':{
                         backgroundColor: theme.palette.primary.main,
             
