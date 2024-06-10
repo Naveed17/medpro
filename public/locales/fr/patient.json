@@ -182,6 +182,8 @@
       "end_date": "Date fin"
     },
     "add-patient": {
+      "title": "Ajouter un patient",
+      "subtitle": "Saisir les informations sur le patient",
       "personal-info": "Information personnelle",
       "additional-information": "Informations supplémentaires",
       "insurance-info": "Assurance / Convention",

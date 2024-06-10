@@ -7,11 +7,12 @@ const RootStyled = styled("div")(({theme}) => ({
         borderBottom: `1px solid ${theme.palette.divider}`,
         padding: theme.spacing(0, 0.5),
         "& .MuiTabs-flexContainer": {
-            justifyContent: "space-around",
+            justifyContent: "flex-start",
         },
         button: {
             borderBottom: `2px solid ${theme.palette.grey[200]}`,
-
+            flex:1,
+            minWidth:'fit-content',
             borderRadius: 0,
             transition: "all 0.3s ease-in-out",
             [theme.breakpoints.down("sm")]: {
@@ -20,19 +21,53 @@ const RootStyled = styled("div")(({theme}) => ({
                 fontSize: theme.typography.body2.fontSize,
             },
             "&.Mui-disabled": {
-                borderBottomWidth: 1,
+                borderBottomWidth: 2,
             },
             "&.Mui-selected": {
                 color: theme.palette.primary.main,
                 borderBottom: "2px solid transparent",
+                ".tab-icon":{
+                    border: "2px solid " + theme.palette.primary.main,
+                    boxShadow: "0px 0px 0px 2px rgba(6, 150, 214, 0.25)",
+                    '.dot':{
+                        backgroundColor: theme.palette.primary.main,
+            
+                    }
+
+                }
             },
         },
         "& .submitted": {
-            borderBottom: "2px solid " + theme.palette.text.primary,
+            borderBottom: "2px solid " + theme.palette.primary.main,
+            ".tab-icon":{
+                    border: "2px solid transparent",
+                    backgroundColor: theme.palette.primary.main,
+                    boxShadow: "none",
+                    '.dot':{
+                        backgroundColor: theme.palette.common.white,
+                        position:'relative',
+                        "&::before":{
+                            content:"''",
+                            position:'absolute',
+                            display: "inline-block",
+                            left: 4,
+                            top: 1.5,
+                            transform: "rotate(45deg)",
+                            height: 7,
+                            width: 4,
+                            borderBottom: `1.5px solid ${theme.palette.primary.main}`,
+                            borderRight: `1.5px solid${theme.palette.primary.main}`,
+                        }
+            
+                    }
+
+                }
         },
         "& .pending": {
-            borderBottom: "2px solid " + theme.palette.text.secondary,
-            opacity: 0.4,
+            borderBottom: "2px solid " + theme.palette.grey[500],
+        },
+        ".MuiTabs-indicator":{
+            backgroundColor: theme.palette.primary.light
         },
     },
     '& div[role="tabpanel"]': {
