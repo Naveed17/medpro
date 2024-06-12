@@ -76,9 +76,8 @@ const RootStyled = styled("div")(({theme}) => ({
     },
     "& div[role='tabpanel'] > div": {
         "& .inner-section": {
-            height: "calc(100vh - 160px)",
+            height: "calc(100vh - 260px)",
             overflow: "auto",
-            padding: theme.spacing(3),
             "& .inner-box": {
                 marginTop: 12,
             },
@@ -98,16 +97,19 @@ const RootStyled = styled("div")(({theme}) => ({
         },
         "& .action": {
             padding: theme.spacing(1, 3),
-            marginTop: theme.spacing(3),
-            position: "absolute",
-            width: "100%",
-            bottom: "1rem",
-            left: 0,
+            backgroundColor: theme.palette.background.paper,
+            borderTop: `1px solid ${theme.palette.divider}`,
+            position:'absolute',
+            bottom:-24,
+            width:'100%',
+            left:0
         },
         [theme.breakpoints.down("md")]: {
-            padding: 0,
-            paddingTop: theme.spacing(3),
+            paddingTop: theme.spacing(1.5),
         },
+        ".required":{
+            color: theme.palette.error.main
+        }
     },
 }));
 export default RootStyled;
