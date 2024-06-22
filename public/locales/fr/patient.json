@@ -184,6 +184,7 @@
     "add-patient": {
       "title": "Ajouter un patient",
       "subtitle": "Saisir les informations sur le patient",
+      "add_insurance": "Ajouter l'assurance",
       "personal-info": "Information personnelle",
       "additional-information": "Informations supplémentaires",
       "insurance-info": "Assurance / Convention",

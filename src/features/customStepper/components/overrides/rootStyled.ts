@@ -38,6 +38,7 @@ const RootStyled = styled("div")(({theme}) => ({
                 }
             },
         },
+        
         "& .submitted": {
             borderBottom: "2px solid " + theme.palette.primary.main,
             ".tab-icon":{
@@ -70,14 +71,24 @@ const RootStyled = styled("div")(({theme}) => ({
         ".MuiTabs-indicator":{
             backgroundColor: theme.palette.primary.light
         },
+        [theme.breakpoints.down("sm")]:{
+            display:'none'
+        }
     },
     '& div[role="tabpanel"]': {
         overflow: "auto",
+        ".insurance-box":{
+            border: `1px dashed ${theme.palette.divider}`,
+            padding: theme.spacing(2),
+            borderRadius: theme.shape.borderRadius,
+            
+        }
     },
     "& div[role='tabpanel'] > div": {
         "& .inner-section": {
-            height: "calc(100vh - 260px)",
+            height: "calc(100vh - 240px)",
             overflow: "auto",
+            padding: theme.spacing(.5),
             "& .inner-box": {
                 marginTop: 12,
             },
@@ -94,6 +105,9 @@ const RootStyled = styled("div")(({theme}) => ({
                     padding: theme.spacing(2),
                 },
             },
+             [theme.breakpoints.down("md")]: {
+            height: "calc(100vh - 160px)",
+        },
         },
         "& .action": {
             padding: theme.spacing(1, 3),
@@ -105,11 +119,51 @@ const RootStyled = styled("div")(({theme}) => ({
             left:0
         },
         [theme.breakpoints.down("md")]: {
-            paddingTop: theme.spacing(1.5),
+            paddingTop: theme.spacing(1),
         },
         ".required":{
             color: theme.palette.error.main
-        }
+        },
+        [theme.breakpoints.down("md")]: {
+            padding: theme.spacing(1),
+        },
+        ".Mui-selected": {
+                ".tab-icon":{
+                    border: "2px solid " + theme.palette.primary.main,
+                    boxShadow: "0px 0px 0px 2px rgba(6, 150, 214, 0.25)",
+                    backgroundColor: theme.palette.common.white,
+                    '.dot':{
+                        backgroundColor: theme.palette.primary.main,
+            
+                    }
+
+                }
+            },
+            ".submitted": {
+            ".tab-icon":{
+                    border: "2px solid transparent",
+                    backgroundColor: theme.palette.primary.main,
+                    boxShadow: "none",
+                    '.dot':{
+                        backgroundColor: theme.palette.common.white,
+                        position:'relative',
+                        "&::before":{
+                            content:"''",
+                            position:'absolute',
+                            display: "inline-block",
+                            left: 4,
+                            top: 1.5,
+                            transform: "rotate(45deg)",
+                            height: 7,
+                            width: 4,
+                            borderBottom: `1.5px solid ${theme.palette.primary.main}`,
+                            borderRight: `1.5px solid${theme.palette.primary.main}`,
+                        }
+            
+                    }
+
+                }
+        },
     },
 }));
 export default RootStyled;

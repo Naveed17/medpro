@@ -4,10 +4,7 @@ import { useFormik, Form, FormikProvider } from "formik";
 import {
     Typography,
     Box,
-    FormControl,
-    RadioGroup,
-    FormControlLabel,
-    Radio,
+
     TextField,
     Grid,
     Button,
@@ -43,6 +40,7 @@ import { useRouter } from "next/router";
 import AddIcon from "@mui/icons-material/Add";
 import { ToggleButtonStyled } from "@features/toolbar";
 import CalendarPickerIcon from "@themes/overrides/icons/calendarPickerIcon";
+import { agendaSelector } from "@features/calendar"
 
 const PhoneCountry: any = memo(({ ...props }) => {
     return <CountrySelect {...props} />;
@@ -73,7 +71,6 @@ function AddPatientStep1({ ...props }) {
         translationKey = "patient",
         translationPrefix = "config.add-patient",
     } = props;
-
     const { data: session } = useSession();
     const dispatch = useAppDispatch();
     const phoneInputRef = useRef(null);
@@ -84,6 +81,8 @@ function AddPatientStep1({ ...props }) {
     const { t: commonTranslation } = useTranslation("common");
     const { t, ready } = useTranslation(translationKey, { keyPrefix: translationPrefix });
     const { stepsData } = useAppSelector(addPatientSelector);
+    const { currentStepper } = useAppSelector(agendaSelector)
+
     const { last_fiche_id } = useAppSelector(dashLayoutSelector);
     const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
 
@@ -596,7 +595,7 @@ function AddPatientStep1({ ...props }) {
                             <fieldset key={index}>
                                 <Box m={1.2}>
                                     <Grid container spacing={{ xs: 1, md: 2 }}>
-                                        <Grid item xs={6} md={4}>
+                                        <Grid item xs={12} md={4}>
                                             <Box>
                                                 <Typography
                                                     color="grey.500"
@@ -638,93 +637,92 @@ function AddPatientStep1({ ...props }) {
                                                 />
                                             </Box>
                                         </Grid>
-                                        <Grid item xs={6} md={index === 0 ? 7 : 6}>
-                                            <Box>
-                                                <Typography
-                                                    color="grey.500"
-                                                    gutterBottom>
-                                                    {t("telephone")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
-                                                </Typography>
-                                                {phoneObject && <PhoneInput
-                                                    ref={phoneInputRef}
-                                                    international
-                                                    fullWidth
-                                                    withCountryCallingCode
-                                                    sx={{
-                                                        "& > .MuiInputBase-root": {
-                                                            pl: 0
-                                                        },
-                                                        "& .MuiOutlinedInput-root input": {
-                                                            paddingLeft: ".5rem"
-                                                        }
-                                                    }}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment
-                                                                position="start"
-                                                                sx={{
-                                                                    ".MuiAutocomplete-root": {
-                                                                        bgcolor: 'grey.50',
-                                                                        borderRight: 1,
-                                                                        borderColor: "grey.100",
-                                                                        borderTopLeftRadius: 8,
-                                                                        borderBottomLeftRadius: 8,
-                                                                        paddingLeft: ".5rem"
-                                                                    },
-                                                                    maxWidth: "4rem",
-                                                                    "& .MuiOutlinedInput-notchedOutline": {
-                                                                        outline: "none",
-                                                                        borderColor: "transparent"
-                                                                    },
-                                                                    "& fieldset": {
-                                                                        border: "none!important",
-                                                                        boxShadow: "none!important"
-                                                                    },
-                                                                }}>
-                                                                <PhoneCountry
-                                                                    showCountryFlagOnly={true}
-                                                                    initCountry={getFieldProps(`phones[${index}].dial`).value}
-                                                                    onSelect={(state: any) => {
-                                                                        setFieldValue(`phones[${index}].phone`, "");
-                                                                        setFieldValue(`phones[${index}].dial`, state);
-                                                                    }}
-                                                                />
-                                                            </InputAdornment>
-                                                        ),
-                                                    }}
-                                                    {...(values.phones[index].phone?.length > 0 &&
-                                                    {
-                                                        helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
-                                                            getFieldProps(`phones[${index}].phone`).value : ""}`
-                                                    })}
-                                                    error={Boolean(errors.phones && (errors.phones as any)[index])}
-                                                    country={phoneObject.dial?.code.toUpperCase() as any}
-                                                    value={getFieldProps(`phones[${index}].phone`) ?
-                                                        getFieldProps(`phones[${index}].phone`).value : ""}
-                                                    onChange={value => setFieldValue(`phones[${index}].phone`, value)}
-                                                    inputComponent={CustomInput as any}
-                                                />}
-                                            </Box>
-                                        </Grid>
-                                        <Grid item xs={12} md={index === 0 ? 1 : 2}>
+                                        <Grid item xs={12} md={8}>
                                             <Stack
                                                 direction={"row"}
-                                                alignItems={"center"}
+
                                                 spacing={1.2}
-                                                sx={{
-                                                    position: "relative",
-                                                    top: "1.4rem"
-                                                }}>
+                                            >
+                                                <Stack width={1}>
+                                                    <Typography
+                                                        color="grey.500"
+                                                        gutterBottom>
+                                                        {t("telephone")}{" "}
+                                                        <Typography component="span" color="error">
+                                                            *
+                                                        </Typography>
+                                                    </Typography>
+                                                    {phoneObject && <PhoneInput
+                                                        ref={phoneInputRef}
+                                                        international
+                                                        fullWidth
+                                                        withCountryCallingCode
+                                                        sx={{
+                                                            "& > .MuiInputBase-root": {
+                                                                pl: 0
+                                                            },
+                                                            "& .MuiOutlinedInput-root input": {
+                                                                paddingLeft: ".5rem"
+                                                            }
+                                                        }}
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment
+                                                                    position="start"
+                                                                    sx={{
+                                                                        ".MuiAutocomplete-root": {
+                                                                            bgcolor: 'grey.50',
+                                                                            borderRight: 1,
+                                                                            borderColor: "grey.100",
+                                                                            borderTopLeftRadius: 8,
+                                                                            borderBottomLeftRadius: 8,
+                                                                            paddingLeft: ".5rem"
+                                                                        },
+                                                                        maxWidth: "4rem",
+                                                                        "& .MuiOutlinedInput-notchedOutline": {
+                                                                            outline: "none",
+                                                                            borderColor: "transparent"
+                                                                        },
+                                                                        "& fieldset": {
+                                                                            border: "none!important",
+                                                                            boxShadow: "none!important"
+                                                                        },
+                                                                    }}>
+                                                                    <PhoneCountry
+                                                                        showCountryFlagOnly={true}
+                                                                        initCountry={getFieldProps(`phones[${index}].dial`).value}
+                                                                        onSelect={(state: any) => {
+                                                                            setFieldValue(`phones[${index}].phone`, "");
+                                                                            setFieldValue(`phones[${index}].dial`, state);
+                                                                        }}
+                                                                    />
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
+                                                        {...(values.phones[index].phone?.length > 0 &&
+                                                        {
+                                                            helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
+                                                                getFieldProps(`phones[${index}].phone`).value : ""}`
+                                                        })}
+                                                        error={Boolean(errors.phones && (errors.phones as any)[index])}
+                                                        country={phoneObject.dial?.code.toUpperCase() as any}
+                                                        value={getFieldProps(`phones[${index}].phone`) ?
+                                                            getFieldProps(`phones[${index}].phone`).value : ""}
+                                                        onChange={value => setFieldValue(`phones[${index}].phone`, value)}
+                                                        inputComponent={CustomInput as any}
+                                                    />}
+                                                </Stack>
                                                 <ToggleButtonStyled
                                                     id="toggle-button"
                                                     onClick={() => setFieldValue(`phones[${index}].isWhatsapp`, !values.phones[index].isWhatsapp)}
                                                     value="toggle"
                                                     className={"toggle-button"}
+                                                    style={{ marginTop: 24 }}
                                                     sx={{
-                                                        minWidth: 34,
+                                                        minWidth: 38,
+                                                        height: 38,
+                                                        width: 38,
+
                                                         ...(values.phones[index].isWhatsapp && { border: "none" }),
                                                         background: values.phones[index].isWhatsapp ? theme.palette.primary.main : theme.palette.grey['A500']
                                                     }}>
@@ -747,7 +745,9 @@ function AddPatientStep1({ ...props }) {
                                                     <Icon path="ic-moin" />
                                                 </IconButton>}
                                             </Stack>
+
                                         </Grid>
+
                                     </Grid>
                                     {values.phones[index].relation !== "himself" &&
                                         <Grid container spacing={{ xs: 1, md: 2 }} pt={2}>
@@ -818,21 +818,33 @@ function AddPatientStep1({ ...props }) {
                     <Stack
                         spacing={3}
                         direction="row"
-                        justifyContent="flex-end"
+                        justifyContent={{ xs: "flex-between", sm: 'flex-end' }}
+                        alignItems="center"
                         className="action">
-                        <Button
-                            onClick={() => onClose()}
-                            variant="text-black"
-                            color="primary">
-                            {t("cancel")}
-                        </Button>
-                        <Button
-                            disabled={error}
-                            variant="contained"
-                            type="submit"
-                            color="primary">
-                            {t("next")}
-                        </Button>
+                        <Stack direction='row' spacing={1} alignItems='center' display={{ xs: 'flex', sm: 'none' }}>
+                            {props?.stepperData.map((tab: any, idx: number) =>
+                                <Box className={currentStepper > idx ? "submitted" : currentStepper < idx ? "pending" : "Mui-selected"} key={idx}>
+                                    <Stack className="tab-icon" alignItems="center" justifyContent='center' width={36} height={36} borderRadius={'50%'} border={2} borderColor='transparent' bgcolor={theme.palette.grey[50]}>
+                                        <Box className="dot" width={12} height={12} borderRadius={"50%"} bgcolor={theme.palette.grey[500]} />
+                                    </Stack>
+                                </Box>
+                            )}
+                        </Stack>
+                        <Stack direction='row' spacing={1} alignItems='center'>
+                            <Button
+                                onClick={() => onClose()}
+                                variant="text-black"
+                                color="primary">
+                                {t("cancel")}
+                            </Button>
+                            <Button
+                                disabled={error}
+                                variant="contained"
+                                type="submit"
+                                color="primary">
+                                {t("next")}
+                            </Button>
+                        </Stack>
                     </Stack>
                 )}
             </Stack>

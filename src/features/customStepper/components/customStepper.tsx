@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, SyntheticEvent, useCallback } from "react";
+import React, { useState, ReactNode, SyntheticEvent, useCallback, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -79,7 +79,9 @@ function CustomStepper({ ...props }) {
         },
         [OnSubmitStepper, last, stepperData.length]
     );
-
+    useEffect(() => {
+        dispatch(setStepperIndex(index));
+    }, [index])
     return (
         <>
             <RootStyled
@@ -90,7 +92,11 @@ function CustomStepper({ ...props }) {
                 }}>
                 {prefixKey === "add-patient" &&
                     <CardHeader
-                        sx={{ borderBottom: 1, borderColor: 'divider' }}
+                        sx={{
+                            borderBottom: 1, borderColor: 'divider', ".MuiCardHeader-action": {
+                                alignSelf: { xs: 'center', sm: 'flex-start' }
+                            }
+                        }}
                         avatar={
                             <CustomIconButton sx={{ bgcolor: (theme: Theme) => theme.palette.primary.lighter, width: 52, height: 52 }}
                                 icon="ic-filled-profile-add"
@@ -103,7 +109,7 @@ function CustomStepper({ ...props }) {
                             </Typography>
 
                         }
-                        subheader={<Typography color={"grey.500"} variant="subtitle2">
+                        subheader={<Typography display={{ xs: 'none', sm: 'block ' }} color={"grey.500"} variant="subtitle2">
                             {t("add-patient.subtitle")}
                         </Typography>}
                         action={

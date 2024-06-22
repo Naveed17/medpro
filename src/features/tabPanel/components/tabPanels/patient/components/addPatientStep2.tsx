@@ -50,6 +50,9 @@ import { MyTextInput } from "@features/input";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AddIcon from "@mui/icons-material/Add";
 import AddInsurance from "@features/patientInsurance/components/addInsurance";
+import { agendaSelector } from "@features/calendar";
+import { CustomIconButton } from "@features/buttons";
+import { Label } from "@features/label";
 
 const GroupHeader = styled('div')(({ theme }) => ({
     position: 'sticky',
@@ -86,7 +89,7 @@ function AddPatientStep2({ ...props }) {
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
     const [addNew, setAddNew] = useState(false);
-
+    const { currentStepper } = useAppSelector(agendaSelector)
     const [patientInsurances, setPatientInsurances] = useState<any>([]);
     const [loadingReq, setLoadingReq] = useState(false);
 
@@ -348,7 +351,6 @@ function AddPatientStep2({ ...props }) {
             setFieldValue("region", professionalState.uuid);
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
-
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -646,7 +648,7 @@ function AddPatientStep2({ ...props }) {
                                             </FormControl>
                                         </Box>
                                     </Grid>
-                                    <Grid item xs={12} sm={12}>
+                                    <Grid item xs={12} sm={6}>
                                         <Box>
                                             <Typography color="grey.500" gutterBottom>
                                                 {t("add-patient.cin")}
@@ -804,59 +806,62 @@ function AddPatientStep2({ ...props }) {
 
                         </Stack>
                     </Collapse>
-                    <Divider sx={{ mt: 4 }} />
-                    <Stack my={2} sx={{ cursor: 'pointer' }} direction='row' alignItems={"center"} spacing={1}>
-                        <IconButton
-                            onClick={() => setAddNew(prev => !prev)}
-                            color={"success"}
-                            className="success-light"
-                            sx={{
-                                mr: 1.5,
-                                "& svg": {
-                                    width: 20,
-                                    height: 20,
-                                },
-                            }}>
-                            {addNew ? <CloseRoundedIcon /> : <AddIcon />}
-                        </IconButton>
-                        <Typography color="text.primary">
-                            {t("add-patient.insurance-info")}
-                        </Typography>
-                    </Stack>
 
-                    <Collapse in={addNew}>
-                        <Box className={"insurance-box"}>
-                            {addNew && <AddInsurance {...{ handleUpdatePatient }} />}
-                        </Box>
-                    </Collapse>
+                    <Stack spacing={2} mt={2}>
+                        {addNew || patientInsurances.length > 0 && <Typography variant="subtitle2" fontWeight={600}>{t("insurance")}</Typography>}
+                        {
+                            patientInsurances.map((pi: any) => (
+                                <Stack spacing={2} className={"insurance-card"}>
+                                    <Stack direction='row' alignItems='center' justifyContent="space-between">
+                                        <Stack direction='row' alignItems="center" spacing={1}>
+                                            <Typography variant="subtitle2" fontWeight={600}>{insurances.find(ins => ins.uuid === pi.insurance_uuid)?.name}</Typography>
+                                            <Label color="primary">
+                                                {console.log(pi)}
+                                            </Label>
+                                        </Stack>
+                                        <Stack direction='row' alignItems='center' spacing={1}>
+                                            <IconButton size="small">
+                                                <Icon width={16} height={16} color={theme.palette.text.secondary} path="ic-delete" />
+                                            </IconButton>
+                                            <CustomIconButton icon="ic-edit-pen" size="small" />
 
-                    {
-                        patientInsurances.map((pi: any) => (
-                            <Stack key={pi.uuid} direction={"row"} className={"insurance-box"}>
-                                <IconButton
-                                    onClick={() => setAddNew(prev => !prev)}
-                                    color={"error"}
-                                    className="error-light"
-                                    sx={{
-                                        mr: 1.5,
-                                        width: 30,
-                                        height: 30,
-                                        "& svg": {
-                                            width: 20,
-                                            height: 20,
-                                        },
-                                    }}>
-                                    <AddIcon />
-                                </IconButton>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img width={25} height={25} src={insurances.find(ins => ins.uuid === pi.insurance_uuid)?.logoUrl.url} alt={"insurance logo"} />
-                                <Stack>
-                                    <Typography>{insurances.find(ins => ins.uuid === pi.insurance_uuid)?.name}</Typography>
-                                    <Typography>{pi.insurance_number}</Typography>
+
+                                        </Stack>
+                                    </Stack>
+                                    <CardHeader
+                                        avatar={
+                                            /* eslint-disable-next-line @next/next/no-img-element */
+                                            <img width={25} height={25} src={insurances.find(ins => ins.uuid === pi.insurance_uuid)?.logoUrl.url} alt={"insurance logo"} />
+                                        }
+                                        title={
+                                            <Typography variant="subtitle1">
+                                                {pi.insurance_number}
+                                            </Typography>
+                                        }
+                                        subheader={
+                                            <Typography variant="subtitle2" color={'text.secondary'}></Typography>
+                                        }
+                                    />
                                 </Stack>
-                            </Stack>
-                        ))
-                    }
+                            ))
+                        }
+                        <Collapse in={addNew}>
+                            <Box className={"insurance-box"}>
+                                {addNew && <AddInsurance {...{ handleUpdatePatient }} />}
+                            </Box>
+                        </Collapse>
+                        <Button
+                            onClick={() => setAddNew(prev => !prev)}
+                            size="small"
+                            sx={{ alignSelf: 'flex-start' }}
+                            startIcon={
+                                <Icon color={theme.palette.primary.main} width={16} height={16} path={!addNew ? "ic-outline-add-square" : "ic-outline-minus-square"} />
+                            }
+                        >
+
+                            {("add-patient.add_insurance")}
+                        </Button>
+                    </Stack>
 
                     {/*<Collapse in={collapse.includes("insurance-info")}>
                         <Box>
@@ -1163,23 +1168,33 @@ function AddPatientStep2({ ...props }) {
                 <Stack
                     spacing={3}
                     direction="row"
-                    justifyContent="flex-end"
+                    justifyContent={{ xs: "flex-between", sm: 'flex-end' }}
                     className="action">
-                    <Button
-                        variant="text-black"
-                        color="primary"
-                        onClick={() => onNext(0)}>
-                        {t("add-patient.return")}
-                    </Button>
-
-                    <LoadingButton
-                        disabled={Object.keys(errors).length > 0}
-                        type="submit"
-                        color="primary"
-                        loading={loading}
-                        variant="contained">
-                        {t("add-patient.register")}
-                    </LoadingButton>
+                    <Stack direction='row' spacing={1} alignItems='center' display={{ xs: 'flex', sm: 'none' }}>
+                        {props?.stepperData.map((tab: any, idx: number) =>
+                            <Box className={currentStepper > idx ? "submitted" : currentStepper < idx ? "pending" : "Mui-selected"} key={idx}>
+                                <Stack className="tab-icon" alignItems="center" justifyContent='center' width={36} height={36} borderRadius={'50%'} border={2} borderColor='transparent' bgcolor={theme.palette.grey[50]}>
+                                    <Box className="dot" width={12} height={12} borderRadius={"50%"} bgcolor={theme.palette.grey[500]} />
+                                </Stack>
+                            </Box>
+                        )}
+                    </Stack>
+                    <Stack direction='row' spacing={1} alignItems='center'>
+                        <Button
+                            variant="text-black"
+                            color="primary"
+                            onClick={() => onNext(0)}>
+                            {t("add-patient.return")}
+                        </Button>
+                        <LoadingButton
+                            disabled={Object.keys(errors).length > 0}
+                            type="submit"
+                            color="primary"
+                            loading={loading}
+                            variant="contained">
+                            {t("add-patient.register")}
+                        </LoadingButton>
+                    </Stack>
                 </Stack>
             </Stack>
         </FormikProvider>
