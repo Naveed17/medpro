@@ -1,7 +1,7 @@
 import {capitalize} from "@mui/material";
 import {setTabIndex, SettingConfig} from "@features/leftActionBar";
 import {useAppDispatch} from "@lib/redux/hooks";
-
+console.log(SettingConfig)
 function useBreadcrumbs({...props}) {
     const {group, breadcrumbsData, tabIndex} = props;
     const dispatch = useAppDispatch();

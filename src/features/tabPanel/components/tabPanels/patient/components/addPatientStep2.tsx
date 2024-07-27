@@ -816,7 +816,7 @@ function AddPatientStep2({ ...props }) {
                                         <Stack direction='row' alignItems="center" spacing={1}>
                                             <Typography variant="subtitle2" fontWeight={600}>{insurances.find(ins => ins.uuid === pi.insurance_uuid)?.name}</Typography>
                                             <Label color="primary">
-                                                {console.log(pi)}
+
                                             </Label>
                                         </Stack>
                                         <Stack direction='row' alignItems='center' spacing={1}>
@@ -839,7 +839,7 @@ function AddPatientStep2({ ...props }) {
                                             </Typography>
                                         }
                                         subheader={
-                                            <Typography variant="subtitle2" color={'text.secondary'}></Typography>
+                                            <Typography variant="subtitle2" color={'text.secondary    '}></Typography>
                                         }
                                     />
                                 </Stack>
