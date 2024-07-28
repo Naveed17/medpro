@@ -811,13 +811,11 @@ function AddPatientStep2({ ...props }) {
                         {addNew || patientInsurances.length > 0 && <Typography variant="subtitle2" fontWeight={600}>{t("insurance")}</Typography>}
                         {
                             patientInsurances.map((pi: any) => (
-                                <Stack spacing={2} className={"insurance-card"}>
+                                <Stack spacing={2} className={"insurance-card"} key={pi.uuid}>
                                     <Stack direction='row' alignItems='center' justifyContent="space-between">
                                         <Stack direction='row' alignItems="center" spacing={1}>
                                             <Typography variant="subtitle2" fontWeight={600}>{insurances.find(ins => ins.uuid === pi.insurance_uuid)?.name}</Typography>
-                                            <Label color="primary">
 
-                                            </Label>
                                         </Stack>
                                         <Stack direction='row' alignItems='center' spacing={1}>
                                             <IconButton size="small">

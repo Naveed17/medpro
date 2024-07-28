@@ -295,7 +295,6 @@ function AddPatientStep1({ ...props }) {
                                     />
                                     <Avatar
                                         src={values.picture.url}
-                                        children={<></>}
                                         sx={{ width: 70, height: 70 }}>
 
                                     </Avatar>
