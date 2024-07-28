@@ -2,11 +2,15 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         ".next/**",
-        "!.next/cache/**"
+        "!.next/cache/**",
+        ".vercel/**",
+        ".vercel/output/**"
       ]
-    },
-    "lint": {}
+    }
   }
 }
